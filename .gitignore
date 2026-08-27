@@ -1,3 +1,4 @@
 .pixi/
 dist/
 output/
+native/*.o

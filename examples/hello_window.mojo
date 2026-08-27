@@ -1,7 +1,7 @@
 """Minimal visible Moxi demo."""
 
-from std.python import Python
 from moxi import Label, Rect, Runtime
+from moxi.macos import MacOSBackend
 
 
 def main() raises:
@@ -10,10 +10,5 @@ def main() raises:
     runtime.reconcile(view)
     var command = runtime.paint()
 
-    var tkinter = Python.import_module("tkinter")
-    var root = tkinter.Tk()
-    root.title("Moxi")
-    root.geometry("384x144")
-    var label = tkinter.Label(root, text=command.text)
-    label.pack(expand=True)
-    root.mainloop()
+    var backend = MacOSBackend()
+    backend.draw_label(command)

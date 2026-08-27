@@ -7,7 +7,9 @@ version = "0.1.0"
 
 [tasks]
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
-demo = "mojo run -I src examples/hello_window.mojo"
+native-object = "clang -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
+demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/hello_window.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
+demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
 test = "mojo run -I src tests/smoke.mojo"
 
 [dependencies]
