@@ -1,0 +1,12 @@
+[workspace]
+authors = ["David Mashburn <david.n.mashburn@gmail.com>"]
+channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
+name = "moxi"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+build = "mojo precompile src/moxi -o dist/moxi.mojoc"
+
+[dependencies]
+mojo = ">=1.1.0.dev2026082605,<2"
