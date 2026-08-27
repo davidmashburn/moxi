@@ -1,30 +1,30 @@
 # Moxil: AI-Native Reactive UI Specification for Mojo
 ## 1. Executive Summary & Design Paradigm
-The Moxil framework is a high-performance architectural proposal designed to bring the reactive, type-safe, and declarative user interface patterns popularized by [Xilem](https://github.com/linebender/xilem) into the Mojo systems language ecosystem. Traditional UI frameworks rely on a heavy heap-allocated Document Object Model (DOM) or retained object trees that incur significant CPU overhead, layout thrashing, and garbage collection pauses.
-Moxil leverages Mojo 1.0's zero-cost structural abstractions, explicit ownership tracking, and direct compilation via Multi-Level Intermediate Representation (MLIR) to execute a state-driven UI framework with absolute zero dynamic heap allocation during steady-state rendering cycles.
+The Moxil framework is a proposed native architecture for bringing reactive, type-safe, and declarative user-interface patterns popularized by [Xilem](https://github.com/linebender/xilem) into the Mojo ecosystem. It is intended to reduce unnecessary tree churn and make state, ownership, and platform boundaries explicit; it does not assume that every application or backend can avoid allocation.
+Moxil uses Mojo’s value types, ownership model, and compiler toolchain where they improve predictability. Layout, rendering, and platform performance remain implementation and backend concerns that must be validated with representative benchmarks.
 ## Structural Framework Comparison
 
 | Architecture Metric | Traditional Retained Mode (Qt / Electron) | Rust Reactive Architecture (Xilem + Masonry) | Mojo Moxil Architecture |
 |---|---|---|---|
-| Declarative Layer | Heavy DOM / Virtual DOM nodes allocated on heap | Lightweight View structures utilizing static type diffing | Stack-allocated, zero-overhead Mojo struct configurations |
+| Declarative Layer | Persistent object or DOM hierarchy | Lightweight View structures utilizing static type diffing | Lightweight Mojo value descriptions with explicit ownership |
 | State Propagation | Dynamic event listeners and object reference graphs | Centralized state using explicit generic adapters and lenses | Metaprogrammed lenses evaluated at compile-time via Mojo parameters |
-| Layout Computation | Single-threaded recursive tree traversal on the CPU | Threaded processing using custom crates (Masonry / Parley) | Native auto-parallelization across hardware vector pipelines via MLIR |
-| Backend Rendering | CPU blitting or fixed graphics command buffers | GPU compute-centric vector execution paths (Vello + wgpu) | Direct hardware execution generation using integrated MLIR targets |
+| Layout Computation | Centralized mutable tree traversal | Renderer and layout subsystems coordinated by the framework | Backend-neutral layout with optional measured parallelism |
+| Backend Rendering | CPU rasterization or platform widgets | Renderer-specific command and GPU backends | Pluggable CPU, native-widget, and GPU command backends |
 
 ## 2. Dual-Tree Reactive Model
 Moxil strictly adapts Xilem's dual-tree layout approach. The engine maintains a clear separation between the programmer's descriptive shell and the underlying physical rendering handles.
 ## The Lightweight View Tree (The Declarative Shell)
 The programmer interacts solely with the View Tree. Every time application state shifts, a tree of lightweight View components is regenerated.
 
-* Views are implemented as Mojo values obeying strict linear types.
-* They carry no pointers to parental structures, no hidden tracking arrays, and zero lifetime overhead.
-* The structure evaluates instantly on the stack frame of the frame cycle event loop, entirely sidestepping runtime memory allocations.
+* Views are lightweight Mojo values subject to the language’s ownership and lifetime rules.
+* They should carry no platform handles or backing pixel caches, and should avoid hidden parent references.
+* Allocation and placement are implementation details; the design target is cheap reconstruction and reuse rather than an unconditional stack-only guarantee.
 
 ## The Retained Widget Tree (The Physical Nodes)
 The backend rendering engine relies on a persistent, stateful hierarchy of nodes. These nodes track spatial layouts, window handles, text buffers, and platform-specific accessibility bindings.
 
 * When a state update forces a new View Tree execution, the lightweight objects are cross-referenced directly against their associated persistent retained node.
-* Instead of performing an expensive global diff over a unified tree structure, each View executes a localized rebuild() call. This function computes exact scalar mutations and applies them straight to the retained nodes.
+* Instead of requiring a global diff over a unified tree structure, each View may execute a localized `rebuild()` call that computes mutations for its retained node.
 
 [ App State Mutation ] ──> Regenerates View Tree (Stack-Allocated Value Types)
                                    │
@@ -35,69 +35,70 @@ The backend rendering engine relies on a persistent, stateful hierarchy of nodes
                        [ Retained Widget Tree ] ──> Mutates persistent fields directly
                                    │
                                    ▼
-                       [ SIMD Layout Pipeline ] ──> Flushes geometry vectors to GPU
+                       [ Layout + Paint Backend ] ──> Records CPU/GPU commands
 
 ## 3. Metaprogramming & Lensing Architecture
 A significant bottleneck within Rust’s Xilem framework is the complexity of state composition. Slicing a localized, mutable subsection of application data to supply to a modular child component often produces massive, complex generic type bounds (impl View<State, Action>) that increase code fragility and compiler stress.
 Moxil resolves this trait footprint by leveraging Mojo 1.0's native compile-time parameter expressions. Slicing behaviors (traditionally called Lenses or Adapters) are passed into views directly as compile-time function parameters using bracket syntax [].
 ## Compile-Time Lens Mechanics
 
-   1. Zero Runtime Dispatch: The paths used to mutate and query application state states are checked and baked entirely at compilation.
-   2. Type Smuggling Elimination: Child views do not need to capture the exact parent signature as generic wrappers. By employing Mojo compile-time parameters, the evaluation logic is injected cleanly into the local invocation step, ensuring component separation remains unburdened by cascading generic declarations.
-   3. Strict Boundary Encapsulation: State manipulation operations are isolated to targeted functional parameters, ensuring views do not produce unintended side effects outside their designated application scopes.
+   1. Specialized Access: Where supported by the toolchain, paths used to query and mutate state can be specialized at compile time rather than resolved through reflection.
+   2. Small Child Interfaces: Child views receive only the state slice and actions they need, avoiding unnecessary coupling to the parent state shape.
+   3. Strict Boundary Encapsulation: State manipulation is isolated to targeted access functions, while ownership and synchronization rules remain in force.
 
 ## 4. Pure Mojo Screen and Graphic Interaction Layers
-Rather than serializing layout dimensions, computing textual wraps via standard single-threaded routines, and pushing individual vertex draws across an expensive CPU-GPU bridge, Moxil abstracts the layout space directly onto Multi-Level Intermediate Representation (MLIR) mathematical grids. To achieve absolute independence from high-level interpretation layers (such as Python), Moxil interacts with the system graphics stack using three native systems-level layers provided directly by the Mojo compiler ecosystem.
+Moxil separates layout and paint-command generation from the platform renderer. A backend may target a CPU rasterizer, native widgets, or a GPU command encoder. The core framework does not require a particular graphics API or an interpreted runtime.
 ## Direct C-ABI Windowing Boundaries (abi("C"))
-Mojo 1.0 introduces a zero-cost Foreign Function Interface (FFI) layer that links directly to platform-native windowing protocols and display servers using the standard platform C-ABI.
+The windowing layer uses narrow C-ABI or platform-native adapters where appropriate. Each adapter owns handle lifetimes, callback registration, error translation, and thread-affinity rules.
 
-* Display Server Protocols: Moxil maps structural surface handlers straight to low-level window managers—such as Wayland (libwayland-client.so), macOS metal-cpp, or native X11 connections—bypassing heavy generic UI wrappers.
-* Event Callbacks via Thin Functions: Intercepting system keyboard and pointer movements is handled via native Mojo functions compiled with the thin effect, matching the precise memory signature of native C function pointers to avoid context switching costs.
+* Display server protocols: platform backends may target Wayland, X11, macOS, Windows, or another host API without exposing those handles to view code.
+* Event callbacks: callback signatures and threading behavior are defined by the adapter and translated into Moxi events.
 
 ## Manual Framebuffer Control via Unsafe Pointers
-For zero-copy pixel manipulation, Moxil directly structures screen regions using Mojo's native UnsafePointer memory control systems.
+For explicit pixel-buffer ownership, Moxil may use Mojo’s unsafe pointer facilities inside small, audited components.
 
-* Raw Allocation Control: Frame and texture coordinate maps are provisioned directly out of host or device memory using UnsafePointer[T].alloc(), leaving execution lifetimes completely unburdened by automated garbage collection loops.
-* Contiguous Memory Slices: Pixel arrays are packed sequentially as raw linear data, allowing single-instruction multiple-data (SIMD) hardware tracks to rapidly mutate colors or alpha masks across 512-bit registers in a single CPU/GPU sweep.
+* Raw allocation control: frame and texture buffers use explicit allocation, reuse, and teardown contracts.
+* Contiguous slices: packed arrays can improve locality and enable SIMD where alignment and measured workload justify it; they are not assumed to be device memory or universally zero-copy.
 
-## Native Apple Silicon & Metal Target Architecture
-Mojo natively targets Apple Silicon GPUs without relying on external intermediate translation software or virtualization environments.
+## Optional Native Apple Silicon and Metal Backend
+An Apple backend may use Metal through the platform’s supported bindings. It is an optional backend, not a requirement of the core architecture.
 
-* AIR Bitcode Compilation Passes: The Mojo compiler lowers custom GPU kernel closures first to LLVM IR, then converts them directly into Metal-compatible Apple Intermediate Representation (AIR) bitcode structures.
-* The Metal-cpp Execution Context: At runtime, Mojo interacts with the system using a specialized MetalDeviceContext structured within the core gpu module. This layer invokes the native Metal-cpp API to compile the pre-generated AIR bitcode sequences into executable .metallib machine binaries directly on the host machine.
-* Command Queues and Hardware Boundaries: The compiled .metallib routines are executed natively by sending command tokens to a hardware-synchronized Metal CommandQueue. This architecture maps symmetrically across M1, M2, M3, M4, and M5 systems-on-chip running macOS 15+ and Xcode 16+.
+* The backend uses the toolchain and Metal API path actually supported by the selected Mojo release.
+* Device, command-queue, shader, and resource lifetimes are owned by the backend and synchronized before reuse.
+* Capability differences across Apple and OS versions are detected rather than assumed.
 
 ## Direct MLIR Code Generation & Driver Targets
-Because Mojo compiles natively through the LLVM and MLIR toolchain, the UI layout calculations, recursive node traversals, and raw GPU vector graphics processing loops compile under a single unified hardware target binary. This enables unique system optimizations:
+Mojo’s compiler toolchain can provide useful optimization opportunities, but the UI does not assume that layout, rendering, and platform code share one hardware target or one compilation path:
 
 * SIMD Layout Traversal: Geometric components—such as element boxes, structural padding vectors, margins, and rendering coordinates—are grouped sequentially into contiguous hardware registers using Mojo's native SIMD primitives.
-* Auto-Tuning Execution Layers: Layout tree traversal algorithms pass through the compiler's native autotuner. The compiler profiles the host hardware execution paths and structures the layout matrix evaluation maps dynamically based on target vector capacities.
-* Zero-Copy Tensor Integration: For high-density data visualizations or active AI model states, memory addresses containing tensor structures map directly into the hardware rendering buffers, allowing real-time graphical tracking without data marshalling overhead.
+* Optional tuning: layout data structures and SIMD paths are selected from benchmark evidence for the target hardware.
+* Explicit tensor integration: data visualizations may share buffers only when format, lifetime, synchronization, and ownership contracts permit it; otherwise an explicit conversion is required.
 
 ## 5. Vector Path Text Rendering Strategy
-To preserve the zero-copy and allocation-free guarantees of the Moxil framework during textual updates, the engine avoids traditional CPU-bound font bitmap generation and texture streaming patterns. Instead, text layout and glyph generation are executed entirely via GPU compute shaders.
+Moxil keeps text shaping and rendering as separate concerns. Vector glyph paths are a useful representation, but the framework may use cached glyph images, CPU rasterization, a platform text stack, or GPU path rendering depending on backend capability and workload.
 ## Glyphs as Mathematical Vector Paths
-Rather than rendering characters into fixed pixel grids on the host processor and loading large texture atlases into memory, Moxil processes type fonts directly as geometric equations (consisting of explicit coordinate lines, quadratic Bézier curves, and cubic Bézier curves). This native vector representation closely tracks the architecture of linebender’s [Vello](https://github.com/linebender/vello) compute-centric rendering engine used within the Rust Xilem toolkit.
+Moxil can process TrueType or OpenType outlines as geometric paths consisting of lines and quadratic or cubic Bézier curves. This representation supports scalable rendering and follows the general compute-centric direction of projects such as [Vello](https://github.com/linebender/vello), while allowing bitmap or platform-backed fallbacks.
 ## Compute-Shader Based Rasterization Pipeline
-When a text element changes or scales, its underlying curve paths are evaluated in parallel on the GPU:
+When a backend chooses GPU path rendering, changed or scaled glyph paths may be evaluated in parallel:
 
    1. Coarse Rasterization Pass: Compute pipelines bucket individual glyph boundaries into uniform screen tiles (such as 16x16 pixel blocks) within local hardware threads.
    2. Fine Rasterization & Analytic Coverage: Rather than executing multi-sampled anti-aliasing (MSAA), specialized GPU threads calculate the exact mathematical intersection area of the Bézier curves over each pixel. This supports fluid, infinite scaling and continuous font weight animations without pixelation or resolution rebuilding overhead.
-   3. Integration with Apple Silicon AIR passes: On Apple Silicon architectures, these vector loops map straight into custom Apple Intermediate Representation (AIR) kernels. The compiler evaluates path intersections directly inside the graphics chip's local tile memory registers before outputting final alpha masks to the display framebuffer, eliminating redundant global device memory roundtrips.
+   3. Backend integration: the resulting coverage masks are submitted through the selected graphics API. The implementation must define precision, caching, synchronization, and fallback behavior rather than assuming a particular shader intermediate representation.
 
 ## 6. Multi-Threaded Synchronization Model
-To maintain interactive fluidness during multi-threaded background mutations (such as processing telemetry inputs, networking streams, or background AI inference tasks), Moxil splits execution pathways cleanly across thread boundaries. Mojo’s underlying execution architecture is optimized to prevent traditional data races while managing resource scaling at bare-metal speeds.
+To remain responsive during background work such as telemetry, networking, or inference, Moxil separates UI ownership from worker tasks. Mojo’s ownership model helps express safe boundaries, but synchronization and scheduling remain explicit framework responsibilities.
 ## Workqueue Thread Pool Abstraction
-Mojo bypasses traditional OS task-scheduling abstractions by utilizing an optimized, lightweight workqueue-based thread pool.
+Moxil may provide a lightweight work queue, or integrate with a platform scheduler, for work that does not require UI-thread ownership.
 
-* 1-to-1 Hardware Mapping: The scheduler builds a strict 1-to-1 mapping directly onto the physical hardware threads of the host machine's CPU.
-* Non-Blocking Invariants: The internal task scheduler assumes individual work packets executed within this pool are non-blocking, allowing execution branches to run to absolute completion without causing pool starvation or dynamic context-switching penalties.
+* Scheduling: worker counts and priorities are configurable rather than tied one-to-one to hardware threads.
+* Non-blocking work: tasks should declare blocking behavior, cancellation, and resource requirements so the scheduler can avoid starvation.
 
 ## Low-Level Synchronization Primitives
 Moxil manages shared application resources across parallel tasks by matching architectural workloads to Mojo’s native synchronization primitives:
 
-* Lock-Free Atomic Actions: Simple state mutations—such as numeric frame counters, sizing flags, or tracking indices—leverage thread-safe CPU atomic instructions through Mojo’s native Atomic configurations. These execute without incurring traditional locking stalls or core parking overhead.
-* Exclusive Mutex Enclosures: Complex structural alterations that cross multiple layout metrics are guarded behind Mojo's explicit Mutex abstractions. To allow maximum boundary visibility and ensure predictability, locks are handled via explicit acquire and release operations rather than hidden scope-scoped wrappers, ensuring the exact critical region boundaries are exposed directly in the source architecture.
+* Atomic actions: simple counters, flags, and queue indices may use atomics with documented memory ordering.
+* Structural updates: changes spanning multiple layout or widget fields are serialized through an explicit mutex, message queue, or UI-thread boundary.
+* No data-race promise is inferred from the language alone; each shared resource documents its synchronization policy.
 
 ## 7. Accessibility Layout Representation
 To ensure native compatibility with screen readers and assistive technologies without sacrificing steady-state performance, Moxil mirrors its visual UI layout with a low-overhead semantic representation. Following modern cross-platform design guidelines, this subsystem exposes active UI configurations as a structured tree of accessible components.
@@ -843,6 +844,4 @@ Layout and rendering code may use cache-aligned scratchpads and reusable interle
 ### Additional reference contracts
 
 Reference implementations may include small probes for these adapters—gamepad filtering, audio mixing, network decoding, job scheduling, affinity selection, IPC sequencing, keyboard mapping, scroll accumulation, shader caching, display transforms, clipping, blending, sampling, stencil and occlusion queries, register scratchpads, vertex/uniform descriptors, resource bindings, pipeline state, and blend state. These probes illustrate data flow only; they are not production FFI bindings.
-
-
 
