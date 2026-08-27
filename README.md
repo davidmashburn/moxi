@@ -14,7 +14,12 @@ This repository uses Pixi to pin the Mojo toolchain:
 ```sh
 pixi run mojo --version
 pixi run build
+pixi run test
 pixi run demo
 ```
 
 The generated `.mojoc` is a local build artifact and is not committed.
+
+The core is split into geometry, declarative views, retained runtime state, and
+backend-neutral paint commands under `src/moxi/`. The demo currently uses
+Tkinter only as a small visible window adapter; it is not part of the core API.

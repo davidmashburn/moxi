@@ -8,6 +8,7 @@ version = "0.1.0"
 [tasks]
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
 demo = "mojo run -I src examples/hello_window.mojo"
+test = "mojo run -I src tests/smoke.mojo"
 
 [dependencies]
 mojo = ">=1.1.0.dev2026082605,<2"
