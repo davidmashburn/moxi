@@ -800,6 +800,49 @@ screen_buffer.deallocate()
 
 </canvasSection>
 
+## 23. Additional Subsystem Proposals
+
+The following capabilities extend the core UI model without changing the original section numbering or contracts. Each is optional and should be implemented behind a platform-neutral interface.
+
+### Gamepad and joystick input
+
+Poll analog axes through a native adapter, apply configurable dead-zone and normalization filters, and deliver timestamped input events to the application event queue.
+
+### Audio feedback
+
+Provide a bounded multi-channel mixing interface for UI feedback sounds. Device ownership, sample format, buffering, and underrun behavior belong to the audio backend.
+
+### Network-fed state
+
+Accept non-blocking network input through a bounded receive buffer. Decode complete, validated messages before applying them to application state; support partial packets, backpressure, cancellation, and malformed input.
+
+### Scheduling and CPU affinity
+
+An optional scheduler may prioritize frame, layout, asset, and diagnostic work. Work stealing and CPU affinity are tuning strategies that must not be required for correctness and must respect explicit ownership boundaries.
+
+### Cross-process window events
+
+Multiple windows or processes may exchange versioned input and focus events through a platform IPC adapter. Sequence numbers, stale-event handling, synchronization, and shutdown are part of the protocol.
+
+### Keyboard and scroll input
+
+Translate platform scancodes through a layout-aware adapter, preserving modifier and dead-key state. Accumulate fractional scroll deltas with configurable damping while retaining the original event timestamps.
+
+### Display and rendering resources
+
+Backends may cache compiled shader or pipeline artifacts, apply logical-to-physical display transforms, and use scissor, stencil, occlusion, texture sampling, alpha blending, vertex layout, uniform-buffer, and resource-slot descriptors. Every descriptor requires a capability check and a software or lower-feature fallback where practical.
+
+### Pipeline state
+
+Pipeline state and blend equations should be represented independently of any one graphics API. Cache keys include backend, device, shader, feature, and compiler identity; incompatible or unavailable cached artifacts fall back safely.
+
+### Register and buffer management
+
+Layout and rendering code may use cache-aligned scratchpads and reusable interleaved buffers. Alignment, bounds, lifetime, synchronization, and cleanup are explicit requirements; SIMD is an optimization rather than a correctness dependency.
+
+### Additional reference contracts
+
+Reference implementations may include small probes for these adapters—gamepad filtering, audio mixing, network decoding, job scheduling, affinity selection, IPC sequencing, keyboard mapping, scroll accumulation, shader caching, display transforms, clipping, blending, sampling, stencil and occlusion queries, register scratchpads, vertex/uniform descriptors, resource bindings, pipeline state, and blend state. These probes illustrate data flow only; they are not production FFI bindings.
 
 
 
