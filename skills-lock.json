@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "mojoshelf-consume": {
+      "source": "mojoshelf/mojoshelf",
+      "sourceType": "github",
+      "skillPath": "skills/mojoshelf-consume/SKILL.md",
+      "computedHash": "56f2cfdfaf6e2961204992d1f38da0edf10a1f6434051197a849d7ad2a2e6e76"
+    },
+    "mojoshelf-publish": {
+      "source": "mojoshelf/mojoshelf",
+      "sourceType": "github",
+      "skillPath": "skills/mojoshelf-publish/SKILL.md",
+      "computedHash": "324ee1dc47dba5ce7d098dd73dc0db30d74b7903565dea6d6fad993e76ca6392"
+    }
+  }
+}
