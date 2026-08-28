@@ -15,13 +15,29 @@
 @end
 
 @implementation MoxiCanvasView
+- (BOOL)isFlipped {
+    return YES;
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
-    [[NSColor windowBackgroundColor] setFill];
-    NSRectFill(dirtyRect);
+    [[NSColor colorWithCalibratedRed:0.08
+                               green:0.10
+                                blue:0.16
+                               alpha:1.0] setFill];
+    NSRectFill(self.bounds);
+
+    NSRect panelFrame = NSInsetRect(self.bounds, 20.0, 20.0);
+    [[NSColor colorWithCalibratedRed:0.16
+                               green:0.20
+                                blue:0.30
+                               alpha:1.0] setFill];
+    [[NSBezierPath bezierPathWithRoundedRect:panelFrame
+                                      xRadius:14.0
+                                      yRadius:14.0] fill];
 
     NSDictionary *attributes = @{
-        NSFontAttributeName: [NSFont systemFontOfSize:24.0],
-        NSForegroundColorAttributeName: [NSColor labelColor],
+        NSFontAttributeName: [NSFont systemFontOfSize:24.0 weight:NSFontWeightSemibold],
+        NSForegroundColorAttributeName: [NSColor whiteColor],
     };
     [self.labelText drawInRect:self.labelFrame withAttributes:attributes];
 }
@@ -79,8 +95,7 @@ void moxi_window_set_label(
             : [NSString stringWithUTF8String:text];
         moxi_canvas.labelText = label;
 
-        CGFloat appKitY = moxi_canvas.bounds.size.height - y - height;
-        moxi_canvas.labelFrame = NSMakeRect(x, appKitY, width, height);
+        moxi_canvas.labelFrame = NSMakeRect(x, y, width, height);
         [moxi_canvas setNeedsDisplay:YES];
     }
 }
