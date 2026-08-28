@@ -1,10 +1,13 @@
-# Moxil: AI-Native Reactive UI Specification for Mojo
+# Moxi: AI-Native Reactive UI Specification for Mojo
 ## 1. Executive Summary & Design Paradigm
-The Moxil framework is a proposed native architecture for bringing reactive, type-safe, and declarative user-interface patterns popularized by [Xilem](https://github.com/linebender/xilem) into the Mojo ecosystem. It is intended to reduce unnecessary tree churn and make state, ownership, and platform boundaries explicit; it does not assume that every application or backend can avoid allocation.
-Moxil uses Mojo’s value types, ownership model, and compiler toolchain where they improve predictability. Layout, rendering, and platform performance remain implementation and backend concerns that must be validated with representative benchmarks.
+Moxi is a proposed native architecture for bringing reactive, type-safe, and declarative user-interface patterns popularized by [Xilem](https://github.com/linebender/xilem) into the Mojo ecosystem. It is intended to reduce unnecessary tree churn and make state, ownership, and platform boundaries explicit; it does not assume that every application or backend can avoid allocation.
+Moxi uses Mojo’s value types, ownership model, and compiler toolchain where they improve predictability. Layout, rendering, and platform performance remain implementation and backend concerns that must be validated with representative benchmarks.
+
+This document began under the working name “Moxil”; the project and package
+name are now Moxi.
 ## Structural Framework Comparison
 
-| Architecture Metric | Traditional Retained Mode (Qt / Electron) | Rust Reactive Architecture (Xilem + Masonry) | Mojo Moxil Architecture |
+| Architecture Metric | Traditional Retained Mode (Qt / Electron) | Rust Reactive Architecture (Xilem + Masonry) | Mojo Moxi Architecture |
 |---|---|---|---|
 | Declarative Layer | Persistent object or DOM hierarchy | Lightweight View structures utilizing static type diffing | Lightweight Mojo value descriptions with explicit ownership |
 | State Propagation | Dynamic event listeners and object reference graphs | Centralized state using explicit generic adapters and lenses | Metaprogrammed lenses evaluated at compile-time via Mojo parameters |
