@@ -4,7 +4,7 @@ channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
 name = "moxi"
 platforms = ["osx-arm64"]
 preview = ["pixi-build"]
-version = "0.2.0"
+version = "0.3.0"
 
 [tasks]
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
@@ -13,14 +13,16 @@ demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker 
 demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
 counter-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/counter.mojo -o dist/moxi-counter-demo", depends-on = ["native-object"] }
 counter-demo = { cmd = "./dist/moxi-counter-demo", depends-on = ["counter-demo-build"] }
-test = "mojo run -I src tests/smoke.mojo && mojo run -I src tests/counter.mojo"
+component-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/hello_component.mojo -o dist/moxi-component-demo", depends-on = ["native-object"] }
+component-demo = { cmd = "./dist/moxi-component-demo", depends-on = ["component-demo-build"] }
+test = "mojo run -I src tests/smoke.mojo && mojo run -I src tests/layout.mojo && mojo run -I src tests/component.mojo && mojo run -I src tests/counter.mojo"
 
 [dependencies]
 mojo = ">=1.1.0.dev2026082605,<2"
 
 [package]
 name = "moxi"
-version = "0.2.0"
+version = "0.3.0"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "0.*" }

@@ -1,10 +1,16 @@
-# Moxi: AI-Native Reactive UI Specification for Mojo
+# Moxi: long-term design notes for Mojo UI
+
+> Status: design notes, not the 0.3.0 implementation specification. For the
+> current component, layout, runtime, rendering, and validation contracts see
+> [ARCHITECTURE.md](ARCHITECTURE.md). Some examples and sections below are
+> proposals and may not compile against the current package.
+
 ## 1. Executive Summary & Design Paradigm
 Moxi is a proposed native architecture for bringing reactive, type-safe, and declarative user-interface patterns popularized by [Xilem](https://github.com/linebender/xilem) into the Mojo ecosystem. It is intended to reduce unnecessary tree churn and make state, ownership, and platform boundaries explicit; it does not assume that every application or backend can avoid allocation.
 Moxi uses Mojo’s value types, ownership model, and compiler toolchain where they improve predictability. Layout, rendering, and platform performance remain implementation and backend concerns that must be validated with representative benchmarks.
 
-This document began under the working name “Moxil”; the project and package
-name are now Moxi.
+This document is intentionally broader than the current package and should be
+read as a design reference rather than an API promise.
 ## Structural Framework Comparison
 
 | Architecture Metric | Traditional Retained Mode (Qt / Electron) | Rust Reactive Architecture (Xilem + Masonry) | Mojo Moxi Architecture |
@@ -15,7 +21,7 @@ name are now Moxi.
 | Backend Rendering | CPU rasterization or platform widgets | Renderer-specific command and GPU backends | Pluggable CPU, native-widget, and GPU command backends |
 
 ## 2. Dual-Tree Reactive Model
-Moxil strictly adapts Xilem's dual-tree layout approach. The engine maintains a clear separation between the programmer's descriptive shell and the underlying physical rendering handles.
+Moxi strictly adapts Xilem's dual-tree layout approach. The engine maintains a clear separation between the programmer's descriptive shell and the underlying physical rendering handles.
 ## The Lightweight View Tree (The Declarative Shell)
 The programmer interacts solely with the View Tree. Every time application state shifts, a tree of lightweight View components is regenerated.
 
@@ -42,7 +48,7 @@ The backend rendering engine relies on a persistent, stateful hierarchy of nodes
 
 ## 3. Metaprogramming & Lensing Architecture
 A significant bottleneck within Rust’s Xilem framework is the complexity of state composition. Slicing a localized, mutable subsection of application data to supply to a modular child component often produces massive, complex generic type bounds (impl View<State, Action>) that increase code fragility and compiler stress.
-Moxil resolves this trait footprint by leveraging Mojo 1.0's native compile-time parameter expressions. Slicing behaviors (traditionally called Lenses or Adapters) are passed into views directly as compile-time function parameters using bracket syntax [].
+Moxi resolves this trait footprint by leveraging Mojo 1.0's native compile-time parameter expressions. Slicing behaviors (traditionally called Lenses or Adapters) are passed into views directly as compile-time function parameters using bracket syntax [].
 ## Compile-Time Lens Mechanics
 
    1. Specialized Access: Where supported by the toolchain, paths used to query and mutate state can be specialized at compile time rather than resolved through reflection.
@@ -50,7 +56,7 @@ Moxil resolves this trait footprint by leveraging Mojo 1.0's native compile-time
    3. Strict Boundary Encapsulation: State manipulation is isolated to targeted access functions, while ownership and synchronization rules remain in force.
 
 ## 4. Pure Mojo Screen and Graphic Interaction Layers
-Moxil separates layout and paint-command generation from the platform renderer. A backend may target a CPU rasterizer, native widgets, or a GPU command encoder. The core framework does not require a particular graphics API or an interpreted runtime.
+Moxi separates layout and paint-command generation from the platform renderer. A backend may target a CPU rasterizer, native widgets, or a GPU command encoder. The core framework does not require a particular graphics API or an interpreted runtime.
 ## Direct C-ABI Windowing Boundaries (abi("C"))
 The windowing layer uses narrow C-ABI or platform-native adapters where appropriate. Each adapter owns handle lifetimes, callback registration, error translation, and thread-affinity rules.
 
@@ -58,7 +64,7 @@ The windowing layer uses narrow C-ABI or platform-native adapters where appropri
 * Event callbacks: callback signatures and threading behavior are defined by the adapter and translated into Moxi events.
 
 ## Manual Framebuffer Control via Unsafe Pointers
-For explicit pixel-buffer ownership, Moxil may use Mojo’s unsafe pointer facilities inside small, audited components.
+For explicit pixel-buffer ownership, Moxi may use Mojo’s unsafe pointer facilities inside small, audited components.
 
 * Raw allocation control: frame and texture buffers use explicit allocation, reuse, and teardown contracts.
 * Contiguous slices: packed arrays can improve locality and enable SIMD where alignment and measured workload justify it; they are not assumed to be device memory or universally zero-copy.
@@ -78,9 +84,9 @@ Mojo’s compiler toolchain can provide useful optimization opportunities, but t
 * Explicit tensor integration: data visualizations may share buffers only when format, lifetime, synchronization, and ownership contracts permit it; otherwise an explicit conversion is required.
 
 ## 5. Vector Path Text Rendering Strategy
-Moxil keeps text shaping and rendering as separate concerns. Vector glyph paths are a useful representation, but the framework may use cached glyph images, CPU rasterization, a platform text stack, or GPU path rendering depending on backend capability and workload.
+Moxi keeps text shaping and rendering as separate concerns. Vector glyph paths are a useful representation, but the framework may use cached glyph images, CPU rasterization, a platform text stack, or GPU path rendering depending on backend capability and workload.
 ## Glyphs as Mathematical Vector Paths
-Moxil can process TrueType or OpenType outlines as geometric paths consisting of lines and quadratic or cubic Bézier curves. This representation supports scalable rendering and follows the general compute-centric direction of projects such as [Vello](https://github.com/linebender/vello), while allowing bitmap or platform-backed fallbacks.
+Moxi can process TrueType or OpenType outlines as geometric paths consisting of lines and quadratic or cubic Bézier curves. This representation supports scalable rendering and follows the general compute-centric direction of projects such as [Vello](https://github.com/linebender/vello), while allowing bitmap or platform-backed fallbacks.
 ## Compute-Shader Based Rasterization Pipeline
 When a backend chooses GPU path rendering, changed or scaled glyph paths may be evaluated in parallel:
 
@@ -89,22 +95,22 @@ When a backend chooses GPU path rendering, changed or scaled glyph paths may be 
    3. Backend integration: the resulting coverage masks are submitted through the selected graphics API. The implementation must define precision, caching, synchronization, and fallback behavior rather than assuming a particular shader intermediate representation.
 
 ## 6. Multi-Threaded Synchronization Model
-To remain responsive during background work such as telemetry, networking, or inference, Moxil separates UI ownership from worker tasks. Mojo’s ownership model helps express safe boundaries, but synchronization and scheduling remain explicit framework responsibilities.
+To remain responsive during background work such as telemetry, networking, or inference, Moxi separates UI ownership from worker tasks. Mojo’s ownership model helps express safe boundaries, but synchronization and scheduling remain explicit framework responsibilities.
 ## Workqueue Thread Pool Abstraction
-Moxil may provide a lightweight work queue, or integrate with a platform scheduler, for work that does not require UI-thread ownership.
+Moxi may provide a lightweight work queue, or integrate with a platform scheduler, for work that does not require UI-thread ownership.
 
 * Scheduling: worker counts and priorities are configurable rather than tied one-to-one to hardware threads.
 * Non-blocking work: tasks should declare blocking behavior, cancellation, and resource requirements so the scheduler can avoid starvation.
 
 ## Low-Level Synchronization Primitives
-Moxil manages shared application resources across parallel tasks by matching architectural workloads to Mojo’s native synchronization primitives:
+Moxi manages shared application resources across parallel tasks by matching architectural workloads to Mojo’s native synchronization primitives:
 
 * Atomic actions: simple counters, flags, and queue indices may use atomics with documented memory ordering.
 * Structural updates: changes spanning multiple layout or widget fields are serialized through an explicit mutex, message queue, or UI-thread boundary.
 * No data-race promise is inferred from the language alone; each shared resource documents its synchronization policy.
 
 ## 7. Accessibility Layout Representation
-To ensure native compatibility with screen readers and assistive technologies without sacrificing steady-state performance, Moxil mirrors its visual UI layout with a low-overhead semantic representation. Following modern cross-platform design guidelines, this subsystem exposes active UI configurations as a structured tree of accessible components.
+To ensure native compatibility with screen readers and assistive technologies without sacrificing steady-state performance, Moxi mirrors its visual UI layout with a low-overhead semantic representation. Following modern cross-platform design guidelines, this subsystem exposes active UI configurations as a structured tree of accessible components.
 ## Retained Semantic Metadata
 Rather than dynamically allocating and formatting accessibility descriptor nodes on every rendering frame, semantic properties are integrated directly into fields inside the persistent Retained Widget Tree.
 
@@ -112,13 +118,13 @@ Rather than dynamically allocating and formatting accessibility descriptor nodes
 * Zero-Allocation String Reference Tracking: Textual labels, content descriptions, and dynamic value announcements are tracked using Mojo's string reference primitives or direct memory pointers, avoiding heap copy operations or dynamic string allocations during state reconciliation.
 
 ## The C-ABI Accessibility Bridge
-Moxil pushes semantic mutations directly to host operating system accessibility channels (such as NSAccessibility on macOS, UI Automation on Windows, or AT-SPI on Linux) via standard C-ABI interface boundaries.
+Moxi pushes semantic mutations directly to host operating system accessibility channels (such as NSAccessibility on macOS, UI Automation on Windows, or AT-SPI on Linux) via standard C-ABI interface boundaries.
 
 * Incremental Tree Synchronization: When a declarative view's .rebuild() execution path alters text fields or shifts spatial dimensions, the layout engine aggregates the changed properties into a compact structural delta packet pushed over the FFI layer.
 * Decoupled Geometry Updates: Spatial bounds computed via parallel SIMD operations map directly into the platform accessibility boundary, ensuring assistive software tracks the precise physical screen interaction boxes in real time.
 
 ## 8. Spatial Hit-Testing Algorithm
-To route hardware pointer actions (such as mouse clicks, touchscreen presses, or digital pen moves) back to the corresponding interactive components, Moxil employs a low-latency spatial hit-testing pass across the Retained Widget Tree.
+To route hardware pointer actions (such as mouse clicks, touchscreen presses, or digital pen moves) back to the corresponding interactive components, Moxi employs a low-latency spatial hit-testing pass across the Retained Widget Tree.
 ## Inverted Z-Order Traversal
 When a pointer event is captured by the native input loop, the layout engine searches the persistent hierarchy using an inverted tree traversal.
 
@@ -132,22 +138,22 @@ Rather than executing complex geometric intersection tests on the host CPU, cont
 * Vector Vector Checks: Evaluating whether a pointer point (X, Y) resides within an element's active area is processed using single-cycle vector comparison intrinsics, translating directly to rapid hardware instruction execution blocks free of sequential logical branch penalties.
 
 ## 9. Animation Orchestration Model
-To handle highly fluid graphical transformations—such as layout transitions, spatial translations, and opacity shifts—without introducing rendering drops or memory spikes, Moxil decouples animation execution from the central application state reconciliation pipeline.
+To handle highly fluid graphical transformations—such as layout transitions, spatial translations, and opacity shifts—without introducing rendering drops or memory spikes, Moxi decouples animation execution from the central application state reconciliation pipeline.
 ## Hardware-Driven VSYNC Coordination
-Rather than relying on inaccurate high-level software timers or separate asynchronous sleep intervals, Moxil coordinates its frame ticks directly with system display hardware refresh loops.
+Rather than relying on inaccurate high-level software timers or separate asynchronous sleep intervals, Moxi coordinates its frame ticks directly with system display hardware refresh loops.
 
 * Driver-Level Signals: The execution engine hooks directly into the host OS vertical synchronization interrupts via thin C-FFI boundaries (such as CVDisplayLink on macOS or DRM/KMS vblank events on Linux client configurations).
 * Frame Loop Prioritization: Incoming ticking pulses act as low-latency trigger packets that execute with immediate scheduling priority on the task engine thread pool, ensuring layout evaluations align perfectly with physical display frames.
 
 ## Zero-Allocation Transition Interpolation
-Traditional UI architectures track active transitions by dynamically injecting wrapper state objects or changing properties inside a mutable tree graph on every frame refresh. Moxil avoids this allocation overhead by using linear parametric math.
+Traditional UI architectures track active transitions by dynamically injecting wrapper state objects or changing properties inside a mutable tree graph on every frame refresh. Moxi avoids this allocation overhead by using linear parametric math.
 
 * Inline Progression State: Retained components carry packed vector clocks storing basic normalized timestamps (start_time, duration) directly within their inline memory footprints.
 * SIMD-Accelerated Easing Curves: When a frame tick arrives, the active progress step is calculated using standard floating-point vector instructions. Easing metrics—such as cubic Bézier paths or spring physical approximations—are evaluated using raw SIMD primitives that map directly to physical hardware core capabilities, bypassing object generation entirely.
 * Short-Circuit Rendering Paths: Animations that only modify local visual representations (such as changing a button's background highlight color during a hover event) bypass the global declarative View tree diff pass completely, modifying fields inside the local retained node directly and reducing layout evaluation overhead to absolute zero.
 
 ## 10. State-Serialization Design
-To support instantaneous state preservation, hot-reloading during development, and time-travel debugging capabilities, Moxil enforces a strict schema-driven approach to global state management.
+To support instantaneous state preservation, hot-reloading during development, and time-travel debugging capabilities, Moxi enforces a strict schema-driven approach to global state management.
 ## Monolithic State Snapshots
 Because the entire user application state is encapsulated within a single monolithic container (AppState), saving the current session requires zero structural traversal or graph discovery loops.
 
@@ -155,15 +161,15 @@ Because the entire user application state is encapsulated within a single monoli
 * Blazing-Fast Hot Reloading: During code modifications, the underlying display server connection and Retained Widget Tree remain alive in memory. The Mojo compiler swaps the execution binary, and the stored snapshot is written back into the newly compiled AppState memory address instantly, preserving user interactions, cursor placements, and form entries seamlessly.
 
 ## Zero-Copy Inter-Process Transport
-When serializing state configurations to disk or passing telemetry metrics to external debugger processes, Moxil avoids string serialization and dynamic object mapping overhead.
+When serializing state configurations to disk or passing telemetry metrics to external debugger processes, Moxi avoids string serialization and dynamic object mapping overhead.
 
 * Raw Binary Dumps: State parameters are copied directly to low-level byte streams using unsafe memory pointer operations.
 * Zero Allocation Deserialization: Restoring an application session bypasses object parsing entirely. The incoming binary buffer is re-interpreted directly into the structural state context using standard memory offsets, providing hardware-speed session restoration.
 
 ## 11. Resource Asset Compiler System
-To achieve full portability and eliminate runtime IO disk latency penalties, Moxil bypasses standard runtime asset file loading routines. Instead, images, icon geometries, localized strings, and layout configuration bundles are integrated directly into the compiled application binary using Mojo's metaprogramming capabilities.
+To achieve full portability and eliminate runtime IO disk latency penalties, Moxi bypasses standard runtime asset file loading routines. Instead, images, icon geometries, localized strings, and layout configuration bundles are integrated directly into the compiled application binary using Mojo's metaprogramming capabilities.
 ## Compile-Time File Embedding
-Moxil uses Mojo's parameter expressions to ingest external assets during the compilation phase, embedding raw byte data directly into the final machine binary.
+Moxi uses Mojo's parameter expressions to ingest external assets during the compilation phase, embedding raw byte data directly into the final machine binary.
 
 * Zero Host File System Dependencies: The compiled executable acts as a single, self-contained deployment unit. Because binary blobs are baked straight into the data section (.rodata) of the executable, the application never crashes due to missing asset paths or directory changes at runtime.
 * Direct Flash Pointing: Embedded files do not need to be loaded from disk or parsed into temporary heap heap arrays when the UI initializes. The application points its UnsafePointer memory addresses directly to the binary's static data segments, reducing startup asset allocation costs to absolute zero.
@@ -175,9 +181,9 @@ Once assets are compiled into the binary payload, they are organized to match ta
 * Pre-Swizzled Graphical Textures: Compressed pixel resources are processed by the resource compiler ahead of time to match the native swizzling and channel ordering layouts expected by host graphics architectures—such as Apple Silicon Tile Memory configs—avoiding on-the-fly conversion overhead during frame render passes.
 
 ## 12. Developer Logging and Diagnostics Subsystem
-To inspect complex reactive layouts and profile frame timelines without introducing measurement contamination (observer effect), Moxil implements a zero-allocation, high-frequency diagnostics architecture.
+To inspect complex reactive layouts and profile frame timelines without introducing measurement contamination (observer effect), Moxi implements a zero-allocation, high-frequency diagnostics architecture.
 ## Lock-Free Telemetry Ring Buffers
-Traditional string-based logging engines introduce catastrophic latency variations because they allocate heap memory, format messages synchronously, and invoke blocking disk/console I/O operations on the active render thread. Moxil avoids these overhead penalties entirely.
+Traditional string-based logging engines introduce catastrophic latency variations because they allocate heap memory, format messages synchronously, and invoke blocking disk/console I/O operations on the active render thread. Moxi avoids these overhead penalties entirely.
 
 * Pre-Allocated Circular Metrics Queues: The logging system reserves fixed linear blocks of memory at startup to serve as circular ring buffers.
 * Atomic Index Progression: Multiple application worker threads push tracking packets—such as microsecond frame durations, tree reconstruction depth markers, and render pass milestones—using lock-free atomic hardware markers. This ensures that recording performance telemetry never stalls layout or compositing passes.
@@ -189,11 +195,11 @@ Telemetry logs are retained in a compact, unformatted binary schema inside memor
 * External Capture Transport: External developer tooling profiles read raw telemetry bytes from these ring buffers using zero-copy FFI inspection channels or shared memory spaces, allowing developers to view comprehensive event timelines in tracking viewers (such as Perfetto or Chrome DevTools) with absolute zero impact on the host application's rendering frame budget.
 
 ## 13. Cross-Platform Text Layout Pipeline
-To support internationalization and seamless localization across global languages, Moxil implements a high-performance, zero-allocation text layout and shaping pipeline natively within Mojo.
+To support internationalization and seamless localization across global languages, Moxi implements a high-performance, zero-allocation text layout and shaping pipeline natively within Mojo.
 ## Unicode Segmentation and Script Shaping
 Handling modern typography requires breaking complex strings into valid visual units rather than raw bytes or code points.
 
-* Grapheme Cluster Boundary Evaluation: Moxil analyzes UTF-8 string slices using compile-time lookup tables to identify precise grapheme boundaries. This ensures that combined characters, emojis, and complex script ligatures are never severed or corrupted during layout clipping operations.
+* Grapheme Cluster Boundary Evaluation: Moxi analyzes UTF-8 string slices using compile-time lookup tables to identify precise grapheme boundaries. This ensures that combined characters, emojis, and complex script ligatures are never severed or corrupted during layout clipping operations.
 * Bi-Directional (BiDi) Text Routing: The text engine incorporates a pure systems-level implementation of the Unicode Bidirectional Algorithm. When mixed scripts (such as Latin and Arabic or Hebrew) appear within a single paragraph, the engine routes and re-orders glyph sequences dynamically into logical and visual layout spans without duplicating or reallocating the underlying text memory.
 
 ## Zero-Allocation Line Breaking and Caching
@@ -203,21 +209,21 @@ Computing where text wraps across varying element widths is historically a sever
 * Lazy Shaping Passes: Text shaping and layout calculations are lazily evaluated only when an element's spatial width dimensions break its current cache parameters or when the core textual payload is mutated by a state lens. If a container animates its position or scale without changing its wrapping width, the engine reuses the existing visual layouts instantly, achieving zero-allocation rendering flow.
 
 ## 14. Platform Window Decoration Manager
-To establish absolute visual continuity across platform boundaries and eliminate layout stuttering during OS-driven resize sweeps, Moxil relies entirely on a Client-Side Decoration (CSD) model managed natively within the Mojo runtime context.
+To establish absolute visual continuity across platform boundaries and eliminate layout stuttering during OS-driven resize sweeps, Moxi relies entirely on a Client-Side Decoration (CSD) model managed natively within the Mojo runtime context.
 ## Client-Side Window Chrome and Borders
-Traditional desktop applications rely on the host operating system's window manager to draw outer title bars, drop shadows, window borders, and control buttons (minimize, maximize, close). Moxil bypasses this platform dependency to eliminate multi-process compositing delays.
+Traditional desktop applications rely on the host operating system's window manager to draw outer title bars, drop shadows, window borders, and control buttons (minimize, maximize, close). Moxi bypasses this platform dependency to eliminate multi-process compositing delays.
 
-* Unified Vector Surface Canvas: Moxil instructs the display server to provision a borderless, raw pixel viewport layer. The framework then draws custom title bars, sizing seams, and application control buttons directly using its internal compute-shader vector pipeline.
+* Unified Vector Surface Canvas: Moxi instructs the display server to provision a borderless, raw pixel viewport layer. The framework then draws custom title bars, sizing seams, and application control buttons directly using its internal compute-shader vector pipeline.
 * Dynamic Localized Theme Scaling: Window chrome components are built as reactive stack-allocated view definitions. Because they reside within the core graphics loop, window borders scale instantly alongside interface zoom factors, sub-pixel rounding boundaries, and high-DPI monitor runtime configurations without flickering or blurring.
 
 ## Boundary Constraints and Window Drag Routing
 Rendering custom window chrome requires catching and translating low-level pointer events into platform-level window manipulation instructions.
 
-* Spatial Interactive Zones: Moxil allocates explicit structural hit-test masks across the top window boundary. If a pointer click falls within this custom title bar box but misses individual button vectors, the hit-testing logic marks the interaction as an intentional window move action.
-* FFI Window-System Handshakes: When a window border drag or title-bar move event is verified, Moxil passes the event coordinates straight to the host window server (such as Wayland or macOS window managers) using its low-latency C-ABI FFI bridge. This transfers the mechanical translation and drag calculations straight to the platform kernel infrastructure, achieving smooth desktop window movements.
+* Spatial Interactive Zones: Moxi allocates explicit structural hit-test masks across the top window boundary. If a pointer click falls within this custom title bar box but misses individual button vectors, the hit-testing logic marks the interaction as an intentional window move action.
+* FFI Window-System Handshakes: When a window border drag or title-bar move event is verified, Moxi passes the event coordinates straight to the host window server (such as Wayland or macOS window managers) using its low-latency C-ABI FFI bridge. This transfers the mechanical translation and drag calculations straight to the platform kernel infrastructure, achieving smooth desktop window movements.
 
 ## 15. Hardware-Native Clipboard Manager
-To support seamless, allocation-free clipboard interactions (cut, copy, and paste text payloads) without drawing in heavy dynamic runtime interpreters or garbage collection stalls, Moxil interfaces directly with system clipboard handles through its C-ABI FFI boundaries.
+To support seamless, allocation-free clipboard interactions (cut, copy, and paste text payloads) without drawing in heavy dynamic runtime interpreters or garbage collection stalls, Moxi interfaces directly with system clipboard handles through its C-ABI FFI boundaries.
 ## Direct OS Handle Mapping
 Text data payloads are transferred into system-level clipboards (such as the NSPasteboard on macOS or the Wayland/X11 clipboard data targets) via raw data pointers (UnsafePointer[Int8]).
 
@@ -227,15 +233,15 @@ Text data payloads are transferred into system-level clipboards (such as the NSP
 ## Zero-Allocation Data Marshalling
 When copy operations are invoked through user inputs, data lenses provide the underlying text memory locations directly.
 
-* Direct Pointing Primitives: Moxil bypasses string replication by exposing structural views or raw bytes straight to the OS clipboard broker, eliminating intermediate buffer allocations during quick copy-paste loops.
+* Direct Pointing Primitives: Moxi bypasses string replication by exposing structural views or raw bytes straight to the OS clipboard broker, eliminating intermediate buffer allocations during quick copy-paste loops.
 * Strict Lifetime Synchronization: Read strings arriving from external platform selections are bound cleanly into pointer segments that mirror native application lifecycles, ensuring memory is allocated and released with complete tracking certitude across the FFI perimeter.
 
 ## 16. Hardware Mouse Cursor Configuration Engine
-To ensure smooth, sub-frame latency during interactive hover effects, drag-and-drop actions, and focus shifts, Moxil handles mouse pointer states and custom bitmap configurations directly via native hardware windowing systems.
+To ensure smooth, sub-frame latency during interactive hover effects, drag-and-drop actions, and focus shifts, Moxi handles mouse pointer states and custom bitmap configurations directly via native hardware windowing systems.
 ## Client-Side Pointer Shapes and Custom Bitmaps
 When the user sweeps a pointing device across different UI fields (e.g., resizing handles, text fields, or clickable surfaces), the framework must adjust the cursor icon instantly without waiting for layout rendering synchronizations.
 
-* Low-Latency Hardware Mappings: Rather than compositing custom cursor graphics directly inside the main UI pixel buffer on every frame—which introduces cursor trailing artifacts—Moxil registers custom pointer shapes straight with the OS kernel display server (via Wayland cursors, Xcursor, or macOS NSCursor handles) via standard FFI boundaries.
+* Low-Latency Hardware Mappings: Rather than compositing custom cursor graphics directly inside the main UI pixel buffer on every frame—which introduces cursor trailing artifacts—Moxi registers custom pointer shapes straight with the OS kernel display server (via Wayland cursors, Xcursor, or macOS NSCursor handles) via standard FFI boundaries.
 * Pre-Swizzled Hardware Textures: Custom application cursor designs are ingested by the Resource Compiler at build time and cached as raw ARGB pixel segments. When loaded, these buffers are sent directly to host graphics interfaces to act as low-overhead hardware cursor definitions.
 
 ## Cursor State and Visibility Transformations
@@ -245,37 +251,37 @@ Toggling visibility boundaries and shape properties requires direct coordination
 * Automated Focus Collapsing: When text input layers capture operational focus, the configuration engine hides the mouse cursor to optimize readability, restoring it instantly upon the arrival of physical motion updates.
 
 ## 17. Native Drag-and-Drop Spatial Payload Management Engine
-To handle seamless, asynchronous data exchanges between independent OS process windows (such as dragging a layout binary or image asset directly from a system file manager onto a Moxil surface viewport), the framework integrates a zero-allocation drag-and-drop payload management engine.
+To handle seamless, asynchronous data exchanges between independent OS process windows (such as dragging a layout binary or image asset directly from a system file manager onto a Moxi surface viewport), the framework integrates a zero-allocation drag-and-drop payload management engine.
 ## Multi-Process Window Hovering and Spatial Tracking
 When an external drag action crosses the application's physical boundary vectors, the host window manager passes tracking handles directly into the active event loop.
 
-* FFI Drop Target Registration: Moxil hooks into native system drag protocols (such as Wayland data devices, macOS NSDraggingDestination delegates, or Windows OLE shell targets) via thin, static C-ABI function pointers to prevent context-switching delays.
+* FFI Drop Target Registration: Moxi hooks into native system drag protocols (such as Wayland data devices, macOS NSDraggingDestination delegates, or Windows OLE shell targets) via thin, static C-ABI function pointers to prevent context-switching delays.
 * Real-Time Hover Intersections: As the pointer drifts across the surface canvas, coordinates are sent straight through the framework's spatial hit-testing engine. This enables elements within the Retained Widget Tree to update their interactive states and trigger localized cursor shapes dynamically before the payload is actually released.
 
 ## Asynchronous Data Serialization and Marshalling
 Data payloads are encapsulated in standardized cross-platform schemas (such as uniform MIME type arrays) and are evaluated lazily to optimize system memory footprint.
 
-* MIME-Type Negotiation Maps: Upon initial contact, Moxil queries the platform event container using raw pointers to negotiate accepted structural formats (e.g., text/plain, image/png, or specialized application JSON matrices) without copying the actual payload data into local memory space prematurely.
+* MIME-Type Negotiation Maps: Upon initial contact, Moxi queries the platform event container using raw pointers to negotiate accepted structural formats (e.g., text/plain, image/png, or specialized application JSON matrices) without copying the actual payload data into local memory space prematurely.
 * Zero-Copy Stream Extraction: Once the drop gesture is confirmed by the user, the engine extracts raw memory address pointers from the OS data object using Mojo's UnsafePointer layout models. The data deserialization channels read straight from the OS-allocated shared memory segments or memory-mapped file handles, enabling massive asset collections or binary data dumps to be streamed at bare-metal speeds with complete safety.
 
 ## 18. Native IME Composition Window Anchoring Loop
-To fully support native multi-lingual text inputs for complex glyph scripts (such as ideographic Chinese, Japanese, or Korean characters), Moxil implements a zero-allocation, hardware-synchronized Input Method Editor (IME) anchoring pipeline.
+To fully support native multi-lingual text inputs for complex glyph scripts (such as ideographic Chinese, Japanese, or Korean characters), Moxi implements a zero-allocation, hardware-synchronized Input Method Editor (IME) anchoring pipeline.
 ## Inline Pre-Edit Data Routing and Layout Metrics
 When an active text entry container gains keyboard focus and a platform-native IME session is instantiated, incoming physical keypress sequences are intercepted by the system composition filter before hitting the standard text cache.
 
-* Real-Time Pre-Edit Evaluation: As the user interacts with the platform's input engine, the OS sends intermediate pre-edit string slices straight into the active event loop via thin C-FFI boundaries. Moxil captures these uncommitted strings and feeds them instantly to its internal Cross-Platform Text Layout Pipeline.
+* Real-Time Pre-Edit Evaluation: As the user interacts with the platform's input engine, the OS sends intermediate pre-edit string slices straight into the active event loop via thin C-FFI boundaries. Moxi captures these uncommitted strings and feeds them instantly to its internal Cross-Platform Text Layout Pipeline.
 * Dynamic Local Layout Deflection: The text layout engine dynamically calculates character metrics, grapheme clusters, and structural line wraps for the uncommitted text string. This allows the application to render underlining masks and complex inline selection styling directly inside the paragraph hierarchy, preserving perfect visual cohesion before the user commits the text segment.
 
 ## Caret Coordinates and FFI Synchronization Bridges
-To prevent the platform candidate selection window (the popup menu containing alternative glyph choices) from drifting or covering active typing boxes, Moxil anchors the system menu window directly to local caret bounds vectors.
+To prevent the platform candidate selection window (the popup menu containing alternative glyph choices) from drifting or covering active typing boxes, Moxi anchors the system menu window directly to local caret bounds vectors.
 
-* Absolute Coordinate Transposition: Once the sub-pixel location of the blinking selection cursor is evaluated via parallel SIMD layout passes, Moxil factors in the absolute offsets provided by the Client-Side Window Chrome Manager to calculate true window-space pixels.
+* Absolute Coordinate Transposition: Once the sub-pixel location of the blinking selection cursor is evaluated via parallel SIMD layout passes, Moxi factors in the absolute offsets provided by the Client-Side Window Chrome Manager to calculate true window-space pixels.
 * Low-Latency Caret Handshakes: The calculated caret bounding vector ([Left, Top, Width, Height]) is sent straight across FFI lines to host operating system text input controllers—such as NSTextInputClient on macOS, the Text Services Framework (TSF) on Windows, or GtkIMContext handles on Linux desktop backends. This ensures the operating system's selection popup matches the movement of the text cursor precisely with zero visual lag or scaling mismatch.
 
 ## 19. Sub-Pixel Grid Font-Hinting Rasterization Override Matrix
-To ensure text clarity on non-standard sub-pixel structures (such as RGB or BGR hardware stripes) without sacrificing zero-allocation compute guarantees, Moxil implements a specialized font-hinting rasterization override matrix.
+To ensure text clarity on non-standard sub-pixel structures (such as RGB or BGR hardware stripes) without sacrificing zero-allocation compute guarantees, Moxi implements a specialized font-hinting rasterization override matrix.
 ## Sub-Pixel Alpha Coverage Weighting
-Traditional text rasterization processes treat pixels as uniform square points, generating single monochromatic alpha values that cause color fringing or blurring when applied to complex vector curves. Moxil's compute-shader typography pipeline avoids this layout degradation.
+Traditional text rasterization processes treat pixels as uniform square points, generating single monochromatic alpha values that cause color fringing or blurring when applied to complex vector curves. Moxi's compute-shader typography pipeline avoids this layout degradation.
 
 * Fractional Pixel Coverage Division: During the analytic coverage calculation pass, font glyph curves are split and sampled across sub-pixel components (the separate Red, Green, and Blue sub-elements).
 * Multi-Channel Filter Application: Local contrast distribution profiles evaluate spatial curves horizontally and vertically, adjusting color filter intensities across channel boundaries to keep thin leg stems aligned perfectly to hardware grids.
@@ -286,25 +292,25 @@ Traditional text rasterization processes treat pixels as uniform square points, 
 * Zero-Allocation Weight Injection: Slicing filters are mapped straight to hardware-native SIMD vector lanes. By processing coverage weights as discrete float vectors (SIMD[DType.float32, 4]), text components preserve crisp edge definition across high-density layouts with absolute zero heap footprints.
 
 ## 20. Native Custom Desktop Window Resize Boundary Padding System
-To support fluid mouse interaction when dragging desktop frames without introducing layout jitter or visual lag, Moxil incorporates a client-side window resize boundary padding system built straight into its core hit-testing configuration matrices.
+To support fluid mouse interaction when dragging desktop frames without introducing layout jitter or visual lag, Moxi incorporates a client-side window resize boundary padding system built straight into its core hit-testing configuration matrices.
 ## Edge Padding Regions and Interactive Sizing Masks
 When client-side decorations are active, the absolute boundaries of the window canvas must intercept sizing gestures before mouse clicks fall through to child widgets.
 
-* Invisible Boundary Margins: Moxil maps a configurable, sub-pixel accurate padding parameter (typically 4 to 8 logical pixels) along the absolute exterior edges of the canvas layout. This boundary operates as an invisible spatial mask dedicated exclusively to capturing edge hover states and window sizing hooks.
+* Invisible Boundary Margins: Moxi maps a configurable, sub-pixel accurate padding parameter (typically 4 to 8 logical pixels) along the absolute exterior edges of the canvas layout. This boundary operates as an invisible spatial mask dedicated exclusively to capturing edge hover states and window sizing hooks.
 * Spatial Control Matrices: Pointer interactions falling inside this boundary vector are intercepted immediately by the framework's spatial metrics engine. The engine computes exactly which layout threshold has been breached (e.g., left edge, right edge, or specialized corner junctions) and switches cursor types across system FFI channels instantly without passing the event context down to the active View tree.
 
 ## Frame Resize Event Buffering and Backpressure Throttling
 Forcing an application layout tree to fully reconstruct and re-shape complex typography paragraphs synchronously during high-frequency OS-driven window resize sweeps causes severe thread congestion and frame drops.
 
-* Buffered Event Choking: Moxil intercepts system window dimension change packets asynchronously within the low-latency input polling thread. Sizing updates do not trigger immediate tree diff operations; instead, dimensions are buffered inside a synchronized state register.
+* Buffered Event Choking: Moxi intercepts system window dimension change packets asynchronously within the low-latency input polling thread. Sizing updates do not trigger immediate tree diff operations; instead, dimensions are buffered inside a synchronized state register.
 * VSYNC-Anchored Layout Flushes: When a hardware-driven frame tick signal fires, the compositing layer extracts the latest dimensions from the state register, executing a single consolidated layout pass that matches the physical screen refresh speed precisely. This avoids intermediate backpressure overhead and keeps interface adaptations completely smooth.
 
 ## 21. Native Multi-Touch Gesture Cluster Recognition Pipeline
-To support high-fidelity hardware input devices like trackpads, multi-touch screens, and digitized canvases without allocating heavy dynamic collections, Moxil embeds an inline multi-touch gesture cluster recognition pipeline into the FFI-poll interface.
+To support high-fidelity hardware input devices like trackpads, multi-touch screens, and digitized canvases without allocating heavy dynamic collections, Moxi embeds an inline multi-touch gesture cluster recognition pipeline into the FFI-poll interface.
 ## Touch Point Serialization and Contact Clustering
 When multiple finger contacts are registered by system hardware, display servers emit independent event packets containing discrete device coordinates and specific microsecond tracking sequences.
 
-* Contiguous Touch Registers: Moxil stores simultaneous contact inputs inside a pre-allocated linear matrix structure. Points are identified by an integer register handle (touch_id) to track unique structural contact spans without generating temporary objects on the heap.
+* Contiguous Touch Registers: Moxi stores simultaneous contact inputs inside a pre-allocated linear matrix structure. Points are identified by an integer register handle (touch_id) to track unique structural contact spans without generating temporary objects on the heap.
 * Active Contact Pruning: The polling event thread strips old contact tokens when fingers leave physical surfaces, compressing the array layout instantly to maintain optimal contiguous storage and ensure low-latency scan loops.
 
 ## Centroid Tracking and Geometric Transformation Vectors
@@ -358,10 +364,10 @@ Layout and rendering code may use cache-aligned scratchpads and reusable interle
 Reference implementations may include small probes for these adapters—gamepad filtering, audio mixing, network decoding, job scheduling, affinity selection, IPC sequencing, keyboard mapping, scroll accumulation, shader caching, display transforms, clipping, blending, sampling, stencil and occlusion queries, register scratchpads, vertex/uniform descriptors, resource bindings, pipeline state, and blend state. These probes illustrate data flow only; they are not production FFI bindings.
 
 ## 24. Comprehensive Implementation Reference
-The following programmatic model demonstrates how Mojo 1.0 structures, interfaces, pointer parameters, memory mechanics, low-level synchronization primitives, semantic accessibility flags, spatial containment checks, zero-allocation frame interpolation formulas, binary state serialization methods, compile-time asset data maps, lock-free logging structures, cross-platform text shaping engines, client-side window chrome bounds definitions, native clipboard FFI interfaces, hardware cursor managers, multi-process drag-and-drop mechanics, inline IME composition anchoring engines, sub-pixel font hinting matrices, window resize padding subsystems, and multi-touch gesture engines define the core reactive architecture, native screen interaction interfaces, and thread-safe hardware input loops of the Moxil framework.
+The following programmatic model demonstrates how Mojo 1.0 structures, interfaces, pointer parameters, memory mechanics, low-level synchronization primitives, semantic accessibility flags, spatial containment checks, zero-allocation frame interpolation formulas, binary state serialization methods, compile-time asset data maps, lock-free logging structures, cross-platform text shaping engines, client-side window chrome bounds definitions, native clipboard FFI interfaces, hardware cursor managers, multi-process drag-and-drop mechanics, inline IME composition anchoring engines, sub-pixel font hinting matrices, window resize padding subsystems, and multi-touch gesture engines define the core reactive architecture, native screen interaction interfaces, and thread-safe hardware input loops of the Moxi framework.
 
 # ==============================================================================
-# Moxil Core Architecture Reference Model (Mojo 1.0 Specifications)
+# Moxi Core Architecture Reference Model (Mojo 1.0 Specifications)
 # ==============================================================================
 
 from utils.vector import DynamicVector
@@ -714,7 +720,7 @@ fn deserialize(inout self, src_ptr: UnsafePointer[Int8]):
 print(" [Serialization Engine] Re-hydrating AppState fields from binary dump...")
 let verified_token = src_ptr.load(0)
 if verified_token == 42:
-self.application_title = "Moxil Engine - Fully Restored Session Snapshot"
+self.application_title = "Moxi Engine - Fully Restored Session Snapshot"
 self.compute_cycles = 8192
 @value
 struct Lens[GetFn: fn(AppState) -> String, SetFn: fn(inout AppState, String)]:
@@ -767,7 +773,7 @@ fn set_title(inout state: AppState, new_title: String):
 state.application_title = new_title
 ## --- 19. Execution Loop Framework Validation ---
 fn main():
-print("Initializing Moxil Alpha System Execution Targets...")
+print("Initializing Moxi Alpha System Execution Targets...")
 # 1. Initialize native screen interaction allocations
 var screen_buffer = NativeFrameBuffer(1920, 1080)
 # 2. Initialize low-latency metrics ring buffer queue
@@ -810,7 +816,7 @@ let contact_1 = TouchPoint(1, 120.0, 450.0)
 let contact_2 = TouchPoint(2, 340.0, 490.0)
 let cluster_metrics = gesture_engine.evaluate_cluster_deltas(contact_1, contact_2)
 # 12. Central application state shapes
-var global_state = AppState("Moxil Alpha Pipeline Engine", 4096)
+var global_state = AppState("Moxi Alpha Pipeline Engine", 4096)
 alias TitleLens = Lensget_title, set_title
 # 13. Record render start metric trace code
 diagnostics_logger.log_event_packet(201) # Token 201 = VSYNC_START

@@ -12,5 +12,5 @@ def main():
     assert runtime.widget.id == 7
     assert runtime.widget.text == "Smoke test"
     assert command.bounds.width == 120.0
-    assert moxi_version() == "0.2.0"
+    assert moxi_version() == "0.3.0"
     print("Moxi smoke test passed")

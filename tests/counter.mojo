@@ -1,20 +1,19 @@
 """State and hit-testing contract test for the counter scenario."""
 
-from moxi import ClickEvent, CounterState, Point
+from moxi import App, ClickEvent, CounterState, Point, Rect
 
 
 def main():
-    var state = CounterState()
-    var view = state.view()
+    var component = CounterState()
+    var app = App[CounterState](component, Rect(0.0, 0.0, 384.0, 184.0))
 
-    state.update(ClickEvent(Point(12.0, 12.0)), view.button)
-    assert state.count == 0
+    assert not app.update(ClickEvent(Point(12.0, 12.0)))
+    assert app.component.count == 0
 
-    state.update(ClickEvent(Point(72.0, 102.0)), view.button)
-    assert state.count == 1
-    view = state.view()
-    assert view.label.text == "Count: 1"
+    assert app.update(ClickEvent(Point(72.0, 130.0)))
+    assert app.component.count == 1
+    assert app.view.child(1).text == "Count: 1"
 
-    state.update(ClickEvent(Point(72.0, 102.0)), view.button)
-    assert state.count == 2
+    assert app.update(ClickEvent(Point(72.0, 130.0)))
+    assert app.component.count == 2
     print("Moxi counter test passed")

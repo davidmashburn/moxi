@@ -13,5 +13,6 @@ def main() raises:
     var window = MacOSWindow()
     var renderer = MacOSRenderer()
     window.open(WindowConfig("Moxi", 384.0, 144.0))
+    renderer.begin_frame()
     renderer.draw_label(command)
     window.run()

@@ -1,6 +1,6 @@
 """Window lifecycle and input contracts with portable configuration."""
 
-from .geometry import Point
+from .geometry import Point, Size
 
 
 struct WindowConfig:
@@ -37,6 +37,10 @@ trait WindowBackend:
     def click_position(self) raises -> Point:
         """Return the last click position in content coordinates."""
         return Point(0.0, 0.0)
+
+    def size(self) raises -> Size:
+        """Return the current content size."""
+        return Size(0.0, 0.0)
 
     def run(mut self) raises:
         """Pump native events until the window closes."""

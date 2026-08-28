@@ -11,6 +11,17 @@ struct Point(ImplicitlyCopyable):
         self.x = x
         self.y = y
 
+
+struct Size(ImplicitlyCopyable):
+    """A window or layout extent in content coordinates."""
+
+    var width: Float32
+    var height: Float32
+
+    def __init__(out self, width: Float32, height: Float32):
+        self.width = width
+        self.height = height
+
 struct Rect(ImplicitlyCopyable):
     var x: Float32
     var y: Float32
