@@ -17,5 +17,5 @@ struct PaintCommand:
 trait Renderer:
     """A platform backend consumes commands without owning view state."""
 
-    def draw_label(self, command: PaintCommand):
+    def draw_label(self, command: PaintCommand) raises:
         pass
