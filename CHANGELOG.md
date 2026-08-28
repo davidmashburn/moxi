@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 — 2026-08-27
+
+- Added Pixi package-build metadata through `pixi-build-mojo`, so Moxi can be
+  consumed as a Pixi-built Mojo package.
+
 ## 0.1.0 — 2026-08-27
 
 Initial experimental preview.

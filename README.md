@@ -4,7 +4,7 @@ Moxi (pronounced “moxie”) is an experimental native UI library for Mojo. The
 name combines “moxy” with Mojo and keeps a small nod to the `xi` lineage behind
 Xilem.
 
-The `0.1.0` release is a deliberately small preview of the architecture: a
+The `0.1.1` release is a deliberately small preview of the architecture: a
 declarative `Label` becomes retained runtime state, then a backend-neutral paint
 command, and finally native AppKit drawing in a macOS window.
 
@@ -19,7 +19,7 @@ command, and finally native AppKit drawing in a macOS window.
 
 ## Current scope
 
-This is an experimental `0.1.0` preview, not a complete UI framework yet.
+This is an experimental `0.1.1` preview, not a complete UI framework yet.
 
 - Supported demo target: macOS on Apple Silicon (`osx-arm64`).
 - The current runtime supports one label and does not provide layout, input,
@@ -44,6 +44,16 @@ pixi run demo
 
 `pixi run demo` opens the native window. Close the window to end the event loop.
 The generated `dist/` files and native object file are local build artifacts.
+
+To build the distributable Pixi package:
+
+```sh
+pixi build --output-dir output/moxi
+```
+
+The resulting conda package contains the compiled `moxi` Mojo package. The
+native AppKit demo remains a repository-level example and is not bundled into
+the library artifact.
 
 ## Example
 

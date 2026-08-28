@@ -3,7 +3,8 @@ authors = ["David Mashburn <david.n.mashburn@gmail.com>"]
 channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
 name = "moxi"
 platforms = ["osx-arm64"]
-version = "0.1.0"
+preview = ["pixi-build"]
+version = "0.1.1"
 
 [tasks]
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
@@ -14,3 +15,23 @@ test = "mojo run -I src tests/smoke.mojo"
 
 [dependencies]
 mojo = ">=1.1.0.dev2026082605,<2"
+
+[package]
+name = "moxi"
+version = "0.1.1"
+
+[package.build]
+backend = { name = "pixi-build-mojo", version = "0.*" }
+
+[package.build.config.pkg]
+path = "src/moxi"
+name = "moxi"
+
+[package.host-dependencies]
+mojo-compiler = "==1.1.0.dev2026082605"
+
+[package.build-dependencies]
+mojo-compiler = "==1.1.0.dev2026082605"
+
+[package.run-dependencies]
+mojo-compiler = "==1.1.0.dev2026082605"
