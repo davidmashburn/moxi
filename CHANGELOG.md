@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — 2026-08-27
+
+- Added `CounterState`, `CounterView`, and retained counter widgets.
+- Added primary-pointer click events, rectangle hit-testing, and a bounded
+  native event pump.
+- Added a native macOS counter button and `examples/counter.mojo`.
+- Added state/update contract coverage in `tests/counter.mojo`.
+
 ## 0.1.1 — 2026-08-27
 
 - Added Pixi package-build metadata through `pixi-build-mojo`, so Moxi can be

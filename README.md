@@ -4,26 +4,30 @@ Moxi (pronounced “moxie”) is an experimental native UI library for Mojo. The
 name combines “moxy” with Mojo and keeps a small nod to the `xi` lineage behind
 Xilem.
 
-The `0.1.1` release is a deliberately small preview of the architecture: a
+The `0.2.0` release is a deliberately small preview of the architecture: a
 declarative `Label` becomes retained runtime state, then a backend-neutral paint
 command, and finally native AppKit drawing in a macOS window.
 
 ## What works
 
 - Mojo package precompilation through Pixi.
-- A retained runtime for one declarative `Label`.
+- Retained runtime state for declarative labels and buttons.
 - Backend-neutral `PaintCommand` and `Renderer` contracts.
 - Separate `WindowBackend` and `WindowConfig` contracts.
 - A native macOS AppKit window and canvas renderer.
 - A visible demo that renders label text and bounds from the Moxi paint command.
+- An interactive counter demo with primary-pointer events and state updates.
 
 ## Current scope
 
-This is an experimental `0.1.1` preview, not a complete UI framework yet.
+This is an experimental `0.2.0` preview, not a complete UI framework yet.
 
 - Supported demo target: macOS on Apple Silicon (`osx-arm64`).
-- The current runtime supports one label and does not provide layout, input,
-  accessibility, focus, animation, or multi-widget composition.
+- The current runtime supports a fixed-geometry counter with one label and one
+  button. It does not provide general layout, keyboard input, accessibility,
+  focus, animation, or arbitrary multi-widget composition.
+- The macOS adapter translates primary-pointer clicks into Moxi events and the
+  counter demo updates its state and paint commands in response.
 - The native adapter is a small Objective-C AppKit shim. There is not yet a
   cross-platform or GPU renderer.
 - Public APIs may change before `1.0`.
@@ -40,6 +44,7 @@ pixi run mojo --version
 pixi run build
 pixi run test
 pixi run demo
+pixi run counter-demo
 ```
 
 `pixi run demo` opens the native window. Close the window to end the event loop.
@@ -55,9 +60,12 @@ The resulting conda package contains the compiled `moxi` Mojo package. The
 native AppKit demo remains a repository-level example and is not bundled into
 the library artifact.
 
-## Example
+`pixi run counter-demo` opens the interactive counter. Click `Increment` to
+regenerate the view and repaint the updated count.
 
-The complete first vertical slice is in
+## Examples
+
+The static first vertical slice is in
 [examples/hello_window.mojo](examples/hello_window.mojo):
 
 ```mojo
@@ -73,16 +81,20 @@ renderer.draw_label(command)
 window.run()
 ```
 
+The event-driven slice is in
+[examples/counter.mojo](examples/counter.mojo). It regenerates the view and
+repaints after each click on `Increment`.
+
 ## Architecture
 
 The current data flow is intentionally small:
 
 ```text
-Label -> Runtime.reconcile -> PaintCommand
-                                  |
-                     MacOSRenderer.draw_label
-                                  |
-                    AppKit canvas + window event loop
+CounterState -> CounterView -> CounterRuntime -> PaintCommands
+      ^                                             |
+      |                                      MacOSRenderer
+      |                                             |
+  ClickEvent <- WindowBackend <- AppKit canvas + event pump
 ```
 
 The Mojo core does not own AppKit handles. The platform adapter owns the native
@@ -91,8 +103,8 @@ window and translates paint commands across a narrow C ABI boundary.
 ## Roadmap
 
 The next useful slices are multi-view composition and layout, followed by
-native input events and an explicit update/event loop. Additional platform and
-GPU backends should arrive behind the existing contracts only when they have
+keyboard input, focus, and richer event routing. Additional platform and GPU
+backends should arrive behind the existing contracts only when they have
 working demos and tests.
 
 ## License

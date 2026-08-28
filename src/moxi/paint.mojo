@@ -4,7 +4,7 @@ from .geometry import Rect
 
 
 struct PaintCommand:
-    """The first command emitted by the Moxi runtime."""
+    """A text-and-bounds command consumed by a renderer."""
 
     var text: String
     var bounds: Rect
@@ -18,4 +18,7 @@ trait Renderer:
     """A platform backend consumes commands without owning view state."""
 
     def draw_label(self, command: PaintCommand) raises:
+        pass
+
+    def draw_button(self, command: PaintCommand) raises:
         pass
