@@ -23,4 +23,6 @@ The generated `.mojoc` is a local build artifact and is not committed.
 
 The core is split into geometry, declarative views, retained runtime state, and
 backend-neutral paint commands under `src/moxi/`. The demo uses a small native
-AppKit C-ABI shim under `native/`; it is built only for the macOS demo target.
+AppKit C-ABI shim under `native/`; the Mojo core only sees the `WindowBackend`
+and `Renderer` contracts. The window lifecycle and paint submission are
+separate calls, and label text and bounds come from the Moxi paint command.

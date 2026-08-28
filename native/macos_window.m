@@ -3,41 +3,90 @@
 @interface MoxiWindowDelegate : NSObject <NSWindowDelegate>
 @end
 
+@interface MoxiCanvasView : NSView
+@property(nonatomic, copy) NSString *labelText;
+@property(nonatomic) NSRect labelFrame;
+@end
+
 @implementation MoxiWindowDelegate
 - (void)windowWillClose:(NSNotification *)notification {
     [NSApp terminate:nil];
 }
 @end
 
-void moxi_show_window(void) {
+@implementation MoxiCanvasView
+- (void)drawRect:(NSRect)dirtyRect {
+    [[NSColor windowBackgroundColor] setFill];
+    NSRectFill(dirtyRect);
+
+    NSDictionary *attributes = @{
+        NSFontAttributeName: [NSFont systemFontOfSize:24.0],
+        NSForegroundColorAttributeName: [NSColor labelColor],
+    };
+    [self.labelText drawInRect:self.labelFrame withAttributes:attributes];
+}
+@end
+
+static NSWindow *moxi_window;
+static MoxiWindowDelegate *moxi_delegate;
+static MoxiCanvasView *moxi_canvas;
+
+void moxi_window_open(const char *title, float width, float height) {
     @autoreleasepool {
         [NSApplication sharedApplication];
         [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-        NSRect frame = NSMakeRect(0, 0, 384, 144);
+        NSRect frame = NSMakeRect(0, 0, width, height);
         NSWindowStyleMask style = NSWindowStyleMaskTitled |
                                   NSWindowStyleMaskClosable |
                                   NSWindowStyleMaskMiniaturizable;
-        NSWindow *window = [[NSWindow alloc] initWithContentRect:frame
-                                                        styleMask:style
-                                                          backing:NSBackingStoreBuffered
-                                                            defer:NO];
-        MoxiWindowDelegate *delegate = [[MoxiWindowDelegate alloc] init];
-        [window setDelegate:delegate];
-        [window setTitle:@"Moxi"];
+        moxi_window = [[NSWindow alloc] initWithContentRect:frame
+                                                   styleMask:style
+                                                     backing:NSBackingStoreBuffered
+                                                       defer:NO];
+        moxi_delegate = [[MoxiWindowDelegate alloc] init];
+        [moxi_window setDelegate:moxi_delegate];
 
-        NSTextField *label = [[NSTextField alloc] initWithFrame:NSMakeRect(32, 48, 320, 48)];
-        [label setStringValue:@"Hello from Moxi"];
-        [label setFont:[NSFont systemFontOfSize:24]];
-        [label setAlignment:NSTextAlignmentCenter];
-        [label setBezeled:NO];
-        [label setEditable:NO];
-        [label setDrawsBackground:NO];
-        [[window contentView] addSubview:label];
+        NSString *windowTitle = title == NULL
+            ? @"Moxi"
+            : [NSString stringWithUTF8String:title];
+        [moxi_window setTitle:windowTitle];
 
-        [window center];
-        [window makeKeyAndOrderFront:nil];
+        moxi_canvas = [[MoxiCanvasView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
+        moxi_canvas.labelText = @"";
+        moxi_canvas.labelFrame = NSMakeRect(0, 0, width, height);
+        [moxi_window setContentView:moxi_canvas];
+        [moxi_window center];
+        [moxi_window makeKeyAndOrderFront:nil];
         [NSApp activateIgnoringOtherApps:YES];
+    }
+}
+
+void moxi_window_set_label(
+    const char *text,
+    float x,
+    float y,
+    float width,
+    float height
+) {
+    @autoreleasepool {
+        if (moxi_canvas == nil) {
+            return;
+        }
+
+        NSString *label = text == NULL
+            ? @""
+            : [NSString stringWithUTF8String:text];
+        moxi_canvas.labelText = label;
+
+        CGFloat appKitY = moxi_canvas.bounds.size.height - y - height;
+        moxi_canvas.labelFrame = NSMakeRect(x, appKitY, width, height);
+        [moxi_canvas setNeedsDisplay:YES];
+    }
+}
+
+void moxi_window_run(void) {
+    @autoreleasepool {
         [NSApp run];
     }
 }

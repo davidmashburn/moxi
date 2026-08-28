@@ -1,7 +1,7 @@
 """Minimal visible Moxi demo."""
 
-from moxi import Label, Rect, Runtime
-from moxi.macos import MacOSBackend
+from moxi import Label, Rect, Runtime, WindowConfig
+from moxi.macos import MacOSRenderer, MacOSWindow
 
 
 def main() raises:
@@ -10,5 +10,8 @@ def main() raises:
     runtime.reconcile(view)
     var command = runtime.paint()
 
-    var backend = MacOSBackend()
-    backend.draw_label(command)
+    var window = MacOSWindow()
+    var renderer = MacOSRenderer()
+    window.open(WindowConfig("Moxi", 384.0, 144.0))
+    renderer.draw_label(command)
+    window.run()
