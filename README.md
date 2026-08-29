@@ -1,8 +1,8 @@
 # Moxi
 
-Moxi (pronounced “moxie”) is an experimental native UI library for Mojo. The
-name combines “moxy” with Mojo and keeps a small nod to the `xi` lineage behind
-Xilem.
+Moxi (pronounced “mox-ee”) is an experimental native UI library for Mojo based on Rust's [Xilem](https://xilem.dev/) by Raph Levien. The
+name is a portmanteau of Mojo+Xilem and also plays off the meanings of "mojo" / "moxie." It's also a nod to the `xi` lineage behind
+Xilem. Notably, Xilem is based on SwiftUI, another major Chris Lattner project.
 
 The `0.3.0` preview extends that architecture with a small composed view tree:
 declarative children are laid out into retained bounds, reconciled into an
