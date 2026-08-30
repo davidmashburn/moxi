@@ -6,5 +6,7 @@ cd "$repo_dir"
 
 echo "Moxi retained layout/paint/scene benchmark (local comparison harness)"
 /usr/bin/time -p mojo run -I src benchmarks/layout.mojo
+echo "Moxi portable plot scene benchmark (100 frames)"
+/usr/bin/time -p mojo run -I src benchmarks/plotting.mojo
 echo "Moxi offscreen Metal scene benchmark (100 synchronized frames)"
 /usr/bin/time -p pixi run metal-benchmark

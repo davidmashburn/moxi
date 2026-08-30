@@ -437,6 +437,7 @@ from .native_widgets import (
     native_widget_kind,
 )
 from .targets import AndroidBackend, IOSBackend, WebBackend
+from .scenarios import make_plot_scenario
 from .performance import (
     FRAME_BUDGET_60_HZ_MS,
     FRAME_BUDGET_120_HZ_MS,

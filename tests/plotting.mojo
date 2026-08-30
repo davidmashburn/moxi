@@ -8,6 +8,7 @@ from moxi import (
     Point,
     Rect,
     SoftwareSceneRenderer,
+    make_plot_scenario,
     test_check,
 )
 
@@ -42,4 +43,7 @@ def main() raises:
     var empty = Plot(Rect(0.0, 0.0, 10.0, 10.0))
     empty.fit_to_data()
     test_check(empty.x_scale.data_max > empty.x_scale.data_min)
+    var shared = make_plot_scenario(Rect(0.0, 0.0, 320.0, 240.0))
+    test_check(shared.point_count(1) == 12)
+    test_check(shared.build_scene().count() > 20)
     print("Moxi plotting test passed")
