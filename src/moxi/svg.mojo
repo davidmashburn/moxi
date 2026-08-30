@@ -7,6 +7,8 @@ from .scene import (
     SCENE_LINE,
     SCENE_PATH,
     SCENE_POP_CLIP,
+    SCENE_POP_LAYER,
+    SCENE_PUSH_LAYER,
     SCENE_RECT,
     SCENE_ROUNDED_RECT,
     SCENE_TEXT,
@@ -15,6 +17,26 @@ from .scene import (
     SceneRenderer,
 )
 from .style import Color
+
+
+def _svg_escape(value: String) -> String:
+    """Escape text nodes so arbitrary plot labels remain valid XML."""
+    var result = String("")
+    for index in range(value.count_codepoints()):
+        var glyph = String(value[codepoint=index:index + 1])
+        if glyph == "&":
+            result += "&amp;"
+        elif glyph == "<":
+            result += "&lt;"
+        elif glyph == ">":
+            result += "&gt;"
+        elif glyph == chr(34):
+            result += "&quot;"
+        elif glyph == chr(39):
+            result += "&apos;"
+        else:
+            result += glyph
+    return result
 
 
 def _svg_color(color: Color) -> String:
@@ -38,12 +60,16 @@ struct SvgSceneRenderer(SceneRenderer):
     var height: Int
     var output: String
     var frame_count: Int
+    var clip_depth: Int
+    var layer_depth: Int
 
     def __init__(out self, width: Int = 640, height: Int = 480):
         self.width = width if width > 0 else 1
         self.height = height if height > 0 else 1
         self.output = ""
         self.frame_count = 0
+        self.clip_depth = 0
+        self.layer_depth = 0
 
     def begin_scene(mut self) raises:
         self.output = String(
@@ -57,6 +83,8 @@ struct SvgSceneRenderer(SceneRenderer):
             self.height,
             "\">",
         )
+        self.clip_depth = 0
+        self.layer_depth = 0
 
     def draw_scene_command(mut self, command: SceneCommand) raises:
         if command.kind == SCENE_RECT or command.kind == SCENE_LINEAR_GRADIENT:
@@ -114,7 +142,7 @@ struct SvgSceneRenderer(SceneRenderer):
                 "\" fill=\"",
                 _svg_color(command.fill),
                 "\">",
-                command.text,
+                _svg_escape(command.text),
                 "</text>",
             )
         elif command.kind == SCENE_PATH or command.kind == SCENE_IMAGE:
@@ -134,9 +162,32 @@ struct SvgSceneRenderer(SceneRenderer):
                 "\" opacity=\"0.35\"/> ",
             )
         elif command.kind == SCENE_CLIP:
-            self.output += String("<!-- clip ", command.bounds.x, " -->")
+            self.clip_depth += 1
+            self.output += String(
+                "<clipPath id=\"moxi-clip-",
+                self.clip_depth,
+                "\"><rect x=\"",
+                command.bounds.x,
+                "\" y=\"",
+                command.bounds.y,
+                "\" width=\"",
+                command.bounds.width,
+                "\" height=\"",
+                command.bounds.height,
+                "\"/></clipPath><g clip-path=\"url(#moxi-clip-",
+                self.clip_depth,
+                ")\">")
         elif command.kind == SCENE_POP_CLIP:
-            self.output += "<!-- pop clip -->"
+            if self.clip_depth > 0:
+                self.output += "</g>"
+                self.clip_depth -= 1
+        elif command.kind == SCENE_PUSH_LAYER:
+            self.layer_depth += 1
+            self.output += String("<g opacity=\"", command.opacity, "\">")
+        elif command.kind == SCENE_POP_LAYER:
+            if self.layer_depth > 0:
+                self.output += "</g>"
+                self.layer_depth -= 1
 
     def end_scene(mut self) raises:
         self.output += "</svg>"

@@ -86,10 +86,12 @@ struct SurfaceConfig(ImplicitlyCopyable):
         self.scale_factor = scale if scale > 0.0 else 1.0
 
     def pixel_width(self) -> Int:
-        return Int(self.width * self.scale_factor)
+        var result = Int(self.width * self.scale_factor)
+        return result if result > 0 else 1
 
     def pixel_height(self) -> Int:
-        return Int(self.height * self.scale_factor)
+        var result = Int(self.height * self.scale_factor)
+        return result if result > 0 else 1
 
 
 struct PlatformSurface:

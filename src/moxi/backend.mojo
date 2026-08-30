@@ -86,7 +86,7 @@ def backend_capabilities(kind: Int) -> BackendCapabilities:
             False,
             True,
             True,
-            "Command contract reserved; no GPU implementation is shipped yet.",
+            "Generic GPU contract; a platform renderer must probe device readiness.",
         )
     if kind == BACKEND_WINDOWS:
         return BackendCapabilities(

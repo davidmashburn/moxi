@@ -1,6 +1,6 @@
 """SVG Web-target serialization contract test."""
 
-from moxi import Rect, SvgSceneRenderer, make_plot_scenario, test_check
+from moxi import Plot, Rect, SvgSceneRenderer, make_plot_scenario, test_check
 
 
 def main() raises:
@@ -11,4 +11,8 @@ def main() raises:
     test_check(renderer.markup().count_codepoints() > 100)
     test_check(renderer.markup().startswith("<svg"))
     test_check(renderer.markup().endswith("</svg>"))
+    var escaped = Plot(Rect(0.0, 0.0, 100.0, 80.0))
+    escaped.set_title("A <plot> & more")
+    renderer.render_scene(escaped.build_scene())
+    test_check(renderer.markup().count_codepoints() > 100)
     print("Moxi SVG test passed")
