@@ -269,12 +269,23 @@ from .text_layout import (
     TEXT_DIRECTION_RTL,
     TEXT_LAYOUT_ESTIMATE,
     TEXT_LAYOUT_NATIVE,
+    TEXT_LAYOUT_PORTABLE,
     RichText,
     TextLayoutRequest,
     TextLayoutResult,
     TextSpan,
     layout_rich_text,
     layout_text,
+)
+from .text_shaping import (
+    SHAPER_NATIVE,
+    SHAPER_PORTABLE_ESTIMATE,
+    PortableTextShaper,
+    ShapedGlyph,
+    ShapedText,
+    TextShaper,
+    fallback_font_id,
+    shape_text,
 )
 from .text_boundary import (
     clamp_text_boundary,

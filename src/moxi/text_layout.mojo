@@ -4,10 +4,12 @@ from std.collections import List
 
 from .measure import TextMeasurement, measure_text_wrapped
 from .style import Style, default_label_style
+from .text_shaping import SHAPER_PORTABLE_ESTIMATE, shape_text
 
 
 comptime TEXT_LAYOUT_ESTIMATE = 1
 comptime TEXT_LAYOUT_NATIVE = 2
+comptime TEXT_LAYOUT_PORTABLE = 3
 comptime TEXT_DIRECTION_LTR = 1
 comptime TEXT_DIRECTION_RTL = 2
 
@@ -111,6 +113,21 @@ struct TextLayoutResult(ImplicitlyCopyable):
 
 def layout_text(request: TextLayoutRequest) -> TextLayoutResult:
     """Measure with the deterministic core and report unsupported upgrades."""
+    if request.backend == TEXT_LAYOUT_PORTABLE:
+        var shaped = shape_text(
+            request.text,
+            request.style,
+            request.max_width,
+            request.direction,
+        )
+        return TextLayoutResult(
+            shaped.measurement,
+            TEXT_LAYOUT_PORTABLE,
+            False,
+            shaped.bidi_applied,
+            False,
+            shaped.approximate or shaped.used_fallback_font,
+        )
     var measurement = measure_text_wrapped(
         request.text,
         request.style,

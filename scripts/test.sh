@@ -28,7 +28,9 @@ tests=(
   tests/extended_controls.mojo
   tests/backend.mojo
   tests/platform.mojo
+  tests/performance.mojo
   tests/text_layout.mojo
+  tests/text_shaping.mojo
   tests/text_boundary.mojo
   tests/resources_scene.mojo
   tests/reactivity_tasks.mojo
