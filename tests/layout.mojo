@@ -1,5 +1,6 @@
 """Deterministic composition, layout, and hit-testing contract test."""
 
+from moxi import test_check
 from moxi import (
     BUTTON_KIND,
     PANEL_KIND,
@@ -40,36 +41,36 @@ def main():
     )
     column.layout()
 
-    assert column.child_count() == 3
+    test_check(column.child_count() == 3)
 
     var title = column.child(0)
     var count = column.child(1)
     var button = column.child(2)
 
-    assert title.bounds.x == 10.0
-    assert title.bounds.y == 10.0
-    assert title.bounds.width == 180.0
-    assert title.bounds.height == 20.0
-    assert count.bounds.y == 35.0
-    assert button.bounds.y == 70.0
-    assert button.bounds.height == 40.0
+    test_check(title.bounds.x == 10.0)
+    test_check(title.bounds.y == 10.0)
+    test_check(title.bounds.width == 180.0)
+    test_check(title.bounds.height == 20.0)
+    test_check(count.bounds.y == 35.0)
+    test_check(button.bounds.y == 70.0)
+    test_check(button.bounds.height == 40.0)
 
-    assert column.hit_test(Point(20.0, 80.0)) == 3
-    assert column.hit_test(Point(20.0, 50.0)) == -1
+    test_check(column.hit_test(Point(20.0, 80.0)) == 3)
+    test_check(column.hit_test(Point(20.0, 50.0)) == -1)
 
     var runtime = ColumnRuntime()
     runtime.reconcile(column)
     var commands = runtime.paint()
-    assert runtime.widget_count() == 3
-    assert commands.count() == 5
-    assert commands.command(0).kind == SURFACE_KIND
-    assert commands.command(1).kind == PANEL_KIND
-    assert commands.command(1).id == 9
-    assert commands.command(2).text == "Title"
-    assert commands.command(2).slot == 0
-    assert commands.command(3).slot == 1
-    assert commands.command(4).kind == BUTTON_KIND
-    assert commands.command(4).slot == 0
-    assert commands.command(4).style.corner_radius == 6.0
-    assert runtime.hit_test(Point(20.0, 80.0)) == 3
+    test_check(runtime.widget_count() == 3)
+    test_check(commands.count() == 5)
+    test_check(commands.command(0).kind == SURFACE_KIND)
+    test_check(commands.command(1).kind == PANEL_KIND)
+    test_check(commands.command(1).id == 9)
+    test_check(commands.command(2).text == "Title")
+    test_check(commands.command(2).slot == 0)
+    test_check(commands.command(3).slot == 1)
+    test_check(commands.command(4).kind == BUTTON_KIND)
+    test_check(commands.command(4).slot == 0)
+    test_check(commands.command(4).style.corner_radius == 6.0)
+    test_check(runtime.hit_test(Point(20.0, 80.0)) == 3)
     print("Moxi layout test passed")

@@ -1,5 +1,6 @@
 """Component lifecycle and trait-conformance contract test."""
 
+from moxi import test_check
 from moxi import App, ClickEvent, ColumnView, Component, CounterState, Point, Rect
 
 
@@ -21,20 +22,20 @@ def built_child_count[ComponentType: Component](component: ComponentType) -> Int
 
 def main():
     var greeting = GreetingComponent()
-    assert built_child_count(greeting) == 1
+    test_check(built_child_count(greeting) == 1)
 
     var component = CounterState()
-    assert built_child_count(component) == 3
+    test_check(built_child_count(component) == 3)
 
     var app = App[CounterState](component, Rect(0.0, 0.0, 384.0, 184.0))
-    assert app.view.child_count() == 3
-    assert app.paint().count() == 5
-    assert not app.update(ClickEvent(Point(12.0, 12.0)))
-    assert app.component.count == 0
-    assert app.update(ClickEvent(Point(72.0, 130.0)))
-    assert app.component.count == 1
-    assert app.view.child(1).text == "Count: 1"
-    assert app.resize(Rect(0.0, 0.0, 480.0, 240.0))
-    assert app.view.child(0).bounds.width == 416.0
+    test_check(app.view.child_count() == 3)
+    test_check(app.paint().count() == 5)
+    test_check(not app.update(ClickEvent(Point(12.0, 12.0))))
+    test_check(app.component.count == 0)
+    test_check(app.update(ClickEvent(Point(72.0, 130.0))))
+    test_check(app.component.count == 1)
+    test_check(app.view.child(1).text == "Count: 1")
+    test_check(app.resize(Rect(0.0, 0.0, 480.0, 240.0)))
+    test_check(app.view.child(0).bounds.width == 416.0)
 
     print("Moxi component test passed")

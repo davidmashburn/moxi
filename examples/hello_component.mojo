@@ -24,5 +24,4 @@ def main() raises:
         GreetingComponent(),
         Rect(0.0, 0.0, size.width, size.height),
     )
-    app.render(renderer)
-    window.run()
+    app.run(window, renderer)

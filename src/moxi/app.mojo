@@ -1,9 +1,19 @@
 """Small state/update/view composition used by the first interactive demo."""
 
 from .component import Component
-from .event import ClickEvent
+from .event import (
+    CLICK_KIND,
+    KEY_DOWN_KIND,
+    KEY_ENTER,
+    KEY_SPACE,
+    ClickEvent,
+    Event,
+)
 from .geometry import Rect
 from .view import Button, ColumnView, CounterView, make_counter_column
+
+
+comptime COUNTER_INCREMENT_ACTION = 100
 
 
 struct CounterState(Component):
@@ -24,16 +34,24 @@ struct CounterState(Component):
         if view.hit_test(event.position) == view.button.id:
             self.count += 1
 
-    def update(mut self, event: ClickEvent, view: ColumnView) -> Bool:
+    def update(mut self, event: Event, view: ColumnView) -> Bool:
         """Update the component and report whether its view must be rebuilt."""
-        if view.hit_test(event.position) == 3:
+        if (event.target == 3 or event.action_id == COUNTER_INCREMENT_ACTION) and (
+            event.kind == CLICK_KIND
+            or (
+                event.kind == KEY_DOWN_KIND
+                and (event.key == KEY_ENTER or event.key == KEY_SPACE)
+            )
+        ):
             self.count += 1
             return True
         return False
 
     def build(self, bounds: Rect) -> ColumnView:
         """Build the current declarative view tree for this component."""
-        return make_counter_column(self.count, bounds)
+        var view = make_counter_column(self.count, bounds)
+        view.set_action(3, COUNTER_INCREMENT_ACTION)
+        return view^
 
     def view(self) -> CounterView:
         """Regenerate the lightweight declarative view from current state."""
