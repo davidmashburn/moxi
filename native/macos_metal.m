@@ -39,12 +39,16 @@ static id<MTLRenderCommandEncoder> moxi_metal_encoder;
 static MoxiMetalVertex *moxi_metal_vertices;
 static int moxi_metal_width;
 static int moxi_metal_height;
+static NSUInteger moxi_metal_target_width;
+static NSUInteger moxi_metal_target_height;
+static float moxi_metal_scale;
 static int moxi_metal_vertex_count;
 static int moxi_metal_overflow_count;
 static int moxi_metal_frame_count;
 static BOOL moxi_metal_initialized;
 static NSWindow *moxi_metal_window;
 static MoxiMetalWindowDelegate *moxi_metal_window_delegate;
+static MoxiMetalView *moxi_metal_view;
 static CAMetalLayer *moxi_metal_layer;
 static BOOL moxi_metal_window_opened;
 
@@ -157,6 +161,9 @@ static BOOL moxi_metal_make_texture(int width, int height) {
                                                                                          mipmapped:NO];
     descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
     moxi_metal_texture = [moxi_metal_device newTextureWithDescriptor:descriptor];
+    moxi_metal_target_width = (NSUInteger)width;
+    moxi_metal_target_height = (NSUInteger)height;
+    moxi_metal_scale = 1.0f;
     return moxi_metal_texture != nil;
 }
 
@@ -167,6 +174,7 @@ int moxi_metal_available(void) {
 int moxi_metal_init(int width, int height) {
     if (width < 1) width = 1;
     if (height < 1) height = 1;
+    if (moxi_metal_initialized) return 1;
     moxi_metal_device = MTLCreateSystemDefaultDevice();
     if (moxi_metal_device == nil) return 0;
     moxi_metal_queue = [moxi_metal_device newCommandQueue];
@@ -201,10 +209,19 @@ void moxi_metal_begin(float red, float green, float blue, float alpha) {
     MTLRenderPassDescriptor *pass = [MTLRenderPassDescriptor renderPassDescriptor];
     moxi_metal_render_texture = moxi_metal_texture;
     moxi_metal_drawable = nil;
+    moxi_metal_target_width = moxi_metal_texture.width;
+    moxi_metal_target_height = moxi_metal_texture.height;
+    moxi_metal_scale = 1.0f;
     if (moxi_metal_layer != nil) {
         moxi_metal_drawable = [moxi_metal_layer nextDrawable];
         if (moxi_metal_drawable != nil) {
             moxi_metal_render_texture = moxi_metal_drawable.texture;
+            moxi_metal_target_width = moxi_metal_render_texture.width;
+            moxi_metal_target_height = moxi_metal_render_texture.height;
+            if (moxi_metal_width > 0) {
+                moxi_metal_scale = (float)moxi_metal_target_width /
+                    (float)moxi_metal_width;
+            }
         }
     }
     pass.colorAttachments[0].texture = moxi_metal_render_texture;
@@ -228,18 +245,28 @@ void moxi_metal_draw_line(float x1, float y1, float x2, float y2, float width, f
 void moxi_metal_push_clip(float x, float y, float width, float height) {
     if (moxi_metal_encoder == nil) return;
     MTLScissorRect rect;
-    rect.x = x < 0.0f ? 0 : (NSUInteger)x;
-    rect.y = y < 0.0f ? 0 : (NSUInteger)y;
-    rect.width = width > 0.0f ? (NSUInteger)width : 0;
-    rect.height = height > 0.0f ? (NSUInteger)height : 0;
-    if (rect.x + rect.width > (NSUInteger)moxi_metal_width) rect.width = (NSUInteger)moxi_metal_width - rect.x;
-    if (rect.y + rect.height > (NSUInteger)moxi_metal_height) rect.height = (NSUInteger)moxi_metal_height - rect.y;
+    rect.x = x <= 0.0f ? 0 : (NSUInteger)(x * moxi_metal_scale);
+    rect.y = y <= 0.0f ? 0 : (NSUInteger)(y * moxi_metal_scale);
+    rect.width = width > 0.0f ? (NSUInteger)(width * moxi_metal_scale) : 0;
+    rect.height = height > 0.0f ? (NSUInteger)(height * moxi_metal_scale) : 0;
+    if (rect.x >= moxi_metal_target_width) {
+        rect.x = moxi_metal_target_width;
+        rect.width = 0;
+    } else if (rect.x + rect.width > moxi_metal_target_width) {
+        rect.width = moxi_metal_target_width - rect.x;
+    }
+    if (rect.y >= moxi_metal_target_height) {
+        rect.y = moxi_metal_target_height;
+        rect.height = 0;
+    } else if (rect.y + rect.height > moxi_metal_target_height) {
+        rect.height = moxi_metal_target_height - rect.y;
+    }
     [moxi_metal_encoder setScissorRect:rect];
 }
 
 void moxi_metal_pop_clip(void) {
     if (moxi_metal_encoder == nil) return;
-    MTLScissorRect rect = {0, 0, (NSUInteger)moxi_metal_width, (NSUInteger)moxi_metal_height};
+    MTLScissorRect rect = {0, 0, moxi_metal_target_width, moxi_metal_target_height};
     [moxi_metal_encoder setScissorRect:rect];
 }
 
@@ -285,6 +312,7 @@ void moxi_metal_shutdown(void) {
     [moxi_metal_window close];
     moxi_metal_window = nil;
     moxi_metal_window_delegate = nil;
+    moxi_metal_view = nil;
     moxi_metal_layer = nil;
     moxi_metal_window_opened = NO;
     moxi_metal_encoder = nil;
@@ -295,12 +323,26 @@ void moxi_metal_shutdown(void) {
     moxi_metal_queue = nil;
     moxi_metal_device = nil;
     moxi_metal_vertices = NULL;
+    moxi_metal_target_width = 0;
+    moxi_metal_target_height = 0;
+    moxi_metal_scale = 1.0f;
     moxi_metal_initialized = NO;
 }
 
 @implementation MoxiMetalView
 - (BOOL)isFlipped { return YES; }
 - (CALayer *)makeBackingLayer { return [CAMetalLayer layer]; }
+- (void)layout {
+    [super layout];
+    if (moxi_metal_layer != nil) {
+        CGFloat scale = self.window == nil ? 1.0 : self.window.backingScaleFactor;
+        moxi_metal_layer.contentsScale = scale;
+        moxi_metal_layer.drawableSize = CGSizeMake(
+            self.bounds.size.width * scale,
+            self.bounds.size.height * scale
+        );
+    }
+}
 @end
 
 @implementation MoxiMetalWindowDelegate
@@ -332,12 +374,16 @@ int moxi_metal_open_window(const char *title, float width, float height) {
         moxi_metal_window.title = windowTitle == nil ? @"Moxi Metal" : windowTitle;
         MoxiMetalView *view = [[MoxiMetalView alloc] initWithFrame:frame];
         view.wantsLayer = YES;
+        view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+        moxi_metal_view = view;
         moxi_metal_layer = (CAMetalLayer *)view.layer;
         moxi_metal_layer.device = moxi_metal_device;
         moxi_metal_layer.pixelFormat = MTLPixelFormatRGBA8Unorm;
         moxi_metal_layer.framebufferOnly = NO;
         moxi_metal_layer.drawableSize = CGSizeMake(frame.size.width, frame.size.height);
         moxi_metal_window.contentView = view;
+        [view setNeedsLayout:YES];
+        [view layoutSubtreeIfNeeded];
         [moxi_metal_window center];
         [moxi_metal_window makeKeyAndOrderFront:nil];
         [NSApp activateIgnoringOtherApps:YES];
@@ -355,6 +401,14 @@ void moxi_metal_pump_window(void) {
                                                dequeue:YES];
         if (event != nil) [NSApp sendEvent:event];
         [NSApp updateWindows];
+        if (moxi_metal_view != nil) {
+            NSRect bounds = moxi_metal_view.bounds;
+            int width = (int)MAX(1.0, floor(bounds.size.width));
+            int height = (int)MAX(1.0, floor(bounds.size.height));
+            if (width != moxi_metal_width || height != moxi_metal_height) {
+                moxi_metal_resize(width, height);
+            }
+        }
     }
 }
 
@@ -362,6 +416,15 @@ int moxi_metal_window_is_open(void) { return moxi_metal_window_opened ? 1 : 0; }
 void moxi_metal_close_window(void) {
     [moxi_metal_window close];
     moxi_metal_window = nil;
+    moxi_metal_view = nil;
     moxi_metal_layer = nil;
     moxi_metal_window_opened = NO;
+}
+
+float moxi_metal_window_width(void) {
+    return moxi_metal_view == nil ? (float)moxi_metal_width : (float)moxi_metal_view.bounds.size.width;
+}
+
+float moxi_metal_window_height(void) {
+    return moxi_metal_view == nil ? (float)moxi_metal_height : (float)moxi_metal_view.bounds.size.height;
 }

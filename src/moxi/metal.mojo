@@ -37,8 +37,12 @@ struct MacOSMetalRenderer(SceneRenderer):
 
     def backend_capabilities(self) -> BackendCapabilities:
         var result = backend_capabilities(BACKEND_GPU)
+        result.name = "macOS Metal"
         result.available = self.initialized
+        result.gpu_acceleration = self.initialized
+        result.incremental = False
         result.clipping = self.initialized
+        result.note = "Basic rect/line scene rendering; text and images remain unsupported."
         return result
 
     def is_ready(self) -> Bool:
@@ -113,6 +117,16 @@ struct MacOSMetalRenderer(SceneRenderer):
         if self.initialized:
             external_call["moxi_metal_end", NoneType]()
 
+    def resize(mut self, width: Int, height: Int) -> Bool:
+        """Resize the logical offscreen target and preserve the scene contract."""
+        if not self.initialized:
+            return False
+        self.width = width if width > 0 else 1
+        self.height = height if height > 0 else 1
+        return external_call["moxi_metal_resize", Int32](
+            Int32(self.width), Int32(self.height)
+        ) != 0
+
     def render_scene(mut self, scene: Scene) raises:
         self.begin_scene()
         for index in range(scene.count()):
@@ -159,6 +173,9 @@ struct MacOSMetalWindow(WindowBackend):
     def pump(mut self) raises:
         external_call["moxi_metal_pump_window", NoneType]()
         self.opened = external_call["moxi_metal_window_is_open", Int32]() != 0
+        if self.opened:
+            self.config.width = external_call["moxi_metal_window_width", Float32]()
+            self.config.height = external_call["moxi_metal_window_height", Float32]()
 
     def is_open(self) raises -> Bool:
         return self.opened and external_call["moxi_metal_window_is_open", Int32]() != 0
