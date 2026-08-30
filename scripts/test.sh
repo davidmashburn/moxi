@@ -41,6 +41,7 @@ tests=(
   tests/plot_spec.mojo
   tests/plot_runtime.mojo
   tests/plot_view.mojo
+  tests/plot_statistics.mojo
   tests/metal_contract.mojo
   tests/text_layout.mojo
   tests/text_shaping.mojo

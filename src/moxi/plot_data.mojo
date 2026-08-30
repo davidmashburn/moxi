@@ -833,6 +833,339 @@ struct PlotDataTable:
             )
         return result^
 
+    def histogram(
+        self,
+        field: String,
+        bins: Int = 10,
+        x2_field: String = "x2",
+    ) -> PlotDataTable:
+        """Build a deterministic equal-width histogram from one numeric field.
+
+        The returned table uses ``x``/``x2`` for the bin extent and ``y`` for
+        the count. A ``count`` column is retained so a declarative layer can
+        choose count, density, or a color encoding without rescanning input.
+        """
+        var safe_bins = bins if bins > 0 else 1
+        var found = False
+        var minimum: Float32 = 0.0
+        var maximum: Float32 = 0.0
+        for row in range(self.row_count()):
+            if not self.field_is_valid(field, row):
+                continue
+            var value = self.float_field_at(field, row)
+            if not found:
+                minimum = value
+                maximum = value
+                found = True
+            else:
+                if value < minimum:
+                    minimum = value
+                if value > maximum:
+                    maximum = value
+        var result = PlotDataTable()
+        _ = result.add_float_column(x2_field)
+        _ = result.add_float_column("count")
+        if not found:
+            return result^
+        if maximum == minimum:
+            minimum -= 0.5
+            maximum += 0.5
+        var width = (maximum - minimum) / Float32(safe_bins)
+        if width <= 0.0:
+            width = 1.0
+        var counts = List[Int](capacity=safe_bins)
+        for _ in range(safe_bins):
+            counts.append(0)
+        for row in range(self.row_count()):
+            if not self.field_is_valid(field, row):
+                continue
+            var bin_index = Int(floor((self.float_field_at(field, row) - minimum) / width))
+            if bin_index < 0:
+                bin_index = 0
+            if bin_index >= safe_bins:
+                bin_index = safe_bins - 1
+            counts[bin_index] += 1
+        for bin_index in range(safe_bins):
+            var lower = minimum + Float32(bin_index) * width
+            var upper = lower + width
+            if bin_index == safe_bins - 1:
+                upper = maximum
+            _ = result.append_with_key(
+                bin_index,
+                lower,
+                Float32(counts[bin_index]),
+            )
+            _ = result.set_float_field(
+                x2_field,
+                bin_index,
+                upper,
+            )
+            _ = result.set_float_field(
+                "count",
+                bin_index,
+                Float32(counts[bin_index]),
+            )
+        return result^
+
+    def density(
+        self,
+        field: String,
+        bins: Int = 24,
+    ) -> PlotDataTable:
+        """Return a histogram-derived probability density estimate."""
+        var result = self.histogram(field, bins)
+        var valid_count = 0
+        for row in range(self.row_count()):
+            if self.field_is_valid(field, row):
+                valid_count += 1
+        if valid_count == 0:
+            return result^
+        for row in range(result.row_count()):
+            var width = result.float_field_at("x2", row) - result.x_at(row)
+            if width <= 0.0:
+                width = 1.0
+            var value = result.float_field_at("count", row) / (
+                Float32(valid_count) * width
+            )
+            _ = result.set_float_field("y", row, value)
+        return result^
+
+    def ecdf(self, field: String) -> PlotDataTable:
+        """Build an empirical cumulative distribution with stable source keys."""
+        var rows = List[Int]()
+        for row in range(self.row_count()):
+            if self.field_is_valid(field, row):
+                rows.append(row)
+        for next_index in range(1, len(rows)):
+            var candidate = rows[next_index]
+            var candidate_value = self.float_field_at(field, candidate)
+            var insert_at = next_index
+            while insert_at > 0:
+                var previous = rows[insert_at - 1]
+                if self.float_field_at(field, previous) <= candidate_value:
+                    break
+                rows[insert_at] = previous
+                insert_at -= 1
+            rows[insert_at] = candidate
+        var result = PlotDataTable()
+        for order in range(len(rows)):
+            var source_row = rows[order]
+            _ = result.append_with_key(
+                self.key_at(source_row),
+                self.float_field_at(field, source_row),
+                Float32(order + 1) / Float32(len(rows)),
+            )
+        return result^
+
+    def box_summary(
+        self,
+        value_field: String,
+        group_field: String = "",
+    ) -> PlotDataTable:
+        """Summarize values as Tukey-style quartiles and whisker extents."""
+        var groups = List[String]()
+        for row in range(self.row_count()):
+            if not self.field_is_valid(value_field, row):
+                continue
+            var group = "all"
+            if group_field.count_codepoints() > 0 and self.field_is_valid(group_field, row):
+                group = self.string_field_at(group_field, row)
+            var found_group = False
+            for index in range(len(groups)):
+                if groups[index] == group:
+                    found_group = True
+                    break
+            if not found_group:
+                groups.append(group)
+        var result = PlotDataTable()
+        _ = result.add_category_column("group")
+        _ = result.add_float_column("x2")
+        _ = result.add_float_column("y2")
+        _ = result.add_float_column("low")
+        _ = result.add_float_column("high")
+        _ = result.add_float_column("median")
+        _ = result.add_float_column("count")
+        for group_index in range(len(groups)):
+            var values = List[Float32]()
+            for row in range(self.row_count()):
+                if not self.field_is_valid(value_field, row):
+                    continue
+                var group = "all"
+                if group_field.count_codepoints() > 0 and self.field_is_valid(group_field, row):
+                    group = self.string_field_at(group_field, row)
+                if group == groups[group_index]:
+                    values.append(self.float_field_at(value_field, row))
+            for next_index in range(1, len(values)):
+                var candidate = values[next_index]
+                var insert_at = next_index
+                while insert_at > 0 and values[insert_at - 1] > candidate:
+                    values[insert_at] = values[insert_at - 1]
+                    insert_at -= 1
+                values[insert_at] = candidate
+            if len(values) == 0:
+                continue
+            var low = values[0]
+            var high = values[len(values) - 1]
+            var q1_index = Int(Float32(len(values) - 1) * 0.25)
+            var median_index = Int(Float32(len(values) - 1) * 0.5)
+            var q3_index = Int(Float32(len(values) - 1) * 0.75)
+            var q1 = values[q1_index]
+            var median = values[median_index]
+            var q3 = values[q3_index]
+            var key = group_index
+            _ = result.append_with_key(
+                key,
+                Float32(group_index),
+                q1,
+            )
+            _ = result.set_category_field("group", group_index, groups[group_index])
+            _ = result.set_float_field("x2", group_index, Float32(group_index) + 0.8)
+            _ = result.set_float_field("y2", group_index, q3)
+            _ = result.set_float_field("low", group_index, low)
+            _ = result.set_float_field("high", group_index, high)
+            _ = result.set_float_field("median", group_index, median)
+            _ = result.set_float_field("count", group_index, Float32(len(values)))
+        return result^
+
+    def heatmap(
+        self,
+        x_field: String,
+        y_field: String,
+        x_bins: Int = 16,
+        y_bins: Int = 12,
+    ) -> PlotDataTable:
+        """Build a dense rectangular bin table for heatmap or hexbin recipes."""
+        var safe_x_bins = x_bins if x_bins > 0 else 1
+        var safe_y_bins = y_bins if y_bins > 0 else 1
+        var found = False
+        var minimum_x: Float32 = 0.0
+        var maximum_x: Float32 = 0.0
+        var minimum_y: Float32 = 0.0
+        var maximum_y: Float32 = 0.0
+        for row in range(self.row_count()):
+            if not self.row_is_valid_fields(x_field, y_field, row):
+                continue
+            var x = self.float_field_at(x_field, row)
+            var y = self.float_field_at(y_field, row)
+            if not found:
+                minimum_x = x
+                maximum_x = x
+                minimum_y = y
+                maximum_y = y
+                found = True
+            else:
+                if x < minimum_x:
+                    minimum_x = x
+                if x > maximum_x:
+                    maximum_x = x
+                if y < minimum_y:
+                    minimum_y = y
+                if y > maximum_y:
+                    maximum_y = y
+        var result = PlotDataTable()
+        _ = result.add_float_column("x2")
+        _ = result.add_float_column("y2")
+        _ = result.add_float_column("count")
+        if not found:
+            return result^
+        if minimum_x == maximum_x:
+            minimum_x -= 0.5
+            maximum_x += 0.5
+        if minimum_y == maximum_y:
+            minimum_y -= 0.5
+            maximum_y += 0.5
+        var x_width = (maximum_x - minimum_x) / Float32(safe_x_bins)
+        var y_width = (maximum_y - minimum_y) / Float32(safe_y_bins)
+        if x_width <= 0.0:
+            x_width = 1.0
+        if y_width <= 0.0:
+            y_width = 1.0
+        var counts = List[Int](capacity=safe_x_bins * safe_y_bins)
+        for _ in range(safe_x_bins * safe_y_bins):
+            counts.append(0)
+        for row in range(self.row_count()):
+            if not self.row_is_valid_fields(x_field, y_field, row):
+                continue
+            var x_index = Int(floor((self.float_field_at(x_field, row) - minimum_x) / x_width))
+            var y_index = Int(floor((self.float_field_at(y_field, row) - minimum_y) / y_width))
+            if x_index < 0:
+                x_index = 0
+            if x_index >= safe_x_bins:
+                x_index = safe_x_bins - 1
+            if y_index < 0:
+                y_index = 0
+            if y_index >= safe_y_bins:
+                y_index = safe_y_bins - 1
+            counts[y_index * safe_x_bins + x_index] += 1
+        for y_index in range(safe_y_bins):
+            for x_index in range(safe_x_bins):
+                var cell_key = y_index * safe_x_bins + x_index
+                var lower_x = minimum_x + Float32(x_index) * x_width
+                var lower_y = minimum_y + Float32(y_index) * y_width
+                _ = result.append_with_key(
+                    cell_key,
+                    lower_x,
+                    lower_y,
+                )
+                _ = result.set_float_field("x2", cell_key, lower_x + x_width)
+                _ = result.set_float_field("y2", cell_key, lower_y + y_width)
+                _ = result.set_float_field(
+                    "count",
+                    cell_key,
+                    Float32(counts[cell_key]),
+                )
+        return result^
+
+    def regression(
+        self,
+        x_field: String,
+        y_field: String,
+        samples: Int = 32,
+    ) -> PlotDataTable:
+        """Fit an ordinary least-squares line and sample it into a table."""
+        var count = 0
+        var sum_x: Float32 = 0.0
+        var sum_y: Float32 = 0.0
+        var sum_xx: Float32 = 0.0
+        var sum_xy: Float32 = 0.0
+        var minimum_x: Float32 = 0.0
+        var maximum_x: Float32 = 0.0
+        for row in range(self.row_count()):
+            if not self.row_is_valid_fields(x_field, y_field, row):
+                continue
+            var x = self.float_field_at(x_field, row)
+            var y = self.float_field_at(y_field, row)
+            if count == 0:
+                minimum_x = x
+                maximum_x = x
+            else:
+                if x < minimum_x:
+                    minimum_x = x
+                if x > maximum_x:
+                    maximum_x = x
+            count += 1
+            sum_x += x
+            sum_y += y
+            sum_xx += x * x
+            sum_xy += x * y
+        var result = PlotDataTable()
+        if count == 0:
+            return result^
+        var denominator = Float32(count) * sum_xx - sum_x * sum_x
+        var slope: Float32 = 0.0
+        if denominator != 0.0:
+            slope = (Float32(count) * sum_xy - sum_x * sum_y) / denominator
+        var intercept = (sum_y - slope * sum_x) / Float32(count)
+        var safe_samples = samples if samples > 1 else 2
+        if minimum_x == maximum_x:
+            minimum_x -= 0.5
+            maximum_x += 0.5
+        for sample in range(safe_samples):
+            var fraction = Float32(sample) / Float32(safe_samples - 1)
+            var x = minimum_x + fraction * (maximum_x - minimum_x)
+            _ = result.append_with_key(sample, x, intercept + slope * x)
+        return result^
+
     def append(mut self, x: Float32, y: Float32) -> Int:
         """Append a valid row and return its stable generated key."""
         var key = self.next_key

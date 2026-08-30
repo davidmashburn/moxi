@@ -30,6 +30,13 @@ comptime PLOT_INTERVAL = 12
 comptime PLOT_BUBBLE = 13
 comptime PLOT_BAND = 14
 comptime PLOT_COLUMN = 15
+comptime PLOT_HISTOGRAM = 16
+comptime PLOT_DENSITY = 17
+comptime PLOT_ECDF = 18
+comptime PLOT_BOX = 19
+comptime PLOT_HEATMAP = 20
+comptime PLOT_HEXBIN = 21
+comptime PLOT_REGRESSION = 22
 
 comptime SCALE_LINEAR = 1
 comptime SCALE_LOG = 2
@@ -119,6 +126,10 @@ struct PlotPoint(ImplicitlyCopyable):
     var tooltip: String
     var color: Color
     var has_color: Bool
+    var stat_low: Float32
+    var stat_high: Float32
+    var stat_median: Float32
+    var has_statistics: Bool
 
     def __init__(out self, x: Float32, y: Float32, row_key: Int = -1):
         self.x = x
@@ -137,6 +148,10 @@ struct PlotPoint(ImplicitlyCopyable):
         self.tooltip = ""
         self.color = Color(0.0, 0.0, 0.0, 0.0)
         self.has_color = False
+        self.stat_low = y
+        self.stat_high = y
+        self.stat_median = y
+        self.has_statistics = False
 
     def set_facet(mut self, value: String):
         self.facet_value = value
@@ -170,6 +185,17 @@ struct PlotPoint(ImplicitlyCopyable):
     def set_color(mut self, color: Color):
         self.color = color
         self.has_color = True
+
+    def set_statistics(
+        mut self,
+        low: Float32,
+        high: Float32,
+        median: Float32,
+    ):
+        self.stat_low = low
+        self.stat_high = high
+        self.stat_median = median
+        self.has_statistics = True
 
 
 struct PlotScale(ImplicitlyCopyable):
@@ -681,6 +707,9 @@ struct Plot:
         tooltip_fields: String = "",
         x2_field: String = "",
         y2_field: String = "",
+        stat_low_field: String = "",
+        stat_high_field: String = "",
+        median_field: String = "",
     ) -> Int:
         """Add valid rows using named fields and preserve row keys."""
         var id = self.add_series(label, color, kind)
@@ -690,6 +719,12 @@ struct Plot:
                 valid_row = valid_row and data.field_is_valid(x2_field, index)
             if y2_field.count_codepoints() > 0:
                 valid_row = valid_row and data.field_is_valid(y2_field, index)
+            if stat_low_field.count_codepoints() > 0:
+                valid_row = valid_row and data.field_is_valid(stat_low_field, index)
+            if stat_high_field.count_codepoints() > 0:
+                valid_row = valid_row and data.field_is_valid(stat_high_field, index)
+            if median_field.count_codepoints() > 0:
+                valid_row = valid_row and data.field_is_valid(median_field, index)
             if valid_row:
                 var facet_value = ""
                 if self.facet_field.count_codepoints() > 0 and data.field_is_valid(self.facet_field, index):
@@ -723,6 +758,28 @@ struct Plot:
                     if y2_field.count_codepoints() > 0 and (data.field_kind(y2_field) == COLUMN_STRING or data.field_kind(y2_field) == COLUMN_CATEGORY):
                         extent_y = Float32(data.category_position(y2_field, index))
                     point.set_extent(extent_x, extent_y, x2_field.count_codepoints() > 0, y2_field.count_codepoints() > 0)
+                if (
+                    stat_low_field.count_codepoints() > 0
+                    or stat_high_field.count_codepoints() > 0
+                    or median_field.count_codepoints() > 0
+                ):
+                    var statistic_low = data.float_field_at(
+                        stat_low_field,
+                        index,
+                    ) if stat_low_field.count_codepoints() > 0 else y_value
+                    var statistic_high = data.float_field_at(
+                        stat_high_field,
+                        index,
+                    ) if stat_high_field.count_codepoints() > 0 else y_value
+                    var statistic_median = data.float_field_at(
+                        median_field,
+                        index,
+                    ) if median_field.count_codepoints() > 0 else y_value
+                    point.set_statistics(
+                        statistic_low,
+                        statistic_high,
+                        statistic_median,
+                    )
                 var point_size: Float32 = 6.0
                 if size_field.count_codepoints() > 0 and data.field_is_valid(size_field, index):
                     point_size = data.float_field_at(size_field, index)
@@ -891,6 +948,12 @@ struct Plot:
         next.set_visuals(previous.size, previous.opacity, previous.text, previous.tooltip)
         if previous.has_color:
             next.set_color(previous.color)
+        if previous.has_statistics:
+            next.set_statistics(
+                previous.stat_low,
+                previous.stat_high,
+                previous.stat_median,
+            )
         self.series[index].points[point_index] = next
         return True
 
@@ -1186,7 +1249,11 @@ struct Plot:
                 or self.series[series_index].count() == 0
             ):
                 continue
-            if self.series[series_index].kind == PLOT_BAR or self.series[series_index].kind == PLOT_COLUMN:
+            if (
+                self.series[series_index].kind == PLOT_BAR
+                or self.series[series_index].kind == PLOT_COLUMN
+                or self.series[series_index].kind == PLOT_HISTOGRAM
+            ):
                 var baseline = self.y_scale.map(0.0)
                 var bar_width = self.plot_area.width / Float32(
                     self.series[series_index].count() * 2
@@ -1201,11 +1268,22 @@ struct Plot:
                     var point_color = self.series[series_index].color
                     if source_point.has_color:
                         point_color = source_point.color
+                    var bar_left = point.x - bar_width * 0.5
+                    if source_point.has_x2:
+                        var extent_point = source_point
+                        extent_point.x = source_point.x2
+                        var extent = self._screen_point(extent_point)
+                        bar_left = point.x if point.x < extent.x else extent.x
+                        bar_width = point.x - extent.x
+                        if bar_width < 0.0:
+                            bar_width = -bar_width
+                        if bar_width < 1.0:
+                            bar_width = 1.0
                     var top = point.y if point.y < baseline else baseline
                     var bottom = point.y if point.y > baseline else baseline
                     scene.append_rect(
                         1000 + self.series[series_index].id * 100 + point_index,
-                        Rect(point.x - bar_width * 0.5, top, bar_width, bottom - top),
+                        Rect(bar_left, top, bar_width, bottom - top),
                         point_color,
                     )
                     var bar_command = scene.commands[len(scene.commands) - 1]
@@ -1265,6 +1343,71 @@ struct Plot:
                     var area_command = scene.commands[len(scene.commands) - 1]
                     area_command.set_opacity(self.series[series_index].opacity * self.series[series_index].points[area_indices[0]].opacity)
                     scene.commands[len(scene.commands) - 1] = area_command
+            elif self.series[series_index].kind == PLOT_BOX:
+                for point_index in range(self.series[series_index].count()):
+                    var source_point = self.series[series_index].points[point_index]
+                    if not source_point.has_statistics:
+                        continue
+                    var point = self._screen_point(source_point)
+                    var q3_point = source_point
+                    q3_point.y = source_point.y2
+                    var q3 = self._screen_point(q3_point)
+                    var low_point = source_point
+                    low_point.y = source_point.stat_low
+                    var low = self._screen_point(low_point)
+                    var high_point = source_point
+                    high_point.y = source_point.stat_high
+                    var high = self._screen_point(high_point)
+                    var median_point = source_point
+                    median_point.y = source_point.stat_median
+                    var median = self._screen_point(median_point)
+                    var point_color = self.series[series_index].color
+                    if source_point.has_color:
+                        point_color = source_point.color
+                    var box_width = source_point.size
+                    if box_width == 6.0:
+                        box_width = 18.0
+                    var left = point.x - box_width * 0.5
+                    var top = point.y if point.y < q3.y else q3.y
+                    var height = point.y - q3.y
+                    if height < 0.0:
+                        height = -height
+                    scene.append_rect(
+                        1250 + self.series[series_index].id * 100 + point_index,
+                        Rect(left, top, box_width, height),
+                        point_color,
+                    )
+                    var box_command = scene.commands[len(scene.commands) - 1]
+                    box_command.set_opacity(self.series[series_index].opacity * source_point.opacity)
+                    scene.commands[len(scene.commands) - 1] = box_command
+                    scene.append_line(
+                        1260 + self.series[series_index].id * 100 + point_index,
+                        Point(left, median.y),
+                        Point(left + box_width, median.y),
+                        self.axis_color,
+                        self.series[series_index].line_width,
+                    )
+                    scene.append_line(
+                        1270 + self.series[series_index].id * 100 + point_index,
+                        Point(point.x, low.y),
+                        Point(point.x, high.y),
+                        point_color,
+                        self.series[series_index].line_width,
+                    )
+                    scene.append_line(
+                        1280 + self.series[series_index].id * 100 + point_index,
+                        Point(left + box_width * 0.2, low.y),
+                        Point(left + box_width * 0.8, low.y),
+                        point_color,
+                        self.series[series_index].line_width,
+                    )
+                    scene.append_line(
+                        1290 + self.series[series_index].id * 100 + point_index,
+                        Point(left + box_width * 0.2, high.y),
+                        Point(left + box_width * 0.8, high.y),
+                        point_color,
+                        self.series[series_index].line_width,
+                    )
             elif self.series[series_index].kind == PLOT_ERROR_BAR or self.series[series_index].kind == PLOT_INTERVAL:
                 for point_index in range(self.series[series_index].count()):
                     var source_point = self.series[series_index].points[point_index]
@@ -1294,7 +1437,13 @@ struct Plot:
                     scene.commands[len(scene.commands) - 1] = error_command
             else:
                 var line_indices = List[Int]()
-                if self.series[series_index].kind == PLOT_LINE or self.series[series_index].kind == PLOT_STEP:
+                if (
+                    self.series[series_index].kind == PLOT_LINE
+                    or self.series[series_index].kind == PLOT_STEP
+                    or self.series[series_index].kind == PLOT_DENSITY
+                    or self.series[series_index].kind == PLOT_ECDF
+                    or self.series[series_index].kind == PLOT_REGRESSION
+                ):
                     line_indices = self.line_indices(self.series[series_index].id)
                 elif (self.series[series_index].kind == PLOT_SCATTER or self.series[series_index].kind == PLOT_DOT or self.series[series_index].kind == PLOT_BUBBLE) and self.scatter_point_limit > 0:
                     line_indices = self.scatter_indices(self.series[series_index].id)
@@ -1329,7 +1478,11 @@ struct Plot:
                         var marker_command = scene.commands[len(scene.commands) - 1]
                         marker_command.set_opacity(point_opacity)
                         scene.commands[len(scene.commands) - 1] = marker_command
-                    elif self.series[series_index].kind == PLOT_RECT:
+                    elif (
+                        self.series[series_index].kind == PLOT_RECT
+                        or self.series[series_index].kind == PLOT_HEATMAP
+                        or self.series[series_index].kind == PLOT_HEXBIN
+                    ):
                         var half_size = point_size * 0.5
                         var rect_end = source_point
                         if source_point.has_x2:
@@ -1351,6 +1504,12 @@ struct Plot:
                         if not source_point.has_y2:
                             rect_top = point.y - half_size
                             rect_height = point_size
+                        if (
+                            (self.series[series_index].kind == PLOT_HEATMAP
+                            or self.series[series_index].kind == PLOT_HEXBIN)
+                            and source_point.size <= 0.0
+                        ):
+                            continue
                         scene.append_rect(
                             2100 + self.series[series_index].id * 100 + point_index,
                             Rect(rect_left, rect_top, rect_width, rect_height),
@@ -1381,7 +1540,13 @@ struct Plot:
                         tick_command.set_opacity(point_opacity)
                         scene.commands[len(scene.commands) - 1] = tick_command
                     if (
-                        (self.series[series_index].kind == PLOT_LINE or self.series[series_index].kind == PLOT_STEP)
+                        (
+                            self.series[series_index].kind == PLOT_LINE
+                            or self.series[series_index].kind == PLOT_STEP
+                            or self.series[series_index].kind == PLOT_DENSITY
+                            or self.series[series_index].kind == PLOT_ECDF
+                            or self.series[series_index].kind == PLOT_REGRESSION
+                        )
                         and rendered_index > 0
                         and self.series[series_index].points[line_indices[rendered_index - 1]].facet_value
                             == self.series[series_index].points[point_index].facet_value
@@ -1392,7 +1557,10 @@ struct Plot:
                         var previous = self._screen_point(
                             self.series[series_index].points[previous_index]
                         )
-                        if self.series[series_index].kind == PLOT_STEP:
+                        if (
+                            self.series[series_index].kind == PLOT_STEP
+                            or self.series[series_index].kind == PLOT_ECDF
+                        ):
                             scene.append_line(
                                 3000 + self.series[series_index].id * 200 + point_index * 2,
                                 previous,

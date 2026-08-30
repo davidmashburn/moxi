@@ -20,6 +20,13 @@ from .plotting import (
     PLOT_STEP,
     PLOT_TICK,
     PLOT_INTERVAL,
+    PLOT_HISTOGRAM,
+    PLOT_DENSITY,
+    PLOT_ECDF,
+    PLOT_BOX,
+    PLOT_HEATMAP,
+    PLOT_HEXBIN,
+    PLOT_REGRESSION,
     PLOT_TEXT,
     SCALE_BAND,
     SCALE_CATEGORICAL,
@@ -83,6 +90,13 @@ comptime TRANSFORM_SAMPLE = 9
 comptime TRANSFORM_STACK = 10
 comptime TRANSFORM_AGGREGATE = 11
 comptime TRANSFORM_GROUP = 12
+comptime TRANSFORM_HISTOGRAM = 13
+comptime TRANSFORM_DENSITY = 14
+comptime TRANSFORM_ECDF = 15
+comptime TRANSFORM_BOX = 16
+comptime TRANSFORM_HEATMAP = 17
+comptime TRANSFORM_HEXBIN = 18
+comptime TRANSFORM_REGRESSION = 19
 
 comptime COMPOSITION_LAYER = 1
 comptime COMPOSITION_HORIZONTAL = 2
@@ -209,6 +223,20 @@ def transform_name(kind: Int) -> String:
         return "aggregate"
     if kind == TRANSFORM_GROUP:
         return "group"
+    if kind == TRANSFORM_HISTOGRAM:
+        return "histogram"
+    if kind == TRANSFORM_DENSITY:
+        return "density"
+    if kind == TRANSFORM_ECDF:
+        return "ecdf"
+    if kind == TRANSFORM_BOX:
+        return "box"
+    if kind == TRANSFORM_HEATMAP:
+        return "heatmap"
+    if kind == TRANSFORM_HEXBIN:
+        return "hexbin"
+    if kind == TRANSFORM_REGRESSION:
+        return "regression"
     return "filter_greater"
 
 
@@ -247,7 +275,7 @@ def _valid_data_type(data_type: Int) -> Bool:
 
 
 def _valid_mark(mark: Int) -> Bool:
-    return mark >= PLOT_LINE and mark <= PLOT_COLUMN
+    return mark >= PLOT_LINE and mark <= PLOT_REGRESSION
 
 
 def _valid_scale(kind: Int) -> Bool:
@@ -255,7 +283,7 @@ def _valid_scale(kind: Int) -> Bool:
 
 
 def _valid_transform(kind: Int) -> Bool:
-    return kind >= TRANSFORM_FILTER_GREATER and kind <= TRANSFORM_GROUP
+    return kind >= TRANSFORM_FILTER_GREATER and kind <= TRANSFORM_REGRESSION
 
 
 struct PlotEncoding(ImplicitlyCopyable):
@@ -616,6 +644,20 @@ def _mark_from_name(name: String) -> Int:
         return PLOT_BAND
     if name == "column":
         return PLOT_COLUMN
+    if name == "histogram":
+        return PLOT_HISTOGRAM
+    if name == "density":
+        return PLOT_DENSITY
+    if name == "ecdf":
+        return PLOT_ECDF
+    if name == "box":
+        return PLOT_BOX
+    if name == "heatmap":
+        return PLOT_HEATMAP
+    if name == "hexbin":
+        return PLOT_HEXBIN
+    if name == "regression":
+        return PLOT_REGRESSION
     return 0
 
 
@@ -762,6 +804,20 @@ def _transform_from_name(name: String) -> Int:
         return TRANSFORM_AGGREGATE
     if name == "group":
         return TRANSFORM_GROUP
+    if name == "histogram":
+        return TRANSFORM_HISTOGRAM
+    if name == "density":
+        return TRANSFORM_DENSITY
+    if name == "ecdf":
+        return TRANSFORM_ECDF
+    if name == "box":
+        return TRANSFORM_BOX
+    if name == "heatmap":
+        return TRANSFORM_HEATMAP
+    if name == "hexbin":
+        return TRANSFORM_HEXBIN
+    if name == "regression":
+        return TRANSFORM_REGRESSION
     if name == "filter_greater":
         return TRANSFORM_FILTER_GREATER
     return 0
@@ -796,6 +852,20 @@ def plot_mark_name(mark: Int) -> String:
         return "band"
     if mark == PLOT_COLUMN:
         return "column"
+    if mark == PLOT_HISTOGRAM:
+        return "histogram"
+    if mark == PLOT_DENSITY:
+        return "density"
+    if mark == PLOT_ECDF:
+        return "ecdf"
+    if mark == PLOT_BOX:
+        return "box"
+    if mark == PLOT_HEATMAP:
+        return "heatmap"
+    if mark == PLOT_HEXBIN:
+        return "hexbin"
+    if mark == PLOT_REGRESSION:
+        return "regression"
     return "line"
 
 
@@ -815,6 +885,9 @@ struct PlotLayer(ImplicitlyCopyable):
     var size_field: String
     var opacity_field: String
     var text_field: String
+    var stat_low_field: String
+    var stat_high_field: String
+    var median_field: String
     var color: Color
     var line_width: Float32
     var size: Float32
@@ -843,6 +916,9 @@ struct PlotLayer(ImplicitlyCopyable):
         self.size_field = ""
         self.opacity_field = ""
         self.text_field = ""
+        self.stat_low_field = ""
+        self.stat_high_field = ""
+        self.median_field = ""
         self.color = color
         self.line_width = 2.0
         self.size = 6.0
@@ -1068,6 +1144,126 @@ struct PlotSpec:
         color: Color = Color(0.90, 0.92, 0.98, 1.0),
     ) -> Int:
         return self.add_layer(PLOT_TEXT, label, x_field, y_field, color)
+
+    def add_histogram(
+        mut self,
+        label: String,
+        field: String,
+        bins: Int = 10,
+        color: Color = Color(0.30, 0.70, 0.95, 0.85),
+    ) -> Int:
+        """Add an equal-width histogram recipe over a numeric field."""
+        var id = self.add_layer(PLOT_HISTOGRAM, label, "x", "y", color)
+        var layer_index = self._layer_index(id)
+        self.layers[layer_index].x2_field = "x2"
+        var transform = PlotTransform(TRANSFORM_HISTOGRAM, field)
+        transform.limit = bins if bins > 0 else 1
+        self.transforms.append(transform)
+        return id
+
+    def add_density(
+        mut self,
+        label: String,
+        field: String,
+        bins: Int = 24,
+        color: Color = Color(0.55, 0.45, 1.0, 1.0),
+    ) -> Int:
+        """Add a histogram-derived density line recipe."""
+        var id = self.add_layer(PLOT_DENSITY, label, "x", "y", color)
+        var transform = PlotTransform(TRANSFORM_DENSITY, field)
+        transform.limit = bins if bins > 0 else 1
+        self.transforms.append(transform)
+        return id
+
+    def add_ecdf(
+        mut self,
+        label: String,
+        field: String,
+        color: Color = Color(0.95, 0.65, 0.20, 1.0),
+    ) -> Int:
+        """Add an empirical cumulative distribution recipe."""
+        var id = self.add_layer(PLOT_ECDF, label, "x", "y", color)
+        self.transforms.append(PlotTransform(TRANSFORM_ECDF, field))
+        return id
+
+    def add_box(
+        mut self,
+        label: String,
+        value_field: String,
+        group_field: String = "",
+        color: Color = Color(0.40, 0.85, 0.55, 0.90),
+    ) -> Int:
+        """Add a Tukey box-and-whisker recipe, optionally grouped."""
+        var id = self.add_layer(PLOT_BOX, label, "group", "y", color)
+        var layer_index = self._layer_index(id)
+        self.layers[layer_index].y2_field = "y2"
+        self.layers[layer_index].stat_low_field = "low"
+        self.layers[layer_index].stat_high_field = "high"
+        self.layers[layer_index].median_field = "median"
+        var transform = PlotTransform(TRANSFORM_BOX, value_field)
+        transform.second_field = group_field
+        self.transforms.append(transform)
+        return id
+
+    def add_heatmap(
+        mut self,
+        label: String,
+        x_field: String,
+        y_field: String,
+        x_bins: Int = 16,
+        y_bins: Int = 12,
+        color: Color = Color(0.25, 0.65, 1.0, 0.90),
+    ) -> Int:
+        """Add a rectangular density-bin heatmap recipe."""
+        var id = self.add_layer(PLOT_HEATMAP, label, "x", "y", color)
+        var layer_index = self._layer_index(id)
+        self.layers[layer_index].x2_field = "x2"
+        self.layers[layer_index].y2_field = "y2"
+        self.layers[layer_index].color_field = "count"
+        var transform = PlotTransform(TRANSFORM_HEATMAP, x_field)
+        transform.second_field = y_field
+        transform.limit = x_bins if x_bins > 0 else 1
+        transform.window = y_bins if y_bins > 0 else 1
+        self.transforms.append(transform)
+        return id
+
+    def add_hexbin(
+        mut self,
+        label: String,
+        x_field: String,
+        y_field: String,
+        x_bins: Int = 16,
+        y_bins: Int = 12,
+        color: Color = Color(0.95, 0.45, 0.30, 0.90),
+    ) -> Int:
+        """Add a bounded rectangular hexbin-compatible density recipe."""
+        var id = self.add_layer(PLOT_HEXBIN, label, "x", "y", color)
+        var layer_index = self._layer_index(id)
+        self.layers[layer_index].x2_field = "x2"
+        self.layers[layer_index].y2_field = "y2"
+        self.layers[layer_index].color_field = "count"
+        var transform = PlotTransform(TRANSFORM_HEXBIN, x_field)
+        transform.second_field = y_field
+        transform.limit = x_bins if x_bins > 0 else 1
+        transform.window = y_bins if y_bins > 0 else 1
+        self.transforms.append(transform)
+        return id
+
+    def add_regression(
+        mut self,
+        label: String,
+        x_field: String,
+        y_field: String,
+        samples: Int = 32,
+        color: Color = Color(1.0, 0.75, 0.35, 1.0),
+    ) -> Int:
+        """Add an ordinary least-squares regression line recipe."""
+        var id = self.add_layer(PLOT_REGRESSION, label, "x", "y", color)
+        var transform = PlotTransform(TRANSFORM_REGRESSION, x_field)
+        transform.second_field = y_field
+        transform.limit = samples if samples > 1 else 2
+        self.transforms.append(transform)
+        return id
 
     def encode(
         mut self,
@@ -1539,6 +1735,12 @@ struct PlotSpec:
                 json_quote(layer.opacity_field),
                 ",\"text_field\":",
                 json_quote(layer.text_field),
+                ",\"stat_low_field\":",
+                json_quote(layer.stat_low_field),
+                ",\"stat_high_field\":",
+                json_quote(layer.stat_high_field),
+                ",\"median_field\":",
+                json_quote(layer.median_field),
                 ",\"line_width\":",
                 layer.line_width,
                 ",\"size\":",
@@ -1783,6 +1985,9 @@ def plot_spec_from_json(value: String) -> PlotSpec:
         var size_field = _string_member(object, "size_field")
         var opacity_field = _string_member(object, "opacity_field")
         var text_field = _string_member(object, "text_field")
+        var stat_low_field = _string_member(object, "stat_low_field")
+        var stat_high_field = _string_member(object, "stat_high_field")
+        var median_field = _string_member(object, "median_field")
         if x2.ok:
             result.layers[layer_index].x2_field = x2.value
         if y2.ok:
@@ -1799,6 +2004,12 @@ def plot_spec_from_json(value: String) -> PlotSpec:
             result.layers[layer_index].opacity_field = opacity_field.value
         if text_field.ok:
             result.layers[layer_index].text_field = text_field.value
+        if stat_low_field.ok:
+            result.layers[layer_index].stat_low_field = stat_low_field.value
+        if stat_high_field.ok:
+            result.layers[layer_index].stat_high_field = stat_high_field.value
+        if median_field.ok:
+            result.layers[layer_index].median_field = median_field.value
         var line_width = _number_member(object, "line_width")
         var size = _number_member(object, "size")
         var opacity = _number_member(object, "opacity")
@@ -1892,6 +2103,37 @@ def plot_spec_from_json(value: String) -> PlotSpec:
             elif transform_kind == TRANSFORM_GROUP:
                 var output_field = _string_member(object, "output_field")
                 result.add_group(field.value, output_field.value)
+            elif transform_kind == TRANSFORM_HISTOGRAM:
+                var parsed_transform = PlotTransform(TRANSFORM_HISTOGRAM, field.value)
+                parsed_transform.limit = _number_member(object, "limit").integer
+                result.transforms.append(parsed_transform)
+            elif transform_kind == TRANSFORM_DENSITY:
+                var parsed_transform = PlotTransform(TRANSFORM_DENSITY, field.value)
+                parsed_transform.limit = _number_member(object, "limit").integer
+                result.transforms.append(parsed_transform)
+            elif transform_kind == TRANSFORM_ECDF:
+                result.transforms.append(PlotTransform(TRANSFORM_ECDF, field.value))
+            elif transform_kind == TRANSFORM_BOX:
+                var parsed_transform = PlotTransform(TRANSFORM_BOX, field.value)
+                parsed_transform.second_field = _string_member(object, "second_field").value
+                result.transforms.append(parsed_transform)
+            elif transform_kind == TRANSFORM_HEATMAP:
+                var parsed_transform = PlotTransform(TRANSFORM_HEATMAP, field.value)
+                parsed_transform.second_field = _string_member(object, "second_field").value
+                parsed_transform.limit = _number_member(object, "limit").integer
+                parsed_transform.window = _number_member(object, "window").integer
+                result.transforms.append(parsed_transform)
+            elif transform_kind == TRANSFORM_HEXBIN:
+                var parsed_transform = PlotTransform(TRANSFORM_HEXBIN, field.value)
+                parsed_transform.second_field = _string_member(object, "second_field").value
+                parsed_transform.limit = _number_member(object, "limit").integer
+                parsed_transform.window = _number_member(object, "window").integer
+                result.transforms.append(parsed_transform)
+            elif transform_kind == TRANSFORM_REGRESSION:
+                var parsed_transform = PlotTransform(TRANSFORM_REGRESSION, field.value)
+                parsed_transform.second_field = _string_member(object, "second_field").value
+                parsed_transform.limit = _number_member(object, "limit").integer
+                result.transforms.append(parsed_transform)
             elif transform_kind == 0:
                 result.valid = False
             else:
@@ -2023,6 +2265,43 @@ def plot_from_spec(
                 transform.output_field,
                 False,
             )
+        elif transform.kind == TRANSFORM_HISTOGRAM:
+            transformed = transformed.histogram(
+                transform.field,
+                transform.limit,
+            )
+        elif transform.kind == TRANSFORM_DENSITY:
+            transformed = transformed.density(
+                transform.field,
+                transform.limit,
+            )
+        elif transform.kind == TRANSFORM_ECDF:
+            transformed = transformed.ecdf(transform.field)
+        elif transform.kind == TRANSFORM_BOX:
+            transformed = transformed.box_summary(
+                transform.field,
+                transform.second_field,
+            )
+        elif transform.kind == TRANSFORM_HEATMAP:
+            transformed = transformed.heatmap(
+                transform.field,
+                transform.second_field,
+                transform.limit,
+                transform.window,
+            )
+        elif transform.kind == TRANSFORM_HEXBIN:
+            transformed = transformed.heatmap(
+                transform.field,
+                transform.second_field,
+                transform.limit,
+                transform.window,
+            )
+        elif transform.kind == TRANSFORM_REGRESSION:
+            transformed = transformed.regression(
+                transform.field,
+                transform.second_field,
+                transform.limit,
+            )
     var plot = Plot(bounds)
     plot.set_title(spec.title)
     plot.set_composition(spec.composition)
@@ -2055,6 +2334,9 @@ def plot_from_spec(
             layer.tooltip_fields,
             layer.x2_field,
             layer.y2_field,
+            layer.stat_low_field,
+            layer.stat_high_field,
+            layer.median_field,
         )
         _ = plot.set_series_line_width(series_id, layer.line_width)
         _ = plot.set_series_marker_size(series_id, layer.size)
