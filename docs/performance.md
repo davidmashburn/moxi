@@ -84,8 +84,10 @@ gradients), printable ASCII glyphs, registered file-backed images, and simple
 Bezier tessellation, asynchronous frame pacing, and GPU timestamp queries
 remain follow-up work.
 The 1M scatter benchmark measures CPU scene generation and is not a GPU
-frame-time claim. The iOS, Android, and Web targets now expose usable host
-event/fallback bridges, but their native SDK hosts/renderers are not yet
-release targets. See
+frame-time claim. The iOS and Android host demos now compile against their
+SDKs, and the Web Canvas demo runs in a real browser; these are host
+validation artifacts rather than Mojo package targets. Platform GPU
+timestamps, runtime integration, and device/browser performance baselines
+remain open. See
 [ARCHITECTURE.md](../ARCHITECTURE.md) and
 [PROJECT-PLANNING.md](../PROJECT-PLANNING.md) for the staged roadmap.

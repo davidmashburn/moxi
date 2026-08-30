@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Moxi Web Host</title>
+    <style>
+      :root { color-scheme: dark; font: 15px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0e111a; color: #eff3ff; }
+      main { width: min(760px, calc(100vw - 32px)); }
+      canvas { display: block; width: 100%; height: min(70vh, 520px); border: 1px solid #3a4b70; border-radius: 18px; outline: none; background: #0e111a; }
+      canvas:focus { border-color: #6fd6b4; box-shadow: 0 0 0 3px #6fd6b433; }
+      p { color: #bfc9de; line-height: 1.5; }
+      code { color: #6fd6b4; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <canvas id="moxi-surface" tabindex="0" aria-label="Moxi Web host demo"></canvas>
+      <p id="status">Starting the Moxi Web host…</p>
+      <p>Click or touch the surface. The same scalar host contract drives pointer,
+        keyboard, resize, animation-frame, and teardown callbacks.</p>
+    </main>
+    <script type="module">
+      import { MoxiWebHost } from "../hosts/moxi_web_host.mjs";
+
+      const canvas = document.querySelector("#moxi-surface");
+      const status = document.querySelector("#status");
+      const context = canvas.getContext("2d");
+      let frames = 0;
+      let lastEvent = "ready";
+
+      function draw() {
+        const scale = window.devicePixelRatio || 1;
+        const width = canvas.width / scale;
+        const height = canvas.height / scale;
+        context.setTransform(scale, 0, 0, scale, 0, 0);
+        context.clearRect(0, 0, width, height);
+        context.fillStyle = "#0e111a";
+        context.fillRect(0, 0, width, height);
+        const inset = Math.max(24, width * 0.08);
+        context.fillStyle = "#263048";
+        context.beginPath();
+        context.roundRect(inset, inset * 1.8, width - inset * 2, height - inset * 3.6, 22);
+        context.fill();
+        context.fillStyle = "#6fd6b4";
+        context.fillRect(inset * 1.7, inset * 2.8, 10, 10);
+        context.fillStyle = "#eff3ff";
+        context.font = "600 19px ui-monospace, monospace";
+        context.fillText("Moxi Web host", inset * 1.7, inset * 4.8);
+        context.fillStyle = "#bfc9de";
+        context.font = "13px ui-monospace, monospace";
+        context.fillText("Canvas surface + pointer/touch + IME + resize", inset * 1.7, inset * 6.1);
+        context.fillText(`frame ${frames}  •  ${lastEvent}`, inset * 1.7, inset * 7.8);
+      }
+
+      const host = new MoxiWebHost(canvas, {
+        event(kind, pointerId, x, y) {
+          lastEvent = `event ${kind} / pointer ${pointerId} @ ${Math.round(x)},${Math.round(y)}`;
+          status.textContent = `Moxi Web host • ${lastEvent}`;
+        },
+        key(key) {
+          lastEvent = `key ${key}`;
+          status.textContent = `Moxi Web host • ${lastEvent}`;
+        },
+        resize(width, height, scale) {
+          status.textContent = `Moxi Web host • ${Math.round(width)} × ${Math.round(height)} @ ${scale.toFixed(1)}x • frame ${frames}`;
+          draw();
+        },
+        frame() {
+          frames += 1;
+          draw();
+        },
+      });
+      host.start();
+      window.addEventListener("beforeunload", () => host.stop(), { once: true });
+      canvas.focus();
+    </script>
+  </body>
+</html>

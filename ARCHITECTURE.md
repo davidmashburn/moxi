@@ -325,10 +325,11 @@ features without probing platform internals.
 hosts, iOS, Android, and Web. Named iOS/Android/Web adapters normalize host
 input and provide deterministic software fallbacks (plus SVG frame export on
 Web). `native/hosts/` contains the platform-owned UIKit/Metal, Android-NDK,
-and browser lifecycle/input shims, but this macOS package does not link their
-SDK/runtime surfaces; `HostContract` and the adapters therefore still fail
-closed for native availability until a target app and integration harness are
-built.
+and browser lifecycle/input shims. `native/ios/MoxiHost.xcodeproj` and
+`native/android/` build small host demos, while `native/web/host_demo.html` is
+browser-runnable. This macOS package does not link those SDK/runtime surfaces;
+`HostContract` therefore continues to fail closed for Mojo package-side native
+availability even though the host artifacts themselves are buildable.
 
 `TestRenderer` records a frame without a platform window. `TestWindow` queues
 backend-neutral events and exposes the same window lifecycle shape, allowing
@@ -338,7 +339,8 @@ for multiple window ids; native AppKit multi-window ownership is still a
 follow-up adapter.
 
 The package build target remains macOS on Apple Silicon, with native host
-source slices for iOS, Android, and Web documented separately. The capability
+source slices and build targets for iOS, Android, and Web documented
+separately. The capability
 bus is implemented as an in-process authorization/lease boundary; transport,
 serialization, and agent-session orchestration remain outside the core. The
 capability design note in

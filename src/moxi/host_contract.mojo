@@ -2,8 +2,9 @@
 
 The Mojo package is built for the host it is running on, so it cannot safely
 pretend that an iOS SDK, Android NDK, or browser runtime is linked merely
-because a target enum exists. This contract keeps the portable event/fallback
-bridge usable and tells a launcher exactly what native host work remains.
+because a target enum exists. This contract describes package-side native
+availability; the separately built host artifacts under ``native/`` are
+validated by their platform build scripts.
 """
 
 from .backend import (
@@ -80,7 +81,7 @@ def host_contract(target: Int) -> HostContract:
             True,
             True,
             False,
-            "Xcode iPhoneOS SDK and an application host target",
+            "Moxi iOS host artifact plus a Mojo-capable target runtime",
         )
     if target == BACKEND_ANDROID:
         return HostContract(
@@ -91,7 +92,7 @@ def host_contract(target: Int) -> HostContract:
             True,
             True,
             False,
-            "Android NDK, an Activity/SurfaceView, and an APK target",
+            "Moxi Android APK host plus a Mojo-capable target runtime",
         )
     if target == BACKEND_WEB:
         return HostContract(
@@ -102,7 +103,7 @@ def host_contract(target: Int) -> HostContract:
             True,
             True,
             False,
-            "browser runtime plus Canvas/WebGPU or SVG integration",
+            "Moxi browser host plus a Mojo-capable WebAssembly/runtime target",
         )
     return HostContract(
         BACKEND_HEADLESS,

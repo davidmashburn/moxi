@@ -98,10 +98,12 @@ keys are the portable regression signals.
 scale-factor, and event-envelope rules. They normalize touch/pointer,
 keyboard, text/IME, and resize notifications and expose deterministic
 software fallback checksums. `WebBackend.svg_frame()` provides a browser-
-compatible output path today. Native host shims live in `native/hosts/` and
-are checked by `pixi run host-check`; UIKit/Metal, Android surface/GPU, and
-browser Canvas/WebGPU app targets remain capability-gated until their SDK
-projects, accessibility bridges, and device/browser harnesses are shipped.
+compatible output path today. Native host shims live in `native/hosts/`; the
+iOS simulator app, Android API-35 APK, and browser Canvas demo are built by
+`pixi run ios-build`, `pixi run android-build`, and
+`native/web/host_demo.html` respectively, all covered by
+`pixi run host-check`. Mojo target runtime integration, platform
+accessibility bridges, and device/browser CI remain capability-gated.
 
 See [API.md](API.md) for the complete inventory and
 [performance.md](performance.md) for benchmark policy and budgets.

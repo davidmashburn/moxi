@@ -23,7 +23,8 @@ The remaining explicitly deferred post-0.5 work is now narrower:
   recycler.
 - Deep native widgets and platform-native interaction/accessibility fidelity.
 - Native iOS, Android, and browser app targets with device/emulator/browser CI;
-  host lifecycle/input shims now live under `native/hosts/`.
+  host lifecycle/input shims now live under `native/hosts/`, with local iOS,
+  Android, and browser demo artifacts checked by `scripts/host_check.sh`.
 - Complex GPU typography, Bezier/path boolean tessellation, asynchronous frame
   pacing, GPU timestamps, and portable cross-platform resource loaders; Metal
   now covers printable ASCII glyphs, registered file-backed images, and simple
@@ -112,9 +113,9 @@ Target the platforms in this order, while keeping the common contract usable:
 | Target | First backend shape | Initial native surface | Current status |
 | --- | --- | --- | --- |
 | macOS | AppKit window + scene/software path; Metal target | windows, input, AX, text bridge | baseline shipped; hardened basic Metal slice |
-| iOS | UIKit/Metal surface adapter | app/window lifecycle, touch, safe areas, AX | UIKit/Metal host shim; SDK-gated app target and AX pending |
-| Android | Android surface/input/accessibility adapter | lifecycle, touch, IME, density | NDK surface/input host shim; APK/renderer/AX target pending |
-| Web | browser host + Canvas/WebGPU target | DOM focus/AX bridge, pointer/touch, resize | framework-free browser host + SVG fallback; packaged WASM/AX target pending |
+| iOS | UIKit/Metal surface adapter | app/window lifecycle, touch, safe areas, AX | arm64 simulator app target builds; Mojo runtime/AX/device CI pending |
+| Android | Android surface/input/accessibility adapter | lifecycle, touch, IME, density | arm64 API-35 APK target builds; Mojo renderer/AX/device CI pending |
+| Web | browser host + Canvas/WebGPU target | DOM focus/AX bridge, pointer/touch, resize | browser Canvas demo + Node/browser checks; packaged WASM/AX target pending |
 
 The first cross-platform milestone is not “all widgets everywhere.” It is a
 portable surface/window lifecycle, event vocabulary, scale-factor contract,
@@ -171,12 +172,13 @@ identity, focus, keyboard navigation, editing, and scroll stability.
 Acceptance: mutation traces identify the affected component/view region and
 native controls preserve semantics, focus, and input behavior.
 
-### 0.9 — iOS, Android, and Web vertical slices (host shim slice complete)
+### 0.9 — iOS, Android, and Web vertical slices (host artifact slice complete)
 
 - Ship one small shared scenario end-to-end on each target: window/surface,
   input, layout, scene, text, accessibility, and teardown. The current slice
-  supplies the native host callback shims and a Node-tested browser host;
-  packaged app/device/browser validation remains required.
+  builds an iOS simulator app, an Android APK, and a browser Canvas demo;
+  Mojo runtime integration, platform accessibility, and device/browser CI
+  remain required.
 - Start with the GPU-capable path where available (Metal, then WebGPU) and a
   documented software/canvas fallback.
 - Establish device/emulator/browser CI or a reproducible manual harness before
@@ -523,11 +525,12 @@ accessibility, and performance contracts.
 
 ## Browser/integration harness
 
-When Web work begins, add a deterministic harness with one known-good server
-path, readiness probe, stable test route, explicit teardown, and real browser
-interaction tests. The harness must exercise keyboard/pointer/touch, focus,
-resize, accessibility exposure, plotting updates, and renderer fallback. Do
-not claim Web support from a compile-only target.
+The Web slice has a known-good server path (`python3 -m http.server 8765`), a
+stable route (`native/web/host_demo.html`), explicit `MoxiWebHost.stop()`
+teardown, Node contract tests, and a real browser smoke path. The browser demo
+exercises pointer/focus/resize/frame callbacks and exposes a labeled Canvas;
+plotting updates, DOM accessibility mapping, and a packaged WebAssembly target
+remain later gates. Do not claim the Mojo Web package from the host demo alone.
 
 ## Documentation and release gates
 

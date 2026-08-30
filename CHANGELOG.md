@@ -8,7 +8,9 @@
   submission/capacity/reallocation/fallback counters.
 - Added usable iOS, Android, and Web host bridges for normalized touch/pointer,
   key, text/IME, and resize events, deterministic software fallback checksums,
-  and Web SVG frame export. Native SDK hosts remain capability-gated.
+  and Web SVG frame export. Added an SDK-built iOS simulator app, an Android
+  API-35 debug APK, and a real browser Canvas host demo; Mojo package runtime
+  integration and platform accessibility remain gated.
 - Added shared typed plotting fixtures, statistical/linked plotting benchmarks,
   zero-copy key-selection views, recipe-aware spec validation, and a statistical
   visual reference. The gallery now exercises histogram, box, heatmap, and
@@ -23,8 +25,8 @@
   builders with overscan, bounded slot ownership, clamped offsets, and
   ensure-visible behavior, plus localized execution dependency accounting.
 - Added shared lifecycle and scale-factor contracts for iOS, Android, and Web;
-  native hosts remain unavailable, while SVG provides Web-compatible scene
-  export.
+  native host artifacts now have reproducible local build targets, while SVG
+  provides the deterministic Web-compatible scene export.
 - Expanded Moxi Plot into an executable typed 2D foundation: Float32/Float64,
   integer/Boolean/string/category/timestamp/duration fields, stable-key
   snapshots and views, field encodings, second channels, per-row styling,

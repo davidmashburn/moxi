@@ -96,8 +96,10 @@ separately below and are not being presented as a 0.5 compatibility promise.
   output, and Web-compatible SVG serialization.
 - Shared platform host bridges for iOS, Android, and Web that normalize
   touch/pointer/key/text/resize input and provide deterministic software/SVG
-  fallbacks; those native targets remain capability-gated until their SDK
-  hosts land.
+  fallbacks. SDK-backed host artifacts now include an arm64 iOS simulator app,
+  an arm64 Android API-35 debug APK, and a browser Canvas demo; the Mojo
+  package itself remains target-neutral until Mojo iOS/Android/Web runtimes
+  are available.
 - Stateful combo-box, list, table, tree, menu, dialog, tabs, and canvas models,
   with theme coverage for every public catalog kind.
 - A native form demo showing the complete interaction path.
@@ -163,9 +165,9 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
 - The native adapter is a small Objective-C AppKit shim. `WindowConfig`
   size-limits, resizability, and fullscreen flags are passed to AppKit.
   iOS, Android, and Web have shared lifecycle/event/scale contracts, named
-  host bridges, and deterministic fallbacks, but their native hosts are still
-  unavailable. Metal covers the supported geometry/text/resource slice;
-  AppKit remains the stable widget renderer.
+  host bridges, deterministic fallbacks, and SDK-backed host demos under
+  `native/ios`, `native/android`, and `native/web`. Metal covers the supported
+  geometry/text/resource slice; AppKit remains the stable widget renderer.
 - The core exposes dirty regions and changed commands, and `TestRenderer`
   exercises incremental dispatch. The native AppKit renderer conservatively
   submits a complete frame. `SceneRenderer` has both a deterministic software
@@ -209,10 +211,22 @@ pixi run metal-benchmark
 pixi run benchmark
 pixi run package-consumer
 pixi run check
+pixi run ios-build
+pixi run android-build
 ```
 
 `pixi run demo` opens the native window. Close the window to end the event loop.
 The generated `dist/` files and native object file are local build artifacts.
+
+`pixi run ios-build` requires Xcode and produces a signed arm64 simulator app
+at `output/ios-host-sim/MoxiHost.app`. `pixi run android-build` requires the
+Android SDK/NDK and produces a signed arm64 API-35 APK at
+`output/android/moxi-host-debug.apk`. To inspect the browser host, serve the
+repository and open `native/web/host_demo.html`, for example:
+
+```sh
+python3 -m http.server 8765
+```
 
 The plotting contract is documented in
 [docs/plotting.md](docs/plotting.md); [docs/visual.md](docs/visual.md) lists
@@ -368,8 +382,10 @@ form a richer rendering seam; `SoftwareSceneRenderer` is a deterministic
 raster backend and `MacOSMetalRenderer` is the batched GPU path. Its text,
 image, and simple-path support is resource/capability dependent, with
 unsupported inputs counted as fallbacks. The named iOS, Android, and Web
-bridges normalize host events and provide fallback output; native hosts are
-still capability-gated.
+bridges normalize host events and provide fallback output. SDK-backed host
+artifacts are checked by `pixi run host-check`; the Mojo package remains
+capability-gated for native availability because it is currently published as
+an `osx-arm64` package.
 
 `MacOSWindow.event_queue_depth()`, `dropped_event_count()`, and
 `command_overflow_count()` expose native backpressure and the current
@@ -483,8 +499,8 @@ execution accounting, target host bridges, and the first Plot library. The
 plot foundation now has typed data, executable statistical transforms,
 composable marks, independent facet scales, lasso/linked selection, a
 view/runtime boundary, and bounded large-data geometry. iOS, Android, and Web
-  have portable event/fallback bridges plus native host shims, but are not yet
-  supported native targets;
+  have portable event/fallback bridges plus SDK-backed host demos, but are not
+  yet supported Mojo package targets;
 the portable shaper remains approximate, while complex GPU typography, curve
 tessellation, async pacing, and full cross-platform resource backends remain
 staged follow-ups. The separate

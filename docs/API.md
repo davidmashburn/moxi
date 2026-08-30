@@ -80,8 +80,10 @@ lifecycle, resize, scale-factor, and native-host status rules across the named
 mobile/browser targets. `IOSBackend`, `AndroidBackend`, and `WebBackend`
 normalize host input and expose deterministic software fallbacks;
 `WebBackend.svg_frame()` is the browser-compatible export path. Native host
-shims are provided under `native/hosts/`, but all three Mojo targets remain
-unavailable until their SDK/runtime app targets are linked. `MacOSWindow` adds
+shims and local demo artifacts are provided under `native/hosts/`,
+`native/ios/`, `native/android/`, and `native/web/`; the Mojo package targets
+remain unavailable because the published package is still `osx-arm64`.
+`MacOSWindow` adds
 native queue depth, dropped-event, and draw-command-overflow counters for
 adapter diagnostics.
 
