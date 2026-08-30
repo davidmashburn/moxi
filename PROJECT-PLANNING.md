@@ -16,9 +16,10 @@ first-class plotting library.
 
 The remaining explicitly deferred post-0.5 work is now narrower:
 
-- Production portable OpenType shaping/font fallback outside the current
-  deterministic script-run contract; ligatures, kerning, and complex-script
-  joining still need a native or HarfBuzz-backed engine.
+- A production portable font-fallback chain beyond the new optional HarfBuzz
+  adapter; the adapter now supplies OpenType shaping/positioning and stable
+  clusters through a host-selected Unicode font, while custom collections,
+  fallback chains, and full paragraph bidi remain host policy.
 - Scrollbar widgets and viewport policy around the implemented variable-height
   recycler.
 - Deep native widgets and platform-native interaction/accessibility fidelity.
@@ -49,8 +50,9 @@ scene generation, GPU/native presentation, and a path to advanced domains.
    handles have explicit ownership boundaries. A callback or native handle
    does not cross a serialization or capability boundary implicitly.
 3. A backend advertises what it actually supports. iOS, Android, and Web are
-   named targets in the capability matrix before native implementations exist;
-   they must report unavailable rather than masquerading as macOS or headless.
+   named targets in the capability matrix even when the Mojo runtime is not
+   linked; host artifacts must report their real status rather than masquerade
+   as macOS or headless.
 4. Scene commands are the portable rendering contract. Software rendering is
    the deterministic oracle; GPU renderers consume the same scene/resources
    where practical and may expose a documented capability-specific extension.
@@ -149,8 +151,9 @@ milestones.
 ### 0.7 — Portable text contract and real virtualization (core slice complete)
 
 - Define a shaped-run/glyph-resource adapter with script, fallback, and bidi
-  metadata; the deterministic portable run contract and CoreText adapter are
-  now implemented. Production OpenType shaping remains an explicit extension.
+  metadata; the deterministic portable run contract, CoreText adapter, and
+  optional HarfBuzz OpenType adapter are now implemented. Custom fallback
+  chains and full paragraph bidi remain explicit extensions.
 - Replace visible-range-only lists with stable-key item builders, recycling,
   measured extents, prefix offsets, overscan, anchoring, and ensure-visible
   behavior; scrollbar policy remains separate.
@@ -242,8 +245,8 @@ geometry path, target fallback bridges, host status contract, and browser host
 module are contract-tested.
 
 This is an implemented foundation, not completion of every item in the
-design. Production OpenType portability, scrollbar policy, deep native
-widgets/accessibility, packaged browser/mobile hosts, complex GPU text/path
+design. Custom production font fallback, scrollbar policy, deep native
+widgets/accessibility, Mojo-host runtime integration, complex GPU text/path
 features, PDF/PNG export, and the broader polar/geographic/3D families remain
 explicitly staged work.
 

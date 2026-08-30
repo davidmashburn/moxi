@@ -21,6 +21,9 @@
 - Added portable cluster-aware approximate shaping metadata and a CoreText
   adapter that retains native glyph ids, clusters, bidi direction, advances,
   and fallback information at the shaped-run boundary.
+- Added an optional HarfBuzz/FreeType/Fontconfig shaping adapter with real
+  OpenType substitution/positioning, UTF-8 cluster mapping, auto direction,
+  and a reproducible linked smoke demo.
 - Added stable-key fixed-extent `VirtualRecycler` and `VirtualizedList`
   builders with overscan, bounded slot ownership, clamped offsets, and
   ensure-visible behavior, plus localized execution dependency accounting.

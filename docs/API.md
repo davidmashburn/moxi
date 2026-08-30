@@ -137,8 +137,9 @@ runtime scene/accessibility methods.
 The software, Metal, and SVG scene paths consume the same plot output; native
 Metal covers geometry, printable ASCII glyphs, registered images, and simple
 polygon paths, while complex text/path/resource cases remain explicit
-fallbacks. The portable shaper remains approximate outside the CoreText
-adapter.
+fallbacks. The portable shaper remains approximate by design;
+`HarfBuzzTextShaper` is an optional host-linked OpenType adapter, while custom
+fallback chains and full paragraph bidi remain host policy.
 
 ## Capability and agent boundary
 
@@ -174,7 +175,7 @@ the complete visible approval flow.
 | Plotting | [`docs/plotting.md`](plotting.md), [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/plot_selection.mojo`](../src/moxi/plot_selection.mojo), [`src/moxi/plot_link.mojo`](../src/moxi/plot_link.mojo), [`src/moxi/plot_view.mojo`](../src/moxi/plot_view.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
 | Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh) |
 | Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo), [`src/moxi/host_contract.mojo`](../src/moxi/host_contract.mojo), [`native/hosts/`](../native/hosts/) |
-| Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`native/macos_text.m`](../native/macos_text.m) |
+| Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`src/moxi/harfbuzz.mojo`](../src/moxi/harfbuzz.mojo), [`native/macos_text.m`](../native/macos_text.m), [`native/harfbuzz_text.cpp`](../native/harfbuzz_text.cpp) |
 | Reactivity and tasks | [`src/moxi/reactivity.mojo`](../src/moxi/reactivity.mojo), [`src/moxi/tasks.mojo`](../src/moxi/tasks.mojo) |
 | Capabilities and conversation | [`src/moxi/capability.mojo`](../src/moxi/capability.mojo), [`src/moxi/conversation.mojo`](../src/moxi/conversation.mojo) |
 | Native adapter | [`src/moxi/macos.mojo`](../src/moxi/macos.mojo), [`native/macos_window.m`](../native/macos_window.m) |

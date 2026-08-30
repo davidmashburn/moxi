@@ -47,6 +47,7 @@ metal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o
 metal-benchmark = { cmd = "./dist/moxi-metal-benchmark", depends-on = ["metal-benchmark-build"] }
 text-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_text.o -Xlinker -framework -Xlinker CoreText -Xlinker -framework -Xlinker Cocoa examples/coretext.mojo -o dist/moxi-coretext-demo", depends-on = ["text-object"] }
 text-demo = { cmd = "./dist/moxi-coretext-demo", depends-on = ["text-demo-build"] }
+harfbuzz-check = "bash scripts/harfbuzz_check.sh"
 benchmark = "bash scripts/benchmark.sh"
 package-consumer = "bash scripts/package_consumer.sh"
 test = "bash scripts/test.sh"

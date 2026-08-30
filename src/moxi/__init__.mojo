@@ -602,6 +602,7 @@ from .plot_link import PlotLink
 from .virtual_view import VirtualItemBuilder, VirtualizedList
 from .svg import SvgSceneRenderer
 from .coretext import MacOSTextShaper
+from .harfbuzz import HarfBuzzTextShaper
 from .metal import MacOSMetalRenderer, MacOSMetalWindow
 
 

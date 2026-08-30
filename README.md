@@ -366,8 +366,10 @@ and submits only changed commands.
 deterministic and explicitly approximate, with script/direction/fallback runs,
 stable source clusters, wrapping, and auto-direction; native
 `MacOSTextShaper` uses CoreText and preserves glyph ids, source clusters, bidi
-direction, and measured advances. OpenType ligatures, kerning, and complex
-script joining still require a native or HarfBuzz adapter.
+direction, and measured advances. `HarfBuzzTextShaper` is an optional native
+adapter that supplies OpenType substitution/positioning and UTF-8 clusters
+when linked with `scripts/harfbuzz_check.sh`; custom fallback chains remain
+host policy.
 `MacOSRenderer.backend_capabilities()` reports AppKit text support, while
 `MacOSMetalRenderer.backend_capabilities()` reports the initialized Metal
 scene capabilities.
