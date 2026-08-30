@@ -436,6 +436,7 @@ from .native_widgets import (
     NATIVE_WIDGET_TEXT_INPUT,
     native_widget_kind,
 )
+from .targets import AndroidBackend, IOSBackend, WebBackend
 from .performance import (
     FRAME_BUDGET_60_HZ_MS,
     FRAME_BUDGET_120_HZ_MS,

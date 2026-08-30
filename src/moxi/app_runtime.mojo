@@ -47,6 +47,7 @@ from .geometry import Point, Rect
 from .paint import PaintCommands, Renderer
 from .runtime import ColumnRuntime
 from .reactivity import ActionMessage, ActionQueue
+from .execution import LocalizedExecution
 from .tasks import TaskHandle, TaskScheduler
 from .view import ColumnView, TEXT_INPUT_VIEW_KIND
 from .window import WindowBackend
@@ -64,6 +65,7 @@ struct App[ComponentType: Component & Deinitable]:
     var tasks: TaskScheduler
     var scroll_ids: List[Int]
     var scroll_values: List[Float32]
+    var local_execution: LocalizedExecution
 
     def __init__(out self, component: Self.ComponentType, bounds: Rect):
         self.component = component
@@ -77,6 +79,9 @@ struct App[ComponentType: Component & Deinitable]:
         self.tasks = TaskScheduler()
         self.scroll_ids = List[Int]()
         self.scroll_values = List[Float32]()
+        self.local_execution = LocalizedExecution()
+        _ = self.local_execution.add_scope(0)
+        _ = self.local_execution.add_dependency(0, 0)
 
     def update(mut self, event: ClickEvent) -> Bool:
         """Compatibility spelling for dispatching a pointer click."""
@@ -114,6 +119,33 @@ struct App[ComponentType: Component & Deinitable]:
     def forget_task(mut self, handle: TaskHandle) -> Bool:
         """Release a terminal task record when the application no longer needs it."""
         return self.tasks.forget(handle)
+
+    def register_execution_scope(
+        mut self,
+        scope_id: Int,
+        parent_id: Int = -1,
+    ) -> Bool:
+        """Register a component state scope for localized invalidation."""
+        return self.local_execution.add_scope(scope_id, parent_id)
+
+    def register_execution_dependency(
+        mut self,
+        component_id: Int,
+        scope_id: Int,
+    ) -> Bool:
+        """Connect a component to only the state scope it consumes."""
+        return self.local_execution.add_dependency(component_id, scope_id)
+
+    def invalidate_execution_scope(mut self, scope_id: Int) -> Bool:
+        """Mark dependent components dirty without broad invalidation."""
+        return self.local_execution.invalidate_scope(scope_id)
+
+    def take_execution_dirty(mut self, component_id: Int) -> Bool:
+        """Consume one localized rebuild token after running a typed builder."""
+        return self.local_execution.take_dirty(component_id)
+
+    def execution_build_count(self, component_id: Int) -> Int:
+        return self.local_execution.build_count(component_id)
 
     def dispatch_action(mut self, message: ActionMessage) -> Bool:
         """Deliver a typed action without inventing a pointer target."""
@@ -376,6 +408,7 @@ struct App[ComponentType: Component & Deinitable]:
 
     def rebuild(mut self):
         """Rebuild the declarative view and reconcile retained children."""
+        _ = self.local_execution.invalidate_scope(0)
         self.view = self.component.build(self.root_bounds)
         self.apply_scroll_offsets()
         self.runtime.reconcile(self.view)

@@ -31,6 +31,7 @@ tests=(
   tests/platform_adapters.mojo
   tests/native_widgets.mojo
   tests/virtual_view.mojo
+  tests/targets.mojo
   tests/performance.mojo
   tests/virtualization.mojo
   tests/execution.mojo
