@@ -25,6 +25,7 @@ echo "Set MOXI_BENCHMARK_RUNS=1 for a quick check or use the default 3 runs for 
 
 run_case "retained layout/paint/scene" mojo run -I src benchmarks/layout.mojo
 run_case "portable plot scene" mojo run -I src benchmarks/plotting.mojo
+run_case "large plot scene generation" mojo run -I src benchmarks/plotting_large.mojo
 
 # Compile once so the Metal measurements focus on the workload rather than
 # repeatedly invoking the Mojo compiler.

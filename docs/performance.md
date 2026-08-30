@@ -33,6 +33,7 @@ the Metal binary is compiled once before its measured runs.
 | --- | --- | --- |
 | Retained pipeline | layout, identity reconciliation, paint, scene conversion, fixed-extent range math | passes, child count, paint commands, checksum, operations/frame |
 | Portable plot | plot scales, axes, labels, line/scatter/bar scene emission, software rasterization | commands/frame, rasterized pixels/frame, checksum |
+| Large plot generation | 10,000-point line with LOD and 100,000-point scatter scene generation | source rows, command counts, operations/frame |
 | Offscreen Metal | scene batching, CPU vertex upload, one GPU draw submission, synchronized completion | frames, vertices/frame, overflow count, checksum |
 
 `PerformanceCounters` exposes the first two workloads' work accounting to
@@ -53,6 +54,9 @@ completion until an asynchronous presentation path exists.
   turns scrolling into bounded reuse instead of unbounded view growth.
 - The Metal backend batches rectangle and line geometry into one shared vertex
   buffer and one draw submission per frame.
+- Dense line plots can opt into extrema-preserving pixel-level reduction with
+  `Plot.set_line_point_limit()`; the large benchmark keeps the 10,000-point
+  source data but bounds emitted line geometry to 2,048 points.
 
 When changing a hot path, add or update a deterministic counter, run the same
 scenario before and after, and record the reason for the change in the commit
