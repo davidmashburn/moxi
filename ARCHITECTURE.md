@@ -138,9 +138,11 @@ called after adding children; the older `layout_children()` spelling remains a
 compatibility wrapper. `ScrollState`, `VirtualListState`, and
 `visible_range()` provide portable scroll and fixed-extent range math.
 `VirtualRecycler` adds stable-key slot ownership, overscan, release-before-
-allocate recycling, clamped offsets, and `ensure_visible()`. `VirtualizedList`
-builds only active slots through a typed item builder; variable-height
-measurement and scrollbars remain follow-up work.
+allocate recycling, measured item extents, cumulative offsets, binary-search
+range lookup, clamped offsets, and `ensure_visible()`. `VirtualizedList` builds
+only active slots through a typed item builder; `set_item_height_preserving_offset()`
+keeps the current content anchor stable when an earlier item changes size.
+Scrollbar painting remains a separate follow-up.
 
 Text measurement is deterministic and backend-neutral. `measure_text()` uses
 the current style's font size and codepoint count to provide a stable

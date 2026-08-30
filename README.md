@@ -50,7 +50,7 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - Pointer down/move/up routing with hover, pressed, enabled, and click state.
 - A horizontal row layout with fixed-width children and flexible slots.
 - Stack, grid, split, and clipped portal containers with persistent scroll
-  offsets and fixed-extent virtual-range math.
+  offsets and fixed/variable-extent virtual-range math.
 - Opt-in deterministic intrinsic text and control measurement.
 - Opt-in deterministic wrapped text measurement with intrinsic-height updates.
 - Start/center/end and space-between main-axis distribution, with cross-axis
@@ -148,8 +148,9 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
   Portable glyph shaping and rich-text painting remain outside the headless
   rasterizer; the explicit portable shaper is approximate, while CoreText
   supplies native shaping/bidi on macOS. Portal scrolling is bounded and
-  persistent. `VirtualRecycler` now provides fixed-extent item recycling;
-  measured variable-height extents remain future work. The animation API is
+  persistent. `VirtualRecycler` provides fixed estimates plus measured
+  variable-height item recycling; scrollbar painting remains follow-up work.
+  The animation API is
   frame-stepped; it does not provide a hidden platform scheduler.
 - The macOS adapter translates pointer down/move/up, key, committed-text,
   IME-composition, and resize events into Moxi events. Single-line inputs
@@ -356,8 +357,10 @@ scene capabilities.
 
 `VirtualListState` and `visible_range()` provide range math; `VirtualRecycler`
 and `VirtualizedList[Builder]` add stable-key recycling, overscan, bounded
-active slots, and `ensure_visible()`. `ScrollState` clamps offsets against
-content and viewport extents. `Scene`, `SceneCommand`, and `SceneRenderer`
+active slots, measured variable heights, prefix-offset lookup,
+anchor-preserving updates, and `ensure_visible()`. `ScrollState` clamps
+offsets against content and viewport extents. `Scene`, `SceneCommand`, and
+`SceneRenderer`
 form a richer rendering seam; `SoftwareSceneRenderer` is a deterministic
 raster backend and `MacOSMetalRenderer` is the batched GPU path, while
 text/image pixels remain resource-dependent. The named iOS, Android, and Web

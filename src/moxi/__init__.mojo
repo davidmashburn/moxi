@@ -264,6 +264,7 @@ from .layout_primitives import (
     clamp_fraction,
     grid_cell,
     split_extent,
+    variable_visible_range,
     visible_range,
 )
 from .measure import TextMeasurement, measure_text, measure_text_wrapped

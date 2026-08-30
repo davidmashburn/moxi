@@ -36,4 +36,22 @@ def main():
     test_check(recycler.max_offset(80.0) == 199920.0)
     test_check(recycler.clamp_offset(300000.0, 80.0) == 199920.0)
     test_check(recycler.ensure_visible(9999, 80.0, 0.0) == 199920.0)
+
+    # Measured extents update prefix offsets and slot bounds without changing
+    # the stable-key recycling contract.
+    var variable = VirtualRecycler(5, 20.0, 1, True)
+    test_check(variable.set_item_height(0, 40.0))
+    test_check(variable.set_item_height(1, 10.0))
+    test_check(variable.content_extent() == 110.0)
+    test_check(variable.item_offset(1) == 40.0)
+    test_check(variable.item_offset(2) == 50.0)
+    test_check(variable.item_index_at_offset(49.0) == 1)
+    var variable_range = variable.update(40.0, 10.0, 300.0)
+    test_check(variable_range.start == 0)
+    test_check(variable.slot_for_item(1).bounds.y == 40.0)
+    test_check(variable.slot_for_item(1).bounds.height == 10.0)
+    test_check(variable.ensure_visible(4, 20.0, 0.0) == 90.0)
+    var anchored = variable.set_item_height_preserving_offset(0, 60.0, 40.0)
+    test_check(anchored == 60.0)
+    test_check(variable.item_offset(1) == 60.0)
     print("Moxi virtualization test passed")

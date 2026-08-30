@@ -39,9 +39,9 @@ widgets by `(id, kind)`.
 container modes. Portal offsets are bounded and persistent through `App`
 rebuilds. `ScrollState`, `VirtualListState`, and `visible_range()` provide
 portable range math; `VirtualRecycler` and `VirtualizedList[Builder]` add
-stable-key overscan slots, recycling, clamped offsets, and
-`ensure_visible()`. Variable-height measurement and scrollbars are not yet
-implemented.
+stable-key overscan slots, recycling, measured variable heights,
+prefix-offset lookup, anchor-preserving updates, clamped offsets, and
+`ensure_visible()`. Scrollbar painting remains a follow-up.
 
 The layout constants are `ALIGN_*`, `JUSTIFY_*`, `COLUMN_AXIS`, and
 `ROW_AXIS`. Geometry is represented by `Point`, `Size`, and `Rect`.

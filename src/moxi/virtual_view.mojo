@@ -39,6 +39,31 @@ struct VirtualizedList[Builder: VirtualItemBuilder]:
     def set_offset(mut self, offset: Float32):
         self.offset = offset if offset > 0.0 else 0.0
 
+    def set_item_height(mut self, index: Int, height: Float32) -> Bool:
+        """Record a measured item and preserve the current scroll anchor."""
+        var previous_offset = self.offset
+        self.offset = self.recycler.set_item_height_preserving_offset(
+            index, height, previous_offset
+        )
+        return self.recycler.item_height(index) == height
+
+    def clear_item_height(mut self, index: Int) -> Bool:
+        var previous_offset = self.offset
+        var anchor = self.recycler.item_index_at_offset(previous_offset)
+        var previous_height = self.recycler.item_height(index)
+        var cleared = self.recycler.clear_item_height(index)
+        if cleared and index < anchor:
+            self.offset += self.recycler.item_height(index) - previous_height
+            if self.offset < 0.0:
+                self.offset = 0.0
+        return cleared
+
+    def item_height(self, index: Int) -> Float32:
+        return self.recycler.item_height(index)
+
+    def content_extent(self) -> Float32:
+        return self.recycler.content_extent()
+
     def ensure_visible(mut self, item_index: Int, viewport_extent: Float32) -> Float32:
         self.offset = self.recycler.ensure_visible(
             item_index,
