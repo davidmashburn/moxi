@@ -18,10 +18,14 @@
 - Added shared lifecycle and scale-factor contracts for iOS, Android, and Web;
   native hosts remain unavailable, while SVG provides Web-compatible scene
   export.
-- Added the first Moxi plotting foundation: columnar numeric data, versioned
-  line/scatter/bar specs, linear scales, axes/grid/legend, pan/zoom, hit
-  testing, selection semantics, line LOD, software/Metal/SVG output, and
-  wx-style examples/benchmarks.
+- Expanded Moxi Plot into an executable typed 2D foundation: Float32/Float64,
+  integer/Boolean/string/category/timestamp/duration fields, stable-key
+  snapshots and views, field encodings, second channels, per-row styling,
+  categorical labels, core mark recipes, facets, deterministic dataflow
+  transforms, scale metadata, annotations, interaction tools, PlotView/
+  PlotControl, CSV fallback, SVG paths/opacity, and bounded scatter LOD.
+- Added a typed plot gallery plus 100k and 1M-row stress benchmarks that keep
+  source rows for interaction while bounding emitted geometry.
 
 ## 0.5.0 — 2026-08-30
 

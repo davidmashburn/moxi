@@ -50,7 +50,7 @@ Linebender stack, Parley, and AccessKit.
 | Async | Deterministic frame-stepped scheduler with completion/cancel/fail results, bounded queues, and explicit task lifetime. External I/O/thread execution belongs to an adapter. | `task` views and reactive integration support asynchronous work in the broader framework. |
 | Agent integration | In-process capability descriptors, schema checks, approvals, leases, typed handlers, replay, bounded queues, and conversation state. | No equivalent authorization/LLM capability bus; that is outside Xilem's stated UI scope. |
 | Testing | Headless behavior tests, semantic snapshots, software-scene pixel/checksum checks, native compile checks, package-consumer checks, property-style edge cases, benchmark harness, and source-controlled visual references. | Masonry widget harness, interaction tests, render snapshots, and widget-tree snapshots. |
-| Plotting | First-class numeric data table, versioned line/scatter/bar spec, linear scales, axes/grid/legend, pan/zoom, hit testing, selection semantics, line LOD, software/Metal/SVG scene output. | No direct plotting-library equivalent in the core comparison. |
+| Plotting | First-class typed stable-key table, executable versioned spec, field encodings, core marks, categorical/temporal scales, facets, deterministic transforms, pan/zoom/brush/select/keyboard runtime, line/scatter LOD, PlotView, software/Metal/SVG scene output. | No direct plotting-library equivalent in the core comparison. |
 | Maturity | Focused 0.5 package with experimental post-0.5 Metal, CoreText, recycling, platform contracts, and plotting slices; non-macOS hosts remain unavailable. | Broader published project, but still explicitly alpha and subject to breaking changes. |
 
 ## Where Moxi is better
@@ -80,6 +80,9 @@ repeatability harness, not a comparative Xilem/Masonry performance result.
 - Virtualization now has a real fixed-extent builder/recycler, but it still
   lacks variable-height measurement, scrollbars, and richer viewport policy.
 - Catalog controls have semantic/state coverage, but many native macOS render through intentionally shallow label/panel fallbacks.
+- Plotting is now a useful typed 2D foundation, but it is not yet a Xilem/Vello-class
+  rendering stack: analytical recipes, true per-panel scale resolution, native
+  text/path GPU work, linked views, and non-macOS hosts remain open.
 - Native AppKit state is singleton-oriented; the portable multi-window model is not a native multi-window manager.
 - The native queue/draw arrays retain fixed implementation ceilings, even though core queues are configurable and overflow is observable.
 - Localized execution now has scope/dependency invalidation accounting, but no

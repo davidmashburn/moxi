@@ -18,6 +18,7 @@ mojo precompile src/moxi -o dist/moxi.mojoc
 mojo doc src/moxi -I src -o dist/moxi-api.json
 xmllint --noout docs/wx-style-showcase.svg
 xmllint --noout docs/wx-style-advanced.svg
+xmllint --noout docs/plot-gallery.svg
 
 if rg -q "Use code with caution|I can provide further detail" \
   "Specification High-Performance Agent-Re.md"; then

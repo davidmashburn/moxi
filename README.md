@@ -86,9 +86,11 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - A stable-key `VirtualRecycler`/`VirtualizedList` that builds only the
   visible/overscan window, reuses slots, clamps scrolling, and supports
   ensure-visible behavior.
-- A first-class Plot model, stable numeric data source, declarative spec,
-  interaction runtime, line level-of-detail reduction, accessibility summary,
-  deterministic software output, and Web-compatible SVG serialization.
+- A first-class Plot model, typed stable-key data source, executable
+  declarative spec, composable core marks, field encodings, transforms,
+  facets, interaction runtime, line/scatter level-of-detail reduction,
+  accessibility summary, deterministic software output, and Web-compatible
+  SVG serialization.
 - Shared platform surface lifecycle contracts for iOS, Android, and Web;
   those targets remain explicitly unavailable until native hosts land.
 - Stateful combo-box, list, table, tree, menu, dialog, tabs, and canvas models,
@@ -241,11 +243,14 @@ height recomputation as the root width changes.
 `pixi run composed-demo` shows a parent component owning a typed counter child;
 the child is embedded with namespaced ids and still handles its local action.
 `pixi run plot-demo` renders the shared first-class plot through the software
-scene backend. `pixi run plot-svg` prints the same scene as Web-compatible SVG;
-`pixi run plot-large-benchmark` measures a 10k-point line with LOD and a
-100k-point scatter scene without rasterizing every point. `pixi run
-metal-window-demo-build` compiles the visible Metal window; run the resulting
-binary locally when a GUI session is available.
+scene backend. `pixi run plot-gallery` exercises typed fields, categorical
+color, per-row size/opacity/tooltips, temporal axes, facets, and declarative
+interactions. `pixi run plot-svg` prints the same scene as Web-compatible SVG;
+`pixi run plot-large-benchmark` measures a 10k-point line and bounded 100k
+scatter scene. `pixi run plot-stress-benchmark` runs the 1M-row scatter stress
+case with a 50k geometry limit. `pixi run metal-window-demo-build` compiles
+the visible Metal window; run the resulting binary locally when a GUI session
+is available.
 
 ## Components
 
@@ -432,7 +437,7 @@ Component + root bounds -> App -> ColumnView/tree -> ColumnRuntime -> PaintComma
  Event <- WindowBackend <-------+       +-- focus --+-> AppKit canvas
                    pointer/key/text/resize/action
 
-Scene/Plot -> SoftwareSceneRenderer | Metal | SVG/Web export
+PlotSpec + PlotDataTable -> PlotView/PlotRuntime -> Scene -> Software | Metal | SVG/Web export
 ```
 
 The Mojo core does not own AppKit handles. The platform adapter owns the native
@@ -448,9 +453,11 @@ keyboard/text/IME input, accessibility, headless testing, and explicit
 animation/invalidation primitives. Post-0.5 experimental slices now add a
 batched Metal scene path, CoreText shaped runs, stable-key recycling, localized
 execution accounting, platform surface contracts, and the first Plot library.
-iOS, Android, and Web are scoped but not yet supported native targets; the
-portable shaper remains approximate and the plot's data/spec/runtime APIs are
-still evolving. The separate
+The plot foundation now has typed data, executable transforms, composable
+marks, facets, a view/runtime boundary, and bounded large-data geometry. iOS,
+Android, and Web are scoped but not yet supported native targets; the portable
+shaper remains approximate and advanced analytical marks, browser/native
+hosts, and GPU text/path work remain staged follow-ups. The separate
 [Specification High-Performance Agent-Re.md](Specification%20High-Performance%20Agent-Re.md)
 remains design material for a future transport/agent bridge; the in-process
 authorization boundary is now part of the Moxi core.

@@ -88,19 +88,38 @@ explicit fallback behavior.
 
 ## Plotting
 
-`PlotDataTable` is a stable-key numeric x/y source with validity masks,
-patch/append/rollover updates, versioning, and `csv()` for non-visual output.
-`PlotSpec` is a versioned declarative layer list with line/scatter/bar marks,
-field encodings, and stable JSON inspection. `plot_from_spec()` compiles its
-numeric subset into `Plot`.
+`PlotDataTable` is a versioned, stable-key columnar source. It supports
+nullable `Float32`, `Float64`, `Int64`, Boolean, string, category, timestamp,
+and duration fields, plus append/patch/replace/rollover updates, immutable
+snapshots, row views, deterministic filter/sort/sample/bin/rolling/impute/
+stack/aggregate transforms, and `csv()` for non-visual output. Category fields
+use dictionary indices while preserving their string labels.
 
-`Plot` owns linear scales, axes, grid, legends, line/scatter/bar marks,
-nearest-point hit testing, inverse mapping, pan/zoom, and accessibility
-summary output. `set_line_point_limit()` enables extrema-preserving line LOD.
-`PlotRuntime` adds pointer/touch pan, scroll zoom, hover/selection overlays,
-Escape reset, and semantic selection state. The software, Metal, and SVG
-scene paths consume the same plot output; the portable shaper remains
-approximate and native text is backend-specific.
+`PlotSpec` is a versioned declarative grammar with explicit channel encodings
+(`x`, `y`, `x2`, `y2`, color/fill/stroke, size, opacity, text, tooltip, key,
+row, column, and facet), validation, JSON round-tripping, layer/horizontal/
+vertical/facet composition, core marks (line, step, dot, scatter, bubble,
+bar/column, area/band, rect, rule, tick, text, interval, and error bar),
+scale metadata, annotations, and declarative hover/brush/pan-zoom/selection/
+keyboard tools. `plot_from_spec()` applies the serializable transform pipeline
+and compiles named fields into `Plot`.
+
+`Plot` owns Cartesian layout, linear/log/symlog/power/square-root/temporal/
+ordinal/band and metadata-preserving output scale kinds, axes, grid, legends,
+categorical labels, facets, nearest-point hit testing, inverse mapping,
+pan/zoom, per-row styles, and accessibility summary output. Line and scatter
+LOD are opt-in through `set_line_point_limit()` and
+`set_scatter_point_limit()`; source rows and stable keys remain available for
+hit testing.
+
+`PlotRuntime` adds pointer/touch pan, shift-drag interval brushing, scroll
+zoom, hover/crosshair/tooltips, click and multi-selection, keyboard focus and
+selection, zoom-to-selection, Escape reset, and semantic selection state.
+`PlotView`/`PlotControl` compile a spec, retain its source snapshot, expose a
+CSV data-table fallback, and integrate runtime scene/accessibility methods.
+The software, Metal, and SVG scene paths consume the same plot output; native
+Metal currently covers basic geometry and the portable shaper remains
+approximate outside the CoreText adapter.
 
 ## Capability and agent boundary
 
@@ -133,7 +152,7 @@ the complete visible approval flow.
 | Controls and editing | [`src/moxi/controls.mojo`](../src/moxi/controls.mojo), [`src/moxi/control_state.mojo`](../src/moxi/control_state.mojo) |
 | Runtime and invalidation | [`src/moxi/runtime.mojo`](../src/moxi/runtime.mojo), [`src/moxi/invalidation.mojo`](../src/moxi/invalidation.mojo) |
 | Scene and resources | [`src/moxi/scene.mojo`](../src/moxi/scene.mojo), [`src/moxi/software.mojo`](../src/moxi/software.mojo), [`src/moxi/resources.mojo`](../src/moxi/resources.mojo) |
-| Plotting | [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
+| Plotting | [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/plot_view.mojo`](../src/moxi/plot_view.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
 | Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh) |
 | Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo) |
 | Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`native/macos_text.m`](../native/macos_text.m) |

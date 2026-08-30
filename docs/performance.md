@@ -33,7 +33,8 @@ the Metal binary is compiled once before its measured runs.
 | --- | --- | --- |
 | Retained pipeline | layout, identity reconciliation, paint, scene conversion, fixed-extent range math | passes, child count, paint commands, checksum, operations/frame |
 | Portable plot | plot scales, axes, labels, line/scatter/bar scene emission, software rasterization | commands/frame, rasterized pixels/frame, checksum |
-| Large plot generation | 10,000-point line with LOD and 100,000-point scatter scene generation | source rows, command counts, operations/frame |
+| Large plot generation | 10,000-point line with extrema-preserving LOD and 100,000-point scatter with bounded representatives | source rows, rendered representatives, command counts, operations/frame |
+| Scatter stress | 1,000,000 source rows with a 50,000-point geometry budget | source rows, emitted commands, wall-clock process time |
 | Offscreen Metal | scene batching, CPU vertex upload, one GPU draw submission, synchronized completion | frames, vertices/frame, overflow count, checksum |
 
 `PerformanceCounters` exposes the first two workloads' work accounting to
@@ -57,6 +58,10 @@ completion until an asynchronous presentation path exists.
 - Dense line plots can opt into extrema-preserving pixel-level reduction with
   `Plot.set_line_point_limit()`; the large benchmark keeps the 10,000-point
   source data but bounds emitted line geometry to 2,048 points.
+- Dense scatter plots can opt into deterministic representative sampling with
+  `Plot.set_scatter_point_limit()`; the source table and stable row keys remain
+  intact for hit testing and accessibility. `pixi run plot-stress-benchmark`
+  exercises one million source rows and emits at most 50,000 glyphs.
 
 When changing a hot path, add or update a deterministic counter, run the same
 scenario before and after, and record the reason for the change in the commit
@@ -67,7 +72,9 @@ shared scenario is also a component and documentation contract.
 
 The GPU slice currently renders basic rectangles and line geometry. Text,
 images, path tessellation, gradient shaders, asynchronous frame pacing, and
-GPU timestamp queries remain follow-up work. The iOS, Android, and Web targets
-currently expose honest platform contracts; their native hosts/renderers are
-not yet release targets. See [ARCHITECTURE.md](../ARCHITECTURE.md) and
+GPU timestamp queries remain follow-up work. The 1M scatter benchmark measures
+CPU scene generation and is not a GPU frame-time claim. The iOS, Android, and
+Web targets currently expose honest platform contracts; their native
+hosts/renderers are not yet release targets. See
+[ARCHITECTURE.md](../ARCHITECTURE.md) and
 [PROJECT-PLANNING.md](../PROJECT-PLANNING.md) for the staged roadmap.

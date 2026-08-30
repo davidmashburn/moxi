@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520">
+  <rect width="860" height="520" rx="14" fill="#121725"/>
+  <text x="24" y="32" fill="#f2f5ff" font-family="sans-serif" font-size="20">Telemetry gallery</text>
+  <text x="62" y="62" fill="#aeb9d5" font-family="sans-serif" font-size="12">north</text>
+  <text x="62" y="280" fill="#aeb9d5" font-family="sans-serif" font-size="12">south</text>
+  <g stroke="#3c465e" stroke-width="1" opacity=".8">
+    <path d="M48 70H820M48 176H820M48 288H820M48 394H820"/>
+    <path d="M48 70V394M240 70V394M432 70V394M624 70V394M820 70V394"/>
+  </g>
+  <g fill="none" stroke="#40bfff" stroke-width="3">
+    <path d="M64 150 C130 110 178 132 226 98 S330 152 382 116 S484 126 532 92 S638 138 690 106 S772 126 804 94"/>
+    <path d="M64 352 C130 312 178 334 226 300 S330 354 382 318 S484 328 532 294 S638 340 690 308 S772 328 804 296"/>
+  </g>
+  <g fill="#ff7654" stroke="#fff" stroke-width="1">
+    <circle cx="64" cy="150" r="5"/><circle cx="226" cy="98" r="7"/><circle cx="382" cy="116" r="5"/><circle cx="532" cy="92" r="8"/><circle cx="690" cy="106" r="6"/>
+    <circle cx="64" cy="352" r="5"/><circle cx="226" cy="300" r="7"/><circle cx="382" cy="318" r="5"/><circle cx="532" cy="294" r="8"/><circle cx="690" cy="308" r="6"/>
+  </g>
+  <g font-family="sans-serif" font-size="12" fill="#aeb9d5">
+    <text x="48" y="426">1700000000</text><text x="232" y="426">1700003600</text><text x="416" y="426">1700007200</text><text x="600" y="426">1700010800</text><text x="754" y="426">time</text>
+    <text x="24" y="478">typed fields · categorical color · facets · per-row size/opacity · hover/brush/select</text>
+  </g>
+</svg>

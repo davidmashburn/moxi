@@ -205,6 +205,25 @@ wrapper around another renderer:
 - Wolfram's parameterized functions, locators, dynamic controls, bookmarks,
   and exploratory manipulation.
 
+### Implementation status of the current 2D slice
+
+The executable foundation now covers typed nullable columnar data, stable row
+keys, snapshots/views, field-aware encodings, second positional channels,
+categorical labels/colors, core Cartesian marks, facets, layer/horizontal/
+vertical composition, deterministic filter/sort/sample/bin/rolling/impute/
+stack/group/aggregate transforms, forward/inverse scale mapping, annotations,
+JSON inspection/round-tripping, PlotView/PlotControl, pointer/touch
+navigation, interval brush selection, keyboard focus, accessibility state,
+CSV fallback, SVG path/opacity output, and bounded line/scatter geometry.
+The software renderer and SVG serializer are contract-tested; Metal consumes
+the same scene but remains limited to its documented basic-geometry subset.
+
+This is an implemented foundation, not completion of every item in the
+design. Analytical recipes (histogram through regression/LOESS), lasso and
+linked views, independent facet scale resolution, dictionary-backed zero-copy
+views, portable text/path GPU rendering, PDF/PNG export, browser/mobile hosts,
+and the broader polar/geographic/3D families remain explicitly staged work.
+
 ### Core interface
 
 The public API has four layers:

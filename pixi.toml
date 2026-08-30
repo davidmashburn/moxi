@@ -33,8 +33,10 @@ composed-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o 
 composed-demo = { cmd = "./dist/moxi-composed-demo", depends-on = ["composed-demo-build"] }
 animation-demo = "mojo run -I src examples/animation.mojo"
 plot-demo = "mojo run -I src examples/plot.mojo"
+plot-gallery = "mojo run -I src examples/plot_gallery.mojo"
 plot-benchmark = "mojo run -I src benchmarks/plotting.mojo"
 plot-large-benchmark = "mojo run -I src benchmarks/plotting_large.mojo"
+plot-stress-benchmark = "mojo run -I src benchmarks/plotting_stress.mojo"
 plot-svg = "mojo run -I src examples/plot_svg.mojo"
 metal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker Foundation examples/metal_scene.mojo -o dist/moxi-metal-demo", depends-on = ["metal-object"] }
 metal-demo = { cmd = "./dist/moxi-metal-demo", depends-on = ["metal-demo-build"] }

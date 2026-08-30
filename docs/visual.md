@@ -39,6 +39,9 @@ The post-0.5 visual surfaces use the same scene contract:
 
 - `pixi run plot-demo` renders the first plotting library slice through the
   deterministic software scene path.
+- `pixi run plot-gallery` exercises the supported declarative plot surface;
+  the [gallery reference](plot-gallery.svg) shows its two facet panels,
+  layered line/dot marks, categorical color, and size variation.
 - `pixi run plot-svg` serializes that plot as browser-compatible SVG, which is
   the current Web-target visual export surface.
 - `pixi run metal-window-demo-build` compiles the experimental native Metal
