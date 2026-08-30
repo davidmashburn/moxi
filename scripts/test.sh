@@ -29,6 +29,10 @@ tests=(
   tests/backend.mojo
   tests/platform.mojo
   tests/performance.mojo
+  tests/virtualization.mojo
+  tests/execution.mojo
+  tests/plotting.mojo
+  tests/metal_contract.mojo
   tests/text_layout.mojo
   tests/text_shaping.mojo
   tests/text_boundary.mojo

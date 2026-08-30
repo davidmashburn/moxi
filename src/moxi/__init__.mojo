@@ -427,6 +427,17 @@ from .performance import (
     PerformanceReport,
 )
 from .execution import DependencyEdge, LocalizedExecution
+from .plotting import (
+    PLOT_BAR,
+    PLOT_LINE,
+    PLOT_SCATTER,
+    Plot,
+    PlotHit,
+    PlotPoint,
+    PlotScale,
+    PlotSeries,
+)
+from .metal import MacOSMetalRenderer
 
 
 def moxi_version() -> String:
