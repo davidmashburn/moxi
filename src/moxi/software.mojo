@@ -143,6 +143,7 @@ struct SoftwareSceneRenderer(SceneRenderer):
     var pixels: List[Color]
     var command_count: Int
     var frame_count: Int
+    var rasterized_pixels: Int
     var clip_stack: List[Rect]
     var layer_stack: List[Float32]
     var has_clip: Bool
@@ -162,6 +163,7 @@ struct SoftwareSceneRenderer(SceneRenderer):
         self.pixels = List[Color]()
         self.command_count = 0
         self.frame_count = 0
+        self.rasterized_pixels = 0
         self.clip_stack = List[Rect]()
         self.layer_stack = List[Float32]()
         self.has_clip = False
@@ -172,13 +174,22 @@ struct SoftwareSceneRenderer(SceneRenderer):
 
     def clear(mut self):
         """Clear the complete software surface to its background color."""
-        self.pixels = List[Color]()
-        for _ in range(self.width * self.height):
-            self.pixels.append(self.background)
+        var pixel_count = self.width * self.height
+        if len(self.pixels) != pixel_count:
+            self.pixels = List[Color](capacity=pixel_count)
+            for _ in range(pixel_count):
+                self.pixels.append(self.background)
+        else:
+            # Reuse the pixel allocation across frames. This is the hot path
+            # for the deterministic renderer and avoids a per-frame buffer
+            # allocation when the surface size is stable.
+            for index in range(pixel_count):
+                self.pixels[index] = self.background
 
     def begin_scene(mut self) raises:
         self.clear()
         self.command_count = 0
+        self.rasterized_pixels = 0
         self.clip_stack = List[Rect]()
         self.layer_stack = List[Float32]()
         self.has_clip = False
@@ -292,6 +303,7 @@ struct SoftwareSceneRenderer(SceneRenderer):
                     self.pixels[y * self.width + x],
                     color,
                 )
+                self.rasterized_pixels += 1
 
     def fill_rounded_rect(mut self, bounds: Rect, color: Color, radius: Float32):
         """Fill an axis-aligned rounded rectangle with optional clipping."""
@@ -351,6 +363,7 @@ struct SoftwareSceneRenderer(SceneRenderer):
                         self.pixels[y * self.width + x],
                         color,
                     )
+                    self.rasterized_pixels += 1
 
     def stroke_line(
         mut self,
@@ -398,6 +411,7 @@ struct SoftwareSceneRenderer(SceneRenderer):
                         self.pixels[y * self.width + x],
                         color,
                     )
+                    self.rasterized_pixels += 1
 
     def fill_gradient(
         mut self,
@@ -464,6 +478,7 @@ struct SoftwareSceneRenderer(SceneRenderer):
                     self.pixels[y * self.width + x],
                     color,
                 )
+                self.rasterized_pixels += 1
 
     def pixel(self, x: Int, y: Int) -> Color:
         """Read a pixel, returning transparent black outside the surface."""

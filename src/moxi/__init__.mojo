@@ -407,6 +407,12 @@ from .testing import TestRenderer, TestWindow, test_check
 from .window import WindowBackend, WindowConfig
 from .windowing import WindowId, WindowManager, WindowState
 from .platform import PlatformSurface, PlatformTarget, SurfaceConfig
+from .performance import (
+    FRAME_BUDGET_60_HZ_MS,
+    FRAME_BUDGET_120_HZ_MS,
+    PerformanceCounters,
+    PerformanceReport,
+)
 
 
 def moxi_version() -> String:
