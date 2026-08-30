@@ -335,6 +335,8 @@ struct PortableTextShaper(TextShaper):
                 glyph_direction = TEXT_DIRECTION_RTL
             elif _is_strong_ltr(codepoint):
                 glyph_direction = TEXT_DIRECTION_LTR
+            if glyph_direction != resolved_direction and not is_extend(codepoint):
+                result.bidi_applied = True
             var font_id = fallback_font_id(codepoint)
             if is_extend(codepoint) and len(result.glyphs) > 0:
                 # Marks, variation selectors, and ZWJ inherit the preceding
@@ -411,17 +413,43 @@ struct PortableTextShaper(TextShaper):
             line_count,
         )
 
-        # The fallback has no glyph shaping engine, but it can provide a
-        # stable visual order for the explicit RTL request. Keep clusters and
+        # The fallback has no full Unicode bidi engine, but it can provide a
+        # stable run-level visual order for mixed paragraphs. Keep clusters and
         # positions intact so editors can still map back to source offsets.
         if resolved_direction == TEXT_DIRECTION_RTL:
-            var visual = List[ShapedGlyph](capacity=len(result.glyphs))
-            var index = len(result.glyphs)
-            while index > 0:
-                index -= 1
-                visual.append(result.glyphs[index])
-            result.glyphs = visual^
             result.bidi_applied = True
+        if result.bidi_applied:
+            var visual = List[ShapedGlyph](capacity=len(result.glyphs))
+            for visual_line in range(line_count):
+                if resolved_direction == TEXT_DIRECTION_RTL:
+                    var run_index = len(result.runs)
+                    while run_index > 0:
+                        run_index -= 1
+                        var run = result.runs[run_index]
+                        if run.line != visual_line:
+                            continue
+                        if run.direction == TEXT_DIRECTION_RTL:
+                            var glyph_index = run.glyph_end
+                            while glyph_index > run.glyph_start:
+                                glyph_index -= 1
+                                visual.append(result.glyphs[glyph_index])
+                        else:
+                            for glyph_index in range(run.glyph_start, run.glyph_end):
+                                visual.append(result.glyphs[glyph_index])
+                else:
+                    for run_index in range(len(result.runs)):
+                        var run = result.runs[run_index]
+                        if run.line != visual_line:
+                            continue
+                        if run.direction == TEXT_DIRECTION_RTL:
+                            var glyph_index = run.glyph_end
+                            while glyph_index > run.glyph_start:
+                                glyph_index -= 1
+                                visual.append(result.glyphs[glyph_index])
+                        else:
+                            for glyph_index in range(run.glyph_start, run.glyph_end):
+                                visual.append(result.glyphs[glyph_index])
+            result.glyphs = visual^
         return result^
 
 

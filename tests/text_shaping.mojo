@@ -41,6 +41,11 @@ def main():
     test_check(script_id(0x05D0) == SCRIPT_ARABIC_HEBREW)
     test_check(auto_rtl.bidi_applied)
 
+    var mixed = shape_text("abc אבג", style)
+    test_check(mixed.bidi_applied)
+    test_check(mixed.glyph(0).cluster == 0)
+    test_check(mixed.glyph(4).cluster == 6)
+
     var request = TextLayoutRequest("hello", style)
     request.set_backend(TEXT_LAYOUT_PORTABLE)
     var result = layout_text(request)
