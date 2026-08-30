@@ -1,5 +1,7 @@
 #import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 #import <Metal/Metal.h>
+#import <QuartzCore/QuartzCore.h>
 #import <simd/simd.h>
 #include <math.h>
 #include <stdint.h>
@@ -8,11 +10,17 @@
 /*
  * A small scene renderer for the 0.6 GPU slice. It batches rectangles and
  * line quads into one shared MTLBuffer and one draw call per frame. The
- * surface is offscreen for now; a later AppKit/Metal layer adapter can attach
- * the same encoder to a CAMetalLayer without changing the Mojo scene API.
+ * The same scene API can target either the retained offscreen texture used by
+ * tests and benchmarks or an AppKit CAMetalLayer used by the visible demo.
  */
 
 #define MOXI_METAL_MAX_VERTICES 262144
+
+@interface MoxiMetalView : NSView
+@end
+
+@interface MoxiMetalWindowDelegate : NSObject <NSWindowDelegate>
+@end
 
 typedef struct {
     vector_float2 position;
@@ -23,6 +31,8 @@ static id<MTLDevice> moxi_metal_device;
 static id<MTLCommandQueue> moxi_metal_queue;
 static id<MTLRenderPipelineState> moxi_metal_pipeline;
 static id<MTLTexture> moxi_metal_texture;
+static id<MTLTexture> moxi_metal_render_texture;
+static id<CAMetalDrawable> moxi_metal_drawable;
 static id<MTLBuffer> moxi_metal_vertex_buffer;
 static id<MTLCommandBuffer> moxi_metal_command_buffer;
 static id<MTLRenderCommandEncoder> moxi_metal_encoder;
@@ -33,6 +43,10 @@ static int moxi_metal_vertex_count;
 static int moxi_metal_overflow_count;
 static int moxi_metal_frame_count;
 static BOOL moxi_metal_initialized;
+static NSWindow *moxi_metal_window;
+static MoxiMetalWindowDelegate *moxi_metal_window_delegate;
+static CAMetalLayer *moxi_metal_layer;
+static BOOL moxi_metal_window_opened;
 
 static const char *moxi_metal_shader_source =
     "#include <metal_stdlib>\n"
@@ -185,7 +199,15 @@ void moxi_metal_begin(float red, float green, float blue, float alpha) {
     moxi_metal_vertex_count = 0;
     moxi_metal_command_buffer = [moxi_metal_queue commandBuffer];
     MTLRenderPassDescriptor *pass = [MTLRenderPassDescriptor renderPassDescriptor];
-    pass.colorAttachments[0].texture = moxi_metal_texture;
+    moxi_metal_render_texture = moxi_metal_texture;
+    moxi_metal_drawable = nil;
+    if (moxi_metal_layer != nil) {
+        moxi_metal_drawable = [moxi_metal_layer nextDrawable];
+        if (moxi_metal_drawable != nil) {
+            moxi_metal_render_texture = moxi_metal_drawable.texture;
+        }
+    }
+    pass.colorAttachments[0].texture = moxi_metal_render_texture;
     pass.colorAttachments[0].loadAction = MTLLoadActionClear;
     pass.colorAttachments[0].storeAction = MTLStoreActionStore;
     pass.colorAttachments[0].clearColor = MTLClearColorMake(red, green, blue, alpha);
@@ -228,10 +250,15 @@ void moxi_metal_end(void) {
         [moxi_metal_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:(NSUInteger)moxi_metal_vertex_count];
     }
     [moxi_metal_encoder endEncoding];
+    if (moxi_metal_drawable != nil) {
+        [moxi_metal_command_buffer presentDrawable:moxi_metal_drawable];
+    }
     [moxi_metal_command_buffer commit];
     [moxi_metal_command_buffer waitUntilCompleted];
     moxi_metal_encoder = nil;
     moxi_metal_command_buffer = nil;
+    moxi_metal_drawable = nil;
+    moxi_metal_render_texture = nil;
     moxi_metal_frame_count += 1;
 }
 
@@ -255,6 +282,11 @@ int64_t moxi_metal_checksum(void) {
 }
 
 void moxi_metal_shutdown(void) {
+    [moxi_metal_window close];
+    moxi_metal_window = nil;
+    moxi_metal_window_delegate = nil;
+    moxi_metal_layer = nil;
+    moxi_metal_window_opened = NO;
     moxi_metal_encoder = nil;
     moxi_metal_command_buffer = nil;
     moxi_metal_texture = nil;
@@ -264,4 +296,72 @@ void moxi_metal_shutdown(void) {
     moxi_metal_device = nil;
     moxi_metal_vertices = NULL;
     moxi_metal_initialized = NO;
+}
+
+@implementation MoxiMetalView
+- (BOOL)isFlipped { return YES; }
+- (CALayer *)makeBackingLayer { return [CAMetalLayer layer]; }
+@end
+
+@implementation MoxiMetalWindowDelegate
+- (void)windowWillClose:(NSNotification *)notification {
+    (void)notification;
+    moxi_metal_window_opened = NO;
+    [NSApp stop:nil];
+}
+@end
+
+int moxi_metal_open_window(const char *title, float width, float height) {
+    @autoreleasepool {
+        if (!moxi_metal_initialized && !moxi_metal_init((int)width, (int)height)) {
+            return 0;
+        }
+        if (moxi_metal_window_opened) return 1;
+        [NSApplication sharedApplication];
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+        [NSApp finishLaunching];
+        NSRect frame = NSMakeRect(0.0, 0.0, width > 0.0f ? width : 1.0f, height > 0.0f ? height : 1.0f);
+        NSUInteger style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
+        moxi_metal_window = [[NSWindow alloc] initWithContentRect:frame
+                                                           styleMask:style
+                                                             backing:NSBackingStoreBuffered
+                                                               defer:NO];
+        moxi_metal_window_delegate = [[MoxiMetalWindowDelegate alloc] init];
+        moxi_metal_window.delegate = moxi_metal_window_delegate;
+        NSString *windowTitle = title == NULL ? @"Moxi Metal" : [NSString stringWithUTF8String:title];
+        moxi_metal_window.title = windowTitle == nil ? @"Moxi Metal" : windowTitle;
+        MoxiMetalView *view = [[MoxiMetalView alloc] initWithFrame:frame];
+        view.wantsLayer = YES;
+        moxi_metal_layer = (CAMetalLayer *)view.layer;
+        moxi_metal_layer.device = moxi_metal_device;
+        moxi_metal_layer.pixelFormat = MTLPixelFormatRGBA8Unorm;
+        moxi_metal_layer.framebufferOnly = NO;
+        moxi_metal_layer.drawableSize = CGSizeMake(frame.size.width, frame.size.height);
+        moxi_metal_window.contentView = view;
+        [moxi_metal_window center];
+        [moxi_metal_window makeKeyAndOrderFront:nil];
+        [NSApp activateIgnoringOtherApps:YES];
+        moxi_metal_window_opened = YES;
+        return 1;
+    }
+}
+
+void moxi_metal_pump_window(void) {
+    @autoreleasepool {
+        NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:0.016];
+        NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                             untilDate:deadline
+                                                inMode:NSDefaultRunLoopMode
+                                               dequeue:YES];
+        if (event != nil) [NSApp sendEvent:event];
+        [NSApp updateWindows];
+    }
+}
+
+int moxi_metal_window_is_open(void) { return moxi_metal_window_opened ? 1 : 0; }
+void moxi_metal_close_window(void) {
+    [moxi_metal_window close];
+    moxi_metal_window = nil;
+    moxi_metal_layer = nil;
+    moxi_metal_window_opened = NO;
 }

@@ -16,6 +16,9 @@ from .scene import (
     SceneCommand,
     SceneRenderer,
 )
+from .event import Event
+from .geometry import Point, Size
+from .window import WindowBackend, WindowConfig
 
 
 struct MacOSMetalRenderer(SceneRenderer):
@@ -132,3 +135,43 @@ struct MacOSMetalRenderer(SceneRenderer):
         if self.initialized:
             external_call["moxi_metal_shutdown", NoneType]()
             self.initialized = False
+
+
+struct MacOSMetalWindow(WindowBackend):
+    """AppKit window backed by a CAMetalLayer for scene demos."""
+
+    var config: WindowConfig
+    var opened: Bool
+
+    def __init__(out self):
+        self.config = WindowConfig("Moxi Metal", 640.0, 480.0)
+        self.opened = False
+
+    def open(mut self, config: WindowConfig) raises:
+        self.config = config
+        var title = config.title
+        self.opened = external_call["moxi_metal_open_window", Int32](
+            title.as_c_string_slice().ptr(),
+            config.width,
+            config.height,
+        ) != 0
+
+    def pump(mut self) raises:
+        external_call["moxi_metal_pump_window", NoneType]()
+        self.opened = external_call["moxi_metal_window_is_open", Int32]() != 0
+
+    def is_open(self) raises -> Bool:
+        return self.opened and external_call["moxi_metal_window_is_open", Int32]() != 0
+
+    def poll_event(mut self) raises -> Event:
+        return Event()
+
+    def click_position(self) raises -> Point:
+        return Point(0.0, 0.0)
+
+    def size(self) raises -> Size:
+        return Size(self.config.width, self.config.height)
+
+    def close(mut self):
+        external_call["moxi_metal_close_window", NoneType]()
+        self.opened = False

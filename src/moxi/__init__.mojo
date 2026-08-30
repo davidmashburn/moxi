@@ -458,7 +458,7 @@ from .plotting import (
 from .virtual_view import VirtualItemBuilder, VirtualizedList
 from .svg import SvgSceneRenderer
 from .coretext import MacOSTextShaper
-from .metal import MacOSMetalRenderer
+from .metal import MacOSMetalRenderer, MacOSMetalWindow
 
 
 def moxi_version() -> String:
