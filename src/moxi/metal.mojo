@@ -243,11 +243,15 @@ struct MacOSMetalRenderer(SceneRenderer):
         """Resize the logical offscreen target and preserve the scene contract."""
         if not self.initialized:
             return False
-        self.width = width if width > 0 else 1
-        self.height = height if height > 0 else 1
-        return external_call["moxi_metal_resize", Int32](
-            Int32(self.width), Int32(self.height)
+        var next_width = width if width > 0 else 1
+        var next_height = height if height > 0 else 1
+        var resized = external_call["moxi_metal_resize", Int32](
+            Int32(next_width), Int32(next_height)
         ) != 0
+        if resized:
+            self.width = next_width
+            self.height = next_height
+        return resized
 
     def render_scene(mut self, scene: Scene) raises:
         self.begin_scene()

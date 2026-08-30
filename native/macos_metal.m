@@ -368,9 +368,9 @@ int moxi_metal_resize(int width, int height) {
     if (width < 1) width = 1;
     if (height < 1) height = 1;
     if (width == moxi_metal_width && height == moxi_metal_height) return 1;
+    if (!moxi_metal_make_texture(width, height)) return 0;
     moxi_metal_width = width;
     moxi_metal_height = height;
-    if (!moxi_metal_make_texture(width, height)) return 0;
     moxi_metal_resize_count += 1;
     return 1;
 }
