@@ -15,9 +15,10 @@ def main():
     test_check(first_slot.key == 0)
 
     _ = recycler.update(100.0, 80.0, 300.0)
-    test_check(recycler.slot_count() == 11)
+    test_check(recycler.slot_count() == 7)
     test_check(recycler.last_reused_count == 2)
-    test_check(recycler.last_created_count == 5)
+    test_check(recycler.last_created_count == 1)
+    test_check(recycler.last_recycled_count == 4)
 
     # Stable keys survive a logical reorder in the visible window.
     _ = recycler.set_key(5, 500)
@@ -25,7 +26,7 @@ def main():
     _ = recycler.update(100.0, 80.0, 300.0)
     test_check(recycler.slot_for_item(5).key == 500)
     test_check(recycler.slot_for_item(6).key == 600)
-    test_check(recycler.slot_count() == 11)
+    test_check(recycler.slot_count() == 7)
 
     _ = recycler.update(600.0, 80.0, 300.0)
     test_check(recycler.active_count() == 7)

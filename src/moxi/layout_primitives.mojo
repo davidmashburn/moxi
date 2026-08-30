@@ -315,6 +315,20 @@ struct VirtualRecycler:
             viewport_extent,
             self.overscan,
         )
+        # Release keys that left the overscan window before allocating the
+        # next window. This is what makes scrolling reuse slots instead of
+        # growing the pool until every item has appeared once.
+        for slot_index in range(len(self.slots)):
+            if not self.slots[slot_index].active:
+                continue
+            var retained = False
+            for item_index in range(next_range.start, next_range.end):
+                if self.slots[slot_index].key == self.keys[item_index]:
+                    retained = True
+                    break
+            if not retained:
+                self.slots[slot_index].active = False
+                self.last_released_count += 1
         for item_index in range(next_range.start, next_range.end):
             var key = self.keys[item_index]
             var slot_index = self._slot_for_key(key)
@@ -340,16 +354,6 @@ struct VirtualRecycler:
             self.slots[slot_index].active = True
             next_active.append(slot_index)
 
-        for slot_index in range(len(self.slots)):
-            var was_active = self.slots[slot_index].active
-            var retained = False
-            for next_index in range(len(next_active)):
-                if next_active[next_index] == slot_index:
-                    retained = True
-                    break
-            if was_active and not retained:
-                self.slots[slot_index].active = False
-                self.last_released_count += 1
         self.active_slots = next_active^
         self.visible_range = next_range
         return next_range
