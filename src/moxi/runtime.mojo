@@ -349,6 +349,9 @@ struct ColumnRuntime:
     var last_removed_count: Int
     var last_moved_count: Int
     var last_validation_failed: Bool
+    var identity_keys: List[Int]
+    var identity_kinds: List[Int]
+    var identity_values: List[Int]
 
     def __init__(out self):
         self.widgets = List[Widget]()
@@ -368,6 +371,61 @@ struct ColumnRuntime:
         self.last_removed_count = 0
         self.last_moved_count = 0
         self.last_validation_failed = False
+        self.identity_keys = List[Int]()
+        self.identity_kinds = List[Int]()
+        self.identity_values = List[Int]()
+
+    def _identity_hash(self, id: Int, kind: Int, capacity: Int) -> Int:
+        var value = id * 31 + kind
+        if value < 0:
+            value = -value
+        return value % capacity
+
+    def _prepare_identity_index(mut self):
+        """Build a linear-probed index for the previous active frame."""
+        var capacity = 8
+        while capacity < len(self.active_indices) * 2:
+            capacity *= 2
+        self.identity_keys = List[Int](capacity=capacity)
+        self.identity_kinds = List[Int](capacity=capacity)
+        self.identity_values = List[Int](capacity=capacity)
+        for _ in range(capacity):
+            self.identity_keys.append(-1)
+            self.identity_kinds.append(-1)
+            self.identity_values.append(-1)
+        for old_order in range(len(self.active_indices)):
+            var retained_index = self.active_indices[old_order]
+            var widget = self.widgets[retained_index]
+            var slot = self._identity_hash(widget.id, widget.kind, capacity)
+            while self.identity_values[slot] != -1:
+                if (
+                    self.identity_keys[slot] == widget.id
+                    and self.identity_kinds[slot] == widget.kind
+                ):
+                    break
+                slot = (slot + 1) % capacity
+            if self.identity_values[slot] == -1:
+                self.identity_keys[slot] = widget.id
+                self.identity_kinds[slot] = widget.kind
+                self.identity_values[slot] = retained_index
+
+    def _take_identity(mut self, id: Int, kind: Int) -> Int:
+        """Claim one previous identity, returning its retained slot once."""
+        if len(self.identity_values) == 0:
+            return -1
+        var capacity = len(self.identity_values)
+        var slot = self._identity_hash(id, kind, capacity)
+        for _ in range(capacity):
+            var value = self.identity_values[slot]
+            if value == -1:
+                return -1
+            if self.identity_keys[slot] == id and self.identity_kinds[slot] == kind:
+                if value < 0:
+                    return -1
+                self.identity_values[slot] = -2
+                return value
+            slot = (slot + 1) % capacity
+        return -1
 
     def reconcile(mut self, view: ColumnView):
         """Reconcile by stable `(id, kind)` identity and preserve node storage."""
@@ -389,54 +447,39 @@ struct ColumnRuntime:
         self.last_removed_count = 0
         self.last_moved_count = 0
 
+        self._prepare_identity_index()
+        var active_flags = List[Bool](capacity=len(self.widgets))
+        var old_positions = List[Int](capacity=len(self.widgets))
+        for _ in range(len(self.widgets)):
+            active_flags.append(False)
+            old_positions.append(-1)
+        var free_indices = List[Int]()
+        for old_order in range(len(self.active_indices)):
+            var active_index = self.active_indices[old_order]
+            active_flags[active_index] = True
+            old_positions[active_index] = old_order
+        for index in range(len(self.widgets)):
+            if not active_flags[index]:
+                free_indices.append(index)
+        var free_head = 0
+        var retained_flags = List[Bool](capacity=len(self.widgets))
+        for _ in range(len(self.widgets)):
+            retained_flags.append(False)
+
         var next_indices = List[Int](capacity=view.child_count())
         for index in range(view.child_count()):
             var node = view.child(index)
-            var retained_index = -1
-            var matched_active = False
+            var retained_index = self._take_identity(node.id, node.kind)
+            var matched_active = retained_index != -1
 
-            # First preserve every matching node that was active in the
-            # previous frame. The `next_indices` check also keeps malformed
-            # duplicate ids from aliasing one retained slot.
-            for old_order in range(len(self.active_indices)):
-                var candidate_index = self.active_indices[old_order]
-                var already_used = False
-                for next_order in range(len(next_indices)):
-                    if next_indices[next_order] == candidate_index:
-                        already_used = True
-                        break
-                if already_used:
-                    continue
-                var candidate = self.widgets[candidate_index]
-                if candidate.id == node.id and candidate.kind == node.kind:
-                    retained_index = candidate_index
-                    matched_active = True
-                    break
-
-            if retained_index == -1:
-                # A removed slot may be reused by a new identity. This keeps
-                # the pool bounded by its peak size without stealing a node
-                # that still exists in the previous frame.
-                for candidate_index in range(len(self.widgets)):
-                    var was_active = False
-                    for old_order in range(len(self.active_indices)):
-                        if self.active_indices[old_order] == candidate_index:
-                            was_active = True
-                            break
-                    if was_active:
-                        continue
-                    var already_used = False
-                    for next_order in range(len(next_indices)):
-                        if next_indices[next_order] == candidate_index:
-                            already_used = True
-                            break
-                    if not already_used:
-                        retained_index = candidate_index
-                        break
+            if retained_index == -1 and free_head < len(free_indices):
+                retained_index = free_indices[free_head]
+                free_head += 1
 
             if retained_index == -1:
                 self.widgets.append(Widget(node))
                 retained_index = len(self.widgets) - 1
+                retained_flags.append(False)
                 self.last_created_count += 1
             elif not matched_active:
                 # The storage slot is reused, but the logical identity is
@@ -449,22 +492,17 @@ struct ColumnRuntime:
                 if changed:
                     self.last_updated_count += 1
 
-            var old_order = -1
-            for previous_order in range(len(self.active_indices)):
-                if self.active_indices[previous_order] == retained_index:
-                    old_order = previous_order
-                    break
-            if old_order != -1 and old_order != index:
+            var old_order = old_positions[retained_index] if retained_index < len(old_positions) else -1
+            if matched_active and old_order != index:
                 self.last_moved_count += 1
+            if retained_index >= len(retained_flags):
+                retained_flags.append(True)
+            else:
+                retained_flags[retained_index] = True
             next_indices.append(retained_index)
 
         for old_order in range(len(self.active_indices)):
-            var was_retained = False
-            for next_order in range(len(next_indices)):
-                if self.active_indices[old_order] == next_indices[next_order]:
-                    was_retained = True
-                    break
-            if not was_retained:
+            if not retained_flags[self.active_indices[old_order]]:
                 self.last_removed_count += 1
 
         self.active_indices = next_indices^
