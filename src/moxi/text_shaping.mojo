@@ -49,9 +49,10 @@ def fallback_font_id(codepoint: Int) -> Int:
 
 
 struct ShapedGlyph(ImplicitlyCopyable):
-    """One portable glyph placeholder with cluster and fallback metadata."""
+    """One glyph with source cluster, engine id, and placement metadata."""
 
     var codepoint: Int
+    var glyph_id: Int
     var cluster: Int
     var font_id: Int
     var advance: Float32
@@ -62,6 +63,7 @@ struct ShapedGlyph(ImplicitlyCopyable):
     def __init__(
         out self,
         codepoint: Int,
+        glyph_id: Int,
         cluster: Int,
         font_id: Int,
         advance: Float32,
@@ -70,6 +72,7 @@ struct ShapedGlyph(ImplicitlyCopyable):
         line: Int,
     ):
         self.codepoint = codepoint
+        self.glyph_id = glyph_id
         self.cluster = cluster
         self.font_id = font_id
         self.advance = advance
@@ -174,6 +177,7 @@ struct PortableTextShaper(TextShaper):
                 result.used_fallback_font = True
             result.glyphs.append(
                 ShapedGlyph(
+                    codepoint,
                     codepoint,
                     index,
                     font_id,

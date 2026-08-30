@@ -18,6 +18,7 @@ def main():
     test_check(shaped.glyph_count() == 6)
     test_check(shaped.measurement.line_count == 1)
     test_check(shaped.used_fallback_font)
+    test_check(shaped.glyph(0).glyph_id == shaped.glyph(0).codepoint)
     test_check(fallback_font_id(0x1F642) == 2)
     test_check(fallback_font_id(0x4E00) == 1)
 

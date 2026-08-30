@@ -48,6 +48,7 @@ struct MacOSTextShaper(TextShaper):
             result.glyphs.append(
                 ShapedGlyph(
                     Int(external_call["moxi_coretext_glyph_codepoint_at", Int32](Int32(index))),
+                    Int(external_call["moxi_coretext_glyph_id_at", Int32](Int32(index))),
                     Int(external_call["moxi_coretext_glyph_cluster_at", Int32](Int32(index))),
                     0,
                     external_call["moxi_coretext_glyph_advance_at", Float32](Int32(index)),
