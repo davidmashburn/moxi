@@ -10,6 +10,7 @@ from std.collections import List
 from .geometry import Point, Rect
 from .scene import Scene
 from .style import Color
+from .accessibility import AccessibilitySnapshot, ROLE_CANVAS, ROLE_LABEL, Semantics
 
 
 comptime PLOT_LINE = 1
@@ -73,6 +74,18 @@ struct PlotScale(ImplicitlyCopyable):
         if amount > 1.0:
             amount = 1.0
         return self.pixel_min + amount * (self.pixel_max - self.pixel_min)
+
+    def tick(self, index: Int, count: Int) -> Float32:
+        """Return an evenly spaced data-space tick value."""
+        var safe_count = count if count > 0 else 1
+        var safe_index = index
+        if safe_index < 0:
+            safe_index = 0
+        if safe_index > safe_count:
+            safe_index = safe_count
+        return self.data_min + (
+            self.data_max - self.data_min
+        ) * Float32(safe_index) / Float32(safe_count)
 
 
 struct PlotSeries:
@@ -220,6 +233,40 @@ struct Plot:
             return 0
         return self.series[index].count()
 
+    def set_series_visible(mut self, series_id: Int, visible: Bool) -> Bool:
+        var index = self.series_index(series_id)
+        if index == -1:
+            return False
+        self.series[index].visible = visible
+        return True
+
+    def set_series_line_width(mut self, series_id: Int, width: Float32) -> Bool:
+        var index = self.series_index(series_id)
+        if index == -1:
+            return False
+        self.series[index].line_width = width if width > 0.0 else 1.0
+        return True
+
+    def set_point(
+        mut self,
+        series_id: Int,
+        point_index: Int,
+        x: Float32,
+        y: Float32,
+    ) -> Bool:
+        var index = self.series_index(series_id)
+        if index == -1 or point_index < 0 or point_index >= self.series[index].count():
+            return False
+        self.series[index].points[point_index] = PlotPoint(x, y)
+        return True
+
+    def clear_series(mut self, series_id: Int) -> Bool:
+        var index = self.series_index(series_id)
+        if index == -1:
+            return False
+        self.series[index].points = List[PlotPoint]()
+        return True
+
     def fit_to_data(mut self):
         """Fit linear domains to visible series, with safe empty/flat ranges."""
         var found = False
@@ -294,6 +341,37 @@ struct Plot:
             self.axis_color,
             1.0,
         )
+        for index in range(0, 6):
+            var fraction = Float32(index) / 5.0
+            var x = self.plot_area.x + self.plot_area.width * fraction
+            var y = self.plot_area.y + self.plot_area.height
+            scene.append_line(
+                160 + index,
+                Point(x, y),
+                Point(x, y + 5.0),
+                self.axis_color,
+                1.0,
+            )
+            scene.append_text(
+                700 + index,
+                String(self.x_scale.tick(index, 5)),
+                Rect(x - 24.0, y + 6.0, 48.0, 16.0),
+                self.axis_color,
+            )
+            var horizontal_y = self.plot_area.y + self.plot_area.height * (1.0 - fraction)
+            scene.append_line(
+                180 + index,
+                Point(self.plot_area.x - 5.0, horizontal_y),
+                Point(self.plot_area.x, horizontal_y),
+                self.axis_color,
+                1.0,
+            )
+            scene.append_text(
+                720 + index,
+                String(self.y_scale.tick(index, 5)),
+                Rect(self.bounds.x + 2.0, horizontal_y - 8.0, 42.0, 16.0),
+                self.axis_color,
+            )
         scene.append_line(
             151,
             Point(self.plot_area.x, self.plot_area.y),
@@ -402,3 +480,23 @@ struct Plot:
                     result.point_index = point_index
                     result.distance_squared = distance
         return result
+
+    def accessibility(self) -> AccessibilitySnapshot:
+        """Expose the plot and each series as a semantic canvas subtree."""
+        var snapshot = AccessibilitySnapshot()
+        var label = self.title if self.title.count_codepoints() > 0 else "Plot"
+        var canvas = Semantics(1, ROLE_CANVAS, label)
+        canvas.bounds = self.bounds
+        canvas.value = String("series=", len(self.series))
+        snapshot.append(canvas)
+        for index in range(len(self.series)):
+            var series = Semantics(
+                10000 + self.series[index].id,
+                ROLE_LABEL,
+                self.series[index].label,
+            )
+            series.parent_id = 1
+            series.bounds = self.plot_area
+            series.value = String("points=", self.series[index].count())
+            snapshot.append(series)
+        return snapshot^
