@@ -24,6 +24,9 @@ trait PlatformAdapter:
     def resize(mut self, width: Float32, height: Float32) -> Bool:
         ...
 
+    def set_scale_factor(mut self, scale: Float32) -> Bool:
+        ...
+
     def begin_frame(mut self) -> Bool:
         ...
 
@@ -65,6 +68,9 @@ struct ContractBackend(PlatformAdapter):
 
     def resize(mut self, width: Float32, height: Float32) -> Bool:
         return self.surface.resize(width, height)
+
+    def set_scale_factor(mut self, scale: Float32) -> Bool:
+        return self.surface.set_scale_factor(scale)
 
     def begin_frame(mut self) -> Bool:
         return self.surface.begin_frame()

@@ -14,4 +14,5 @@ def main():
     test_check(not ios.open(config))
     test_check(not android.open(config))
     test_check(not web.open(config))
+    test_check(not web.set_scale_factor(2.0))
     print("Moxi named-targets test passed")

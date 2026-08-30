@@ -15,6 +15,8 @@ def main():
     var headless = headless_backend()
     test_check(headless.is_available())
     test_check(headless.open(config))
+    test_check(headless.set_scale_factor(2.0))
+    test_check(headless.surface.config.pixel_width() == 200)
     test_check(headless.begin_frame())
     test_check(headless.present())
     test_check(headless.close())

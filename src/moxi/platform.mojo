@@ -128,6 +128,16 @@ struct PlatformSurface:
         self.resize_count += 1
         return True
 
+    def set_scale_factor(mut self, scale: Float32) -> Bool:
+        if not self.attached:
+            return False
+        var next_scale = scale if scale > 0.0 else 1.0
+        if self.config.scale_factor == next_scale:
+            return False
+        self.config.scale_factor = next_scale
+        self.resize_count += 1
+        return True
+
     def begin_frame(mut self) -> Bool:
         if not self.attached or self.frame_open:
             return False

@@ -30,6 +30,9 @@ struct IOSBackend(PlatformAdapter):
     def resize(mut self, width: Float32, height: Float32) -> Bool:
         return self.base.resize(width, height)
 
+    def set_scale_factor(mut self, scale: Float32) -> Bool:
+        return self.base.set_scale_factor(scale)
+
     def begin_frame(mut self) -> Bool:
         return self.base.begin_frame()
 
@@ -60,6 +63,9 @@ struct AndroidBackend(PlatformAdapter):
     def resize(mut self, width: Float32, height: Float32) -> Bool:
         return self.base.resize(width, height)
 
+    def set_scale_factor(mut self, scale: Float32) -> Bool:
+        return self.base.set_scale_factor(scale)
+
     def begin_frame(mut self) -> Bool:
         return self.base.begin_frame()
 
@@ -89,6 +95,9 @@ struct WebBackend(PlatformAdapter):
 
     def resize(mut self, width: Float32, height: Float32) -> Bool:
         return self.base.resize(width, height)
+
+    def set_scale_factor(mut self, scale: Float32) -> Bool:
+        return self.base.set_scale_factor(scale)
 
     def begin_frame(mut self) -> Bool:
         return self.base.begin_frame()
