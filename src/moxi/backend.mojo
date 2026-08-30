@@ -6,6 +6,9 @@ comptime BACKEND_MACOS_APPKIT = 2
 comptime BACKEND_GPU = 3
 comptime BACKEND_WINDOWS = 4
 comptime BACKEND_LINUX = 5
+comptime BACKEND_IOS = 6
+comptime BACKEND_ANDROID = 7
+comptime BACKEND_WEB = 8
 
 
 struct BackendCapabilities(ImplicitlyCopyable):
@@ -114,6 +117,51 @@ def backend_capabilities(kind: Int) -> BackendCapabilities:
             True,
             False,
             "Backend contract reserved; native bridge is not shipped yet.",
+        )
+    if kind == BACKEND_IOS:
+        return BackendCapabilities(
+            BACKEND_IOS,
+            "iOS UIKit + Metal",
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            "Target contract reserved; UIKit/Metal adapter is not shipped yet.",
+        )
+    if kind == BACKEND_ANDROID:
+        return BackendCapabilities(
+            BACKEND_ANDROID,
+            "Android surface + GPU",
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            "Target contract reserved; Android adapter is not shipped yet.",
+        )
+    if kind == BACKEND_WEB:
+        return BackendCapabilities(
+            BACKEND_WEB,
+            "Web Canvas/WebGPU",
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            "Target contract reserved; browser adapter is not shipped yet.",
         )
     return BackendCapabilities(
         BACKEND_HEADLESS,

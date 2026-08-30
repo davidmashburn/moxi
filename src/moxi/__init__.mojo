@@ -40,6 +40,9 @@ from .backend import (
     BACKEND_LINUX,
     BACKEND_MACOS_APPKIT,
     BACKEND_WINDOWS,
+    BACKEND_IOS,
+    BACKEND_ANDROID,
+    BACKEND_WEB,
     BackendCapabilities,
     backend_capabilities,
 )
@@ -403,6 +406,7 @@ from .view import (
 from .testing import TestRenderer, TestWindow, test_check
 from .window import WindowBackend, WindowConfig
 from .windowing import WindowId, WindowManager, WindowState
+from .platform import PlatformSurface, PlatformTarget, SurfaceConfig
 
 
 def moxi_version() -> String:

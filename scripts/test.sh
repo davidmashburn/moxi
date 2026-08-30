@@ -27,6 +27,7 @@ tests=(
   tests/controls.mojo
   tests/extended_controls.mojo
   tests/backend.mojo
+  tests/platform.mojo
   tests/text_layout.mojo
   tests/text_boundary.mojo
   tests/resources_scene.mojo
