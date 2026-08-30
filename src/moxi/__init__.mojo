@@ -420,6 +420,14 @@ from .testing import TestRenderer, TestWindow, test_check
 from .window import WindowBackend, WindowConfig
 from .windowing import WindowId, WindowManager, WindowState
 from .platform import PlatformSurface, PlatformTarget, SurfaceConfig
+from .platform_adapters import (
+    ContractBackend,
+    PlatformAdapter,
+    android_backend,
+    headless_backend,
+    ios_backend,
+    web_backend,
+)
 from .performance import (
     FRAME_BUDGET_60_HZ_MS,
     FRAME_BUDGET_120_HZ_MS,

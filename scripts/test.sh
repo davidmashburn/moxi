@@ -28,6 +28,7 @@ tests=(
   tests/extended_controls.mojo
   tests/backend.mojo
   tests/platform.mojo
+  tests/platform_adapters.mojo
   tests/performance.mojo
   tests/virtualization.mojo
   tests/execution.mojo
