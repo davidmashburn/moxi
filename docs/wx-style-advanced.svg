@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="760" viewBox="0 0 1120 760" role="img" aria-labelledby="title desc">
+  <title id="title">Moxi advanced wx-style showcase reference</title>
+  <desc id="desc">A deterministic visual reference for Moxi's stateful catalog controls, clipped scrolling portal, native image, and software scene surface.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#101622"/>
+      <stop offset="1" stop-color="#0b0f17"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#63d5c6"/>
+      <stop offset="1" stop-color="#55a7ff"/>
+    </linearGradient>
+    <style>
+      .eyebrow { font: 700 14px -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: 2px; fill: #7d93b5; }
+      .title { font: 700 30px -apple-system, BlinkMacSystemFont, sans-serif; fill: #f3f7ff; }
+      .label { font: 600 16px -apple-system, BlinkMacSystemFont, sans-serif; fill: #d8e3f4; }
+      .body { font: 400 15px -apple-system, BlinkMacSystemFont, sans-serif; fill: #b5c5df; }
+      .small { font: 400 13px -apple-system, BlinkMacSystemFont, sans-serif; fill: #91a4c4; }
+      .mono { font: 500 13px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #a9c5ed; }
+    </style>
+  </defs>
+
+  <rect width="1120" height="760" fill="url(#bg)"/>
+  <rect x="28" y="28" width="1064" height="704" rx="24" fill="#1b2538" stroke="#334563" stroke-width="2"/>
+  <text x="64" y="72" class="eyebrow">MOXI / CATALOG AND SCENE CONTRACTS</text>
+  <text x="64" y="112" class="title">Stateful controls, one routed view tree</text>
+  <text x="64" y="140" class="small">The advanced surface is intentionally compact: semantics and state share the same update path.</text>
+
+  <rect x="64" y="170" width="318" height="246" rx="16" fill="#121b2a" stroke="#2b3b57"/>
+  <text x="88" y="202" class="eyebrow">INPUT CONTROLS</text>
+  <text x="88" y="236" class="label">Volume</text>
+  <rect x="88" y="250" width="270" height="10" rx="5" fill="#0b1320"/>
+  <rect x="88" y="250" width="178" height="10" rx="5" fill="url(#accent)"/>
+  <circle cx="266" cy="255" r="9" fill="#f3f7ff" stroke="#55a7ff" stroke-width="3"/>
+  <text x="88" y="286" class="small">SliderState · 66%</text>
+  <rect x="88" y="306" width="42" height="22" rx="11" fill="#63d5c6"/>
+  <circle cx="119" cy="317" r="8" fill="#10202a"/>
+  <text x="144" y="322" class="body">Enable notifications</text>
+  <circle cx="99" cy="362" r="10" fill="#55a7ff"/>
+  <circle cx="99" cy="362" r="4" fill="#10202a"/>
+  <text x="120" y="367" class="body">Balanced mode</text>
+  <rect x="88" y="385" width="270" height="1" fill="#334563"/>
+  <text x="88" y="405" class="mono">pointer / key / semantic-action</text>
+
+  <rect x="402" y="170" width="318" height="246" rx="16" fill="#121b2a" stroke="#2b3b57"/>
+  <text x="426" y="202" class="eyebrow">SELECTION MODELS</text>
+  <rect x="426" y="222" width="270" height="38" rx="8" fill="#101824" stroke="#55a7ff"/>
+  <text x="442" y="247" class="body">ComboBoxState · Maya</text>
+  <rect x="426" y="278" width="270" height="70" rx="8" fill="#101824" stroke="#334563"/>
+  <text x="442" y="302" class="body">ListState</text>
+  <rect x="442" y="312" width="238" height="22" rx="5" fill="#243d61"/>
+  <text x="454" y="328" class="small">Selected item</text>
+  <rect x="426" y="366" width="270" height="30" rx="7" fill="#18243a"/>
+  <text x="442" y="387" class="mono">table / tree / tabs share ids</text>
+
+  <rect x="740" y="170" width="348" height="246" rx="16" fill="#121b2a" stroke="#2b3b57"/>
+  <text x="764" y="202" class="eyebrow">PORTAL / CLIP / SCROLL</text>
+  <rect x="764" y="222" width="288" height="144" rx="10" fill="#0c1421" stroke="#40597e"/>
+  <rect x="780" y="238" width="232" height="26" rx="6" fill="#20304b"/>
+  <text x="792" y="256" class="small">Row 48 · visible range</text>
+  <rect x="780" y="274" width="232" height="26" rx="6" fill="#20304b"/>
+  <text x="792" y="292" class="small">Row 49 · clipped content</text>
+  <rect x="780" y="310" width="232" height="26" rx="6" fill="#20304b"/>
+  <text x="792" y="328" class="small">Row 50 · retained offset</text>
+  <rect x="1032" y="238" width="6" height="98" rx="3" fill="#273b59"/>
+  <rect x="1032" y="278" width="6" height="38" rx="3" fill="#63d5c6"/>
+  <text x="764" y="393" class="mono">hit-test respects ancestor clip</text>
+
+  <rect x="64" y="440" width="1024" height="254" rx="16" fill="#121b2a" stroke="#2b3b57"/>
+  <text x="88" y="474" class="eyebrow">CATALOG SURFACE</text>
+  <rect x="88" y="494" width="218" height="86" rx="10" fill="#202a3d" stroke="#40597e"/>
+  <text x="106" y="522" class="body">TreeState</text>
+  <text x="106" y="548" class="small">▾ Components</text>
+  <text x="124" y="568" class="small">• Canvas</text>
+  <rect x="326" y="494" width="218" height="86" rx="10" fill="#202a3d" stroke="#40597e"/>
+  <text x="344" y="522" class="body">MenuState</text>
+  <rect x="344" y="536" width="178" height="26" rx="6" fill="#29415f"/>
+  <text x="356" y="554" class="small">Open menu · AXPick</text>
+  <rect x="564" y="494" width="218" height="86" rx="10" fill="#202a3d" stroke="#825dd8"/>
+  <text x="582" y="522" class="body">DialogState</text>
+  <text x="582" y="548" class="small">Approval required</text>
+  <text x="582" y="568" class="mono">AXPress / ACTION_SELECT</text>
+  <rect x="802" y="494" width="262" height="86" rx="10" fill="#202a3d" stroke="#63d5c6"/>
+  <text x="820" y="522" class="body">Native image resource</text>
+  <rect x="820" y="536" width="42" height="28" rx="6" fill="url(#accent)"/>
+  <text x="876" y="555" class="small">ResourceStore → AppKit</text>
+  <text x="88" y="622" class="body">SoftwareSceneRenderer</text>
+  <text x="88" y="650" class="small">basic shapes · gradients · clipping · layers · transforms · deterministic checksum</text>
+  <text x="88" y="676" class="mono">build → route → update → reconcile → paint → scene/render</text>
+</svg>

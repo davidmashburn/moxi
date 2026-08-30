@@ -1,6 +1,6 @@
 # Moxi: long-term design notes for Mojo UI
 
-> Status: design notes, not the 0.3.0 implementation specification. For the
+> Status: design notes, not the 0.5.0 implementation specification. For the
 > current component, layout, runtime, rendering, and validation contracts see
 > [ARCHITECTURE.md](ARCHITECTURE.md). Some examples and sections below are
 > proposals and may not compile against the current package.
@@ -363,7 +363,13 @@ Layout and rendering code may use cache-aligned scratchpads and reusable interle
 
 Reference implementations may include small probes for these adapters—gamepad filtering, audio mixing, network decoding, job scheduling, affinity selection, IPC sequencing, keyboard mapping, scroll accumulation, shader caching, display transforms, clipping, blending, sampling, stencil and occlusion queries, register scratchpads, vertex/uniform descriptors, resource bindings, pipeline state, and blend state. These probes illustrate data flow only; they are not production FFI bindings.
 
-## 24. Comprehensive Implementation Reference
+## 24. Illustrative Future Implementation Reference
+
+The following reference remains intentionally non-normative. It combines
+possible future interfaces and pseudocode for the broader design; it is not a
+claim that these declarations are present in the 0.5 package. Prefer
+`ARCHITECTURE.md`, `docs/API.md`, and the contract tests when implementing
+against Moxi today.
 The following programmatic model demonstrates how Mojo 1.0 structures, interfaces, pointer parameters, memory mechanics, low-level synchronization primitives, semantic accessibility flags, spatial containment checks, zero-allocation frame interpolation formulas, binary state serialization methods, compile-time asset data maps, lock-free logging structures, cross-platform text shaping engines, client-side window chrome bounds definitions, native clipboard FFI interfaces, hardware cursor managers, multi-process drag-and-drop mechanics, inline IME composition anchoring engines, sub-pixel font hinting matrices, window resize padding subsystems, and multi-touch gesture engines define the core reactive architecture, native screen interaction interfaces, and thread-safe hardware input loops of the Moxi framework.
 
 # ==============================================================================

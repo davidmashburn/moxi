@@ -1,6 +1,70 @@
 # Changelog
 
-## 0.3.0 — Unreleased
+## 0.5.0 — 2026-08-30
+
+- Added a deterministic in-process capability bus with manifests, side-effect
+  policy, exact bus-issued agent approvals, bounded FIFO backpressure, typed
+  handler execution, idempotent replay, and exclusive leases.
+- Added stack, grid, split-pane, and clipped portal containers with persistent
+  scroll offsets, fixed-extent visible-range math, and clipping-aware routing.
+- Added a backend-neutral scene/resource seam with deterministic software
+  raster checks for shapes, gradients, layers, transforms, and declared path
+  bounds.
+- Added slider, switch, radio, image, multiline, combo, list, table, tree,
+  menu, dialog, tabs, canvas, and separator descriptors plus portable state
+  models and theme coverage.
+- Added catalog accessibility roles and semantic actions, native AppKit AX
+  action routing, WindowConfig size/resizability/fullscreen plumbing, and
+  native image/resource presentation.
+- Added checkbox and determinate progress controls across view, runtime, paint,
+  accessibility, headless tests, and native AppKit rendering.
+- Added text-layout requests, rich-text span data, explicit fallback reporting,
+  and backend capability profiles for headless/AppKit/GPU/Windows/Linux.
+- Expanded the wxPython-style showcase to exercise every shipped control,
+  typed component slots, clipping, wrapped text, capabilities, and backend
+  reporting.
+- Added opt-in deterministic codepoint wrapping, intrinsic-height propagation,
+  a shared wrapped-text scenario, and a native resize-aware demo.
+- Added typed component slots, namespaced child ids, projected local views, and
+  stable action ids for parent-to-child event routing.
+- Added opt-in root/container clipping metadata with native AppKit clip-state
+  handling.
+- Added an optional incremental renderer contract for changed commands and
+  removed-region clearing, with headless coverage.
+- Added alignment and nested-container layouts, clipboard/IME input, focus
+  navigation, constraints, validation, and retained identity reconciliation.
+- Stabilized the minimal declarative component, layout, event, rendering, and
+  native-window contracts for a focused macOS UI core.
+- Included retained identity reconciliation, constraints, validation,
+  accessibility, Unicode text editing, IME composition, clipboard support,
+  deterministic animation, invalidation, headless backends, and package
+  consumer coverage in the 0.5 boundary.
+- Added canonical `App.run()` and `App.run_with_clipboard()` loops plus
+  executable examples for the public lifecycle.
+- Added a fail-fast test runner, strict native warning checks, package-consumer
+  validation, release-check task, public API inventory, benchmark scaffold, and
+  source-controlled wx-style visual references.
+
+## 0.4.0 — Complete in tree
+
+- Added a backend-neutral `Event` model for pointer, key, text, and resize
+  input.
+- Added focusable view nodes, stable focus across rebuilds, and Tab traversal.
+- Added editable single-line text input with cursor movement and deletion.
+- Added focused button/text-input paint state and native focus rings.
+- Added native AppKit key, text, pointer, and resize event translation.
+- Added the shared form scenario, demo, and interaction contract tests.
+- Added reusable label, button, and text-input control descriptors.
+- Added Unicode-safe text selection, replacement, and cursor editing state.
+- Added visible native text selection and portable copy/cut/paste commands.
+- Added backend-neutral accessibility roles, labels, values, hints, and state.
+- Added pointer down/move/up routing with hover, pressed, enabled, and click
+  state.
+- Added `RowLayout`, flexible slots, spacers, and the interactive row scenario.
+- Added headless `TestRenderer` and `TestWindow` integration contracts.
+- Added a clean-cache distributable package consumer check.
+
+## 0.3.0 — 2026-08-28
 
 - Added composable `ViewNode` leaves and `ColumnView` composition.
 - Added deterministic vertical layout with padding and spacing.

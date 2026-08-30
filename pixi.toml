@@ -4,25 +4,44 @@ channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
 name = "moxi"
 platforms = ["osx-arm64"]
 preview = ["pixi-build"]
-version = "0.3.0"
+version = "0.5.0"
 
 [tasks]
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
-native-object = "clang -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
+native-object = "clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
 demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/hello_window.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
 demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
 counter-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/counter.mojo -o dist/moxi-counter-demo", depends-on = ["native-object"] }
 counter-demo = { cmd = "./dist/moxi-counter-demo", depends-on = ["counter-demo-build"] }
 component-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/hello_component.mojo -o dist/moxi-component-demo", depends-on = ["native-object"] }
 component-demo = { cmd = "./dist/moxi-component-demo", depends-on = ["component-demo-build"] }
-test = "mojo run -I src tests/smoke.mojo && mojo run -I src tests/layout.mojo && mojo run -I src tests/component.mojo && mojo run -I src tests/counter.mojo"
+form-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/form.mojo -o dist/moxi-form-demo", depends-on = ["native-object"] }
+form-demo = { cmd = "./dist/moxi-form-demo", depends-on = ["form-demo-build"] }
+row-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/row.mojo -o dist/moxi-row-demo", depends-on = ["native-object"] }
+row-demo = { cmd = "./dist/moxi-row-demo", depends-on = ["row-demo-build"] }
+alignment-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/alignment.mojo -o dist/moxi-alignment-demo", depends-on = ["native-object"] }
+alignment-demo = { cmd = "./dist/moxi-alignment-demo", depends-on = ["alignment-demo-build"] }
+nested-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/nested.mojo -o dist/moxi-nested-demo", depends-on = ["native-object"] }
+nested-demo = { cmd = "./dist/moxi-nested-demo", depends-on = ["nested-demo-build"] }
+wx-style-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/wx_style.mojo -o dist/moxi-wx-style-demo", depends-on = ["native-object"] }
+wx-style-demo = { cmd = "./dist/moxi-wx-style-demo", depends-on = ["wx-style-demo-build"] }
+wrapped-text-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/wrapped_text.mojo -o dist/moxi-wrapped-text-demo", depends-on = ["native-object"] }
+wrapped-text-demo = { cmd = "./dist/moxi-wrapped-text-demo", depends-on = ["wrapped-text-demo-build"] }
+composed-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/composed.mojo -o dist/moxi-composed-demo", depends-on = ["native-object"] }
+composed-demo = { cmd = "./dist/moxi-composed-demo", depends-on = ["composed-demo-build"] }
+animation-demo = "mojo run -I src examples/animation.mojo"
+benchmark = "bash scripts/benchmark.sh"
+package-consumer = "bash scripts/package_consumer.sh"
+test = "bash scripts/test.sh"
+check = "bash scripts/check.sh"
+release-check = "bash scripts/release_check.sh"
 
 [dependencies]
 mojo = ">=1.1.0.dev2026082605,<2"
 
 [package]
 name = "moxi"
-version = "0.3.0"
+version = "0.5.0"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "0.*" }
