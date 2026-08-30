@@ -1,7 +1,8 @@
-# Moxi architecture: 0.5 release and backend contracts
+# Moxi architecture: 0.5 baseline and post-0.5 slices
 
-This document describes the 0.5 release contracts implemented in the tree. It is the
-current source of truth for the public architecture; the larger
+This document describes the stable 0.5 contracts and the experimental
+post-0.5 slices currently implemented in the tree. It is the current source
+of truth for the public architecture; the larger
 [SPEC.md](SPEC.md) is long-term design material and includes proposals that are
 not implemented.
 
@@ -93,7 +94,9 @@ ColumnRuntime ──> retained Widgets ──> PaintCommands
 
 The retained paint stream can also be translated with `scene_from_paint()` to
 the backend-neutral `Scene` IR. Scene rendering is an explicit second seam; it
-does not change the widget reconciliation contract.
+does not change the widget reconciliation contract. `Scene` can be consumed by
+the deterministic software renderer, the experimental macOS Metal renderer,
+or the SVG serializer used by the Web-target export path.
 
 For capabilities, a component constructs an invocation from the same routed
 event or from an agent adapter, sends it through `CapabilityBus`, then applies
@@ -133,8 +136,11 @@ fixed-column grid, split-pane, and clipped scrolling portal containers. Portal
 offsets are bounded and persistent through `App` rebuilds. `layout()` must be
 called after adding children; the older `layout_children()` spelling remains a
 compatibility wrapper. `ScrollState`, `VirtualListState`, and
-`visible_range()` provide portable scroll and fixed-extent range math; they do
-not yet build or recycle item views.
+`visible_range()` provide portable scroll and fixed-extent range math.
+`VirtualRecycler` adds stable-key slot ownership, overscan, release-before-
+allocate recycling, clamped offsets, and `ensure_visible()`. `VirtualizedList`
+builds only active slots through a typed item builder; variable-height
+measurement and scrollbars remain follow-up work.
 
 Text measurement is deterministic and backend-neutral. `measure_text()` uses
 the current style's font size and codepoint count to provide a stable
@@ -144,10 +150,12 @@ and greedy codepoint wrapping for a caller-provided width. `ViewNode` exposes
 `intrinsic_size()` derives line count and height from the node's preferred
 width, while preserving the existing control chrome.
 `TextLayoutRequest`/`TextLayoutResult` make backend selection and fallback
-explicit, and `RichText` stores styled spans as portable data. The headless
-path flattens spans and reports that shaping/bidi/rich painting were not
-applied; AppKit reports native shaping/bidi capability and performs those
-operations when it paints the text rectangle.
+explicit, and `RichText` stores styled spans as portable data. The
+`PortableTextShaper` emits deterministic cluster-aware approximate runs with
+fallback-face classes. `MacOSTextShaper` delegates to CoreText and retains
+native glyph ids, source clusters, positions, advances, bidi direction, and
+font fallback through the same `ShapedText` contract. The headless rasterizer
+still does not invent glyph pixels.
 
 `ViewNode` supports independent minimum and maximum width/height constraints.
 Setting a conflicting bound deterministically normalizes the other bound so
@@ -207,10 +215,12 @@ committed text value: an update replaces the marked span, and a commit arrives
 as ordinary text input.
 
 The runtime exposes the last reconciliation's created, reused, updated,
-removed, and moved counts for deterministic contract tests. This is a storage
-and view-order diff, not yet localized component execution: `App` still calls
-the component's complete `build()` method, and the current renderer still
-consumes a complete frame command stream. `PaintCommand` carries a transient
+removed, and moved counts for deterministic contract tests. `LocalizedExecution`
+now records state-scope dependencies, propagates parent invalidation, and
+accounts for consumed component builds; `App` uses it for root lifecycle
+accounting. The current generic `App` still calls the component's complete
+`build()` method, so typed subtree execution and dependency-scoped paint
+submission remain future work. `PaintCommand` carries a transient
 `changed` bit; `PaintCommands` reports changed/removed command counts and the
 union of their bounds. When a retained command moves, the runtime includes both
 its previous and current bounds in that union. `App.paint()` folds that region
@@ -219,7 +229,7 @@ completes. A renderer can opt into incremental dispatch with
 `supports_incremental()`;
 Moxi clears removed regions and submits only changed commands. The default
 remains complete-frame dispatch, and `MacOSRenderer` currently uses that
-conservative path. Localized component rebuilds remain future work.
+conservative path.
 
 `Animation` provides scalar frame-stepped easing without owning a timer.
 `FrameEvent` and `App.tick(delta_seconds)` let a component advance its own
@@ -283,16 +293,34 @@ stream under the current renderer contract.
 the widget paint stream. `SceneRecorder` preserves commands for tests, and
 `SoftwareSceneRenderer` provides deterministic headless pixels for basic
 rectangles, gradients, conservative line/path bounds, clipping, opacity
-layers, and affine transforms. It deliberately does not claim glyph shaping,
-image decoding, path tessellation, or GPU composition.
+layers, and affine transforms. `MacOSMetalRenderer` batches rectangle/line
+geometry into a shared buffer and one synchronized draw submission per frame;
+`MacOSMetalWindow` presents the same scene through an AppKit `CAMetalLayer`,
+including drawable-size/scale handling. Metal currently has explicit
+fallbacks for text, images, path tessellation, and gradient shaders. The
+software path remains the deterministic oracle.
+
+`Plot`, `PlotDataTable`, `PlotSpec`, and `PlotRuntime` form the first
+application library on the scene contract. A plot owns data-space series and
+linear scales, emits axes/grid/legend/line/scatter/bar geometry, supports
+inverse mapping, pan/zoom, nearest-point hit testing, stable selection
+semantics, and extrema-preserving line LOD. `SvgSceneRenderer` serializes the
+same scene for browser-compatible SVG and escapes arbitrary text labels.
 
 `BackendCapabilities` is the runtime capability matrix for a renderer. The
 shipped `MacOSRenderer` reports native windowing, AppKit shaping/bidi,
-accessibility, and rectangle clipping; `TestRenderer` inherits the deterministic
-headless profile and opts into incremental dispatch. GPU, Windows, and Linux
-descriptors are explicit unavailable contracts so callers can gate features
-without probing platform internals. No native bridge is claimed for those
-targets yet.
+accessibility, and rectangle clipping; `MacOSMetalRenderer` reports readiness
+only after its device/pipeline is initialized; `TestRenderer` inherits the
+deterministic headless profile and opts into incremental dispatch. Generic GPU,
+Windows, and Linux descriptors are explicit contracts so callers can gate
+features without probing platform internals.
+
+`PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, and `PlatformAdapter`
+define the common lifecycle/scale contract for macOS-style hosts, iOS,
+Android, and Web. Named iOS/Android/Web adapters currently fail closed because
+this macOS-only repository does not ship their native hosts. The SVG scene
+serializer is usable today as a Web-compatible export, but it is not a claim
+of browser runtime support.
 
 `TestRenderer` records a frame without a platform window. `TestWindow` queues
 backend-neutral events and exposes the same window lifecycle shape, allowing
@@ -308,6 +336,23 @@ capability design note in
 [Specification High-Performance Agent-Re.md](Specification%20High-Performance%20Agent-Re.md)
 is maintained as a truthful future-adapter guide rather than an implementation
 claim.
+
+## Performance contract
+
+`PerformanceCounters` records deterministic per-frame reconcile, layout, paint,
+scene, and rasterized-pixel work. `PerformanceReport` combines those counters
+with host-supplied elapsed time and checks the 60 Hz (16.67 ms) or 120 Hz
+(8.33 ms) frame budget. `scripts/benchmark.sh` repeats the retained pipeline,
+portable plot, dense plot generation, and synchronized offscreen Metal cases;
+`MOXI_BENCHMARK_RUNS=1` is the quick path and the default is three runs.
+
+The retained runtime's open-addressed identity index and the recycler's
+release-before-allocate behavior are measured hot-path improvements. The Metal
+bridge reports CPU-side vertex counts and a deterministic offscreen checksum;
+the visible CAMetalLayer demo currently waits for completion, so its timings
+are correctness-oriented rather than an asynchronous frame-pacing claim. See
+[docs/performance.md](docs/performance.md) for workload definitions and
+interpretation.
 
 ## Validation surface
 
@@ -329,6 +374,14 @@ The shared counter scenario is exercised by:
 - `tests/capability.mojo` — manifest policy, agent approval, and exclusive leases
 - `tests/controls.mojo` — checkbox/progress semantics and paint commands
 - `tests/backend.mojo` — shipped and reserved backend capability profiles
+- `tests/platform.mojo`, `tests/platform_adapters.mojo`, and `tests/targets.mojo` — target lifecycle, scale, and fail-closed adapters
+- `tests/virtualization.mojo` and `tests/virtual_view.mojo` — stable-key recycling and typed visible-window building
+- `tests/execution.mojo` — dependency propagation and localized build accounting
+- `tests/plotting.mojo`, `tests/plot_data.mojo`, `tests/plot_spec.mojo`, and `tests/plot_runtime.mojo` — plot data, spec, scene, LOD, and interaction
+- `tests/svg.mojo` — escaped Web-compatible scene output
+- `tests/performance.mojo` and `benchmarks/plotting_large.mojo` — work counters and dense-plot workload
+- `tests/text_shaping.mojo` — portable clusters/fallback metadata
+- `native/macos_metal.m` and `examples/metal_window.mojo` — native GPU bridge and visible scene demo
 - `tests/text_layout.mojo` — deterministic layout and explicit fallback flags
 - `tests/wx_style.mojo` — the complete shared wx-style showcase scenario
 - `tests/diff.mojo` — stable identity, reorder, update, removal, and slot reuse

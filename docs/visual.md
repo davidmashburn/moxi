@@ -35,6 +35,16 @@ determinate progress, and stateful controls are visible together:
   action.
 - The typed embedded counter component and the explanatory event-flow copy.
 
+The post-0.5 visual surfaces use the same scene contract:
+
+- `pixi run plot-demo` renders the first plotting library slice through the
+  deterministic software scene path.
+- `pixi run plot-svg` serializes that plot as browser-compatible SVG, which is
+  the current Web-target visual export surface.
+- `pixi run metal-window-demo-build` compiles the experimental native Metal
+  window; launch the resulting binary on macOS to inspect Retina-aware
+  CAMetalLayer presentation.
+
 This SVG is a deterministic design reference, not a fabricated runtime
 screenshot. Native screenshots should be captured on macOS after launching the
 demo, because AppKit font metrics, window chrome, scale factor, and accessibility

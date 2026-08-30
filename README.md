@@ -10,7 +10,10 @@ declarative children are laid out into retained bounds, reconciled into an
 ordered backend-neutral command stream, and drawn by native AppKit. A small
 `App` helper owns the component/update/rebuild loop, while backend-neutral
 events, focus state, and semantics make keyboard interaction and headless
-validation possible.
+validation possible. The current `main` branch also contains experimental
+post-0.5 slices for Metal scene presentation, CoreText shaped runs, true
+stable-key view recycling, and the first Moxi Plot API; those are described
+separately below and are not being presented as a 0.5 compatibility promise.
 
 ## What works
 
@@ -75,6 +78,19 @@ validation possible.
 - A backend-neutral scene/resource boundary plus a deterministic software
   scene renderer for shape, gradient, line, path-bound, clipping, layer, and
   transform contract tests.
+- An experimental macOS Metal scene renderer with offscreen checksums,
+  batched rectangle/line geometry, resize/Retina handling, and a visible
+  CAMetalLayer window demo.
+- A shaped-run contract carrying glyph ids, source clusters, fallback-face
+  metadata, and a native CoreText adapter on macOS.
+- A stable-key `VirtualRecycler`/`VirtualizedList` that builds only the
+  visible/overscan window, reuses slots, clamps scrolling, and supports
+  ensure-visible behavior.
+- A first-class Plot model, stable numeric data source, declarative spec,
+  interaction runtime, line level-of-detail reduction, accessibility summary,
+  deterministic software output, and Web-compatible SVG serialization.
+- Shared platform surface lifecycle contracts for iOS, Android, and Web;
+  those targets remain explicitly unavailable until native hosts land.
 - Stateful combo-box, list, table, tree, menu, dialog, tabs, and canvas models,
   with theme coverage for every public catalog kind.
 - A native form demo showing the complete interaction path.
@@ -123,12 +139,12 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
 - The current layout supports vertical columns, horizontal rows, stack/grid/
   split/portal containers, alignment modes, fixed/flexible slots, spacers,
   min/max constraints, intrinsic estimates, and deterministic wrapping.
-  Portable glyph shaping, bidirectional layout, and rich-text painting remain
-  outside the headless core; AppKit supplies those operations for the native
-  demo. Portal scrolling is bounded and persistent, while virtualization is
-  currently fixed-extent range math rather than a full item-recycling view
-  builder. The animation API is frame-stepped; it does not provide a hidden
-  platform scheduler.
+  Portable glyph shaping and rich-text painting remain outside the headless
+  rasterizer; the explicit portable shaper is approximate, while CoreText
+  supplies native shaping/bidi on macOS. Portal scrolling is bounded and
+  persistent. `VirtualRecycler` now provides fixed-extent item recycling;
+  measured variable-height extents remain future work. The animation API is
+  frame-stepped; it does not provide a hidden platform scheduler.
 - The macOS adapter translates pointer down/move/up, key, committed-text,
   IME-composition, and resize events into Moxi events. Single-line inputs
   render marked text inline and anchor the macOS candidate window to the
@@ -138,12 +154,14 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
   bounded and exposes depth/drop counters for diagnostics.
 - The native adapter is a small Objective-C AppKit shim. `WindowConfig`
   size-limits, resizability, and fullscreen flags are passed to AppKit.
-  Cross-platform and GPU targets have capability contracts and explicit
-  unavailable descriptors, but no native bridge is shipped for them yet.
+  iOS, Android, and Web have shared lifecycle/event/scale contracts and named
+  adapters, but their native hosts are still unavailable. macOS Metal is an
+  experimental scene backend; AppKit remains the stable widget renderer.
 - The core exposes dirty regions and changed commands, and `TestRenderer`
   exercises incremental dispatch. The native AppKit renderer conservatively
-  submits a complete frame. `SceneRenderer` has a deterministic software
-  backend, but no GPU/Metal compositor yet.
+  submits a complete frame. `SceneRenderer` has both a deterministic software
+  backend and an experimental macOS Metal backend; text, images, and advanced
+  path effects still use explicit fallback behavior.
 - The 0.5 public boundary is the APIs documented here and in
   [ARCHITECTURE.md](ARCHITECTURE.md); larger facilities remain explicit
   follow-up work.
@@ -171,6 +189,9 @@ pixi run wx-style-demo
 pixi run animation-demo
 pixi run wrapped-text-demo
 pixi run composed-demo
+pixi run plot-demo
+pixi run plot-svg
+pixi run plot-large-benchmark
 pixi run benchmark
 pixi run package-consumer
 pixi run check
@@ -219,6 +240,12 @@ embedded counter component.
 height recomputation as the root width changes.
 `pixi run composed-demo` shows a parent component owning a typed counter child;
 the child is embedded with namespaced ids and still handles its local action.
+`pixi run plot-demo` renders the shared first-class plot through the software
+scene backend. `pixi run plot-svg` prints the same scene as Web-compatible SVG;
+`pixi run plot-large-benchmark` measures a 10k-point line with LOD and a
+100k-point scatter scene without rasterizing every point. `pixi run
+metal-window-demo-build` compiles the visible Metal window; run the resulting
+binary locally when a GUI session is available.
 
 ## Components
 
@@ -296,20 +323,21 @@ Renderers default to complete-frame dispatch. A retained-surface backend can
 override `supports_incremental()`; `App.render()` then clears removed regions
 and submits only changed commands.
 
-`TextLayoutRequest` and `TextLayoutResult` make portable text behavior
-inspectable. The headless result reports deterministic estimate metrics and
-explicitly marks native-shaped, RTL, or rich-text requests as fallbacks.
-`MacOSRenderer.backend_capabilities()` reports that AppKit supplies shaping and
-bidirectional display at paint time. `backend_capabilities()` also reports the
-currently available headless and AppKit targets plus the reserved, unavailable
-GPU/Windows/Linux targets.
+`TextLayoutRequest`, `TextLayoutResult`, `ShapedText`, and `ShapedGlyph` make
+portable text behavior inspectable. The portable shaper is deterministic and
+explicitly approximate; native `MacOSTextShaper` uses CoreText and preserves
+glyph ids, source clusters, bidi direction, and measured advances.
+`MacOSRenderer.backend_capabilities()` reports AppKit text support, while
+`MacOSMetalRenderer.backend_capabilities()` reports the initialized Metal
+scene capabilities.
 
-`VirtualListState` and `visible_range()` provide the fixed-extent virtualization
-contract without forcing an application to build every item. `ScrollState`
-clamps offsets against content and viewport extents. `Scene`, `SceneCommand`,
-and `SceneRenderer` form a richer rendering seam; `SoftwareSceneRenderer` is a
-deterministic raster backend for shape, gradient, clipping, layer, and
-transform tests, while text/image pixels remain resource-dependent.
+`VirtualListState` and `visible_range()` provide range math; `VirtualRecycler`
+and `VirtualizedList[Builder]` add stable-key recycling, overscan, bounded
+active slots, and `ensure_visible()`. `ScrollState` clamps offsets against
+content and viewport extents. `Scene`, `SceneCommand`, and `SceneRenderer`
+form a richer rendering seam; `SoftwareSceneRenderer` is a deterministic
+raster backend and `MacOSMetalRenderer` is the experimental GPU path, while
+text/image pixels remain resource-dependent.
 
 `MacOSWindow.event_queue_depth()`, `dropped_event_count()`, and
 `command_overflow_count()` expose native backpressure and the current
@@ -403,6 +431,8 @@ Component + root bounds -> App -> ColumnView/tree -> ColumnRuntime -> PaintComma
        |                         |       |          |                 |
  Event <- WindowBackend <-------+       +-- focus --+-> AppKit canvas
                    pointer/key/text/resize/action
+
+Scene/Plot -> SoftwareSceneRenderer | Metal | SVG/Web export
 ```
 
 The Mojo core does not own AppKit handles. The platform adapter owns the native
@@ -415,11 +445,12 @@ window and translates paint commands across a narrow C ABI boundary; a
 The 0.5 core is intentionally small: one stable declarative component API,
 deterministic layout and identity reconciliation, native macOS rendering,
 keyboard/text/IME input, accessibility, headless testing, and explicit
-animation/invalidation primitives. The current slice adds a capability bus,
-checkbox/progress components, portable text-layout/rich-text contracts, and a
-backend capability matrix. Cross-platform or GPU backends remain behind the
-contracts until they have a native bridge and working demo; AppKit is the only
-shaping/bidi-capable shipped renderer. The separate
+animation/invalidation primitives. Post-0.5 experimental slices now add a
+batched Metal scene path, CoreText shaped runs, stable-key recycling, localized
+execution accounting, platform surface contracts, and the first Plot library.
+iOS, Android, and Web are scoped but not yet supported native targets; the
+portable shaper remains approximate and the plot's data/spec/runtime APIs are
+still evolving. The separate
 [Specification High-Performance Agent-Re.md](Specification%20High-Performance%20Agent-Re.md)
 remains design material for a future transport/agent bridge; the in-process
 authorization boundary is now part of the Moxi core.

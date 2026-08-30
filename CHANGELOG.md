@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased — post-0.5 experimental slices
+
+- Added an experimental macOS Metal scene renderer with rectangle/line
+  batching, offscreen checksums, Retina-aware resizing, and a visible
+  `CAMetalLayer` window demo. Text, images, path tessellation, gradients, and
+  asynchronous frame pacing remain explicit follow-up work.
+- Added repeatable retained, plotting, dense-plot, and offscreen-Metal
+  benchmarks with deterministic work counters, checksums, and 60/120 Hz budget
+  reporting guidance.
+- Added portable cluster-aware approximate shaping metadata and a CoreText
+  adapter that retains native glyph ids, clusters, bidi direction, advances,
+  and fallback information at the shaped-run boundary.
+- Added stable-key fixed-extent `VirtualRecycler` and `VirtualizedList`
+  builders with overscan, bounded slot ownership, clamped offsets, and
+  ensure-visible behavior, plus localized execution dependency accounting.
+- Added shared lifecycle and scale-factor contracts for iOS, Android, and Web;
+  native hosts remain unavailable, while SVG provides Web-compatible scene
+  export.
+- Added the first Moxi plotting foundation: columnar numeric data, versioned
+  line/scatter/bar specs, linear scales, axes/grid/legend, pan/zoom, hit
+  testing, selection semantics, line LOD, software/Metal/SVG output, and
+  wx-style examples/benchmarks.
+
 ## 0.5.0 — 2026-08-30
 
 - Added a deterministic in-process capability bus with manifests, side-effect

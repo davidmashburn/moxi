@@ -1,4 +1,4 @@
-# Moxi 0.5 API inventory
+# Moxi API inventory: 0.5 baseline and post-0.5 slices
 
 This is the short, navigable inventory of the public package surface. The
 source files and Mojo compiler remain the normative API definition; the
@@ -38,8 +38,10 @@ widgets by `(id, kind)`.
 `add_stack*`, `add_grid*`, `add_split*`, and `add_portal*` provide the 0.5
 container modes. Portal offsets are bounded and persistent through `App`
 rebuilds. `ScrollState`, `VirtualListState`, and `visible_range()` provide
-portable scrolling and fixed-extent virtualization math; a full recycling
-view builder is still a post-0.5 item.
+portable range math; `VirtualRecycler` and `VirtualizedList[Builder]` add
+stable-key overscan slots, recycling, clamped offsets, and
+`ensure_visible()`. Variable-height measurement and scrollbars are not yet
+implemented.
 
 The layout constants are `ALIGN_*`, `JUSTIFY_*`, `COLUMN_AXIS`, and
 `ROW_AXIS`. Geometry is represented by `Point`, `Size`, and `Rect`.
@@ -67,14 +69,38 @@ and translates AX press/pick/increment/decrement/expand/collapse actions back
 to the logical event path.
 
 `backend_capabilities(kind)` reports the shipped headless and AppKit targets
-and explicitly marks GPU, Windows, and Linux bridges unavailable in 0.5.
-`MacOSWindow` adds native queue depth, dropped-event, and draw-command-overflow
-counters for adapter diagnostics.
+and explicit contracts for GPU, Windows, Linux, iOS, Android, and Web.
+`MacOSMetalRenderer` reports runtime readiness for the experimental macOS GPU
+path, while `MacOSMetalWindow` presents scenes through a CAMetalLayer.
+`PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, and
+`PlatformAdapter` share lifecycle, resize, and scale-factor rules across the
+named mobile/browser targets. iOS, Android, and Web adapters currently fail
+closed until native hosts are shipped. `MacOSWindow` adds native queue depth,
+dropped-event, and draw-command-overflow counters for adapter diagnostics.
 
 `Scene`, `SceneCommand`, and `SceneRenderer` are the richer drawing boundary.
 `SoftwareSceneRenderer` is a deterministic headless rasterizer for basic
-shapes, gradients, lines, path bounds, clipping, layers, and transforms. It
-does not invent glyph or image pixels, and it is not a GPU compositor.
+shapes, gradients, lines, path bounds, clipping, layers, and transforms.
+`MacOSMetalRenderer` batches basic rect/line geometry through Metal and
+`SvgSceneRenderer` serializes the same scene for browser-compatible SVG. Text,
+image resources, path tessellation, and advanced shader effects retain
+explicit fallback behavior.
+
+## Plotting
+
+`PlotDataTable` is a stable-key numeric x/y source with validity masks,
+patch/append/rollover updates, versioning, and `csv()` for non-visual output.
+`PlotSpec` is a versioned declarative layer list with line/scatter/bar marks,
+field encodings, and stable JSON inspection. `plot_from_spec()` compiles its
+numeric subset into `Plot`.
+
+`Plot` owns linear scales, axes, grid, legends, line/scatter/bar marks,
+nearest-point hit testing, inverse mapping, pan/zoom, and accessibility
+summary output. `set_line_point_limit()` enables extrema-preserving line LOD.
+`PlotRuntime` adds pointer/touch pan, scroll zoom, hover/selection overlays,
+Escape reset, and semantic selection state. The software, Metal, and SVG
+scene paths consume the same plot output; the portable shaper remains
+approximate and native text is backend-specific.
 
 ## Capability and agent boundary
 
@@ -107,6 +133,10 @@ the complete visible approval flow.
 | Controls and editing | [`src/moxi/controls.mojo`](../src/moxi/controls.mojo), [`src/moxi/control_state.mojo`](../src/moxi/control_state.mojo) |
 | Runtime and invalidation | [`src/moxi/runtime.mojo`](../src/moxi/runtime.mojo), [`src/moxi/invalidation.mojo`](../src/moxi/invalidation.mojo) |
 | Scene and resources | [`src/moxi/scene.mojo`](../src/moxi/scene.mojo), [`src/moxi/software.mojo`](../src/moxi/software.mojo), [`src/moxi/resources.mojo`](../src/moxi/resources.mojo) |
+| Plotting | [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
+| Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh) |
+| Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo) |
+| Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`native/macos_text.m`](../native/macos_text.m) |
 | Reactivity and tasks | [`src/moxi/reactivity.mojo`](../src/moxi/reactivity.mojo), [`src/moxi/tasks.mojo`](../src/moxi/tasks.mojo) |
 | Capabilities and conversation | [`src/moxi/capability.mojo`](../src/moxi/capability.mojo), [`src/moxi/conversation.mojo`](../src/moxi/conversation.mojo) |
 | Native adapter | [`src/moxi/macos.mojo`](../src/moxi/macos.mojo), [`native/macos_window.m`](../native/macos_window.m) |

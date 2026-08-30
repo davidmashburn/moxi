@@ -1,6 +1,7 @@
 # Moxi and Xilem
 
-Status: comparison and implementation plan for Moxi 0.5, checked against
+Status: comparison and implementation plan for Moxi 0.5 plus experimental
+post-0.5 slices, checked against
 Xilem's upstream documentation and repository links on 2026-08-30.
 
 ## Executive summary
@@ -40,16 +41,17 @@ Linebender stack, Parley, and AccessKit.
 | View representation | A flat, parent-aware `ViewNode` list with stable integer ids and typed component slots. | A typed lightweight view tree whose elements are Masonry widgets on native. |
 | Reconciliation | `ColumnRuntime` matches `(id, kind)`, preserves retained storage, reports created/reused/updated/moved/removed counts, and emits changed/removed paint metadata. | Xilem compares new view values and performs minimal updates to the retained Masonry tree. |
 | Layout | Linear columns/rows, padding, spacing, alignment, flexible slots, min/max constraints, intrinsic estimates, wrapping, stack, grid, split, and clipped portal containers. | Flex, grid, sized boxes, split panes, portals, z-stacks, and custom constraint-driven widgets. |
-| Scrolling | Bounded portal scrolling, persistent offsets, clipping-aware hit testing, and fixed-extent virtual-range math. | Mature virtual scrolling widgets and viewport integration. |
-| Rendering | Backend-neutral paint commands plus a scene IR. AppKit paints the native demo; `SoftwareSceneRenderer` deterministically rasterizes basic shapes, gradients, lines, and declared path bounds. | Imaging abstraction with a high-performance 2D scene/rendering stack; Vello/wgpu is the current Linebender path. |
-| Windowing | AppKit window/event bridge on macOS Apple Silicon, configurable size limits/resizability/fullscreen, and a portable `WindowManager` model. Native multi-window ownership is not shipped. | Winit-based native support plus an experimental DOM/web backend. |
-| Text | Deterministic codepoint estimates and grapheme-aware boundary helpers in portable code; AppKit supplies native shaping/bidi/IME. | Parley supplies rich layout, font fallback, shaping, bidi, segmentation, and editing infrastructure. |
+| Scrolling | Bounded portal scrolling, persistent offsets, clipping-aware hit testing, fixed-extent range math, and a stable-key `VirtualRecycler`/`VirtualizedList` with overscan and ensure-visible behavior. Variable-height measurement and scrollbars are not yet implemented. | Mature virtual scrolling widgets and viewport integration. |
+| Rendering | Backend-neutral paint commands plus a scene IR. AppKit paints the native demo; `SoftwareSceneRenderer` is the deterministic oracle; experimental `MacOSMetalRenderer` batches basic geometry and `MacOSMetalWindow` presents through `CAMetalLayer`; `SvgSceneRenderer` provides Web-compatible export. | Imaging abstraction with a high-performance 2D scene/rendering stack; Vello/wgpu is the current Linebender path. |
+| Windowing | AppKit window/event bridge on macOS Apple Silicon, configurable size limits/resizability/fullscreen, and portable lifecycle/scale contracts for iOS, Android, and Web. Native multi-window ownership and non-macOS hosts are not shipped. | Winit-based native support plus an experimental DOM/web backend. |
+| Text | Deterministic approximate portable shaping with cluster/fallback metadata; CoreText supplies native glyph ids, shaping, bidi, and fallback on macOS. | Parley supplies rich layout, font fallback, shaping, bidi, segmentation, and editing infrastructure. |
 | Accessibility | Backend-neutral roles, labels, values, state, bounds, parent links, and semantic actions for the catalog; native macOS AX hierarchy and action bridge. | AccessKit-based accessibility integrated into the widget contract, with broader platform coverage. |
 | Widgets | Label, button, text inputs, checkbox, progress, slider, switch, radio, image, multiline, combo, list, table, tree, menu, dialog, tabs, canvas, separator, containers, typed slots, and small state models. Catalog controls are intentionally shallow and some native paths use label/panel fallbacks. | Broader and deeper widget layer, including platform-integrated controls and view composition. |
 | Async | Deterministic frame-stepped scheduler with completion/cancel/fail results, bounded queues, and explicit task lifetime. External I/O/thread execution belongs to an adapter. | `task` views and reactive integration support asynchronous work in the broader framework. |
 | Agent integration | In-process capability descriptors, schema checks, approvals, leases, typed handlers, replay, bounded queues, and conversation state. | No equivalent authorization/LLM capability bus; that is outside Xilem's stated UI scope. |
 | Testing | Headless behavior tests, semantic snapshots, software-scene pixel/checksum checks, native compile checks, package-consumer checks, property-style edge cases, benchmark harness, and source-controlled visual references. | Masonry widget harness, interaction tests, render snapshots, and widget-tree snapshots. |
-| Maturity | Focused experimental 0.5 package with an honest macOS boundary. | Broader published project, but still explicitly alpha and subject to breaking changes. |
+| Plotting | First-class numeric data table, versioned line/scatter/bar spec, linear scales, axes/grid/legend, pan/zoom, hit testing, selection semantics, line LOD, software/Metal/SVG scene output. | No direct plotting-library equivalent in the core comparison. |
+| Maturity | Focused 0.5 package with experimental post-0.5 Metal, CoreText, recycling, platform contracts, and plotting slices; non-macOS hosts remain unavailable. | Broader published project, but still explicitly alpha and subject to breaking changes. |
 
 ## Where Moxi is better
 
@@ -67,14 +69,22 @@ repeatability harness, not a comparative Xilem/Masonry performance result.
 
 ## Where Moxi is worse
 
-- No shipped Metal/Vello/wgpu GPU renderer and no retained GPU surface path.
-- No implemented Windows, Linux, web, or cross-platform accessibility backend.
-- Portable text remains an estimate/fallback contract; there is no Parley-equivalent shaping or font fallback engine.
-- Virtualization currently provides range math rather than a complete virtualized view builder with scrollbars and item recycling.
+- Metal is an experimental macOS path limited to basic rectangle/line geometry;
+  text, images, path tessellation, gradients, asynchronous pacing, and GPU
+  timestamps remain open work.
+- iOS, Android, and Web have named lifecycle/scale contracts, but no native
+  hosts or cross-platform accessibility backend is shipped; SVG is export,
+  not browser runtime support.
+- Portable text remains approximate; there is no Parley-equivalent shaping or
+  font-fallback engine outside the CoreText adapter.
+- Virtualization now has a real fixed-extent builder/recycler, but it still
+  lacks variable-height measurement, scrollbars, and richer viewport policy.
 - Catalog controls have semantic/state coverage, but many native macOS render through intentionally shallow label/panel fallbacks.
 - Native AppKit state is singleton-oriented; the portable multi-window model is not a native multi-window manager.
 - The native queue/draw arrays retain fixed implementation ceilings, even though core queues are configurable and overflow is observable.
-- No localized component execution, automatic dependency graph, or typed view-sequence diff comparable to Xilem's broader model.
+- Localized execution now has scope/dependency invalidation accounting, but no
+  typed subtree builder or view-sequence diff comparable to Xilem's broader
+  model.
 - Narrower ecosystem, fewer backend implementations, and less external validation.
 
 Xilem is not production-stable either: its own documentation calls the current
@@ -88,23 +98,27 @@ against the deliberately focused 0.5 release boundary.
 
 ### P0: foundations
 
-1. Add a real GPU scene backend, preferably Metal on the current target, behind `SceneRenderer` and the existing resource contract.
-2. Add a portable shaping/font-fallback implementation or an explicit adapter to one; keep AppKit as the native reference path.
-3. Turn `VirtualListState` into a view-builder/recycling API with visible-item semantics, scrollbars, and keyboard reveal/ensure-visible behavior.
+1. Extend the experimental Metal scene backend with text/image resources,
+   path tessellation, gradients, and asynchronous frame pacing.
+2. Add a production portable shaping/font-fallback adapter; keep CoreText as
+   the native reference path and retain the explicit approximate fallback.
+3. Extend the fixed-extent recycler with measured variable-height extents,
+   scrollbars, and richer keyboard/touch reveal policy.
 4. Add automated native accessibility assertions and an AccessKit-equivalent cross-platform adapter contract.
 
 ### P1: framework breadth
 
 1. Add baseline/flex-style measurement and richer constraint negotiation while preserving deterministic existing layouts.
 2. Deepen list/table/tree/menu/dialog/tabs/canvas rendering and editing instead of using label/panel fallbacks.
-3. Add localized component invalidation/dependency tracking and a stronger typed view-sequence abstraction.
-4. Add native multi-window ownership, touch/gesture translation, and platform drag/drop adapters.
+3. Replace root-only localized accounting with typed subtree execution and a stronger view-sequence abstraction.
+4. Add native multi-window ownership, touch/gesture translation, and platform drag/drop adapters for macOS, iOS, Android, and Web.
 5. Add external async transport/executor adapters with cancellation and deadlines while keeping the core scheduler deterministic.
+6. Build the browser runtime and native mobile hosts behind the existing target contracts.
 
 ### P2: production hardening
 
 1. Replace or make the native 128-slot-per-kind draw ceiling configurable; keep overflow observable until then.
-2. Add Windows/Linux/web CI and backend smoke tests as implementations land; current CI is macOS Apple Silicon only.
+2. Add iOS/Android/Web plus Windows/Linux CI and backend smoke tests as implementations land; current CI is macOS Apple Silicon only.
 3. Run a like-for-like Moxi/Xilem/Masonry benchmark with published hardware, versions, workloads, and results.
 4. Add fuzzing once the Mojo test/tooling path supports it; property-style deterministic checks now cover the critical edge contracts.
 5. Capture native screenshots on macOS and add them to the visual QA record; source-controlled SVG references are present now.
@@ -123,14 +137,15 @@ boundary as follows:
 
 | Slice | Status | Evidence |
 | --- | --- | --- |
-| Core/platform/render seams | Complete | `Component`, `WindowBackend`, `Renderer`, `SceneRenderer`, headless adapters |
-| Layout and scrolling | Complete for the 0.5 contract | stack/grid/split/portal, clipping, persistent scroll, virtual-range math, tests |
-| Rendering and resources | Complete for the deterministic/native contract | resource handles, scene IR, software rasterizer, AppKit image/control paths |
-| Text and editing | Complete as an explicit fallback boundary | grapheme helpers, IME/selection/clipboard, AppKit shaping/bidi, fallback flags |
+| Core/platform/render seams | Complete, with experimental Metal/SVG slices | `Component`, `WindowBackend`, `Renderer`, `SceneRenderer`, `MacOSMetalWindow`, `SvgSceneRenderer` |
+| Layout and scrolling | Complete for the 0.5 contract; recycler slice added | stack/grid/split/portal, clipping, persistent scroll, `VirtualRecycler`, `VirtualizedList`, tests |
+| Rendering and resources | Deterministic/native contract complete; Metal experimental | resource handles, scene IR, software rasterizer, AppKit paths, Metal offscreen/visible demos |
+| Text and editing | Split contract complete; portable shaping remains approximate | grapheme helpers, IME/selection/clipboard, CoreText glyph runs, fallback metadata |
 | Components and reactivity | Complete for the focused catalog | descriptors, state models, action queues, memos/lenses/scopes, tasks |
 | Accessibility and native actions | Complete for the macOS 0.5 surface | semantic roles/actions, AX hierarchy, AX action queue bridge |
-| Hardening | Complete for 0.5 | configurable core queues, property checks, benchmark, package/release checks; native/cross-platform ceilings remain |
-| Documentation and visual QA | Complete for source-controlled artifacts | comparison/API/architecture/visual docs and SVG references; native screenshot still requires a local macOS capture |
+| Hardening | Complete for 0.5 plus repeatable post-0.5 benchmarks | configurable core queues, property checks, plot/Metal benchmarks, package/release checks; native/cross-platform ceilings remain |
+| Documentation and visual QA | Complete for source-controlled artifacts | comparison/API/architecture/performance/visual docs, plot/SVG references; native screenshot still requires a local macOS capture |
+| Plotting foundation | Implemented as an experimental first library | `PlotDataTable`, `PlotSpec`, `PlotRuntime`, LOD, accessibility, software/Metal/SVG output |
 
 ## Executed plan
 
@@ -141,7 +156,7 @@ boundary as follows:
 5. **Components and reactivity — complete for 0.5.** Add the catalog, styles, state machines, semantic actions, task scheduler, queue bounds, and native presentation.
 6. **Accessibility and platform coverage — macOS slice complete.** Add catalog roles/actions, native AX action dispatch, WindowConfig plumbing, and honest unavailable backend descriptors.
 7. **Hardening and release — complete for 0.5.** Keep capacities observable, run property-style checks, refresh benchmarks, package-consumer checks, generated API docs, and visual references; the release gate now runs all of them.
-8. **Post-0.5 follow-up.** Implement GPU, portable text, true virtualization, deeper native widgets, cross-platform backends, and native screenshot automation in that order.
+8. **Post-0.5 slices — in progress.** Metal, CoreText shaped runs, fixed-extent recycling, localized accounting, target contracts, and the plotting foundation are now in tree; variable-height virtualization, production portable shaping, deep native widgets, mobile/browser hosts, and native screenshot automation remain.
 
 The current validation entry point is:
 
@@ -156,7 +171,8 @@ guidance is in [docs/visual.md](visual.md).
 ## Recommended positioning
 
 Describe Moxi as “a Mojo-native, inspectable UI core with agent
-capabilities,” not “Xilem for Mojo.” The highest-value next architectural
-step is a real GPU/resource backend, followed by portable text and true
-virtualization. The capability bus should remain an optional first-class
-integration rather than becoming entangled with rendering.
+capabilities and a plotting foundation,” not “Xilem for Mojo.” The highest-
+value next architectural steps are Metal resource/text completion, production
+portable shaping, variable-height virtualization, and native mobile/browser
+hosts. The capability bus should remain an optional first-class integration
+rather than becoming entangled with rendering.
