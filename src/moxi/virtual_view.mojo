@@ -39,8 +39,17 @@ struct VirtualizedList[Builder: VirtualItemBuilder]:
     def set_offset(mut self, offset: Float32):
         self.offset = offset if offset > 0.0 else 0.0
 
+    def ensure_visible(mut self, item_index: Int, viewport_extent: Float32) -> Float32:
+        self.offset = self.recycler.ensure_visible(
+            item_index,
+            viewport_extent,
+            self.offset,
+        )
+        return self.offset
+
     def build(mut self, bounds: Rect) -> ColumnView:
         """Return a view containing only the active window of item nodes."""
+        self.offset = self.recycler.clamp_offset(self.offset, bounds.height)
         _ = self.recycler.update(self.offset, bounds.height, bounds.width)
         var view = ColumnView(bounds, 0.0, 0.0)
         for active_index in range(self.recycler.active_count()):

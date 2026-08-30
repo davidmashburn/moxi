@@ -82,6 +82,8 @@ struct App[ComponentType: Component & Deinitable]:
         self.local_execution = LocalizedExecution()
         _ = self.local_execution.add_scope(0)
         _ = self.local_execution.add_dependency(0, 0)
+        _ = self.local_execution.invalidate_scope(0)
+        _ = self.local_execution.take_dirty(0)
 
     def update(mut self, event: ClickEvent) -> Bool:
         """Compatibility spelling for dispatching a pointer click."""
@@ -412,6 +414,7 @@ struct App[ComponentType: Component & Deinitable]:
         self.view = self.component.build(self.root_bounds)
         self.apply_scroll_offsets()
         self.runtime.reconcile(self.view)
+        _ = self.local_execution.take_dirty(0)
         self.pending.invalidate(INVALIDATE_ALL, self.root_bounds)
 
     def scroll_offset_for(self, id: Int) -> Float32:

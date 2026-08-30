@@ -29,13 +29,16 @@ def main():
 
     var app = App[CounterState](component, Rect(0.0, 0.0, 384.0, 184.0))
     test_check(app.view.child_count() == 3)
+    test_check(app.execution_build_count(0) == 1)
     test_check(app.paint().count() == 5)
     test_check(not app.update(ClickEvent(Point(12.0, 12.0))))
     test_check(app.component.count == 0)
     test_check(app.update(ClickEvent(Point(72.0, 130.0))))
     test_check(app.component.count == 1)
+    test_check(app.execution_build_count(0) == 2)
     test_check(app.view.child(1).text == "Count: 1")
     test_check(app.resize(Rect(0.0, 0.0, 480.0, 240.0)))
+    test_check(app.execution_build_count(0) == 3)
     test_check(app.view.child(0).bounds.width == 416.0)
 
     print("Moxi component test passed")

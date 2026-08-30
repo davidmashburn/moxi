@@ -38,6 +38,8 @@ struct LocalizedExecution:
     def add_scope(mut self, id: Int, parent_id: Int = -1) -> Bool:
         if id < 0 or self.scope_index(id) != -1:
             return False
+        if parent_id != -1 and self.scope_index(parent_id) == -1:
+            return False
         self.scopes.append(StateScope(id, parent_id))
         return True
 
@@ -70,6 +72,20 @@ struct LocalizedExecution:
         while len(self.build_counts) <= component_id:
             self.build_counts.append(0)
 
+    def _depends_on_scope(self, scope_id: Int, ancestor_id: Int) -> Bool:
+        """Return whether a scope is the ancestor or descendant of another."""
+        var current = scope_id
+        var hops = 0
+        while current != -1 and hops <= len(self.scopes):
+            if current == ancestor_id:
+                return True
+            var index = self.scope_index(current)
+            if index == -1:
+                return False
+            current = self.scopes[index].parent_id
+            hops += 1
+        return False
+
     def invalidate_scope(mut self, scope_id: Int) -> Bool:
         var index = self.scope_index(scope_id)
         if index == -1:
@@ -77,7 +93,7 @@ struct LocalizedExecution:
         self.scopes[index].invalidate()
         for dependency_index in range(len(self.dependencies)):
             var edge = self.dependencies[dependency_index]
-            if edge.scope_id == scope_id:
+            if self._depends_on_scope(edge.scope_id, scope_id):
                 self._mark_dirty(edge.component_id)
         return True
 

@@ -275,6 +275,11 @@ struct VirtualRecycler:
     def set_key(mut self, index: Int, key: Int) -> Bool:
         if index < 0 or index >= len(self.keys):
             return False
+        if key < 0:
+            return False
+        for existing in range(len(self.keys)):
+            if existing != index and self.keys[existing] == key:
+                return False
         self.keys[index] = key
         return True
 
@@ -283,6 +288,41 @@ struct VirtualRecycler:
 
     def set_overscan(mut self, value: Int):
         self.overscan = value if value > 0 else 0
+
+    def content_extent(self) -> Float32:
+        return self.item_extent * Float32(self.item_count)
+
+    def max_offset(self, viewport_extent: Float32) -> Float32:
+        var maximum = self.content_extent() - (
+            viewport_extent if viewport_extent > 0.0 else 0.0
+        )
+        return maximum if maximum > 0.0 else 0.0
+
+    def clamp_offset(self, offset: Float32, viewport_extent: Float32) -> Float32:
+        var result = offset if offset > 0.0 else 0.0
+        var maximum = self.max_offset(viewport_extent)
+        if result > maximum:
+            result = maximum
+        return result
+
+    def ensure_visible(
+        self,
+        item_index: Int,
+        viewport_extent: Float32,
+        offset: Float32,
+    ) -> Float32:
+        """Return the smallest clamped offset that reveals one item."""
+        var result = self.clamp_offset(offset, viewport_extent)
+        if item_index < 0 or item_index >= self.item_count:
+            return result
+        var top = self.item_extent * Float32(item_index)
+        var bottom = top + self.item_extent
+        var viewport = viewport_extent if viewport_extent > 0.0 else 0.0
+        if top < result:
+            result = top
+        elif bottom > result + viewport:
+            result = bottom - viewport
+        return self.clamp_offset(result, viewport_extent)
 
     def _slot_for_key(self, key: Int) -> Int:
         for slot_index in range(len(self.slots)):
@@ -308,10 +348,11 @@ struct VirtualRecycler:
         self.last_recycled_count = 0
         self.last_released_count = 0
         var next_active = List[Int]()
+        var safe_offset = self.clamp_offset(offset, viewport_extent)
         var next_range = visible_range(
             self.item_count,
             self.item_extent,
-            offset,
+            safe_offset,
             viewport_extent,
             self.overscan,
         )
