@@ -78,9 +78,10 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - A backend-neutral scene/resource boundary plus a deterministic software
   scene renderer for shape, gradient, line, path-bound, clipping, layer, and
   transform contract tests.
-- A macOS Metal scene renderer with offscreen checksums, one-submission
-  batching, dynamic vertex-buffer growth, blending, rounded rectangles,
-  gradients, nested clips, transform/layer state, resize/Retina handling,
+- A macOS Metal scene renderer with offscreen checksums, batched geometry,
+  dynamic vertex-buffer growth, blending, rounded rectangles, gradients,
+  nested clips, transform/layer state, embedded ASCII GPU glyphs, registered
+  image textures, simple polygon path tessellation, resize/Retina handling,
   and a visible CAMetalLayer window demo.
 - A shaped-run contract carrying glyph ids, source clusters, fallback-face
   metadata, and a native CoreText adapter on macOS.
@@ -163,13 +164,15 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
   size-limits, resizability, and fullscreen flags are passed to AppKit.
   iOS, Android, and Web have shared lifecycle/event/scale contracts, named
   host bridges, and deterministic fallbacks, but their native hosts are still
-  unavailable. Metal now covers the hardened basic scene geometry slice;
+  unavailable. Metal covers the supported geometry/text/resource slice;
   AppKit remains the stable widget renderer.
 - The core exposes dirty regions and changed commands, and `TestRenderer`
   exercises incremental dispatch. The native AppKit renderer conservatively
   submits a complete frame. `SceneRenderer` has both a deterministic software
-  backend and a macOS Metal backend; text, images, and arbitrary path
-  tessellation still use explicit fallback behavior.
+  backend and a macOS Metal backend. Metal renders printable ASCII text,
+  registered file-backed images, and simple `M/L/H/V/Z` polygon paths; complex
+  Unicode glyphs, unregistered resources, and curves remain explicit fallback
+  behavior.
 - The 0.5 public boundary is the APIs documented here and in
   [ARCHITECTURE.md](ARCHITECTURE.md); larger facilities remain explicit
   follow-up work.
@@ -362,8 +365,9 @@ anchor-preserving updates, and `ensure_visible()`. `ScrollState` clamps
 offsets against content and viewport extents. `Scene`, `SceneCommand`, and
 `SceneRenderer`
 form a richer rendering seam; `SoftwareSceneRenderer` is a deterministic
-raster backend and `MacOSMetalRenderer` is the batched GPU path, while
-text/image pixels remain resource-dependent. The named iOS, Android, and Web
+raster backend and `MacOSMetalRenderer` is the batched GPU path. Its text,
+image, and simple-path support is resource/capability dependent, with
+unsupported inputs counted as fallbacks. The named iOS, Android, and Web
 bridges normalize host events and provide fallback output; native hosts are
 still capability-gated.
 
@@ -480,7 +484,8 @@ plot foundation now has typed data, executable statistical transforms,
 composable marks, independent facet scales, lasso/linked selection, a
 view/runtime boundary, and bounded large-data geometry. iOS, Android, and Web
 have portable event/fallback bridges but are not yet supported native targets;
-the portable shaper remains approximate and GPU text/path tessellation remain
+the portable shaper remains approximate, while complex GPU typography, curve
+tessellation, async pacing, and full cross-platform resource backends remain
 staged follow-ups. The separate
 [Specification High-Performance Agent-Re.md](Specification%20High-Performance%20Agent-Re.md)
 remains design material for a future transport/agent bridge; the in-process

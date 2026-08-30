@@ -30,6 +30,7 @@ from .scene import (
 )
 from .event import Event
 from .geometry import Point, Rect, Size, Transform
+from .resources import ImageResource
 from .style import Color
 from .window import WindowBackend, WindowConfig
 
@@ -98,9 +99,10 @@ struct MacOSMetalRenderer(SceneRenderer):
     """Batch scene geometry through an offscreen or CAMetalLayer target.
 
     Rectangles, rounded rectangles, lines, gradients, clipping, transforms,
-    and layer opacity are submitted to Metal. Text, images, and arbitrary path
-    tessellation remain explicit fallback commands and are never misreported as
-    GPU-rendered pixels.
+    layer opacity, ASCII glyph geometry, registered image textures, and simple
+    polygon path tessellation are submitted to Metal. Unsupported glyphs,
+    image resources, and path commands remain explicit fallback commands and
+    are never misreported as GPU-rendered pixels.
     """
 
     var width: Int
@@ -113,6 +115,10 @@ struct MacOSMetalRenderer(SceneRenderer):
     var frame_line_count: Int
     var frame_fallback_count: Int
     var frame_clip_count: Int
+    var frame_text_count: Int
+    var frame_text_glyph_count: Int
+    var frame_image_count: Int
+    var frame_path_count: Int
 
     def __init__(out self, width: Int = 640, height: Int = 480):
         self.width = width if width > 0 else 1
@@ -127,6 +133,10 @@ struct MacOSMetalRenderer(SceneRenderer):
         self.frame_line_count = 0
         self.frame_fallback_count = 0
         self.frame_clip_count = 0
+        self.frame_text_count = 0
+        self.frame_text_glyph_count = 0
+        self.frame_image_count = 0
+        self.frame_path_count = 0
 
     def backend_capabilities(self) -> BackendCapabilities:
         var result = backend_capabilities(BACKEND_GPU)
@@ -135,7 +145,7 @@ struct MacOSMetalRenderer(SceneRenderer):
         result.gpu_acceleration = self.initialized
         result.incremental = False
         result.clipping = self.initialized
-        result.note = "Batched Metal geometry with blending, clips, transforms, and explicit text/image/path fallback."
+        result.note = "Batched Metal geometry with GPU ASCII text, registered images, simple path tessellation, clips, transforms, and explicit unsupported-resource fallback."
         return result
 
     def is_ready(self) -> Bool:
@@ -150,6 +160,10 @@ struct MacOSMetalRenderer(SceneRenderer):
             self.frame_line_count = 0
             self.frame_fallback_count = 0
             self.frame_clip_count = 0
+            self.frame_text_count = 0
+            self.frame_text_glyph_count = 0
+            self.frame_image_count = 0
+            self.frame_path_count = 0
             external_call["moxi_metal_begin", NoneType](0.05, 0.07, 0.12, 1.0)
 
     def draw_scene_command(mut self, command: SceneCommand) raises:
@@ -222,18 +236,70 @@ struct MacOSMetalRenderer(SceneRenderer):
             )
             self.frame_rect_count += 1
         elif command.kind == SCENE_PATH:
-            # Keep the fallback observable until a shared path tessellator is
-            # available. The declared bounds remain useful for previews.
-            var bounds = _transformed_bounds(self.transform, command.bounds)
             var color = _with_opacity(command.fill, self.opacity * command.opacity)
-            external_call["moxi_metal_draw_rect", NoneType](
-                bounds.x, bounds.y, bounds.width, bounds.height,
+            var stroke = _with_opacity(command.stroke, self.opacity * command.opacity)
+            var path = command.path_data
+            var result = external_call["moxi_metal_draw_path", Int32](
+                path.as_c_string_slice().ptr(),
                 color.red, color.green, color.blue, color.alpha,
+                stroke.red, stroke.green, stroke.blue, stroke.alpha,
+                command.stroke_width,
+                self.transform.m11,
+                self.transform.m12,
+                self.transform.m21,
+                self.transform.m22,
+                self.transform.tx,
+                self.transform.ty,
             )
-            self.frame_rect_count += 1
-            self.frame_fallback_count += 1
-        elif command.kind == SCENE_TEXT or command.kind == SCENE_IMAGE:
-            self.frame_fallback_count += 1
+            if result >= 0:
+                self.frame_path_count += 1
+            else:
+                self.frame_fallback_count += 1
+        elif command.kind == SCENE_TEXT:
+            var color = _with_opacity(command.fill, self.opacity * command.opacity)
+            var text = command.text
+            var result = external_call["moxi_metal_draw_text", Int32](
+                text.as_c_string_slice().ptr(),
+                command.bounds.x,
+                command.bounds.y,
+                command.bounds.width,
+                command.bounds.height,
+                color.red,
+                color.green,
+                color.blue,
+                color.alpha,
+                self.transform.m11,
+                self.transform.m12,
+                self.transform.m21,
+                self.transform.m22,
+                self.transform.tx,
+                self.transform.ty,
+            )
+            if result >= 0:
+                self.frame_text_count += 1
+                self.frame_text_glyph_count += Int(result)
+            else:
+                self.frame_fallback_count += 1
+        elif command.kind == SCENE_IMAGE:
+            var bounds = command.bounds
+            var result = external_call["moxi_metal_draw_image", Int32](
+                Int32(command.resource_id),
+                bounds.x,
+                bounds.y,
+                bounds.width,
+                bounds.height,
+                self.opacity * command.opacity,
+                self.transform.m11,
+                self.transform.m12,
+                self.transform.m21,
+                self.transform.m22,
+                self.transform.tx,
+                self.transform.ty,
+            )
+            if result != 0:
+                self.frame_image_count += 1
+            else:
+                self.frame_fallback_count += 1
 
     def end_scene(mut self) raises:
         if self.initialized:
@@ -290,6 +356,18 @@ struct MacOSMetalRenderer(SceneRenderer):
     def rendered_line_count(self) -> Int:
         return self.frame_line_count
 
+    def rendered_text_count(self) -> Int:
+        return self.frame_text_count
+
+    def rendered_text_glyph_count(self) -> Int:
+        return self.frame_text_glyph_count
+
+    def rendered_image_count(self) -> Int:
+        return self.frame_image_count
+
+    def rendered_path_count(self) -> Int:
+        return self.frame_path_count
+
     def fallback_command_count(self) -> Int:
         return self.frame_fallback_count
 
@@ -298,6 +376,17 @@ struct MacOSMetalRenderer(SceneRenderer):
 
     def checksum(self) -> Int:
         return Int(external_call["moxi_metal_checksum", Int64]())
+
+    def register_image(self, resource: ImageResource) raises -> Bool:
+        """Upload a file-backed image to the Metal resource cache."""
+        var source = resource.source
+        return external_call["moxi_metal_register_image_file", Int32](
+            Int32(resource.id), source.as_c_string_slice().ptr()
+        ) != 0
+
+    def release_image(self, resource_id: Int):
+        """Release one cached Metal image texture."""
+        external_call["moxi_metal_release_image", NoneType](Int32(resource_id))
 
     def shutdown(mut self):
         if self.initialized:

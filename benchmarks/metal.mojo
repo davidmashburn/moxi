@@ -1,6 +1,14 @@
 """Repeated offscreen Metal scene workload for GPU comparisons."""
 
-from moxi import Color, MacOSMetalRenderer, Point, Rect, Scene, Transform
+from moxi import (
+    Color,
+    ImageResource,
+    MacOSMetalRenderer,
+    Point,
+    Rect,
+    Scene,
+    Transform,
+)
 
 
 def main() raises:
@@ -23,6 +31,20 @@ def main() raises:
         Point(360.0, 32.0),
         Color(0.15, 0.25, 0.70, 0.9),
         Color(0.85, 0.30, 0.25, 0.9),
+    )
+    scene.append_text(
+        31,
+        "Moxi GPU",
+        Rect(24.0, 112.0, 180.0, 18.0),
+        Color(0.92, 0.96, 1.0, 1.0),
+    )
+    scene.append_path(
+        32,
+        "M 220 112 L 280 112 L 300 160 L 240 176 Z",
+        Rect(220.0, 112.0, 80.0, 64.0),
+        Color(0.95, 0.45, 0.18, 0.85),
+        Color(1.0, 0.9, 0.45, 1.0),
+        2.0,
     )
     scene.append_transform(4, Transform().translated(12.0, 8.0))
     scene.append_rect(
@@ -53,6 +75,15 @@ def main() raises:
     if not renderer.is_ready():
         print("Moxi Metal benchmark skipped: device unavailable")
         return
+    var image = ImageResource(
+        901,
+        "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericDocumentIcon.icns",
+        "document icon",
+        64,
+        64,
+    )
+    if renderer.register_image(image):
+        scene.append_image(33, image.id, Rect(320.0, 112.0, 64.0, 64.0))
     var passes = 100
     for _ in range(passes):
         renderer.render_scene(scene)
@@ -62,6 +93,10 @@ def main() raises:
     print("Moxi Metal benchmark rects/frame: ", renderer.rendered_rect_count())
     print("Moxi Metal benchmark lines/frame: ", renderer.rendered_line_count())
     print("Moxi Metal benchmark clips/frame: ", renderer.clip_count())
+    print("Moxi Metal benchmark text commands/frame: ", renderer.rendered_text_count())
+    print("Moxi Metal benchmark text glyphs/frame: ", renderer.rendered_text_glyph_count())
+    print("Moxi Metal benchmark images/frame: ", renderer.rendered_image_count())
+    print("Moxi Metal benchmark paths/frame: ", renderer.rendered_path_count())
     print("Moxi Metal benchmark fallback commands: ", renderer.fallback_command_count())
     print("Moxi Metal benchmark submissions/frame: ", renderer.draw_submission_count())
     print("Moxi Metal benchmark vertex capacity: ", renderer.buffer_capacity())
