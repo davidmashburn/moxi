@@ -220,3 +220,26 @@ Each milestone needs:
 The 0.5 worktree is intentionally preserved as-is while this plan is captured.
 Future implementation commits should be narrow, reviewable slices that can be
 compared cleanly against the existing 0.5 baseline.
+
+## Implementation update — 2026-08-30
+
+The implementation work for this plan is now recorded on `main` as focused,
+reviewable commits. The package version remains `0.5.0`; these are experimental
+post-0.5 slices, not a 0.6 release claim.
+
+| Area | Current state | Remaining boundary |
+| --- | --- | --- |
+| GPU rendering | macOS Metal scene renderer, offscreen checksum benchmark, batched rectangle/line geometry, and visible `CAMetalLayer` window with scale/resize handling | Text/image resources, path tessellation, gradient shaders, asynchronous pacing, and GPU timestamps |
+| Text | Portable cluster-aware approximate shaped runs with fallback-face classes; CoreText adapter with native glyph ids, clusters, bidi, and advances | Production portable shaping/font fallback and richer multiline/editing integration |
+| Virtualization | Stable-key fixed-extent `VirtualRecycler` and typed `VirtualizedList` with overscan, bounded slots, clamping, and ensure-visible behavior | Measured variable heights, scrollbars, richer viewport policy, and typed subtree diffing |
+| Native widgets | Broader AppKit catalog presentation and semantic/action bridge | Deeper native controls and multi-window ownership rather than custom canvas affordances |
+| iOS / Android / Web | Shared target, surface lifecycle, resize, and scale-factor contracts; SVG is a Web-compatible export path | Native mobile hosts, browser runtime, input/accessibility adapters, and CI smoke tests |
+| Localized execution | Scope/dependency graph and invalidation/build accounting, including descendant propagation | Localized typed subtree execution and partial paint submission |
+| Plotting | `PlotDataTable`, versioned line/scatter/bar `PlotSpec`, linear scales, axes/grid/legend, pan/zoom, hit testing, selection semantics, line LOD, and software/Metal/SVG output | Temporal/ordinal scales, transforms, composition/facets, richer annotations/tooltips, and supported-package release |
+| Performance | Repeatable retained, portable plot, dense plot, and offscreen Metal workloads with deterministic counters/checksums and 60/120 Hz budget guidance | Cross-device baselines, GPU timestamping, and like-for-like Moxi/Xilem measurements |
+
+The current validation entry point is `pixi run release-check`. The release
+gate runs the full headless/native/package suite, the repeatable benchmarks,
+the wx-style demo build, the visible Metal-window build, and the CoreText
+demo build. Native mobile/browser execution is deliberately not reported as
+supported until those hosts and interaction harnesses exist.
