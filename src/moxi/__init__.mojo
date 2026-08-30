@@ -258,6 +258,8 @@ from .layout_primitives import (
     ScrollState,
     VirtualRange,
     VirtualListState,
+    VirtualRecycleItem,
+    VirtualRecycler,
     clamp_fraction,
     grid_cell,
     split_extent,
@@ -424,6 +426,7 @@ from .performance import (
     PerformanceCounters,
     PerformanceReport,
 )
+from .execution import DependencyEdge, LocalizedExecution
 
 
 def moxi_version() -> String:

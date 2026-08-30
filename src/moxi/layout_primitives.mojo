@@ -1,5 +1,7 @@
 """Reusable layout math independent of the view and platform layers."""
 
+from std.collections import List
+
 from .geometry import Rect
 
 
@@ -196,6 +198,179 @@ struct VirtualListState(ImplicitlyCopyable):
             self.scroll.viewport_width,
             self.overscan,
         )
+
+
+struct VirtualRecycleItem(ImplicitlyCopyable):
+    """One retained slot assigned to a visible stable-key item."""
+
+    var key: Int
+    var index: Int
+    var bounds: Rect
+    var active: Bool
+
+    def __init__(out self, key: Int = -1, index: Int = -1):
+        self.key = key
+        self.index = index
+        self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
+        self.active = False
+
+
+struct VirtualRecycler:
+    """Stable-key recycler for lists that build only their overscan window.
+
+    The caller owns the item builder. It asks for the active slots after
+    `update()` and renders/builds only those items. Slot identity survives
+    scrolling and stable-key reordering, while off-screen slots are reused.
+    """
+
+    var item_count: Int
+    var item_extent: Float32
+    var overscan: Int
+    var vertical: Bool
+    var keys: List[Int]
+    var slots: List[VirtualRecycleItem]
+    var active_slots: List[Int]
+    var visible_range: VirtualRange
+    var last_created_count: Int
+    var last_reused_count: Int
+    var last_recycled_count: Int
+    var last_released_count: Int
+
+    def __init__(
+        out self,
+        item_count: Int = 0,
+        item_extent: Float32 = 1.0,
+        overscan: Int = 1,
+        vertical: Bool = True,
+    ):
+        self.item_count = item_count if item_count > 0 else 0
+        self.item_extent = item_extent if item_extent > 0.0 else 1.0
+        self.overscan = overscan if overscan > 0 else 0
+        self.vertical = vertical
+        self.keys = List[Int](capacity=self.item_count)
+        for index in range(self.item_count):
+            self.keys.append(index)
+        self.slots = List[VirtualRecycleItem]()
+        self.active_slots = List[Int]()
+        self.visible_range = VirtualRange(0, 0, self.item_extent)
+        self.last_created_count = 0
+        self.last_reused_count = 0
+        self.last_recycled_count = 0
+        self.last_released_count = 0
+
+    def set_item_count(mut self, count: Int):
+        var next_count = count if count > 0 else 0
+        var next_keys = List[Int](capacity=next_count)
+        for index in range(next_count):
+            if index < len(self.keys):
+                next_keys.append(self.keys[index])
+            else:
+                next_keys.append(index)
+        self.item_count = next_count
+        self.keys = next_keys^
+        self.active_slots = List[Int]()
+        for slot_index in range(len(self.slots)):
+            self.slots[slot_index].active = False
+
+    def set_key(mut self, index: Int, key: Int) -> Bool:
+        if index < 0 or index >= len(self.keys):
+            return False
+        self.keys[index] = key
+        return True
+
+    def set_item_extent(mut self, extent: Float32):
+        self.item_extent = extent if extent > 0.0 else 1.0
+
+    def set_overscan(mut self, value: Int):
+        self.overscan = value if value > 0 else 0
+
+    def _slot_for_key(self, key: Int) -> Int:
+        for slot_index in range(len(self.slots)):
+            if self.slots[slot_index].active and self.slots[slot_index].key == key:
+                return slot_index
+        return -1
+
+    def _free_slot(self) -> Int:
+        for slot_index in range(len(self.slots)):
+            if not self.slots[slot_index].active:
+                return slot_index
+        return -1
+
+    def update(
+        mut self,
+        offset: Float32,
+        viewport_extent: Float32,
+        cross_extent: Float32,
+    ) -> VirtualRange:
+        """Reassign visible keys to a bounded retained slot pool."""
+        self.last_created_count = 0
+        self.last_reused_count = 0
+        self.last_recycled_count = 0
+        self.last_released_count = 0
+        var next_active = List[Int]()
+        var next_range = visible_range(
+            self.item_count,
+            self.item_extent,
+            offset,
+            viewport_extent,
+            self.overscan,
+        )
+        for item_index in range(next_range.start, next_range.end):
+            var key = self.keys[item_index]
+            var slot_index = self._slot_for_key(key)
+            if slot_index != -1:
+                self.last_reused_count += 1
+            else:
+                slot_index = self._free_slot()
+                if slot_index == -1:
+                    self.slots.append(VirtualRecycleItem(key, item_index))
+                    slot_index = len(self.slots) - 1
+                    self.last_created_count += 1
+                else:
+                    self.last_recycled_count += 1
+            var bounds = Rect(
+                0.0 if self.vertical else self.item_extent * Float32(item_index),
+                self.item_extent * Float32(item_index) if self.vertical else 0.0,
+                cross_extent if self.vertical else self.item_extent,
+                self.item_extent if self.vertical else cross_extent,
+            )
+            self.slots[slot_index].key = key
+            self.slots[slot_index].index = item_index
+            self.slots[slot_index].bounds = bounds
+            self.slots[slot_index].active = True
+            next_active.append(slot_index)
+
+        for slot_index in range(len(self.slots)):
+            var was_active = self.slots[slot_index].active
+            var retained = False
+            for next_index in range(len(next_active)):
+                if next_active[next_index] == slot_index:
+                    retained = True
+                    break
+            if was_active and not retained:
+                self.slots[slot_index].active = False
+                self.last_released_count += 1
+        self.active_slots = next_active^
+        self.visible_range = next_range
+        return next_range
+
+    def active_count(self) -> Int:
+        return len(self.active_slots)
+
+    def slot_count(self) -> Int:
+        return len(self.slots)
+
+    def active_slot(self, index: Int) -> VirtualRecycleItem:
+        if index < 0 or index >= len(self.active_slots):
+            return VirtualRecycleItem()
+        return self.slots[self.active_slots[index]]
+
+    def slot_for_item(self, item_index: Int) -> VirtualRecycleItem:
+        for index in range(len(self.active_slots)):
+            var slot = self.slots[self.active_slots[index]]
+            if slot.index == item_index:
+                return slot
+        return VirtualRecycleItem()
 
 
 def visible_range(
