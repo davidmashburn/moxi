@@ -71,24 +71,27 @@ to the logical event path.
 `backend_capabilities(kind)` reports the shipped headless and AppKit targets
 and explicit contracts for GPU, Windows, Linux, iOS, Android, and Web.
 `MacOSMetalRenderer` reports runtime readiness for the macOS GPU path, while
-`MacOSMetalWindow` presents scenes through a CAMetalLayer. Its basic geometry
-slice batches rectangles, rounded rectangles, gradients, and lines; it also
-exposes draw-submission, vertex-capacity, reallocation, resize, and fallback
-counters. `PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, and
-`PlatformAdapter` share lifecycle, resize, and scale-factor rules across the
-named mobile/browser targets. `IOSBackend`, `AndroidBackend`, and
-`WebBackend` normalize host input and expose deterministic software fallbacks;
-`WebBackend.svg_frame()` is the browser-compatible export path. All three
-remain unavailable until native SDK hosts are shipped. `MacOSWindow` adds
+`MacOSMetalWindow` presents scenes through a CAMetalLayer. Its scene path
+covers geometry, printable ASCII glyphs, registered file-backed images, and
+simple polygon paths; it also exposes draw-submission, vertex-capacity,
+reallocation, resize, per-resource, and fallback counters. `PlatformTarget`,
+`SurfaceConfig`, `PlatformSurface`, `PlatformAdapter`, and `HostContract` share
+lifecycle, resize, scale-factor, and native-host status rules across the named
+mobile/browser targets. `IOSBackend`, `AndroidBackend`, and `WebBackend`
+normalize host input and expose deterministic software fallbacks;
+`WebBackend.svg_frame()` is the browser-compatible export path. Native host
+shims are provided under `native/hosts/`, but all three Mojo targets remain
+unavailable until their SDK/runtime app targets are linked. `MacOSWindow` adds
 native queue depth, dropped-event, and draw-command-overflow counters for
 adapter diagnostics.
 
 `Scene`, `SceneCommand`, and `SceneRenderer` are the richer drawing boundary.
 `SoftwareSceneRenderer` is a deterministic headless rasterizer for basic
 shapes, gradients, lines, path bounds, clipping, layers, and transforms.
-`MacOSMetalRenderer` batches basic geometry through Metal and
-`SvgSceneRenderer` serializes the same scene for browser-compatible SVG. Text,
-image resources, and arbitrary path tessellation retain explicit fallback
+`MacOSMetalRenderer` batches geometry through Metal and
+`SvgSceneRenderer` serializes the same scene for browser-compatible SVG. Metal
+text is currently an embedded printable-ASCII glyph path; image files must be
+registered before use, and curves/unsupported glyphs retain explicit fallback
 behavior.
 
 ## Plotting

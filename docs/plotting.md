@@ -67,13 +67,15 @@ facet panel its own x domain while retaining a shared y domain.
 ## Rendering and performance
 
 The software renderer is the deterministic oracle. The macOS Metal backend
-currently handles rectangles, rounded rectangles, lines, interpolated linear
-gradients, nested clips, transforms, layer opacity, and one batched draw
-submission per frame. It reuses a shared vertex buffer and grows it when a
-frame exceeds the initial capacity; `vertex_count()`, `buffer_capacity()`,
-`buffer_reallocation_count()`, `draw_submission_count()`, and
-`fallback_command_count()` make the path observable. Text, image uploads, and
-arbitrary path tessellation remain explicit fallbacks.
+handles rectangles, rounded rectangles, lines, interpolated linear gradients,
+nested clips, transforms, layer opacity, printable ASCII glyphs, registered
+file-backed images, and simple `M/L/H/V/Z` polygon paths. It reuses a shared
+vertex buffer and grows it when a frame exceeds the initial capacity;
+`vertex_count()`, `buffer_capacity()`, `buffer_reallocation_count()`,
+`draw_submission_count()`, `rendered_text_glyph_count()`,
+`rendered_image_count()`, `rendered_path_count()`, and
+`fallback_command_count()` make the path observable. Complex text, curves, and
+unregistered image resources remain explicit fallbacks.
 
 Run the focused workloads with:
 
@@ -96,9 +98,10 @@ keys are the portable regression signals.
 scale-factor, and event-envelope rules. They normalize touch/pointer,
 keyboard, text/IME, and resize notifications and expose deterministic
 software fallback checksums. `WebBackend.svg_frame()` provides a browser-
-compatible output path today. Native UIKit/Metal, Android surface/GPU, and
-browser Canvas/WebGPU hosts remain capability-gated until their platform FFI,
-accessibility bridges, and device/browser harnesses are shipped.
+compatible output path today. Native host shims live in `native/hosts/` and
+are checked by `pixi run host-check`; UIKit/Metal, Android surface/GPU, and
+browser Canvas/WebGPU app targets remain capability-gated until their SDK
+projects, accessibility bridges, and device/browser harnesses are shipped.
 
 See [API.md](API.md) for the complete inventory and
 [performance.md](performance.md) for benchmark policy and budgets.
