@@ -343,10 +343,13 @@ Renderers default to complete-frame dispatch. A retained-surface backend can
 override `supports_incremental()`; `App.render()` then clears removed regions
 and submits only changed commands.
 
-`TextLayoutRequest`, `TextLayoutResult`, `ShapedText`, and `ShapedGlyph` make
-portable text behavior inspectable. The portable shaper is deterministic and
-explicitly approximate; native `MacOSTextShaper` uses CoreText and preserves
-glyph ids, source clusters, bidi direction, and measured advances.
+`TextLayoutRequest`, `TextLayoutResult`, `ShapedText`, `ShapedRun`, and
+`ShapedGlyph` make portable text behavior inspectable. The portable shaper is
+deterministic and explicitly approximate, with script/direction/fallback runs,
+stable source clusters, wrapping, and auto-direction; native
+`MacOSTextShaper` uses CoreText and preserves glyph ids, source clusters, bidi
+direction, and measured advances. OpenType ligatures, kerning, and complex
+script joining still require a native or HarfBuzz adapter.
 `MacOSRenderer.backend_capabilities()` reports AppKit text support, while
 `MacOSMetalRenderer.backend_capabilities()` reports the initialized Metal
 scene capabilities.

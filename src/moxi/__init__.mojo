@@ -270,6 +270,7 @@ from .measure import TextMeasurement, measure_text, measure_text_wrapped
 from .text_layout import (
     TEXT_DIRECTION_LTR,
     TEXT_DIRECTION_RTL,
+    TEXT_DIRECTION_AUTO,
     TEXT_LAYOUT_ESTIMATE,
     TEXT_LAYOUT_NATIVE,
     TEXT_LAYOUT_PORTABLE,
@@ -283,11 +284,20 @@ from .text_layout import (
 from .text_shaping import (
     SHAPER_NATIVE,
     SHAPER_PORTABLE_ESTIMATE,
+    SCRIPT_ARABIC_HEBREW,
+    SCRIPT_CJK,
+    SCRIPT_COMMON,
+    SCRIPT_CYRILLIC,
+    SCRIPT_DEVANAGARI,
+    SCRIPT_EMOJI,
+    SCRIPT_LATIN,
     PortableTextShaper,
     ShapedGlyph,
+    ShapedRun,
     ShapedText,
     TextShaper,
     fallback_font_id,
+    script_id,
     shape_text,
 )
 from .text_boundary import (

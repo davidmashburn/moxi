@@ -5,7 +5,7 @@ from std.ffi import external_call
 from .geometry import Size
 from .measure import TextMeasurement
 from .style import Style
-from .text_shaping import ShapedGlyph, ShapedText, TextShaper
+from .text_shaping import ShapedGlyph, ShapedRun, ShapedText, TextShaper
 
 
 struct MacOSTextShaper(TextShaper):
@@ -54,6 +54,19 @@ struct MacOSTextShaper(TextShaper):
                     external_call["moxi_coretext_glyph_advance_at", Float32](Int32(index)),
                     external_call["moxi_coretext_glyph_position_at", Float32](Int32(index)),
                     0.0,
+                    0,
+                )
+            )
+        if count > 0:
+            result.runs.append(
+                ShapedRun(
+                    0,
+                    0,
+                    count,
+                    0,
+                    text.count_codepoints(),
+                    direction,
+                    0,
                     0,
                 )
             )

@@ -12,6 +12,7 @@ comptime TEXT_LAYOUT_NATIVE = 2
 comptime TEXT_LAYOUT_PORTABLE = 3
 comptime TEXT_DIRECTION_LTR = 1
 comptime TEXT_DIRECTION_RTL = 2
+comptime TEXT_DIRECTION_AUTO = 0
 
 
 struct TextSpan(ImplicitlyCopyable):
