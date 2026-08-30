@@ -1,4 +1,4 @@
-#include "moxi_host.h"
+#include "moxi_android_host.h"
 
 #include <stdint.h>
 #include <stdlib.h>

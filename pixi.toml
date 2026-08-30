@@ -52,6 +52,8 @@ package-consumer = "bash scripts/package_consumer.sh"
 test = "bash scripts/test.sh"
 check = "bash scripts/check.sh"
 host-check = "bash scripts/host_check.sh"
+ios-build = "bash scripts/ios_build.sh"
+android-build = "bash scripts/android_build.sh"
 release-check = "bash scripts/release_check.sh"
 
 [dependencies]

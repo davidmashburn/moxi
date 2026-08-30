@@ -20,7 +20,9 @@
 - (BOOL)canBecomeFirstResponder { return YES; }
 
 - (void)emitResizeIfNeeded {
-    CGFloat scale = self.window.screen.scale > 0.0 ? self.window.screen.scale : UIScreen.mainScreen.scale;
+    CGFloat scale = self.window.windowScene.screen.scale;
+    if (scale <= 0.0) scale = self.traitCollection.displayScale;
+    if (scale <= 0.0) scale = 1.0;
     CGSize size = self.bounds.size;
     if (CGSizeEqualToSize(size, self.lastReportedSize) && scale == self.lastReportedScale) return;
     self.lastReportedSize = size;
@@ -86,6 +88,8 @@ void *moxi_ios_host_create(
     view.callbacks = callbacks;
     view.callbackContext = context;
     view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    view.clearColor = MTLClearColorMake(0.055, 0.067, 0.10, 1.0);
+    view.delegate = view;
     view.paused = NO;
     view.enableSetNeedsDisplay = NO;
     view.preferredFramesPerSecond = 60;
