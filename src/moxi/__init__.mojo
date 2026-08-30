@@ -456,6 +456,8 @@ from .plotting import (
     PlotSeries,
 )
 from .virtual_view import VirtualItemBuilder, VirtualizedList
+from .svg import SvgSceneRenderer
+from .coretext import MacOSTextShaper
 from .metal import MacOSMetalRenderer
 
 

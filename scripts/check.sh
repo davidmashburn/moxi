@@ -11,6 +11,8 @@ clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c native/macos_window.m -o native/macos_window.o
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c native/macos_metal.m -o native/macos_metal.o
+clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
+  -c native/macos_text.m -o native/macos_text.o
 mkdir -p dist
 mojo precompile src/moxi -o dist/moxi.mojoc
 mojo doc src/moxi -I src -o dist/moxi-api.json

@@ -10,6 +10,7 @@ version = "0.5.0"
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
 native-object = "clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
 metal-object = "clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_metal.m -o native/macos_metal.o"
+text-object = "clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_text.m -o native/macos_text.o"
 demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/hello_window.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
 demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
 counter-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/counter.mojo -o dist/moxi-counter-demo", depends-on = ["native-object"] }
@@ -33,10 +34,13 @@ composed-demo = { cmd = "./dist/moxi-composed-demo", depends-on = ["composed-dem
 animation-demo = "mojo run -I src examples/animation.mojo"
 plot-demo = "mojo run -I src examples/plot.mojo"
 plot-benchmark = "mojo run -I src benchmarks/plotting.mojo"
+plot-svg = "mojo run -I src examples/plot_svg.mojo"
 metal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker Foundation examples/metal_scene.mojo -o dist/moxi-metal-demo", depends-on = ["metal-object"] }
 metal-demo = { cmd = "./dist/moxi-metal-demo", depends-on = ["metal-demo-build"] }
 metal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker Foundation benchmarks/metal.mojo -o dist/moxi-metal-benchmark", depends-on = ["metal-object"] }
 metal-benchmark = { cmd = "./dist/moxi-metal-benchmark", depends-on = ["metal-benchmark-build"] }
+text-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_text.o -Xlinker -framework -Xlinker CoreText -Xlinker -framework -Xlinker Cocoa examples/coretext.mojo -o dist/moxi-coretext-demo", depends-on = ["text-object"] }
+text-demo = { cmd = "./dist/moxi-coretext-demo", depends-on = ["text-demo-build"] }
 benchmark = "bash scripts/benchmark.sh"
 package-consumer = "bash scripts/package_consumer.sh"
 test = "bash scripts/test.sh"
