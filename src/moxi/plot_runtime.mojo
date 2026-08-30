@@ -15,6 +15,7 @@ from .event import (
     KEY_SPACE,
     MOD_COMMAND,
     MOD_CONTROL,
+    MOD_OPTION,
     MOD_SHIFT,
     POINTER_DOWN_KIND,
     POINTER_MOVE_KIND,
@@ -27,6 +28,7 @@ from .event import (
 )
 from .geometry import Point, Rect
 from .plotting import Plot, PlotHit
+from .plot_selection import PlotSelection
 from .scene import Scene
 from .style import Color
 
@@ -40,12 +42,16 @@ struct PlotRuntime:
     var dragging: Bool
     var brushing: Bool
     var brush_additive: Bool
+    var lassoing: Bool
+    var lasso_additive: Bool
     var last_pointer: Point
     var brush_origin: Point
     var brush_current: Point
     var show_crosshair: Bool
     var show_tooltip: Bool
     var selected_hits: List[PlotHit]
+    var lasso_points: List[Point]
+    var linked_selection: PlotSelection
 
     def __init__(out self, bounds: Rect):
         self.plot = Plot(bounds)
@@ -54,12 +60,16 @@ struct PlotRuntime:
         self.dragging = False
         self.brushing = False
         self.brush_additive = False
+        self.lassoing = False
+        self.lasso_additive = False
         self.last_pointer = Point(0.0, 0.0)
         self.brush_origin = Point(0.0, 0.0)
         self.brush_current = Point(0.0, 0.0)
         self.show_crosshair = True
         self.show_tooltip = True
         self.selected_hits = List[PlotHit]()
+        self.lasso_points = List[Point]()
+        self.linked_selection = PlotSelection()
 
     def _hit_changed(self, left: PlotHit, right: PlotHit) -> Bool:
         return (
@@ -97,6 +107,7 @@ struct PlotRuntime:
         if hit.found():
             self.selected_hits.append(hit)
         self.selected = hit
+        self._sync_linked_selection()
 
     def _toggle_selection(mut self, hit: PlotHit):
         if not hit.found():
@@ -109,9 +120,11 @@ struct PlotRuntime:
                     self.selected = PlotHit()
                 else:
                     self.selected = self.selected_hits[len(self.selected_hits) - 1]
+                self._sync_linked_selection()
                 return
         self.selected_hits.append(hit)
         self.selected = hit
+        self._sync_linked_selection()
 
     def _apply_brush(mut self):
         var region = self._selection_rect()
@@ -132,6 +145,82 @@ struct PlotRuntime:
                 hit.distance_squared = 0.0
                 if not self._hit_is_selected(hit):
                     self.selected_hits.append(hit)
+        if len(self.selected_hits) > 0:
+            self.selected = self.selected_hits[len(self.selected_hits) - 1]
+        else:
+            self.selected = PlotHit()
+        self._sync_linked_selection()
+
+    def _point_in_lasso(self, target: Point) -> Bool:
+        """Use an even-odd winding test for a closed pointer polygon."""
+        if len(self.lasso_points) < 3:
+            return False
+        var inside = False
+        var previous = len(self.lasso_points) - 1
+        for current in range(len(self.lasso_points)):
+            var first = self.lasso_points[current]
+            var second = self.lasso_points[previous]
+            if first.y != second.y:
+                var crosses = (first.y > target.y) != (second.y > target.y)
+                if crosses:
+                    var x_at_y = (
+                        (second.x - first.x) * (target.y - first.y)
+                        / (second.y - first.y)
+                        + first.x
+                    )
+                    if target.x < x_at_y:
+                        inside = not inside
+            previous = current
+        return inside
+
+    def _apply_lasso(mut self):
+        if not self.lasso_additive:
+            self.selected_hits = List[PlotHit]()
+        for series_index in range(len(self.plot.series)):
+            if not self.plot.series[series_index].visible:
+                continue
+            for point_index in range(self.plot.series[series_index].count()):
+                var point = self.plot.series[series_index].points[point_index]
+                if not self._point_in_lasso(self.plot.screen_point(point)):
+                    continue
+                var hit = PlotHit()
+                hit.series_id = self.plot.series[series_index].id
+                hit.point_index = point_index
+                hit.row_key = point.row_key
+                if not self._hit_is_selected(hit):
+                    self.selected_hits.append(hit)
+        if len(self.selected_hits) > 0:
+            self.selected = self.selected_hits[len(self.selected_hits) - 1]
+        else:
+            self.selected = PlotHit()
+        self._sync_linked_selection()
+
+    def _sync_linked_selection(mut self):
+        self.linked_selection.clear()
+        for index in range(len(self.selected_hits)):
+            _ = self.linked_selection.add(self.selected_hits[index].row_key)
+
+    def selection(self) -> PlotSelection:
+        """Return the current stable-key selection for a linked view."""
+        return self.linked_selection.clone()
+
+    def set_linked_selection(mut self, selection: PlotSelection):
+        """Project an external selection onto every matching local mark."""
+        self.linked_selection = selection.clone()
+        self.selected_hits = List[PlotHit]()
+        for series_index in range(len(self.plot.series)):
+            if not self.plot.series[series_index].visible:
+                continue
+            for point_index in range(self.plot.series[series_index].count()):
+                var point = self.plot.series[series_index].points[point_index]
+                if not selection.contains(point.row_key):
+                    continue
+                var hit = PlotHit()
+                hit.series_id = self.plot.series[series_index].id
+                hit.point_index = point_index
+                hit.row_key = point.row_key
+                hit.distance_squared = 0.0
+                self.selected_hits.append(hit)
         if len(self.selected_hits) > 0:
             self.selected = self.selected_hits[len(self.selected_hits) - 1]
         else:
@@ -197,6 +286,7 @@ struct PlotRuntime:
         """Clear persistent selection without changing the viewport."""
         self.selected_hits = List[PlotHit]()
         self.selected = PlotHit()
+        self.linked_selection.clear()
 
     def set_crosshair(mut self, enabled: Bool):
         self.show_crosshair = enabled
@@ -245,12 +335,20 @@ struct PlotRuntime:
         if event.kind == POINTER_DOWN_KIND or event.kind == TOUCH_BEGIN_KIND:
             if not self.plot.bounds.contains(event.position):
                 return False
-            self.brushing = (event.modifiers & MOD_SHIFT) != 0
+            self.lassoing = (event.modifiers & MOD_OPTION) != 0
+            self.lasso_additive = self.lassoing and (
+                (event.modifiers & MOD_COMMAND) != 0
+                or (event.modifiers & MOD_CONTROL) != 0
+            )
+            self.lasso_points = List[Point]()
+            if self.lassoing:
+                self.lasso_points.append(event.position)
+            self.brushing = (event.modifiers & MOD_SHIFT) != 0 and not self.lassoing
             self.brush_additive = self.brushing and (
                 (event.modifiers & MOD_COMMAND) != 0
                 or (event.modifiers & MOD_CONTROL) != 0
             )
-            self.dragging = not self.brushing
+            self.dragging = not self.brushing and not self.lassoing
             self.last_pointer = event.position
             self.brush_origin = event.position
             self.brush_current = event.position
@@ -264,6 +362,9 @@ struct PlotRuntime:
                 ):
                     changed = True
                 self.brush_current = event.position
+            elif self.lassoing:
+                self.lasso_points.append(event.position)
+                changed = True
             elif self.dragging:
                 var delta = Point(
                     event.position.x - self.last_pointer.x,
@@ -278,6 +379,12 @@ struct PlotRuntime:
             self.hovered = next_hover
             return changed
         if event.kind == POINTER_UP_KIND or event.kind == TOUCH_END_KIND:
+            if self.lassoing:
+                self.lasso_points.append(event.position)
+                self._apply_lasso()
+                self.lassoing = False
+                self.dragging = False
+                return True
             if self.brushing:
                 self.brush_current = event.position
                 self._apply_brush()
@@ -311,6 +418,7 @@ struct PlotRuntime:
             self.selected = PlotHit()
             self.hovered = PlotHit()
             self.selected_hits = List[PlotHit]()
+            self.linked_selection.clear()
             return changed or True
         if event.kind == KEY_DOWN_KIND:
             if event.key == KEY_LEFT or event.key == KEY_RIGHT or event.key == KEY_UP or event.key == KEY_DOWN:
@@ -406,6 +514,22 @@ struct PlotRuntime:
                 brush,
                 Color(0.25, 0.65, 1.0, 0.20),
             )
+        if self.lassoing and len(self.lasso_points) > 1:
+            for index in range(1, len(self.lasso_points)):
+                scene.append_line(
+                    940000 + index,
+                    self.lasso_points[index - 1],
+                    self.lasso_points[index],
+                    Color(0.95, 0.75, 0.30, 0.95),
+                    1.5,
+                )
+            scene.append_line(
+                940000 + len(self.lasso_points),
+                self.lasso_points[len(self.lasso_points) - 1],
+                self.lasso_points[0],
+                Color(0.95, 0.75, 0.30, 0.95),
+                1.5,
+            )
         return scene^
 
     def accessibility(self) -> AccessibilitySnapshot:
@@ -438,4 +562,9 @@ struct PlotRuntime:
                 len(self.selected_hits),
             )
             snapshot.append(selection)
+        if self.lassoing:
+            var lasso = Semantics(20002, ROLE_LABEL, "Lasso selection in progress")
+            lasso.parent_id = 1
+            lasso.value = String("vertices=", len(self.lasso_points))
+            snapshot.append(lasso)
         return snapshot^

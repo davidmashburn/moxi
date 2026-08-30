@@ -108,6 +108,7 @@ comptime INTERACTION_BRUSH = 2
 comptime INTERACTION_PAN_ZOOM = 3
 comptime INTERACTION_CLICK_SELECT = 4
 comptime INTERACTION_KEYBOARD = 5
+comptime INTERACTION_LASSO = 6
 
 
 def channel_name(channel: Int) -> String:
@@ -259,6 +260,8 @@ def interaction_name(kind: Int) -> String:
         return "click_select"
     if kind == INTERACTION_KEYBOARD:
         return "keyboard"
+    if kind == INTERACTION_LASSO:
+        return "lasso"
     return "hover"
 
 
@@ -776,6 +779,8 @@ def _interaction_from_name(name: String) -> Int:
         return INTERACTION_CLICK_SELECT
     if name == "keyboard":
         return INTERACTION_KEYBOARD
+    if name == "lasso":
+        return INTERACTION_LASSO
     if name == "hover":
         return INTERACTION_HOVER
     return 0
@@ -1530,7 +1535,7 @@ struct PlotSpec:
         tooltip: Bool = False,
         additive: Bool = False,
     ) -> Bool:
-        if kind < INTERACTION_HOVER or kind > INTERACTION_KEYBOARD:
+        if kind < INTERACTION_HOVER or kind > INTERACTION_LASSO:
             self.valid = False
             return False
         var interaction = PlotInteraction(kind)
@@ -1580,6 +1585,17 @@ struct PlotSpec:
 
     def add_keyboard(mut self) -> Bool:
         return self.add_interaction(INTERACTION_KEYBOARD)
+
+    def add_lasso(mut self, additive: Bool = False) -> Bool:
+        """Enable option-drag polygon selection in the runtime."""
+        return self.add_interaction(
+            INTERACTION_LASSO,
+            False,
+            False,
+            False,
+            False,
+            additive,
+        )
 
     def interaction_count(self) -> Int:
         return len(self.interactions)
@@ -1639,7 +1655,7 @@ struct PlotSpec:
                 okay = False
         for interaction_index in range(len(self.interactions)):
             var interaction = self.interactions[interaction_index]
-            if interaction.kind < INTERACTION_HOVER or interaction.kind > INTERACTION_KEYBOARD:
+            if interaction.kind < INTERACTION_HOVER or interaction.kind > INTERACTION_LASSO:
                 okay = False
             if interaction.x_only and interaction.y_only:
                 okay = False
@@ -2307,6 +2323,10 @@ def plot_from_spec(
     plot.set_composition(spec.composition)
     if spec.facet_row.count_codepoints() > 0:
         plot.set_facet(spec.facet_row, spec.facet_column)
+        plot.set_facet_scale_resolution(
+            not spec.shared_x_scale,
+            not spec.shared_y_scale,
+        )
     for scale_index in range(spec.scale_count()):
         var scale = spec.scale(scale_index)
         if scale.channel == CHANNEL_X:

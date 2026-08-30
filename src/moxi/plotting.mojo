@@ -498,6 +498,10 @@ struct Plot:
     var composition: Int
     var x_labels: List[String]
     var y_labels: List[String]
+    var facet_x_scales: List[PlotScale]
+    var facet_y_scales: List[PlotScale]
+    var independent_x_scale: Bool
+    var independent_y_scale: Bool
 
     def __init__(out self, bounds: Rect):
         self.bounds = bounds
@@ -528,6 +532,10 @@ struct Plot:
         self.composition = PLOT_COMPOSITION_LAYER
         self.x_labels = List[String]()
         self.y_labels = List[String]()
+        self.facet_x_scales = List[PlotScale]()
+        self.facet_y_scales = List[PlotScale]()
+        self.independent_x_scale = False
+        self.independent_y_scale = False
         self.update_plot_area()
 
     def update_plot_area(mut self):
@@ -900,6 +908,7 @@ struct Plot:
                     self.facet_values.append(point.facet_value)
                 if point.facet_column_value.count_codepoints() > 0 and self._facet_column_index(point.facet_column_value) == -1:
                     self.facet_column_values.append(point.facet_column_value)
+        self._rebuild_facet_scales()
 
     def set_composition(mut self, composition: Int):
         if composition < PLOT_COMPOSITION_LAYER or composition > PLOT_COMPOSITION_VERTICAL:
@@ -912,6 +921,84 @@ struct Plot:
 
     def facet_column_count(self) -> Int:
         return len(self.facet_column_values)
+
+    def set_facet_scale_resolution(
+        mut self,
+        independent_x: Bool = False,
+        independent_y: Bool = False,
+    ):
+        """Choose shared or per-panel domains for faceted plots."""
+        self.independent_x_scale = independent_x
+        self.independent_y_scale = independent_y
+        self._rebuild_facet_scales()
+
+    def facet_scales_are_independent(self) -> Bool:
+        return self.independent_x_scale or self.independent_y_scale
+
+    def _rebuild_facet_scales(mut self):
+        if not self.facet_scales_are_independent() or self.facet_count() == 0:
+            self.facet_x_scales = List[PlotScale]()
+            self.facet_y_scales = List[PlotScale]()
+            return
+        var row_count = self.facet_count()
+        var column_count = self.facet_column_count()
+        if column_count < 1:
+            column_count = 1
+        self.facet_x_scales = List[PlotScale](capacity=row_count * column_count)
+        self.facet_y_scales = List[PlotScale](capacity=row_count * column_count)
+        for row_index in range(row_count):
+            for column_index in range(column_count):
+                var panel_x = self.x_scale
+                var panel_y = self.y_scale
+                var found_x = False
+                var found_y = False
+                var minimum_x: Float32 = 0.0
+                var maximum_x: Float32 = 0.0
+                var minimum_y: Float32 = 0.0
+                var maximum_y: Float32 = 0.0
+                for series_index in range(len(self.series)):
+                    if not self.series[series_index].visible:
+                        continue
+                    for point_index in range(self.series[series_index].count()):
+                        var point = self.series[series_index].points[point_index]
+                        var point_row = self._facet_index(point.facet_value)
+                        var point_column = self._facet_column_index(point.facet_column_value)
+                        if point_row < 0:
+                            point_row = 0
+                        if point_column < 0:
+                            point_column = 0
+                        if point_row != row_index or point_column != column_index:
+                            continue
+                        if self.independent_x_scale and not (
+                            self.x_scale.kind == SCALE_LOG and point.x <= 0.0
+                        ):
+                            if not found_x:
+                                minimum_x = point.x
+                                maximum_x = point.x
+                                found_x = True
+                            else:
+                                if point.x < minimum_x:
+                                    minimum_x = point.x
+                                if point.x > maximum_x:
+                                    maximum_x = point.x
+                        if self.independent_y_scale and not (
+                            self.y_scale.kind == SCALE_LOG and point.y <= 0.0
+                        ):
+                            if not found_y:
+                                minimum_y = point.y
+                                maximum_y = point.y
+                                found_y = True
+                            else:
+                                if point.y < minimum_y:
+                                    minimum_y = point.y
+                                if point.y > maximum_y:
+                                    maximum_y = point.y
+                if found_x:
+                    panel_x.set_domain(minimum_x, maximum_x)
+                if found_y:
+                    panel_y.set_domain(minimum_y, maximum_y)
+                self.facet_x_scales.append(panel_x)
+                self.facet_y_scales.append(panel_y)
 
     def _facet_index(self, value: String) -> Int:
         if self.facet_field.count_codepoints() == 0:
@@ -999,16 +1086,33 @@ struct Plot:
         else:
             self.x_scale.set_domain(0.0, 1.0)
             self.y_scale.set_domain(0.0, 1.0)
+        self._rebuild_facet_scales()
 
     def _screen_point(self, point: PlotPoint) -> Point:
-        var x = self.x_scale.map(point.x)
-        var y = self.y_scale.map(point.y)
+        var x_scale = self.x_scale
+        var y_scale = self.y_scale
+        var facet_row_index = self._facet_index(point.facet_value)
+        var facet_column_index = self._facet_column_index(point.facet_column_value)
+        if facet_row_index < 0:
+            facet_row_index = 0
+        if facet_column_index < 0:
+            facet_column_index = 0
+        var facet_column_count = self.facet_column_count()
+        if facet_column_count < 1:
+            facet_column_count = 1
+        var facet_scale_index = facet_row_index * facet_column_count + facet_column_index
+        if self.independent_x_scale and facet_scale_index < len(self.facet_x_scales):
+            x_scale = self.facet_x_scales[facet_scale_index]
+        if self.independent_y_scale and facet_scale_index < len(self.facet_y_scales):
+            y_scale = self.facet_y_scales[facet_scale_index]
+        var x = x_scale.map(point.x)
+        var y = y_scale.map(point.y)
         if self.composition == PLOT_COMPOSITION_HORIZONTAL and self.series_count() > 1:
             var panel_width = self.plot_area.width / Float32(self.series_count())
-            x = self.plot_area.x + panel_width * Float32(point.panel_index) + self.x_scale.fraction(point.x) * panel_width
+            x = self.plot_area.x + panel_width * Float32(point.panel_index) + x_scale.fraction(point.x) * panel_width
         elif self.composition == PLOT_COMPOSITION_VERTICAL and self.series_count() > 1:
             var panel_height = self.plot_area.height / Float32(self.series_count())
-            y = self.plot_area.y + panel_height * Float32(point.panel_index + 1) - self.y_scale.fraction(point.y) * panel_height
+            y = self.plot_area.y + panel_height * Float32(point.panel_index + 1) - y_scale.fraction(point.y) * panel_height
         if self.facet_count() > 0:
             var row_count = self.facet_count()
             var column_count = self.facet_column_count()
@@ -1022,8 +1126,8 @@ struct Plot:
                 facet_column_index = 0
             var panel_width = self.plot_area.width / Float32(column_count)
             var panel_height = self.plot_area.height / Float32(row_count)
-            x = self.plot_area.x + panel_width * Float32(facet_column_index) + self.x_scale.fraction(point.x) * panel_width
-            y = self.plot_area.y + panel_height * Float32(facet_index + 1) - self.y_scale.fraction(point.y) * panel_height
+            x = self.plot_area.x + panel_width * Float32(facet_column_index) + x_scale.fraction(point.x) * panel_width
+            y = self.plot_area.y + panel_height * Float32(facet_index + 1) - y_scale.fraction(point.y) * panel_height
         return Point(x, y)
 
     def screen_point(self, point: PlotPoint) -> Point:

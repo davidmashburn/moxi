@@ -1,13 +1,18 @@
 """Column-oriented plotting data with typed fields and stable row identity.
 
 The compact ``x``/``y`` convenience columns remain available, while named
-columns make the declarative plot specification field-aware. Snapshots and
-views are immutable values at the API boundary; the current implementation
-copies the selected columns so transforms cannot mutate their source table.
+columns make the declarative plot specification field-aware. Snapshots are
+immutable owned values at the API boundary. Views are zero-copy row-index
+projections whose lifetime is tied to the borrowed source table; transforms
+still materialize a new table when they change rows or column values.
 """
 
 from std.collections import List
+from std.memory import Pointer
 from std.math import floor
+from std.origin import Origin
+
+from .plot_selection import PlotSelection
 
 
 comptime COLUMN_FLOAT32 = 1
@@ -149,18 +154,28 @@ struct PlotDataSnapshot:
         return self.table.string_field_at(field, index)
 
 
-struct PlotDataView:
-    """A stable row selection over an immutable data snapshot."""
+struct PlotDataView[origin: Origin]:
+    """A zero-copy stable row selection over a borrowed source table.
 
-    var snapshot: PlotDataSnapshot
+    The view owns only row indices. Its pointer carries the source origin, so
+    Mojo keeps the table alive for the view and prevents unsafe mutation while
+    an immutable view is live.
+    """
+
+    var source: Pointer[PlotDataTable, Self.origin]
     var row_indices: List[Int]
 
-    def __init__(out self, snapshot: PlotDataSnapshot):
-        self.snapshot = snapshot.clone()
+    def __init__(out self, ref[Self.origin] source: PlotDataTable):
+        self.source = Pointer(to=source)
         self.row_indices = List[Int]()
 
+    def clone(self) -> PlotDataView[Self.origin]:
+        var result = PlotDataView[Self.origin](self.source[])
+        result.row_indices = self.row_indices.copy()
+        return result^
+
     def append(mut self, source_index: Int):
-        if source_index >= 0 and source_index < self.snapshot.row_count():
+        if source_index >= 0 and source_index < self.source[].row_count():
             self.row_indices.append(source_index)
 
     def row_count(self) -> Int:
@@ -168,11 +183,11 @@ struct PlotDataView:
 
     def row_is_valid(self, index: Int) -> Bool:
         var source_index = self.source_index(index)
-        return self.snapshot.row_is_valid(source_index)
+        return self.source[].row_is_valid(source_index)
 
     def field_is_valid(self, field: String, index: Int) -> Bool:
         var source_index = self.source_index(index)
-        return self.snapshot.field_is_valid(field, source_index)
+        return self.source[].field_is_valid(field, source_index)
 
     def source_index(self, index: Int) -> Int:
         if index < 0 or index >= self.row_count():
@@ -181,23 +196,23 @@ struct PlotDataView:
 
     def key_at(self, index: Int) -> Int:
         var source_index = self.source_index(index)
-        return self.snapshot.key_at(source_index)
+        return self.source[].key_at(source_index)
 
     def float_at(self, field: String, index: Int) -> Float32:
         var source_index = self.source_index(index)
-        return self.snapshot.float_at(field, source_index)
+        return self.source[].float_field_at(field, source_index)
 
     def int_at(self, field: String, index: Int) -> Int64:
         var source_index = self.source_index(index)
-        return self.snapshot.int_at(field, source_index)
+        return self.source[].int_field_at(field, source_index)
 
     def bool_at(self, field: String, index: Int) -> Bool:
         var source_index = self.source_index(index)
-        return self.snapshot.bool_at(field, source_index)
+        return self.source[].bool_field_at(field, source_index)
 
     def string_at(self, field: String, index: Int) -> String:
         var source_index = self.source_index(index)
-        return self.snapshot.string_at(field, source_index)
+        return self.source[].string_field_at(field, source_index)
 
 
 struct PlotDataTable:
@@ -523,8 +538,8 @@ struct PlotDataTable:
         var frozen = self.clone()
         return PlotDataSnapshot(frozen^)
 
-    def view(self, start: Int = 0, end: Int = -1) -> PlotDataView:
-        var result = PlotDataView(self.snapshot())
+    def view(self, start: Int = 0, end: Int = -1) -> PlotDataView[origin_of(self)]:
+        var result = PlotDataView[origin_of(self)](self)
         var first = start if start > 0 else 0
         var last = end if end >= 0 else self.row_count()
         if last > self.row_count():
@@ -614,6 +629,14 @@ struct PlotDataTable:
                         valid,
                     )
         return result^
+
+    def filter_keys(self, selection: PlotSelection) -> PlotDataTable:
+        """Materialize a cross-filtered table using stable row identity."""
+        var rows = List[Int]()
+        for row in range(self.row_count()):
+            if selection.contains(self.key_at(row)):
+                rows.append(row)
+        return self.select_rows(rows)
 
     def filter_greater(self, field: String, threshold: Float32) -> PlotDataTable:
         var rows = List[Int]()

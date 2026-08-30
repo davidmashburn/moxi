@@ -534,6 +534,7 @@ from .plot_spec import (
     INTERACTION_CLICK_SELECT,
     INTERACTION_HOVER,
     INTERACTION_KEYBOARD,
+    INTERACTION_LASSO,
     INTERACTION_PAN_ZOOM,
     PLOT_SPEC_VERSION,
     TRANSFORM_FILTER_BETWEEN,
@@ -579,6 +580,8 @@ from .plot_spec import (
 )
 from .plot_runtime import PlotRuntime
 from .plot_view import PlotControl, PlotView
+from .plot_selection import PlotSelection, selection_from_keys
+from .plot_link import PlotLink
 from .virtual_view import VirtualItemBuilder, VirtualizedList
 from .svg import SvgSceneRenderer
 from .coretext import MacOSTextShaper

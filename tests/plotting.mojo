@@ -88,4 +88,21 @@ def main() raises:
     test_check(faceted.facet_count() == 2)
     test_check(faceted.facet_column_count() == 2)
     test_check(faceted.build_scene().count() > 0)
+
+    var independent = Plot(Rect(0.0, 0.0, 320.0, 240.0))
+    independent.set_facet("region")
+    var independent_id = independent.add_series(
+        "values",
+        Color(0.45, 0.85, 0.55, 1.0),
+    )
+    _ = independent.add_point_with_key(independent_id, 0.0, 0.0, 21, "west")
+    _ = independent.add_point_with_key(independent_id, 1.0, 1.0, 22, "west")
+    _ = independent.add_point_with_key(independent_id, 100.0, 100.0, 23, "east")
+    _ = independent.add_point_with_key(independent_id, 200.0, 200.0, 24, "east")
+    independent.fit_to_data()
+    independent.set_facet_scale_resolution(True, True)
+    test_check(independent.facet_scales_are_independent())
+    test_check(len(independent.facet_x_scales) == 2)
+    test_check(independent.facet_x_scales[0].data_max < independent.facet_x_scales[1].data_min)
+    test_check(independent.build_scene().count() > 0)
     print("Moxi plotting test passed")
