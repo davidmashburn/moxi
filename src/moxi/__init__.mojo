@@ -453,6 +453,7 @@ from .plotting import (
     PlotScale,
     PlotSeries,
 )
+from .virtual_view import VirtualItemBuilder, VirtualizedList
 from .metal import MacOSMetalRenderer
 
 
