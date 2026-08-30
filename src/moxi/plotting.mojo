@@ -11,6 +11,7 @@ from .geometry import Point, Rect
 from .scene import Scene
 from .style import Color
 from .accessibility import AccessibilitySnapshot, ROLE_CANVAS, ROLE_LABEL, Semantics
+from .plot_data import PlotDataTable
 
 
 comptime PLOT_LINE = 1
@@ -74,6 +75,37 @@ struct PlotScale(ImplicitlyCopyable):
         if amount > 1.0:
             amount = 1.0
         return self.pixel_min + amount * (self.pixel_max - self.pixel_min)
+
+    def inverse(self, pixel: Float32) -> Float32:
+        """Map a pixel coordinate back into the unclamped data domain."""
+        var pixel_span = self.pixel_max - self.pixel_min
+        if pixel_span == 0.0:
+            return self.data_min
+        var amount = (pixel - self.pixel_min) / pixel_span
+        return self.data_min + amount * (self.data_max - self.data_min)
+
+    def pan_pixels(mut self, pixels: Float32):
+        """Translate the domain by a logical pixel distance."""
+        var pixel_span = self.pixel_max - self.pixel_min
+        if pixel_span == 0.0:
+            return
+        var data_delta = pixels / pixel_span * (self.data_max - self.data_min)
+        self.data_min -= data_delta
+        self.data_max -= data_delta
+
+    def zoom_at(mut self, factor: Float32, pixel: Float32):
+        """Zoom around a pixel anchor without losing the current domain."""
+        if factor <= 0.0 or factor == 1.0:
+            return
+        var safe_factor = factor
+        if safe_factor < 0.1:
+            safe_factor = 0.1
+        if safe_factor > 10.0:
+            safe_factor = 10.0
+        var anchor = self.inverse(pixel)
+        var minimum = anchor - (anchor - self.data_min) / safe_factor
+        var maximum = anchor + (self.data_max - anchor) / safe_factor
+        self.set_domain(minimum, maximum)
 
     def tick(self, index: Int, count: Int) -> Float32:
         """Return an evenly spaced data-space tick value."""
@@ -152,6 +184,7 @@ struct Plot:
     var show_grid: Bool
     var show_legend: Bool
     var next_series_id: Int
+    var line_point_limit: Int
 
     def __init__(out self, bounds: Rect):
         self.bounds = bounds
@@ -166,6 +199,7 @@ struct Plot:
         self.show_grid = True
         self.show_legend = True
         self.next_series_id = 1
+        self.line_point_limit = 0
         self.update_plot_area()
 
     def update_plot_area(mut self):
@@ -203,6 +237,21 @@ struct Plot:
     def set_y_domain(mut self, minimum: Float32, maximum: Float32):
         self.y_scale.set_domain(minimum, maximum)
 
+    def set_line_point_limit(mut self, limit: Int):
+        """Enable pixel-aware line reduction at a bounded point count."""
+        self.line_point_limit = limit if limit > 2 else 0
+
+    def pan(mut self, delta: Point):
+        self.x_scale.pan_pixels(delta.x)
+        self.y_scale.pan_pixels(delta.y)
+
+    def zoom(mut self, factor: Float32, anchor: Point):
+        self.x_scale.zoom_at(factor, anchor.x)
+        self.y_scale.zoom_at(factor, anchor.y)
+
+    def reset_view(mut self):
+        self.fit_to_data()
+
     def add_series(
         mut self,
         label: String,
@@ -220,12 +269,29 @@ struct Plot:
                 return index
         return -1
 
+    def series_count(self) -> Int:
+        return len(self.series)
+
     def add_point(mut self, series_id: Int, x: Float32, y: Float32) -> Bool:
         var index = self.series_index(series_id)
         if index == -1:
             return False
         self.series[index].append(PlotPoint(x, y))
         return True
+
+    def add_table_series(
+        mut self,
+        data: PlotDataTable,
+        label: String,
+        color: Color,
+        kind: Int = PLOT_LINE,
+    ) -> Int:
+        """Add valid rows from a stable-key data source as a plot series."""
+        var id = self.add_series(label, color, kind)
+        for index in range(data.row_count()):
+            if data.row_is_valid(index):
+                _ = self.add_point(id, data.x_at(index), data.y_at(index))
+        return id
 
     def point_count(self, series_id: Int) -> Int:
         var index = self.series_index(series_id)
@@ -303,6 +369,70 @@ struct Plot:
 
     def _screen_point(self, point: PlotPoint) -> Point:
         return Point(self.x_scale.map(point.x), self.y_scale.map(point.y))
+
+    def screen_point(self, point: PlotPoint) -> Point:
+        """Expose the current data-to-pixel mapping for overlays and tools."""
+        return self._screen_point(point)
+
+    def line_indices(self, series_id: Int) -> List[Int]:
+        """Return bounded line indices while preserving per-bucket extrema."""
+        var result = List[Int]()
+        var series_index = self.series_index(series_id)
+        if series_index == -1:
+            return result^
+        var count = self.series[series_index].count()
+        var limit = self.line_point_limit
+        if limit <= 2 or count <= limit:
+            for index in range(count):
+                result.append(index)
+            return result^
+
+        # Four representatives per bucket (first, min, max, last) retain
+        # sharp extrema while bounding scene work for dense line data.
+        var bucket_count = limit // 4
+        if bucket_count < 1:
+            bucket_count = 1
+        for bucket in range(bucket_count):
+            var start = bucket * count // bucket_count
+            var end = (bucket + 1) * count // bucket_count
+            if end <= start:
+                end = start + 1
+            if end > count:
+                end = count
+            var first = start
+            var last = end - 1
+            var minimum = start
+            var maximum = start
+            for index in range(start, end):
+                if self.series[series_index].points[index].y < self.series[series_index].points[minimum].y:
+                    minimum = index
+                if self.series[series_index].points[index].y > self.series[series_index].points[maximum].y:
+                    maximum = index
+            var candidates = List[Int](capacity=4)
+            candidates.append(first)
+            if minimum != first and minimum != last:
+                candidates.append(minimum)
+            if maximum != first and maximum != last and maximum != minimum:
+                candidates.append(maximum)
+            if last != first:
+                candidates.append(last)
+            # The extrema need to be emitted in source order so the line does
+            # not jump backwards when min/max occur out of order.
+            for candidate_position in range(len(candidates)):
+                var candidate = candidates[candidate_position]
+                var insert_at = 0
+                while insert_at < len(result) and result[insert_at] < candidate:
+                    insert_at += 1
+                var duplicate = insert_at < len(result) and result[insert_at] == candidate
+                if not duplicate:
+                    var reordered = List[Int](capacity=len(result) + 1)
+                    for existing in range(insert_at):
+                        reordered.append(result[existing])
+                    reordered.append(candidate)
+                    for existing in range(insert_at, len(result)):
+                        reordered.append(result[existing])
+                    result = reordered^
+        return result^
 
     def _grid_line_id(self, axis: Int, index: Int) -> Int:
         return 100 + axis * 10 + index
@@ -405,7 +535,14 @@ struct Plot:
                         self.series[series_index].color,
                     )
             else:
-                for point_index in range(self.series[series_index].count()):
+                var line_indices = List[Int]()
+                if self.series[series_index].kind == PLOT_LINE:
+                    line_indices = self.line_indices(self.series[series_index].id)
+                else:
+                    for index in range(self.series[series_index].count()):
+                        line_indices.append(index)
+                for rendered_index in range(len(line_indices)):
+                    var point_index = line_indices[rendered_index]
                     var point = self._screen_point(
                         self.series[series_index].points[point_index]
                     )
@@ -416,9 +553,10 @@ struct Plot:
                             self.series[series_index].color,
                             3.0,
                         )
-                    if self.series[series_index].kind == PLOT_LINE and point_index > 0:
+                    if self.series[series_index].kind == PLOT_LINE and rendered_index > 0:
+                        var previous_index = line_indices[rendered_index - 1]
                         var previous = self._screen_point(
-                            self.series[series_index].points[point_index - 1]
+                            self.series[series_index].points[previous_index]
                         )
                         scene.append_line(
                             3000 + self.series[series_index].id * 100 + point_index,

@@ -5,6 +5,7 @@ from moxi import (
     PLOT_BAR,
     PLOT_LINE,
     Plot,
+    PlotScale,
     Point,
     Rect,
     SoftwareSceneRenderer,
@@ -51,4 +52,20 @@ def main() raises:
     var shared = make_plot_scenario(Rect(0.0, 0.0, 320.0, 240.0))
     test_check(shared.point_count(1) == 12)
     test_check(shared.build_scene().count() > 20)
+    var scale = PlotScale(0.0, 10.0, 0.0, 100.0)
+    test_check(scale.map(5.0) == 50.0)
+    test_check(scale.inverse(50.0) == 5.0)
+    scale.zoom_at(2.0, 50.0)
+    test_check(scale.data_min == 2.5)
+    test_check(scale.data_max == 7.5)
+    var dense = Plot(Rect(0.0, 0.0, 320.0, 240.0))
+    var dense_id = dense.add_series("dense", Color(0.2, 0.8, 0.4, 1.0))
+    for index in range(100):
+        var value = Float32(index % 11)
+        _ = dense.add_point(dense_id, Float32(index), value)
+    dense.set_line_point_limit(20)
+    var reduced = dense.line_indices(dense_id)
+    test_check(len(reduced) <= 20)
+    test_check(reduced[0] == 0)
+    test_check(reduced[len(reduced) - 1] == 99)
     print("Moxi plotting test passed")

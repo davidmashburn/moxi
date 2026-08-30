@@ -455,6 +455,9 @@ from .plotting import (
     PlotScale,
     PlotSeries,
 )
+from .plot_data import PlotDataTable
+from .plot_spec import PLOT_SPEC_VERSION, PlotLayer, PlotSpec, plot_from_spec, plot_mark_name
+from .plot_runtime import PlotRuntime
 from .virtual_view import VirtualItemBuilder, VirtualizedList
 from .svg import SvgSceneRenderer
 from .coretext import MacOSTextShaper
