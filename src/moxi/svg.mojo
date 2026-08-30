@@ -1,0 +1,152 @@
+"""SVG scene serializer for Web-compatible previews and visual docs."""
+
+from .scene import (
+    SCENE_CLIP,
+    SCENE_IMAGE,
+    SCENE_LINEAR_GRADIENT,
+    SCENE_LINE,
+    SCENE_PATH,
+    SCENE_POP_CLIP,
+    SCENE_RECT,
+    SCENE_ROUNDED_RECT,
+    SCENE_TEXT,
+    Scene,
+    SceneCommand,
+    SceneRenderer,
+)
+from .style import Color
+
+
+def _svg_color(color: Color) -> String:
+    return String(
+        "rgba(",
+        Int(color.red * 255.0),
+        ",",
+        Int(color.green * 255.0),
+        ",",
+        Int(color.blue * 255.0),
+        ",",
+        color.alpha,
+        ")",
+    )
+
+
+struct SvgSceneRenderer(SceneRenderer):
+    """Serialize portable scene commands to SVG without a browser dependency."""
+
+    var width: Int
+    var height: Int
+    var output: String
+    var frame_count: Int
+
+    def __init__(out self, width: Int = 640, height: Int = 480):
+        self.width = width if width > 0 else 1
+        self.height = height if height > 0 else 1
+        self.output = ""
+        self.frame_count = 0
+
+    def begin_scene(mut self) raises:
+        self.output = String(
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"",
+            self.width,
+            "\" height=\"",
+            self.height,
+            "\" viewBox=\"0 0 ",
+            self.width,
+            " ",
+            self.height,
+            "\">",
+        )
+
+    def draw_scene_command(mut self, command: SceneCommand) raises:
+        if command.kind == SCENE_RECT or command.kind == SCENE_LINEAR_GRADIENT:
+            self.output += String(
+                "<rect x=\"",
+                command.bounds.x,
+                "\" y=\"",
+                command.bounds.y,
+                "\" width=\"",
+                command.bounds.width,
+                "\" height=\"",
+                command.bounds.height,
+                "\" fill=\"",
+                _svg_color(command.fill),
+                "\"/> ",
+            )
+        elif command.kind == SCENE_ROUNDED_RECT:
+            self.output += String(
+                "<rect x=\"",
+                command.bounds.x,
+                "\" y=\"",
+                command.bounds.y,
+                "\" width=\"",
+                command.bounds.width,
+                "\" height=\"",
+                command.bounds.height,
+                "\" rx=\"",
+                command.corner_radius,
+                "\" fill=\"",
+                _svg_color(command.fill),
+                "\"/> ",
+            )
+        elif command.kind == SCENE_LINE:
+            self.output += String(
+                "<line x1=\"",
+                command.point_start.x,
+                "\" y1=\"",
+                command.point_start.y,
+                "\" x2=\"",
+                command.point_end.x,
+                "\" y2=\"",
+                command.point_end.y,
+                "\" stroke=\"",
+                _svg_color(command.stroke),
+                "\" stroke-width=\"",
+                command.stroke_width,
+                "\"/> ",
+            )
+        elif command.kind == SCENE_TEXT:
+            self.output += String(
+                "<text x=\"",
+                command.bounds.x,
+                "\" y=\"",
+                command.bounds.y + command.bounds.height,
+                "\" fill=\"",
+                _svg_color(command.fill),
+                "\">",
+                command.text,
+                "</text>",
+            )
+        elif command.kind == SCENE_PATH or command.kind == SCENE_IMAGE:
+            # Keep an observable placeholder until SVG path/image resources
+            # have a shared serialization contract.
+            self.output += String(
+                "<rect x=\"",
+                command.bounds.x,
+                "\" y=\"",
+                command.bounds.y,
+                "\" width=\"",
+                command.bounds.width,
+                "\" height=\"",
+                command.bounds.height,
+                "\" fill=\"",
+                _svg_color(command.fill),
+                "\" opacity=\"0.35\"/> ",
+            )
+        elif command.kind == SCENE_CLIP:
+            self.output += String("<!-- clip ", command.bounds.x, " -->")
+        elif command.kind == SCENE_POP_CLIP:
+            self.output += "<!-- pop clip -->"
+
+    def end_scene(mut self) raises:
+        self.output += "</svg>"
+        self.frame_count += 1
+
+    def render_scene(mut self, scene: Scene) raises:
+        self.begin_scene()
+        for index in range(scene.count()):
+            self.draw_scene_command(scene.command(index))
+        self.end_scene()
+
+    def markup(self) -> String:
+        return self.output
