@@ -9,6 +9,7 @@ from moxi import (
     COLUMN_STRING,
     PlotDataTable,
     column_kind_name,
+    selection_from_keys,
     test_check,
 )
 
@@ -101,4 +102,7 @@ def main():
     test_check(typed.key_at(0) == 99)
     test_check(typed.string_field_at("region", 0) == "central")
     test_check(replacement.key_at(0) == 99)
+    var selected_view = typed.view_selection(selection_from_keys([99]))
+    test_check(selected_view.row_count() == 1)
+    test_check(selected_view.key_at(0) == 99)
     print("Moxi plot-data test passed")

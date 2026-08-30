@@ -7,7 +7,7 @@ from moxi import (
     CHANNEL_TOOLTIP,
     CHANNEL_X,
     Color,
-    PlotDataTable,
+    make_plot_data_fixture,
     PlotSpec,
     PlotView,
     Rect,
@@ -15,26 +15,12 @@ from moxi import (
     SoftwareSceneRenderer,
     TYPE_NOMINAL,
     plot_mark_name,
+    plot_from_spec,
 )
 
 
 def main() raises:
-    var data = PlotDataTable()
-    _ = data.add_timestamp_column("time")
-    _ = data.add_float_column("value")
-    _ = data.add_category_column("series")
-    _ = data.add_category_column("region")
-    _ = data.add_float_column("size")
-    _ = data.add_float_column("opacity")
-    for index in range(12):
-        var key = data.append(Float32(index), Float32((index * 7) % 10))
-        _ = data.set_int_field("time", index, Int64(1700000000 + index * 3600))
-        _ = data.set_float_field("value", index, Float32((index * 7) % 10) + 1.0)
-        _ = data.set_category_field("series", index, "A" if index % 2 == 0 else "B")
-        _ = data.set_category_field("region", index, "north" if index < 6 else "south")
-        _ = data.set_float_field("size", index, 4.0 + Float32(index % 4) * 2.0)
-        _ = data.set_float_field("opacity", index, 0.55 + Float32(index % 3) * 0.2)
-        _ = key
+    var data = make_plot_data_fixture()
 
     var spec = PlotSpec("Telemetry gallery")
     var line = spec.add_line("signal", "time", "value", Color(0.25, 0.75, 1.0, 1.0))
@@ -51,15 +37,55 @@ def main() raises:
     _ = spec.add_brush()
     _ = spec.add_pan_zoom()
     _ = spec.add_click_select()
+    _ = spec.add_lasso()
     _ = spec.add_keyboard()
 
     var view = PlotView(spec, data, Rect(0.0, 0.0, 860.0, 520.0))
     var scene = view.build_scene()
     var renderer = SoftwareSceneRenderer(860, 520)
     renderer.render_scene(scene)
+    var main_checksum = renderer.checksum()
+
+    # The gallery also exercises the statistical recipe boundary. Each recipe
+    # owns its transformed table, so independent panels can be linked by row
+    # keys without sharing mutable render state.
+    var histogram_spec = PlotSpec("Histogram")
+    _ = histogram_spec.add_histogram("distribution", "value", 8)
+    var histogram = plot_from_spec(
+        histogram_spec, data, Rect(0.0, 0.0, 420.0, 260.0)
+    )
+    renderer.render_scene(histogram.build_scene())
+    var histogram_checksum = renderer.checksum()
+
+    var box_spec = PlotSpec("Box summary")
+    _ = box_spec.add_box("groups", "value", "series")
+    var boxes = plot_from_spec(box_spec, data, Rect(0.0, 0.0, 420.0, 260.0))
+    renderer.render_scene(boxes.build_scene())
+    var box_checksum = renderer.checksum()
+
+    var heatmap_spec = PlotSpec("Heatmap")
+    _ = heatmap_spec.add_heatmap("density", "x", "value", 6, 6)
+    var heatmap = plot_from_spec(
+        heatmap_spec, data, Rect(0.0, 0.0, 420.0, 260.0)
+    )
+    renderer.render_scene(heatmap.build_scene())
+    var heatmap_checksum = renderer.checksum()
+
+    var regression_spec = PlotSpec("Regression")
+    _ = regression_spec.add_regression("fit", "x", "value", 24)
+    var regression = plot_from_spec(
+        regression_spec, data, Rect(0.0, 0.0, 420.0, 260.0)
+    )
+    renderer.render_scene(regression.build_scene())
+    var regression_checksum = renderer.checksum()
+
     print("Moxi Plot gallery")
     print("  layers: ", spec.layer_count(), " (", plot_mark_name(spec.layer(0).mark), ", ", plot_mark_name(spec.layer(1).mark), ")")
     print("  rows: ", data.row_count(), " facets: ", view.runtime.plot.facet_count())
     print("  scene commands: ", scene.count())
-    print("  checksum: ", renderer.checksum())
+    print("  checksum: ", main_checksum)
     print("  accessibility nodes: ", view.accessibility().count())
+    print("  histogram rows/commands/checksum: ", histogram.point_count(1), "/", histogram.build_scene().count(), "/", histogram_checksum)
+    print("  box rows/commands/checksum: ", boxes.point_count(1), "/", boxes.build_scene().count(), "/", box_checksum)
+    print("  heatmap rows/commands/checksum: ", heatmap.point_count(1), "/", heatmap.build_scene().count(), "/", heatmap_checksum)
+    print("  regression rows/commands/checksum: ", regression.point_count(1), "/", regression.build_scene().count(), "/", regression_checksum)

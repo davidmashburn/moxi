@@ -61,6 +61,7 @@ def main() raises:
 
     var histogram_spec = PlotSpec("Histogram")
     _ = histogram_spec.add_histogram("distribution", "x", 4)
+    test_check(histogram_spec.validate_data(data))
     var histogram_plot = plot_from_spec(
         histogram_spec,
         data,
@@ -71,6 +72,7 @@ def main() raises:
 
     var box_spec = PlotSpec("Boxes")
     _ = box_spec.add_box("groups", "y", "group")
+    test_check(box_spec.validate_data(data))
     var box_plot = plot_from_spec(
         box_spec,
         data,
@@ -82,6 +84,7 @@ def main() raises:
 
     var heatmap_spec = PlotSpec("Heatmap")
     _ = heatmap_spec.add_heatmap("density", "x", "y", 2, 2)
+    test_check(heatmap_spec.validate_data(data))
     var heatmap_plot = plot_from_spec(
         heatmap_spec,
         data,
@@ -92,6 +95,7 @@ def main() raises:
 
     var regression_spec = PlotSpec("Regression")
     _ = regression_spec.add_regression("fit", "x", "y", 8)
+    test_check(regression_spec.validate_data(data))
     var regression_plot = plot_from_spec(
         regression_spec,
         data,

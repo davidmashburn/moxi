@@ -548,6 +548,17 @@ struct PlotDataTable:
             result.append(index)
         return result^
 
+    def view_selection(
+        self,
+        selection: PlotSelection,
+    ) -> PlotDataView[origin_of(self)]:
+        """Project stable selected keys without copying column storage."""
+        var result = PlotDataView[origin_of(self)](self)
+        for index in range(self.row_count()):
+            if selection.contains(self.key_at(index)):
+                result.append(index)
+        return result^
+
     def replace(mut self, other: PlotDataTable):
         """Replace all rows and fields while preserving mutation isolation."""
         self.keys = other.keys.copy()

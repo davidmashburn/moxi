@@ -345,6 +345,42 @@ struct PlotTransform(ImplicitlyCopyable):
         self.mean = False
 
 
+def _derived_field_available(
+    transforms: List[PlotTransform],
+    field: String,
+) -> Bool:
+    """Return whether a recipe transform materializes a named output field."""
+    for index in range(len(transforms)):
+        var transform = transforms[index]
+        if transform.output_field == field:
+            return True
+        if transform.kind == TRANSFORM_HISTOGRAM:
+            if field == "x" or field == "y" or field == "x2" or field == "count":
+                return True
+        elif transform.kind == TRANSFORM_DENSITY or transform.kind == TRANSFORM_ECDF:
+            if field == "x" or field == "y":
+                return True
+        elif transform.kind == TRANSFORM_BOX:
+            if (
+                field == "group"
+                or field == "x"
+                or field == "y"
+                or field == "y2"
+                or field == "low"
+                or field == "high"
+                or field == "median"
+                or field == "count"
+            ):
+                return True
+        elif transform.kind == TRANSFORM_HEATMAP or transform.kind == TRANSFORM_HEXBIN:
+            if field == "x" or field == "y" or field == "x2" or field == "y2" or field == "count":
+                return True
+        elif transform.kind == TRANSFORM_REGRESSION:
+            if field == "x" or field == "y":
+                return True
+    return False
+
+
 struct PlotScaleSpec(ImplicitlyCopyable):
     """Serializable scale configuration for one positional channel."""
 
@@ -1620,6 +1656,10 @@ struct PlotSpec:
             var layer = self.layers[layer_index]
             if not _valid_mark(layer.mark) or layer.x_field.count_codepoints() == 0 or layer.y_field.count_codepoints() == 0:
                 okay = False
+            if layer.stat_low_field.count_codepoints() > 0 and layer.stat_high_field.count_codepoints() == 0:
+                okay = False
+            if layer.stat_high_field.count_codepoints() > 0 and layer.stat_low_field.count_codepoints() == 0:
+                okay = False
             if layer.opacity < 0.0 or layer.opacity > 1.0 or layer.size <= 0.0 or layer.line_width <= 0.0:
                 okay = False
         for encoding_index in range(len(self.encodings)):
@@ -1649,6 +1689,25 @@ struct PlotSpec:
                     okay = False
             if transform.kind == TRANSFORM_ROLLING_MEAN and transform.window <= 0:
                 okay = False
+            if (
+                transform.kind == TRANSFORM_HISTOGRAM
+                or transform.kind == TRANSFORM_DENSITY
+            ) and transform.limit <= 0:
+                okay = False
+            if (
+                transform.kind == TRANSFORM_HEATMAP
+                or transform.kind == TRANSFORM_HEXBIN
+            ) and (
+                transform.second_field.count_codepoints() == 0
+                or transform.limit <= 0
+                or transform.window <= 0
+            ):
+                okay = False
+            if transform.kind == TRANSFORM_REGRESSION and (
+                transform.second_field.count_codepoints() == 0
+                or transform.limit <= 1
+            ):
+                okay = False
         for scale_index in range(len(self.scales)):
             var scale = self.scales[scale_index]
             if (scale.channel != CHANNEL_X and scale.channel != CHANNEL_Y) or not _valid_scale(scale.kind) or scale.power <= 0.0 or scale.tick_count <= 0:
@@ -1667,23 +1726,35 @@ struct PlotSpec:
         var okay = self.validate()
         for layer_index in range(len(self.layers)):
             var layer = self.layers[layer_index]
-            if data.field_kind(layer.x_field) == 0 or data.field_kind(layer.y_field) == 0:
+            if (
+                data.field_kind(layer.x_field) == 0
+                and not _derived_field_available(self.transforms, layer.x_field)
+            ) or (
+                data.field_kind(layer.y_field) == 0
+                and not _derived_field_available(self.transforms, layer.y_field)
+            ):
                 okay = False
-            if layer.x2_field.count_codepoints() > 0 and data.field_kind(layer.x2_field) == 0:
+            if layer.x2_field.count_codepoints() > 0 and data.field_kind(layer.x2_field) == 0 and not _derived_field_available(self.transforms, layer.x2_field):
                 okay = False
-            if layer.y2_field.count_codepoints() > 0 and data.field_kind(layer.y2_field) == 0:
+            if layer.y2_field.count_codepoints() > 0 and data.field_kind(layer.y2_field) == 0 and not _derived_field_available(self.transforms, layer.y2_field):
                 okay = False
-            if layer.color_field.count_codepoints() > 0 and data.field_kind(layer.color_field) == 0:
+            if layer.color_field.count_codepoints() > 0 and data.field_kind(layer.color_field) == 0 and not _derived_field_available(self.transforms, layer.color_field):
                 okay = False
-            if layer.fill_field.count_codepoints() > 0 and data.field_kind(layer.fill_field) == 0:
+            if layer.fill_field.count_codepoints() > 0 and data.field_kind(layer.fill_field) == 0 and not _derived_field_available(self.transforms, layer.fill_field):
                 okay = False
-            if layer.stroke_field.count_codepoints() > 0 and data.field_kind(layer.stroke_field) == 0:
+            if layer.stroke_field.count_codepoints() > 0 and data.field_kind(layer.stroke_field) == 0 and not _derived_field_available(self.transforms, layer.stroke_field):
                 okay = False
-            if layer.size_field.count_codepoints() > 0 and data.field_kind(layer.size_field) == 0:
+            if layer.size_field.count_codepoints() > 0 and data.field_kind(layer.size_field) == 0 and not _derived_field_available(self.transforms, layer.size_field):
                 okay = False
-            if layer.opacity_field.count_codepoints() > 0 and data.field_kind(layer.opacity_field) == 0:
+            if layer.opacity_field.count_codepoints() > 0 and data.field_kind(layer.opacity_field) == 0 and not _derived_field_available(self.transforms, layer.opacity_field):
                 okay = False
-            if layer.text_field.count_codepoints() > 0 and data.field_kind(layer.text_field) == 0:
+            if layer.text_field.count_codepoints() > 0 and data.field_kind(layer.text_field) == 0 and not _derived_field_available(self.transforms, layer.text_field):
+                okay = False
+            if layer.stat_low_field.count_codepoints() > 0 and data.field_kind(layer.stat_low_field) == 0 and not _derived_field_available(self.transforms, layer.stat_low_field):
+                okay = False
+            if layer.stat_high_field.count_codepoints() > 0 and data.field_kind(layer.stat_high_field) == 0 and not _derived_field_available(self.transforms, layer.stat_high_field):
+                okay = False
+            if layer.median_field.count_codepoints() > 0 and data.field_kind(layer.median_field) == 0 and not _derived_field_available(self.transforms, layer.median_field):
                 okay = False
         if self.facet_row.count_codepoints() > 0 and data.field_kind(self.facet_row) == 0:
             okay = False
@@ -1691,7 +1762,9 @@ struct PlotSpec:
             okay = False
         for transform_index in range(len(self.transforms)):
             var transform = self.transforms[transform_index]
-            if transform.field.count_codepoints() > 0 and data.field_kind(transform.field) == 0:
+            if transform.field.count_codepoints() > 0 and data.field_kind(transform.field) == 0 and not _derived_field_available(self.transforms, transform.field):
+                okay = False
+            if transform.second_field.count_codepoints() > 0 and data.field_kind(transform.second_field) == 0 and not _derived_field_available(self.transforms, transform.second_field):
                 okay = False
         self.valid = okay
         return okay
