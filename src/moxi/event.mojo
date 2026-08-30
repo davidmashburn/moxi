@@ -85,6 +85,19 @@ struct PointerEvent(ImplicitlyCopyable):
         self.buttons = buttons
 
 
+struct TouchEvent(ImplicitlyCopyable):
+    """A normalized touch lifecycle event for mobile and browser hosts."""
+
+    var kind: Int
+    var pointer_id: Int
+    var position: Point
+
+    def __init__(out self, kind: Int, pointer_id: Int, position: Point):
+        self.kind = kind
+        self.pointer_id = pointer_id
+        self.position = position
+
+
 struct KeyEvent(ImplicitlyCopyable):
     """A logical key press, independent of native key codes."""
 
@@ -291,6 +304,12 @@ struct Event(ImplicitlyCopyable):
         self.position = event.position
         self.pointer_id = event.pointer_id
         self.buttons = event.buttons
+
+    def __init__(out self, event: TouchEvent):
+        self = Event()
+        self.kind = event.kind
+        self.position = event.position
+        self.pointer_id = event.pointer_id
 
     def __init__(out self, event: KeyEvent):
         self = Event()

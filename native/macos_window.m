@@ -266,6 +266,25 @@ static float moxi_panel_radii[MOXI_MAX_DRAW_COMMANDS];
 static BOOL moxi_panel_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
 static NSRect moxi_panel_clip_frames[MOXI_MAX_DRAW_COMMANDS];
 
+typedef struct {
+    NSString *text;
+    NSRect frame;
+    float fill[4];
+    float textColor[4];
+    float radius;
+    float fontSize;
+    int kind;
+    BOOL focused;
+    BOOL enabled;
+    BOOL selected;
+    BOOL expanded;
+    BOOL clipEnabled;
+    NSRect clipFrame;
+} MoxiNativeWidgetSlot;
+
+static int moxi_native_widget_count;
+static MoxiNativeWidgetSlot moxi_native_widget_slots[MOXI_MAX_DRAW_COMMANDS];
+
 static BOOL moxi_current_clip_enabled;
 static NSRect moxi_current_clip_frame;
 
@@ -715,6 +734,7 @@ static void moxi_reset_commands(void) {
     moxi_current_clip_frame = NSZeroRect;
     moxi_active_text_input_index = -1;
     moxi_panel_count = 0;
+    moxi_native_widget_count = 0;
     moxi_copy_color(moxi_surface_fill, 0.08, 0.10, 0.16, 1.0);
     for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
         moxi_label_texts[i] = nil;
@@ -738,6 +758,19 @@ static void moxi_reset_commands(void) {
         moxi_panel_radii[i] = 0.0;
         moxi_panel_clip_enabled[i] = NO;
         moxi_panel_clip_frames[i] = NSZeroRect;
+        moxi_native_widget_slots[i].text = nil;
+        moxi_native_widget_slots[i].frame = NSZeroRect;
+        moxi_copy_color(moxi_native_widget_slots[i].fill, 0.12, 0.15, 0.22, 1.0);
+        moxi_copy_color(moxi_native_widget_slots[i].textColor, 1.0, 1.0, 1.0, 1.0);
+        moxi_native_widget_slots[i].radius = 6.0;
+        moxi_native_widget_slots[i].fontSize = 14.0;
+        moxi_native_widget_slots[i].kind = 18;
+        moxi_native_widget_slots[i].focused = NO;
+        moxi_native_widget_slots[i].enabled = YES;
+        moxi_native_widget_slots[i].selected = NO;
+        moxi_native_widget_slots[i].expanded = NO;
+        moxi_native_widget_slots[i].clipEnabled = NO;
+        moxi_native_widget_slots[i].clipFrame = NSZeroRect;
 
         moxi_copy_color(moxi_label_text_colors[i], 1.0, 1.0, 1.0, 1.0);
         moxi_label_font_sizes[i] = 24.0;
@@ -1132,6 +1165,109 @@ int moxi_clipboard_codepoint_at(int target) {
         }
     }
     return self;
+}
+
+static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
+    moxi_begin_clip(slot.clipEnabled, slot.clipFrame);
+    NSRect frame = slot.frame;
+    float fill[4] = {
+        slot.fill[0], slot.fill[1], slot.fill[2], slot.fill[3]
+    };
+    if (!slot.enabled) {
+        fill[0] = 0.30;
+        fill[1] = 0.33;
+        fill[2] = 0.40;
+    } else if (slot.selected) {
+        fill[0] += (1.0 - fill[0]) * 0.14;
+        fill[1] += (1.0 - fill[1]) * 0.14;
+        fill[2] += (1.0 - fill[2]) * 0.14;
+    }
+    if (slot.kind != 17) {
+        [moxi_color(fill) setFill];
+        [[NSBezierPath bezierPathWithRoundedRect:frame
+                                          xRadius:slot.radius
+                                          yRadius:slot.radius] fill];
+    }
+
+    if (slot.kind == 17) {
+        [moxi_color(slot.textColor) setStroke];
+        NSBezierPath *separator = [NSBezierPath bezierPath];
+        [separator moveToPoint:NSMakePoint(NSMinX(frame), NSMidY(frame))];
+        [separator lineToPoint:NSMakePoint(NSMaxX(frame), NSMidY(frame))];
+        [separator setLineWidth:1.0];
+        [separator stroke];
+    } else if (slot.kind == 10) {
+        NSDictionary *attributes = @{
+            NSFontAttributeName: [NSFont systemFontOfSize:slot.fontSize],
+            NSForegroundColorAttributeName: moxi_color(slot.textColor),
+        };
+        [slot.text drawInRect:NSMakeRect(
+            NSMinX(frame) + 10.0,
+            NSMinY(frame),
+            MAX(0.0, frame.size.width - 30.0),
+            frame.size.height
+        ) withAttributes:attributes];
+        [moxi_color(slot.textColor) setFill];
+        NSBezierPath *arrow = [NSBezierPath bezierPath];
+        [arrow moveToPoint:NSMakePoint(NSMaxX(frame) - 18.0, NSMidY(frame) - 3.0)];
+        [arrow lineToPoint:NSMakePoint(NSMaxX(frame) - 8.0, NSMidY(frame) - 3.0)];
+        [arrow lineToPoint:NSMakePoint(NSMaxX(frame) - 13.0, NSMidY(frame) + 4.0)];
+        [arrow closePath];
+        [arrow fill];
+    } else {
+        NSDictionary *attributes = @{
+            NSFontAttributeName: [NSFont systemFontOfSize:slot.fontSize],
+            NSForegroundColorAttributeName: moxi_color(slot.textColor),
+        };
+        CGFloat inset = (slot.kind == 15 || slot.kind == 16) ? 12.0 : 8.0;
+        [slot.text drawInRect:NSInsetRect(frame, inset, 3.0)
+                  withAttributes:attributes];
+        if (slot.kind == 11 || slot.kind == 12 || slot.kind == 13 || slot.kind == 14) {
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.12] setStroke];
+            NSBezierPath *row = [NSBezierPath bezierPath];
+            CGFloat rowHeight = MAX(12.0, frame.size.height / 4.0);
+            for (int rowIndex = 1; rowIndex < 4; rowIndex++) {
+                CGFloat y = NSMinY(frame) + rowHeight * rowIndex;
+                [row moveToPoint:NSMakePoint(NSMinX(frame) + 6.0, y)];
+                [row lineToPoint:NSMakePoint(NSMaxX(frame) - 6.0, y)];
+            }
+            if (slot.kind == 12) {
+                CGFloat columnWidth = frame.size.width / 3.0;
+                for (int column = 1; column < 3; column++) {
+                    CGFloat x = NSMinX(frame) + columnWidth * column;
+                    [row moveToPoint:NSMakePoint(x, NSMinY(frame) + 4.0)];
+                    [row lineToPoint:NSMakePoint(x, NSMaxY(frame) - 4.0)];
+                }
+            }
+            [row setLineWidth:1.0];
+            [row stroke];
+        } else if (slot.kind == 13) {
+            [moxi_color(slot.textColor) setStroke];
+            NSBezierPath *disclosure = [NSBezierPath bezierPath];
+            [disclosure moveToPoint:NSMakePoint(NSMinX(frame) + 8.0, NSMinY(frame) + 10.0)];
+            [disclosure lineToPoint:NSMakePoint(NSMinX(frame) + 14.0, NSMinY(frame) + 15.0)];
+            [disclosure lineToPoint:NSMakePoint(NSMinX(frame) + 8.0, NSMinY(frame) + 20.0)];
+            [disclosure setLineWidth:1.5];
+            [disclosure stroke];
+        } else if (slot.kind == 16) {
+            [moxi_color(slot.textColor) setStroke];
+            NSBezierPath *tabLine = [NSBezierPath bezierPath];
+            [tabLine moveToPoint:NSMakePoint(NSMinX(frame), NSMinY(frame) + 26.0)];
+            [tabLine lineToPoint:NSMakePoint(NSMaxX(frame), NSMinY(frame) + 26.0)];
+            [tabLine setLineWidth:2.0];
+            [tabLine stroke];
+        }
+    }
+    if (slot.focused) {
+        [[NSColor keyboardFocusIndicatorColor] setStroke];
+        NSBezierPath *focus = [NSBezierPath bezierPathWithRoundedRect:
+            NSInsetRect(frame, 1.0, 1.0)
+            xRadius:slot.radius
+            yRadius:slot.radius];
+        [focus setLineWidth:1.5];
+        [focus stroke];
+    }
+    moxi_end_clip(slot.clipEnabled);
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -1715,6 +1851,10 @@ int moxi_clipboard_codepoint_at(int target) {
         }
         moxi_end_clip(moxi_text_input_clip_enabled[i]);
     }
+
+    for (int i = 0; i < moxi_native_widget_count; i++) {
+        moxi_draw_native_widget(moxi_native_widget_slots[i]);
+    }
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -2282,6 +2422,60 @@ void moxi_window_set_panel(
         moxi_current_clip_frame.size.width,
         moxi_current_clip_frame.size.height
     );
+}
+
+void moxi_window_set_native_widget_at(
+    int index,
+    int kind,
+    const char *text,
+    float x,
+    float y,
+    float width,
+    float height,
+    float fill_red,
+    float fill_green,
+    float fill_blue,
+    float fill_alpha,
+    float text_red,
+    float text_green,
+    float text_blue,
+    float text_alpha,
+    float radius,
+    float font_size,
+    int focused,
+    int enabled,
+    int selected,
+    int expanded
+) {
+    @autoreleasepool {
+        if (moxi_canvas == nil || index < 0 || index >= MOXI_MAX_DRAW_COMMANDS) {
+            if (index >= MOXI_MAX_DRAW_COMMANDS) {
+                moxi_command_overflow_count += 1;
+            }
+            return;
+        }
+        MoxiNativeWidgetSlot *slot = &moxi_native_widget_slots[index];
+        slot->text = text == NULL ? @"" : [NSString stringWithUTF8String:text];
+        if (slot->text == nil) {
+            slot->text = @"";
+        }
+        slot->frame = NSMakeRect(x, y, width, height);
+        moxi_copy_color(slot->fill, fill_red, fill_green, fill_blue, fill_alpha);
+        moxi_copy_color(slot->textColor, text_red, text_green, text_blue, text_alpha);
+        slot->radius = radius;
+        slot->fontSize = font_size;
+        slot->kind = kind;
+        slot->focused = focused != 0;
+        slot->enabled = enabled != 0;
+        slot->selected = selected != 0;
+        slot->expanded = expanded != 0;
+        slot->clipEnabled = moxi_current_clip_enabled;
+        slot->clipFrame = moxi_current_clip_frame;
+        if (index + 1 > moxi_native_widget_count) {
+            moxi_native_widget_count = index + 1;
+        }
+        [moxi_canvas setNeedsDisplay:YES];
+    }
 }
 
 void moxi_window_register_image(int resource_id, const char *source) {

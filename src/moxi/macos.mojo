@@ -59,14 +59,28 @@ from .view import (
     CANVAS_KIND,
     SEPARATOR_KIND,
 )
+from .native_widgets import (
+    NATIVE_WIDGET_CANVAS,
+    NATIVE_WIDGET_COMBO_BOX,
+    NATIVE_WIDGET_DIALOG,
+    NATIVE_WIDGET_LIST,
+    NATIVE_WIDGET_MENU,
+    NATIVE_WIDGET_SEPARATOR,
+    NATIVE_WIDGET_TABLE,
+    NATIVE_WIDGET_TABS,
+    NATIVE_WIDGET_TREE,
+    NativeWidgetRegistry,
+)
 from .window import WindowBackend, WindowConfig
 
 
 struct MacOSRenderer(Renderer):
     """Submits Moxi paint commands to the active AppKit canvas."""
 
+    var native_widgets: NativeWidgetRegistry
+
     def __init__(out self):
-        pass
+        self.native_widgets = NativeWidgetRegistry()
 
     def backend_capabilities(self) -> BackendCapabilities:
         return backend_capabilities(BACKEND_MACOS_APPKIT)
@@ -87,6 +101,7 @@ struct MacOSRenderer(Renderer):
         mut self,
         snapshot: AccessibilitySnapshot,
     ) raises:
+        self.native_widgets.sync(snapshot)
         external_call["moxi_window_begin_accessibility", NoneType]()
         for index in range(snapshot.count()):
             var node = snapshot.node(index)
@@ -123,6 +138,10 @@ struct MacOSRenderer(Renderer):
                 node.actions,
             )
         external_call["moxi_window_end_accessibility", NoneType]()
+
+    def native_widget_count(self) -> Int:
+        """Return the semantic widgets available to the native presenter."""
+        return self.native_widgets.count()
 
     def set_clip(self, command: PaintCommand) raises:
         """Pass a per-command clip to the native slot retained for drawRect."""
@@ -231,6 +250,43 @@ struct MacOSRenderer(Renderer):
             command.style.text.alpha,
             command.style.font_size,
             wrap_text,
+        )
+
+    def draw_native_widget(mut self, command: PaintCommand, kind: Int) raises:
+        """Present a semantic collection widget through the AppKit bridge."""
+        var text = command.text
+        var c_text = text.as_c_string_slice()
+        var focused = 0
+        var enabled = 0
+        var selected = 0
+        if command.focused:
+            focused = 1
+        if command.enabled:
+            enabled = 1
+        if command.checked:
+            selected = 1
+        external_call["moxi_window_set_native_widget_at", NoneType](
+            Int32(command.slot),
+            Int32(kind),
+            c_text.ptr(),
+            command.bounds.x,
+            command.bounds.y,
+            command.bounds.width,
+            command.bounds.height,
+            command.style.fill.red,
+            command.style.fill.green,
+            command.style.fill.blue,
+            command.style.fill.alpha,
+            command.style.text.red,
+            command.style.text.green,
+            command.style.text.blue,
+            command.style.text.alpha,
+            command.style.corner_radius,
+            command.style.font_size,
+            focused,
+            enabled,
+            selected,
+            0,
         )
 
     def draw_button(mut self, command: PaintCommand) raises:
@@ -500,40 +556,40 @@ struct MacOSRenderer(Renderer):
         self.draw_text_input(command)
 
     def draw_combo_box(mut self, command: PaintCommand) raises:
-        """Use the label bridge while preserving combo-box semantics."""
-        self.draw_label(command)
+        """Present a popup-field affordance while retaining combo semantics."""
+        self.draw_native_widget(command, NATIVE_WIDGET_COMBO_BOX)
 
     def draw_list(mut self, command: PaintCommand) raises:
-        """Use the label bridge for list content in the current AppKit path."""
-        self.draw_label(command)
+        """Present list rows through the native collection slot."""
+        self.draw_native_widget(command, NATIVE_WIDGET_LIST)
 
     def draw_table(mut self, command: PaintCommand) raises:
-        """Use the label bridge for table content in the current AppKit path."""
-        self.draw_label(command)
+        """Present table grid affordances through the native collection slot."""
+        self.draw_native_widget(command, NATIVE_WIDGET_TABLE)
 
     def draw_tree(mut self, command: PaintCommand) raises:
-        """Use the label bridge for tree content in the current AppKit path."""
-        self.draw_label(command)
+        """Present disclosure affordances through the native collection slot."""
+        self.draw_native_widget(command, NATIVE_WIDGET_TREE)
 
     def draw_menu(mut self, command: PaintCommand) raises:
-        """Use the label bridge for menu content in the current AppKit path."""
-        self.draw_label(command)
+        """Present menu rows through the native collection slot."""
+        self.draw_native_widget(command, NATIVE_WIDGET_MENU)
 
     def draw_dialog(mut self, command: PaintCommand) raises:
-        """Present a dialog descriptor as a styled native panel."""
-        self.draw_panel(command)
+        """Present dialog chrome through the native widget bridge."""
+        self.draw_native_widget(command, NATIVE_WIDGET_DIALOG)
 
     def draw_tabs(mut self, command: PaintCommand) raises:
-        """Use the label bridge for tab-group content."""
-        self.draw_label(command)
+        """Present tab chrome through the native widget bridge."""
+        self.draw_native_widget(command, NATIVE_WIDGET_TABS)
 
     def draw_canvas(mut self, command: PaintCommand) raises:
-        """Present a custom canvas descriptor as a styled native panel."""
-        self.draw_panel(command)
+        """Present a canvas host with native focus affordances."""
+        self.draw_native_widget(command, NATIVE_WIDGET_CANVAS)
 
     def draw_separator(mut self, command: PaintCommand) raises:
-        """Keep separators visible through the neutral panel bridge."""
-        self.draw_panel(command)
+        """Present a native separator instead of a filled panel."""
+        self.draw_native_widget(command, NATIVE_WIDGET_SEPARATOR)
 
 
 struct MacOSClipboard(ClipboardBackend):

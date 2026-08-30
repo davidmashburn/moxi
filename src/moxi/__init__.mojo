@@ -95,6 +95,7 @@ from .event import (
     FrameEvent,
     KeyEvent,
     PointerEvent,
+    TouchEvent,
     ResizeEvent,
     ScrollEvent,
     TaskEvent,
@@ -427,6 +428,13 @@ from .platform_adapters import (
     headless_backend,
     ios_backend,
     web_backend,
+)
+from .native_widgets import (
+    NativeWidgetDescriptor,
+    NativeWidgetRegistry,
+    NATIVE_WIDGET_BUTTON,
+    NATIVE_WIDGET_TEXT_INPUT,
+    native_widget_kind,
 )
 from .performance import (
     FRAME_BUDGET_60_HZ_MS,

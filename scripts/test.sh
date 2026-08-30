@@ -29,6 +29,7 @@ tests=(
   tests/backend.mojo
   tests/platform.mojo
   tests/platform_adapters.mojo
+  tests/native_widgets.mojo
   tests/performance.mojo
   tests/virtualization.mojo
   tests/execution.mojo
