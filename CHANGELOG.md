@@ -2,10 +2,17 @@
 
 ## Unreleased — post-0.5 experimental slices
 
-- Added an experimental macOS Metal scene renderer with rectangle/line
-  batching, offscreen checksums, Retina-aware resizing, and a visible
-  `CAMetalLayer` window demo. Text, images, path tessellation, gradients, and
-  asynchronous frame pacing remain explicit follow-up work.
+- Hardened the macOS Metal scene renderer with one-submission batching,
+  reusable/growing vertex buffers, alpha blending, rounded rectangles,
+  interpolated gradients, nested clips, transform/layer state, and observable
+  submission/capacity/reallocation/fallback counters.
+- Added usable iOS, Android, and Web host bridges for normalized touch/pointer,
+  key, text/IME, and resize events, deterministic software fallback checksums,
+  and Web SVG frame export. Native SDK hosts remain capability-gated.
+- Added shared typed plotting fixtures, statistical/linked plotting benchmarks,
+  zero-copy key-selection views, recipe-aware spec validation, and a statistical
+  visual reference. The gallery now exercises histogram, box, heatmap, and
+  regression recipes alongside lasso-enabled interactions.
 - Added repeatable retained, plotting, dense-plot, and offscreen-Metal
   benchmarks with deterministic work counters, checksums, and 60/120 Hz budget
   reporting guidance.

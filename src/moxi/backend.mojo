@@ -131,7 +131,7 @@ def backend_capabilities(kind: Int) -> BackendCapabilities:
             False,
             True,
             False,
-            "Target contract reserved; UIKit/Metal adapter is not shipped yet.",
+            "Portable UIKit/Metal host bridge is shipped; native SDK host is unavailable.",
         )
     if kind == BACKEND_ANDROID:
         return BackendCapabilities(
@@ -146,7 +146,7 @@ def backend_capabilities(kind: Int) -> BackendCapabilities:
             False,
             True,
             False,
-            "Target contract reserved; Android adapter is not shipped yet.",
+            "Portable Android surface/input bridge is shipped; native SDK host is unavailable.",
         )
     if kind == BACKEND_WEB:
         return BackendCapabilities(
@@ -161,7 +161,7 @@ def backend_capabilities(kind: Int) -> BackendCapabilities:
             False,
             True,
             False,
-            "Target contract reserved; browser adapter is not shipped yet.",
+            "Portable browser event/SVG bridge is shipped; native browser host is unavailable.",
         )
     return BackendCapabilities(
         BACKEND_HEADLESS,

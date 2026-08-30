@@ -70,39 +70,48 @@ to the logical event path.
 
 `backend_capabilities(kind)` reports the shipped headless and AppKit targets
 and explicit contracts for GPU, Windows, Linux, iOS, Android, and Web.
-`MacOSMetalRenderer` reports runtime readiness for the experimental macOS GPU
-path, while `MacOSMetalWindow` presents scenes through a CAMetalLayer.
-`PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, and
+`MacOSMetalRenderer` reports runtime readiness for the macOS GPU path, while
+`MacOSMetalWindow` presents scenes through a CAMetalLayer. Its basic geometry
+slice batches rectangles, rounded rectangles, gradients, and lines; it also
+exposes draw-submission, vertex-capacity, reallocation, resize, and fallback
+counters. `PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, and
 `PlatformAdapter` share lifecycle, resize, and scale-factor rules across the
-named mobile/browser targets. iOS, Android, and Web adapters currently fail
-closed until native hosts are shipped. `MacOSWindow` adds native queue depth,
-dropped-event, and draw-command-overflow counters for adapter diagnostics.
+named mobile/browser targets. `IOSBackend`, `AndroidBackend`, and
+`WebBackend` normalize host input and expose deterministic software fallbacks;
+`WebBackend.svg_frame()` is the browser-compatible export path. All three
+remain unavailable until native SDK hosts are shipped. `MacOSWindow` adds
+native queue depth, dropped-event, and draw-command-overflow counters for
+adapter diagnostics.
 
 `Scene`, `SceneCommand`, and `SceneRenderer` are the richer drawing boundary.
 `SoftwareSceneRenderer` is a deterministic headless rasterizer for basic
 shapes, gradients, lines, path bounds, clipping, layers, and transforms.
-`MacOSMetalRenderer` batches basic rect/line geometry through Metal and
+`MacOSMetalRenderer` batches basic geometry through Metal and
 `SvgSceneRenderer` serializes the same scene for browser-compatible SVG. Text,
-image resources, path tessellation, and advanced shader effects retain
-explicit fallback behavior.
+image resources, and arbitrary path tessellation retain explicit fallback
+behavior.
 
 ## Plotting
 
 `PlotDataTable` is a versioned, stable-key columnar source. It supports
 nullable `Float32`, `Float64`, `Int64`, Boolean, string, category, timestamp,
 and duration fields, plus append/patch/replace/rollover updates, immutable
-snapshots, row views, deterministic filter/sort/sample/bin/rolling/impute/
-stack/aggregate transforms, and `csv()` for non-visual output. Category fields
-use dictionary indices while preserving their string labels.
+snapshots, zero-copy row views, deterministic filter/sort/sample/bin/rolling/
+impute/stack/aggregate transforms, statistical histogram/density/ECDF/box/
+heatmap/hexbin/regression recipes, `view_selection()` projections, and `csv()`
+for non-visual output. Category fields use dictionary indices while preserving
+their string labels.
 
 `PlotSpec` is a versioned declarative grammar with explicit channel encodings
 (`x`, `y`, `x2`, `y2`, color/fill/stroke, size, opacity, text, tooltip, key,
 row, column, and facet), validation, JSON round-tripping, layer/horizontal/
 vertical/facet composition, core marks (line, step, dot, scatter, bubble,
-bar/column, area/band, rect, rule, tick, text, interval, and error bar),
-scale metadata, annotations, and declarative hover/brush/pan-zoom/selection/
-keyboard tools. `plot_from_spec()` applies the serializable transform pipeline
-and compiles named fields into `Plot`.
+bar/column, area/band, rect, rule, tick, text, interval, error bar, histogram,
+density, ECDF, box, heatmap/hexbin, and regression), scale metadata,
+annotations, and declarative hover/brush/lasso/pan-zoom/selection/keyboard
+tools. `plot_from_spec()` applies the serializable transform pipeline and
+compiles named fields into `Plot`; facet scale resolution can be shared or
+independent per axis.
 
 `Plot` owns Cartesian layout, linear/log/symlog/power/square-root/temporal/
 ordinal/band and metadata-preserving output scale kinds, axes, grid, legends,
@@ -112,11 +121,14 @@ LOD are opt-in through `set_line_point_limit()` and
 `set_scatter_point_limit()`; source rows and stable keys remain available for
 hit testing.
 
-`PlotRuntime` adds pointer/touch pan, shift-drag interval brushing, scroll
-zoom, hover/crosshair/tooltips, click and multi-selection, keyboard focus and
-selection, zoom-to-selection, Escape reset, and semantic selection state.
-`PlotView`/`PlotControl` compile a spec, retain its source snapshot, expose a
-CSV data-table fallback, and integrate runtime scene/accessibility methods.
+`PlotRuntime` adds pointer/touch pan, shift-drag interval brushing, option-drag
+lasso selection, scroll zoom, hover/crosshair/tooltips, click and
+multi-selection, keyboard focus and selection, zoom-to-selection, Escape
+reset, and semantic selection state. `PlotSelection` stores stable row keys;
+`PlotLink` explicitly propagates a selection between runtimes, so linked views
+do not rely on hidden global state. `PlotView`/`PlotControl` compile a spec,
+retain its source snapshot, expose a CSV data-table fallback, and integrate
+runtime scene/accessibility methods.
 The software, Metal, and SVG scene paths consume the same plot output; native
 Metal currently covers basic geometry and the portable shaper remains
 approximate outside the CoreText adapter.
@@ -152,7 +164,7 @@ the complete visible approval flow.
 | Controls and editing | [`src/moxi/controls.mojo`](../src/moxi/controls.mojo), [`src/moxi/control_state.mojo`](../src/moxi/control_state.mojo) |
 | Runtime and invalidation | [`src/moxi/runtime.mojo`](../src/moxi/runtime.mojo), [`src/moxi/invalidation.mojo`](../src/moxi/invalidation.mojo) |
 | Scene and resources | [`src/moxi/scene.mojo`](../src/moxi/scene.mojo), [`src/moxi/software.mojo`](../src/moxi/software.mojo), [`src/moxi/resources.mojo`](../src/moxi/resources.mojo) |
-| Plotting | [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/plot_view.mojo`](../src/moxi/plot_view.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
+| Plotting | [`docs/plotting.md`](plotting.md), [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/plot_selection.mojo`](../src/moxi/plot_selection.mojo), [`src/moxi/plot_link.mojo`](../src/moxi/plot_link.mojo), [`src/moxi/plot_view.mojo`](../src/moxi/plot_view.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
 | Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh) |
 | Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo) |
 | Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`native/macos_text.m`](../native/macos_text.m) |

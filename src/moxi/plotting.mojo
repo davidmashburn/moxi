@@ -2,7 +2,8 @@
 
 Plots own data/configuration and emit `Scene` commands. They do not know about
 windows, GPU APIs, or a particular text engine, so the same plot can be used
-by the software oracle, a future Metal/WebGPU renderer, and native overlays.
+by the software oracle, the macOS Metal path, SVG/Web export, and native
+overlays.
 """
 
 from std.collections import List

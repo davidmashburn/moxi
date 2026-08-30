@@ -37,11 +37,18 @@ determinate progress, and stateful controls are visible together:
 
 The post-0.5 visual surfaces use the same scene contract:
 
+The plotting API and its current renderer/host limits are described in
+[plotting.md](plotting.md).
+
 - `pixi run plot-demo` renders the first plotting library slice through the
   deterministic software scene path.
 - `pixi run plot-gallery` exercises the supported declarative plot surface;
   the [gallery reference](plot-gallery.svg) shows its two facet panels,
   layered line/dot marks, categorical color, and size variation.
+- The [statistical gallery reference](plot-analytics.svg) records the current
+  histogram/density, box, heatmap, regression, and linked-selection slice.
+  `pixi run plot-analytics-benchmark` exercises the same recipes from the
+  shared typed fixture.
 - `pixi run plot-svg` serializes that plot as browser-compatible SVG, which is
   the current Web-target visual export surface.
 - `pixi run metal-window-demo-build` compiles the experimental native Metal

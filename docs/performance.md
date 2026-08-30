@@ -13,8 +13,9 @@ pixi run benchmark
 ```
 
 The harness runs the retained layout/reconcile/paint path, the shared plotting
-scenario, and the synchronized offscreen Metal scene. Each workload runs three
-times by default. Use one run for a quick local check or choose another count:
+scenario, statistical/linked plotting, large-data plotting, and the
+synchronized offscreen Metal scene. Each workload runs three times by default.
+Use one run for a quick local check or choose another count:
 
 ```sh
 MOXI_BENCHMARK_RUNS=1 pixi run benchmark
@@ -33,9 +34,10 @@ the Metal binary is compiled once before its measured runs.
 | --- | --- | --- |
 | Retained pipeline | layout, identity reconciliation, paint, scene conversion, fixed-extent range math | passes, child count, paint commands, checksum, operations/frame |
 | Portable plot | plot scales, axes, labels, line/scatter/bar scene emission, software rasterization | commands/frame, rasterized pixels/frame, checksum |
+| Statistical/link plot | shared typed fixture, histogram/box/heatmap/regression transforms, linked stable-key selection | derived rows, commands, selected keys, operations/frame, checksum |
 | Large plot generation | 10,000-point line with extrema-preserving LOD and 100,000-point scatter with bounded representatives | source rows, rendered representatives, command counts, operations/frame |
 | Scatter stress | 1,000,000 source rows with a 50,000-point geometry budget | source rows, emitted commands, wall-clock process time |
-| Offscreen Metal | scene batching, CPU vertex upload, one GPU draw submission, synchronized completion | frames, vertices/frame, overflow count, checksum |
+| Offscreen Metal | scene batching, CPU vertex upload, one GPU draw submission, dynamic buffer growth, synchronized completion | frames, vertices/frame, submissions, capacity, reallocations, overflow count, checksum |
 
 `PerformanceCounters` exposes the first two workloads' work accounting to
 applications and test harnesses. `PerformanceReport` can turn counters and a
@@ -53,8 +55,12 @@ completion until an asynchronous presentation path exists.
   does not scan every old node for every new node.
 - Virtualized lists release stale slots before allocating new ones, which
   turns scrolling into bounded reuse instead of unbounded view growth.
-- The Metal backend batches rectangle and line geometry into one shared vertex
-  buffer and one draw submission per frame.
+- The Metal backend batches basic geometry into one shared vertex buffer and
+  one draw submission per frame, reuses that buffer between frames, and grows
+  it geometrically when a bounded frame exceeds the initial capacity.
+- Metal blending, rounded geometry, interpolated gradients, nested scissor
+  clips, and Mojo-side transform/layer state keep the GPU path aligned with the
+  software scene semantics for supported commands.
 - Dense line plots can opt into extrema-preserving pixel-level reduction with
   `Plot.set_line_point_limit()`; the large benchmark keeps the 10,000-point
   source data but bounds emitted line geometry to 2,048 points.
@@ -70,11 +76,12 @@ shared scenario is also a component and documentation contract.
 
 ## Current limits
 
-The GPU slice currently renders basic rectangles and line geometry. Text,
-images, path tessellation, gradient shaders, asynchronous frame pacing, and
-GPU timestamp queries remain follow-up work. The 1M scatter benchmark measures
-CPU scene generation and is not a GPU frame-time claim. The iOS, Android, and
-Web targets currently expose honest platform contracts; their native
-hosts/renderers are not yet release targets. See
+The GPU slice currently renders basic geometry (including rounded rectangles
+and linear gradients). Text, image uploads, arbitrary path tessellation,
+asynchronous frame pacing, and GPU timestamp queries remain follow-up work.
+The 1M scatter benchmark measures CPU scene generation and is not a GPU
+frame-time claim. The iOS, Android, and Web targets now expose usable host
+event/fallback bridges, but their native SDK hosts/renderers are not yet
+release targets. See
 [ARCHITECTURE.md](../ARCHITECTURE.md) and
 [PROJECT-PLANNING.md](../PROJECT-PLANNING.md) for the staged roadmap.

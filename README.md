@@ -78,21 +78,25 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - A backend-neutral scene/resource boundary plus a deterministic software
   scene renderer for shape, gradient, line, path-bound, clipping, layer, and
   transform contract tests.
-- An experimental macOS Metal scene renderer with offscreen checksums,
-  batched rectangle/line geometry, resize/Retina handling, and a visible
-  CAMetalLayer window demo.
+- A macOS Metal scene renderer with offscreen checksums, one-submission
+  batching, dynamic vertex-buffer growth, blending, rounded rectangles,
+  gradients, nested clips, transform/layer state, resize/Retina handling,
+  and a visible CAMetalLayer window demo.
 - A shaped-run contract carrying glyph ids, source clusters, fallback-face
   metadata, and a native CoreText adapter on macOS.
 - A stable-key `VirtualRecycler`/`VirtualizedList` that builds only the
   visible/overscan window, reuses slots, clamps scrolling, and supports
   ensure-visible behavior.
 - A first-class Plot model, typed stable-key data source, executable
-  declarative spec, composable core marks, field encodings, transforms,
-  facets, interaction runtime, line/scatter level-of-detail reduction,
-  accessibility summary, deterministic software output, and Web-compatible
-  SVG serialization.
-- Shared platform surface lifecycle contracts for iOS, Android, and Web;
-  those targets remain explicitly unavailable until native hosts land.
+  declarative spec, composable core and statistical recipes (histogram,
+  density, ECDF, box, heatmap/hexbin, regression), field encodings,
+  transforms, independent facet scales, lasso/linked selection, line/scatter
+  level-of-detail reduction, accessibility summary, deterministic software
+  output, and Web-compatible SVG serialization.
+- Shared platform host bridges for iOS, Android, and Web that normalize
+  touch/pointer/key/text/resize input and provide deterministic software/SVG
+  fallbacks; those native targets remain capability-gated until their SDK
+  hosts land.
 - Stateful combo-box, list, table, tree, menu, dialog, tabs, and canvas models,
   with theme coverage for every public catalog kind.
 - A native form demo showing the complete interaction path.
@@ -156,14 +160,15 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
   bounded and exposes depth/drop counters for diagnostics.
 - The native adapter is a small Objective-C AppKit shim. `WindowConfig`
   size-limits, resizability, and fullscreen flags are passed to AppKit.
-  iOS, Android, and Web have shared lifecycle/event/scale contracts and named
-  adapters, but their native hosts are still unavailable. macOS Metal is an
-  experimental scene backend; AppKit remains the stable widget renderer.
+  iOS, Android, and Web have shared lifecycle/event/scale contracts, named
+  host bridges, and deterministic fallbacks, but their native hosts are still
+  unavailable. Metal now covers the hardened basic scene geometry slice;
+  AppKit remains the stable widget renderer.
 - The core exposes dirty regions and changed commands, and `TestRenderer`
   exercises incremental dispatch. The native AppKit renderer conservatively
   submits a complete frame. `SceneRenderer` has both a deterministic software
-  backend and an experimental macOS Metal backend; text, images, and advanced
-  path effects still use explicit fallback behavior.
+  backend and a macOS Metal backend; text, images, and arbitrary path
+  tessellation still use explicit fallback behavior.
 - The 0.5 public boundary is the APIs documented here and in
   [ARCHITECTURE.md](ARCHITECTURE.md); larger facilities remain explicit
   follow-up work.
@@ -192,8 +197,11 @@ pixi run animation-demo
 pixi run wrapped-text-demo
 pixi run composed-demo
 pixi run plot-demo
+pixi run plot-gallery
 pixi run plot-svg
+pixi run plot-analytics-benchmark
 pixi run plot-large-benchmark
+pixi run metal-benchmark
 pixi run benchmark
 pixi run package-consumer
 pixi run check
@@ -201,6 +209,10 @@ pixi run check
 
 `pixi run demo` opens the native window. Close the window to end the event loop.
 The generated `dist/` files and native object file are local build artifacts.
+
+The plotting contract is documented in
+[docs/plotting.md](docs/plotting.md); [docs/visual.md](docs/visual.md) lists
+the visual acceptance surfaces.
 
 To build the distributable Pixi package:
 
@@ -245,7 +257,10 @@ the child is embedded with namespaced ids and still handles its local action.
 `pixi run plot-demo` renders the shared first-class plot through the software
 scene backend. `pixi run plot-gallery` exercises typed fields, categorical
 color, per-row size/opacity/tooltips, temporal axes, facets, and declarative
-interactions. `pixi run plot-svg` prints the same scene as Web-compatible SVG;
+interactions. It also runs the shared histogram, box, heatmap, and regression
+recipes with lasso-ready selections. `pixi run plot-analytics-benchmark`
+repeats those recipes and links stable-key selections. `pixi run plot-svg`
+prints the same scene as Web-compatible SVG;
 `pixi run plot-large-benchmark` measures a 10k-point line and bounded 100k
 scatter scene. `pixi run plot-stress-benchmark` runs the 1M-row scatter stress
 case with a 50k geometry limit. `pixi run metal-window-demo-build` compiles
@@ -341,8 +356,10 @@ and `VirtualizedList[Builder]` add stable-key recycling, overscan, bounded
 active slots, and `ensure_visible()`. `ScrollState` clamps offsets against
 content and viewport extents. `Scene`, `SceneCommand`, and `SceneRenderer`
 form a richer rendering seam; `SoftwareSceneRenderer` is a deterministic
-raster backend and `MacOSMetalRenderer` is the experimental GPU path, while
-text/image pixels remain resource-dependent.
+raster backend and `MacOSMetalRenderer` is the batched GPU path, while
+text/image pixels remain resource-dependent. The named iOS, Android, and Web
+bridges normalize host events and provide fallback output; native hosts are
+still capability-gated.
 
 `MacOSWindow.event_queue_depth()`, `dropped_event_count()`, and
 `command_overflow_count()` expose native backpressure and the current
@@ -450,14 +467,15 @@ window and translates paint commands across a narrow C ABI boundary; a
 The 0.5 core is intentionally small: one stable declarative component API,
 deterministic layout and identity reconciliation, native macOS rendering,
 keyboard/text/IME input, accessibility, headless testing, and explicit
-animation/invalidation primitives. Post-0.5 experimental slices now add a
-batched Metal scene path, CoreText shaped runs, stable-key recycling, localized
-execution accounting, platform surface contracts, and the first Plot library.
-The plot foundation now has typed data, executable transforms, composable
-marks, facets, a view/runtime boundary, and bounded large-data geometry. iOS,
-Android, and Web are scoped but not yet supported native targets; the portable
-shaper remains approximate and advanced analytical marks, browser/native
-hosts, and GPU text/path work remain staged follow-ups. The separate
+animation/invalidation primitives. Post-0.5 slices now add a hardened batched
+Metal scene path, CoreText shaped runs, stable-key recycling, localized
+execution accounting, target host bridges, and the first Plot library. The
+plot foundation now has typed data, executable statistical transforms,
+composable marks, independent facet scales, lasso/linked selection, a
+view/runtime boundary, and bounded large-data geometry. iOS, Android, and Web
+have portable event/fallback bridges but are not yet supported native targets;
+the portable shaper remains approximate and GPU text/path tessellation remain
+staged follow-ups. The separate
 [Specification High-Performance Agent-Re.md](Specification%20High-Performance%20Agent-Re.md)
 remains design material for a future transport/agent bridge; the in-process
 authorization boundary is now part of the Moxi core.

@@ -95,8 +95,8 @@ ColumnRuntime ──> retained Widgets ──> PaintCommands
 The retained paint stream can also be translated with `scene_from_paint()` to
 the backend-neutral `Scene` IR. Scene rendering is an explicit second seam; it
 does not change the widget reconciliation contract. `Scene` can be consumed by
-the deterministic software renderer, the experimental macOS Metal renderer,
-or the SVG serializer used by the Web-target export path.
+the deterministic software renderer, the macOS Metal renderer, or the SVG
+serializer used by the Web-target export path.
 
 For capabilities, a component constructs an invocation from the same routed
 event or from an agent adapter, sends it through `CapabilityBus`, then applies
@@ -293,19 +293,21 @@ stream under the current renderer contract.
 the widget paint stream. `SceneRecorder` preserves commands for tests, and
 `SoftwareSceneRenderer` provides deterministic headless pixels for basic
 rectangles, gradients, conservative line/path bounds, clipping, opacity
-layers, and affine transforms. `MacOSMetalRenderer` batches rectangle/line
-geometry into a shared buffer and one synchronized draw submission per frame;
-`MacOSMetalWindow` presents the same scene through an AppKit `CAMetalLayer`,
-including drawable-size/scale handling. Metal currently has explicit
-fallbacks for text, images, path tessellation, and gradient shaders. The
-software path remains the deterministic oracle.
+layers, and affine transforms. `MacOSMetalRenderer` batches supported
+rectangles, rounded rectangles, gradients, and lines into a reusable/growing
+buffer and one synchronized draw submission per frame; `MacOSMetalWindow`
+presents the same scene through an AppKit `CAMetalLayer`, including
+drawable-size/scale handling. Metal has explicit fallbacks for text, images,
+and arbitrary path tessellation. The software path remains the deterministic
+oracle.
 
 `Plot`, `PlotDataTable`, `PlotSpec`, and `PlotRuntime` form the first
 application library on the scene contract. A plot owns data-space series and
-linear scales, emits axes/grid/legend/line/scatter/bar geometry, supports
-inverse mapping, pan/zoom, nearest-point hit testing, stable selection
-semantics, and extrema-preserving line LOD. `SvgSceneRenderer` serializes the
-same scene for browser-compatible SVG and escapes arbitrary text labels.
+linear scales, emits axes/grid/legend/core and statistical mark geometry,
+supports inverse mapping, pan/zoom, nearest-point hit testing, independent
+facet scales, stable-key lasso/linked selection semantics, and
+extrema-preserving line LOD. `SvgSceneRenderer` serializes the same scene for
+browser-compatible SVG and escapes arbitrary text labels.
 
 `BackendCapabilities` is the runtime capability matrix for a renderer. The
 shipped `MacOSRenderer` reports native windowing, AppKit shaping/bidi,
@@ -317,10 +319,11 @@ features without probing platform internals.
 
 `PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, and `PlatformAdapter`
 define the common lifecycle/scale contract for macOS-style hosts, iOS,
-Android, and Web. Named iOS/Android/Web adapters currently fail closed because
-this macOS-only repository does not ship their native hosts. The SVG scene
-serializer is usable today as a Web-compatible export, but it is not a claim
-of browser runtime support.
+Android, and Web. Named iOS/Android/Web adapters normalize host input and
+provide deterministic software fallbacks (plus SVG frame export on Web), but
+still fail closed for native availability because this macOS-only repository
+does not ship their SDK hosts. Those fallbacks are useful contract seams, not a
+claim of native mobile/browser runtime support.
 
 `TestRenderer` records a frame without a platform window. `TestWindow` queues
 backend-neutral events and exposes the same window lifecycle shape, allowing
@@ -343,12 +346,14 @@ claim.
 scene, and rasterized-pixel work. `PerformanceReport` combines those counters
 with host-supplied elapsed time and checks the 60 Hz (16.67 ms) or 120 Hz
 (8.33 ms) frame budget. `scripts/benchmark.sh` repeats the retained pipeline,
-portable plot, dense plot generation, and synchronized offscreen Metal cases;
-`MOXI_BENCHMARK_RUNS=1` is the quick path and the default is three runs.
+portable/statistical plot, dense plot generation, and synchronized offscreen
+Metal cases; `MOXI_BENCHMARK_RUNS=1` is the quick path and the default is
+three runs.
 
 The retained runtime's open-addressed identity index and the recycler's
 release-before-allocate behavior are measured hot-path improvements. The Metal
-bridge reports CPU-side vertex counts and a deterministic offscreen checksum;
+bridge reports CPU-side vertex counts, draw submissions, buffer growth, and a
+deterministic offscreen checksum;
 the visible CAMetalLayer demo currently waits for completion, so its timings
 are correctness-oriented rather than an asynchronous frame-pacing claim. See
 [docs/performance.md](docs/performance.md) for workload definitions and
@@ -377,7 +382,7 @@ The shared counter scenario is exercised by:
 - `tests/platform.mojo`, `tests/platform_adapters.mojo`, and `tests/targets.mojo` — target lifecycle, scale, and fail-closed adapters
 - `tests/virtualization.mojo` and `tests/virtual_view.mojo` — stable-key recycling and typed visible-window building
 - `tests/execution.mojo` — dependency propagation and localized build accounting
-- `tests/plotting.mojo`, `tests/plot_data.mojo`, `tests/plot_spec.mojo`, and `tests/plot_runtime.mojo` — plot data, spec, scene, LOD, and interaction
+- `tests/plotting.mojo`, `tests/plot_data.mojo`, `tests/plot_spec.mojo`, `tests/plot_runtime.mojo`, `tests/plot_statistics.mojo`, and `tests/plot_selection.mojo` — plot data, spec, scene, statistical recipes, LOD, lasso, and linked interaction
 - `tests/svg.mojo` — escaped Web-compatible scene output
 - `tests/performance.mojo` and `benchmarks/plotting_large.mojo` — work counters and dense-plot workload
 - `tests/text_shaping.mojo` — portable clusters/fallback metadata

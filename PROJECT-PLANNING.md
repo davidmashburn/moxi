@@ -14,14 +14,16 @@ catalog. The next phase is about making those contracts production-worthy,
 starting with the rendering and performance path and then using it to build a
 first-class plotting library.
 
-The explicitly deferred post-0.5 work is:
+The remaining explicitly deferred post-0.5 work is:
 
-- GPU rendering.
-- Portable text shaping and font fallback.
-- True virtualized view recycling rather than only visible-range math.
+- Portable text shaping and font fallback outside the native CoreText path.
+- True variable-height virtualized view recycling and scrollbars.
 - Deep native widgets and platform-native interaction fidelity.
-- Cross-platform backends.
-- Localized component execution and dependency-scoped invalidation.
+- Native iOS, Android, and browser hosts with device/emulator CI.
+- GPU text/image resources, arbitrary path tessellation, and async frame
+  pacing; the supported basic Metal geometry slice is now implemented.
+- Localized component execution and dependency-scoped invalidation beyond the
+  current accounting contract.
 
 Performance is a release requirement, not a later optimization pass. Mojo is
 being used for predictable, low-overhead UI work, so every renderer/runtime
@@ -78,8 +80,8 @@ Every renderer/runtime change must update the benchmark story:
 - Keep quick benchmarks suitable for `pixi run check` and a fuller benchmark
   suitable for release/pre-submit runs.
 - Cover at least reconcile, layout, paint/scene generation, software rendering,
-  and virtualized scrolling. Once GPU work lands, add command encoding,
-  resource upload, frame submission, and frame-time measurements.
+  virtualized scrolling, GPU command encoding, buffer growth, submission, and
+  synchronized completion. Native GPU timestamps remain a later seam.
 - Compare 100-, 1,000-, and 10,000-node workloads where the stage supports it;
   track allocations or command counts when wall-clock allocation data is not
   portable.
@@ -103,10 +105,10 @@ Target the platforms in this order, while keeping the common contract usable:
 
 | Target | First backend shape | Initial native surface | Current status |
 | --- | --- | --- | --- |
-| macOS | AppKit window + scene/software path; Metal target | windows, input, AX, text bridge | shipped baseline; GPU pending |
-| iOS | UIKit/Metal surface adapter | app/window lifecycle, touch, safe areas, AX | capability contract only |
-| Android | Android surface/input/accessibility adapter | lifecycle, touch, IME, density | capability contract only |
-| Web | browser host + Canvas/WebGPU target | DOM focus/AX bridge, pointer/touch, resize | capability contract only |
+| macOS | AppKit window + scene/software path; Metal target | windows, input, AX, text bridge | baseline shipped; hardened basic Metal slice |
+| iOS | UIKit/Metal surface adapter | app/window lifecycle, touch, safe areas, AX | portable host bridge; native host pending |
+| Android | Android surface/input/accessibility adapter | lifecycle, touch, IME, density | portable host bridge; native host pending |
+| Web | browser host + Canvas/WebGPU target | DOM focus/AX bridge, pointer/touch, resize | portable host bridge + SVG fallback; browser host pending |
 
 The first cross-platform milestone is not “all widgets everywhere.” It is a
 portable surface/window lifecycle, event vocabulary, scale-factor contract,
@@ -116,20 +118,23 @@ layout, component, capability, and plotting code.
 
 ## Milestones
 
-### 0.6 — GPU-ready rendering and measurable performance
+### 0.6 — GPU-ready rendering and measurable performance (geometry slice complete)
 
 - Stabilize scene/resource ownership and renderer capability contracts.
 - Implement a Metal-backed macOS renderer consuming scene commands, with the
-  software renderer retained as an oracle/fallback.
+  software renderer retained as an oracle/fallback. The current slice covers
+  rectangles, rounded rectangles, lines, gradients, clips, transforms, and
+  layer opacity.
 - Add GPU resource lifetime, resize, scale-factor, clipping, transform, and
   readback/checksum test seams.
 - Add repeatable CPU and GPU benchmark cases and use evidence to improve hot
   paths (batching, command storage, invalidation, and resource reuse).
 - Keep the first implementation honest about unsupported text and effects.
 
-Acceptance: the same scene renders through software and GPU paths, a native
-window presents it, failures fall back predictably, and benchmark output makes
-CPU/render/frame costs visible.
+Acceptance: the same supported scene renders through software and GPU paths, a
+native window presents it, failures fall back predictably, and benchmark output
+makes CPU/render/frame costs visible. This acceptance is met for the current
+basic geometry slice; text/images/path tessellation remain later milestones.
 
 ### 0.7 — Portable text and real virtualization
 
@@ -208,21 +213,22 @@ wrapper around another renderer:
 ### Implementation status of the current 2D slice
 
 The executable foundation now covers typed nullable columnar data, stable row
-keys, snapshots/views, field-aware encodings, second positional channels,
-categorical labels/colors, core Cartesian marks, facets, layer/horizontal/
-vertical composition, deterministic filter/sort/sample/bin/rolling/impute/
-stack/group/aggregate transforms, forward/inverse scale mapping, annotations,
-JSON inspection/round-tripping, PlotView/PlotControl, pointer/touch
-navigation, interval brush selection, keyboard focus, accessibility state,
-CSV fallback, SVG path/opacity output, and bounded line/scatter geometry.
-The software renderer and SVG serializer are contract-tested; Metal consumes
-the same scene but remains limited to its documented basic-geometry subset.
+keys, snapshots and zero-copy views, field-aware encodings, second positional
+channels, categorical labels/colors, core Cartesian marks, statistical
+histogram/density/ECDF/box/heatmap/hexbin/regression recipes, facets with
+independent scale resolution, layer/horizontal/vertical composition,
+deterministic filter/sort/sample/bin/rolling/impute/stack/group/aggregate
+transforms, forward/inverse scale mapping, annotations, JSON inspection/
+round-tripping, PlotView/PlotControl, pointer/touch navigation, interval brush
+and lasso selection, explicit linked selections, keyboard focus,
+accessibility state, CSV fallback, SVG path/opacity output, and bounded
+line/scatter geometry. The software renderer, SVG serializer, Metal basic
+geometry path, and target fallback bridges are contract-tested.
 
 This is an implemented foundation, not completion of every item in the
-design. Analytical recipes (histogram through regression/LOESS), lasso and
-linked views, independent facet scale resolution, dictionary-backed zero-copy
-views, portable text/path GPU rendering, PDF/PNG export, browser/mobile hosts,
-and the broader polar/geographic/3D families remain explicitly staged work.
+design. Portable text/path GPU rendering, PDF/PNG export, native browser/mobile
+hosts, variable-height virtualization, and the broader polar/geographic/3D
+families remain explicitly staged work.
 
 ### Core interface
 
@@ -399,11 +405,11 @@ non-visual use.
 ### Performance and rendering strategy
 
 The compiler caches transformed data, domains, tick labels, facet layout, mark
-geometry, hit-test indexes, and accessibility summaries independently. Large
-data paths use pixel-aware line decimation that preserves extrema, scatter
-density aggregation, viewport-dependent level of detail, GPU-instanced points
-and rectangles, progressive rendering, cancellable transforms, and bounded
-streaming buffers.
+geometry, hit-test indexes, and accessibility summaries independently. The
+current large-data paths use pixel-aware line decimation that preserves
+extrema, deterministic scatter representatives, and bounded source data. GPU
+buffer reuse/growth is implemented for scene geometry; instancing, progressive
+rendering, cancellable transforms, and bounded streaming buffers remain staged.
 
 The original data and stable row keys remain available even when displayed
 geometry is aggregated. A cache key must include dataset version, viewport,
@@ -435,15 +441,16 @@ GPU-inclusive, cold-start, and steady-state results identified separately.
 
 - Add aggregate, bin, stack, window, density, regression, and quantile
   transforms.
-- Add histogram, box, violin, density, ECDF, heatmap, hexbin, contour, and
-  candlestick recipes.
+- Add histogram, box, density, ECDF, heatmap, and regression recipes. Violin,
+  true hexbin tessellation, contour, and candlestick remain staged.
 - Add repeat/concat composition, facet scale resolution, annotations,
   drill-down tables, and animated/streaming updates.
 
 #### Production rendering
 
-- Add batched scene primitives, GPU instancing, line decimation, level of
-  detail, resource reuse, and progressive rendering.
+- Add GPU instancing, progressive rendering, and resource upload for text and
+  images. Batched basic geometry, line decimation, level of detail, and vertex
+  resource reuse are implemented.
 - Add PNG/SVG/PDF export, versioned specification serialization, themes, and
   print-quality output.
 - Add full plot benchmark artifacts and backend capability reports.

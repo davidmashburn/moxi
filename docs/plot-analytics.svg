@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520">
+  <title>Moxi statistical plotting contract reference</title>
+  <rect width="860" height="520" rx="14" fill="#121725"/>
+  <text x="24" y="32" fill="#f2f5ff" font-family="sans-serif" font-size="20">Statistical plot recipes</text>
+  <g stroke="#3c465e" stroke-width="1" opacity=".8">
+    <path d="M36 86H408M452 86H824M36 300H408M452 300H824"/>
+    <path d="M36 86V260M452 86V260M36 300V474M452 300V474"/>
+  </g>
+  <text x="48" y="108" fill="#aeb9d5" font-family="sans-serif" font-size="13">histogram + density</text>
+  <g fill="#40bfff" opacity=".75">
+    <rect x="54" y="214" width="34" height="34"/><rect x="94" y="186" width="34" height="62"/>
+    <rect x="134" y="150" width="34" height="98"/><rect x="174" y="128" width="34" height="120"/>
+    <rect x="214" y="168" width="34" height="80"/><rect x="254" y="196" width="34" height="52"/>
+    <rect x="294" y="220" width="34" height="28"/><rect x="334" y="232" width="34" height="16"/>
+  </g>
+  <path d="M54 220 C110 184 144 126 188 138 S274 190 324 214 S352 228 368 234" fill="none" stroke="#ffb84d" stroke-width="3"/>
+  <text x="464" y="108" fill="#aeb9d5" font-family="sans-serif" font-size="13">box summary by group</text>
+  <g fill="#55d48b" fill-opacity=".72" stroke="#f2f5ff" stroke-width="2">
+    <path d="M520 172V226M502 172H538M502 226H538M492 194H548V214H492Z"/>
+    <path d="M656 136V236M638 136H674M638 236H674M628 174H684V210H628Z"/>
+  </g>
+  <path d="M492 204H548M628 194H684" stroke="#ffb84d" stroke-width="3"/>
+  <text x="48" y="322" fill="#aeb9d5" font-family="sans-serif" font-size="13">heatmap / hexbin-compatible bins</text>
+  <g opacity=".82">
+    <path d="M54 344H390M54 374H390M54 404H390M54 434H390M54 464H390" stroke="#3c465e"/>
+    <path d="M54 344V464M102 344V464M150 344V464M198 344V464M246 344V464M294 344V464M342 344V464M390 344V464" stroke="#3c465e"/>
+    <g fill="#40bfff"><rect x="102" y="404" width="48" height="30"/><rect x="150" y="374" width="48" height="30"/><rect x="198" y="344" width="48" height="30"/></g>
+    <g fill="#ff7654"><rect x="246" y="374" width="48" height="30"/><rect x="294" y="404" width="48" height="30"/></g>
+  </g>
+  <text x="464" y="322" fill="#aeb9d5" font-family="sans-serif" font-size="13">regression + linked stable keys</text>
+  <path d="M474 454 L520 424 L566 438 L612 390 L658 402 L704 352 L786 334" fill="none" stroke="#40bfff" stroke-width="3"/>
+  <path d="M474 442 L786 350" fill="none" stroke="#ffb84d" stroke-width="3" stroke-dasharray="7 6"/>
+  <g fill="#ff7654" stroke="#fff" stroke-width="1">
+    <circle cx="520" cy="424" r="5"/><circle cx="612" cy="390" r="5"/><circle cx="704" cy="352" r="5"/><circle cx="750" cy="360" r="5"/>
+  </g>
+  <text x="24" y="500" fill="#aeb9d5" font-family="sans-serif" font-size="12">typed fixture · derived fields · independent facet scales · lasso/link contract</text>
+</svg>
