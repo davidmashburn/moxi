@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 /*
  * A small scene renderer for the 0.6 GPU slice. It batches rectangles and
@@ -14,7 +15,9 @@
  * tests and benchmarks or an AppKit CAMetalLayer used by the visible demo.
  */
 
-#define MOXI_METAL_MAX_VERTICES 262144
+#define MOXI_METAL_INITIAL_VERTICES 262144
+#define MOXI_METAL_MAX_VERTICES 4194304
+#define MOXI_METAL_MAX_CLIP_DEPTH 64
 
 @interface MoxiMetalView : NSView
 @end
@@ -45,6 +48,12 @@ static float moxi_metal_scale;
 static int moxi_metal_vertex_count;
 static int moxi_metal_overflow_count;
 static int moxi_metal_frame_count;
+static NSUInteger moxi_metal_vertex_capacity;
+static int moxi_metal_buffer_reallocation_count;
+static int moxi_metal_draw_submission_count;
+static int moxi_metal_resize_count;
+static MTLScissorRect moxi_metal_clip_stack[MOXI_METAL_MAX_CLIP_DEPTH];
+static NSUInteger moxi_metal_clip_depth;
 static BOOL moxi_metal_initialized;
 static NSWindow *moxi_metal_window;
 static MoxiMetalWindowDelegate *moxi_metal_window_delegate;
@@ -76,18 +85,84 @@ static MoxiMetalVertex moxi_vertex(float x, float y, const float color[4]) {
     return result;
 }
 
+static MoxiMetalVertex moxi_vertex_at(float x, float y, const float color[4]) {
+    return moxi_vertex(x, y, color);
+}
+
+static BOOL moxi_metal_reserve_vertices(int additional) {
+    if (additional < 0 || moxi_metal_vertex_count < 0) return NO;
+    NSUInteger required = (NSUInteger)moxi_metal_vertex_count + (NSUInteger)additional;
+    if (required <= moxi_metal_vertex_capacity) return YES;
+    if (required > MOXI_METAL_MAX_VERTICES) {
+        moxi_metal_overflow_count += 1;
+        return NO;
+    }
+    NSUInteger next_capacity = moxi_metal_vertex_capacity;
+    if (next_capacity == 0) next_capacity = MOXI_METAL_INITIAL_VERTICES;
+    while (next_capacity < required) {
+        NSUInteger doubled = next_capacity * 2;
+        if (doubled <= next_capacity || doubled > MOXI_METAL_MAX_VERTICES) {
+            next_capacity = MOXI_METAL_MAX_VERTICES;
+            break;
+        }
+        next_capacity = doubled;
+    }
+    id<MTLBuffer> next_buffer = [moxi_metal_device newBufferWithLength:
+        sizeof(MoxiMetalVertex) * next_capacity options:MTLResourceStorageModeShared];
+    if (next_buffer == nil) {
+        moxi_metal_overflow_count += 1;
+        return NO;
+    }
+    MoxiMetalVertex *next_vertices = (MoxiMetalVertex *)[next_buffer contents];
+    if (moxi_metal_vertices != NULL && moxi_metal_vertex_count > 0) {
+        memcpy(next_vertices, moxi_metal_vertices,
+               sizeof(MoxiMetalVertex) * (NSUInteger)moxi_metal_vertex_count);
+    }
+    moxi_metal_vertex_buffer = next_buffer;
+    moxi_metal_vertices = next_vertices;
+    moxi_metal_vertex_capacity = next_capacity;
+    moxi_metal_buffer_reallocation_count += 1;
+    return YES;
+}
+
 static void moxi_append_triangle(
     MoxiMetalVertex first,
     MoxiMetalVertex second,
     MoxiMetalVertex third
 ) {
-    if (moxi_metal_vertex_count + 3 > MOXI_METAL_MAX_VERTICES) {
-        moxi_metal_overflow_count += 1;
-        return;
-    }
+    if (!moxi_metal_reserve_vertices(3)) return;
     moxi_metal_vertices[moxi_metal_vertex_count++] = first;
     moxi_metal_vertices[moxi_metal_vertex_count++] = second;
     moxi_metal_vertices[moxi_metal_vertex_count++] = third;
+}
+
+static float moxi_clamp(float value) {
+    if (value < 0.0f) return 0.0f;
+    if (value > 1.0f) return 1.0f;
+    return value;
+}
+
+static void moxi_gradient_color(
+    float x,
+    float y,
+    float start_x,
+    float start_y,
+    float end_x,
+    float end_y,
+    const float start_color[4],
+    const float end_color[4],
+    float result[4]
+) {
+    float dx = end_x - start_x;
+    float dy = end_y - start_y;
+    float span = dx * dx + dy * dy;
+    float amount = span <= 0.0f ? 0.0f :
+        ((x - start_x) * dx + (y - start_y) * dy) / span;
+    amount = moxi_clamp(amount);
+    for (int index = 0; index < 4; index++) {
+        result[index] = start_color[index] +
+            (end_color[index] - start_color[index]) * amount;
+    }
 }
 
 static void moxi_append_rect(float x, float y, float width, float height, const float color[4]) {
@@ -100,6 +175,87 @@ static void moxi_append_rect(float x, float y, float width, float height, const 
     MoxiMetalVertex bottom_right = moxi_vertex(x + width, y + height, color);
     moxi_append_triangle(top_left, top_right, bottom_left);
     moxi_append_triangle(bottom_left, top_right, bottom_right);
+}
+
+static void moxi_append_gradient_rect(
+    float x,
+    float y,
+    float width,
+    float height,
+    float start_x,
+    float start_y,
+    float end_x,
+    float end_y,
+    const float start_color[4],
+    const float end_color[4]
+) {
+    if (width <= 0.0f || height <= 0.0f) return;
+    float top_left_color[4];
+    float top_right_color[4];
+    float bottom_left_color[4];
+    float bottom_right_color[4];
+    moxi_gradient_color(x, y, start_x, start_y, end_x, end_y,
+                        start_color, end_color, top_left_color);
+    moxi_gradient_color(x + width, y, start_x, start_y, end_x, end_y,
+                        start_color, end_color, top_right_color);
+    moxi_gradient_color(x, y + height, start_x, start_y, end_x, end_y,
+                        start_color, end_color, bottom_left_color);
+    moxi_gradient_color(x + width, y + height, start_x, start_y, end_x, end_y,
+                        start_color, end_color, bottom_right_color);
+    MoxiMetalVertex top_left = moxi_vertex_at(x, y, top_left_color);
+    MoxiMetalVertex top_right = moxi_vertex_at(x + width, y, top_right_color);
+    MoxiMetalVertex bottom_left = moxi_vertex_at(x, y + height, bottom_left_color);
+    MoxiMetalVertex bottom_right = moxi_vertex_at(
+        x + width, y + height, bottom_right_color);
+    moxi_append_triangle(top_left, top_right, bottom_left);
+    moxi_append_triangle(bottom_left, top_right, bottom_right);
+}
+
+static void moxi_append_rounded_rect(
+    float x,
+    float y,
+    float width,
+    float height,
+    float radius,
+    const float color[4]
+) {
+    if (width <= 0.0f || height <= 0.0f) return;
+    float max_radius = width < height ? width * 0.5f : height * 0.5f;
+    if (radius <= 0.0f) {
+        moxi_append_rect(x, y, width, height, color);
+        return;
+    }
+    if (radius > max_radius) radius = max_radius;
+    const int segments = 8;
+    const int point_count = segments * 4;
+    MoxiMetalVertex perimeter[32];
+    const float pi = 3.14159265358979323846f;
+    const float centers[4][2] = {
+        {x + width - radius, y + radius},
+        {x + width - radius, y + height - radius},
+        {x + radius, y + height - radius},
+        {x + radius, y + radius},
+    };
+    const float starts[4] = {-0.5f * pi, 0.0f, 0.5f * pi, pi};
+    for (int corner = 0; corner < 4; corner++) {
+        for (int segment = 0; segment < segments; segment++) {
+            float angle = starts[corner] +
+                (0.5f * pi) * ((float)segment / (float)segments);
+            perimeter[corner * segments + segment] = moxi_vertex_at(
+                centers[corner][0] + cosf(angle) * radius,
+                centers[corner][1] + sinf(angle) * radius,
+                color);
+        }
+    }
+    MoxiMetalVertex center = moxi_vertex_at(x + width * 0.5f,
+                                            y + height * 0.5f, color);
+    if (!moxi_metal_reserve_vertices(point_count * 3)) return;
+    for (int index = 0; index < point_count; index++) {
+        int next = (index + 1) % point_count;
+        moxi_metal_vertices[moxi_metal_vertex_count++] = center;
+        moxi_metal_vertices[moxi_metal_vertex_count++] = perimeter[index];
+        moxi_metal_vertices[moxi_metal_vertex_count++] = perimeter[next];
+    }
 }
 
 static void moxi_append_line(
@@ -147,6 +303,13 @@ static BOOL moxi_metal_make_pipeline(void) {
     descriptor.vertexFunction = vertex;
     descriptor.fragmentFunction = fragment;
     descriptor.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA8Unorm;
+    descriptor.colorAttachments[0].blendingEnabled = YES;
+    descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+    descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+    descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+    descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
+    descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     moxi_metal_pipeline = [moxi_metal_device newRenderPipelineStateWithDescriptor:descriptor error:&error];
     return moxi_metal_pipeline != nil;
 }
@@ -160,11 +323,13 @@ static BOOL moxi_metal_make_texture(int width, int height) {
                                                                                             height:(NSUInteger)height
                                                                                          mipmapped:NO];
     descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-    moxi_metal_texture = [moxi_metal_device newTextureWithDescriptor:descriptor];
+    id<MTLTexture> next_texture = [moxi_metal_device newTextureWithDescriptor:descriptor];
+    if (next_texture == nil) return NO;
+    moxi_metal_texture = next_texture;
     moxi_metal_target_width = (NSUInteger)width;
     moxi_metal_target_height = (NSUInteger)height;
     moxi_metal_scale = 1.0f;
-    return moxi_metal_texture != nil;
+    return YES;
 }
 
 int moxi_metal_available(void) {
@@ -182,13 +347,18 @@ int moxi_metal_init(int width, int height) {
     moxi_metal_width = width;
     moxi_metal_height = height;
     if (!moxi_metal_make_texture(width, height)) return 0;
-    moxi_metal_vertex_buffer = [moxi_metal_device newBufferWithLength:sizeof(MoxiMetalVertex) * MOXI_METAL_MAX_VERTICES
+    moxi_metal_vertex_buffer = [moxi_metal_device newBufferWithLength:sizeof(MoxiMetalVertex) * MOXI_METAL_INITIAL_VERTICES
                                                                  options:MTLResourceStorageModeShared];
     if (moxi_metal_vertex_buffer == nil) return 0;
     moxi_metal_vertices = (MoxiMetalVertex *)[moxi_metal_vertex_buffer contents];
+    moxi_metal_vertex_capacity = MOXI_METAL_INITIAL_VERTICES;
     moxi_metal_vertex_count = 0;
     moxi_metal_overflow_count = 0;
     moxi_metal_frame_count = 0;
+    moxi_metal_buffer_reallocation_count = 0;
+    moxi_metal_draw_submission_count = 0;
+    moxi_metal_resize_count = 0;
+    moxi_metal_clip_depth = 0;
     moxi_metal_initialized = YES;
     return 1;
 }
@@ -197,14 +367,19 @@ int moxi_metal_resize(int width, int height) {
     if (!moxi_metal_initialized) return 0;
     if (width < 1) width = 1;
     if (height < 1) height = 1;
+    if (width == moxi_metal_width && height == moxi_metal_height) return 1;
     moxi_metal_width = width;
     moxi_metal_height = height;
-    return moxi_metal_make_texture(width, height) ? 1 : 0;
+    if (!moxi_metal_make_texture(width, height)) return 0;
+    moxi_metal_resize_count += 1;
+    return 1;
 }
 
 void moxi_metal_begin(float red, float green, float blue, float alpha) {
     if (!moxi_metal_initialized) return;
     moxi_metal_vertex_count = 0;
+    moxi_metal_draw_submission_count = 0;
+    moxi_metal_clip_depth = 0;
     moxi_metal_command_buffer = [moxi_metal_queue commandBuffer];
     MTLRenderPassDescriptor *pass = [MTLRenderPassDescriptor renderPassDescriptor];
     moxi_metal_render_texture = moxi_metal_texture;
@@ -237,6 +412,37 @@ void moxi_metal_draw_rect(float x, float y, float width, float height, float red
     if (moxi_metal_encoder != nil) moxi_append_rect(x, y, width, height, color);
 }
 
+void moxi_metal_draw_rounded_rect(float x, float y, float width, float height, float radius, float red, float green, float blue, float alpha) {
+    float color[4] = {red, green, blue, alpha};
+    if (moxi_metal_encoder != nil) moxi_append_rounded_rect(x, y, width, height, radius, color);
+}
+
+void moxi_metal_draw_gradient(
+    float x,
+    float y,
+    float width,
+    float height,
+    float start_x,
+    float start_y,
+    float end_x,
+    float end_y,
+    float start_red,
+    float start_green,
+    float start_blue,
+    float start_alpha,
+    float end_red,
+    float end_green,
+    float end_blue,
+    float end_alpha
+) {
+    float start_color[4] = {start_red, start_green, start_blue, start_alpha};
+    float end_color[4] = {end_red, end_green, end_blue, end_alpha};
+    if (moxi_metal_encoder != nil) {
+        moxi_append_gradient_rect(x, y, width, height, start_x, start_y,
+                                   end_x, end_y, start_color, end_color);
+    }
+}
+
 void moxi_metal_draw_line(float x1, float y1, float x2, float y2, float width, float red, float green, float blue, float alpha) {
     float color[4] = {red, green, blue, alpha};
     if (moxi_metal_encoder != nil) moxi_append_line(x1, y1, x2, y2, width, color);
@@ -244,6 +450,10 @@ void moxi_metal_draw_line(float x1, float y1, float x2, float y2, float width, f
 
 void moxi_metal_push_clip(float x, float y, float width, float height) {
     if (moxi_metal_encoder == nil) return;
+    if (moxi_metal_clip_depth >= MOXI_METAL_MAX_CLIP_DEPTH) {
+        moxi_metal_overflow_count += 1;
+        return;
+    }
     MTLScissorRect rect;
     rect.x = x <= 0.0f ? 0 : (NSUInteger)(x * moxi_metal_scale);
     rect.y = y <= 0.0f ? 0 : (NSUInteger)(y * moxi_metal_scale);
@@ -261,12 +471,28 @@ void moxi_metal_push_clip(float x, float y, float width, float height) {
     } else if (rect.y + rect.height > moxi_metal_target_height) {
         rect.height = moxi_metal_target_height - rect.y;
     }
+    if (moxi_metal_clip_depth > 0) {
+        MTLScissorRect parent = moxi_metal_clip_stack[moxi_metal_clip_depth - 1];
+        NSUInteger right = rect.x + rect.width;
+        NSUInteger bottom = rect.y + rect.height;
+        NSUInteger parent_right = parent.x + parent.width;
+        NSUInteger parent_bottom = parent.y + parent.height;
+        if (rect.x < parent.x) rect.x = parent.x;
+        if (rect.y < parent.y) rect.y = parent.y;
+        if (right > parent_right) right = parent_right;
+        if (bottom > parent_bottom) bottom = parent_bottom;
+        rect.width = right > rect.x ? right - rect.x : 0;
+        rect.height = bottom > rect.y ? bottom - rect.y : 0;
+    }
+    moxi_metal_clip_stack[moxi_metal_clip_depth++] = rect;
     [moxi_metal_encoder setScissorRect:rect];
 }
 
 void moxi_metal_pop_clip(void) {
     if (moxi_metal_encoder == nil) return;
+    if (moxi_metal_clip_depth > 0) moxi_metal_clip_depth -= 1;
     MTLScissorRect rect = {0, 0, moxi_metal_target_width, moxi_metal_target_height};
+    if (moxi_metal_clip_depth > 0) rect = moxi_metal_clip_stack[moxi_metal_clip_depth - 1];
     [moxi_metal_encoder setScissorRect:rect];
 }
 
@@ -275,6 +501,7 @@ void moxi_metal_end(void) {
     if (moxi_metal_vertex_count > 0) {
         [moxi_metal_encoder setVertexBuffer:moxi_metal_vertex_buffer offset:0 atIndex:0];
         [moxi_metal_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:(NSUInteger)moxi_metal_vertex_count];
+        moxi_metal_draw_submission_count += 1;
     }
     [moxi_metal_encoder endEncoding];
     if (moxi_metal_drawable != nil) {
@@ -292,6 +519,10 @@ void moxi_metal_end(void) {
 int moxi_metal_frame_count_value(void) { return moxi_metal_frame_count; }
 int moxi_metal_vertex_count_value(void) { return moxi_metal_vertex_count; }
 int moxi_metal_overflow_count_value(void) { return moxi_metal_overflow_count; }
+int moxi_metal_buffer_capacity_value(void) { return (int)moxi_metal_vertex_capacity; }
+int moxi_metal_buffer_reallocation_count_value(void) { return moxi_metal_buffer_reallocation_count; }
+int moxi_metal_draw_submission_count_value(void) { return moxi_metal_draw_submission_count; }
+int moxi_metal_resize_count_value(void) { return moxi_metal_resize_count; }
 
 int64_t moxi_metal_checksum(void) {
     if (!moxi_metal_initialized || moxi_metal_texture == nil) return 0;
@@ -323,6 +554,11 @@ void moxi_metal_shutdown(void) {
     moxi_metal_queue = nil;
     moxi_metal_device = nil;
     moxi_metal_vertices = NULL;
+    moxi_metal_vertex_capacity = 0;
+    moxi_metal_buffer_reallocation_count = 0;
+    moxi_metal_draw_submission_count = 0;
+    moxi_metal_resize_count = 0;
+    moxi_metal_clip_depth = 0;
     moxi_metal_target_width = 0;
     moxi_metal_target_height = 0;
     moxi_metal_scale = 1.0f;
