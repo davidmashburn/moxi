@@ -51,6 +51,7 @@ benchmark = "bash scripts/benchmark.sh"
 package-consumer = "bash scripts/package_consumer.sh"
 test = "bash scripts/test.sh"
 check = "bash scripts/check.sh"
+host-check = "bash scripts/host_check.sh"
 release-check = "bash scripts/release_check.sh"
 
 [dependencies]

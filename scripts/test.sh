@@ -29,6 +29,7 @@ tests=(
   tests/backend.mojo
   tests/platform.mojo
   tests/platform_adapters.mojo
+  tests/host_contract.mojo
   tests/native_widgets.mojo
   tests/virtual_view.mojo
   tests/targets.mojo

@@ -440,6 +440,12 @@ from .platform_adapters import (
     ios_backend,
     web_backend,
 )
+from .host_contract import (
+    HOST_NATIVE,
+    HOST_PORTABLE_BRIDGE,
+    HostContract,
+    host_contract,
+)
 from .native_widgets import (
     NativeWidgetDescriptor,
     NativeWidgetRegistry,

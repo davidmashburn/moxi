@@ -130,8 +130,10 @@ do not rely on hidden global state. `PlotView`/`PlotControl` compile a spec,
 retain its source snapshot, expose a CSV data-table fallback, and integrate
 runtime scene/accessibility methods.
 The software, Metal, and SVG scene paths consume the same plot output; native
-Metal currently covers basic geometry and the portable shaper remains
-approximate outside the CoreText adapter.
+Metal covers geometry, printable ASCII glyphs, registered images, and simple
+polygon paths, while complex text/path/resource cases remain explicit
+fallbacks. The portable shaper remains approximate outside the CoreText
+adapter.
 
 ## Capability and agent boundary
 
@@ -166,7 +168,7 @@ the complete visible approval flow.
 | Scene and resources | [`src/moxi/scene.mojo`](../src/moxi/scene.mojo), [`src/moxi/software.mojo`](../src/moxi/software.mojo), [`src/moxi/resources.mojo`](../src/moxi/resources.mojo) |
 | Plotting | [`docs/plotting.md`](plotting.md), [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/plot_selection.mojo`](../src/moxi/plot_selection.mojo), [`src/moxi/plot_link.mojo`](../src/moxi/plot_link.mojo), [`src/moxi/plot_view.mojo`](../src/moxi/plot_view.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
 | Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh) |
-| Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo) |
+| Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo), [`src/moxi/host_contract.mojo`](../src/moxi/host_contract.mojo), [`native/hosts/`](../native/hosts/) |
 | Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`native/macos_text.m`](../native/macos_text.m) |
 | Reactivity and tasks | [`src/moxi/reactivity.mojo`](../src/moxi/reactivity.mojo), [`src/moxi/tasks.mojo`](../src/moxi/tasks.mojo) |
 | Capabilities and conversation | [`src/moxi/capability.mojo`](../src/moxi/capability.mojo), [`src/moxi/conversation.mojo`](../src/moxi/conversation.mojo) |

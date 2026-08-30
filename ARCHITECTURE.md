@@ -297,11 +297,12 @@ the widget paint stream. `SceneRecorder` preserves commands for tests, and
 rectangles, gradients, conservative line/path bounds, clipping, opacity
 layers, and affine transforms. `MacOSMetalRenderer` batches supported
 rectangles, rounded rectangles, gradients, and lines into a reusable/growing
-buffer and one synchronized draw submission per frame; `MacOSMetalWindow`
-presents the same scene through an AppKit `CAMetalLayer`, including
-drawable-size/scale handling. Metal has explicit fallbacks for text, images,
-and arbitrary path tessellation. The software path remains the deterministic
-oracle.
+buffer and ordered draw submissions per frame; `MacOSMetalWindow` presents the
+same scene through an AppKit `CAMetalLayer`, including drawable-size/scale
+handling. Metal renders printable ASCII glyph geometry, registered file-backed
+image textures, and `M/L/H/V/Z` polygon paths; unsupported Unicode glyphs,
+unregistered images, and curves remain explicit fallbacks. The software path
+remains the deterministic oracle.
 
 `Plot`, `PlotDataTable`, `PlotSpec`, and `PlotRuntime` form the first
 application library on the scene contract. A plot owns data-space series and
@@ -319,13 +320,15 @@ deterministic headless profile and opts into incremental dispatch. Generic GPU,
 Windows, and Linux descriptors are explicit contracts so callers can gate
 features without probing platform internals.
 
-`PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, and `PlatformAdapter`
-define the common lifecycle/scale contract for macOS-style hosts, iOS,
-Android, and Web. Named iOS/Android/Web adapters normalize host input and
-provide deterministic software fallbacks (plus SVG frame export on Web), but
-still fail closed for native availability because this macOS-only repository
-does not ship their SDK hosts. Those fallbacks are useful contract seams, not a
-claim of native mobile/browser runtime support.
+`PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, `PlatformAdapter`, and
+`HostContract` define the common lifecycle/scale contract for macOS-style
+hosts, iOS, Android, and Web. Named iOS/Android/Web adapters normalize host
+input and provide deterministic software fallbacks (plus SVG frame export on
+Web). `native/hosts/` contains the platform-owned UIKit/Metal, Android-NDK,
+and browser lifecycle/input shims, but this macOS package does not link their
+SDK/runtime surfaces; `HostContract` and the adapters therefore still fail
+closed for native availability until a target app and integration harness are
+built.
 
 `TestRenderer` records a frame without a platform window. `TestWindow` queues
 backend-neutral events and exposes the same window lifecycle shape, allowing
@@ -334,8 +337,9 @@ component and event-loop tests to run deterministically in headless builds.
 for multiple window ids; native AppKit multi-window ownership is still a
 follow-up adapter.
 
-The native target remains macOS on Apple Silicon only. The capability bus is
-implemented as an in-process authorization/lease boundary; transport,
+The package build target remains macOS on Apple Silicon, with native host
+source slices for iOS, Android, and Web documented separately. The capability
+bus is implemented as an in-process authorization/lease boundary; transport,
 serialization, and agent-session orchestration remain outside the core. The
 capability design note in
 [Specification High-Performance Agent-Re.md](Specification%20High-Performance%20Agent-Re.md)

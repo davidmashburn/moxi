@@ -20,6 +20,7 @@ xmllint --noout docs/wx-style-showcase.svg
 xmllint --noout docs/wx-style-advanced.svg
 xmllint --noout docs/plot-gallery.svg
 xmllint --noout docs/plot-analytics.svg
+bash scripts/host_check.sh
 
 if rg -q "Use code with caution|I can provide further detail" \
   "Specification High-Performance Agent-Re.md"; then

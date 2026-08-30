@@ -14,14 +14,20 @@ catalog. The next phase is about making those contracts production-worthy,
 starting with the rendering and performance path and then using it to build a
 first-class plotting library.
 
-The remaining explicitly deferred post-0.5 work is:
+The remaining explicitly deferred post-0.5 work is now narrower:
 
-- Portable text shaping and font fallback outside the native CoreText path.
-- True variable-height virtualized view recycling and scrollbars.
-- Deep native widgets and platform-native interaction fidelity.
-- Native iOS, Android, and browser hosts with device/emulator CI.
-- GPU text/image resources, arbitrary path tessellation, and async frame
-  pacing; the supported basic Metal geometry slice is now implemented.
+- Production portable OpenType shaping/font fallback outside the current
+  deterministic script-run contract; ligatures, kerning, and complex-script
+  joining still need a native or HarfBuzz-backed engine.
+- Scrollbar widgets and viewport policy around the implemented variable-height
+  recycler.
+- Deep native widgets and platform-native interaction/accessibility fidelity.
+- Native iOS, Android, and browser app targets with device/emulator/browser CI;
+  host lifecycle/input shims now live under `native/hosts/`.
+- Complex GPU typography, Bezier/path boolean tessellation, asynchronous frame
+  pacing, GPU timestamps, and portable cross-platform resource loaders; Metal
+  now covers printable ASCII glyphs, registered file-backed images, and simple
+  polygon paths.
 - Localized component execution and dependency-scoped invalidation beyond the
   current accounting contract.
 
@@ -106,9 +112,9 @@ Target the platforms in this order, while keeping the common contract usable:
 | Target | First backend shape | Initial native surface | Current status |
 | --- | --- | --- | --- |
 | macOS | AppKit window + scene/software path; Metal target | windows, input, AX, text bridge | baseline shipped; hardened basic Metal slice |
-| iOS | UIKit/Metal surface adapter | app/window lifecycle, touch, safe areas, AX | portable host bridge; native host pending |
-| Android | Android surface/input/accessibility adapter | lifecycle, touch, IME, density | portable host bridge; native host pending |
-| Web | browser host + Canvas/WebGPU target | DOM focus/AX bridge, pointer/touch, resize | portable host bridge + SVG fallback; browser host pending |
+| iOS | UIKit/Metal surface adapter | app/window lifecycle, touch, safe areas, AX | UIKit/Metal host shim; SDK-gated app target and AX pending |
+| Android | Android surface/input/accessibility adapter | lifecycle, touch, IME, density | NDK surface/input host shim; APK/renderer/AX target pending |
+| Web | browser host + Canvas/WebGPU target | DOM focus/AX bridge, pointer/touch, resize | framework-free browser host + SVG fallback; packaged WASM/AX target pending |
 
 The first cross-platform milestone is not “all widgets everywhere.” It is a
 portable surface/window lifecycle, event vocabulary, scale-factor contract,
@@ -118,32 +124,37 @@ layout, component, capability, and plotting code.
 
 ## Milestones
 
-### 0.6 — GPU-ready rendering and measurable performance (geometry slice complete)
+### 0.6 — GPU-ready rendering and measurable performance (macOS slice complete)
 
 - Stabilize scene/resource ownership and renderer capability contracts.
 - Implement a Metal-backed macOS renderer consuming scene commands, with the
   software renderer retained as an oracle/fallback. The current slice covers
-  rectangles, rounded rectangles, lines, gradients, clips, transforms, and
-  layer opacity.
+  rectangles, rounded rectangles, lines, gradients, clips, transforms, layer
+  opacity, printable ASCII glyphs, registered file-backed images, and simple
+  polygon paths.
 - Add GPU resource lifetime, resize, scale-factor, clipping, transform, and
   readback/checksum test seams.
 - Add repeatable CPU and GPU benchmark cases and use evidence to improve hot
   paths (batching, command storage, invalidation, and resource reuse).
-- Keep the first implementation honest about unsupported text and effects.
+- Keep unsupported Unicode typography, curves, and missing resources explicit
+  in counters and fallback behavior.
 
 Acceptance: the same supported scene renders through software and GPU paths, a
 native window presents it, failures fall back predictably, and benchmark output
 makes CPU/render/frame costs visible. This acceptance is met for the current
-basic geometry slice; text/images/path tessellation remain later milestones.
+macOS scene slice; complex text/effects and other platform hosts remain later
+milestones.
 
-### 0.7 — Portable text and real virtualization
+### 0.7 — Portable text contract and real virtualization (core slice complete)
 
-- Define a shaped-run/glyph-resource adapter with font fallback and bidi
-  metadata; use platform shaping first and a portable implementation where
-  licensing/build constraints allow it.
+- Define a shaped-run/glyph-resource adapter with script, fallback, and bidi
+  metadata; the deterministic portable run contract and CoreText adapter are
+  now implemented. Production OpenType shaping remains an explicit extension.
 - Replace visible-range-only lists with stable-key item builders, recycling,
-  measured extents, overscan, anchoring, and ensure-visible behavior.
-- Benchmark text-heavy and long-list scenarios separately from small trees.
+  measured extents, prefix offsets, overscan, anchoring, and ensure-visible
+  behavior; scrollbar policy remains separate.
+- Benchmark text-heavy and variable-height long-list scenarios separately from
+  small trees.
 
 Acceptance: shaping and recycling are observable capabilities with tests for
 identity, focus, keyboard navigation, editing, and scroll stability.
@@ -160,10 +171,12 @@ identity, focus, keyboard navigation, editing, and scroll stability.
 Acceptance: mutation traces identify the affected component/view region and
 native controls preserve semantics, focus, and input behavior.
 
-### 0.9 — iOS, Android, and Web vertical slices
+### 0.9 — iOS, Android, and Web vertical slices (host shim slice complete)
 
 - Ship one small shared scenario end-to-end on each target: window/surface,
-  input, layout, scene, text, accessibility, and teardown.
+  input, layout, scene, text, accessibility, and teardown. The current slice
+  supplies the native host callback shims and a Node-tested browser host;
+  packaged app/device/browser validation remains required.
 - Start with the GPU-capable path where available (Metal, then WebGPU) and a
   documented software/canvas fallback.
 - Establish device/emulator/browser CI or a reproducible manual harness before
@@ -223,12 +236,14 @@ round-tripping, PlotView/PlotControl, pointer/touch navigation, interval brush
 and lasso selection, explicit linked selections, keyboard focus,
 accessibility state, CSV fallback, SVG path/opacity output, and bounded
 line/scatter geometry. The software renderer, SVG serializer, Metal basic
-geometry path, and target fallback bridges are contract-tested.
+geometry path, target fallback bridges, host status contract, and browser host
+module are contract-tested.
 
 This is an implemented foundation, not completion of every item in the
-design. Portable text/path GPU rendering, PDF/PNG export, native browser/mobile
-hosts, variable-height virtualization, and the broader polar/geographic/3D
-families remain explicitly staged work.
+design. Production OpenType portability, scrollbar policy, deep native
+widgets/accessibility, packaged browser/mobile hosts, complex GPU text/path
+features, PDF/PNG export, and the broader polar/geographic/3D families remain
+explicitly staged work.
 
 ### Core interface
 

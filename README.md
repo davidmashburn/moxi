@@ -483,7 +483,8 @@ execution accounting, target host bridges, and the first Plot library. The
 plot foundation now has typed data, executable statistical transforms,
 composable marks, independent facet scales, lasso/linked selection, a
 view/runtime boundary, and bounded large-data geometry. iOS, Android, and Web
-have portable event/fallback bridges but are not yet supported native targets;
+  have portable event/fallback bridges plus native host shims, but are not yet
+  supported native targets;
 the portable shaper remains approximate, while complex GPU typography, curve
 tessellation, async pacing, and full cross-platform resource backends remain
 staged follow-ups. The separate
