@@ -1450,7 +1450,7 @@ struct PlotSpec:
         self.valid = okay
         return okay
 
-    def validate_data(self, data: PlotDataTable) -> Bool:
+    def validate_data(mut self, data: PlotDataTable) -> Bool:
         """Validate field references against a concrete table."""
         var okay = self.validate()
         for layer_index in range(len(self.layers)):

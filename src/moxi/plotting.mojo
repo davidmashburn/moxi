@@ -803,7 +803,9 @@ struct Plot:
         self.series[index].points[point_index] = point
         return True
 
-    def set_point_color(self, series_id: Int, point_index: Int, color: Color) -> Bool:
+    def set_point_color(
+        mut self, series_id: Int, point_index: Int, color: Color
+    ) -> Bool:
         """Set a per-row color override used by supported glyph marks."""
         var index = self.series_index(series_id)
         if index == -1 or point_index < 0 or point_index >= self.series[index].count():
