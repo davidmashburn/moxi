@@ -1,6 +1,16 @@
 """Stable-key plot data source contract test."""
 
-from moxi import PlotDataTable, test_check
+from moxi import (
+    COLUMN_BOOL,
+    COLUMN_CATEGORY,
+    COLUMN_FLOAT64,
+    COLUMN_FLOAT32,
+    COLUMN_INT64,
+    COLUMN_STRING,
+    PlotDataTable,
+    column_kind_name,
+    test_check,
+)
 
 
 def main():
@@ -23,4 +33,72 @@ def main():
     test_check(data.row_count() == 2)
     test_check(data.key_at(0) == 2)
     test_check(data.version >= 7)
+
+    var typed = PlotDataTable()
+    test_check(typed.add_float_column("temperature"))
+    test_check(typed.add_int_column("timestamp"))
+    test_check(typed.add_bool_column("enabled"))
+    test_check(typed.add_string_column("region"))
+    test_check(typed.add_float64_column("precise"))
+    test_check(typed.add_category_column("kind"))
+    test_check(typed.append_with_key(41, 2.0, 3.0))
+    test_check(typed.append_with_key(42, 4.0, 5.0))
+    test_check(typed.set_float_field("temperature", 0, 20.5))
+    test_check(typed.set_int_field("timestamp", 0, 1700000000))
+    test_check(typed.set_bool_field("enabled", 0, True))
+    test_check(typed.set_string_field("region", 0, "west"))
+    test_check(typed.set_float64_field("precise", 0, 20.75))
+    test_check(typed.set_category_field("kind", 0, "primary"))
+    test_check(typed.field_kind("temperature") == COLUMN_FLOAT32)
+    test_check(typed.field_kind("timestamp") == COLUMN_INT64)
+    test_check(typed.field_kind("region") == COLUMN_STRING)
+    test_check(typed.field_kind("precise") == COLUMN_FLOAT64)
+    test_check(typed.field_kind("kind") == COLUMN_CATEGORY)
+    test_check(column_kind_name(COLUMN_BOOL) == "bool")
+    test_check(typed.float_field_at("temperature", 0) == 20.5)
+    test_check(typed.int_field_at("timestamp", 0) == 1700000000)
+    test_check(typed.bool_field_at("enabled", 0))
+    test_check(typed.string_field_at("region", 0) == "west")
+    test_check(typed.float_field_at("precise", 0) > 20.5)
+    test_check(typed.string_field_at("kind", 0) == "primary")
+    test_check(typed.row_is_valid_fields("temperature", "y", 0))
+    var frozen = typed.snapshot()
+    test_check(typed.patch_key(41, 9.0, 10.0))
+    test_check(frozen.float_at("x", 0) == 2.0)
+    var view = typed.view(0, 2)
+    test_check(view.row_count() == 2)
+    test_check(view.key_at(1) == 42)
+    test_check(view.float_at("temperature", 0) == 20.5)
+    var calculated = typed.calculate_constant("baseline", 3.5)
+    test_check(calculated.field_is_valid("baseline", 1))
+    test_check(calculated.float_field_at("baseline", 1) == 3.5)
+    test_check(typed.set_float_field("temperature", 1, 4.0))
+    test_check(typed.set_string_field("region", 1, "east"))
+    var binned = calculated.bin_field("temperature", "temperature_bin", 5.0)
+    test_check(binned.float_field_at("temperature_bin", 0) == 20.0)
+    var rolling = typed.rolling_mean("temperature", "temperature_mean", 2)
+    test_check(rolling.float_field_at("temperature_mean", 1) == 12.25)
+    var grouped = typed.aggregate("region", "temperature", "total")
+    test_check(grouped.row_count() == 2)
+    test_check(grouped.float_field_at("total", 0) == 20.5)
+    var counts = typed.aggregate("region", "", "count")
+    test_check(counts.row_count() == 2)
+    test_check(counts.y_at(0) == 1.0)
+    var sampled = typed.sample_rows(1)
+    test_check(sampled.row_count() == 1)
+    test_check(sampled.key_at(0) == 41)
+    var stacked = typed.stack("x", "running")
+    test_check(stacked.float_field_at("running", 1) == 13.0)
+    var imputed = typed.patch(1, 0.0, 0.0, False, True)
+    test_check(imputed)
+    var filled = typed.impute("x", 8.0)
+    test_check(filled.x_at(1) == 8.0)
+    var replacement = PlotDataTable()
+    _ = replacement.add_string_column("region")
+    _ = replacement.append_with_key(99, 7.0, 8.0)
+    _ = replacement.set_string_field("region", 0, "central")
+    typed.replace(replacement)
+    test_check(typed.key_at(0) == 99)
+    test_check(typed.string_field_at("region", 0) == "central")
+    test_check(replacement.key_at(0) == 99)
     print("Moxi plot-data test passed")
