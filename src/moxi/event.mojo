@@ -53,9 +53,11 @@ struct ClickEvent(ImplicitlyCopyable):
     """A primary-pointer click in window content coordinates."""
 
     var position: Point
+    var modifiers: Int
 
-    def __init__(out self, position: Point):
+    def __init__(out self, position: Point, modifiers: Int = 0):
         self.position = position
+        self.modifiers = modifiers
 
 
 struct PointerEvent(ImplicitlyCopyable):
@@ -65,12 +67,14 @@ struct PointerEvent(ImplicitlyCopyable):
     var position: Point
     var pointer_id: Int
     var buttons: Int
+    var modifiers: Int
 
     def __init__(out self, kind: Int, position: Point):
         self.kind = kind
         self.position = position
         self.pointer_id = 0
         self.buttons = 0
+        self.modifiers = 0
 
     def __init__(
         out self,
@@ -83,6 +87,10 @@ struct PointerEvent(ImplicitlyCopyable):
         self.position = position
         self.pointer_id = pointer_id
         self.buttons = buttons
+        self.modifiers = 0
+
+    def set_modifiers(mut self, modifiers: Int):
+        self.modifiers = modifiers
 
 
 struct TouchEvent(ImplicitlyCopyable):
@@ -297,6 +305,7 @@ struct Event(ImplicitlyCopyable):
         self = Event()
         self.kind = CLICK_KIND
         self.position = event.position
+        self.modifiers = event.modifiers
 
     def __init__(out self, event: PointerEvent):
         self = Event()
@@ -304,6 +313,7 @@ struct Event(ImplicitlyCopyable):
         self.position = event.position
         self.pointer_id = event.pointer_id
         self.buttons = event.buttons
+        self.modifiers = event.modifiers
 
     def __init__(out self, event: TouchEvent):
         self = Event()

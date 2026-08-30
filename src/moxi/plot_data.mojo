@@ -133,6 +133,9 @@ struct PlotDataSnapshot:
     def row_is_valid(self, index: Int) -> Bool:
         return self.table.row_is_valid(index)
 
+    def field_is_valid(self, field: String, index: Int) -> Bool:
+        return self.table.field_is_valid(field, index)
+
     def float_at(self, field: String, index: Int) -> Float32:
         return self.table.float_field_at(field, index)
 
@@ -162,6 +165,14 @@ struct PlotDataView:
 
     def row_count(self) -> Int:
         return len(self.row_indices)
+
+    def row_is_valid(self, index: Int) -> Bool:
+        var source_index = self.source_index(index)
+        return self.snapshot.row_is_valid(source_index)
+
+    def field_is_valid(self, field: String, index: Int) -> Bool:
+        var source_index = self.source_index(index)
+        return self.snapshot.field_is_valid(field, source_index)
 
     def source_index(self, index: Int) -> Int:
         if index < 0 or index >= self.row_count():

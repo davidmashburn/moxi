@@ -99,6 +99,8 @@ struct SvgSceneRenderer(SceneRenderer):
                 command.bounds.height,
                 "\" fill=\"",
                 _svg_color(command.fill),
+                "\" opacity=\"",
+                command.opacity,
                 "\"/> ",
             )
         elif command.kind == SCENE_ROUNDED_RECT:
@@ -115,6 +117,8 @@ struct SvgSceneRenderer(SceneRenderer):
                 command.corner_radius,
                 "\" fill=\"",
                 _svg_color(command.fill),
+                "\" opacity=\"",
+                command.opacity,
                 "\"/> ",
             )
         elif command.kind == SCENE_LINE:
@@ -131,6 +135,8 @@ struct SvgSceneRenderer(SceneRenderer):
                 _svg_color(command.stroke),
                 "\" stroke-width=\"",
                 command.stroke_width,
+                "\" opacity=\"",
+                command.opacity,
                 "\"/> ",
             )
         elif command.kind == SCENE_TEXT:
@@ -141,13 +147,29 @@ struct SvgSceneRenderer(SceneRenderer):
                 command.bounds.y + command.bounds.height,
                 "\" fill=\"",
                 _svg_color(command.fill),
+                "\" opacity=\"",
+                command.opacity,
                 "\">",
                 _svg_escape(command.text),
                 "</text>",
             )
-        elif command.kind == SCENE_PATH or command.kind == SCENE_IMAGE:
-            # Keep an observable placeholder until SVG path/image resources
-            # have a shared serialization contract.
+        elif command.kind == SCENE_PATH:
+            self.output += String(
+                "<path d=\"",
+                command.path_data,
+                "\" fill=\"",
+                _svg_color(command.fill),
+                "\" stroke=\"",
+                _svg_color(command.stroke),
+                "\" stroke-width=\"",
+                command.stroke_width,
+                "\" opacity=\"",
+                command.opacity,
+                "\"/> ",
+            )
+        elif command.kind == SCENE_IMAGE:
+            # Keep an observable placeholder until image resources have a
+            # shared serialization contract.
             self.output += String(
                 "<rect x=\"",
                 command.bounds.x,
@@ -159,7 +181,9 @@ struct SvgSceneRenderer(SceneRenderer):
                 command.bounds.height,
                 "\" fill=\"",
                 _svg_color(command.fill),
-                "\" opacity=\"0.35\"/> ",
+                "\" opacity=\"",
+                command.opacity * 0.35,
+                "\"/> ",
             )
         elif command.kind == SCENE_CLIP:
             self.clip_depth += 1
