@@ -327,3 +327,51 @@ Acceptance for the milestone:
 The explicit non-goals are the upstream C backend, GLFW windowing, integer
 geometry/color API, font wrappers, fixed-coordinate widgets, and a wholesale
 copy of the approximately partial chart/dock/DND implementations.
+
+## Reorder interaction follow-up — 2026-08-31
+
+The first collection milestone established stable-key selection and a direct
+reorder command. The next narrow slice is the renderer-independent gesture
+around that command. It should make the interaction contract explicit without
+coupling Moxi to a window backend, drag-and-drop payload format, or widget
+renderer.
+
+### Core contract
+
+- `CollectionSelection` remains the source of truth for keys, focus, and the
+  final collection mutation.
+- `ReorderInteraction` owns only one pointer gesture: press arms it, movement
+  at or beyond a configurable threshold promotes it to dragging, and release
+  emits a `ReorderResult` containing stable key and source/destination indices.
+- Pointer identity is checked on every update, destination, release, and
+  cancellation. A mismatched pointer cannot mutate the gesture.
+- Escape, pointer cancellation, invalid drop targets, and explicit cancel leave
+  the collection untouched. A terminal gesture must be reset before reuse.
+- The API uses normalized Moxi points/events and integer indices; platform drag
+  handles, timers, callbacks, painting, autoscroll, and payload serialization
+  remain outside this slice.
+
+### Implementation and evidence
+
+- Add `src/moxi/reorder.mojo` and export the state machine from the public
+  module.
+- Add focused lifecycle tests covering threshold behavior, pointer ownership,
+  stable-key drop results, cancellation, invalid targets, and reset behavior.
+- Extend the shared 10,000-row interaction scenario and benchmark so the
+  gesture is exercised together with the collection reorder command.
+- Document the contract and the staged boundary in the API and performance
+  notes.
+
+### Acceptance
+
+The slice is complete when a drag can be armed, promoted, redirected, dropped,
+or cancelled deterministically; a click-sized movement never reorders; the
+result can be applied through `CollectionSelection.reorder`; focused and full
+test suites pass; and the benchmark reports the shared workload without
+allocating per-row gesture state.
+
+### Next decision point
+
+After this slice, evaluate the upstream dock tree as a separate retained layout
+module. Do not combine docking, autoscroll, or platform DND into this gesture
+state machine until the collection contract has a real consumer.
