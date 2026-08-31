@@ -44,10 +44,10 @@ def action(target: Int) -> Event:
 
 def main() raises:
     var catalog = DemoCatalog()
-    test_check(catalog.count() == 18)
-    test_check(catalog.visible_count("plot", DEMO_CATEGORY_ALL) == 3)
-    test_check(catalog.visible_count("PLOT", DEMO_CATEGORY_ALL) == 3)
-    test_check(catalog.visible_count("", DEMO_CATEGORY_PLOTTING) == 3)
+    test_check(catalog.count() == 19)
+    test_check(catalog.visible_count("plot", DEMO_CATEGORY_ALL) == 4)
+    test_check(catalog.visible_count("PLOT", DEMO_CATEGORY_ALL) == 4)
+    test_check(catalog.visible_count("", DEMO_CATEGORY_PLOTTING) == 4)
     test_check(catalog.entry(0).source == "examples/hello_window.mojo")
     test_check(catalog.entry(11).id == DEMO_PLOT_ID)
 
@@ -88,7 +88,7 @@ def main() raises:
     # routed through the same focus path used by the native AppKit window.
     test_check(app.dispatch(Event(TextInputEvent("plot"))))
     test_check(app.component.search.text == "plot")
-    test_check(app.component.visible_count() == 3)
+    test_check(app.component.visible_count() == 4)
     test_check(app.component.selected_id == DEMO_PLOT_ID)
     test_check(app.view.bounds_for(DEMO_ENTRY_VIEW_BASE + DEMO_PLOT_ID).width > 0.0)
     test_check(app.view.bounds_for(DEMO_ENTRY_VIEW_BASE + DEMO_PLOT_GALLERY_ID).width > 0.0)

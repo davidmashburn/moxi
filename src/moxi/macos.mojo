@@ -35,9 +35,11 @@ from .event import (
     SemanticActionEvent,
     TextInputEvent,
 )
-from .geometry import Point, Size
+from .fractal import FractalCanvasPainter
+from .geometry import Point, Rect, Size
 from .paint import PANEL_KIND, SURFACE_KIND, PaintCommand, Renderer
 from .resources import ImageResource
+from .style import Color
 from .view import (
     BUTTON_KIND,
     CHECKBOX_KIND,
@@ -590,6 +592,90 @@ struct MacOSRenderer(Renderer):
     def draw_separator(mut self, command: PaintCommand) raises:
         """Present a native separator instead of a filled panel."""
         self.draw_native_widget(command, NATIVE_WIDGET_SEPARATOR)
+
+
+struct MacOSCanvasPainter(FractalCanvasPainter):
+    """AppKit painter for a dense custom canvas owned by a Moxi component."""
+
+    def __init__(out self):
+        pass
+
+    def begin(mut self, clip: Rect) raises:
+        external_call["moxi_window_begin_custom_paint", NoneType]()
+        external_call["moxi_window_set_custom_clip", NoneType](
+            clip.x,
+            clip.y,
+            clip.width,
+            clip.height,
+        )
+
+    def end(mut self) raises:
+        pass
+
+    def fill_rect(
+        mut self,
+        bounds: Rect,
+        fill: Color,
+        border: Color,
+        border_width: Float32,
+    ) raises:
+        external_call["moxi_window_add_custom_rect", NoneType](
+            bounds.x,
+            bounds.y,
+            bounds.width,
+            bounds.height,
+            fill.red,
+            fill.green,
+            fill.blue,
+            fill.alpha,
+            border.red,
+            border.green,
+            border.blue,
+            border.alpha,
+            border_width,
+        )
+
+    def line(
+        mut self,
+        start: Point,
+        end: Point,
+        color: Color,
+        width: Float32,
+    ) raises:
+        external_call["moxi_window_add_custom_line", NoneType](
+            start.x,
+            start.y,
+            end.x,
+            end.y,
+            color.red,
+            color.green,
+            color.blue,
+            color.alpha,
+            width,
+        )
+
+    def circle(
+        mut self,
+        center: Point,
+        radius: Float32,
+        fill: Color,
+        stroke: Color,
+        stroke_width: Float32,
+    ) raises:
+        external_call["moxi_window_add_custom_circle", NoneType](
+            center.x,
+            center.y,
+            radius,
+            fill.red,
+            fill.green,
+            fill.blue,
+            fill.alpha,
+            stroke.red,
+            stroke.green,
+            stroke.blue,
+            stroke.alpha,
+            stroke_width,
+        )
 
 
 struct MacOSClipboard(ClipboardBackend):

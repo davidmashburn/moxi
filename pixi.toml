@@ -35,6 +35,8 @@ composed-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o 
 composed-demo = { cmd = "./dist/moxi-composed-demo", depends-on = ["composed-demo-build"] }
 demo-browser-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/demo_browser.mojo -o dist/moxi-demo-browser", depends-on = ["native-object"] }
 demo-browser = { cmd = "./dist/moxi-demo-browser", depends-on = ["demo-browser-build"] }
+interactive-fractal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/interactive_fractal.mojo -o dist/moxi-interactive-fractal-demo", depends-on = ["native-object"] }
+interactive-fractal-demo = { cmd = "./dist/moxi-interactive-fractal-demo", depends-on = ["interactive-fractal-demo-build"] }
 demo-catalog-check = "bash scripts/demo_catalog_check.sh"
 animation-demo = "mojo run -I src examples/animation.mojo"
 plot-demo = "mojo run -I src examples/plot.mojo"

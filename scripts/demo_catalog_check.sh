@@ -29,6 +29,7 @@ for task in \
   plot-demo \
   plot-gallery \
   plot-svg \
+  interactive-fractal-demo \
   metal-demo \
   metal-window-demo \
   text-demo \

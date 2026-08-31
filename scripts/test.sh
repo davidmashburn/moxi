@@ -18,6 +18,7 @@ tests=(
   tests/wx_style.mojo
   tests/wx_advanced.mojo
   tests/demo_browser.mojo
+  tests/fractal.mojo
   tests/diff.mojo
   tests/constraints.mojo
   tests/animation.mojo

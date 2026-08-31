@@ -70,10 +70,11 @@ comptime DEMO_ANIMATION_ID = 11
 comptime DEMO_PLOT_ID = 12
 comptime DEMO_PLOT_GALLERY_ID = 13
 comptime DEMO_PLOT_SVG_ID = 14
-comptime DEMO_METAL_SCENE_ID = 15
-comptime DEMO_METAL_WINDOW_ID = 16
-comptime DEMO_CORETEXT_ID = 17
-comptime DEMO_HARFBUZZ_ID = 18
+comptime DEMO_FRACTAL_ID = 15
+comptime DEMO_METAL_SCENE_ID = 16
+comptime DEMO_METAL_WINDOW_ID = 17
+comptime DEMO_CORETEXT_ID = 18
+comptime DEMO_HARFBUZZ_ID = 19
 
 comptime DEMO_TAB_OVERVIEW = 0
 comptime DEMO_TAB_SOURCE = 1
@@ -266,7 +267,7 @@ struct DemoCatalog:
     var entries: List[DemoEntry]
 
     def __init__(out self):
-        self.entries = List[DemoEntry](capacity=18)
+        self.entries = List[DemoEntry](capacity=19)
         self.entries.append(DemoEntry(
             DEMO_HELLO_WINDOW_ID,
             "Hello Window",
@@ -420,6 +421,17 @@ struct DemoCatalog:
             DEMO_PAGE_STATIC,
             False,
             "var renderer = SvgSceneRenderer(640, 420)\nrenderer.render_scene(scene)\nprint(renderer.markup())",
+        ))
+        self.entries.append(DemoEntry(
+            DEMO_FRACTAL_ID,
+            "Interactive Line Fractal",
+            DEMO_CATEGORY_PLOTTING,
+            "An interactive plotting port of Xilem's draggable line-fractal generator with 27 presets and incremental rendering.",
+            "examples/interactive_fractal.mojo",
+            "interactive-fractal-demo",
+            DEMO_PAGE_STATIC,
+            False,
+            "var app = App[FractalState](FractalState(), bounds)\napp.component.advance_render()\napp.component.paint_canvas(painter, canvas, clip)",
         ))
         self.entries.append(DemoEntry(
             DEMO_METAL_SCENE_ID,

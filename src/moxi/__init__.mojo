@@ -361,6 +361,27 @@ from .scene import (
     SceneRenderer,
     SceneRecorder,
 )
+from .fractal import (
+    FRACTAL_CANVAS_HEIGHT,
+    FRACTAL_CANVAS_ID,
+    FRACTAL_CANVAS_WIDTH,
+    FRACTAL_SCROLL_ID,
+    FRACTAL_DEPTH_UP_ID,
+    FRACTAL_GUIDES_ID,
+    FRACTAL_GROUP_CLASSIC,
+    FRACTAL_GROUP_EXPERIMENT,
+    FRACTAL_MAX_DEPTH,
+    FRACTAL_MAX_RENDERED_SEGMENTS,
+    FRACTAL_PRESET_BUTTON_BASE,
+    FRACTAL_PRESET_COUNT,
+    FractalCanvasPainter,
+    FractalGeometry,
+    FractalSegment,
+    FractalState,
+    fractal_preset_group,
+    fractal_preset_geometry,
+    fractal_preset_name,
+)
 from .software import SoftwareSceneRenderer
 from .invalidation import (
     INVALIDATE_ACCESSIBILITY,
@@ -635,6 +656,7 @@ from .demo_browser import (
     DEMO_PLOT_ID,
     DEMO_PLOT_GALLERY_ID,
     DEMO_PLOT_SVG_ID,
+    DEMO_FRACTAL_ID,
     DEMO_METAL_SCENE_ID,
     DEMO_METAL_WINDOW_ID,
     DEMO_CORETEXT_ID,
