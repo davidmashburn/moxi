@@ -171,6 +171,50 @@ from .control_state import (
     TabsState,
     TreeState,
 )
+from .collection_state import (
+    COLLECTION_NONE,
+    COLLECTION_SINGLE,
+    COLLECTION_MULTIPLE,
+    COLUMN_SORT_NONE,
+    COLUMN_SORT_ASCENDING,
+    COLUMN_SORT_DESCENDING,
+    CollectionColumn,
+    CollectionSelection,
+    ReorderResult,
+    TreeCollectionState,
+    TreeNodeRecord,
+)
+from .scrollbar import (
+    SCROLLBAR_VERTICAL,
+    SCROLLBAR_HORIZONTAL,
+    SCROLLBAR_HIT_NONE,
+    SCROLLBAR_HIT_THUMB,
+    SCROLLBAR_HIT_TRACK,
+    SCROLLBAR_NO_COMMAND,
+    SCROLLBAR_STEP_BACKWARD,
+    SCROLLBAR_STEP_FORWARD,
+    SCROLLBAR_PAGE_BACKWARD,
+    SCROLLBAR_PAGE_FORWARD,
+    SCROLLBAR_HOME,
+    SCROLLBAR_END,
+    ScrollbarGeometry,
+    ScrollbarState,
+)
+from .popup import (
+    POPUP_NONE,
+    POPUP_COMBO,
+    POPUP_MENU,
+    POPUP_CONTEXT_MENU,
+    POPUP_DIALOG,
+    POPUP_PLACE_BELOW,
+    POPUP_PLACE_ABOVE,
+    POPUP_PLACE_RIGHT,
+    POPUP_PLACE_LEFT,
+    POPUP_NO_ACTION,
+    PopupEntry,
+    PopupLayerState,
+    place_popup,
+)
 from .app import COUNTER_INCREMENT_ACTION, CounterState
 from .alignment import AlignmentState
 from .app_runtime import App
@@ -492,7 +536,12 @@ from .native_widgets import (
     native_widget_kind,
 )
 from .targets import AndroidBackend, IOSBackend, WebBackend
-from .scenarios import make_plot_data_fixture, make_plot_scenario
+from .scenarios import (
+    InteractionScenario,
+    make_interaction_foundation_scenario,
+    make_plot_data_fixture,
+    make_plot_scenario,
+)
 from .performance import (
     FRAME_BUDGET_60_HZ_MS,
     FRAME_BUDGET_120_HZ_MS,

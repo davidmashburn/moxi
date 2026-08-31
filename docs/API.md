@@ -51,7 +51,14 @@ rebuilds. `ScrollState`, `VirtualListState`, and `visible_range()` provide
 portable range math; `VirtualRecycler` and `VirtualizedList[Builder]` add
 stable-key overscan slots, recycling, measured variable heights,
 prefix-offset lookup, anchor-preserving updates, clamped offsets, and
-`ensure_visible()`. Scrollbar painting remains a follow-up.
+`ensure_visible()`. `CollectionSelection`, `CollectionColumn`, and
+`TreeCollectionState` add stable-key focus/selection, column metadata, tree
+disclosure, keyboard navigation, and reorder results. `ScrollbarState` adds
+renderer-independent thumb geometry and step/page movement for fixed or
+variable content; scrollbar painting and final viewport integration remain a
+follow-up. `PopupLayerState` provides nested combo/menu/context-menu/dialog
+layers with placement, keyboard dismissal, stable action IDs, and explicit
+focus restoration.
 
 The layout constants are `ALIGN_*`, `JUSTIFY_*`, `COLUMN_AXIS`, and
 `ROW_AXIS`. Geometry is represented by `Point`, `Size`, and `Rect`.

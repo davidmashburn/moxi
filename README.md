@@ -373,6 +373,19 @@ a registered typed executor; plain `invoke()` rejects executor-less work.
 Exclusive authorizations return a lease token that must be supplied to
 `complete()`.
 
+### Experimental collection interaction foundation
+
+The post-0.5 interaction slice adds renderer-independent contracts for features
+mined from MojoGUI-UI: `CollectionSelection` retains focus and selected rows by
+stable key across reconciliation and reorder; `TreeCollectionState` tracks
+visible disclosure state; `ScrollbarState` computes thumb geometry and step/page
+commands for fixed or variable content; and `PopupLayerState` manages nested
+combo/menu/dialog layers, keyboard dismissal, stable action IDs, and focus
+restoration. These are state and geometry primitives, not painted collection
+widgets or native menu/dialog ownership. The shared 10,000-row workload is
+available from `make_interaction_foundation_scenario()` and the repeatable
+benchmark is `pixi run interaction-benchmark`.
+
 `ColumnView` keeps explicit preferred sizes as the default. Call
 `set_intrinsic_width()` or `set_intrinsic_height()` on a node to opt into the
 stable `measure_text()` estimate. Call `set_wrap()` or `set_wrap_text()` to

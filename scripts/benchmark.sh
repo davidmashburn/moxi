@@ -27,6 +27,7 @@ run_case "retained layout/paint/scene" mojo run -I src benchmarks/layout.mojo
 run_case "portable plot scene" mojo run -I src benchmarks/plotting.mojo
 run_case "statistical and linked plot scene" mojo run -I src benchmarks/plotting_analytics.mojo
 run_case "large plot scene generation" mojo run -I src benchmarks/plotting_large.mojo
+run_case "collection interaction foundation" mojo run -I src benchmarks/interaction_foundation.mojo
 pixi run plot-interaction-benchmark-build
 run_case "indexed plot interactions" ./dist/moxi-plot-interaction-benchmark
 pixi run plot-metal-benchmark-build

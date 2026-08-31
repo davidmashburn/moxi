@@ -51,6 +51,7 @@ plot-benchmark = "mojo run -I src benchmarks/plotting.mojo"
 plot-analytics-benchmark = "mojo run -I src benchmarks/plotting_analytics.mojo"
 plot-large-benchmark = "mojo run -I src benchmarks/plotting_large.mojo"
 plot-stress-benchmark = "mojo run -I src benchmarks/plotting_stress.mojo"
+interaction-benchmark = "mojo run -I src benchmarks/interaction_foundation.mojo"
 plot-interaction-benchmark-build = { cmd = "mojo build -I src -Xlinker native/benchmark_clock.o benchmarks/plotting_interaction.mojo -o dist/moxi-plot-interaction-benchmark", depends-on = ["fractal-benchmark-clock"] }
 plot-interaction-benchmark = { cmd = "./dist/moxi-plot-interaction-benchmark", depends-on = ["plot-interaction-benchmark-build"] }
 plot-svg = "mojo run -I src examples/plot_svg.mojo"

@@ -55,6 +55,7 @@ tests=(
   tests/reactivity_tasks.mojo
   tests/input_routing.mojo
   tests/control_state.mojo
+  tests/interaction_foundation.mojo
   tests/catalog_state.mojo
   tests/style_theme.mojo
   tests/widget_catalog.mojo

@@ -13,10 +13,10 @@ pixi run benchmark
 ```
 
 The harness runs the retained layout/reconcile/paint path, the interactive
-fractal component/canvas path, the shared plotting scenario,
-statistical/linked plotting, large-data plotting, the Metal plot render packet,
-and the synchronized offscreen Metal scene. Each workload runs three times by
-default.
+fractal component/canvas path, the shared collection interaction scenario, the
+shared plotting scenario, statistical/linked plotting, large-data plotting,
+the Metal plot render packet, and the synchronized offscreen Metal scene. Each
+workload runs three times by default.
 Use one run for a quick local check or choose another count:
 
 ```sh
@@ -40,6 +40,7 @@ the Metal binary is compiled once before its measured runs.
 | Metal plot packet | ordered plot batches, viewport LOD, one native transfer per batch, GPU line/instance expansion, complete chrome composition | source/emitted points, line segments, instances, packet bytes, ordered batches, GPU submissions, vertices, CPU/GPU/frame time, checksum |
 | Statistical/link plot | shared typed fixture, histogram/box/heatmap/regression transforms, linked stable-key selection | derived rows, commands, selected keys, operations/frame, checksum |
 | Large plot generation | 10,000-point line with extrema-preserving LOD and 100,000-point scatter with bounded representatives | source rows, rendered representatives, command counts, operations/frame |
+| Collection interaction foundation | 10,000 stable-key rows, selection/navigation, scrollbar geometry, popup state, and bounded recycler slots | rows, passes, active slots, slot pool, selected keys, thumb extent |
 | Scatter stress | 1,000,000 source rows with a 50,000-point geometry budget and viewport-aware packet reduction | source rows, emitted commands/packet instances, packet bytes, wall-clock process time |
 | Indexed plot interactions | 100,000- and 1,000,000-row hover queries, packet-cache reuse, and brush selection | cold index build, hot query time, candidates, index rebuilds, packet rebuilds, selected rows |
 | Offscreen Metal | scene batching, ASCII geometry plus CoreText Unicode texture text, bounded text-texture caching, file-backed texture upload/draw, curve/arc flattening, concave/compound/self-intersecting tessellation, CPU vertex upload, synchronized completion, dynamic buffer growth | frames, vertices/frame, submissions, text glyphs, text textures, cache hits, rasterizations, images, paths, capacity, reallocations, overflow count, CPU encode/wait/frame time, GPU time/availability, checksum |
