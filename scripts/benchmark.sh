@@ -28,6 +28,9 @@ run_case "portable plot scene" mojo run -I src benchmarks/plotting.mojo
 run_case "statistical and linked plot scene" mojo run -I src benchmarks/plotting_analytics.mojo
 run_case "large plot scene generation" mojo run -I src benchmarks/plotting_large.mojo
 
+pixi run fractal-benchmark-build
+run_case "interactive fractal component and canvas commands" ./dist/moxi-fractal-benchmark
+
 # Compile once so the Metal measurements focus on the workload rather than
 # repeatedly invoking the Mojo compiler.
 pixi run metal-benchmark-build

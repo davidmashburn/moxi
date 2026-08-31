@@ -2,6 +2,13 @@
 
 ## Unreleased — post-0.5 experimental slices
 
+- Moved the interactive fractal canvas onto the macOS Metal geometry path. The
+  regular AppKit host still owns controls, input, and accessibility, while a
+  transparent embedded `CAMetalLayer` handles the dense canvas; the fallback
+  remains available when Metal cannot attach.
+- Extended the fractal benchmark to report CPU line geometry/tessellation,
+  Metal encoding, GPU completion, synchronized frame time, vertex counts, and
+  draw submissions separately.
 - Hardened the macOS Metal scene renderer with one-submission batching,
   reusable/growing vertex buffers, alpha blending, rounded rectangles,
   interpolated gradients, nested clips, transform/layer state, and observable

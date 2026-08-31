@@ -104,6 +104,10 @@ comptime FRACTAL_TARGET_BASELINE: Int = 501
 trait FractalCanvasPainter:
     """Small host-facing drawing contract used by ``FractalState``."""
 
+    def set_canvas_bounds(mut self, bounds: Rect) raises:
+        """Inform a host painter where the canvas lives in window coordinates."""
+        pass
+
     def begin(mut self, clip: Rect) raises:
         pass
 
@@ -136,6 +140,14 @@ trait FractalCanvasPainter:
         stroke: Color,
         stroke_width: Float32,
     ) raises:
+        pass
+
+    def begin_line_geometry(mut self) raises:
+        """Start timing or batching the dense terminal-line portion."""
+        pass
+
+    def end_line_geometry(mut self) raises:
+        """Finish timing or batching the dense terminal-line portion."""
         pass
 
 
@@ -1293,6 +1305,7 @@ struct FractalState(Component):
         clip_bounds: Rect,
     ) raises:
         """Paint the live snapshot into a host canvas."""
+        painter.set_canvas_bounds(canvas_bounds)
         var clip = canvas_bounds.intersection(clip_bounds)
         painter.begin(clip)
         if clip.width <= 0.0 or clip.height <= 0.0:
@@ -1316,6 +1329,7 @@ struct FractalState(Component):
             Color(204.0 / 255.0, 188.0 / 255.0, 160.0 / 255.0, 1.0),
             1.0,
         )
+        painter.begin_line_geometry()
         for index in range(len(self.rendered_segments)):
             var segment = self.rendered_segments[index]
             var color = Color(28.0 / 255.0, 96.0 / 255.0, 99.0 / 255.0, 1.0)
@@ -1327,6 +1341,7 @@ struct FractalState(Component):
                 color,
                 1.0,
             )
+        painter.end_line_geometry()
 
         var baseline_start = Point(
             canvas_bounds.x + self.geometry.baseline_start.x,

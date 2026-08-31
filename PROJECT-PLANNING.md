@@ -171,6 +171,10 @@ layout, component, capability, and plotting code.
   readback/checksum test seams.
 - Add repeatable CPU and GPU benchmark cases and use evidence to improve hot
   paths (batching, command storage, invalidation, and resource reuse).
+- Route dense component-owned canvases through the Metal scene path when a
+  device is available, embedding a transparent `CAMetalLayer` in the regular
+  AppKit host while preserving native controls, input, accessibility, and an
+  explicit AppKit fallback.
 - Keep malformed/overlarge paths, missing resources, and remaining typography
   limits explicit in counters and fallback behavior.
 

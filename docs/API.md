@@ -85,7 +85,10 @@ for the platform mapping and current fidelity limits.
 `backend_capabilities(kind)` reports the shipped headless and AppKit targets
 and explicit contracts for GPU, Windows, Linux, iOS, Android, and Web.
 `MacOSMetalRenderer` reports runtime readiness for the macOS GPU path, while
-`MacOSMetalWindow` presents scenes through a CAMetalLayer. Its scene path
+`MacOSMetalWindow` presents scenes through a CAMetalLayer. The
+`MacOSMetalCanvasPainter` adapts the same Metal geometry path to a dense
+component-owned canvas embedded in the regular AppKit host; it keeps the host
+view responsible for input, controls, and accessibility. Its scene path
 covers geometry, ASCII fast-path glyphs, CoreText Unicode text textures,
 registered file-backed images, curve/arc-flattened paths, concave polygon
 fills, and bounded even-odd compound/self-intersecting path fills; it also

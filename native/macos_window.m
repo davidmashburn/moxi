@@ -378,6 +378,19 @@ static NSColor *moxi_color(const float color[4]) {
                                      alpha:color[3]];
 }
 
+static BOOL moxi_custom_line_style_equal(int left, int right) {
+    if (moxi_custom_line_widths[left] != moxi_custom_line_widths[right]) {
+        return NO;
+    }
+    for (int component = 0; component < 4; component++) {
+        if (moxi_custom_line_colors[left][component] !=
+            moxi_custom_line_colors[right][component]) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
 static void moxi_begin_clip(BOOL enabled, NSRect frame) {
     if (enabled) {
         [NSGraphicsContext saveGraphicsState];
@@ -1820,9 +1833,6 @@ static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
 }
 
 static void moxi_draw_custom_commands(void) {
-    if (moxi_canvas == nil) {
-        return;
-    }
     moxi_begin_clip(moxi_custom_clip_enabled, moxi_custom_clip_frame);
 
     for (int i = 0; i < moxi_custom_rect_count; i++) {
@@ -1838,13 +1848,25 @@ static void moxi_draw_custom_commands(void) {
         }
     }
 
-    for (int i = 0; i < moxi_custom_line_count; i++) {
-        [moxi_color(moxi_custom_line_colors[i]) setStroke];
+    int line_index = 0;
+    while (line_index < moxi_custom_line_count) {
+        int batch_end = line_index + 1;
+        BOOL can_batch = moxi_custom_line_colors[line_index][3] >= 1.0;
+        while (can_batch && batch_end < moxi_custom_line_count &&
+               moxi_custom_line_colors[batch_end][3] >= 1.0 &&
+               moxi_custom_line_style_equal(line_index, batch_end)) {
+            batch_end += 1;
+        }
+
+        [moxi_color(moxi_custom_line_colors[line_index]) setStroke];
         NSBezierPath *path = [NSBezierPath bezierPath];
-        [path moveToPoint:moxi_custom_line_starts[i]];
-        [path lineToPoint:moxi_custom_line_ends[i]];
-        [path setLineWidth:moxi_custom_line_widths[i]];
+        [path setLineWidth:moxi_custom_line_widths[line_index]];
+        for (int i = line_index; i < batch_end; i++) {
+            [path moveToPoint:moxi_custom_line_starts[i]];
+            [path lineToPoint:moxi_custom_line_ends[i]];
+        }
         [path stroke];
+        line_index = batch_end;
     }
 
     for (int i = 0; i < moxi_custom_circle_count; i++) {
@@ -1869,6 +1891,42 @@ static void moxi_draw_custom_commands(void) {
         }
     }
     moxi_end_clip(moxi_custom_clip_enabled);
+}
+
+double moxi_window_benchmark_custom_paint(int iterations) {
+    if (iterations <= 0) {
+        return 0.0;
+    }
+    @autoreleasepool {
+        NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc]
+            initWithBitmapDataPlanes:NULL
+                          pixelsWide:920
+                          pixelsHigh:620
+                       bitsPerSample:8
+                     samplesPerPixel:4
+                            hasAlpha:YES
+                            isPlanar:NO
+                      colorSpaceName:NSDeviceRGBColorSpace
+                         bitmapFormat:0
+                          bytesPerRow:0
+                         bitsPerPixel:0];
+        if (bitmap == nil) {
+            return 0.0;
+        }
+        NSGraphicsContext *context = [NSGraphicsContext graphicsContextWithBitmapImageRep:bitmap];
+        if (context == nil) {
+            return 0.0;
+        }
+        CFTimeInterval start = CFAbsoluteTimeGetCurrent();
+        for (int iteration = 0; iteration < iterations; iteration++) {
+            [NSGraphicsContext saveGraphicsState];
+            [NSGraphicsContext setCurrentContext:context];
+            moxi_draw_custom_commands();
+            [context flushGraphics];
+            [NSGraphicsContext restoreGraphicsState];
+        }
+        return (CFAbsoluteTimeGetCurrent() - start) * 1000.0;
+    }
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -2829,6 +2887,12 @@ void moxi_window_begin_frame(void) {
     }
 }
 
+/* Optional GPU canvas hosts use this opaque handle to attach a CAMetalLayer
+ * without making the AppKit-only window object depend on Metal symbols. */
+void *moxi_window_canvas_view(void) {
+    return (__bridge void *)moxi_canvas;
+}
+
 void moxi_window_begin_custom_paint(void) {
     moxi_reset_custom_commands();
     if (moxi_canvas != nil) {
@@ -2883,9 +2947,6 @@ void moxi_window_add_custom_rect(
     );
     moxi_custom_rect_stroke_widths[index] = stroke_width;
     moxi_custom_rect_count += 1;
-    if (moxi_canvas != nil) {
-        [moxi_canvas setNeedsDisplay:YES];
-    }
 }
 
 void moxi_window_add_custom_line(
@@ -2909,9 +2970,6 @@ void moxi_window_add_custom_line(
     moxi_copy_color(moxi_custom_line_colors[index], red, green, blue, alpha);
     moxi_custom_line_widths[index] = width > 0.0 ? width : 1.0;
     moxi_custom_line_count += 1;
-    if (moxi_canvas != nil) {
-        [moxi_canvas setNeedsDisplay:YES];
-    }
 }
 
 void moxi_window_add_custom_circle(
@@ -2951,9 +3009,6 @@ void moxi_window_add_custom_circle(
     );
     moxi_custom_circle_stroke_widths[index] = stroke_width;
     moxi_custom_circle_count += 1;
-    if (moxi_canvas != nil) {
-        [moxi_canvas setNeedsDisplay:YES];
-    }
 }
 
 void moxi_window_end_frame(void) {

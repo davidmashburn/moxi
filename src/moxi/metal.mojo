@@ -10,6 +10,7 @@ from std.collections import List
 from std.ffi import external_call
 
 from .backend import BACKEND_GPU, BackendCapabilities, backend_capabilities
+from .fractal import FractalCanvasPainter
 from .scene import (
     SCENE_CLIP,
     SCENE_IMAGE,
@@ -469,6 +470,329 @@ struct MacOSMetalRenderer(SceneRenderer):
         if self.initialized:
             external_call["moxi_metal_shutdown", NoneType]()
             self.initialized = False
+
+
+struct MacOSMetalCanvasPainter(FractalCanvasPainter):
+    """GPU painter for dense component-owned canvases.
+
+    The parent AppKit view still owns input, accessibility, and native
+    controls.  A transparent CAMetalLayer is positioned over the canvas and
+    receives only the canvas drawing commands, keeping the dense path out of
+    AppKit's immediate-mode stroke API.
+    """
+
+    var width: Int
+    var height: Int
+    var initialized: Bool
+    var attached: Bool
+    var origin: Point
+    var clip_pushed: Bool
+    var frame_count_value: Int
+    var last_line_geometry_ms: Float32
+    var last_cpu_encode_ms: Float32
+    var last_cpu_wait_ms: Float32
+    var last_gpu_ms: Float32
+    var last_frame_ms: Float32
+    var gpu_timing_available_value: Bool
+    var total_line_geometry_ms: Float32
+    var total_cpu_encode_ms: Float32
+    var total_cpu_wait_ms: Float32
+    var total_gpu_ms: Float32
+    var total_frame_ms: Float32
+
+    def __init__(out self, width: Int = 920, height: Int = 620):
+        self.width = width if width > 0 else 1
+        self.height = height if height > 0 else 1
+        self.initialized = external_call["moxi_metal_init", Int32](
+            Int32(self.width), Int32(self.height)
+        ) != 0
+        self.attached = False
+        self.origin = Point(0.0, 0.0)
+        self.clip_pushed = False
+        self.frame_count_value = 0
+        self.last_line_geometry_ms = 0.0
+        self.last_cpu_encode_ms = 0.0
+        self.last_cpu_wait_ms = 0.0
+        self.last_gpu_ms = 0.0
+        self.last_frame_ms = 0.0
+        self.gpu_timing_available_value = False
+        self.total_line_geometry_ms = 0.0
+        self.total_cpu_encode_ms = 0.0
+        self.total_cpu_wait_ms = 0.0
+        self.total_gpu_ms = 0.0
+        self.total_frame_ms = 0.0
+
+    def is_ready(self) -> Bool:
+        """Return whether a Metal device and renderer are available."""
+        return self.initialized
+
+    def attach_to_window(mut self, bounds: Rect) raises -> Bool:
+        """Position the transparent GPU canvas in the regular AppKit host."""
+        self.origin = Point(bounds.x, bounds.y)
+        var next_width = Int(bounds.width) if bounds.width > 0.0 else 1
+        var next_height = Int(bounds.height) if bounds.height > 0.0 else 1
+        if not self.initialized:
+            self.initialized = external_call["moxi_metal_init", Int32](
+                Int32(next_width), Int32(next_height)
+            ) != 0
+        if not self.initialized:
+            self.attached = False
+            return False
+        _ = external_call["moxi_metal_resize", Int32](
+            Int32(next_width), Int32(next_height)
+        )
+        self.width = next_width
+        self.height = next_height
+        self.attached = external_call["moxi_metal_attach_canvas", Int32](
+            bounds.x,
+            bounds.y,
+            bounds.width,
+            bounds.height,
+        ) != 0
+        return self.attached
+
+    def set_canvas_bounds(mut self, bounds: Rect) raises:
+        _ = self.attach_to_window(bounds)
+
+    def begin(mut self, clip: Rect) raises:
+        self.clip_pushed = False
+        if not self.initialized:
+            return
+        external_call["moxi_metal_begin", NoneType](0.0, 0.0, 0.0, 0.0)
+        var local_clip = Rect(
+            clip.x - self.origin.x,
+            clip.y - self.origin.y,
+            clip.width,
+            clip.height,
+        )
+        if local_clip.width > 0.0 and local_clip.height > 0.0:
+            external_call["moxi_metal_push_clip", NoneType](
+                local_clip.x,
+                local_clip.y,
+                local_clip.width,
+                local_clip.height,
+            )
+            self.clip_pushed = True
+
+    def end(mut self) raises:
+        if not self.initialized:
+            return
+        if self.clip_pushed:
+            external_call["moxi_metal_pop_clip", NoneType]()
+            self.clip_pushed = False
+        external_call["moxi_metal_end", NoneType]()
+        self.last_line_geometry_ms = external_call[
+            "moxi_metal_line_geometry_time_ms_value", Float32
+        ]()
+        self.last_cpu_encode_ms = external_call[
+            "moxi_metal_cpu_encode_time_ms_value", Float32
+        ]()
+        self.last_cpu_wait_ms = external_call[
+            "moxi_metal_cpu_wait_time_ms_value", Float32
+        ]()
+        self.last_gpu_ms = external_call["moxi_metal_gpu_time_ms_value", Float32]()
+        self.last_frame_ms = external_call["moxi_metal_frame_time_ms_value", Float32]()
+        self.gpu_timing_available_value = external_call[
+            "moxi_metal_gpu_timing_available_value", Int32
+        ]() != 0
+        self.frame_count_value += 1
+        self.total_line_geometry_ms += self.last_line_geometry_ms
+        self.total_cpu_encode_ms += self.last_cpu_encode_ms
+        self.total_cpu_wait_ms += self.last_cpu_wait_ms
+        self.total_gpu_ms += self.last_gpu_ms
+        self.total_frame_ms += self.last_frame_ms
+
+    def begin_line_geometry(mut self) raises:
+        if self.initialized:
+            external_call["moxi_metal_begin_line_geometry", NoneType]()
+
+    def end_line_geometry(mut self) raises:
+        if self.initialized:
+            external_call["moxi_metal_end_line_geometry", NoneType]()
+
+    def fill_rect(
+        mut self,
+        bounds: Rect,
+        fill: Color,
+        border: Color,
+        border_width: Float32,
+    ) raises:
+        if not self.initialized:
+            return
+        var local = Rect(
+            bounds.x - self.origin.x,
+            bounds.y - self.origin.y,
+            bounds.width,
+            bounds.height,
+        )
+        external_call["moxi_metal_draw_rect", NoneType](
+            local.x,
+            local.y,
+            local.width,
+            local.height,
+            fill.red,
+            fill.green,
+            fill.blue,
+            fill.alpha,
+        )
+        if border_width > 0.0 and border.alpha > 0.0:
+            self.line(
+                Point(bounds.x, bounds.y),
+                Point(bounds.x + bounds.width, bounds.y),
+                border,
+                border_width,
+            )
+            self.line(
+                Point(bounds.x + bounds.width, bounds.y),
+                Point(bounds.x + bounds.width, bounds.y + bounds.height),
+                border,
+                border_width,
+            )
+            self.line(
+                Point(bounds.x + bounds.width, bounds.y + bounds.height),
+                Point(bounds.x, bounds.y + bounds.height),
+                border,
+                border_width,
+            )
+            self.line(
+                Point(bounds.x, bounds.y + bounds.height),
+                Point(bounds.x, bounds.y),
+                border,
+                border_width,
+            )
+
+    def line(
+        mut self,
+        start: Point,
+        end: Point,
+        color: Color,
+        width: Float32,
+    ) raises:
+        if not self.initialized:
+            return
+        external_call["moxi_metal_draw_line", NoneType](
+            start.x - self.origin.x,
+            start.y - self.origin.y,
+            end.x - self.origin.x,
+            end.y - self.origin.y,
+            width,
+            color.red,
+            color.green,
+            color.blue,
+            color.alpha,
+        )
+
+    def circle(
+        mut self,
+        center: Point,
+        radius: Float32,
+        fill: Color,
+        stroke: Color,
+        stroke_width: Float32,
+    ) raises:
+        if not self.initialized:
+            return
+        var x = center.x - self.origin.x
+        var y = center.y - self.origin.y
+        if radius > 0.0 and fill.alpha > 0.0:
+            external_call["moxi_metal_draw_circle", NoneType](
+                x,
+                y,
+                radius,
+                fill.red,
+                fill.green,
+                fill.blue,
+                fill.alpha,
+            )
+        if radius > 0.0 and stroke_width > 0.0 and stroke.alpha > 0.0:
+            var inner_radius = radius - stroke_width * 0.5
+            var outer_radius = radius + stroke_width * 0.5
+            external_call["moxi_metal_draw_circle_ring", NoneType](
+                x,
+                y,
+                inner_radius,
+                outer_radius,
+                stroke.red,
+                stroke.green,
+                stroke.blue,
+                stroke.alpha,
+            )
+
+    def line_geometry_ms(self) -> Float32:
+        return self.last_line_geometry_ms
+
+    def cpu_encode_ms(self) -> Float32:
+        return self.last_cpu_encode_ms
+
+    def cpu_wait_ms(self) -> Float32:
+        return self.last_cpu_wait_ms
+
+    def gpu_ms(self) -> Float32:
+        return self.last_gpu_ms
+
+    def frame_ms(self) -> Float32:
+        return self.last_frame_ms
+
+    def gpu_timing_available(self) -> Bool:
+        return self.gpu_timing_available_value
+
+    def reset_metrics(mut self):
+        """Reset painter-side aggregates before measuring a new workload."""
+        self.frame_count_value = 0
+        self.last_line_geometry_ms = 0.0
+        self.last_cpu_encode_ms = 0.0
+        self.last_cpu_wait_ms = 0.0
+        self.last_gpu_ms = 0.0
+        self.last_frame_ms = 0.0
+        self.gpu_timing_available_value = False
+        self.total_line_geometry_ms = 0.0
+        self.total_cpu_encode_ms = 0.0
+        self.total_cpu_wait_ms = 0.0
+        self.total_gpu_ms = 0.0
+        self.total_frame_ms = 0.0
+
+    def average_line_geometry_ms(self) -> Float32:
+        if self.frame_count_value <= 0:
+            return 0.0
+        return self.total_line_geometry_ms / Float32(self.frame_count_value)
+
+    def average_cpu_encode_ms(self) -> Float32:
+        if self.frame_count_value <= 0:
+            return 0.0
+        return self.total_cpu_encode_ms / Float32(self.frame_count_value)
+
+    def average_cpu_wait_ms(self) -> Float32:
+        if self.frame_count_value <= 0:
+            return 0.0
+        return self.total_cpu_wait_ms / Float32(self.frame_count_value)
+
+    def average_gpu_ms(self) -> Float32:
+        if self.frame_count_value <= 0:
+            return 0.0
+        return self.total_gpu_ms / Float32(self.frame_count_value)
+
+    def average_frame_ms(self) -> Float32:
+        if self.frame_count_value <= 0:
+            return 0.0
+        return self.total_frame_ms / Float32(self.frame_count_value)
+
+    def vertex_count(self) -> Int:
+        return Int(external_call["moxi_metal_vertex_count_value", Int32]())
+
+    def draw_submission_count(self) -> Int:
+        return Int(
+            external_call["moxi_metal_draw_submission_count_value", Int32]()
+        )
+
+    def overflow_count(self) -> Int:
+        return Int(external_call["moxi_metal_overflow_count_value", Int32]())
+
+    def shutdown(mut self):
+        if self.initialized:
+            external_call["moxi_metal_detach_canvas", NoneType]()
+            external_call["moxi_metal_shutdown", NoneType]()
+            self.initialized = False
+            self.attached = False
 
 
 struct MacOSMetalWindow(WindowBackend):

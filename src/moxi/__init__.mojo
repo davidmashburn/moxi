@@ -641,7 +641,7 @@ from .virtual_view import VirtualItemBuilder, VirtualizedList
 from .svg import SvgSceneRenderer
 from .coretext import MacOSTextShaper
 from .harfbuzz import HarfBuzzTextShaper
-from .metal import MacOSMetalRenderer, MacOSMetalWindow
+from .metal import MacOSMetalCanvasPainter, MacOSMetalRenderer, MacOSMetalWindow
 from .demo_browser import (
     DEMO_CATEGORY_ALL,
     DEMO_CATEGORY_START,

@@ -313,7 +313,10 @@ layers, and affine transforms. `MacOSMetalRenderer` batches supported
 rectangles, rounded rectangles, gradients, and lines into a reusable/growing
 buffer and ordered draw submissions per frame; `MacOSMetalWindow` presents the
 same scene through an AppKit `CAMetalLayer`, including drawable-size/scale
-handling. Metal renders printable ASCII glyph geometry, CoreText-rasterized
+handling. `MacOSMetalCanvasPainter` can embed a transparent Metal layer over
+the canvas region of the regular AppKit host, leaving controls, input, and
+accessibility on the host view while routing dense canvas geometry to Metal.
+Metal renders printable ASCII glyph geometry, CoreText-rasterized
 Unicode texture text, registered file-backed image textures, flattened
 quadratic/cubic/elliptical-arc paths, concave simple polygons, and bounded
 even-odd compound/self-intersecting fills. A bounded text-texture cache reports
@@ -371,18 +374,20 @@ claim.
 scene, and rasterized-pixel work. `PerformanceReport` combines those counters
 with host-supplied elapsed time and checks the 60 Hz (16.67 ms) or 120 Hz
 (8.33 ms) frame budget. `scripts/benchmark.sh` repeats the retained pipeline,
-portable/statistical plot, dense plot generation, and synchronized offscreen
-Metal cases; `MOXI_BENCHMARK_RUNS=1` is the quick path and the default is
-three runs.
+interactive fractal canvas, portable/statistical plot, dense plot generation,
+and synchronized offscreen Metal cases; `MOXI_BENCHMARK_RUNS=1` is the quick
+path and the default is three runs.
 
 The retained runtime's open-addressed identity index and the recycler's
 release-before-allocate behavior are measured hot-path improvements. The Metal
 bridge reports CPU-side vertex counts, draw submissions, text texture/cache
 work, buffer growth, and a deterministic offscreen checksum;
-the visible CAMetalLayer demo currently waits for completion, so its timings
+the visible CAMetalLayer demos currently wait for completion, so their timings
 are correctness-oriented rather than an asynchronous frame-pacing claim. The
 offscreen renderer also reports synchronized CPU encode/wait/frame durations
-and Metal GPU start/end timestamps when the driver exposes them. See
+and Metal GPU start/end timestamps when the driver exposes them. The fractal
+benchmark additionally separates CPU line geometry/tessellation from Metal
+encoding and synchronized completion. See
 [docs/performance.md](docs/performance.md) for workload definitions and
 interpretation.
 
@@ -411,7 +416,7 @@ The shared counter scenario is exercised by:
 - `tests/execution.mojo` — dependency propagation and localized build accounting
 - `tests/plotting.mojo`, `tests/plot_data.mojo`, `tests/plot_spec.mojo`, `tests/plot_runtime.mojo`, `tests/plot_statistics.mojo`, and `tests/plot_selection.mojo` — plot data, spec, scene, statistical recipes, LOD, lasso, and linked interaction
 - `tests/svg.mojo` — escaped Web-compatible scene output
-- `tests/performance.mojo` and `benchmarks/plotting_large.mojo` — work counters and dense-plot workload
+- `tests/performance.mojo`, `benchmarks/interactive_fractal.mojo`, and `benchmarks/plotting_large.mojo` — work counters, fractal host timing, and dense-plot workload
 - `tests/text_shaping.mojo` — portable clusters/fallback metadata
 - `native/macos_metal.m` and `examples/metal_window.mojo` — native GPU bridge and visible scene demo
 - `tests/text_layout.mojo` — deterministic layout and explicit fallback flags

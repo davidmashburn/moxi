@@ -40,6 +40,11 @@
 @interface MoxiMetalWindowDelegate : NSObject <NSWindowDelegate>
 @end
 
+/* The regular AppKit host owns the content view used by the interactive
+ * examples.  The Metal canvas is an optional child of that view, so the
+ * AppKit-only binaries do not need to link against this bridge. */
+extern void *moxi_window_canvas_view(void);
+
 typedef struct {
     vector_float2 position;
     vector_float4 color;
@@ -91,6 +96,7 @@ static BOOL moxi_metal_initialized;
 static NSWindow *moxi_metal_window;
 static MoxiMetalWindowDelegate *moxi_metal_window_delegate;
 static MoxiMetalView *moxi_metal_view;
+static MoxiMetalView *moxi_metal_canvas_view;
 static CAMetalLayer *moxi_metal_layer;
 static BOOL moxi_metal_window_opened;
 static id<MTLTexture> moxi_metal_images[MOXI_METAL_MAX_IMAGES];
@@ -105,6 +111,8 @@ static int moxi_metal_text_cache_count;
 static size_t moxi_metal_text_cache_bytes;
 static int moxi_metal_text_texture_cache_hit_count;
 static int moxi_metal_text_texture_raster_count;
+static CFTimeInterval moxi_metal_line_geometry_start_time;
+static float moxi_metal_last_line_geometry_time_ms;
 
 static const char *moxi_metal_shader_source =
     "#include <metal_stdlib>\n"
@@ -413,6 +421,82 @@ static void moxi_append_line(
     MoxiMetalVertex d = moxi_vertex(x2 - nx, y2 - ny, color);
     moxi_append_triangle(a, b, c);
     moxi_append_triangle(c, b, d);
+}
+
+static void moxi_append_circle(
+    float center_x,
+    float center_y,
+    float radius,
+    const float color[4]
+) {
+    if (radius <= 0.0f) return;
+    const int segments = 32;
+    if (!moxi_metal_reserve_vertices((segments - 2) * 3)) return;
+    MoxiMetalVertex center = moxi_vertex(center_x, center_y, color);
+    MoxiMetalVertex perimeter[32];
+    const float pi = 3.14159265358979323846f;
+    for (int index = 0; index < segments; index++) {
+        float angle = (2.0f * pi * (float)index) / (float)segments;
+        perimeter[index] = moxi_vertex(
+            center_x + cosf(angle) * radius,
+            center_y + sinf(angle) * radius,
+            color
+        );
+    }
+    for (int index = 1; index < segments - 1; index++) {
+        moxi_metal_vertices[moxi_metal_vertex_count++] = center;
+        moxi_metal_vertices[moxi_metal_vertex_count++] = perimeter[index];
+        moxi_metal_vertices[moxi_metal_vertex_count++] = perimeter[index + 1];
+    }
+}
+
+static void moxi_append_circle_ring(
+    float center_x,
+    float center_y,
+    float inner_radius,
+    float outer_radius,
+    const float color[4]
+) {
+    if (outer_radius <= 0.0f) return;
+    if (inner_radius <= 0.0f) {
+        moxi_append_circle(center_x, center_y, outer_radius, color);
+        return;
+    }
+    if (inner_radius >= outer_radius) return;
+    const int segments = 32;
+    if (!moxi_metal_reserve_vertices(segments * 6)) return;
+    const float pi = 3.14159265358979323846f;
+    for (int index = 0; index < segments; index++) {
+        int next = (index + 1) % segments;
+        float angle = (2.0f * pi * (float)index) / (float)segments;
+        float next_angle = (2.0f * pi * (float)next) / (float)segments;
+        MoxiMetalVertex outer = moxi_vertex(
+            center_x + cosf(angle) * outer_radius,
+            center_y + sinf(angle) * outer_radius,
+            color
+        );
+        MoxiMetalVertex outer_next = moxi_vertex(
+            center_x + cosf(next_angle) * outer_radius,
+            center_y + sinf(next_angle) * outer_radius,
+            color
+        );
+        MoxiMetalVertex inner = moxi_vertex(
+            center_x + cosf(angle) * inner_radius,
+            center_y + sinf(angle) * inner_radius,
+            color
+        );
+        MoxiMetalVertex inner_next = moxi_vertex(
+            center_x + cosf(next_angle) * inner_radius,
+            center_y + sinf(next_angle) * inner_radius,
+            color
+        );
+        moxi_metal_vertices[moxi_metal_vertex_count++] = outer;
+        moxi_metal_vertices[moxi_metal_vertex_count++] = outer_next;
+        moxi_metal_vertices[moxi_metal_vertex_count++] = inner;
+        moxi_metal_vertices[moxi_metal_vertex_count++] = inner;
+        moxi_metal_vertices[moxi_metal_vertex_count++] = outer_next;
+        moxi_metal_vertices[moxi_metal_vertex_count++] = inner_next;
+    }
 }
 
 /* A compact built-in glyph set keeps the GPU text path deterministic and
@@ -1940,6 +2024,8 @@ int moxi_metal_init(int width, int height) {
     moxi_metal_gpu_timing_available = NO;
     moxi_metal_frame_start_time = 0.0;
     moxi_metal_encode_start_time = 0.0;
+    moxi_metal_line_geometry_start_time = 0.0;
+    moxi_metal_last_line_geometry_time_ms = 0.0f;
     moxi_metal_clip_depth = 0;
     for (int index = 0; index < MOXI_METAL_MAX_IMAGES; index++) {
         moxi_metal_image_ids[index] = -1;
@@ -1993,6 +2079,8 @@ void moxi_metal_begin(float red, float green, float blue, float alpha) {
     moxi_metal_last_cpu_wait_time_ms = 0.0f;
     moxi_metal_last_frame_time_ms = 0.0f;
     moxi_metal_gpu_timing_available = NO;
+    moxi_metal_line_geometry_start_time = 0.0;
+    moxi_metal_last_line_geometry_time_ms = 0.0f;
     moxi_metal_frame_start_time = CFAbsoluteTimeGetCurrent();
     moxi_metal_encode_start_time = moxi_metal_frame_start_time;
     moxi_metal_command_buffer = [moxi_metal_queue commandBuffer];
@@ -2061,6 +2149,57 @@ void moxi_metal_draw_gradient(
 void moxi_metal_draw_line(float x1, float y1, float x2, float y2, float width, float red, float green, float blue, float alpha) {
     float color[4] = {red, green, blue, alpha};
     if (moxi_metal_encoder != nil) moxi_append_line(x1, y1, x2, y2, width, color);
+}
+
+void moxi_metal_draw_circle(
+    float center_x,
+    float center_y,
+    float radius,
+    float red,
+    float green,
+    float blue,
+    float alpha
+) {
+    float color[4] = {red, green, blue, alpha};
+    if (moxi_metal_encoder != nil) {
+        moxi_append_circle(center_x, center_y, radius, color);
+    }
+}
+
+void moxi_metal_draw_circle_ring(
+    float center_x,
+    float center_y,
+    float inner_radius,
+    float outer_radius,
+    float red,
+    float green,
+    float blue,
+    float alpha
+) {
+    float color[4] = {red, green, blue, alpha};
+    if (moxi_metal_encoder != nil) {
+        moxi_append_circle_ring(
+            center_x,
+            center_y,
+            inner_radius,
+            outer_radius,
+            color
+        );
+    }
+}
+
+void moxi_metal_begin_line_geometry(void) {
+    if (moxi_metal_encoder != nil) {
+        moxi_metal_line_geometry_start_time = CFAbsoluteTimeGetCurrent();
+    }
+}
+
+void moxi_metal_end_line_geometry(void) {
+    if (moxi_metal_line_geometry_start_time <= 0.0) return;
+    moxi_metal_last_line_geometry_time_ms = (float)(
+        (CFAbsoluteTimeGetCurrent() - moxi_metal_line_geometry_start_time) * 1000.0
+    );
+    moxi_metal_line_geometry_start_time = 0.0;
 }
 
 int moxi_metal_draw_image(
@@ -2199,6 +2338,9 @@ float moxi_metal_cpu_wait_time_ms_value(void) {
 float moxi_metal_frame_time_ms_value(void) {
     return moxi_metal_last_frame_time_ms;
 }
+float moxi_metal_line_geometry_time_ms_value(void) {
+    return moxi_metal_last_line_geometry_time_ms;
+}
 int moxi_metal_gpu_timing_available_value(void) {
     return moxi_metal_gpu_timing_available ? 1 : 0;
 }
@@ -2225,7 +2367,56 @@ int64_t moxi_metal_checksum(void) {
     return result;
 }
 
+int moxi_metal_attach_canvas(float x, float y, float width, float height) {
+    @autoreleasepool {
+        void *parent_pointer = moxi_window_canvas_view();
+        if (parent_pointer == NULL) return 0;
+        NSView *parent = (__bridge NSView *)parent_pointer;
+        int logical_width = width > 0.0f ? (int)width : 1;
+        int logical_height = height > 0.0f ? (int)height : 1;
+        if (!moxi_metal_initialized &&
+            !moxi_metal_init(logical_width, logical_height)) {
+            return 0;
+        }
+        if (moxi_metal_width != logical_width ||
+            moxi_metal_height != logical_height) {
+            if (!moxi_metal_resize(logical_width, logical_height)) return 0;
+        }
+        if (moxi_metal_canvas_view == nil ||
+            [moxi_metal_canvas_view superview] != parent) {
+            [moxi_metal_canvas_view removeFromSuperview];
+            moxi_metal_canvas_view = [[MoxiMetalView alloc]
+                initWithFrame:NSMakeRect(x, y, width, height)];
+            moxi_metal_canvas_view.wantsLayer = YES;
+            moxi_metal_canvas_view.autoresizingMask = NSViewNotSizable;
+            [parent addSubview:moxi_metal_canvas_view];
+        }
+        [moxi_metal_canvas_view setFrame:NSMakeRect(x, y, width, height)];
+        moxi_metal_canvas_view.hidden = NO;
+        moxi_metal_layer = (CAMetalLayer *)moxi_metal_canvas_view.layer;
+        if (moxi_metal_layer == nil) return 0;
+        moxi_metal_layer.device = moxi_metal_device;
+        moxi_metal_layer.pixelFormat = MTLPixelFormatRGBA8Unorm;
+        moxi_metal_layer.framebufferOnly = NO;
+        moxi_metal_layer.opaque = NO;
+        [moxi_metal_canvas_view setNeedsLayout:YES];
+        [moxi_metal_canvas_view layoutSubtreeIfNeeded];
+        return 1;
+    }
+}
+
+void moxi_metal_detach_canvas(void) {
+    [moxi_metal_canvas_view removeFromSuperview];
+    moxi_metal_canvas_view = nil;
+    if (moxi_metal_view != nil) {
+        moxi_metal_layer = (CAMetalLayer *)moxi_metal_view.layer;
+    } else {
+        moxi_metal_layer = nil;
+    }
+}
+
 void moxi_metal_shutdown(void) {
+    moxi_metal_detach_canvas();
     [moxi_metal_window close];
     moxi_metal_window = nil;
     moxi_metal_window_delegate = nil;
@@ -2272,6 +2463,8 @@ void moxi_metal_shutdown(void) {
     moxi_metal_last_cpu_wait_time_ms = 0.0f;
     moxi_metal_last_frame_time_ms = 0.0f;
     moxi_metal_gpu_timing_available = NO;
+    moxi_metal_line_geometry_start_time = 0.0;
+    moxi_metal_last_line_geometry_time_ms = 0.0f;
     moxi_metal_frame_start_time = 0.0;
     moxi_metal_encode_start_time = 0.0;
     moxi_metal_clip_depth = 0;
@@ -2284,6 +2477,10 @@ void moxi_metal_shutdown(void) {
 @implementation MoxiMetalView
 - (BOOL)isFlipped { return YES; }
 - (CALayer *)makeBackingLayer { return [CAMetalLayer layer]; }
+- (NSView *)hitTest:(NSPoint)point {
+    (void)point;
+    return nil;
+}
 - (void)layout {
     [super layout];
     if (moxi_metal_layer != nil) {

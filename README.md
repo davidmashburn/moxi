@@ -211,12 +211,14 @@ pixi run animation-demo
 pixi run wrapped-text-demo
 pixi run composed-demo
 pixi run demo-browser
+pixi run interactive-fractal-demo
 pixi run plot-demo
 pixi run plot-gallery
 pixi run plot-svg
 pixi run plot-analytics-benchmark
 pixi run plot-large-benchmark
 pixi run metal-benchmark
+pixi run fractal-benchmark
 pixi run harfbuzz-demo
 pixi run benchmark
 pixi run package-consumer
@@ -271,6 +273,12 @@ Use the catalog search and category filters, inspect an overview or source
 excerpt, and mount the stateful component examples in the `Demo` tab. Use
 `Run script` to launch a scene, plot, GPU, or text entry's standalone
 `pixi run …` task as a sibling process; its status is reported in the browser.
+
+`pixi run interactive-fractal-demo` opens the interactive line-fractal port of
+Xilem's paint example. Its dense canvas uses Metal when available, with AppKit
+as a fallback; `pixi run fractal-benchmark` measures expansion, line geometry,
+Metal encoding, GPU completion, and synchronized frame time. The methodology
+and comparison caveats are in [docs/performance.md](docs/performance.md).
 
 `pixi run form-demo` opens the 0.5 interaction scenario. The name field starts
 focused; type, use the arrow/Home/End keys, press Tab to focus `Submit`, and

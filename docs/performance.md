@@ -12,9 +12,10 @@ portable guarantee.
 pixi run benchmark
 ```
 
-The harness runs the retained layout/reconcile/paint path, the shared plotting
-scenario, statistical/linked plotting, large-data plotting, and the
-synchronized offscreen Metal scene. Each workload runs three times by default.
+The harness runs the retained layout/reconcile/paint path, the interactive
+fractal component/canvas path, the shared plotting scenario,
+statistical/linked plotting, large-data plotting, and the synchronized
+offscreen Metal scene. Each workload runs three times by default.
 Use one run for a quick local check or choose another count:
 
 ```sh
@@ -33,6 +34,7 @@ the Metal binary is compiled once before its measured runs.
 | Workload | What it exercises | Stable signals |
 | --- | --- | --- |
 | Retained pipeline | layout, identity reconciliation, paint, scene conversion, fixed/variable-extent range math | passes, child count, paint commands, checksum, operations/frame |
+| Interactive fractal | line-fractal expansion, Mojo canvas-command submission, Metal line geometry/tessellation, CPU encoding, GPU completion, and synchronized frame time | terminal lines, expansion time, neutral paint time, Metal vertices/submissions, line geometry time, CPU encode/wait/frame time, GPU time/availability, checksum |
 | Portable plot | plot scales, axes, labels, line/scatter/bar scene emission, software rasterization | commands/frame, rasterized pixels/frame, checksum |
 | Statistical/link plot | shared typed fixture, histogram/box/heatmap/regression transforms, linked stable-key selection | derived rows, commands, selected keys, operations/frame, checksum |
 | Large plot generation | 10,000-point line with extrema-preserving LOD and 100,000-point scatter with bounded representatives | source rows, rendered representatives, command counts, operations/frame |
@@ -48,6 +50,49 @@ The counters are not a frame-time promise. They are the regression signal to
 compare first, followed by wall-clock timing on the same machine and build.
 GPU work must report both CPU-side scene/vertex work and synchronized GPU
 completion until an asynchronous presentation path exists.
+
+## Fractal comparison with Xilem
+
+The Moxi example is named `examples/interactive_fractal.mojo` and is exposed
+as the `interactive-fractal-demo` task. Its counterpart is
+`xilem/examples/interactive_paint.rs` in the Xilem checkout. The comparable
+benchmark commands are:
+
+```sh
+pixi run fractal-benchmark
+(cd ~/Git/xilem && cargo interactive-paint-bench)
+```
+
+Both use a 920x620 canvas, the same six preset families, the same 2.5-pixel
+minimum segment threshold, and matching low-growth depths. Moxi reports
+component expansion, neutral command generation, CPU line geometry/tessellation,
+Metal encoding, GPU completion, and synchronized frame time separately.
+Xilem's checked-in benchmark reports CPU image rasterization, adaptive parallel
+rasterization, and vector-scene construction.
+
+These are not identical renderer backends: Xilem's live widget rasterizes a
+CPU image and submits one image draw to its compositor; Moxi's interactive
+canvas now embeds a transparent CAMetalLayer in the AppKit host and submits
+triangle geometry in one Metal draw. AppKit remains a fallback when Metal is
+unavailable. Xilem's raw raster number is therefore a line-work baseline, not
+a direct comparison with Moxi's synchronized GPU frame time.
+
+On this Apple Silicon host, a representative 25-iteration Metal run measured
+the following per-frame values:
+
+| Preset/depth | line geometry | CPU encode | GPU | synchronized frame |
+| --- | ---: | ---: | ---: | ---: |
+| Koch 5 | 0.028 ms | 0.162 ms | 0.258 ms | 0.729 ms |
+| Minkowski 4 | 0.308 ms | 0.346 ms | 0.376 ms | 1.005 ms |
+| Gosper 5 | 1.248 ms | 1.302 ms | 0.584 ms | 2.191 ms |
+| Metro 4 | 0.308 ms | 0.346 ms | 0.376 ms | 0.990 ms |
+| Switchback 4 | 0.064 ms | 0.111 ms | 0.184 ms | 0.529 ms |
+| Peano 4 | 0.716 ms | 0.774 ms | 0.530 ms | 1.652 ms |
+
+Every case used one Metal geometry submission with no buffer overflow. The
+line-geometry column covers the Mojo-to-native line loop and CPU triangle
+generation; CPU encode includes all Metal command encoding, while synchronized
+frame time also includes completion wait. Values are machine/load dependent.
 
 ## Optimization log
 
@@ -66,6 +111,10 @@ completion until an asynchronous presentation path exists.
 - Metal blending, rounded geometry, interpolated gradients, nested scissor
   clips, and Mojo-side transform/layer state keep the GPU path aligned with the
   software scene semantics for supported commands.
+- Dense component-owned canvases can embed a transparent `CAMetalLayer` in the
+  regular AppKit host through `MacOSMetalCanvasPainter`; native controls,
+  accessibility, and input remain owned by the host view. The painter reports
+  line-geometry, CPU encode/wait, GPU, and synchronized frame timings.
 - Compound subpaths, holes, and self-intersections use a bounded even-odd
   scanline tessellator after the fast simple-polygon path. The renderer reports
   synchronized CPU encode time, CPU wait time, total frame time, and Metal
