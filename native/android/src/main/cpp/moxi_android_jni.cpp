@@ -52,6 +52,12 @@ static void moxi_android_demo_frame(void *context) {
     (void)context;
 }
 
+static void moxi_android_demo_action(void *context, int target, int action) {
+    (void)context;
+    (void)target;
+    (void)action;
+}
+
 static MoxiHostCallbacks moxi_android_demo_callbacks() {
     MoxiHostCallbacks callbacks = {};
     callbacks.event = moxi_android_demo_event;
@@ -60,6 +66,7 @@ static MoxiHostCallbacks moxi_android_demo_callbacks() {
     callbacks.composition = moxi_android_demo_composition;
     callbacks.resize = moxi_android_demo_resize;
     callbacks.frame = moxi_android_demo_frame;
+    callbacks.action = moxi_android_demo_action;
     return callbacks;
 }
 
@@ -132,6 +139,37 @@ Java_org_moxi_host_MoxiActivity_nativeTouch(
 extern "C" JNIEXPORT void JNICALL
 Java_org_moxi_host_MoxiActivity_nativeKey(JNIEnv *, jobject, jlong handle, jint key, jint modifiers) {
     moxi_android_host_key(reinterpret_cast<MoxiAndroidHost *>(handle), key, modifiers);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_moxi_host_MoxiActivity_nativeText(
+    JNIEnv *env,
+    jobject,
+    jlong handle,
+    jstring text,
+    jint start,
+    jint end
+) {
+    if (text == nullptr) return;
+    const char *value = env->GetStringUTFChars(text, nullptr);
+    if (value == nullptr) return;
+    moxi_android_host_text(reinterpret_cast<MoxiAndroidHost *>(handle), value, start, end);
+    env->ReleaseStringUTFChars(text, value);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_moxi_host_MoxiActivity_nativeAction(
+    JNIEnv *,
+    jobject,
+    jlong handle,
+    jint target,
+    jint action
+) {
+    moxi_android_host_action(
+        reinterpret_cast<MoxiAndroidHost *>(handle),
+        target,
+        action
+    );
 }
 
 extern "C" JNIEXPORT void JNICALL

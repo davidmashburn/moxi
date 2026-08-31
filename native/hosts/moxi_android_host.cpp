@@ -125,6 +125,16 @@ extern "C" void moxi_android_host_composition(
     }
 }
 
+extern "C" void moxi_android_host_action(
+    MoxiAndroidHost *host,
+    int target,
+    int action
+) {
+    if (host != NULL && host->callbacks.action != NULL) {
+        host->callbacks.action(host->context, target, action);
+    }
+}
+
 extern "C" void moxi_android_host_frame(MoxiAndroidHost *host) {
     if (host != NULL && host->callbacks.frame != NULL) {
         host->callbacks.frame(host->context);

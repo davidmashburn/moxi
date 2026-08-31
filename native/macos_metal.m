@@ -3,6 +3,7 @@
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import <CoreText/CoreText.h>
 #import <simd/simd.h>
 #include <ctype.h>
 #include <math.h>
@@ -12,15 +13,26 @@
 
 /*
  * A small scene renderer for the 0.6 GPU slice. It batches rectangles and
- * line quads into one shared MTLBuffer and one draw call per frame. The
- * The same scene API can target either the retained offscreen texture used by
- * tests and benchmarks or an AppKit CAMetalLayer used by the visible demo.
+ * line quads into one shared MTLBuffer and one draw call per frame. Text that
+ * needs real Unicode shaping is rasterized by CoreText into a bounded cached
+ * Metal texture, while the compact ASCII geometry path remains allocation
+ * free. The same scene API can target either the retained offscreen texture
+ * used by tests and benchmarks or an AppKit CAMetalLayer used by the visible
+ * demo.
  */
 
 #define MOXI_METAL_INITIAL_VERTICES 262144
 #define MOXI_METAL_MAX_VERTICES 4194304
 #define MOXI_METAL_MAX_CLIP_DEPTH 64
 #define MOXI_METAL_MAX_IMAGES 64
+#define MOXI_METAL_MAX_TEXT_TEXTURES 128
+#define MOXI_METAL_MAX_TEXT_CACHE 64
+#define MOXI_METAL_MAX_TEXT_CACHE_BYTES (32u * 1024u * 1024u)
+#define MOXI_METAL_MAX_TEXT_TEXTURE_DIMENSION 4096
+#define MOXI_METAL_MAX_PATH_POINTS 4096
+#define MOXI_METAL_MAX_PATH_SUBPATHS 128
+#define MOXI_METAL_MAX_SCANLINE_INTERSECTIONS 4096
+#define MOXI_METAL_MAX_TESSELLATION_TRIANGLES 131072
 
 @interface MoxiMetalView : NSView
 @end
@@ -66,6 +78,13 @@ static NSUInteger moxi_metal_vertex_capacity;
 static int moxi_metal_buffer_reallocation_count;
 static int moxi_metal_draw_submission_count;
 static int moxi_metal_resize_count;
+static float moxi_metal_last_gpu_time_ms;
+static float moxi_metal_last_cpu_encode_time_ms;
+static float moxi_metal_last_cpu_wait_time_ms;
+static float moxi_metal_last_frame_time_ms;
+static BOOL moxi_metal_gpu_timing_available;
+static CFTimeInterval moxi_metal_frame_start_time;
+static CFTimeInterval moxi_metal_encode_start_time;
 static MTLScissorRect moxi_metal_clip_stack[MOXI_METAL_MAX_CLIP_DEPTH];
 static NSUInteger moxi_metal_clip_depth;
 static BOOL moxi_metal_initialized;
@@ -76,6 +95,16 @@ static CAMetalLayer *moxi_metal_layer;
 static BOOL moxi_metal_window_opened;
 static id<MTLTexture> moxi_metal_images[MOXI_METAL_MAX_IMAGES];
 static int moxi_metal_image_ids[MOXI_METAL_MAX_IMAGES];
+static id<MTLTexture> moxi_metal_textures[MOXI_METAL_MAX_TEXT_TEXTURES];
+static int moxi_metal_text_texture_count;
+static int moxi_metal_text_texture_draw_count;
+static NSString *moxi_metal_text_cache_keys[MOXI_METAL_MAX_TEXT_CACHE];
+static id<MTLTexture> moxi_metal_text_cache_textures[MOXI_METAL_MAX_TEXT_CACHE];
+static int moxi_metal_text_cache_glyph_counts[MOXI_METAL_MAX_TEXT_CACHE];
+static int moxi_metal_text_cache_count;
+static size_t moxi_metal_text_cache_bytes;
+static int moxi_metal_text_texture_cache_hit_count;
+static int moxi_metal_text_texture_raster_count;
 
 static const char *moxi_metal_shader_source =
     "#include <metal_stdlib>\n"
@@ -115,6 +144,23 @@ static void moxi_append_triangle(
     MoxiMetalVertex first,
     MoxiMetalVertex second,
     MoxiMetalVertex third
+);
+
+static void moxi_metal_flush_geometry(void);
+
+static int moxi_metal_draw_texture_quad(
+    id<MTLTexture> texture,
+    float x,
+    float y,
+    float width,
+    float height,
+    float alpha,
+    float m11,
+    float m12,
+    float m21,
+    float m22,
+    float tx,
+    float ty
 );
 
 static vector_float2 moxi_transform_point(
@@ -477,6 +523,278 @@ static uint8_t moxi_ascii_glyph_row(unsigned char value, int row) {
     }
 }
 
+static int moxi_metal_find_text_cache(NSString *key) {
+    if (key == nil) return -1;
+    for (int index = 0; index < moxi_metal_text_cache_count; index++) {
+        if (moxi_metal_text_cache_keys[index] != nil &&
+            moxi_metal_text_cache_textures[index] != nil &&
+            [moxi_metal_text_cache_keys[index] isEqualToString:key]) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+static int moxi_metal_draw_coretext_text(
+    const char *text,
+    float x,
+    float y,
+    float width,
+    float height,
+    float red,
+    float green,
+    float blue,
+    float alpha,
+    float m11,
+    float m12,
+    float m21,
+    float m22,
+    float tx,
+    float ty
+) {
+    if (moxi_metal_encoder == nil || text == NULL) {
+        return -1;
+    }
+    @autoreleasepool {
+        NSString *string = [NSString stringWithUTF8String:text];
+        if (string == nil) return -1;
+        if ([string length] == 0) return 0;
+
+        /* Scene text supplies a box height rather than a font size. Leave
+         * enough leading for CoreText's ascent/descent so a one-line label
+         * fits in the same box that the ASCII fast path accepts. */
+        CGFloat fontSize = height > 0.0f ? (CGFloat)height * 0.80 : 14.0;
+        fontSize = MAX(1.0, MIN(fontSize, 256.0));
+        CTFontRef font = CTFontCreateUIFontForLanguage(
+            kCTFontUIFontSystem,
+            fontSize,
+            NULL
+        );
+        if (font == NULL) {
+            font = CTFontCreateWithName(CFSTR("Helvetica"), fontSize, NULL);
+        }
+        if (font == NULL) return -1;
+
+        CGColorRef textColor = CGColorCreateGenericRGB(red, green, blue, alpha);
+        if (textColor == NULL) {
+            CFRelease(font);
+            return -1;
+        }
+        NSDictionary *attributes = @{
+            (__bridge id)kCTFontAttributeName: (__bridge id)font,
+            (__bridge id)kCTForegroundColorAttributeName: (__bridge id)textColor,
+        };
+        NSAttributedString *attributed = [[NSAttributedString alloc]
+            initWithString:string
+            attributes:attributes];
+        CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(
+            (__bridge CFAttributedStringRef)attributed
+        );
+        if (framesetter == NULL) {
+            CGColorRelease(textColor);
+            CFRelease(font);
+            return -1;
+        }
+
+        CGFloat constrainedWidth = width > 0.0f ? (CGFloat)width : CGFLOAT_MAX;
+        CGFloat constrainedHeight = height > 0.0f ? (CGFloat)height : CGFLOAT_MAX;
+        CGSize suggested = CTFramesetterSuggestFrameSizeWithConstraints(
+            framesetter,
+            CFRangeMake(0, 0),
+            NULL,
+            CGSizeMake(constrainedWidth, constrainedHeight),
+            NULL
+        );
+        CGFloat logicalWidth = width > 0.0f
+            ? (CGFloat)width
+            : MAX(1.0, ceil(suggested.width + 2.0));
+        CGFloat logicalHeight = height > 0.0f
+            ? (CGFloat)height
+            : MAX(1.0, ceil(suggested.height + 2.0));
+        if (logicalWidth > MOXI_METAL_MAX_TEXT_TEXTURE_DIMENSION ||
+            logicalHeight > MOXI_METAL_MAX_TEXT_TEXTURE_DIMENSION) {
+            CFRelease(framesetter);
+            CGColorRelease(textColor);
+            CFRelease(font);
+            return -1;
+        }
+
+        size_t pixelWidth = (size_t)ceil(logicalWidth * moxi_metal_scale);
+        size_t pixelHeight = (size_t)ceil(logicalHeight * moxi_metal_scale);
+        if (pixelWidth == 0 || pixelHeight == 0 ||
+            pixelWidth > MOXI_METAL_MAX_TEXT_TEXTURE_DIMENSION ||
+            pixelHeight > MOXI_METAL_MAX_TEXT_TEXTURE_DIMENSION) {
+            CFRelease(framesetter);
+            CGColorRelease(textColor);
+            CFRelease(font);
+            return -1;
+        }
+        size_t byteCount = pixelWidth * pixelHeight * 4;
+
+        NSString *cacheKey = [NSString stringWithFormat:
+            @"%@|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f",
+            string,
+            logicalWidth,
+            logicalHeight,
+            red,
+            green,
+            blue,
+            alpha,
+            moxi_metal_scale
+        ];
+        int cachedSlot = moxi_metal_find_text_cache(cacheKey);
+        if (cachedSlot >= 0) {
+            int glyphCount = moxi_metal_text_cache_glyph_counts[cachedSlot];
+            int drawn = moxi_metal_draw_texture_quad(
+                moxi_metal_text_cache_textures[cachedSlot],
+                x,
+                y,
+                (float)logicalWidth,
+                (float)logicalHeight,
+                1.0f,
+                m11,
+                m12,
+                m21,
+                m22,
+                tx,
+                ty
+            );
+            CFRelease(framesetter);
+            CGColorRelease(textColor);
+            CFRelease(font);
+            if (!drawn) return -1;
+            moxi_metal_text_texture_draw_count += 1;
+            moxi_metal_text_texture_cache_hit_count += 1;
+            return glyphCount;
+        }
+        if (moxi_metal_text_texture_count >= MOXI_METAL_MAX_TEXT_TEXTURES) {
+            CFRelease(framesetter);
+            CGColorRelease(textColor);
+            CFRelease(font);
+            return -1;
+        }
+        uint8_t *bytes = (uint8_t *)calloc(1, byteCount);
+        if (bytes == NULL) {
+            CFRelease(framesetter);
+            CGColorRelease(textColor);
+            CFRelease(font);
+            return -1;
+        }
+
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        CGContextRef context = CGBitmapContextCreate(
+            bytes,
+            pixelWidth,
+            pixelHeight,
+            8,
+            pixelWidth * 4,
+            colorSpace,
+            kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big
+        );
+        if (context == NULL || colorSpace == NULL) {
+            if (context != NULL) CGContextRelease(context);
+            if (colorSpace != NULL) CGColorSpaceRelease(colorSpace);
+            free(bytes);
+            CFRelease(framesetter);
+            CGColorRelease(textColor);
+            CFRelease(font);
+            return -1;
+        }
+        CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+        CGContextTranslateCTM(context, 0.0, (CGFloat)pixelHeight);
+        CGContextScaleCTM(context, 1.0, -1.0);
+        CGContextScaleCTM(context, moxi_metal_scale, moxi_metal_scale);
+        CGPathRef path = CGPathCreateWithRect(
+            CGRectMake(0.0, 0.0, logicalWidth, logicalHeight),
+            NULL
+        );
+        CTFrameRef frame = CTFramesetterCreateFrame(
+            framesetter,
+            CFRangeMake(0, 0),
+            path,
+            NULL
+        );
+        if (frame == NULL) {
+            CGPathRelease(path);
+            CGContextRelease(context);
+            CGColorSpaceRelease(colorSpace);
+            free(bytes);
+            CFRelease(framesetter);
+            CGColorRelease(textColor);
+            CFRelease(font);
+            return -1;
+        }
+        CTFrameDraw(frame, context);
+        CGContextRelease(context);
+        CGColorSpaceRelease(colorSpace);
+        CGPathRelease(path);
+
+        MTLTextureDescriptor *descriptor = [MTLTextureDescriptor
+            texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm
+            width:pixelWidth
+            height:pixelHeight
+            mipmapped:NO];
+        descriptor.usage = MTLTextureUsageShaderRead;
+        id<MTLTexture> texture = [moxi_metal_device newTextureWithDescriptor:descriptor];
+        if (texture == nil) {
+            free(bytes);
+            CFRelease(frame);
+            CFRelease(framesetter);
+            CGColorRelease(textColor);
+            CFRelease(font);
+            return -1;
+        }
+        MTLRegion region = MTLRegionMake2D(0, 0, pixelWidth, pixelHeight);
+        [texture replaceRegion:region mipmapLevel:0 withBytes:bytes bytesPerRow:pixelWidth * 4];
+        free(bytes);
+
+        int glyphCount = 0;
+        CFArrayRef lines = CTFrameGetLines(frame);
+        for (CFIndex index = 0; index < CFArrayGetCount(lines); index++) {
+            CTLineRef line = (CTLineRef)CFArrayGetValueAtIndex(lines, index);
+            glyphCount += (int)CTLineGetGlyphCount(line);
+        }
+        int slot = moxi_metal_text_texture_count++;
+        moxi_metal_textures[slot] = texture;
+        int drawn = moxi_metal_draw_texture_quad(
+            texture,
+            x,
+            y,
+            (float)logicalWidth,
+            (float)logicalHeight,
+            1.0f,
+            m11,
+            m12,
+            m21,
+            m22,
+            tx,
+            ty
+        );
+        if (!drawn) {
+            moxi_metal_textures[slot] = nil;
+            moxi_metal_text_texture_count -= 1;
+            glyphCount = -1;
+        } else {
+            moxi_metal_text_texture_draw_count += 1;
+            moxi_metal_text_texture_raster_count += 1;
+            if (moxi_metal_text_cache_count < MOXI_METAL_MAX_TEXT_CACHE &&
+                byteCount <= MOXI_METAL_MAX_TEXT_CACHE_BYTES -
+                    moxi_metal_text_cache_bytes) {
+                int cacheSlot = moxi_metal_text_cache_count++;
+                moxi_metal_text_cache_keys[cacheSlot] = [cacheKey copy];
+                moxi_metal_text_cache_textures[cacheSlot] = texture;
+                moxi_metal_text_cache_glyph_counts[cacheSlot] = glyphCount;
+                moxi_metal_text_cache_bytes += byteCount;
+            }
+        }
+        CFRelease(frame);
+        CFRelease(framesetter);
+        CGColorRelease(textColor);
+        CFRelease(font);
+        return glyphCount;
+    }
+}
+
 int moxi_metal_draw_text(
     const char *text,
     float x,
@@ -495,9 +813,19 @@ int moxi_metal_draw_text(
     float ty
 ) {
     if (moxi_metal_encoder == nil || text == NULL) return -1;
+    BOOL ascii = YES;
     for (const unsigned char *cursor = (const unsigned char *)text; *cursor != 0; cursor++) {
         if (*cursor >= 128 || (*cursor != '\n' && *cursor != '\r' && *cursor != '\t' &&
-            !moxi_ascii_supported(*cursor))) return -1;
+            !moxi_ascii_supported(*cursor))) {
+            ascii = NO;
+            break;
+        }
+    }
+    if (!ascii) {
+        return moxi_metal_draw_coretext_text(
+            text, x, y, width, height, red, green, blue, alpha,
+            m11, m12, m21, m22, tx, ty
+        );
     }
     if (height <= 0.0f) return 0;
     float scale = height / 7.0f;
@@ -564,22 +892,255 @@ static BOOL moxi_read_path_number(const char **cursor, float *value) {
     return YES;
 }
 
-static int moxi_parse_polygon_path(const char *data, vector_float2 *points, int limit, BOOL *closed) {
-    if (data == NULL || points == NULL || limit < 3) return -1;
+static BOOL moxi_append_path_point(
+    vector_float2 *points,
+    int *count,
+    int limit,
+    vector_float2 point
+) {
+    if (*count >= limit) return NO;
+    if (*count > 0) {
+        vector_float2 previous = points[*count - 1];
+        if (fabsf(previous.x - point.x) < 0.0001f &&
+            fabsf(previous.y - point.y) < 0.0001f) {
+            return YES;
+        }
+    }
+    points[(*count)++] = point;
+    return YES;
+}
+
+static vector_float2 moxi_quadratic_point(
+    vector_float2 start,
+    vector_float2 control,
+    vector_float2 end,
+    float amount
+) {
+    float inverse = 1.0f - amount;
+    return (vector_float2){
+        inverse * inverse * start.x + 2.0f * inverse * amount * control.x + amount * amount * end.x,
+        inverse * inverse * start.y + 2.0f * inverse * amount * control.y + amount * amount * end.y,
+    };
+}
+
+static vector_float2 moxi_cubic_point(
+    vector_float2 start,
+    vector_float2 first_control,
+    vector_float2 second_control,
+    vector_float2 end,
+    float amount
+) {
+    float inverse = 1.0f - amount;
+    float inverse_squared = inverse * inverse;
+    float amount_squared = amount * amount;
+    return (vector_float2){
+        inverse_squared * inverse * start.x +
+            3.0f * inverse_squared * amount * first_control.x +
+            3.0f * inverse * amount_squared * second_control.x +
+            amount_squared * amount * end.x,
+        inverse_squared * inverse * start.y +
+            3.0f * inverse_squared * amount * first_control.y +
+            3.0f * inverse * amount_squared * second_control.y +
+            amount_squared * amount * end.y,
+    };
+}
+
+static BOOL moxi_append_quadratic_path(
+    vector_float2 *points,
+    int *count,
+    int limit,
+    vector_float2 start,
+    vector_float2 control,
+    vector_float2 end
+) {
+    const int segments = 16;
+    for (int segment = 1; segment <= segments; segment++) {
+        float amount = (float)segment / (float)segments;
+        if (!moxi_append_path_point(
+                points, count, limit,
+                moxi_quadratic_point(start, control, end, amount))) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
+static BOOL moxi_append_cubic_path(
+    vector_float2 *points,
+    int *count,
+    int limit,
+    vector_float2 start,
+    vector_float2 first_control,
+    vector_float2 second_control,
+    vector_float2 end
+) {
+    const int segments = 20;
+    for (int segment = 1; segment <= segments; segment++) {
+        float amount = (float)segment / (float)segments;
+        if (!moxi_append_path_point(
+                points, count, limit,
+                moxi_cubic_point(start, first_control, second_control, end, amount))) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
+static BOOL moxi_append_arc_path(
+    vector_float2 *points,
+    int *count,
+    int limit,
+    vector_float2 start,
+    float radius_x,
+    float radius_y,
+    float rotation_degrees,
+    BOOL large_arc,
+    BOOL sweep,
+    vector_float2 end
+) {
+    radius_x = fabsf(radius_x);
+    radius_y = fabsf(radius_y);
+    if (radius_x <= 0.0001f || radius_y <= 0.0001f ||
+        (fabsf(start.x - end.x) < 0.0001f &&
+         fabsf(start.y - end.y) < 0.0001f)) {
+        return moxi_append_path_point(points, count, limit, end);
+    }
+
+    const float pi = 3.14159265358979323846f;
+    const float two_pi = 2.0f * pi;
+    float phi = fmodf(rotation_degrees * pi / 180.0f, two_pi);
+    float cosine = cosf(phi);
+    float sine = sinf(phi);
+    float delta_x = (start.x - end.x) * 0.5f;
+    float delta_y = (start.y - end.y) * 0.5f;
+    float prime_x = cosine * delta_x + sine * delta_y;
+    float prime_y = -sine * delta_x + cosine * delta_y;
+    float radius_x_squared = radius_x * radius_x;
+    float radius_y_squared = radius_y * radius_y;
+    float prime_x_squared = prime_x * prime_x;
+    float prime_y_squared = prime_y * prime_y;
+    float radius_ratio = prime_x_squared / radius_x_squared +
+        prime_y_squared / radius_y_squared;
+    if (radius_ratio > 1.0f) {
+        float correction = sqrtf(radius_ratio);
+        radius_x *= correction;
+        radius_y *= correction;
+        radius_x_squared = radius_x * radius_x;
+        radius_y_squared = radius_y * radius_y;
+    }
+
+    float denominator = radius_x_squared * prime_y_squared +
+        radius_y_squared * prime_x_squared;
+    if (denominator <= 0.000001f) {
+        return moxi_append_path_point(points, count, limit, end);
+    }
+    float numerator = radius_x_squared * radius_y_squared -
+        radius_x_squared * prime_y_squared -
+        radius_y_squared * prime_x_squared;
+    float coefficient = sqrtf(fmaxf(0.0f, numerator / denominator));
+    if (large_arc == sweep) coefficient = -coefficient;
+    float center_prime_x = coefficient * radius_x * prime_y / radius_y;
+    float center_prime_y = -coefficient * radius_y * prime_x / radius_x;
+    float midpoint_x = (start.x + end.x) * 0.5f;
+    float midpoint_y = (start.y + end.y) * 0.5f;
+    float center_x = cosine * center_prime_x - sine * center_prime_y + midpoint_x;
+    float center_y = sine * center_prime_x + cosine * center_prime_y + midpoint_y;
+
+    float unit_start_x = (prime_x - center_prime_x) / radius_x;
+    float unit_start_y = (prime_y - center_prime_y) / radius_y;
+    float unit_end_x = (-prime_x - center_prime_x) / radius_x;
+    float unit_end_y = (-prime_y - center_prime_y) / radius_y;
+    float start_angle = atan2f(unit_start_y, unit_start_x);
+    float delta_angle = atan2f(
+        unit_start_x * unit_end_y - unit_start_y * unit_end_x,
+        unit_start_x * unit_end_x + unit_start_y * unit_end_y
+    );
+    if (!sweep && delta_angle > 0.0f) delta_angle -= two_pi;
+    if (sweep && delta_angle < 0.0f) delta_angle += two_pi;
+    int segments = (int)ceilf(fabsf(delta_angle) / (pi / 16.0f));
+    if (segments < 1) segments = 1;
+    if (segments > 256) segments = 256;
+    for (int segment = 1; segment <= segments; segment++) {
+        float amount = (float)segment / (float)segments;
+        float angle = start_angle + delta_angle * amount;
+        vector_float2 point = {
+            center_x + cosine * radius_x * cosf(angle) -
+                sine * radius_y * sinf(angle),
+            center_y + sine * radius_x * cosf(angle) +
+                cosine * radius_y * sinf(angle),
+        };
+        if (segment == segments) point = end;
+        if (!moxi_append_path_point(points, count, limit, point)) return NO;
+    }
+    return YES;
+}
+
+typedef struct {
+    int start;
+    int count;
+    BOOL closed;
+} MoxiPathSubpath;
+
+static BOOL moxi_finish_path_subpath(
+    vector_float2 *points,
+    int *point_count,
+    MoxiPathSubpath *subpaths,
+    int *subpath_count,
+    int subpath_limit,
+    int start,
+    BOOL closed
+) {
+    if (start < 0) return YES;
+    int count = *point_count - start;
+    while (count > 1) {
+        vector_float2 first = points[start];
+        vector_float2 last = points[start + count - 1];
+        if (fabsf(first.x - last.x) >= 0.0001f ||
+            fabsf(first.y - last.y) >= 0.0001f) {
+            break;
+        }
+        *point_count -= 1;
+        count -= 1;
+    }
+    if (count < 2 || *subpath_count >= subpath_limit) return NO;
+    subpaths[*subpath_count] = (MoxiPathSubpath){start, count, closed};
+    *subpath_count += 1;
+    return YES;
+}
+
+static int moxi_parse_compound_path(
+    const char *data,
+    vector_float2 *points,
+    int point_limit,
+    MoxiPathSubpath *subpaths,
+    int subpath_limit,
+    int *subpath_count
+) {
+    if (data == NULL || points == NULL || subpaths == NULL ||
+        subpath_count == NULL || point_limit < 3 || subpath_limit < 1) return -1;
     const char *cursor = data;
     char command = 0;
-    int count = 0;
+    int point_count = 0;
+    int subpath_start = -1;
+    BOOL subpath_closed = NO;
     vector_float2 current = {0.0f, 0.0f};
-    *closed = NO;
+    vector_float2 previous_cubic_control = {0.0f, 0.0f};
+    vector_float2 previous_quadratic_control = {0.0f, 0.0f};
+    BOOL previous_was_cubic = NO;
+    BOOL previous_was_quadratic = NO;
+    *subpath_count = 0;
     while (1) {
         moxi_skip_path_separators(&cursor);
         if (*cursor == 0) break;
         if (isalpha((unsigned char)*cursor)) {
             command = *cursor++;
             if (command == 'Z' || command == 'z') {
-                if (count < 3) return -1;
-                *closed = YES;
+                if (subpath_start < 0 || point_count - subpath_start < 2) return -1;
+                subpath_closed = YES;
+                current = points[subpath_start];
                 command = 0;
+                previous_was_cubic = NO;
+                previous_was_quadratic = NO;
                 continue;
             }
         } else if (command == 0) {
@@ -598,29 +1159,449 @@ static int moxi_parse_polygon_path(const char *data, vector_float2 *points, int 
                 next.y += current.y;
             }
             if (normalized == 'M') {
-                if (count != 0) return -1;
+                if (!moxi_finish_path_subpath(
+                        points, &point_count, subpaths, subpath_count,
+                        subpath_limit, subpath_start, subpath_closed)) return -1;
+                subpath_start = point_count;
+                subpath_closed = NO;
+                if (point_count >= point_limit) return -1;
+                points[point_count++] = next;
+                current = next;
+                previous_was_cubic = NO;
+                previous_was_quadratic = NO;
+                command = relative ? 'l' : 'L';
+                continue;
             }
-            if (count >= limit) return -1;
-            points[count++] = next;
+            if (subpath_start < 0 ||
+                !moxi_append_path_point(points, &point_count, point_limit, next)) return -1;
             current = next;
-            if (normalized == 'M') command = relative ? 'l' : 'L';
+            subpath_closed = NO;
+            previous_was_cubic = NO;
+            previous_was_quadratic = NO;
         } else if (normalized == 'H') {
             if (!moxi_read_path_number(&cursor, &first)) return -1;
+            if (subpath_start < 0) return -1;
             vector_float2 next = {relative ? current.x + first : first, current.y};
-            if (count >= limit) return -1;
-            points[count++] = next;
+            if (!moxi_append_path_point(points, &point_count, point_limit, next)) return -1;
             current = next;
+            subpath_closed = NO;
+            previous_was_cubic = NO;
+            previous_was_quadratic = NO;
         } else if (normalized == 'V') {
             if (!moxi_read_path_number(&cursor, &first)) return -1;
+            if (subpath_start < 0) return -1;
             vector_float2 next = {current.x, relative ? current.y + first : first};
-            if (count >= limit) return -1;
-            points[count++] = next;
+            if (!moxi_append_path_point(points, &point_count, point_limit, next)) return -1;
             current = next;
+            subpath_closed = NO;
+            previous_was_cubic = NO;
+            previous_was_quadratic = NO;
+        } else if (normalized == 'A') {
+            if (subpath_start < 0) return -1;
+            float radius_x = 0.0f;
+            float radius_y = 0.0f;
+            float rotation = 0.0f;
+            float large_arc_value = 0.0f;
+            float sweep_value = 0.0f;
+            float end_x = 0.0f;
+            float end_y = 0.0f;
+            if (!moxi_read_path_number(&cursor, &radius_x) ||
+                !moxi_read_path_number(&cursor, &radius_y) ||
+                !moxi_read_path_number(&cursor, &rotation) ||
+                !moxi_read_path_number(&cursor, &large_arc_value) ||
+                !moxi_read_path_number(&cursor, &sweep_value) ||
+                !moxi_read_path_number(&cursor, &end_x) ||
+                !moxi_read_path_number(&cursor, &end_y)) return -1;
+            if ((fabsf(large_arc_value) > 0.0001f &&
+                 fabsf(large_arc_value - 1.0f) > 0.0001f) ||
+                (fabsf(sweep_value) > 0.0001f &&
+                 fabsf(sweep_value - 1.0f) > 0.0001f)) return -1;
+            vector_float2 next = {end_x, end_y};
+            if (relative) {
+                next.x += current.x;
+                next.y += current.y;
+            }
+            if (!moxi_append_arc_path(
+                    points, &point_count, point_limit, current, radius_x, radius_y,
+                    rotation, large_arc_value > 0.5f, sweep_value > 0.5f,
+                    next)) return -1;
+            current = next;
+            subpath_closed = NO;
+            previous_was_cubic = NO;
+            previous_was_quadratic = NO;
+        } else if (normalized == 'Q' || normalized == 'T') {
+            if (subpath_start < 0) return -1;
+            vector_float2 control = current;
+            vector_float2 next = current;
+            if (normalized == 'Q') {
+                if (!moxi_read_path_number(&cursor, &first) ||
+                    !moxi_read_path_number(&cursor, &second)) return -1;
+                control = (vector_float2){first, second};
+                if (relative) {
+                    control.x += current.x;
+                    control.y += current.y;
+                }
+                if (!moxi_read_path_number(&cursor, &first) ||
+                    !moxi_read_path_number(&cursor, &second)) return -1;
+                next = (vector_float2){first, second};
+                if (relative) {
+                    next.x += current.x;
+                    next.y += current.y;
+                }
+            } else {
+                if (!moxi_read_path_number(&cursor, &first) ||
+                    !moxi_read_path_number(&cursor, &second)) return -1;
+                next = (vector_float2){first, second};
+                if (relative) {
+                    next.x += current.x;
+                    next.y += current.y;
+                }
+                if (previous_was_quadratic) {
+                    control = (vector_float2){
+                        2.0f * current.x - previous_quadratic_control.x,
+                        2.0f * current.y - previous_quadratic_control.y,
+                    };
+                }
+            }
+            if (!moxi_append_quadratic_path(
+                    points, &point_count, point_limit, current, control, next)) return -1;
+            current = next;
+            subpath_closed = NO;
+            previous_quadratic_control = control;
+            previous_was_quadratic = YES;
+            previous_was_cubic = NO;
+        } else if (normalized == 'C' || normalized == 'S') {
+            if (subpath_start < 0) return -1;
+            vector_float2 first_control = current;
+            vector_float2 second_control = current;
+            vector_float2 next = current;
+            if (normalized == 'C') {
+                float third = 0.0f;
+                float fourth = 0.0f;
+                if (!moxi_read_path_number(&cursor, &first) ||
+                    !moxi_read_path_number(&cursor, &second) ||
+                    !moxi_read_path_number(&cursor, &third) ||
+                    !moxi_read_path_number(&cursor, &fourth)) return -1;
+                first_control = (vector_float2){first, second};
+                second_control = (vector_float2){third, fourth};
+                if (relative) {
+                    first_control.x += current.x;
+                    first_control.y += current.y;
+                    second_control.x += current.x;
+                    second_control.y += current.y;
+                }
+                if (!moxi_read_path_number(&cursor, &first) ||
+                    !moxi_read_path_number(&cursor, &second)) return -1;
+                next = (vector_float2){first, second};
+                if (relative) {
+                    next.x += current.x;
+                    next.y += current.y;
+                }
+            } else {
+                float second_x = 0.0f;
+                float second_y = 0.0f;
+                float end_x = 0.0f;
+                float end_y = 0.0f;
+                if (!moxi_read_path_number(&cursor, &second_x) ||
+                    !moxi_read_path_number(&cursor, &second_y) ||
+                    !moxi_read_path_number(&cursor, &end_x) ||
+                    !moxi_read_path_number(&cursor, &end_y)) return -1;
+                if (previous_was_cubic) {
+                    first_control = (vector_float2){
+                        2.0f * current.x - previous_cubic_control.x,
+                        2.0f * current.y - previous_cubic_control.y,
+                    };
+                }
+                second_control = (vector_float2){second_x, second_y};
+                next = (vector_float2){end_x, end_y};
+                if (relative) {
+                    second_control.x += current.x;
+                    second_control.y += current.y;
+                    next.x += current.x;
+                    next.y += current.y;
+                }
+            }
+            if (!moxi_append_cubic_path(
+                    points, &point_count, point_limit, current,
+                    first_control, second_control, next)) return -1;
+            current = next;
+            subpath_closed = NO;
+            previous_cubic_control = second_control;
+            previous_was_cubic = YES;
+            previous_was_quadratic = NO;
         } else {
             return -1;
         }
     }
-    return count >= 3 ? count : -1;
+    if (!moxi_finish_path_subpath(
+            points, &point_count, subpaths, subpath_count,
+            subpath_limit, subpath_start, subpath_closed)) return -1;
+    return point_count >= 2 && *subpath_count > 0 ? point_count : -1;
+}
+
+static float moxi_path_cross(
+    vector_float2 first,
+    vector_float2 second,
+    vector_float2 third
+) {
+    return (second.x - first.x) * (third.y - first.y) -
+        (second.y - first.y) * (third.x - first.x);
+}
+
+static BOOL moxi_path_point_in_triangle(
+    vector_float2 point,
+    vector_float2 first,
+    vector_float2 second,
+    vector_float2 third,
+    float orientation
+) {
+    const float epsilon = 0.00001f;
+    float first_cross = orientation * moxi_path_cross(first, second, point);
+    float second_cross = orientation * moxi_path_cross(second, third, point);
+    float third_cross = orientation * moxi_path_cross(third, first, point);
+    return first_cross >= -epsilon && second_cross >= -epsilon && third_cross >= -epsilon;
+}
+
+static BOOL moxi_append_polygon_fill(
+    vector_float2 *points,
+    int count,
+    const float color[4],
+    float m11,
+    float m12,
+    float m21,
+    float m22,
+    float tx,
+    float ty
+) {
+    if (count < 3) return NO;
+    while (count > 3) {
+        vector_float2 first = points[0];
+        vector_float2 last = points[count - 1];
+        if (fabsf(first.x - last.x) >= 0.0001f ||
+            fabsf(first.y - last.y) >= 0.0001f) break;
+        count -= 1;
+    }
+    if (count < 3) return NO;
+
+    float area = 0.0f;
+    for (int index = 0; index < count; index++) {
+        vector_float2 first = points[index];
+        vector_float2 second = points[(index + 1) % count];
+        area += first.x * second.y - second.x * first.y;
+    }
+    if (fabsf(area) < 0.00001f) return NO;
+    float orientation = area > 0.0f ? 1.0f : -1.0f;
+    int original_vertex_count = moxi_metal_vertex_count;
+    if (!moxi_metal_reserve_vertices((count - 2) * 3)) return NO;
+
+    int indices[4096];
+    for (int index = 0; index < count; index++) indices[index] = index;
+    int remaining = count;
+    int guard = 0;
+    while (remaining > 3 && guard < count * count) {
+        BOOL found_ear = NO;
+        for (int index = 0; index < remaining; index++) {
+            int previous_index = indices[(index + remaining - 1) % remaining];
+            int current_index = indices[index];
+            int next_index = indices[(index + 1) % remaining];
+            vector_float2 previous = points[previous_index];
+            vector_float2 current = points[current_index];
+            vector_float2 next = points[next_index];
+            if (orientation * moxi_path_cross(previous, current, next) <= 0.00001f) {
+                continue;
+            }
+            BOOL contains_point = NO;
+            for (int candidate = 0; candidate < remaining; candidate++) {
+                int candidate_index = indices[candidate];
+                if (candidate_index == previous_index ||
+                    candidate_index == current_index ||
+                    candidate_index == next_index) {
+                    continue;
+                }
+                if (moxi_path_point_in_triangle(
+                        points[candidate_index], previous, current, next, orientation)) {
+                    contains_point = YES;
+                    break;
+                }
+            }
+            if (contains_point) continue;
+            moxi_metal_vertices[moxi_metal_vertex_count++] = moxi_transformed_vertex(
+                previous.x, previous.y, color, m11, m12, m21, m22, tx, ty);
+            moxi_metal_vertices[moxi_metal_vertex_count++] = moxi_transformed_vertex(
+                current.x, current.y, color, m11, m12, m21, m22, tx, ty);
+            moxi_metal_vertices[moxi_metal_vertex_count++] = moxi_transformed_vertex(
+                next.x, next.y, color, m11, m12, m21, m22, tx, ty);
+            for (int shift = index; shift < remaining - 1; shift++) {
+                indices[shift] = indices[shift + 1];
+            }
+            remaining -= 1;
+            found_ear = YES;
+            break;
+        }
+        if (!found_ear) {
+            moxi_metal_vertex_count = original_vertex_count;
+            return NO;
+        }
+        guard += 1;
+    }
+    if (remaining != 3) {
+        moxi_metal_vertex_count = original_vertex_count;
+        return NO;
+    }
+    moxi_metal_vertices[moxi_metal_vertex_count++] = moxi_transformed_vertex(
+        points[indices[0]].x, points[indices[0]].y, color, m11, m12, m21, m22, tx, ty);
+    moxi_metal_vertices[moxi_metal_vertex_count++] = moxi_transformed_vertex(
+        points[indices[1]].x, points[indices[1]].y, color, m11, m12, m21, m22, tx, ty);
+    moxi_metal_vertices[moxi_metal_vertex_count++] = moxi_transformed_vertex(
+        points[indices[2]].x, points[indices[2]].y, color, m11, m12, m21, m22, tx, ty);
+    return YES;
+}
+
+typedef struct {
+    float x_at_sample;
+    float x_at_top;
+    float x_at_bottom;
+} MoxiScanlineIntersection;
+
+static int moxi_compare_float_values(const void *left, const void *right) {
+    float first = *(const float *)left;
+    float second = *(const float *)right;
+    if (first < second) return -1;
+    if (first > second) return 1;
+    return 0;
+}
+
+static int moxi_compare_scanline_intersections(
+    const void *left,
+    const void *right
+) {
+    float first = ((const MoxiScanlineIntersection *)left)->x_at_sample;
+    float second = ((const MoxiScanlineIntersection *)right)->x_at_sample;
+    if (first < second) return -1;
+    if (first > second) return 1;
+    return 0;
+}
+
+static float moxi_clamp_path_amount(float value) {
+    if (value < 0.0f) return 0.0f;
+    if (value > 1.0f) return 1.0f;
+    return value;
+}
+
+static BOOL moxi_append_compound_even_odd_fill(
+    vector_float2 *points,
+    int point_count,
+    MoxiPathSubpath *subpaths,
+    int subpath_count,
+    const float color[4],
+    float m11,
+    float m12,
+    float m21,
+    float m22,
+    float tx,
+    float ty
+) {
+    if (points == NULL || subpaths == NULL || point_count < 3 ||
+        subpath_count < 1) return NO;
+    float y_values[MOXI_METAL_MAX_PATH_POINTS];
+    int y_count = 0;
+    for (int index = 0; index < point_count; index++) {
+        if (y_count >= MOXI_METAL_MAX_PATH_POINTS) return NO;
+        y_values[y_count++] = points[index].y;
+    }
+    qsort(y_values, (size_t)y_count, sizeof(float), moxi_compare_float_values);
+    int unique_y_count = 0;
+    for (int index = 0; index < y_count; index++) {
+        if (unique_y_count == 0 ||
+            fabsf(y_values[index] - y_values[unique_y_count - 1]) >= 0.0001f) {
+            y_values[unique_y_count++] = y_values[index];
+        }
+    }
+
+    int original_vertex_count = moxi_metal_vertex_count;
+    int triangle_count = 0;
+    for (int y_index = 0; y_index + 1 < unique_y_count; y_index++) {
+        float top = y_values[y_index];
+        float bottom = y_values[y_index + 1];
+        if (bottom - top <= 0.0001f) continue;
+        float sample = (top + bottom) * 0.5f;
+        MoxiScanlineIntersection intersections[MOXI_METAL_MAX_SCANLINE_INTERSECTIONS];
+        int intersection_count = 0;
+        for (int subpath_index = 0; subpath_index < subpath_count; subpath_index++) {
+            MoxiPathSubpath subpath = subpaths[subpath_index];
+            if (subpath.count < 2) continue;
+            for (int edge_index = 0; edge_index < subpath.count; edge_index++) {
+                int first_index = subpath.start + edge_index;
+                int second_index = subpath.start + ((edge_index + 1) % subpath.count);
+                vector_float2 first = points[first_index];
+                vector_float2 second = points[second_index];
+                float delta_y = second.y - first.y;
+                if (fabsf(delta_y) <= 0.0001f) continue;
+                float lower = first.y < second.y ? first.y : second.y;
+                float upper = first.y > second.y ? first.y : second.y;
+                if (sample <= lower || sample >= upper) continue;
+                if (intersection_count >= MOXI_METAL_MAX_SCANLINE_INTERSECTIONS) {
+                    moxi_metal_overflow_count += 1;
+                    moxi_metal_vertex_count = original_vertex_count;
+                    return NO;
+                }
+                float sample_amount = moxi_clamp_path_amount(
+                    (sample - first.y) / delta_y);
+                float top_amount = moxi_clamp_path_amount(
+                    (top - first.y) / delta_y);
+                float bottom_amount = moxi_clamp_path_amount(
+                    (bottom - first.y) / delta_y);
+                intersections[intersection_count++] = (MoxiScanlineIntersection){
+                    first.x + (second.x - first.x) * sample_amount,
+                    first.x + (second.x - first.x) * top_amount,
+                    first.x + (second.x - first.x) * bottom_amount,
+                };
+            }
+        }
+        if (intersection_count == 0) continue;
+        if ((intersection_count & 1) != 0) {
+            moxi_metal_vertex_count = original_vertex_count;
+            return NO;
+        }
+        qsort(
+            intersections,
+            (size_t)intersection_count,
+            sizeof(MoxiScanlineIntersection),
+            moxi_compare_scanline_intersections
+        );
+        for (int intersection_index = 0;
+             intersection_index + 1 < intersection_count;
+             intersection_index += 2) {
+            MoxiScanlineIntersection left = intersections[intersection_index];
+            MoxiScanlineIntersection right = intersections[intersection_index + 1];
+            if (right.x_at_sample - left.x_at_sample <= 0.0001f) continue;
+            if (triangle_count + 2 > MOXI_METAL_MAX_TESSELLATION_TRIANGLES ||
+                !moxi_metal_reserve_vertices(6)) {
+                moxi_metal_vertex_count = original_vertex_count;
+                return NO;
+            }
+            MoxiMetalVertex top_left = moxi_transformed_vertex(
+                left.x_at_top, top, color, m11, m12, m21, m22, tx, ty);
+            MoxiMetalVertex top_right = moxi_transformed_vertex(
+                right.x_at_top, top, color, m11, m12, m21, m22, tx, ty);
+            MoxiMetalVertex bottom_left = moxi_transformed_vertex(
+                left.x_at_bottom, bottom, color, m11, m12, m21, m22, tx, ty);
+            MoxiMetalVertex bottom_right = moxi_transformed_vertex(
+                right.x_at_bottom, bottom, color, m11, m12, m21, m22, tx, ty);
+            moxi_metal_vertices[moxi_metal_vertex_count++] = top_left;
+            moxi_metal_vertices[moxi_metal_vertex_count++] = top_right;
+            moxi_metal_vertices[moxi_metal_vertex_count++] = bottom_left;
+            moxi_metal_vertices[moxi_metal_vertex_count++] = bottom_left;
+            moxi_metal_vertices[moxi_metal_vertex_count++] = top_right;
+            moxi_metal_vertices[moxi_metal_vertex_count++] = bottom_right;
+            triangle_count += 2;
+        }
+    }
+    if (triangle_count == 0) {
+        moxi_metal_vertex_count = original_vertex_count;
+        return NO;
+    }
+    return YES;
 }
 
 int moxi_metal_draw_path(
@@ -642,38 +1623,84 @@ int moxi_metal_draw_path(
     float ty
 ) {
     if (moxi_metal_encoder == nil) return -1;
-    vector_float2 points[4096];
-    BOOL closed = NO;
-    int count = moxi_parse_polygon_path(path_data, points, 4096, &closed);
-    if (count < 0) return -1;
+    vector_float2 points[MOXI_METAL_MAX_PATH_POINTS];
+    MoxiPathSubpath subpaths[MOXI_METAL_MAX_PATH_SUBPATHS];
+    int subpath_count = 0;
+    int point_count = moxi_parse_compound_path(
+        path_data,
+        points,
+        MOXI_METAL_MAX_PATH_POINTS,
+        subpaths,
+        MOXI_METAL_MAX_PATH_SUBPATHS,
+        &subpath_count
+    );
+    if (point_count < 0 || subpath_count < 1) return -1;
     float fill[4] = {fill_red, fill_green, fill_blue, fill_alpha};
     if (fill_alpha > 0.0f) {
-        if (!moxi_metal_reserve_vertices((count - 2) * 3)) return -1;
-        MoxiMetalVertex first = moxi_transformed_vertex(
-            points[0].x, points[0].y, fill, m11, m12, m21, m22, tx, ty);
-        for (int index = 1; index < count - 1; index++) {
-            MoxiMetalVertex second = moxi_transformed_vertex(
-                points[index].x, points[index].y, fill, m11, m12, m21, m22, tx, ty);
-            MoxiMetalVertex third = moxi_transformed_vertex(
-                points[index + 1].x, points[index + 1].y, fill, m11, m12, m21, m22, tx, ty);
-            moxi_metal_vertices[moxi_metal_vertex_count++] = first;
-            moxi_metal_vertices[moxi_metal_vertex_count++] = second;
-            moxi_metal_vertices[moxi_metal_vertex_count++] = third;
+        BOOL filled = NO;
+        if (subpath_count == 1 && subpaths[0].count >= 3) {
+            filled = moxi_append_polygon_fill(
+                points + subpaths[0].start,
+                subpaths[0].count,
+                fill,
+                m11,
+                m12,
+                m21,
+                m22,
+                tx,
+                ty
+            );
         }
+        if (!filled) {
+            filled = moxi_append_compound_even_odd_fill(
+                points,
+                point_count,
+                subpaths,
+                subpath_count,
+                fill,
+                m11,
+                m12,
+                m21,
+                m22,
+                tx,
+                ty
+            );
+        }
+        if (!filled) return -1;
     }
     if (stroke_alpha > 0.0f && stroke_width > 0.0f) {
         float stroke[4] = {stroke_red, stroke_green, stroke_blue, stroke_alpha};
-        int segment_count = closed ? count : count - 1;
-        for (int index = 0; index < segment_count; index++) {
-            int next = (index + 1) % count;
-            vector_float2 start = moxi_transform_point(
-                points[index].x, points[index].y, m11, m12, m21, m22, tx, ty);
-            vector_float2 end = moxi_transform_point(
-                points[next].x, points[next].y, m11, m12, m21, m22, tx, ty);
-            moxi_append_line(start.x, start.y, end.x, end.y, stroke_width, stroke);
+        for (int subpath_index = 0; subpath_index < subpath_count; subpath_index++) {
+            MoxiPathSubpath subpath = subpaths[subpath_index];
+            int segment_count = subpath.closed ? subpath.count : subpath.count - 1;
+            for (int index = 0; index < segment_count; index++) {
+                int first_index = subpath.start + index;
+                int next_index = subpath.start + ((index + 1) % subpath.count);
+                vector_float2 start = moxi_transform_point(
+                    points[first_index].x,
+                    points[first_index].y,
+                    m11,
+                    m12,
+                    m21,
+                    m22,
+                    tx,
+                    ty
+                );
+                vector_float2 end = moxi_transform_point(
+                    points[next_index].x,
+                    points[next_index].y,
+                    m11,
+                    m12,
+                    m21,
+                    m22,
+                    tx,
+                    ty
+                );
+                moxi_append_line(start.x, start.y, end.x, end.y, stroke_width, stroke);
+            }
         }
     }
-    return count;
+    return point_count;
 }
 
 static BOOL moxi_metal_make_pipeline(void) {
@@ -833,6 +1860,48 @@ static void moxi_metal_flush_geometry(void) {
     moxi_metal_vertex_count = 0;
 }
 
+static int moxi_metal_draw_texture_quad(
+    id<MTLTexture> texture,
+    float x,
+    float y,
+    float width,
+    float height,
+    float alpha,
+    float m11,
+    float m12,
+    float m21,
+    float m22,
+    float tx,
+    float ty
+) {
+    if (moxi_metal_encoder == nil || texture == nil ||
+        moxi_metal_image_buffer == nil || moxi_metal_image_pipeline == nil ||
+        width <= 0.0f || height <= 0.0f) {
+        return 0;
+    }
+    vector_float2 topLeft = moxi_transform_point(x, y, m11, m12, m21, m22, tx, ty);
+    vector_float2 topRight = moxi_transform_point(x + width, y, m11, m12, m21, m22, tx, ty);
+    vector_float2 bottomLeft = moxi_transform_point(x, y + height, m11, m12, m21, m22, tx, ty);
+    vector_float2 bottomRight = moxi_transform_point(x + width, y + height, m11, m12, m21, m22, tx, ty);
+    vector_float4 color = (vector_float4){1.0f, 1.0f, 1.0f, moxi_clamp(alpha)};
+    MoxiMetalImageVertex *vertices = moxi_metal_image_vertices;
+    vertices[0] = (MoxiMetalImageVertex){moxi_ndc(topLeft.x, topLeft.y), (vector_float2){0.0f, 0.0f}, color};
+    vertices[1] = (MoxiMetalImageVertex){moxi_ndc(topRight.x, topRight.y), (vector_float2){1.0f, 0.0f}, color};
+    vertices[2] = (MoxiMetalImageVertex){moxi_ndc(bottomLeft.x, bottomLeft.y), (vector_float2){0.0f, 1.0f}, color};
+    vertices[3] = vertices[2];
+    vertices[4] = vertices[1];
+    vertices[5] = (MoxiMetalImageVertex){moxi_ndc(bottomRight.x, bottomRight.y), (vector_float2){1.0f, 1.0f}, color};
+    moxi_metal_flush_geometry();
+    [moxi_metal_encoder setRenderPipelineState:moxi_metal_image_pipeline];
+    [moxi_metal_encoder setVertexBuffer:moxi_metal_image_buffer offset:0 atIndex:0];
+    [moxi_metal_encoder setFragmentTexture:texture atIndex:0];
+    [moxi_metal_encoder setFragmentSamplerState:moxi_metal_image_sampler atIndex:0];
+    [moxi_metal_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
+    moxi_metal_draw_submission_count += 1;
+    [moxi_metal_encoder setRenderPipelineState:moxi_metal_pipeline];
+    return 1;
+}
+
 int moxi_metal_available(void) {
     return MTLCreateSystemDefaultDevice() != nil ? 1 : 0;
 }
@@ -864,11 +1933,32 @@ int moxi_metal_init(int width, int height) {
     moxi_metal_buffer_reallocation_count = 0;
     moxi_metal_draw_submission_count = 0;
     moxi_metal_resize_count = 0;
+    moxi_metal_last_gpu_time_ms = 0.0f;
+    moxi_metal_last_cpu_encode_time_ms = 0.0f;
+    moxi_metal_last_cpu_wait_time_ms = 0.0f;
+    moxi_metal_last_frame_time_ms = 0.0f;
+    moxi_metal_gpu_timing_available = NO;
+    moxi_metal_frame_start_time = 0.0;
+    moxi_metal_encode_start_time = 0.0;
     moxi_metal_clip_depth = 0;
     for (int index = 0; index < MOXI_METAL_MAX_IMAGES; index++) {
         moxi_metal_image_ids[index] = -1;
         moxi_metal_images[index] = nil;
     }
+    for (int index = 0; index < MOXI_METAL_MAX_TEXT_TEXTURES; index++) {
+        moxi_metal_textures[index] = nil;
+    }
+    for (int index = 0; index < MOXI_METAL_MAX_TEXT_CACHE; index++) {
+        moxi_metal_text_cache_keys[index] = nil;
+        moxi_metal_text_cache_textures[index] = nil;
+        moxi_metal_text_cache_glyph_counts[index] = 0;
+    }
+    moxi_metal_text_texture_count = 0;
+    moxi_metal_text_texture_draw_count = 0;
+    moxi_metal_text_cache_count = 0;
+    moxi_metal_text_cache_bytes = 0;
+    moxi_metal_text_texture_cache_hit_count = 0;
+    moxi_metal_text_texture_raster_count = 0;
     moxi_metal_initialized = YES;
     return 1;
 }
@@ -891,6 +1981,20 @@ void moxi_metal_begin(float red, float green, float blue, float alpha) {
     moxi_metal_submitted_vertex_count = 0;
     moxi_metal_draw_submission_count = 0;
     moxi_metal_clip_depth = 0;
+    for (int index = 0; index < MOXI_METAL_MAX_TEXT_TEXTURES; index++) {
+        moxi_metal_textures[index] = nil;
+    }
+    moxi_metal_text_texture_count = 0;
+    moxi_metal_text_texture_draw_count = 0;
+    moxi_metal_text_texture_cache_hit_count = 0;
+    moxi_metal_text_texture_raster_count = 0;
+    moxi_metal_last_gpu_time_ms = 0.0f;
+    moxi_metal_last_cpu_encode_time_ms = 0.0f;
+    moxi_metal_last_cpu_wait_time_ms = 0.0f;
+    moxi_metal_last_frame_time_ms = 0.0f;
+    moxi_metal_gpu_timing_available = NO;
+    moxi_metal_frame_start_time = CFAbsoluteTimeGetCurrent();
+    moxi_metal_encode_start_time = moxi_metal_frame_start_time;
     moxi_metal_command_buffer = [moxi_metal_queue commandBuffer];
     MTLRenderPassDescriptor *pass = [MTLRenderPassDescriptor renderPassDescriptor];
     moxi_metal_render_texture = moxi_metal_texture;
@@ -977,28 +2081,20 @@ int moxi_metal_draw_image(
         moxi_metal_image_pipeline == nil) return 0;
     int slot = moxi_metal_find_image(resource_id);
     if (slot < 0 || width <= 0.0f || height <= 0.0f) return 0;
-    vector_float2 topLeft = moxi_transform_point(x, y, m11, m12, m21, m22, tx, ty);
-    vector_float2 topRight = moxi_transform_point(x + width, y, m11, m12, m21, m22, tx, ty);
-    vector_float2 bottomLeft = moxi_transform_point(x, y + height, m11, m12, m21, m22, tx, ty);
-    vector_float2 bottomRight = moxi_transform_point(x + width, y + height, m11, m12, m21, m22, tx, ty);
-    float clampedAlpha = moxi_clamp(alpha);
-    vector_float4 color = (vector_float4){1.0f, 1.0f, 1.0f, clampedAlpha};
-    MoxiMetalImageVertex *vertices = moxi_metal_image_vertices;
-    vertices[0] = (MoxiMetalImageVertex){moxi_ndc(topLeft.x, topLeft.y), (vector_float2){0.0f, 0.0f}, color};
-    vertices[1] = (MoxiMetalImageVertex){moxi_ndc(topRight.x, topRight.y), (vector_float2){1.0f, 0.0f}, color};
-    vertices[2] = (MoxiMetalImageVertex){moxi_ndc(bottomLeft.x, bottomLeft.y), (vector_float2){0.0f, 1.0f}, color};
-    vertices[3] = vertices[2];
-    vertices[4] = vertices[1];
-    vertices[5] = (MoxiMetalImageVertex){moxi_ndc(bottomRight.x, bottomRight.y), (vector_float2){1.0f, 1.0f}, color};
-    moxi_metal_flush_geometry();
-    [moxi_metal_encoder setRenderPipelineState:moxi_metal_image_pipeline];
-    [moxi_metal_encoder setVertexBuffer:moxi_metal_image_buffer offset:0 atIndex:0];
-    [moxi_metal_encoder setFragmentTexture:moxi_metal_images[slot] atIndex:0];
-    [moxi_metal_encoder setFragmentSamplerState:moxi_metal_image_sampler atIndex:0];
-    [moxi_metal_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
-    moxi_metal_draw_submission_count += 1;
-    [moxi_metal_encoder setRenderPipelineState:moxi_metal_pipeline];
-    return 1;
+    return moxi_metal_draw_texture_quad(
+        moxi_metal_images[slot],
+        x,
+        y,
+        width,
+        height,
+        alpha,
+        m11,
+        m12,
+        m21,
+        m22,
+        tx,
+        ty
+    );
 }
 
 void moxi_metal_push_clip(float x, float y, float width, float height) {
@@ -1056,12 +2152,33 @@ void moxi_metal_end(void) {
     if (moxi_metal_drawable != nil) {
         [moxi_metal_command_buffer presentDrawable:moxi_metal_drawable];
     }
+    CFTimeInterval encode_end = CFAbsoluteTimeGetCurrent();
+    moxi_metal_last_cpu_encode_time_ms =
+        (float)((encode_end - moxi_metal_encode_start_time) * 1000.0);
     [moxi_metal_command_buffer commit];
+    CFTimeInterval wait_start = CFAbsoluteTimeGetCurrent();
     [moxi_metal_command_buffer waitUntilCompleted];
+    CFTimeInterval wait_end = CFAbsoluteTimeGetCurrent();
+    moxi_metal_last_cpu_wait_time_ms =
+        (float)((wait_end - wait_start) * 1000.0);
+    moxi_metal_last_frame_time_ms =
+        (float)((wait_end - moxi_metal_frame_start_time) * 1000.0);
+    if (moxi_metal_command_buffer.GPUStartTime > 0.0 &&
+        moxi_metal_command_buffer.GPUEndTime >= moxi_metal_command_buffer.GPUStartTime) {
+        moxi_metal_last_gpu_time_ms = (float)(
+            (moxi_metal_command_buffer.GPUEndTime -
+             moxi_metal_command_buffer.GPUStartTime) * 1000.0
+        );
+        moxi_metal_gpu_timing_available = YES;
+    }
     moxi_metal_encoder = nil;
     moxi_metal_command_buffer = nil;
     moxi_metal_drawable = nil;
     moxi_metal_render_texture = nil;
+    for (int index = 0; index < MOXI_METAL_MAX_TEXT_TEXTURES; index++) {
+        moxi_metal_textures[index] = nil;
+    }
+    moxi_metal_text_texture_count = 0;
     moxi_metal_frame_count += 1;
 }
 
@@ -1072,6 +2189,26 @@ int moxi_metal_buffer_capacity_value(void) { return (int)moxi_metal_vertex_capac
 int moxi_metal_buffer_reallocation_count_value(void) { return moxi_metal_buffer_reallocation_count; }
 int moxi_metal_draw_submission_count_value(void) { return moxi_metal_draw_submission_count; }
 int moxi_metal_resize_count_value(void) { return moxi_metal_resize_count; }
+float moxi_metal_gpu_time_ms_value(void) { return moxi_metal_last_gpu_time_ms; }
+float moxi_metal_cpu_encode_time_ms_value(void) {
+    return moxi_metal_last_cpu_encode_time_ms;
+}
+float moxi_metal_cpu_wait_time_ms_value(void) {
+    return moxi_metal_last_cpu_wait_time_ms;
+}
+float moxi_metal_frame_time_ms_value(void) {
+    return moxi_metal_last_frame_time_ms;
+}
+int moxi_metal_gpu_timing_available_value(void) {
+    return moxi_metal_gpu_timing_available ? 1 : 0;
+}
+int moxi_metal_text_texture_count_value(void) { return moxi_metal_text_texture_draw_count; }
+int moxi_metal_text_texture_cache_hit_count_value(void) {
+    return moxi_metal_text_texture_cache_hit_count;
+}
+int moxi_metal_text_texture_raster_count_value(void) {
+    return moxi_metal_text_texture_raster_count;
+}
 
 int64_t moxi_metal_checksum(void) {
     if (!moxi_metal_initialized || moxi_metal_texture == nil) return 0;
@@ -1100,6 +2237,20 @@ void moxi_metal_shutdown(void) {
     moxi_metal_texture = nil;
     moxi_metal_image_buffer = nil;
     moxi_metal_image_vertices = NULL;
+    for (int index = 0; index < MOXI_METAL_MAX_TEXT_TEXTURES; index++) {
+        moxi_metal_textures[index] = nil;
+    }
+    moxi_metal_text_texture_count = 0;
+    moxi_metal_text_texture_draw_count = 0;
+    for (int index = 0; index < MOXI_METAL_MAX_TEXT_CACHE; index++) {
+        moxi_metal_text_cache_keys[index] = nil;
+        moxi_metal_text_cache_textures[index] = nil;
+        moxi_metal_text_cache_glyph_counts[index] = 0;
+    }
+    moxi_metal_text_cache_count = 0;
+    moxi_metal_text_cache_bytes = 0;
+    moxi_metal_text_texture_cache_hit_count = 0;
+    moxi_metal_text_texture_raster_count = 0;
     for (int index = 0; index < MOXI_METAL_MAX_IMAGES; index++) {
         moxi_metal_images[index] = nil;
         moxi_metal_image_ids[index] = -1;
@@ -1116,6 +2267,13 @@ void moxi_metal_shutdown(void) {
     moxi_metal_buffer_reallocation_count = 0;
     moxi_metal_draw_submission_count = 0;
     moxi_metal_resize_count = 0;
+    moxi_metal_last_gpu_time_ms = 0.0f;
+    moxi_metal_last_cpu_encode_time_ms = 0.0f;
+    moxi_metal_last_cpu_wait_time_ms = 0.0f;
+    moxi_metal_last_frame_time_ms = 0.0f;
+    moxi_metal_gpu_timing_available = NO;
+    moxi_metal_frame_start_time = 0.0;
+    moxi_metal_encode_start_time = 0.0;
     moxi_metal_clip_depth = 0;
     moxi_metal_target_width = 0;
     moxi_metal_target_height = 0;

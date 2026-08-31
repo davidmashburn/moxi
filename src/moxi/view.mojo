@@ -428,10 +428,24 @@ struct ViewNode(ImplicitlyCopyable):
     def set_accessibility_hint(mut self, hint: String):
         self.semantics.hint = hint
 
+    def set_accessibility_value_range(
+        mut self,
+        minimum: Float32,
+        maximum: Float32,
+        current: Float32,
+    ):
+        """Publish machine-readable scalar range metadata."""
+        self.semantics.set_value_range(minimum, maximum, current)
+
+    def set_expanded(mut self, expanded: Bool):
+        """Publish disclosure/open state without encoding it in a label."""
+        self.semantics.set_expanded(expanded)
+
     def set_selected(mut self, selected: Bool):
         self.semantics.selected = selected
-        if self.kind == CHECKBOX_KIND:
+        if self.kind == CHECKBOX_KIND or self.kind == SWITCH_KIND or self.kind == RADIO_KIND:
             self.checked = selected
+            self.semantics.checked = selected
             if selected:
                 self.semantics.value = "checked"
             else:
@@ -441,6 +455,7 @@ struct ViewNode(ImplicitlyCopyable):
         """Set checkbox state and its accessible value together."""
         self.checked = checked
         self.semantics.selected = checked
+        self.semantics.checked = checked
         if checked:
             self.semantics.value = "checked"
         else:
@@ -454,6 +469,7 @@ struct ViewNode(ImplicitlyCopyable):
         if value > 1.0:
             value = 1.0
         self.progress = value
+        self.semantics.set_value_range(0.0, 1.0, value)
         var percent = Int(value * 100.0)
         self.semantics.value = String(percent)
         self.semantics.value += "%"
@@ -1619,6 +1635,26 @@ struct ColumnView:
         for index in range(len(self.children)):
             if self.children[index].id == id:
                 self.children[index].set_accessibility_hint(hint)
+
+    def set_accessibility_value_range(
+        mut self,
+        id: Int,
+        minimum: Float32,
+        maximum: Float32,
+        current: Float32,
+    ):
+        """Publish machine-readable scalar range metadata for a child."""
+        for index in range(len(self.children)):
+            if self.children[index].id == id:
+                self.children[index].set_accessibility_value_range(
+                    minimum, maximum, current
+                )
+
+    def set_expanded(mut self, id: Int, expanded: Bool):
+        """Update a disclosure/open state by stable id."""
+        for index in range(len(self.children)):
+            if self.children[index].id == id:
+                self.children[index].set_expanded(expanded)
 
     def set_selected(mut self, id: Int, selected: Bool):
         """Expose selection state for semantic consumers."""

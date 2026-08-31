@@ -266,8 +266,9 @@ struct SoftwareSceneRenderer(SceneRenderer):
                 stroke_width,
             )
         elif command.kind == SCENE_PATH:
-            # The path grammar belongs to a future path tessellator. Its
-            # declared bounds still make a useful deterministic smoke path.
+            # Keep the software backend a deterministic bounds oracle.
+            # Native Metal/SVG parse the full path grammar; portable software
+            # tessellation is intentionally a later backend slice.
             self.fill_rect(
                 _transformed_bounds(self.transform, command.bounds),
                 _with_opacity(command.fill, self.opacity * command.opacity),

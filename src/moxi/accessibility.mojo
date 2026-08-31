@@ -64,7 +64,9 @@ struct Semantics(ImplicitlyCopyable):
 
     This is deliberately backend-neutral. Platform adapters can map the
     stable role/name/value/state fields to their native accessibility APIs
-    without making those APIs part of the Mojo view contract.
+    without making those APIs part of the Mojo view contract. Boolean state
+    and scalar ranges are explicit so a native bridge does not have to parse
+    presentation strings such as ``"value 42"``.
     """
 
     var id: Int
@@ -77,6 +79,12 @@ struct Semantics(ImplicitlyCopyable):
     var enabled: Bool
     var focused: Bool
     var selected: Bool
+    var checked: Bool
+    var expanded: Bool
+    var has_value_range: Bool
+    var value_min: Float32
+    var value_max: Float32
+    var value_now: Float32
     var actions: Int
 
     def __init__(out self, id: Int, role: Int, label: String):
@@ -90,10 +98,45 @@ struct Semantics(ImplicitlyCopyable):
         self.enabled = True
         self.focused = False
         self.selected = False
+        self.checked = False
+        self.expanded = False
+        self.has_value_range = False
+        self.value_min = 0.0
+        self.value_max = 0.0
+        self.value_now = 0.0
         self.actions = ACTION_NONE
 
     def set_actions(mut self, actions: Int):
         self.actions = actions
+
+    def set_checked(mut self, checked: Bool):
+        """Expose an explicit checked state to assistive technologies."""
+        self.checked = checked
+
+    def set_expanded(mut self, expanded: Bool):
+        """Expose disclosure/open state independently of the display label."""
+        self.expanded = expanded
+
+    def set_value_range(
+        mut self,
+        minimum: Float32,
+        maximum: Float32,
+        current: Float32,
+    ):
+        """Publish a scalar's machine-readable minimum, maximum, and value."""
+        self.has_value_range = True
+        self.value_min = minimum
+        self.value_max = maximum if maximum >= minimum else minimum
+        var value = current
+        if value < self.value_min:
+            value = self.value_min
+        if value > self.value_max:
+            value = self.value_max
+        self.value_now = value
+
+    def clear_value_range(mut self):
+        """Remove scalar range metadata from a semantic node."""
+        self.has_value_range = False
 
     def supports_action(self, action: Int) -> Bool:
         return (self.actions & action) != 0
@@ -190,7 +233,9 @@ def default_semantics(id: Int, kind: Int, text: String) -> Semantics:
         semantics.actions = ACTION_PRESS
     elif role == ROLE_SLIDER:
         semantics.actions = ACTION_INCREMENT | ACTION_DECREMENT
-    elif role == ROLE_COMBO_BOX or role == ROLE_LIST or role == ROLE_TABLE or role == ROLE_TAB_GROUP:
+    elif role == ROLE_COMBO_BOX:
+        semantics.actions = ACTION_SELECT | ACTION_EXPAND | ACTION_COLLAPSE
+    elif role == ROLE_LIST or role == ROLE_TABLE or role == ROLE_TAB_GROUP:
         semantics.actions = ACTION_SELECT
     elif role == ROLE_TREE:
         semantics.actions = ACTION_SELECT | ACTION_EXPAND | ACTION_COLLAPSE

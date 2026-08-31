@@ -68,14 +68,22 @@ facet panel its own x domain while retaining a shared y domain.
 
 The software renderer is the deterministic oracle. The macOS Metal backend
 handles rectangles, rounded rectangles, lines, interpolated linear gradients,
-nested clips, transforms, layer opacity, printable ASCII glyphs, registered
-file-backed images, and simple `M/L/H/V/Z` polygon paths. It reuses a shared
-vertex buffer and grows it when a frame exceeds the initial capacity;
+nested clips, transforms, layer opacity, fast-path printable ASCII glyphs,
+CoreText-rasterized Unicode text, registered file-backed images, quadratic and
+  cubic (`Q/C/S/T`) curve flattening, elliptical arc flattening, concave
+  polygon tessellation, and bounded even-odd compound/self-intersecting fill.
+  It
+reuses a shared vertex buffer and grows it when a frame exceeds the initial capacity;
 `vertex_count()`, `buffer_capacity()`, `buffer_reallocation_count()`,
 `draw_submission_count()`, `rendered_text_glyph_count()`,
+`rendered_text_texture_count()`, `rendered_text_texture_cache_hit_count()`,
+`rendered_text_texture_raster_count()`,
 `rendered_image_count()`, `rendered_path_count()`, and
-`fallback_command_count()` make the path observable. Complex text, curves, and
-unregistered image resources remain explicit fallbacks.
+`fallback_command_count()`, `frame_time_ms()`, `cpu_encode_time_ms()`,
+`cpu_wait_time_ms()`, `gpu_time_ms()`, and `gpu_timing_available()` make the
+path observable. Malformed/overlarge path commands and unregistered image
+resources remain explicit fallbacks. Compound paths use an explicit even-odd
+fill rule so Metal and SVG exports agree.
 
 Run the focused workloads with:
 
@@ -102,8 +110,10 @@ compatible output path today. Native host shims live in `native/hosts/`; the
 iOS simulator app, Android API-35 APK, and browser Canvas demo are built by
 `pixi run ios-build`, `pixi run android-build`, and
 `native/web/host_demo.html` respectively, all covered by
-`pixi run host-check`. Mojo target runtime integration, platform
-accessibility bridges, and device/browser CI remain capability-gated.
+  `pixi run host-check`. Web ARIA, iOS virtual UIKit accessibility elements,
+  and Android virtual accessibility nodes are implemented in the host shims;
+  Mojo target runtime integration and device/browser CI remain
+  capability-gated.
 
 See [API.md](API.md) for the complete inventory and
 [performance.md](performance.md) for benchmark policy and budgets.

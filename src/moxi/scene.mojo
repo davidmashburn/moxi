@@ -96,7 +96,13 @@ struct SceneCommand(ImplicitlyCopyable):
         self.point_end = end
 
     def set_path(mut self, path_data: String):
-        """Attach a compact backend-neutral path description."""
+        """Attach an SVG-style path description.
+
+        ``M`` starts a subpath and ``Z`` closes it. Native Metal fills
+        compound paths with a bounded even-odd tessellator; simple polygons
+        take a faster path. Renderers may reject malformed or overlarge input
+        rather than allocating without a limit.
+        """
         self.path_data = path_data
 
     def set_gradient(
@@ -201,7 +207,7 @@ struct Scene:
         stroke: Color,
         stroke_width: Float32,
     ):
-        """Append a path without coupling the core to a path parser."""
+        """Append a path using the shared SVG-style/even-odd fill contract."""
         var command = SceneCommand(SCENE_PATH, id, bounds, fill)
         command.set_path(path_data)
         command.set_stroke(stroke, stroke_width)

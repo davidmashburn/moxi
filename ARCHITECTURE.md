@@ -179,8 +179,9 @@ and catalog controls can be disabled; the runtime excludes disabled controls
 from hit-testing and focus. Progress and slider values are clamped to `[0, 1]`
 and exposed through semantic values.
 Each node also carries backend-neutral `Semantics` (role, label, value, hint,
-state, bounds, and parent id), exposed through `App.accessibility()` and the
-paint command stream. The native adapter currently uses fill, text color,
+explicit checked/expanded state, optional scalar range, actions, bounds, and
+parent id), exposed through `App.accessibility()` and the paint command stream.
+The native adapter uses the same semantic state alongside fill, text color,
 corner radius, and font size.
 
 `ColumnView.hit_test()` checks laid-out focusable bounds and the root/ancestor
@@ -275,10 +276,12 @@ composition, and resize input into logical `Event` values. Its native FIFO holds
 64 pending events and exposes `event_queue_depth()` and
 `dropped_event_count()` for backpressure diagnostics. AppKit replacement ranges
 for committed text cross the event boundary as codepoint offsets. Buttons and
-checkboxes expose hover, pressed, enabled, and focus state;
-focused controls draw a native keyboard
-focus ring and the text field draws a simple caret, selection highlight, or
-underlined marked-text composition.
+checkboxes expose hover, pressed, enabled, and focus state. Focused
+single-line text inputs use an AppKit `NSTextField` field editor for native
+caret, selection, clipboard, keyboard, and IME behavior; multiline inputs keep
+the custom text-input client so wrapping and marked-text geometry remain under
+Moxi control. The custom path draws a keyboard focus ring, selection highlight,
+and underlined marked-text composition.
 When `wrap_text` is set, the AppKit shim uses character-boundary line breaks
 inside the command bounds; the core's deterministic measurement and the
 native rectangle therefore agree on the opt-in line-count behavior.
@@ -293,13 +296,14 @@ same bounded event queue. The candidate window is anchored to the focused
 text-input caret for the requested character range. After each rendered frame,
 `MacOSRenderer` publishes the semantic snapshot as an owned
 `NSAccessibilityElement` hierarchy rooted at the canvas, including container
-ancestry and screen-space frames. Catalog `AXPress`, `AXIncrement`,
+ancestry, visible/selected child collections, and screen-space frames. Catalog `AXPress`, `AXIncrement`,
 `AXDecrement`, `AXPick`, `AXExpand`, and `AXCollapse` actions are routed back
 through the normal event queue where the role exposes them. Existing semantic
-values are compared by stable Moxi id and post native value-change
-notifications when they change. The runtime's structural identity diff is
-backend-neutral; the native renderer still repaints the complete command
-stream under the current renderer contract.
+values and boolean/range state are compared by stable Moxi id and post native
+value-change, selected-child, and focused-element notifications when they
+change. The runtime's structural identity diff is backend-neutral; the native
+renderer still repaints the complete command stream under the current renderer
+contract.
 
 `Scene` and `SceneRenderer` are a richer shape/resource boundary separate from
 the widget paint stream. `SceneRecorder` preserves commands for tests, and
@@ -309,10 +313,13 @@ layers, and affine transforms. `MacOSMetalRenderer` batches supported
 rectangles, rounded rectangles, gradients, and lines into a reusable/growing
 buffer and ordered draw submissions per frame; `MacOSMetalWindow` presents the
 same scene through an AppKit `CAMetalLayer`, including drawable-size/scale
-handling. Metal renders printable ASCII glyph geometry, registered file-backed
-image textures, and `M/L/H/V/Z` polygon paths; unsupported Unicode glyphs,
-unregistered images, and curves remain explicit fallbacks. The software path
-remains the deterministic oracle.
+handling. Metal renders printable ASCII glyph geometry, CoreText-rasterized
+Unicode texture text, registered file-backed image textures, flattened
+quadratic/cubic/elliptical-arc paths, concave simple polygons, and bounded
+even-odd compound/self-intersecting fills. A bounded text-texture cache reports
+hits and rasterizations separately; malformed/overlarge paths and unregistered
+images remain explicit fallbacks. The software path remains the deterministic
+oracle for path bounds rather than full path tessellation.
 
 `Plot`, `PlotDataTable`, `PlotSpec`, and `PlotRuntime` form the first
 application library on the scene contract. A plot owns data-space series and
@@ -370,10 +377,12 @@ three runs.
 
 The retained runtime's open-addressed identity index and the recycler's
 release-before-allocate behavior are measured hot-path improvements. The Metal
-bridge reports CPU-side vertex counts, draw submissions, buffer growth, and a
-deterministic offscreen checksum;
+bridge reports CPU-side vertex counts, draw submissions, text texture/cache
+work, buffer growth, and a deterministic offscreen checksum;
 the visible CAMetalLayer demo currently waits for completion, so its timings
-are correctness-oriented rather than an asynchronous frame-pacing claim. See
+are correctness-oriented rather than an asynchronous frame-pacing claim. The
+offscreen renderer also reports synchronized CPU encode/wait/frame durations
+and Metal GPU start/end timestamps when the driver exposes them. See
 [docs/performance.md](docs/performance.md) for workload definitions and
 interpretation.
 

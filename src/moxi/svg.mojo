@@ -159,7 +159,7 @@ struct SvgSceneRenderer(SceneRenderer):
                 command.path_data,
                 "\" fill=\"",
                 _svg_color(command.fill),
-                "\" stroke=\"",
+                "\" fill-rule=\"evenodd\" clip-rule=\"evenodd\" stroke=\"",
                 _svg_color(command.stroke),
                 "\" stroke-width=\"",
                 command.stroke_width,

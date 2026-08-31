@@ -14,10 +14,25 @@ android_sdk_root="${ANDROID_SDK_ROOT:-/opt/homebrew/share/android-commandlinetoo
 android_ndk_root="${ANDROID_NDK_HOME:-/opt/homebrew/share/android-ndk}"
 if [ -f "$android_sdk_root/platforms/android-35/android.jar" ] && \
    [ -f "$android_ndk_root/build/cmake/android.toolchain.cmake" ]; then
-  bash scripts/android_build.sh
+  java_available=false
+  if command -v javac >/dev/null 2>&1 || \
+     [ -x "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home/bin/javac" ]; then
+    java_available=true
+  fi
+  if [ "$java_available" = true ] && \
+     [ -x "$android_sdk_root/build-tools/35.0.0/d8" ]; then
+    bash scripts/android_build.sh
+  else
+    echo "Moxi Android APK build skipped: Java compiler/runtime unavailable"
+  fi
 else
   echo "Moxi Android host build skipped: Android SDK/NDK unavailable"
 fi
+
+rg -q "AccessibilityNodeProvider|ACTION_SET_TEXT" \
+  native/android/src/main/java/org/moxi/host/MoxiActivity.java
+rg -q "UIAccessibilityElement|moxi_ios_host_set_accessibility_node" \
+  native/hosts/moxi_ios_host.m native/hosts/moxi_ios_host.h
 
 ios_developer_dir=""
 if [ -d /Applications/Xcode.app/Contents/Developer ]; then

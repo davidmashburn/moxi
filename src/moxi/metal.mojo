@@ -99,10 +99,11 @@ struct MacOSMetalRenderer(SceneRenderer):
     """Batch scene geometry through an offscreen or CAMetalLayer target.
 
     Rectangles, rounded rectangles, lines, gradients, clipping, transforms,
-    layer opacity, ASCII glyph geometry, registered image textures, and simple
-    polygon path tessellation are submitted to Metal. Unsupported glyphs,
-    image resources, and path commands remain explicit fallback commands and
-    are never misreported as GPU-rendered pixels.
+    layer opacity, fast-path ASCII geometry, CoreText-rasterized Unicode text,
+    registered image textures, curve/arc-flattened paths, and concave polygon
+    tessellation are submitted to Metal. Unsupported image resources and
+    ambiguous path commands remain explicit fallback commands and are never
+    misreported as GPU-rendered pixels.
     """
 
     var width: Int
@@ -117,8 +118,16 @@ struct MacOSMetalRenderer(SceneRenderer):
     var frame_clip_count: Int
     var frame_text_count: Int
     var frame_text_glyph_count: Int
+    var frame_text_texture_count: Int
+    var frame_text_texture_cache_hit_count: Int
+    var frame_text_texture_raster_count: Int
     var frame_image_count: Int
     var frame_path_count: Int
+    var frame_gpu_time_ms: Float32
+    var frame_cpu_encode_time_ms: Float32
+    var frame_cpu_wait_time_ms: Float32
+    var last_frame_time_ms: Float32
+    var frame_gpu_timing_available: Bool
 
     def __init__(out self, width: Int = 640, height: Int = 480):
         self.width = width if width > 0 else 1
@@ -135,8 +144,16 @@ struct MacOSMetalRenderer(SceneRenderer):
         self.frame_clip_count = 0
         self.frame_text_count = 0
         self.frame_text_glyph_count = 0
+        self.frame_text_texture_count = 0
+        self.frame_text_texture_cache_hit_count = 0
+        self.frame_text_texture_raster_count = 0
         self.frame_image_count = 0
         self.frame_path_count = 0
+        self.frame_gpu_time_ms = 0.0
+        self.frame_cpu_encode_time_ms = 0.0
+        self.frame_cpu_wait_time_ms = 0.0
+        self.last_frame_time_ms = 0.0
+        self.frame_gpu_timing_available = False
 
     def backend_capabilities(self) -> BackendCapabilities:
         var result = backend_capabilities(BACKEND_GPU)
@@ -145,7 +162,7 @@ struct MacOSMetalRenderer(SceneRenderer):
         result.gpu_acceleration = self.initialized
         result.incremental = False
         result.clipping = self.initialized
-        result.note = "Batched Metal geometry with GPU ASCII text, registered images, simple path tessellation, clips, transforms, and explicit unsupported-resource fallback."
+        result.note = "Batched Metal geometry with ASCII fast-path text, CoreText Unicode text textures, registered images, curve/arc paths, concave fills, clips, transforms, and explicit unsupported-resource fallback."
         return result
 
     def is_ready(self) -> Bool:
@@ -162,8 +179,16 @@ struct MacOSMetalRenderer(SceneRenderer):
             self.frame_clip_count = 0
             self.frame_text_count = 0
             self.frame_text_glyph_count = 0
+            self.frame_text_texture_count = 0
+            self.frame_text_texture_cache_hit_count = 0
+            self.frame_text_texture_raster_count = 0
             self.frame_image_count = 0
             self.frame_path_count = 0
+            self.frame_gpu_time_ms = 0.0
+            self.frame_cpu_encode_time_ms = 0.0
+            self.frame_cpu_wait_time_ms = 0.0
+            self.last_frame_time_ms = 0.0
+            self.frame_gpu_timing_available = False
             external_call["moxi_metal_begin", NoneType](0.05, 0.07, 0.12, 1.0)
 
     def draw_scene_command(mut self, command: SceneCommand) raises:
@@ -304,6 +329,26 @@ struct MacOSMetalRenderer(SceneRenderer):
     def end_scene(mut self) raises:
         if self.initialized:
             external_call["moxi_metal_end", NoneType]()
+            self.frame_text_texture_count = Int(
+                external_call["moxi_metal_text_texture_count_value", Int32]()
+            )
+            self.frame_text_texture_cache_hit_count = Int(
+                external_call["moxi_metal_text_texture_cache_hit_count_value", Int32]()
+            )
+            self.frame_text_texture_raster_count = Int(
+                external_call["moxi_metal_text_texture_raster_count_value", Int32]()
+            )
+            self.frame_gpu_time_ms = external_call["moxi_metal_gpu_time_ms_value", Float32]()
+            self.frame_cpu_encode_time_ms = external_call[
+                "moxi_metal_cpu_encode_time_ms_value", Float32
+            ]()
+            self.frame_cpu_wait_time_ms = external_call[
+                "moxi_metal_cpu_wait_time_ms_value", Float32
+            ]()
+            self.last_frame_time_ms = external_call["moxi_metal_frame_time_ms_value", Float32]()
+            self.frame_gpu_timing_available = external_call[
+                "moxi_metal_gpu_timing_available_value", Int32
+            ]() != 0
 
     def resize(mut self, width: Int, height: Int) -> Bool:
         """Resize the logical offscreen target and preserve the scene contract."""
@@ -362,11 +407,43 @@ struct MacOSMetalRenderer(SceneRenderer):
     def rendered_text_glyph_count(self) -> Int:
         return self.frame_text_glyph_count
 
+    def rendered_text_texture_count(self) -> Int:
+        """Return Unicode/CoreText text textures submitted in the last frame."""
+        return self.frame_text_texture_count
+
+    def rendered_text_texture_cache_hit_count(self) -> Int:
+        """Return persistent text-cache hits recorded in the last frame."""
+        return self.frame_text_texture_cache_hit_count
+
+    def rendered_text_texture_raster_count(self) -> Int:
+        """Return CoreText texture rasterizations recorded in the last frame."""
+        return self.frame_text_texture_raster_count
+
     def rendered_image_count(self) -> Int:
         return self.frame_image_count
 
     def rendered_path_count(self) -> Int:
         return self.frame_path_count
+
+    def gpu_time_ms(self) -> Float32:
+        """Return GPU execution time for the last synchronized frame, when available."""
+        return self.frame_gpu_time_ms
+
+    def cpu_encode_time_ms(self) -> Float32:
+        """Return CPU command encoding time for the last frame."""
+        return self.frame_cpu_encode_time_ms
+
+    def cpu_wait_time_ms(self) -> Float32:
+        """Return CPU time spent waiting for completion in the last frame."""
+        return self.frame_cpu_wait_time_ms
+
+    def frame_time_ms(self) -> Float32:
+        """Return synchronized begin-to-completion time for the last frame."""
+        return self.last_frame_time_ms
+
+    def gpu_timing_available(self) -> Bool:
+        """Return whether the driver exposed valid GPU start/end timestamps."""
+        return self.frame_gpu_timing_available
 
     def fallback_command_count(self) -> Int:
         return self.frame_fallback_count

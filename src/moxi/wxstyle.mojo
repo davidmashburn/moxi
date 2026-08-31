@@ -476,12 +476,15 @@ struct WxStyleState(Component):
         if self.combo.expanded:
             combo_text += " (open)"
         root.add_combo_box_to(advanced, WX_COMBO_ID, combo_text, 32.0)
+        root.set_expanded(WX_COMBO_ID, self.combo.expanded)
+        root.set_selected(WX_COMBO_ID, self.combo.selection.selected_index >= 0)
         root.add_list_to(
             advanced,
             WX_LIST_ID,
             String("List selection ", self.list.selection.selected_index),
             72.0,
         )
+        root.set_selected(WX_LIST_ID, self.list.selection.selected_index >= 0)
         root.add_table_to(
             advanced,
             WX_TABLE_ID,
@@ -493,25 +496,30 @@ struct WxStyleState(Component):
             ),
             72.0,
         )
+        root.set_selected(WX_TABLE_ID, self.table.selected_row >= 0)
         var tree_text = "Tree: collapsed outline"
         if self.tree.expanded:
             tree_text = "Tree: expanded outline"
         root.add_tree_to(advanced, WX_TREE_ID, tree_text, 72.0)
+        root.set_expanded(WX_TREE_ID, self.tree.expanded)
         var menu_text = "Menu: closed"
         if self.menu.open:
             menu_text = "Menu: open"
         root.add_menu_to(advanced, WX_MENU_ID, menu_text, 32.0)
+        root.set_expanded(WX_MENU_ID, self.menu.open)
         var dialog_text = "Dialog: closed"
         if self.dialog.open:
             dialog_text = "Dialog: confirmation"
         root.add_dialog_to(advanced, WX_DIALOG_ID, dialog_text, 72.0)
         root.set_enabled(WX_DIALOG_ID, self.dialog.open)
+        root.set_expanded(WX_DIALOG_ID, self.dialog.open)
         root.add_tabs_to(
             advanced,
             WX_TABS_ID,
             String("Tabs: selected ", self.tabs.selection.selected_index),
             32.0,
         )
+        root.set_selected(WX_TABS_ID, True)
         root.add_canvas_to(
             advanced,
             WX_CANVAS_ID,

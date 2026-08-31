@@ -103,6 +103,12 @@ struct NativeWidgetDescriptor(ImplicitlyCopyable):
     var enabled: Bool
     var focused: Bool
     var selected: Bool
+    var checked: Bool
+    var expanded: Bool
+    var has_value_range: Bool
+    var value_min: Float32
+    var value_max: Float32
+    var value_now: Float32
     var actions: Int
 
     def __init__(out self):
@@ -115,6 +121,12 @@ struct NativeWidgetDescriptor(ImplicitlyCopyable):
         self.enabled = False
         self.focused = False
         self.selected = False
+        self.checked = False
+        self.expanded = False
+        self.has_value_range = False
+        self.value_min = 0.0
+        self.value_max = 0.0
+        self.value_now = 0.0
         self.actions = 0
 
     def supports(self, action: Int) -> Bool:
@@ -145,6 +157,12 @@ struct NativeWidgetRegistry:
             descriptor.enabled = semantics.enabled
             descriptor.focused = semantics.focused
             descriptor.selected = semantics.selected
+            descriptor.checked = semantics.checked
+            descriptor.expanded = semantics.expanded
+            descriptor.has_value_range = semantics.has_value_range
+            descriptor.value_min = semantics.value_min
+            descriptor.value_max = semantics.value_max
+            descriptor.value_now = semantics.value_now
             descriptor.actions = semantics.actions
             self.widgets.append(descriptor)
         self.version += 1

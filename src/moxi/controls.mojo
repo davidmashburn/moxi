@@ -307,6 +307,7 @@ struct SliderControl(ImplicitlyCopyable):
         )
         node.set_progress(self.normalized())
         node.set_accessibility_value(String("value ", self.value))
+        node.set_accessibility_value_range(self.minimum, self.maximum, self.value)
         node.enabled = self.enabled
         node.semantics.enabled = self.enabled
         return node
@@ -474,16 +475,26 @@ struct ComboBoxControl(ImplicitlyCopyable):
     var text: String
     var selection: String
     var preferred_height: Float32
+    var expanded: Bool
 
-    def __init__(out self, id: Int, text: String, selection: String, preferred_height: Float32):
+    def __init__(
+        out self,
+        id: Int,
+        text: String,
+        selection: String,
+        preferred_height: Float32,
+        expanded: Bool = False,
+    ):
         self.id = id
         self.text = text
         self.selection = selection
         self.preferred_height = preferred_height
+        self.expanded = expanded
 
     def node(self) -> ViewNode:
         var node = ViewNode(COMBO_BOX_KIND, self.id, self.text, self.preferred_height)
         node.set_accessibility_value(self.selection)
+        node.set_expanded(self.expanded)
         return node
 
 
@@ -547,6 +558,7 @@ struct TreeControl(ImplicitlyCopyable):
             node.set_accessibility_value("expanded")
         else:
             node.set_accessibility_value("collapsed")
+        node.set_expanded(self.expanded)
         return node
 
 
@@ -584,6 +596,7 @@ struct DialogControl(ImplicitlyCopyable):
         var node = ViewNode(DIALOG_KIND, self.id, self.text, self.preferred_height)
         node.enabled = self.open
         node.semantics.enabled = self.open
+        node.set_expanded(self.open)
         return node
 
 

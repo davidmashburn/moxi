@@ -57,9 +57,10 @@ separately below and are not being presented as a 0.5 compatibility promise.
   alignment for columns and rows.
 - Nested column/row containers in one flat, parent-aware view tree.
 - Backend-neutral accessibility semantics with stable roles, labels, values,
-  state, bounds, and parent ids.
+  hints, checked/expanded state, numeric ranges, bounds, and parent ids.
 - A native macOS accessibility tree generated from those semantics, including
-  catalog roles, AX actions, value changes, and semantic action routing.
+  catalog roles, AX actions, value/state changes, nested hit testing, and
+  semantic action routing.
 - A deterministic capability bus with a fixed manifest, side-effect policy,
   exact agent approval checks, typed handler execution, replay, and explicit
   exclusive-call leases.
@@ -80,9 +81,10 @@ separately below and are not being presented as a 0.5 compatibility promise.
   transform contract tests.
 - A macOS Metal scene renderer with offscreen checksums, batched geometry,
   dynamic vertex-buffer growth, blending, rounded rectangles, gradients,
-  nested clips, transform/layer state, embedded ASCII GPU glyphs, registered
-  image textures, simple polygon path tessellation, resize/Retina handling,
-  and a visible CAMetalLayer window demo.
+  nested clips, transform/layer state, embedded ASCII GPU glyphs, CoreText
+  Unicode text textures, registered image textures, curve/elliptical-arc paths,
+  concave polygon tessellation, resize/Retina handling, and a visible CAMetalLayer
+  window demo.
 - A shaped-run contract carrying glyph ids, source clusters, fallback-face
   metadata, and a native CoreText adapter on macOS.
 - A stable-key `VirtualRecycler`/`VirtualizedList` that builds only the
@@ -167,16 +169,19 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
 - The native adapter is a small Objective-C AppKit shim. `WindowConfig`
   size-limits, resizability, and fullscreen flags are passed to AppKit.
   iOS, Android, and Web have shared lifecycle/event/scale contracts, named
-  host bridges, deterministic fallbacks, and SDK-backed host demos under
-  `native/ios`, `native/android`, and `native/web`. Metal covers the supported
-  geometry/text/resource slice; AppKit remains the stable widget renderer.
+  host bridges, native accessibility surfaces, deterministic fallbacks, and
+  host demos under `native/ios`, `native/android`, and `native/web`. Metal
+  covers the supported geometry/text/resource slice; AppKit remains the stable
+  widget renderer.
 - The core exposes dirty regions and changed commands, and `TestRenderer`
   exercises incremental dispatch. The native AppKit renderer conservatively
   submits a complete frame. `SceneRenderer` has both a deterministic software
-  backend and a macOS Metal backend. Metal renders printable ASCII text,
-  registered file-backed images, and simple `M/L/H/V/Z` polygon paths; complex
-  Unicode glyphs, unregistered resources, and curves remain explicit fallback
-  behavior.
+  backend and a macOS Metal backend. Metal renders printable ASCII text on a
+  fast geometry path, rasterizes Unicode through CoreText textures, supports
+  registered file-backed images, quadratic/cubic (`Q/C/S/T`) paths, and
+  elliptical arcs; it tessellates concave simple polygons plus bounded
+  even-odd compound/self-intersecting paths, while malformed/overlarge paths
+  and unregistered resources remain explicit fallback behavior.
 - The 0.5 public boundary is the APIs documented here and in
   [ARCHITECTURE.md](ARCHITECTURE.md); larger facilities remain explicit
   follow-up work.
@@ -249,9 +254,11 @@ The resulting conda package contains the compiled `moxi` Mojo package. The
 native AppKit demo remains a repository-level example and is not bundled into
 the library artifact.
 
-For the public-surface inventory, see [docs/API.md](docs/API.md). For the
-visual acceptance surface and source-controlled reference, see
-[docs/visual.md](docs/visual.md). `pixi run check` generates compiler API
+For the public-surface inventory, see [docs/API.md](docs/API.md). The
+accessibility/native-widget contract is documented in
+[docs/accessibility.md](docs/accessibility.md). For the visual acceptance
+surface and source-controlled reference, see [docs/visual.md](docs/visual.md).
+`pixi run check` generates compiler API
 metadata at `dist/moxi-api.json`; `pixi run benchmark` runs the local layout
 comparison harness.
 
@@ -394,9 +401,10 @@ anchor-preserving updates, and `ensure_visible()`. `ScrollState` clamps
 offsets against content and viewport extents. `Scene`, `SceneCommand`, and
 `SceneRenderer`
 form a richer rendering seam; `SoftwareSceneRenderer` is a deterministic
-raster backend and `MacOSMetalRenderer` is the batched GPU path. Its text,
-image, and simple-path support is resource/capability dependent, with
-unsupported inputs counted as fallbacks. The named iOS, Android, and Web
+raster backend and `MacOSMetalRenderer` is the batched GPU path. Its ASCII,
+  CoreText Unicode texture, image, curve/arc, and concave-simple-path support is
+resource/capability dependent, with unsupported inputs counted as fallbacks.
+The named iOS, Android, and Web
 bridges normalize host events and provide fallback output. SDK-backed host
 artifacts are checked by `pixi run host-check`; the Mojo package remains
 capability-gated for native availability because it is currently published as
@@ -514,11 +522,10 @@ execution accounting, target host bridges, and the first Plot library. The
 plot foundation now has typed data, executable statistical transforms,
 composable marks, independent facet scales, lasso/linked selection, a
 view/runtime boundary, and bounded large-data geometry. iOS, Android, and Web
-  have portable event/fallback bridges plus SDK-backed host demos, but are not
-  yet supported Mojo package targets;
-the portable shaper remains approximate, while complex GPU typography, curve
-tessellation, async pacing, and full cross-platform resource backends remain
-staged follow-ups. The separate
+have portable event/fallback bridges plus host-side accessibility surfaces,
+but are not yet supported Mojo package targets; the portable shaper remains
+approximate, while complex GPU typography, async pacing, and full
+cross-platform resource backends remain staged follow-ups. The separate
 [Specification High-Performance Agent-Re.md](Specification%20High-Performance%20Agent-Re.md)
 remains design material for a future transport/agent bridge; the in-process
 authorization boundary is now part of the Moxi core.

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import {
   MoxiWebHost,
+  accessibilityAttributes,
+  MOXI_AX_ROLE_MAP,
   MOXI_HOST_POINTER_DOWN,
   MOXI_HOST_TEXT_INPUT,
   MOXI_HOST_WINDOW_RESIZED,
@@ -58,4 +60,31 @@ assert.equal(host.stop(), false);
 assert.equal(events.some(event => event[0] === MOXI_HOST_WINDOW_RESIZED), false);
 assert.equal(text.length, 1);
 assert.equal(MOXI_HOST_TEXT_INPUT, 3);
+assert.equal(MOXI_AX_ROLE_MAP[8], "slider");
+assert.deepEqual(
+  accessibilityAttributes({
+    role: 8,
+    label: "Volume",
+    hint: "Adjust output level",
+    enabled: false,
+    has_value_range: true,
+    value_min: 0,
+    value_max: 10,
+    value_now: 4,
+    focused: true,
+  }),
+  {
+    role: "slider",
+    "aria-label": "Volume",
+    "aria-description": "Adjust output level",
+    "aria-disabled": "true",
+    "aria-valuemin": "0",
+    "aria-valuemax": "10",
+    "aria-valuenow": "4",
+    tabIndex: "0",
+  },
+);
+const semanticSnapshot = [{id: 10, role: 2, label: "Save", bounds: {x: 2, y: 3, width: 80, height: 24}}];
+assert.equal(host.updateAccessibility(semanticSnapshot), 1);
+assert.deepEqual(host.accessibilitySnapshot, semanticSnapshot);
 console.log("Moxi Web host test passed");

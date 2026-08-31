@@ -57,15 +57,17 @@ cp "$cmake_dir/libmoxi_host.so" "$package_dir/lib/$abi/libmoxi_host.so"
 javac -source 8 -target 8 -Xlint:-options -encoding UTF-8 \
   -classpath "$android_jar" \
   -d "$classes_dir" \
-  native/android/src/main/java/org/moxi/host/MoxiActivity.java
+native/android/src/main/java/org/moxi/host/MoxiActivity.java
 
+java_classes=()
+while IFS= read -r class_file; do
+  java_classes+=("$class_file")
+done < <(find "$classes_dir" -name '*.class' -print | sort)
 "$build_tools/d8" \
   --lib "$android_jar" \
   --min-api 26 \
   --output "$dex_dir" \
-  "$classes_dir/org/moxi/host/MoxiActivity.class" \
-  "$classes_dir/org/moxi/host/MoxiActivity\$MoxiSurface.class" \
-  "$classes_dir/org/moxi/host/MoxiActivity\$MoxiCanvas.class"
+  "${java_classes[@]}"
 
 cp "$dex_dir/classes.dex" "$package_dir/classes.dex"
 "$build_tools/aapt2" link \

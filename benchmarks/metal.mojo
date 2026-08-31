@@ -34,17 +34,55 @@ def main() raises:
     )
     scene.append_text(
         31,
-        "Moxi GPU",
+        "Moxi GPU • café 世界",
         Rect(24.0, 112.0, 180.0, 18.0),
         Color(0.92, 0.96, 1.0, 1.0),
     )
+    scene.append_text(
+        38,
+        "RTL שלום مرحبا · é 😀",
+        Rect(24.0, 336.0, 260.0, 18.0),
+        Color(0.78, 0.88, 1.0, 1.0),
+    )
     scene.append_path(
         32,
-        "M 220 112 L 280 112 L 300 160 L 240 176 Z",
+        "M 220 112 L 300 112 L 276 142 L 300 176 L 220 176 L 244 144 Z",
         Rect(220.0, 112.0, 80.0, 64.0),
         Color(0.95, 0.45, 0.18, 0.85),
         Color(1.0, 0.9, 0.45, 1.0),
         2.0,
+    )
+    scene.append_path(
+        34,
+        "M 320 176 C 332 112 380 96 410 132 S 468 152 492 112 L 492 176 Z",
+        Rect(320.0, 96.0, 172.0, 80.0),
+        Color(0.30, 0.72, 0.95, 0.42),
+        Color(0.60, 0.90, 1.0, 1.0),
+        2.0,
+    )
+    scene.append_path(
+        35,
+        "M 500 300 A 35 35 0 1 1 430 300 A 35 35 0 1 1 500 300 Z",
+        Rect(430.0, 265.0, 70.0, 70.0),
+        Color(0.50, 0.30, 0.85, 0.55),
+        Color(0.80, 0.65, 1.0, 1.0),
+        2.0,
+    )
+    scene.append_path(
+        36,
+        "M 40 200 L 180 200 L 180 330 L 40 330 Z M 82 238 L 138 238 L 138 292 L 82 292 Z",
+        Rect(40.0, 200.0, 140.0, 130.0),
+        Color(0.20, 0.80, 0.55, 0.72),
+        Color(0.65, 1.0, 0.82, 1.0),
+        2.0,
+    )
+    scene.append_path(
+        37,
+        "M 245 220 L 265 270 L 320 270 L 276 302 L 292 350 L 245 320 L 198 350 L 214 302 L 170 270 L 225 270 Z",
+        Rect(170.0, 220.0, 150.0, 130.0),
+        Color(0.95, 0.72, 0.20, 0.60),
+        Color(1.0, 0.92, 0.55, 1.0),
+        1.5,
     )
     scene.append_transform(4, Transform().translated(12.0, 8.0))
     scene.append_rect(
@@ -95,10 +133,18 @@ def main() raises:
     print("Moxi Metal benchmark clips/frame: ", renderer.clip_count())
     print("Moxi Metal benchmark text commands/frame: ", renderer.rendered_text_count())
     print("Moxi Metal benchmark text glyphs/frame: ", renderer.rendered_text_glyph_count())
+    print("Moxi Metal benchmark text textures/frame: ", renderer.rendered_text_texture_count())
+    print("Moxi Metal benchmark text cache hits/frame: ", renderer.rendered_text_texture_cache_hit_count())
+    print("Moxi Metal benchmark text rasterizations/frame: ", renderer.rendered_text_texture_raster_count())
     print("Moxi Metal benchmark images/frame: ", renderer.rendered_image_count())
     print("Moxi Metal benchmark paths/frame: ", renderer.rendered_path_count())
     print("Moxi Metal benchmark fallback commands: ", renderer.fallback_command_count())
     print("Moxi Metal benchmark submissions/frame: ", renderer.draw_submission_count())
+    print("Moxi Metal benchmark frame time ms: ", renderer.frame_time_ms())
+    print("Moxi Metal benchmark CPU encode ms: ", renderer.cpu_encode_time_ms())
+    print("Moxi Metal benchmark CPU wait ms: ", renderer.cpu_wait_time_ms())
+    print("Moxi Metal benchmark GPU timing available: ", renderer.gpu_timing_available())
+    print("Moxi Metal benchmark GPU time ms: ", renderer.gpu_time_ms())
     print("Moxi Metal benchmark vertex capacity: ", renderer.buffer_capacity())
     print("Moxi Metal benchmark checksum: ", renderer.checksum())
 

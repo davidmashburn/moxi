@@ -71,17 +71,26 @@ operations.
 ## Semantics and platform support
 
 `Semantics` and `AccessibilitySnapshot` expose stable roles, labels, values,
-states, bounds, parent ids, and action masks without a native dependency. The
-macOS adapter publishes the complete catalog as an AppKit accessibility tree
-and translates AX press/pick/increment/decrement/expand/collapse actions back
-to the logical event path.
+hints, bounds, parent ids, enabled/focused/selected state, explicit
+checked/expanded state, optional numeric ranges, and action masks without a
+native dependency. The macOS adapter publishes the complete catalog as an
+AppKit accessibility tree and translates AX
+press/pick/increment/decrement/expand/collapse actions back to the logical
+event path. Focused single-line text inputs additionally use an AppKit
+`NSTextField` field editor; multiline inputs retain the custom IME client. The
+Web host maps snapshots to ARIA, while the iOS and Android host artifacts
+expose virtual native accessibility nodes. See [accessibility.md](accessibility.md)
+for the platform mapping and current fidelity limits.
 
 `backend_capabilities(kind)` reports the shipped headless and AppKit targets
 and explicit contracts for GPU, Windows, Linux, iOS, Android, and Web.
 `MacOSMetalRenderer` reports runtime readiness for the macOS GPU path, while
 `MacOSMetalWindow` presents scenes through a CAMetalLayer. Its scene path
-covers geometry, printable ASCII glyphs, registered file-backed images, and
-simple polygon paths; it also exposes draw-submission, vertex-capacity,
+covers geometry, ASCII fast-path glyphs, CoreText Unicode text textures,
+registered file-backed images, curve/arc-flattened paths, concave polygon
+fills, and bounded even-odd compound/self-intersecting path fills; it also
+exposes draw-submission, text-texture, text-cache hit and text-rasterization,
+CPU encode/wait/frame timing, optional GPU timestamps, vertex-capacity,
 reallocation, resize, per-resource, and fallback counters. `PlatformTarget`,
 `SurfaceConfig`, `PlatformSurface`, `PlatformAdapter`, and `HostContract` share
 lifecycle, resize, scale-factor, and native-host status rules across the named
@@ -100,9 +109,13 @@ adapter diagnostics.
 shapes, gradients, lines, path bounds, clipping, layers, and transforms.
 `MacOSMetalRenderer` batches geometry through Metal and
 `SvgSceneRenderer` serializes the same scene for browser-compatible SVG. Metal
-text is currently an embedded printable-ASCII glyph path; image files must be
-registered before use, and curves/unsupported glyphs retain explicit fallback
-behavior.
+uses embedded printable-ASCII geometry for its fast path and CoreText texture
+rasterization for Unicode text; image files must be registered before use.
+Quadratic/cubic curves, elliptical arcs, and concave simple polygons are
+supported, and compound/self-intersecting paths use a bounded even-odd
+scanline tessellator. Malformed or overlarge paths and unsupported resources
+retain explicit fallback behavior. The software renderer remains a bounds
+oracle for paths, so pixel parity for complex path geometry is a later slice.
 
 ## Plotting
 
@@ -143,9 +156,10 @@ do not rely on hidden global state. `PlotView`/`PlotControl` compile a spec,
 retain its source snapshot, expose a CSV data-table fallback, and integrate
 runtime scene/accessibility methods.
 The software, Metal, and SVG scene paths consume the same plot output; native
-Metal covers geometry, printable ASCII glyphs, registered images, and simple
-polygon paths, while complex text/path/resource cases remain explicit
-fallbacks. The portable shaper remains approximate by design;
+Metal covers geometry, printable ASCII glyphs, CoreText Unicode textures,
+registered images, curve/arc-flattened paths, and concave simple polygons, while
+unsupported text/path/resource cases remain explicit fallbacks. The portable
+shaper remains approximate by design;
 `HarfBuzzTextShaper` is an optional host-linked OpenType adapter, while custom
 fallback chains and full paragraph bidi remain host policy.
 

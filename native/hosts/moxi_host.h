@@ -20,6 +20,13 @@ extern "C" {
 #define MOXI_HOST_TOUCH_END 18
 #define MOXI_HOST_POINTER_CANCEL 19
 
+#define MOXI_HOST_ACTION_PRESS 1
+#define MOXI_HOST_ACTION_INCREMENT 2
+#define MOXI_HOST_ACTION_DECREMENT 4
+#define MOXI_HOST_ACTION_SELECT 8
+#define MOXI_HOST_ACTION_EXPAND 16
+#define MOXI_HOST_ACTION_COLLAPSE 32
+
 typedef void (*MoxiHostEventFn)(
     void *context,
     int kind,
@@ -34,6 +41,7 @@ typedef void (*MoxiHostCompositionFn)(void *context, const char *text, int start
 typedef void (*MoxiHostKeyFn)(void *context, int key, int modifiers);
 typedef void (*MoxiHostResizeFn)(void *context, float width, float height, float scale);
 typedef void (*MoxiHostFrameFn)(void *context);
+typedef void (*MoxiHostActionFn)(void *context, int target, int action);
 
 typedef struct {
     MoxiHostEventFn event;
@@ -42,6 +50,7 @@ typedef struct {
     MoxiHostCompositionFn composition;
     MoxiHostResizeFn resize;
     MoxiHostFrameFn frame;
+    MoxiHostActionFn action;
 } MoxiHostCallbacks;
 
 #ifdef __cplusplus

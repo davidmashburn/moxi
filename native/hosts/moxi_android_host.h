@@ -32,6 +32,7 @@ void moxi_android_host_touch(
 void moxi_android_host_key(MoxiAndroidHost *host, int key, int modifiers);
 void moxi_android_host_text(MoxiAndroidHost *host, const char *text, int start, int end);
 void moxi_android_host_composition(MoxiAndroidHost *host, const char *text, int start, int end);
+void moxi_android_host_action(MoxiAndroidHost *host, int target, int action);
 void moxi_android_host_frame(MoxiAndroidHost *host);
 
 #ifdef __cplusplus

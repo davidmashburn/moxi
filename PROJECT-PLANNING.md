@@ -22,14 +22,21 @@ The remaining explicitly deferred post-0.5 work is now narrower:
   fallback chains, and full paragraph bidi remain host policy.
 - Scrollbar widgets and viewport policy around the implemented variable-height
   recycler.
-- Deep native widgets and platform-native interaction/accessibility fidelity.
+- Deep native widgets and platform-native interaction/accessibility fidelity;
+  the macOS slice now carries explicit checked/expanded/range semantics,
+  richer AX attributes/notifications, nested hit testing, deeper
+  collection-widget affordances, and an AppKit field-editor overlay for
+  focused single-line inputs. Web ARIA plus iOS/Android virtual accessibility
+  host bridges are present; editable collection cells, menu/dialog tracking,
+  and live Mojo-runtime publication remain open.
 - Native iOS, Android, and browser app targets with device/emulator/browser CI;
   host lifecycle/input shims now live under `native/hosts/`, with local iOS,
   Android, and browser demo artifacts checked by `scripts/host_check.sh`.
-- Complex GPU typography, Bezier/path boolean tessellation, asynchronous frame
-  pacing, GPU timestamps, and portable cross-platform resource loaders; Metal
-  now covers printable ASCII glyphs, registered file-backed images, and simple
-  polygon paths.
+- Complex GPU typography, asynchronous frame pacing, and portable
+  cross-platform resource loaders; Metal now covers printable ASCII glyphs,
+  CoreText Unicode text textures, registered file-backed images,
+  quadratic/cubic curves, elliptical arcs, concave polygons, and bounded
+  even-odd compound/self-intersecting fills, with optional GPU timestamps.
 - Localized component execution and dependency-scoped invalidation beyond the
   current accounting contract.
 
@@ -37,6 +44,29 @@ Performance is a release requirement, not a later optimization pass. Mojo is
 being used for predictable, low-overhead UI work, so every renderer/runtime
 slice must have a repeatable benchmark, a stated workload, and a recorded
 reason for any tradeoff.
+
+## Latest implementation slice
+
+The current macOS pass closes two previously visible quality gaps. Metal keeps
+the allocation-free ASCII geometry path for short labels, uses CoreText-backed
+Unicode textures with a bounded persistent text cache for fallback glyphs,
+flattens quadratic/cubic/arc paths, ear-clips concave simple polygons, and
+scanline-tessellates bounded compound/self-intersecting paths with even-odd
+fill semantics. Its benchmark reports synchronized CPU and optional GPU
+timings.
+Accessibility now transports
+explicit toggle/disclosure state and numeric ranges through reconciliation,
+paint, the native registry, and AppKit; the native presenter uses those same
+states for list/table/tree/menu/dialog/tab/canvas affordances. The offscreen
+Metal benchmark records Unicode texture draws, cache hits, and rasterizations
+separately from geometry and continues to report vertices, submissions, paths,
+fallbacks, and checksums.
+
+Remaining renderer limits are asynchronous pacing, portable shaping/font
+fallback, and platform-specific GPU text/image/path tessellation. Remaining
+native limits are editable collection cells, system menu/dialog tracking,
+live Mojo-runtime publication on iOS/Android/Web, and device-level
+screen-reader automation.
 
 The first product built on these contracts is a first-class plotting library:
 a supported interactive 2D visualization system with portable data, declarative
@@ -90,7 +120,8 @@ Every renderer/runtime change must update the benchmark story:
   suitable for release/pre-submit runs.
 - Cover at least reconcile, layout, paint/scene generation, software rendering,
   virtualized scrolling, GPU command encoding, buffer growth, submission, and
-  synchronized completion. Native GPU timestamps remain a later seam.
+  synchronized completion. Record native GPU timestamps where the driver
+  exposes them and keep CPU encode/wait/frame timings alongside them.
 - Compare 100-, 1,000-, and 10,000-node workloads where the stage supports it;
   track allocations or command counts when wall-clock allocation data is not
   portable.
@@ -115,9 +146,9 @@ Target the platforms in this order, while keeping the common contract usable:
 | Target | First backend shape | Initial native surface | Current status |
 | --- | --- | --- | --- |
 | macOS | AppKit window + scene/software path; Metal target | windows, input, AX, text bridge | baseline shipped; hardened basic Metal slice |
-| iOS | UIKit/Metal surface adapter | app/window lifecycle, touch, safe areas, AX | arm64 simulator app target builds; Mojo runtime/AX/device CI pending |
-| Android | Android surface/input/accessibility adapter | lifecycle, touch, IME, density | arm64 API-35 APK target builds; Mojo renderer/AX/device CI pending |
-| Web | browser host + Canvas/WebGPU target | DOM focus/AX bridge, pointer/touch, resize | browser Canvas demo + Node/browser checks; packaged WASM/AX target pending |
+| iOS | UIKit/Metal surface adapter | app/window lifecycle, touch, safe areas, virtual AX | simulator source target plus virtual `UIAccessibilityElement` bridge; Mojo runtime/device CI pending |
+| Android | Android surface/input/accessibility adapter | lifecycle, touch, IME, density, virtual AX | NDK action bridge plus `AccessibilityNodeProvider`; APK/JDK validation pending on hosts without Java |
+| Web | browser host + Canvas/WebGPU target | DOM focus/ARIA bridge, pointer/touch, resize | browser host plus pure ARIA mapping tests; packaged WASM target pending |
 
 The first cross-platform milestone is not “all widgets everywhere.” It is a
 portable surface/window lifecycle, event vocabulary, scale-factor contract,
@@ -133,20 +164,21 @@ layout, component, capability, and plotting code.
 - Implement a Metal-backed macOS renderer consuming scene commands, with the
   software renderer retained as an oracle/fallback. The current slice covers
   rectangles, rounded rectangles, lines, gradients, clips, transforms, layer
-  opacity, printable ASCII glyphs, registered file-backed images, and simple
-  polygon paths.
+  opacity, printable ASCII glyphs, CoreText Unicode text textures, registered
+  file-backed images, quadratic/cubic curves, elliptical arcs, concave simple
+  polygons, and bounded even-odd compound/self-intersecting paths.
 - Add GPU resource lifetime, resize, scale-factor, clipping, transform, and
   readback/checksum test seams.
 - Add repeatable CPU and GPU benchmark cases and use evidence to improve hot
   paths (batching, command storage, invalidation, and resource reuse).
-- Keep unsupported Unicode typography, curves, and missing resources explicit
-  in counters and fallback behavior.
+- Keep malformed/overlarge paths, missing resources, and remaining typography
+  limits explicit in counters and fallback behavior.
 
 Acceptance: the same supported scene renders through software and GPU paths, a
 native window presents it, failures fall back predictably, and benchmark output
-makes CPU/render/frame costs visible. This acceptance is met for the current
-macOS scene slice; complex text/effects and other platform hosts remain later
-milestones.
+makes CPU/render/frame/GPU costs visible. This acceptance is met for the
+current macOS scene slice; complex effects and other platform hosts remain
+later milestones.
 
 ### 0.7 — Portable text contract and real virtualization (core slice complete)
 
@@ -240,15 +272,15 @@ transforms, forward/inverse scale mapping, annotations, JSON inspection/
 round-tripping, PlotView/PlotControl, pointer/touch navigation, interval brush
 and lasso selection, explicit linked selections, keyboard focus,
 accessibility state, CSV fallback, SVG path/opacity output, and bounded
-line/scatter geometry. The software renderer, SVG serializer, Metal basic
-geometry path, target fallback bridges, host status contract, and browser host
+line/scatter geometry. The software renderer, SVG serializer, Metal geometry,
+text, and path support, target fallback bridges, host status contract, and browser host
 module are contract-tested.
 
 This is an implemented foundation, not completion of every item in the
-design. Custom production font fallback, scrollbar policy, deep native
-widgets/accessibility, Mojo-host runtime integration, complex GPU text/path
-features, PDF/PNG export, and the broader polar/geographic/3D families remain
-explicitly staged work.
+design. Custom production font fallback, scrollbar policy, editable collection
+widget ownership, Mojo-host runtime integration, asynchronous GPU pacing and
+resource lifetime, PDF/PNG export, and the broader polar/geographic/3D
+families remain explicitly staged work.
 
 ### Core interface
 
@@ -532,8 +564,9 @@ The Web slice has a known-good server path (`python3 -m http.server 8765`), a
 stable route (`native/web/host_demo.html`), explicit `MoxiWebHost.stop()`
 teardown, Node contract tests, and a real browser smoke path. The browser demo
 exercises pointer/focus/resize/frame callbacks and exposes a labeled Canvas;
-plotting updates, DOM accessibility mapping, and a packaged WebAssembly target
-remain later gates. Do not claim the Mojo Web package from the host demo alone.
+the host bridge also exposes DOM accessibility mapping. Live plotting updates
+and a packaged WebAssembly target remain later gates. Do not claim the Mojo
+Web package from the host demo alone.
 
 ## Documentation and release gates
 

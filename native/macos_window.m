@@ -3,7 +3,14 @@
 @interface MoxiWindowDelegate : NSObject <NSWindowDelegate>
 @end
 
-@interface MoxiCanvasView : NSView <NSTextInputClient>
+@interface MoxiCanvasView : NSView <NSTextInputClient, NSTextFieldDelegate>
+@property(nonatomic, strong) NSTextField *nativeTextEditor;
+@property(nonatomic, strong) NSString *nativeTextEditorValue;
+@property(nonatomic, assign) BOOL synchronizingNativeTextEditor;
+- (void)hideNativeTextEditor;
+- (void)showNativeTextEditorForIndex:(int)index;
+- (void)finishMoxiFrame;
+- (BOOL)nativeTextEditorIsVisibleForIndex:(int)index;
 @end
 
 @interface MoxiAccessibilityElement : NSAccessibilityElement
@@ -261,6 +268,7 @@ static float moxi_image_radii[MOXI_MAX_DRAW_COMMANDS];
 static BOOL moxi_image_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
 static NSRect moxi_image_clip_frames[MOXI_MAX_DRAW_COMMANDS];
 static int moxi_active_text_input_index;
+static BOOL moxi_native_text_editor_seen;
 
 static float moxi_surface_fill[4];
 static int moxi_panel_count;
@@ -326,6 +334,12 @@ static NSRect moxi_accessibility_frames[MOXI_MAX_DRAW_COMMANDS];
 static BOOL moxi_accessibility_enabled[MOXI_MAX_DRAW_COMMANDS];
 static BOOL moxi_accessibility_focused[MOXI_MAX_DRAW_COMMANDS];
 static BOOL moxi_accessibility_selected[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_accessibility_checked[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_accessibility_expanded[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_accessibility_has_value_range[MOXI_MAX_DRAW_COMMANDS];
+static float moxi_accessibility_value_min[MOXI_MAX_DRAW_COMMANDS];
+static float moxi_accessibility_value_max[MOXI_MAX_DRAW_COMMANDS];
+static float moxi_accessibility_value_now[MOXI_MAX_DRAW_COMMANDS];
 static int moxi_accessibility_actions[MOXI_MAX_DRAW_COMMANDS];
 static NSAccessibilityElement *moxi_accessibility_elements[MOXI_MAX_DRAW_COMMANDS];
 static NSMutableArray *moxi_accessibility_owned_elements;
@@ -336,6 +350,15 @@ static int moxi_previous_accessibility_count;
 static int moxi_previous_accessibility_ids[MOXI_MAX_DRAW_COMMANDS];
 static int moxi_previous_accessibility_roles[MOXI_MAX_DRAW_COMMANDS];
 static NSString *moxi_previous_accessibility_values[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_previous_accessibility_checked[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_previous_accessibility_expanded[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_previous_accessibility_selected[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_previous_accessibility_enabled[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_previous_accessibility_focused[MOXI_MAX_DRAW_COMMANDS];
+static BOOL moxi_previous_accessibility_has_value_range[MOXI_MAX_DRAW_COMMANDS];
+static float moxi_previous_accessibility_value_min[MOXI_MAX_DRAW_COMMANDS];
+static float moxi_previous_accessibility_value_max[MOXI_MAX_DRAW_COMMANDS];
+static float moxi_previous_accessibility_value_now[MOXI_MAX_DRAW_COMMANDS];
 
 static void moxi_queue_accessibility_click(int id);
 static void moxi_queue_semantic_action(int target, int action);
@@ -383,6 +406,9 @@ static NSAccessibilityRole moxi_accessibility_role(int role) {
         case MOXI_ROLE_SLIDER:
             return NSAccessibilitySliderRole;
         case MOXI_ROLE_SWITCH:
+            /* Older AppKit SDKs do not publish a switch role. Keep the
+             * interoperable checkbox role and expose the more precise role
+             * description below. */
             return NSAccessibilityCheckBoxRole;
         case MOXI_ROLE_RADIO:
             return NSAccessibilityRadioButtonRole;
@@ -401,7 +427,7 @@ static NSAccessibilityRole moxi_accessibility_role(int role) {
         case MOXI_ROLE_MENU:
             return NSAccessibilityMenuRole;
         case MOXI_ROLE_DIALOG:
-            return NSAccessibilityGroupRole;
+            return NSAccessibilityWindowRole;
         case MOXI_ROLE_TAB_GROUP:
             return NSAccessibilityTabGroupRole;
         case MOXI_ROLE_CANVAS:
@@ -453,6 +479,16 @@ static void moxi_accessibility_capture_previous(void) {
         moxi_previous_accessibility_values[i] = moxi_accessibility_values[i] == nil
             ? @""
             : [moxi_accessibility_values[i] copy];
+        moxi_previous_accessibility_checked[i] = moxi_accessibility_checked[i];
+        moxi_previous_accessibility_expanded[i] = moxi_accessibility_expanded[i];
+        moxi_previous_accessibility_selected[i] = moxi_accessibility_selected[i];
+        moxi_previous_accessibility_enabled[i] = moxi_accessibility_enabled[i];
+        moxi_previous_accessibility_focused[i] = moxi_accessibility_focused[i];
+        moxi_previous_accessibility_has_value_range[i] =
+            moxi_accessibility_has_value_range[i];
+        moxi_previous_accessibility_value_min[i] = moxi_accessibility_value_min[i];
+        moxi_previous_accessibility_value_max[i] = moxi_accessibility_value_max[i];
+        moxi_previous_accessibility_value_now[i] = moxi_accessibility_value_now[i];
     }
 }
 
@@ -472,6 +508,12 @@ static void moxi_accessibility_reset_storage(void) {
         moxi_accessibility_enabled[i] = YES;
         moxi_accessibility_focused[i] = NO;
         moxi_accessibility_selected[i] = NO;
+        moxi_accessibility_checked[i] = NO;
+        moxi_accessibility_expanded[i] = NO;
+        moxi_accessibility_has_value_range[i] = NO;
+        moxi_accessibility_value_min[i] = 0.0;
+        moxi_accessibility_value_max[i] = 0.0;
+        moxi_accessibility_value_now[i] = 0.0;
         moxi_accessibility_actions[i] = 0;
         moxi_accessibility_elements[i] = nil;
     }
@@ -548,10 +590,52 @@ static void moxi_accessibility_build_elements(void) {
             NSString *currentValue = moxi_accessibility_values[i] == nil
                 ? @""
                 : moxi_accessibility_values[i];
-            if (![previousValue isEqualToString:currentValue]) {
+            BOOL scalarChanged =
+                moxi_previous_accessibility_has_value_range[previous] !=
+                    moxi_accessibility_has_value_range[i] ||
+                moxi_previous_accessibility_value_min[previous] !=
+                    moxi_accessibility_value_min[i] ||
+                moxi_previous_accessibility_value_max[previous] !=
+                    moxi_accessibility_value_max[i] ||
+                moxi_previous_accessibility_value_now[previous] !=
+                    moxi_accessibility_value_now[i];
+            BOOL stateChanged =
+                moxi_previous_accessibility_checked[previous] !=
+                    moxi_accessibility_checked[i] ||
+                moxi_previous_accessibility_expanded[previous] !=
+                    moxi_accessibility_expanded[i] ||
+                moxi_accessibility_selected[previous] !=
+                moxi_accessibility_selected[i] ||
+                scalarChanged;
+            BOOL enabledChanged = moxi_previous_accessibility_enabled[previous] !=
+                moxi_accessibility_enabled[i];
+            if (![previousValue isEqualToString:currentValue] || stateChanged) {
                 NSAccessibilityPostNotification(
                     moxi_accessibility_elements[i],
                     NSAccessibilityValueChangedNotification
+                );
+            }
+            if (enabledChanged) {
+                NSAccessibilityPostNotification(
+                    moxi_accessibility_elements[i],
+                    NSAccessibilityLayoutChangedNotification
+                );
+            }
+            if (moxi_previous_accessibility_selected[previous] !=
+                moxi_accessibility_selected[i]) {
+                NSAccessibilityElement *parent = moxi_accessibility_element_for_id(
+                    moxi_accessibility_parent_ids[i]
+                );
+                NSAccessibilityPostNotification(
+                    parent == nil ? moxi_canvas : parent,
+                    NSAccessibilitySelectedChildrenChangedNotification
+                );
+            }
+            if (moxi_previous_accessibility_focused[previous] !=
+                moxi_accessibility_focused[i]) {
+                NSAccessibilityPostNotification(
+                    moxi_accessibility_elements[i],
+                    NSAccessibilityFocusedUIElementChangedNotification
                 );
             }
         }
@@ -749,6 +833,7 @@ static int moxi_event_modifiers_for_flags(NSEventModifierFlags flags) {
 }
 
 static void moxi_reset_commands(void) {
+    moxi_native_text_editor_seen = NO;
     moxi_label_count = 0;
     moxi_button_count = 0;
     moxi_checkbox_count = 0;
@@ -1073,10 +1158,111 @@ int moxi_clipboard_codepoint_at(int target) {
     return [self accessibilityChildren];
 }
 
+- (NSArray *)accessibilityAttributeNames {
+    NSMutableArray *names = [[super accessibilityAttributeNames] mutableCopy];
+    if (names == nil) {
+        names = [NSMutableArray array];
+    }
+    NSArray *semanticNames = @[
+        NSAccessibilityTitleAttribute,
+        NSAccessibilityRoleAttribute,
+        NSAccessibilityRoleDescriptionAttribute,
+        NSAccessibilityEnabledAttribute,
+        NSAccessibilityFocusedAttribute,
+        NSAccessibilitySelectedAttribute,
+        NSAccessibilityValueAttribute,
+        NSAccessibilityHelpAttribute,
+        NSAccessibilityExpandedAttribute,
+        NSAccessibilityMinValueAttribute,
+        NSAccessibilityMaxValueAttribute,
+        NSAccessibilitySelectedChildrenAttribute,
+        NSAccessibilityVisibleChildrenAttribute,
+        NSAccessibilityHiddenAttribute,
+    ];
+    for (NSString *name in semanticNames) {
+        if (![names containsObject:name]) {
+            [names addObject:name];
+        }
+    }
+    return names;
+}
+
 - (id)accessibilityAttributeValue:(NSAccessibilityAttributeName)attribute {
     if ([attribute isEqualToString:NSAccessibilityChildrenAttribute] ||
         [attribute isEqualToString:NSAccessibilityChildrenInNavigationOrderAttribute]) {
         return [self accessibilityChildren];
+    }
+    if ([attribute isEqualToString:NSAccessibilityVisibleChildrenAttribute]) {
+        return [self accessibilityChildren];
+    }
+    if ([attribute isEqualToString:NSAccessibilitySelectedChildrenAttribute]) {
+        NSMutableArray *selected = [NSMutableArray array];
+        for (MoxiAccessibilityElement *child in [self accessibilityChildren]) {
+            id selectedValue = [child accessibilityAttributeValue:
+                NSAccessibilitySelectedAttribute];
+            if ([selectedValue boolValue]) {
+                [selected addObject:child];
+            }
+        }
+        return selected;
+    }
+    int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
+    if (index >= 0) {
+        int role = moxi_accessibility_roles[index];
+        if ([attribute isEqualToString:NSAccessibilityTitleAttribute]) {
+            return moxi_accessibility_labels[index] == nil
+                ? @""
+                : moxi_accessibility_labels[index];
+        }
+        if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
+            return moxi_accessibility_role(role);
+        }
+        if ([attribute isEqualToString:NSAccessibilityRoleDescriptionAttribute]) {
+            if (role == MOXI_ROLE_SWITCH) {
+                return @"switch";
+            }
+            return NSAccessibilityRoleDescription(moxi_accessibility_role(role), nil);
+        }
+        if ([attribute isEqualToString:NSAccessibilityEnabledAttribute]) {
+            return @(moxi_accessibility_enabled[index]);
+        }
+        if ([attribute isEqualToString:NSAccessibilityFocusedAttribute]) {
+            return @(moxi_accessibility_focused[index]);
+        }
+        if ([attribute isEqualToString:NSAccessibilitySelectedAttribute]) {
+            return @(moxi_accessibility_selected[index]);
+        }
+        if ([attribute isEqualToString:NSAccessibilityExpandedAttribute]) {
+            return @(moxi_accessibility_expanded[index]);
+        }
+        if ([attribute isEqualToString:NSAccessibilityHiddenAttribute]) {
+            return @(role == MOXI_ROLE_DIALOG && !moxi_accessibility_expanded[index]);
+        }
+        if ([attribute isEqualToString:NSAccessibilityValueAttribute]) {
+            if (role == MOXI_ROLE_CHECKBOX || role == MOXI_ROLE_SWITCH ||
+                role == MOXI_ROLE_RADIO) {
+                return @(moxi_accessibility_checked[index]);
+            }
+            if (moxi_accessibility_has_value_range[index]) {
+                return @(moxi_accessibility_value_now[index]);
+            }
+            return moxi_accessibility_values[index] == nil
+                ? @""
+                : moxi_accessibility_values[index];
+        }
+        if ([attribute isEqualToString:NSAccessibilityMinValueAttribute] &&
+            moxi_accessibility_has_value_range[index]) {
+            return @(moxi_accessibility_value_min[index]);
+        }
+        if ([attribute isEqualToString:NSAccessibilityMaxValueAttribute] &&
+            moxi_accessibility_has_value_range[index]) {
+            return @(moxi_accessibility_value_max[index]);
+        }
+        if ([attribute isEqualToString:NSAccessibilityHelpAttribute]) {
+            return moxi_accessibility_hints[index] == nil
+                ? @""
+                : moxi_accessibility_hints[index];
+        }
     }
     return [super accessibilityAttributeValue:attribute];
 }
@@ -1196,7 +1382,10 @@ int moxi_clipboard_codepoint_at(int target) {
 }
 
 - (id)accessibilityHitTest:(NSPoint)point {
-    for (int i = 0; i < moxi_accessibility_count; i++) {
+    /* Children are emitted after their containers. Walk backwards so a
+     * nested control wins over the larger parent frame. accessibilityFrame
+     * is in screen coordinates, matching the point supplied by AppKit. */
+    for (int i = moxi_accessibility_count - 1; i >= 0; i--) {
         if (NSPointInRect(point, [moxi_accessibility_elements[i] accessibilityFrame])) {
             return moxi_accessibility_elements[i];
         }
@@ -1204,7 +1393,179 @@ int moxi_clipboard_codepoint_at(int target) {
     return self;
 }
 
+- (void)hideNativeTextEditor {
+    if (self.nativeTextEditor == nil) {
+        return;
+    }
+    self.nativeTextEditor.hidden = YES;
+}
+
+- (BOOL)nativeTextEditorIsVisibleForIndex:(int)index {
+    return self.nativeTextEditor != nil &&
+        !self.nativeTextEditor.hidden &&
+        moxi_native_text_editor_seen &&
+        index == moxi_active_text_input_index &&
+        index >= 0 &&
+        index < moxi_text_input_count &&
+        !moxi_text_input_wraps[index];
+}
+
+- (void)showNativeTextEditorForIndex:(int)index {
+    if (index < 0 || index >= moxi_text_input_count ||
+        moxi_text_input_wraps[index]) {
+        return;
+    }
+    if (self.nativeTextEditor == nil) {
+        self.nativeTextEditor = [[NSTextField alloc] initWithFrame:NSZeroRect];
+        self.nativeTextEditor.delegate = self;
+        self.nativeTextEditor.editable = YES;
+        self.nativeTextEditor.selectable = YES;
+        self.nativeTextEditor.bordered = YES;
+        self.nativeTextEditor.bezeled = YES;
+        self.nativeTextEditor.focusRingType = NSFocusRingTypeExterior;
+        self.nativeTextEditor.usesSingleLineMode = YES;
+        self.nativeTextEditor.lineBreakMode = NSLineBreakByClipping;
+        self.nativeTextEditor.alignment = NSTextAlignmentLeft;
+        self.nativeTextEditor.accessibilityElement = YES;
+        self.nativeTextEditor.accessibilityIdentifier = @"moxi-native-text-input";
+        [self addSubview:self.nativeTextEditor];
+    }
+
+    BOOL wasHidden = self.nativeTextEditor.hidden;
+    self.nativeTextEditor.hidden = NO;
+    self.nativeTextEditor.frame = moxi_text_input_frames[index];
+    self.nativeTextEditor.font = [NSFont systemFontOfSize:
+        moxi_text_input_font_sizes[index]];
+    self.nativeTextEditor.textColor = moxi_color(
+        moxi_text_input_text_colors[index]
+    );
+    self.nativeTextEditor.backgroundColor = moxi_color(
+        moxi_text_input_fill_colors[index]
+    );
+    self.nativeTextEditor.drawsBackground = YES;
+
+    NSString *value = moxi_text_input_texts[index] == nil
+        ? @""
+        : moxi_text_input_texts[index];
+    BOOL valueChanged = self.nativeTextEditorValue == nil ||
+        ![self.nativeTextEditorValue isEqualToString:value];
+    if (valueChanged) {
+        self.synchronizingNativeTextEditor = YES;
+        self.nativeTextEditor.stringValue = value;
+        self.nativeTextEditorValue = [value copy];
+        self.synchronizingNativeTextEditor = NO;
+    }
+
+    if (self.window != nil) {
+        NSText *fieldEditor = [self.window fieldEditor:NO
+                                             forObject:self.nativeTextEditor];
+        BOOL isFirstResponder = self.window.firstResponder == self.nativeTextEditor ||
+            (fieldEditor != nil && self.window.firstResponder == fieldEditor);
+        if (!isFirstResponder) {
+            [self.window makeFirstResponder:self.nativeTextEditor];
+            fieldEditor = [self.window fieldEditor:NO
+                                         forObject:self.nativeTextEditor];
+        }
+        if ((wasHidden || valueChanged) && fieldEditor != nil) {
+            NSUInteger start = moxi_utf16_index_for_codepoint(
+                value,
+                moxi_text_input_selection_starts[index]
+            );
+            NSUInteger end = moxi_utf16_index_for_codepoint(
+                value,
+                moxi_text_input_selection_ends[index]
+            );
+            if (end < start) {
+                end = start;
+            }
+            [fieldEditor setSelectedRange:NSMakeRange(start, end - start)];
+        }
+    }
+    moxi_native_text_editor_seen = YES;
+}
+
+- (void)finishMoxiFrame {
+    BOOL shouldShow = moxi_native_text_editor_seen &&
+        moxi_active_text_input_index >= 0 &&
+        moxi_active_text_input_index < moxi_text_input_count &&
+        moxi_text_input_focused[moxi_active_text_input_index] &&
+        !moxi_text_input_wraps[moxi_active_text_input_index];
+    if (shouldShow) {
+        [self showNativeTextEditorForIndex:moxi_active_text_input_index];
+        return;
+    }
+    if (self.nativeTextEditor != nil) {
+        NSText *fieldEditor = self.window == nil
+            ? nil
+            : [self.window fieldEditor:NO forObject:self.nativeTextEditor];
+        if (self.window != nil &&
+            (self.window.firstResponder == self.nativeTextEditor ||
+             (fieldEditor != nil && self.window.firstResponder == fieldEditor))) {
+            [self.window makeFirstResponder:self];
+        }
+        [self hideNativeTextEditor];
+    }
+}
+
+- (void)controlTextDidChange:(NSNotification *)notification {
+    if (self.synchronizingNativeTextEditor ||
+        [notification object] != self.nativeTextEditor ||
+        self.nativeTextEditor == nil) {
+        return;
+    }
+    NSString *value = self.nativeTextEditor.stringValue == nil
+        ? @""
+        : self.nativeTextEditor.stringValue;
+    NSString *previous = self.nativeTextEditorValue == nil
+        ? @""
+        : self.nativeTextEditorValue;
+    if ([value isEqualToString:previous]) {
+        return;
+    }
+    moxi_queue_text_event(
+        MOXI_EVENT_TEXT_INPUT,
+        value,
+        moxi_codepoint_index_for_utf16(previous, 0),
+        moxi_codepoint_index_for_utf16(previous, [previous length])
+    );
+    self.nativeTextEditorValue = [value copy];
+}
+
+- (BOOL)control:(NSControl *)control
+        textView:(NSTextView *)textView
+doCommandBySelector:(SEL)commandSelector {
+    if (control != self.nativeTextEditor) {
+        return NO;
+    }
+    if (commandSelector == @selector(insertNewline:) ||
+        commandSelector == @selector(insertLineBreak:)) {
+        moxi_interpreting_modifiers = moxi_event_modifiers_for_flags(
+            [NSApp currentEvent].modifierFlags
+        );
+        moxi_queue_key_event(MOXI_KEY_ENTER);
+        moxi_interpreting_modifiers = 0;
+        return YES;
+    }
+    if (commandSelector == @selector(insertTab:) ||
+        commandSelector == @selector(insertBacktab:)) {
+        moxi_interpreting_modifiers = moxi_event_modifiers_for_flags(
+            [NSApp currentEvent].modifierFlags
+        );
+        if (commandSelector == @selector(insertBacktab:)) {
+            moxi_interpreting_modifiers |= MOXI_MOD_SHIFT;
+        }
+        moxi_queue_key_event(MOXI_KEY_TAB);
+        moxi_interpreting_modifiers = 0;
+        return YES;
+    }
+    (void)textView;
+    return NO;
+}
+
 static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
+    if (slot.kind == 15 && !slot.expanded) {
+        return;
+    }
     moxi_begin_clip(slot.clipEnabled, slot.clipFrame);
     NSRect frame = slot.frame;
     float fill[4] = {
@@ -1219,6 +1580,15 @@ static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
         fill[1] += (1.0 - fill[1]) * 0.14;
         fill[2] += (1.0 - fill[2]) * 0.14;
     }
+    float text_color[4] = {
+        slot.textColor[0], slot.textColor[1], slot.textColor[2], slot.textColor[3]
+    };
+    if (!slot.enabled) {
+        text_color[0] = 0.62;
+        text_color[1] = 0.64;
+        text_color[2] = 0.70;
+    }
+    NSColor *nativeTextColor = moxi_color(text_color);
     if (slot.kind != 17) {
         [moxi_color(fill) setFill];
         [[NSBezierPath bezierPathWithRoundedRect:frame
@@ -1227,7 +1597,7 @@ static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
     }
 
     if (slot.kind == 17) {
-        [moxi_color(slot.textColor) setStroke];
+        [nativeTextColor setStroke];
         NSBezierPath *separator = [NSBezierPath bezierPath];
         [separator moveToPoint:NSMakePoint(NSMinX(frame), NSMidY(frame))];
         [separator lineToPoint:NSMakePoint(NSMaxX(frame), NSMidY(frame))];
@@ -1236,7 +1606,7 @@ static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
     } else if (slot.kind == 10) {
         NSDictionary *attributes = @{
             NSFontAttributeName: [NSFont systemFontOfSize:slot.fontSize],
-            NSForegroundColorAttributeName: moxi_color(slot.textColor),
+            NSForegroundColorAttributeName: nativeTextColor,
         };
         [slot.text drawInRect:NSMakeRect(
             NSMinX(frame) + 10.0,
@@ -1244,55 +1614,197 @@ static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
             MAX(0.0, frame.size.width - 30.0),
             frame.size.height
         ) withAttributes:attributes];
-        [moxi_color(slot.textColor) setFill];
+        [nativeTextColor setFill];
         NSBezierPath *arrow = [NSBezierPath bezierPath];
-        [arrow moveToPoint:NSMakePoint(NSMaxX(frame) - 18.0, NSMidY(frame) - 3.0)];
-        [arrow lineToPoint:NSMakePoint(NSMaxX(frame) - 8.0, NSMidY(frame) - 3.0)];
-        [arrow lineToPoint:NSMakePoint(NSMaxX(frame) - 13.0, NSMidY(frame) + 4.0)];
+        if (slot.expanded) {
+            [arrow moveToPoint:NSMakePoint(NSMaxX(frame) - 18.0, NSMidY(frame) + 4.0)];
+            [arrow lineToPoint:NSMakePoint(NSMaxX(frame) - 8.0, NSMidY(frame) + 4.0)];
+            [arrow lineToPoint:NSMakePoint(NSMaxX(frame) - 13.0, NSMidY(frame) - 3.0)];
+        } else {
+            [arrow moveToPoint:NSMakePoint(NSMaxX(frame) - 18.0, NSMidY(frame) - 3.0)];
+            [arrow lineToPoint:NSMakePoint(NSMaxX(frame) - 8.0, NSMidY(frame) - 3.0)];
+            [arrow lineToPoint:NSMakePoint(NSMaxX(frame) - 13.0, NSMidY(frame) + 4.0)];
+        }
         [arrow closePath];
         [arrow fill];
+    } else if (slot.kind == 15) {
+        NSRect titleBar = NSMakeRect(
+            NSMinX(frame),
+            NSMinY(frame),
+            frame.size.width,
+            MIN(28.0, frame.size.height)
+        );
+        [[NSColor colorWithCalibratedWhite:1.0 alpha:0.10] setFill];
+        NSRectFill(titleBar);
+        NSDictionary *titleAttributes = @{
+            NSFontAttributeName: [NSFont systemFontOfSize:slot.fontSize
+                                                       weight:NSFontWeightSemibold],
+            NSForegroundColorAttributeName: nativeTextColor,
+        };
+        [slot.text drawInRect:NSInsetRect(titleBar, 10.0, 2.0)
+                  withAttributes:titleAttributes];
+        [[NSColor colorWithCalibratedWhite:1.0 alpha:0.35] setStroke];
+        NSBezierPath *titleRule = [NSBezierPath bezierPath];
+        [titleRule moveToPoint:NSMakePoint(NSMinX(frame), NSMaxY(titleBar))];
+        [titleRule lineToPoint:NSMakePoint(NSMaxX(frame), NSMaxY(titleBar))];
+        [titleRule setLineWidth:1.0];
+        [titleRule stroke];
+        [[NSColor colorWithCalibratedWhite:1.0 alpha:0.55] setStroke];
+        NSBezierPath *close = [NSBezierPath bezierPath];
+        [close moveToPoint:NSMakePoint(NSMaxX(frame) - 18.0, NSMinY(frame) + 9.0)];
+        [close lineToPoint:NSMakePoint(NSMaxX(frame) - 10.0, NSMinY(frame) + 17.0)];
+        [close moveToPoint:NSMakePoint(NSMaxX(frame) - 10.0, NSMinY(frame) + 9.0)];
+        [close lineToPoint:NSMakePoint(NSMaxX(frame) - 18.0, NSMinY(frame) + 17.0)];
+        [close setLineWidth:1.5];
+        [close stroke];
     } else {
         NSDictionary *attributes = @{
             NSFontAttributeName: [NSFont systemFontOfSize:slot.fontSize],
-            NSForegroundColorAttributeName: moxi_color(slot.textColor),
+            NSForegroundColorAttributeName: nativeTextColor,
         };
-        CGFloat inset = (slot.kind == 15 || slot.kind == 16) ? 12.0 : 8.0;
-        [slot.text drawInRect:NSInsetRect(frame, inset, 3.0)
-                  withAttributes:attributes];
-        if (slot.kind == 11 || slot.kind == 12 || slot.kind == 13 || slot.kind == 14) {
+        if (slot.kind == 11) {
+            CGFloat rowHeight = MAX(20.0, frame.size.height / 4.0);
+            if (slot.selected) {
+                [[NSColor selectedContentBackgroundColor] setFill];
+                NSRectFill(NSMakeRect(
+                    NSMinX(frame), NSMinY(frame), frame.size.width,
+                    MIN(rowHeight, frame.size.height)
+                ));
+            }
+            [slot.text drawInRect:NSMakeRect(
+                NSMinX(frame) + 10.0, NSMinY(frame) + 2.0,
+                MAX(0.0, frame.size.width - 20.0), MAX(0.0, rowHeight - 4.0)
+            ) withAttributes:attributes];
             [[NSColor colorWithCalibratedWhite:1.0 alpha:0.12] setStroke];
-            NSBezierPath *row = [NSBezierPath bezierPath];
-            CGFloat rowHeight = MAX(12.0, frame.size.height / 4.0);
+            NSBezierPath *rows = [NSBezierPath bezierPath];
             for (int rowIndex = 1; rowIndex < 4; rowIndex++) {
                 CGFloat y = NSMinY(frame) + rowHeight * rowIndex;
-                [row moveToPoint:NSMakePoint(NSMinX(frame) + 6.0, y)];
-                [row lineToPoint:NSMakePoint(NSMaxX(frame) - 6.0, y)];
+                [rows moveToPoint:NSMakePoint(NSMinX(frame) + 6.0, y)];
+                [rows lineToPoint:NSMakePoint(NSMaxX(frame) - 6.0, y)];
             }
-            if (slot.kind == 12) {
-                CGFloat columnWidth = frame.size.width / 3.0;
-                for (int column = 1; column < 3; column++) {
-                    CGFloat x = NSMinX(frame) + columnWidth * column;
-                    [row moveToPoint:NSMakePoint(x, NSMinY(frame) + 4.0)];
-                    [row lineToPoint:NSMakePoint(x, NSMaxY(frame) - 4.0)];
-                }
+            [rows setLineWidth:1.0];
+            [rows stroke];
+        } else if (slot.kind == 12) {
+            CGFloat headerHeight = MIN(24.0, frame.size.height);
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.10] setFill];
+            NSRectFill(NSMakeRect(NSMinX(frame), NSMinY(frame), frame.size.width, headerHeight));
+            if (slot.selected && frame.size.height > headerHeight) {
+                [[NSColor selectedContentBackgroundColor] setFill];
+                NSRectFill(NSMakeRect(
+                    NSMinX(frame), NSMinY(frame) + headerHeight,
+                    frame.size.width, MIN(22.0, frame.size.height - headerHeight)
+                ));
             }
-            [row setLineWidth:1.0];
-            [row stroke];
+            [slot.text drawInRect:NSMakeRect(
+                NSMinX(frame) + 8.0, NSMinY(frame) + 2.0,
+                MAX(0.0, frame.size.width - 16.0), MAX(0.0, headerHeight - 4.0)
+            ) withAttributes:attributes];
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.12] setStroke];
+            NSBezierPath *grid = [NSBezierPath bezierPath];
+            CGFloat rowHeight = MAX(18.0, (frame.size.height - headerHeight) / 3.0);
+            for (int rowIndex = 0; rowIndex < 3; rowIndex++) {
+                CGFloat y = NSMinY(frame) + headerHeight + rowHeight * rowIndex;
+                [grid moveToPoint:NSMakePoint(NSMinX(frame) + 6.0, y)];
+                [grid lineToPoint:NSMakePoint(NSMaxX(frame) - 6.0, y)];
+            }
+            CGFloat columnWidth = frame.size.width / 3.0;
+            for (int column = 1; column < 3; column++) {
+                CGFloat x = NSMinX(frame) + columnWidth * column;
+                [grid moveToPoint:NSMakePoint(x, NSMinY(frame) + 4.0)];
+                [grid lineToPoint:NSMakePoint(x, NSMaxY(frame) - 4.0)];
+            }
+            [grid setLineWidth:1.0];
+            [grid stroke];
         } else if (slot.kind == 13) {
-            [moxi_color(slot.textColor) setStroke];
+            CGFloat rowHeight = MAX(22.0, frame.size.height / 3.0);
+            if (slot.selected) {
+                [[NSColor selectedContentBackgroundColor] setFill];
+                NSRectFill(NSMakeRect(
+                    NSMinX(frame), NSMinY(frame), frame.size.width,
+                    MIN(rowHeight, frame.size.height)
+                ));
+            }
+            [nativeTextColor setStroke];
             NSBezierPath *disclosure = [NSBezierPath bezierPath];
-            [disclosure moveToPoint:NSMakePoint(NSMinX(frame) + 8.0, NSMinY(frame) + 10.0)];
-            [disclosure lineToPoint:NSMakePoint(NSMinX(frame) + 14.0, NSMinY(frame) + 15.0)];
-            [disclosure lineToPoint:NSMakePoint(NSMinX(frame) + 8.0, NSMinY(frame) + 20.0)];
-            [disclosure setLineWidth:1.5];
-            [disclosure stroke];
+            if (slot.expanded) {
+                [disclosure moveToPoint:NSMakePoint(NSMinX(frame) + 8.0, NSMinY(frame) + 9.0)];
+                [disclosure lineToPoint:NSMakePoint(NSMinX(frame) + 20.0, NSMinY(frame) + 9.0)];
+                [disclosure lineToPoint:NSMakePoint(NSMinX(frame) + 14.0, NSMinY(frame) + 16.0)];
+                [disclosure closePath];
+                [disclosure fill];
+                [[NSColor colorWithCalibratedWhite:1.0 alpha:0.30] setStroke];
+                NSBezierPath *branch = [NSBezierPath bezierPath];
+                [branch moveToPoint:NSMakePoint(NSMinX(frame) + 14.0, NSMinY(frame) + 18.0)];
+                [branch lineToPoint:NSMakePoint(NSMinX(frame) + 14.0, NSMaxY(frame) - 8.0)];
+                [branch setLineWidth:1.0];
+                [branch stroke];
+            } else {
+                [disclosure moveToPoint:NSMakePoint(NSMinX(frame) + 9.0, NSMinY(frame) + 7.0)];
+                [disclosure lineToPoint:NSMakePoint(NSMinX(frame) + 9.0, NSMinY(frame) + 19.0)];
+                [disclosure lineToPoint:NSMakePoint(NSMinX(frame) + 17.0, NSMinY(frame) + 13.0)];
+                [disclosure closePath];
+                [disclosure fill];
+            }
+            [slot.text drawInRect:NSMakeRect(
+                NSMinX(frame) + 26.0, NSMinY(frame) + 2.0,
+                MAX(0.0, frame.size.width - 34.0), MAX(0.0, rowHeight - 4.0)
+            ) withAttributes:attributes];
         } else if (slot.kind == 16) {
-            [moxi_color(slot.textColor) setStroke];
+            [slot.text drawInRect:NSInsetRect(frame, 12.0, 3.0)
+                      withAttributes:attributes];
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.18] setStroke];
             NSBezierPath *tabLine = [NSBezierPath bezierPath];
-            [tabLine moveToPoint:NSMakePoint(NSMinX(frame), NSMinY(frame) + 26.0)];
-            [tabLine lineToPoint:NSMakePoint(NSMaxX(frame), NSMinY(frame) + 26.0)];
-            [tabLine setLineWidth:2.0];
+            CGFloat baseline = MIN(NSMaxY(frame) - 3.0, NSMinY(frame) + 26.0);
+            [tabLine moveToPoint:NSMakePoint(NSMinX(frame), baseline)];
+            [tabLine lineToPoint:NSMakePoint(NSMaxX(frame), baseline)];
+            [tabLine setLineWidth:1.0];
             [tabLine stroke];
+            [nativeTextColor setStroke];
+            NSBezierPath *selectedTab = [NSBezierPath bezierPath];
+            [selectedTab moveToPoint:NSMakePoint(NSMinX(frame), baseline)];
+            [selectedTab lineToPoint:NSMakePoint(
+                slot.selected ? NSMaxX(frame) : NSMinX(frame) + MIN(36.0, frame.size.width),
+                baseline
+            )];
+            [selectedTab setLineWidth:2.0];
+            [selectedTab stroke];
+        } else if (slot.kind == 14) {
+            if (slot.selected) {
+                [[NSColor selectedContentBackgroundColor] setFill];
+                NSRectFill(NSInsetRect(frame, 2.0, 2.0));
+            }
+            [slot.text drawInRect:NSMakeRect(
+                NSMinX(frame) + 28.0, NSMinY(frame) + 2.0,
+                MAX(0.0, frame.size.width - 36.0), MAX(0.0, frame.size.height - 4.0)
+            ) withAttributes:attributes];
+            if (slot.selected) {
+                [nativeTextColor setStroke];
+                NSBezierPath *check = [NSBezierPath bezierPath];
+                [check moveToPoint:NSMakePoint(NSMinX(frame) + 10.0, NSMidY(frame))];
+                [check lineToPoint:NSMakePoint(NSMinX(frame) + 14.0, NSMidY(frame) + 4.0)];
+                [check lineToPoint:NSMakePoint(NSMinX(frame) + 21.0, NSMidY(frame) - 5.0)];
+                [check setLineWidth:1.5];
+                [check stroke];
+            }
+        } else if (slot.kind == 18) {
+            [[NSColor colorWithCalibratedWhite:1.0 alpha:0.08] setStroke];
+            NSBezierPath *grid = [NSBezierPath bezierPath];
+            CGFloat gridSize = 16.0;
+            for (CGFloat x = NSMinX(frame) + gridSize; x < NSMaxX(frame); x += gridSize) {
+                [grid moveToPoint:NSMakePoint(x, NSMinY(frame))];
+                [grid lineToPoint:NSMakePoint(x, NSMaxY(frame))];
+            }
+            for (CGFloat y = NSMinY(frame) + gridSize; y < NSMaxY(frame); y += gridSize) {
+                [grid moveToPoint:NSMakePoint(NSMinX(frame), y)];
+                [grid lineToPoint:NSMakePoint(NSMaxX(frame), y)];
+            }
+            [grid setLineWidth:1.0];
+            [grid stroke];
+            [slot.text drawInRect:NSInsetRect(frame, 10.0, 3.0)
+                      withAttributes:attributes];
+        } else {
+            [slot.text drawInRect:NSInsetRect(frame, 8.0, 3.0)
+                      withAttributes:attributes];
         }
     }
     if (slot.focused) {
@@ -1790,6 +2302,9 @@ static void moxi_draw_custom_commands(void) {
     }
 
     for (int i = 0; i < moxi_text_input_count; i++) {
+        if ([self nativeTextEditorIsVisibleForIndex:i]) {
+            continue;
+        }
         moxi_begin_clip(
             moxi_text_input_clip_enabled[i],
             moxi_text_input_clip_frames[i]
@@ -1944,6 +2459,7 @@ static void moxi_draw_custom_commands(void) {
     for (int i = 0; i < moxi_native_widget_count; i++) {
         moxi_draw_native_widget(moxi_native_widget_slots[i]);
     }
+
     moxi_draw_custom_commands();
 }
 
@@ -2440,6 +2956,12 @@ void moxi_window_add_custom_circle(
     }
 }
 
+void moxi_window_end_frame(void) {
+    if (moxi_canvas != nil) {
+        [moxi_canvas finishMoxiFrame];
+    }
+}
+
 void moxi_window_begin_accessibility(void) {
     moxi_accessibility_capture_previous();
     moxi_accessibility_reset_storage();
@@ -2460,6 +2982,12 @@ void moxi_window_set_accessibility_at(
     int enabled,
     int focused,
     int selected,
+    int checked,
+    int expanded,
+    int has_value_range,
+    float value_min,
+    float value_max,
+    float value_now,
     int actions
 ) {
     @autoreleasepool {
@@ -2494,6 +3022,12 @@ void moxi_window_set_accessibility_at(
         moxi_accessibility_enabled[index] = enabled != 0;
         moxi_accessibility_focused[index] = focused != 0;
         moxi_accessibility_selected[index] = selected != 0;
+        moxi_accessibility_checked[index] = checked != 0;
+        moxi_accessibility_expanded[index] = expanded != 0;
+        moxi_accessibility_has_value_range[index] = has_value_range != 0;
+        moxi_accessibility_value_min[index] = value_min;
+        moxi_accessibility_value_max[index] = value_max;
+        moxi_accessibility_value_now[index] = value_now;
         moxi_accessibility_actions[index] = actions;
         if (focused != 0 && role == MOXI_ROLE_TEXT_INPUT) {
             moxi_accessibility_focused_text_input = YES;
@@ -3215,6 +3749,9 @@ void moxi_window_set_text_input_at(
         }
         if (index + 1 > moxi_text_input_count) {
             moxi_text_input_count = index + 1;
+        }
+        if (focused != 0 && !moxi_text_input_wraps[index]) {
+            [moxi_canvas showNativeTextEditorForIndex:index];
         }
         [moxi_canvas setNeedsDisplay:YES];
     }

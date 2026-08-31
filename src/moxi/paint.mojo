@@ -76,6 +76,12 @@ def paint_semantics_equal(left: Semantics, right: Semantics) -> Bool:
         and left.enabled == right.enabled
         and left.focused == right.focused
         and left.selected == right.selected
+        and left.checked == right.checked
+        and left.expanded == right.expanded
+        and left.has_value_range == right.has_value_range
+        and left.value_min == right.value_min
+        and left.value_max == right.value_max
+        and left.value_now == right.value_now
         and left.actions == right.actions
     )
 

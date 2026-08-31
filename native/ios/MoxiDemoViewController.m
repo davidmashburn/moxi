@@ -66,6 +66,15 @@ static void moxi_demo_frame(void *context) {
     controller.frameCount += 1;
 }
 
+static void moxi_demo_action(void *context, int target, int action) {
+    MoxiDemoViewController *controller = moxi_controller(context);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        controller.statusLabel.text = [NSString stringWithFormat:
+            @"Moxi iOS host  •  accessibility action %d on node %d",
+            action, target];
+    });
+}
+
 @implementation MoxiDemoViewController
 
 - (void)viewDidLoad {
@@ -86,6 +95,7 @@ static void moxi_demo_frame(void *context) {
         .composition = moxi_demo_composition,
         .resize = moxi_demo_resize,
         .frame = moxi_demo_frame,
+        .action = moxi_demo_action,
     };
     self.moxiHost = moxi_ios_host_create(375.0f, 812.0f, callbacks, (__bridge void *)self);
     self.surface = (__bridge UIView *)self.moxiHost;
@@ -94,6 +104,25 @@ static void moxi_demo_frame(void *context) {
     self.surface.backgroundColor = [UIColor clearColor];
     self.surface.opaque = NO;
     [self.view insertSubview:self.surface atIndex:0];
+
+    /* Keep the demo itself a small contract test for the virtual UIKit
+     * accessibility tree. Real Moxi frames use the same scalar setter API. */
+    moxi_ios_host_begin_accessibility(self.moxiHost);
+    moxi_ios_host_set_accessibility_node(
+        self.moxiHost, 0, 100, -1, 5,
+        "Moxi iOS host", "", "",
+        0.0f, 0.0f, 375.0f, 812.0f,
+        1, 0, 0, 0, 0, 0,
+        0.0f, 0.0f, 0.0f, 0
+    );
+    moxi_ios_host_set_accessibility_node(
+        self.moxiHost, 1, 101, 100, 2,
+        "Activate demo", "", "Activates the iOS host demo",
+        32.0f, 96.0f, 188.0f, 56.0f,
+        1, 0, 0, 0, 0, 0,
+        0.0f, 0.0f, 0.0f, MOXI_HOST_ACTION_PRESS
+    );
+    moxi_ios_host_end_accessibility(self.moxiHost);
 }
 
 - (void)dealloc {

@@ -14,6 +14,105 @@ export const MOXI_HOST_TOUCH_BEGIN = 16;
 export const MOXI_HOST_TOUCH_UPDATE = 17;
 export const MOXI_HOST_TOUCH_END = 18;
 export const MOXI_HOST_POINTER_CANCEL = 19;
+export const MOXI_HOST_ACTION_PRESS = 1;
+export const MOXI_HOST_ACTION_INCREMENT = 2;
+export const MOXI_HOST_ACTION_DECREMENT = 4;
+export const MOXI_HOST_ACTION_SELECT = 8;
+export const MOXI_HOST_ACTION_EXPAND = 16;
+export const MOXI_HOST_ACTION_COLLAPSE = 32;
+
+/* The numeric roles mirror src/moxi/accessibility.mojo. A null role is
+ * intentional: ARIA has no portable role for a presentational label, so the
+ * accessible name is retained without manufacturing an invalid role token. */
+export const MOXI_AX_ROLE_MAP = Object.freeze({
+  1: null,
+  2: "button",
+  3: "textbox",
+  4: null,
+  5: "group",
+  6: "checkbox",
+  7: "progressbar",
+  8: "slider",
+  9: "switch",
+  10: "radio",
+  11: "img",
+  12: "textbox",
+  13: "combobox",
+  14: "listbox",
+  15: "table",
+  16: "tree",
+  17: "menu",
+  18: "dialog",
+  19: "tablist",
+  20: "application",
+  21: "separator",
+});
+
+const MOXI_AX_INTERACTIVE_ROLES = new Set([
+  "button", "textbox", "checkbox", "slider", "switch", "radio",
+  "combobox", "listbox", "table", "tree", "menu", "dialog", "tablist",
+  "application",
+]);
+
+function accessibilityRole(role) {
+  if (typeof role === "string") return role.toLowerCase();
+  return MOXI_AX_ROLE_MAP[role] || null;
+}
+
+function accessibilityBoolean(node, key) {
+  return Object.prototype.hasOwnProperty.call(node, key) ? !!node[key] : null;
+}
+
+/**
+ * Convert one Moxi semantic node into stable ARIA attributes.
+ *
+ * This helper is pure so hosts can test the mapping without a browser DOM and
+ * native adapters can use the same contract when they are not rendering an
+ * HTML accessibility overlay.
+ */
+export function accessibilityAttributes(node = {}) {
+  const attributes = {};
+  const role = accessibilityRole(node.role);
+  if (role) attributes.role = role;
+
+  const label = node.label ?? node.name;
+  if (label !== undefined && label !== null && String(label).length > 0) {
+    attributes["aria-label"] = String(label);
+  }
+  const hint = node.hint ?? node.description;
+  if (hint !== undefined && hint !== null && String(hint).length > 0) {
+    attributes["aria-description"] = String(hint);
+  }
+  const value = node.value;
+  if (value !== undefined && value !== null && String(value).length > 0) {
+    attributes["aria-valuetext"] = String(value);
+  }
+
+  if (node.enabled === false) attributes["aria-disabled"] = "true";
+  const selected = accessibilityBoolean(node, "selected");
+  if (selected !== null) attributes["aria-selected"] = String(selected);
+  const checked = accessibilityBoolean(node, "checked");
+  if (checked !== null && ["checkbox", "switch", "radio"].includes(role)) {
+    attributes["aria-checked"] = String(checked);
+  }
+  const expanded = accessibilityBoolean(node, "expanded");
+  if (expanded !== null && ["combobox", "tree", "menu", "dialog"].includes(role)) {
+    attributes["aria-expanded"] = String(expanded);
+  }
+
+  const hasRange = node.has_value_range ?? node.hasValueRange;
+  if (hasRange) {
+    attributes["aria-valuemin"] = String(node.value_min ?? node.valueMin ?? 0);
+    attributes["aria-valuemax"] = String(node.value_max ?? node.valueMax ?? 0);
+    attributes["aria-valuenow"] = String(node.value_now ?? node.valueNow ?? 0);
+  }
+
+  if (node.hidden === true) attributes.hidden = "";
+  if (MOXI_AX_INTERACTIVE_ROLES.has(role)) {
+    attributes.tabIndex = node.focused ? "0" : "-1";
+  }
+  return attributes;
+}
 
 const noop = () => {};
 
@@ -24,6 +123,7 @@ export class MoxiWebHost {
     }
     this.target = target;
     this.svgTarget = options.svgTarget || null;
+    this.accessibilityTarget = options.accessibilityTarget || null;
     this.callbacks = {
       event: callbacks.event || noop,
       key: callbacks.key || noop,
@@ -31,6 +131,7 @@ export class MoxiWebHost {
       composition: callbacks.composition || noop,
       resize: callbacks.resize || noop,
       frame: callbacks.frame || noop,
+      accessibilityAction: callbacks.accessibilityAction || noop,
     };
     this.started = false;
     this.frameHandle = null;
@@ -39,6 +140,9 @@ export class MoxiWebHost {
     this.width = 1;
     this.height = 1;
     this.scale = 1;
+    this.accessibilitySnapshot = [];
+    this.accessibilityRoot = null;
+    this.accessibilityElements = new Map();
   }
 
   _listen(type, handler, options) {
@@ -90,6 +194,126 @@ export class MoxiWebHost {
     }
   }
 
+  _accessibilityBounds(node) {
+    const bounds = node.bounds || node;
+    return {
+      x: Number(bounds.x ?? 0),
+      y: Number(bounds.y ?? 0),
+      width: Math.max(0, Number(bounds.width ?? 0)),
+      height: Math.max(0, Number(bounds.height ?? 0)),
+    };
+  }
+
+  _accessibilityActionFromKey(event) {
+    if (event.key === "Enter" || event.key === " ") return MOXI_HOST_ACTION_PRESS;
+    if (event.key === "ArrowUp" || event.key === "ArrowRight") {
+      return MOXI_HOST_ACTION_INCREMENT;
+    }
+    if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
+      return MOXI_HOST_ACTION_DECREMENT;
+    }
+    return 0;
+  }
+
+  _clearAccessibilityDOM() {
+    if (this.accessibilityRoot && this.accessibilityRoot.parentNode) {
+      this.accessibilityRoot.parentNode.removeChild(this.accessibilityRoot);
+    }
+    this.accessibilityRoot = null;
+    this.accessibilityElements.clear();
+  }
+
+  /**
+   * Publish a laid-out semantic snapshot to an optional DOM accessibility
+   * layer. Nodes remain cached even when no DOM is available, which keeps the
+   * browser host useful in workers and in deterministic adapter tests.
+   */
+  updateAccessibility(snapshot = []) {
+    const nodes = Array.isArray(snapshot)
+      ? snapshot
+      : (Array.isArray(snapshot?.nodes) ? snapshot.nodes : []);
+    this.accessibilitySnapshot = nodes.slice();
+    const target = this.accessibilityTarget;
+    const document = target?.ownerDocument || globalThis.document;
+    if (!target || !document || typeof document.createElement !== "function" ||
+        typeof target.appendChild !== "function") {
+      return this.accessibilitySnapshot.length;
+    }
+
+    if (!this.accessibilityRoot) {
+      this.accessibilityRoot = document.createElement("div");
+      this.accessibilityRoot.setAttribute("data-moxi-accessibility", "true");
+      this.accessibilityRoot.style.position = "absolute";
+      this.accessibilityRoot.style.left = "0";
+      this.accessibilityRoot.style.top = "0";
+      this.accessibilityRoot.style.width = "100%";
+      this.accessibilityRoot.style.height = "100%";
+      this.accessibilityRoot.style.pointerEvents = "none";
+      target.appendChild(this.accessibilityRoot);
+    }
+
+    const currentIDs = new Set();
+    const byID = new Map();
+    for (const node of nodes) {
+      if (node?.id === undefined || node?.id === null) continue;
+      const id = String(node.id);
+      currentIDs.add(id);
+      let element = this.accessibilityElements.get(id);
+      if (!element) {
+        element = document.createElement("div");
+        element.dataset.moxiId = id;
+        element.addEventListener("click", () => {
+          this.callbacks.accessibilityAction(Number(node.id), MOXI_HOST_ACTION_PRESS);
+        });
+        element.addEventListener("keydown", event => {
+          const action = this._accessibilityActionFromKey(event);
+          if (action === 0) return;
+          event.preventDefault();
+          this.callbacks.accessibilityAction(Number(node.id), action);
+        });
+        this.accessibilityElements.set(id, element);
+      }
+      for (const [name, value] of Object.entries(accessibilityAttributes(node))) {
+        if (name === "hidden") element.hidden = true;
+        else if (name === "tabIndex") element.tabIndex = Number(value);
+        else element.setAttribute(name, value);
+      }
+      if (!Object.prototype.hasOwnProperty.call(node, "hidden") || !node.hidden) {
+        element.hidden = false;
+      }
+      const bounds = this._accessibilityBounds(node);
+      element.style.position = "absolute";
+      element.style.left = `${bounds.x}px`;
+      element.style.top = `${bounds.y}px`;
+      element.style.width = `${bounds.width}px`;
+      element.style.height = `${bounds.height}px`;
+      element.style.pointerEvents = "none";
+      element.textContent = node.label ?? node.name ?? "";
+      byID.set(id, element);
+    }
+
+    for (const [id, element] of this.accessibilityElements) {
+      if (!currentIDs.has(id)) {
+        if (element.parentNode) element.parentNode.removeChild(element);
+        this.accessibilityElements.delete(id);
+      }
+    }
+    for (const node of nodes) {
+      if (node?.id === undefined || node?.id === null) continue;
+      const element = byID.get(String(node.id));
+      const parent = node.parent_id ?? node.parentId;
+      const parentElement = parent === undefined || parent === null || parent < 0
+        ? this.accessibilityRoot
+        : byID.get(String(parent));
+      const destination = parentElement || this.accessibilityRoot;
+      if (element.parentNode !== destination) destination.appendChild(element);
+      if (node.focused && typeof element.focus === "function") {
+        element.focus({preventScroll: true});
+      }
+    }
+    return this.accessibilitySnapshot.length;
+  }
+
   start() {
     if (this.started) return false;
     this.started = true;
@@ -139,6 +363,7 @@ export class MoxiWebHost {
       }
       this.frameHandle = null;
     }
+    this._clearAccessibilityDOM();
     return true;
   }
 

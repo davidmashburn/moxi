@@ -42,11 +42,11 @@ Linebender stack, Parley, and AccessKit.
 | Reconciliation | `ColumnRuntime` matches `(id, kind)`, preserves retained storage, reports created/reused/updated/moved/removed counts, and emits changed/removed paint metadata. | Xilem compares new view values and performs minimal updates to the retained Masonry tree. |
 | Layout | Linear columns/rows, padding, spacing, alignment, flexible slots, min/max constraints, intrinsic estimates, wrapping, stack, grid, split, and clipped portal containers. | Flex, grid, sized boxes, split panes, portals, z-stacks, and custom constraint-driven widgets. |
 | Scrolling | Bounded portal scrolling, persistent offsets, clipping-aware hit testing, fixed/variable-extent range math, and a stable-key `VirtualRecycler`/`VirtualizedList` with measured heights, prefix offsets, overscan, anchor correction, and ensure-visible behavior. Scrollbars are not yet implemented. | Mature virtual scrolling widgets and viewport integration. |
-| Rendering | Backend-neutral paint commands plus a scene IR. AppKit paints the native demo; `SoftwareSceneRenderer` is the deterministic oracle; `MacOSMetalRenderer` batches supported geometry, embedded ASCII glyphs, registered images, and simple polygon paths with blending, dynamic buffers, clips, transforms, and `CAMetalLayer` presentation; `SvgSceneRenderer` provides Web-compatible export. | Imaging abstraction with a high-performance 2D scene/rendering stack; Vello/wgpu is the current Linebender path. |
-| Windowing | AppKit window/event bridge on macOS Apple Silicon, configurable size limits/resizability/fullscreen, portable lifecycle/scale contracts, native iOS/Android host shims, and a framework-free browser host module. Native mobile/browser app targets, accessibility mapping, and multi-window ownership are not shipped. | Winit-based native support plus an experimental DOM/web backend. |
-| Text | Deterministic approximate portable shaping with script/direction/fallback runs and stable clusters; CoreText supplies native glyph ids, shaping, bidi, and fallback on macOS; Metal has a printable-ASCII glyph path. | Parley supplies rich layout, font fallback, shaping, bidi, segmentation, and editing infrastructure. |
-| Accessibility | Backend-neutral roles, labels, values, state, bounds, parent links, and semantic actions for the catalog; native macOS AX hierarchy and action bridge. | AccessKit-based accessibility integrated into the widget contract, with broader platform coverage. |
-| Widgets | Label, button, text inputs, checkbox, progress, slider, switch, radio, image, multiline, combo, list, table, tree, menu, dialog, tabs, canvas, separator, containers, typed slots, and small state models. Catalog controls are intentionally shallow and some native paths use label/panel fallbacks. | Broader and deeper widget layer, including platform-integrated controls and view composition. |
+| Rendering | Backend-neutral paint commands plus a scene IR. AppKit paints the native demo; `SoftwareSceneRenderer` is the deterministic oracle; `MacOSMetalRenderer` batches supported geometry, keeps an ASCII glyph fast path, rasterizes Unicode text through CoreText textures, uploads registered images, flattens quadratic/cubic/arc paths, and handles concave plus bounded even-odd compound/self-intersecting fills with blending, dynamic buffers, clips, transforms, synchronized CPU/GPU timing, and `CAMetalLayer` presentation; `SvgSceneRenderer` provides Web-compatible export. | Imaging abstraction with a high-performance 2D scene/rendering stack; Vello/wgpu is the current Linebender path. |
+| Windowing | AppKit window/event bridge on macOS Apple Silicon, configurable size limits/resizability/fullscreen, portable lifecycle/scale contracts, native iOS/Android host shims, a framework-free browser host module, and host-side accessibility bridges. Mojo mobile/browser package targets and multi-window ownership are not shipped. | Winit-based native support plus an experimental DOM/web backend. |
+| Text | Deterministic approximate portable shaping with script/direction/fallback runs and stable clusters; CoreText supplies native glyph ids, shaping, bidi, and fallback on macOS; Metal uses printable-ASCII geometry or a CoreText Unicode texture fallback. | Parley supplies rich layout, font fallback, shaping, bidi, segmentation, and editing infrastructure. |
+| Accessibility | Backend-neutral roles, labels, values, hints, checked/expanded state, scalar ranges, bounds, parent links, and semantic actions; native macOS AX hierarchy exposes those attributes, state/value notifications, nested hit testing, and action bridge; Web maps snapshots to ARIA and iOS/Android expose virtual native nodes. | AccessKit-based accessibility integrated into the widget contract, with broader platform coverage. |
+| Widgets | Label, button, text inputs, checkbox, progress, slider, switch, radio, image, multiline, combo, list, table, tree, menu, dialog, tabs, canvas, separator, containers, typed slots, and small state models. macOS collection presenters draw selection, headers/grids, disclosure, menu, dialog, tab, and canvas affordances from shared semantics; focused single-line text inputs use an AppKit field editor, while editable collection ownership remains open. | Broader and deeper widget layer, including platform-integrated controls and view composition. |
 | Async | Deterministic frame-stepped scheduler with completion/cancel/fail results, bounded queues, and explicit task lifetime. External I/O/thread execution belongs to an adapter. | `task` views and reactive integration support asynchronous work in the broader framework. |
 | Agent integration | In-process capability descriptors, schema checks, approvals, leases, typed handlers, replay, bounded queues, and conversation state. | No equivalent authorization/LLM capability bus; that is outside Xilem's stated UI scope. |
 | Testing | Headless behavior tests, semantic snapshots, software-scene pixel/checksum checks, native compile checks, package-consumer checks, property-style edge cases, benchmark harness, and source-controlled visual references. | Masonry widget harness, interaction tests, render snapshots, and widget-tree snapshots. |
@@ -69,17 +69,22 @@ repeatability harness, not a comparative Xilem/Masonry performance result.
 
 ## Where Moxi is worse
 
-- Metal now covers supported geometry, printable ASCII glyphs, registered image
-  uploads, and simple polygon tessellation, but complex typography/curves,
-  asynchronous pacing, and GPU timestamps remain open work.
-- iOS, Android, and Web have native host shims plus deterministic fallbacks,
-  but no packaged app targets or cross-platform accessibility backend is
-  shipped; SVG remains an export fallback until the browser runtime is linked.
+- Metal now covers supported geometry, printable ASCII glyphs, CoreText Unicode
+  texture text, registered image uploads, quadratic/cubic/arc paths, and
+  concave plus bounded compound/self-intersecting fills, but portable
+  typography and asynchronous pacing remain open work.
+- iOS, Android, and Web have native host shims, deterministic fallbacks, and
+  host-side accessibility bridges, but no linked Mojo package targets or
+  device CI is shipped; SVG remains an export fallback until the browser
+  runtime is linked.
 - Portable text remains approximate; there is no Parley-equivalent shaping or
   font-fallback engine outside the CoreText adapter.
 - Virtualization now has measured variable-height builder/recycling and anchor
   correction, but it still lacks scrollbar widgets and richer viewport policy.
-- Catalog controls have semantic/state coverage, but many native macOS render through intentionally shallow label/panel fallbacks.
+- Catalog controls have a deeper semantic/native macOS presentation now, and
+  single-line text inputs use a real AppKit field editor; editable collection
+  cells, menu tracking, full native control ownership, and device-level
+  accessibility automation remain open.
 - Plotting is now a useful typed 2D foundation, but it is not yet a Xilem/Vello-class
   rendering stack: violin/contour/candlestick families, true hexbin geometry,
   native text/path GPU work, and non-macOS hosts remain open.
@@ -101,14 +106,17 @@ against the deliberately focused 0.5 release boundary.
 
 ### P0: foundations
 
-1. Extend the Metal scene backend with complex text resources, Bezier/path
-   tessellation, asynchronous frame pacing, and GPU timestamp queries;
-   supported geometry, images, ASCII glyphs, and simple polygons are present.
+1. Extend the Metal scene backend with asynchronous frame pacing and broader
+   GPU text/image/path tessellation; Unicode textures, curve/elliptical-arc
+   flattening, concave polygons, bounded even-odd compound fills, GPU timing,
+   and bounded text-resource caching are now present.
 2. Add a production portable shaping/font-fallback adapter; keep CoreText as
    the native reference path and retain the explicit approximate fallback.
 3. Add scrollbar widgets and richer keyboard/touch reveal policy around the
    measured variable-height recycler.
-4. Add automated native accessibility assertions and an AccessKit-equivalent cross-platform adapter contract.
+4. Add automated native accessibility assertions and an AccessKit-equivalent
+   cross-platform adapter contract; macOS, Web, iOS, and Android now have
+   source-level semantic bridges, but device/screen-reader automation remains.
 
 ### P1: framework breadth
 
@@ -143,10 +151,10 @@ boundary as follows:
 | --- | --- | --- |
 | Core/platform/render seams | Complete, with hardened Metal/SVG slices | `Component`, `WindowBackend`, `Renderer`, `SceneRenderer`, `MacOSMetalWindow`, `SvgSceneRenderer` |
 | Layout and scrolling | Complete for the 0.5 contract; variable-height recycler slice added | stack/grid/split/portal, clipping, persistent scroll, `VirtualRecycler`, measured extents, anchor correction, tests |
-| Rendering and resources | Deterministic/native contract complete; Metal geometry/resource/text slice hardened | resource handles, scene IR, software rasterizer, AppKit paths, Metal offscreen/visible demos, GPU ASCII text, image cache, polygon tessellation, counters |
+| Rendering and resources | Deterministic/native contract complete; Metal geometry/resource/text slice hardened | resource handles, scene IR, software rasterizer, AppKit paths, Metal offscreen/visible demos, GPU ASCII fast path, CoreText Unicode textures, image cache, curve/arc flattening, concave/compound tessellation, CPU/GPU timing counters |
 | Text and editing | Split contract complete; production portable shaping remains approximate | grapheme helpers, IME/selection/clipboard, CoreText glyph runs, script/fallback runs, bidi metadata |
 | Components and reactivity | Complete for the focused catalog | descriptors, state models, action queues, memos/lenses/scopes, tasks |
-| Accessibility and native actions | Complete for the macOS 0.5 surface | semantic roles/actions, AX hierarchy, AX action queue bridge |
+| Accessibility and native actions | Deeper macOS slice plus host bridges; live package/device work remains | explicit semantic state/ranges, AppKit AX hierarchy/notifications/hit testing, AppKit text-field editor, Web ARIA mapper/overlay, iOS virtual elements, Android virtual node provider/action bridge |
 | Hardening | Complete for 0.5 plus repeatable post-0.5 benchmarks | configurable core queues, property checks, analytics/plot/Metal benchmarks, package/release checks; native/cross-platform ceilings remain |
 | Documentation and visual QA | Complete for source-controlled artifacts | comparison/API/architecture/performance/visual docs, plot/SVG references; native screenshot still requires a local macOS capture |
 | Plotting foundation | Implemented as an experimental first library | `PlotDataTable`, statistical recipes, zero-copy views, `PlotSpec`, `PlotRuntime`, lasso/linking, facet resolution, LOD, accessibility, software/Metal/SVG output |
@@ -160,7 +168,7 @@ boundary as follows:
 5. **Components and reactivity — complete for 0.5.** Add the catalog, styles, state machines, semantic actions, task scheduler, queue bounds, and native presentation.
 6. **Accessibility and platform coverage — macOS slice complete.** Add catalog roles/actions, native AX action dispatch, WindowConfig plumbing, and honest unavailable backend descriptors.
 7. **Hardening and release — complete for 0.5.** Keep capacities observable, run property-style checks, refresh benchmarks, package-consumer checks, generated API docs, and visual references; the release gate now runs all of them.
-8. **Post-0.5 slices — in progress.** Hardened Metal resources, CoreText/portable shaped runs, variable-height recycling, localized accounting, target host shims, and the plotting foundation are now in tree; production portable shaping, deep native widgets/accessibility, packaged mobile/browser hosts, complex GPU text/path work, and native screenshot automation remain.
+8. **Post-0.5 slices — in progress.** Hardened Metal resources, CoreText/portable shaped runs, Unicode text textures, curve/concave/arc/compound path tessellation, synchronized CPU/GPU timing, richer semantic AX state, deeper macOS collection presenters, AppKit single-line field ownership, variable-height recycling, localized accounting, Web/iOS/Android accessibility host shims, and the plotting foundation are now in tree; production portable shaping, asynchronous pacing, editable collection ownership, live mobile/browser package targets, and native screenshot automation remain.
 
 The current validation entry point is:
 
@@ -176,8 +184,8 @@ guidance is in [docs/visual.md](visual.md).
 
 Describe Moxi as “a Mojo-native, inspectable UI core with agent
 capabilities and a plotting foundation,” not “Xilem for Mojo.” The highest-
-value next architectural steps are production portable shaping,
-scrollbars/viewport policy, complex GPU text/path work, deep native
-widgets/accessibility, and packaged mobile/browser hosts. The capability bus
-should remain an optional first-class integration
+value next architectural steps are production portable shaping, asynchronous
+GPU pacing, scrollbars/viewport policy, editable native collection ownership,
+live mobile/browser package targets, and device-level accessibility automation.
+The capability bus should remain an optional first-class integration
 rather than becoming entangled with rendering.

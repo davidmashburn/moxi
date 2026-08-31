@@ -116,12 +116,21 @@ struct MacOSRenderer(Renderer):
             var enabled = 0
             var focused = 0
             var selected = 0
+            var checked = 0
+            var expanded = 0
+            var has_value_range = 0
             if node.enabled:
                 enabled = 1
             if node.focused:
                 focused = 1
             if node.selected:
                 selected = 1
+            if node.checked:
+                checked = 1
+            if node.expanded:
+                expanded = 1
+            if node.has_value_range:
+                has_value_range = 1
             external_call["moxi_window_set_accessibility_at", NoneType](
                 Int32(index),
                 Int32(node.id),
@@ -137,9 +146,16 @@ struct MacOSRenderer(Renderer):
                 enabled,
                 focused,
                 selected,
+                checked,
+                expanded,
+                has_value_range,
+                node.value_min,
+                node.value_max,
+                node.value_now,
                 node.actions,
             )
         external_call["moxi_window_end_accessibility", NoneType]()
+        external_call["moxi_window_end_frame", NoneType]()
 
     def native_widget_count(self) -> Int:
         """Return the semantic widgets available to the native presenter."""
@@ -265,8 +281,11 @@ struct MacOSRenderer(Renderer):
             focused = 1
         if command.enabled:
             enabled = 1
-        if command.checked:
+        if command.checked or command.semantics.selected:
             selected = 1
+        var expanded = 0
+        if command.semantics.expanded:
+            expanded = 1
         external_call["moxi_window_set_native_widget_at", NoneType](
             Int32(command.slot),
             Int32(kind),
@@ -288,7 +307,7 @@ struct MacOSRenderer(Renderer):
             focused,
             enabled,
             selected,
-            0,
+            expanded,
         )
 
     def draw_button(mut self, command: PaintCommand) raises:
