@@ -243,3 +243,87 @@ gate runs the full headless/native/package suite, the repeatable benchmarks,
 the wx-style demo build, the visible Metal-window build, and the CoreText
 demo build. Native mobile/browser execution is deliberately not reported as
 supported until those hosts and interaction harnesses exist.
+
+## MojoGUI-UI mining plan — 2026-08-31
+
+The upstream [MojoGUI-UI](https://github.com/CodeAlexx/MojoGUI-UI) catalog is
+useful as a source of interaction patterns, but its integer geometry, C/GLFW
+renderer, and standalone widget ownership model do not fit Moxi. The mining
+scope is therefore a set of Moxi-native contracts rather than a widget port.
+
+### Core contract decisions
+
+- Moxi state remains the source of truth. Collection data, stable item identity,
+  selection, focus, scroll position, popup visibility, and popup dismissal are
+  value-oriented state; rendering and native presentation consume snapshots.
+- Stable keys, not visible indices or object addresses, identify collection
+  rows, columns, tree nodes, tabs, and popup actions. Reconciliation must retain
+  focus and selection when rows move or are recycled.
+- Mutations are explicit commands/results: select, extend selection, activate,
+  expand/collapse, scroll-to-key, open/close popup, dismiss, and invoke action.
+  No upstream callback, C handle, or renderer object crosses the Moxi boundary.
+- Moxi's normalized events, floating-point geometry, `ViewNode`/scene output,
+  `VirtualRecycler`, accessibility semantics, and native action bridge are the
+  integration seams. Upstream integer `*Int` types are reference material only.
+
+### First milestone: collection and popup interaction foundation
+
+Implement this as narrow, testable modules on `main`:
+
+1. `src/moxi/collection_state.mojo`: stable-key selection/focus models,
+   keyboard navigation, bounded multi-selection, list/tree expansion state,
+   column definitions, and reorder results. The model must not own painting or
+   platform handles.
+2. `src/moxi/scrollbar.mojo`: scrollbar thumb geometry, track/page/step
+   commands, clamping, and viewport-to-content mapping. The policy must work
+   with fixed and measured variable extents and remain independent of a
+   renderer.
+3. `src/moxi/popup.mojo`: one popup-layer state model for combo/menu/context
+   menu/dialog use cases, with anchor bounds, placement, modal/focus scope,
+   keyboard dismissal, and stable action IDs. Existing `ComboBoxState`,
+   `MenuState`, and `DialogState` should remain source-compatible while gaining
+   a common contract where practical.
+4. Export the contracts from `src/moxi/__init__.mojo`, add deterministic unit
+   tests, and add one shared scenario consumed by tests and a future demo.
+
+The first milestone deliberately does not promise fully painted list/table/tree
+widgets, editable collection cells, native AppKit menu/dialog ownership, or a
+complete demo-browser redesign. Those are follow-on integrations once the state
+and geometry contracts are proven.
+
+### Shared scenarios and acceptance
+
+Add a collection scenario with stable keys, a reordered row, one expanded tree
+branch, mixed fixed/measured extents, overscan, and a 10,000-row case. Add a
+popup scenario covering an anchored combo, nested menu dismissal, modal dialog
+focus trapping, Escape dismissal, and action invocation. Tests, benchmarks, and
+examples must consume these scenarios rather than duplicate literals.
+
+Acceptance for the milestone:
+
+- pure state tests cover selection, keyboard movement, expansion, reorder,
+  popup dismissal, focus restoration, and stable-key reconciliation;
+- geometry tests cover thumb sizing, clamping, page/step movement, variable
+  extents, and degenerate content/viewport sizes;
+- the existing full test command and `pixi run release-check` remain green;
+- a repeatable benchmark reports recycler/selection/scroll work for the shared
+  10,000-row scenario; and
+- README/API/status documentation names the experimental boundary and keeps
+  native menu/dialog and editable-cell behavior explicitly qualified.
+
+### Mining order after the first milestone
+
+- Port the MojoGUI dock tree and dock-area host-content contract as a retained
+  Moxi layout module, after fixing the upstream phase-1 divergences in drop-zone
+  geometry, splitter dragging, and tab insertion semantics.
+- Generalize its small reorder primitive into Moxi drag threshold/cancellation
+  and stable-key collection commands.
+- Add financial OHLC/candlestick data and scale primitives only as an adapter to
+  Moxi plotting, not as a second chart engine.
+- Treat source editor and node graph as separate large features; mine their
+  data models and workflows only after text editing, collection virtualization,
+  and interaction capture are ready.
+
+The explicit non-goals are the upstream C backend, GLFW windowing, integer
+geometry/color API, font wrappers, fixed-coordinate widgets, and a wholesale
+copy of the approximately partial chart/dock/DND implementations.
