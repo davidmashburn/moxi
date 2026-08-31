@@ -7,11 +7,7 @@ from .plot_data import PlotDataSnapshot, PlotDataTable
 from .plot_runtime import PlotRuntime
 from .plot_render import PlotRenderPacket
 from .plotting import PlotHit
-from .plot_spec import (
-    INTERACTION_HOVER,
-    PlotSpec,
-    plot_from_spec,
-)
+from .plot_spec import PlotSpec, plot_from_spec
 from .scene import Scene
 
 
@@ -33,19 +29,8 @@ struct PlotView:
         self.data = data.snapshot()
         self.spec = spec.clone()
         self.runtime.plot = plot_from_spec(spec, data, bounds)
+        self.runtime.configure(self.spec)
         self.specification_version = spec.version
-        var saw_hover = False
-        var crosshair = True
-        var tooltip = True
-        for index in range(spec.interaction_count()):
-            var interaction = spec.interaction(index)
-            if interaction.kind == INTERACTION_HOVER:
-                saw_hover = True
-                crosshair = interaction.crosshair
-                tooltip = interaction.tooltip
-        if saw_hover:
-            self.runtime.set_crosshair(crosshair)
-            self.runtime.set_tooltip(tooltip)
 
     def dispatch(mut self, event: Event) -> Bool:
         """Forward a backend-neutral event and report whether state changed."""
@@ -55,13 +40,17 @@ struct PlotView:
         """Build the current renderer-neutral scene."""
         return self.runtime.build_scene()
 
-    def build_render_packet(self) -> PlotRenderPacket:
+    def build_render_packet(mut self) -> PlotRenderPacket:
         """Expose the optional dense-mark packet for a capable host."""
         return self.runtime.build_render_packet()
 
     def build_chrome_scene(self) -> Scene:
         """Build plot chrome for hosts that draw the packet separately."""
         return self.runtime.build_chrome_scene()
+
+    def build_overlay_scene(self) -> Scene:
+        """Build transient interaction text after a packet is drawn."""
+        return self.runtime.build_overlay_scene()
 
     def accessibility(self) -> AccessibilitySnapshot:
         """Return the current semantic plot subtree."""
@@ -108,11 +97,14 @@ struct PlotControl:
     def build_scene(self) -> Scene:
         return self.view.build_scene()
 
-    def build_render_packet(self) -> PlotRenderPacket:
+    def build_render_packet(mut self) -> PlotRenderPacket:
         return self.view.build_render_packet()
 
     def build_chrome_scene(self) -> Scene:
         return self.view.build_chrome_scene()
+
+    def build_overlay_scene(self) -> Scene:
+        return self.view.build_overlay_scene()
 
     def accessibility(self) -> AccessibilitySnapshot:
         return self.view.accessibility()

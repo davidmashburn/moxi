@@ -453,7 +453,7 @@ struct MacOSMetalRenderer(SceneRenderer):
         self.end_scene()
         return rendered
 
-    def render_plot_view(mut self, view: PlotView) raises -> Bool:
+    def render_plot_view(mut self, mut view: PlotView) raises -> Bool:
         """Render an interactive PlotView with the dense packet fast path."""
         var packet = view.build_render_packet()
         if packet.fallback_required:
@@ -464,6 +464,9 @@ struct MacOSMetalRenderer(SceneRenderer):
         for index in range(chrome.count()):
             self.draw_scene_command(chrome.command(index))
         var rendered = self.draw_plot_packet(packet)
+        var overlay = view.build_overlay_scene()
+        for index in range(overlay.count()):
+            self.draw_scene_command(overlay.command(index))
         self.end_scene()
         return rendered
 

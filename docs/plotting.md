@@ -60,6 +60,12 @@ another runtime. This explicit propagation makes update ownership visible and
 avoids hidden global state; an application can choose union/intersection or
 cross-filter its own data views.
 
+`PlotView` treats the interaction list as behavior configuration: a view with
+no interaction declarations is inert, and only declared hover, brush,
+pan/zoom, click-select, keyboard, and lasso gestures are accepted. The
+lower-level `PlotRuntime` constructor remains permissive for imperative hosts;
+call `runtime.configure(spec)` when compiling a declarative view.
+
 Facet scale resolution is independently configurable for x and y. Shared
 scales are the default; `PlotSpec.set_shared_scales(False, True)` gives each
 facet panel its own x domain while retaining a shared y domain.
@@ -90,6 +96,7 @@ Run the focused workloads with:
 ```sh
 pixi run plot-gallery
 pixi run plot-analytics-benchmark
+pixi run plot-interaction-benchmark
 pixi run plot-metal-benchmark
 pixi run metal-benchmark
 MOXI_BENCHMARK_RUNS=1 pixi run benchmark
@@ -134,14 +141,30 @@ remain available for application budgets. Reduction affects only visual
 geometry; hit testing, tooltips, stable selections, accessibility, and CSV
 fallback continue to use source rows.
 
+Interactive runtimes retain a fixed screen-space grid around the plot. Hover
+queries inspect only cells intersecting the pointer tolerance, and brush/lasso
+operations first query their bounding rectangle before applying exact geometry
+tests. The grid is invalidated by the monotonic `Plot.revision` and rebuilt
+only after data, scales, visibility, bounds, or viewport changes. Selection
+keys retain deterministic insertion order for linking and serialization, while
+membership uses an internal open-addressed index.
+
+`PlotRuntime.build_render_packet()` caches dense mark geometry by plot revision
+and adds transient hover/selection overlays to a cloned packet. Tooltip text is
+returned by `build_overlay_scene()` so a hover does not invalidate the dense
+packet or force the full mark Scene fallback. Hosts that use
+`render_plot_view()` draw chrome, packet marks, and this small overlay in that
+order. Filled area/band marks, text marks, and active lasso paths still use the
+full Scene fallback.
+
 The million-row stress case uses the same packet builder after its source table
 is fitted to the viewport. Its geometry remains bounded by occupied screen
 cells rather than by source-row count; `pixi run plot-stress-benchmark` reports
 both source/emitted representatives and packet bytes.
 
 `fallback_required` is a deliberate correctness guard. Filled area/band marks,
-text marks, active tooltip text, and lasso states remain on the full Scene path
-until their packet representations exist. Software packet rendering is the
+text marks, and active lasso states remain on the full Scene path until their
+packet representations exist. Software packet rendering is the
 deterministic visual oracle for the Metal packet path.
 
 ## Target matrix

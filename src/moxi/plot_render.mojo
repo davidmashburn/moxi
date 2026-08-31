@@ -117,6 +117,17 @@ struct PlotRenderPacket:
         if batch_count > 0:
             self.batches = List[PlotRenderBatch](capacity=batch_count)
 
+    def clone(self) -> PlotRenderPacket:
+        """Copy a packet for an overlay frame without rebuilding mark geometry."""
+        var result = PlotRenderPacket(self.bounds, self.clip)
+        result.line_values = self.line_values.copy()
+        result.instance_values = self.instance_values.copy()
+        result.batches = self.batches.copy()
+        result.source_point_count = self.source_point_count
+        result.emitted_point_count = self.emitted_point_count
+        result.fallback_required = self.fallback_required
+        return result^
+
     def _append_batch(mut self, kind: Int, offset: Int):
         if len(self.batches) > 0:
             var last = self.batches[len(self.batches) - 1]

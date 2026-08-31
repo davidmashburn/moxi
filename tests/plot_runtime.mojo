@@ -58,4 +58,34 @@ def main():
     scroll.position = target
     test_check(runtime.dispatch(scroll))
     test_check(runtime.build_scene().count() > 0)
+
+    # Indexed queries preserve the nearest-point result of the original
+    # exhaustive implementation on a denser fixture.
+    var dense = PlotRuntime(Rect(0.0, 0.0, 640.0, 420.0))
+    var dense_series = dense.plot.add_series(
+        "dense",
+        Color(0.35, 0.85, 0.55, 1.0),
+    )
+    for index in range(2000):
+        _ = dense.plot.add_point(
+            dense_series,
+            Float32(index) * 0.01,
+            Float32(index % 97) * 0.02,
+        )
+    dense.plot.fit_to_data()
+    var dense_target = dense.plot.screen_point(
+        dense.plot.series[0].points[1999]
+    )
+    var indexed_hit = dense.hit_test(dense_target, 1.0)
+    var exhaustive_hit = dense.plot.hit_test(dense_target, 1.0)
+    test_check(indexed_hit.found())
+    test_check(exhaustive_hit.found())
+    test_check(indexed_hit.row_key == exhaustive_hit.row_key)
+    test_check(dense.spatial_index_rebuilds() == 1)
+    _ = dense.hit_test(dense_target, 1.0)
+    test_check(dense.spatial_index_rebuilds() == 1)
+    _ = dense.plot.set_point(dense_series, 1999, 0.0, 0.0)
+    _ = dense.hit_test(dense_target, 1.0)
+    test_check(dense.spatial_index_rebuilds() == 2)
+
     print("Moxi plot-runtime test passed")

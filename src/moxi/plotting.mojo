@@ -472,6 +472,9 @@ struct PlotHit(ImplicitlyCopyable):
 struct Plot:
     """Declarative plot model with deterministic scene output."""
 
+    # Monotonic model revision used by retained interaction and render caches.
+    # It changes whenever geometry, scales, visibility, or styling changes.
+    var revision: Int
     var bounds: Rect
     var plot_area: Rect
     var x_scale: PlotScale
@@ -506,6 +509,7 @@ struct Plot:
     var independent_y_scale: Bool
 
     def __init__(out self, bounds: Rect):
+        self.revision = 0
         self.bounds = bounds
         self.plot_area = Rect(48.0, 28.0, 0.0, 0.0)
         self.x_scale = PlotScale()
@@ -540,6 +544,9 @@ struct Plot:
         self.independent_y_scale = False
         self.update_plot_area()
 
+    def _touch(mut self):
+        self.revision += 1
+
     def update_plot_area(mut self):
         var width = self.bounds.width - 80.0
         var height = self.bounds.height - 64.0
@@ -565,15 +572,19 @@ struct Plot:
     def set_bounds(mut self, bounds: Rect):
         self.bounds = bounds
         self.update_plot_area()
+        self._touch()
 
     def set_title(mut self, title: String):
         self.title = title
+        self._touch()
 
     def set_x_domain(mut self, minimum: Float32, maximum: Float32):
         self.x_scale.set_domain(minimum, maximum)
+        self._touch()
 
     def set_y_domain(mut self, minimum: Float32, maximum: Float32):
         self.y_scale.set_domain(minimum, maximum)
+        self._touch()
 
     def set_x_scale(mut self, kind: Int, power: Float32 = 2.0, reverse: Bool = False):
         self.x_scale.set_kind(kind)
@@ -588,6 +599,7 @@ struct Plot:
                 self.plot_area.x,
                 self.plot_area.x + self.plot_area.width,
             )
+        self._touch()
 
     def set_y_scale(mut self, kind: Int, power: Float32 = 2.0, reverse: Bool = False):
         self.y_scale.set_kind(kind)
@@ -602,22 +614,27 @@ struct Plot:
                 self.plot_area.y + self.plot_area.height,
                 self.plot_area.y,
             )
+        self._touch()
 
     def set_line_point_limit(mut self, limit: Int):
         """Enable pixel-aware line reduction at a bounded point count."""
         self.line_point_limit = limit if limit > 2 else 0
+        self._touch()
 
     def set_scatter_point_limit(mut self, limit: Int):
         """Bound scatter geometry while retaining all source rows for hits."""
         self.scatter_point_limit = limit if limit > 0 else 0
+        self._touch()
 
     def pan(mut self, delta: Point):
         self.x_scale.pan_pixels(delta.x)
         self.y_scale.pan_pixels(delta.y)
+        self._touch()
 
     def zoom(mut self, factor: Float32, anchor: Point):
         self.x_scale.zoom_at(factor, anchor.x)
         self.y_scale.zoom_at(factor, anchor.y)
+        self._touch()
 
     def reset_view(mut self):
         self.fit_to_data()
@@ -631,6 +648,7 @@ struct Plot:
         var id = self.next_series_id
         self.next_series_id += 1
         self.series.append(PlotSeries(id, label, color, kind))
+        self._touch()
         return id
 
     def series_index(self, id: Int) -> Int:
@@ -674,6 +692,7 @@ struct Plot:
             self.facet_values.append(facet_value)
         if facet_column_value.count_codepoints() > 0 and self._facet_column_index(facet_column_value) == -1:
             self.facet_column_values.append(facet_column_value)
+        self._touch()
         return True
 
     def add_table_series(
@@ -824,6 +843,7 @@ struct Plot:
         if index == -1:
             return False
         self.series[index].visible = visible
+        self._touch()
         return True
 
     def set_series_line_width(mut self, series_id: Int, width: Float32) -> Bool:
@@ -831,6 +851,7 @@ struct Plot:
         if index == -1:
             return False
         self.series[index].line_width = width if width > 0.0 else 1.0
+        self._touch()
         return True
 
     def set_series_marker_size(mut self, series_id: Int, size: Float32) -> Bool:
@@ -838,6 +859,7 @@ struct Plot:
         if index == -1:
             return False
         self.series[index].marker_size = size if size > 0.0 else 1.0
+        self._touch()
         return True
 
     def set_series_opacity(mut self, series_id: Int, opacity: Float32) -> Bool:
@@ -850,6 +872,7 @@ struct Plot:
         if value > 1.0:
             value = 1.0
         self.series[index].opacity = value
+        self._touch()
         return True
 
     def set_point_visuals(
@@ -868,6 +891,7 @@ struct Plot:
         var point = self.series[index].points[point_index]
         point.set_visuals(size, opacity, text, tooltip)
         self.series[index].points[point_index] = point
+        self._touch()
         return True
 
     def set_point_color(
@@ -880,6 +904,7 @@ struct Plot:
         var point = self.series[index].points[point_index]
         point.set_color(color)
         self.series[index].points[point_index] = point
+        self._touch()
         return True
 
     def add_annotation(
@@ -896,6 +921,7 @@ struct Plot:
         self.annotation_x.append(x)
         self.annotation_y.append(y)
         self.annotation_data_space.append(data_space)
+        self._touch()
         return id
 
     def set_facet(mut self, row_field: String, column_field: String = ""):
@@ -911,12 +937,14 @@ struct Plot:
                 if point.facet_column_value.count_codepoints() > 0 and self._facet_column_index(point.facet_column_value) == -1:
                     self.facet_column_values.append(point.facet_column_value)
         self._rebuild_facet_scales()
+        self._touch()
 
     def set_composition(mut self, composition: Int):
         if composition < PLOT_COMPOSITION_LAYER or composition > PLOT_COMPOSITION_VERTICAL:
             self.composition = PLOT_COMPOSITION_LAYER
         else:
             self.composition = composition
+        self._touch()
 
     def facet_count(self) -> Int:
         return len(self.facet_values)
@@ -933,6 +961,7 @@ struct Plot:
         self.independent_x_scale = independent_x
         self.independent_y_scale = independent_y
         self._rebuild_facet_scales()
+        self._touch()
 
     def facet_scales_are_independent(self) -> Bool:
         return self.independent_x_scale or self.independent_y_scale
@@ -1044,6 +1073,7 @@ struct Plot:
                 previous.stat_median,
             )
         self.series[index].points[point_index] = next
+        self._touch()
         return True
 
     def clear_series(mut self, series_id: Int) -> Bool:
@@ -1051,6 +1081,7 @@ struct Plot:
         if index == -1:
             return False
         self.series[index].points = List[PlotPoint]()
+        self._touch()
         return True
 
     def fit_to_data(mut self):
@@ -1089,6 +1120,7 @@ struct Plot:
             self.x_scale.set_domain(0.0, 1.0)
             self.y_scale.set_domain(0.0, 1.0)
         self._rebuild_facet_scales()
+        self._touch()
 
     def _screen_point(self, point: PlotPoint) -> Point:
         var x_scale = self.x_scale

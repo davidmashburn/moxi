@@ -352,7 +352,7 @@ struct SoftwareSceneRenderer(SceneRenderer):
         self.end_scene()
         return True
 
-    def render_plot_view(mut self, view: PlotView) raises -> Bool:
+    def render_plot_view(mut self, mut view: PlotView) raises -> Bool:
         """Render an interactive PlotView with packet-safe overlays."""
         var packet = view.build_render_packet()
         if packet.fallback_required:
@@ -363,6 +363,9 @@ struct SoftwareSceneRenderer(SceneRenderer):
         for index in range(chrome.count()):
             self.draw_scene_command(chrome.command(index))
         self.draw_plot_packet(packet)
+        var overlay = view.build_overlay_scene()
+        for index in range(overlay.count()):
+            self.draw_scene_command(overlay.command(index))
         self.end_scene()
         return True
 

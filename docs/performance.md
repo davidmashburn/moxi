@@ -41,6 +41,7 @@ the Metal binary is compiled once before its measured runs.
 | Statistical/link plot | shared typed fixture, histogram/box/heatmap/regression transforms, linked stable-key selection | derived rows, commands, selected keys, operations/frame, checksum |
 | Large plot generation | 10,000-point line with extrema-preserving LOD and 100,000-point scatter with bounded representatives | source rows, rendered representatives, command counts, operations/frame |
 | Scatter stress | 1,000,000 source rows with a 50,000-point geometry budget and viewport-aware packet reduction | source rows, emitted commands/packet instances, packet bytes, wall-clock process time |
+| Indexed plot interactions | 100,000- and 1,000,000-row hover queries, packet-cache reuse, and brush selection | cold index build, hot query time, candidates, index rebuilds, packet rebuilds, selected rows |
 | Offscreen Metal | scene batching, ASCII geometry plus CoreText Unicode texture text, bounded text-texture caching, file-backed texture upload/draw, curve/arc flattening, concave/compound/self-intersecting tessellation, CPU vertex upload, synchronized completion, dynamic buffer growth | frames, vertices/frame, submissions, text glyphs, text textures, cache hits, rasterizations, images, paths, capacity, reallocations, overflow count, CPU encode/wait/frame time, GPU time/availability, checksum |
 
 `PerformanceCounters` exposes the first two workloads' work accounting to
@@ -149,6 +150,17 @@ machine/load dependent.
   its configured viewport budget instead of allocating worst-case line and
   instance storage. The stress benchmark reports the resulting source versus
   emitted counts and packet bytes.
+- Interactive PlotView runtimes retain a fixed 32-pixel screen-space index for
+  hover, rectangular brush, and lasso candidate queries. The index is rebuilt
+  only after a `Plot` revision or viewport change; ordinary pointer moves query
+  nearby buckets instead of scanning every source row. `PlotSelection` keeps
+  deterministic key order while using an internal open-addressed membership
+  table, and packet mark geometry is cached separately from transient
+  selection/hover overlays.
+- `pixi run plot-interaction-benchmark` separates cold index construction from
+  hot pointer queries and reports candidate counts, packet-cache reuse, and
+  brush commit work. Its in-process timings exclude compiler startup; use the
+  benchmark harness for repeated process-level measurements.
 
 When changing a hot path, add or update a deterministic counter, run the same
 scenario before and after, and record the reason for the change in the commit
@@ -173,7 +185,10 @@ the cache-hit and rasterization counters distinguish reuse from new text
 uploads. Visible canvas frames are asynchronous; the offscreen benchmark
 remains synchronized and can wait when it needs a complete checksum.
 The 1M scatter benchmark measures CPU scene generation and is not a GPU
-frame-time claim. The Metal plot packet currently uses independent segment
+frame-time claim. The interaction benchmark's first query includes index
+construction, while subsequent queries exercise the retained grid; pan still
+invalidates screen-space geometry because packets currently store pixel
+coordinates. The Metal plot packet currently uses independent segment
 expansion; continuous line joins/caps, filled-area tessellation, GPU text, and
 text-heavy plot labels remain separate work. The iOS and Android hosts now contain SDK-facing lifecycle,
 input, and accessibility source slices, and the Web Canvas demo runs in a

@@ -30,12 +30,51 @@ from .geometry import Point, Rect
 from .plotting import Plot, PlotHit
 from .plot_render import PlotRenderPacket
 from .plot_selection import PlotSelection
+from .plot_spec import (
+    INTERACTION_BRUSH,
+    INTERACTION_CLICK_SELECT,
+    INTERACTION_HOVER,
+    INTERACTION_KEYBOARD,
+    INTERACTION_LASSO,
+    INTERACTION_PAN_ZOOM,
+    PlotSpec,
+)
 from .scene import Scene
 from .style import Color
 
 
+comptime PLOT_INDEX_CELL_SIZE: Float32 = 32.0
+
+
+struct PlotIndexCandidate(ImplicitlyCopyable):
+    """A source point candidate returned by the screen-space index."""
+
+    var series_index: Int
+    var point_index: Int
+
+    def __init__(out self, series_index: Int, point_index: Int):
+        self.series_index = series_index
+        self.point_index = point_index
+
+
+struct PlotIndexCell:
+    """Source references for one fixed-size screen-space bucket."""
+
+    var series_indices: List[Int]
+    var point_indices: List[Int]
+
+    def __init__(out self):
+        self.series_indices = List[Int]()
+        self.point_indices = List[Int]()
+
+
 struct PlotRuntime:
-    """Own viewport, hover, selection, and pointer-pan state for one plot."""
+    """Own viewport, indexed interaction, and pointer state for one plot.
+
+    The source plot remains authoritative.  This runtime adds retained
+    screen-space state around it: a spatial index for pointer queries and a
+    packet cache for frames where only hover/selection overlays changed.
+    """
 
     var plot: Plot
     var hovered: PlotHit
@@ -53,6 +92,29 @@ struct PlotRuntime:
     var selected_hits: List[PlotHit]
     var lasso_points: List[Point]
     var linked_selection: PlotSelection
+    var hover_enabled: Bool
+    var brush_enabled: Bool
+    var pan_zoom_enabled: Bool
+    var click_select_enabled: Bool
+    var keyboard_enabled: Bool
+    var lasso_enabled: Bool
+    var pan_x_only: Bool
+    var pan_y_only: Bool
+    var brush_additive_default: Bool
+    var click_additive_default: Bool
+    var lasso_additive_default: Bool
+    var index_revision: Int
+    var index_origin_x: Float32
+    var index_origin_y: Float32
+    var index_columns: Int
+    var index_rows: Int
+    var index_cells: List[PlotIndexCell]
+    var index_rebuild_count: Int
+    var last_query_candidate_count: Int
+    var cached_packet: PlotRenderPacket
+    var cached_packet_revision: Int
+    var packet_cache_valid: Bool
+    var packet_rebuild_count: Int
 
     def __init__(out self, bounds: Rect):
         self.plot = Plot(bounds)
@@ -71,6 +133,76 @@ struct PlotRuntime:
         self.selected_hits = List[PlotHit]()
         self.lasso_points = List[Point]()
         self.linked_selection = PlotSelection()
+        # Direct PlotRuntime users retain the original permissive behavior.
+        # PlotView calls configure(spec) to opt into declarative gating.
+        self.hover_enabled = True
+        self.brush_enabled = True
+        self.pan_zoom_enabled = True
+        self.click_select_enabled = True
+        self.keyboard_enabled = True
+        self.lasso_enabled = True
+        self.pan_x_only = False
+        self.pan_y_only = False
+        self.brush_additive_default = False
+        self.click_additive_default = True
+        self.lasso_additive_default = False
+        self.index_revision = -1
+        self.index_origin_x = 0.0
+        self.index_origin_y = 0.0
+        self.index_columns = 0
+        self.index_rows = 0
+        self.index_cells = List[PlotIndexCell]()
+        self.index_rebuild_count = 0
+        self.last_query_candidate_count = 0
+        self.cached_packet = PlotRenderPacket(
+            bounds,
+            self.plot.plot_area,
+        )
+        self.cached_packet_revision = -1
+        self.packet_cache_valid = False
+        self.packet_rebuild_count = 0
+
+    def configure(mut self, spec: PlotSpec):
+        """Apply declarative interaction tools to this runtime.
+
+        A spec with no interactions is intentionally inert.  This makes the
+        serialized grammar an actual behavior contract while the lower-level
+        PlotRuntime constructor remains convenient for imperative callers.
+        """
+        self.hover_enabled = False
+        self.brush_enabled = False
+        self.pan_zoom_enabled = False
+        self.click_select_enabled = False
+        self.keyboard_enabled = False
+        self.lasso_enabled = False
+        self.pan_x_only = False
+        self.pan_y_only = False
+        self.brush_additive_default = False
+        self.click_additive_default = True
+        self.lasso_additive_default = False
+        self.show_crosshair = False
+        self.show_tooltip = False
+        for index in range(spec.interaction_count()):
+            var interaction = spec.interaction(index)
+            if interaction.kind == INTERACTION_HOVER:
+                self.hover_enabled = True
+                self.show_crosshair = interaction.crosshair
+                self.show_tooltip = interaction.tooltip
+            elif interaction.kind == INTERACTION_BRUSH:
+                self.brush_enabled = True
+                self.brush_additive_default = interaction.additive
+            elif interaction.kind == INTERACTION_PAN_ZOOM:
+                self.pan_zoom_enabled = True
+                self.pan_x_only = interaction.x_only
+                self.pan_y_only = interaction.y_only
+            elif interaction.kind == INTERACTION_CLICK_SELECT:
+                self.click_select_enabled = True
+                self.click_additive_default = interaction.additive
+            elif interaction.kind == INTERACTION_KEYBOARD:
+                self.keyboard_enabled = True
+            elif interaction.kind == INTERACTION_LASSO:
+                self.lasso_enabled = True
+                self.lasso_additive_default = interaction.additive
 
     def _hit_changed(self, left: PlotHit, right: PlotHit) -> Bool:
         return (
@@ -94,21 +226,187 @@ struct PlotRuntime:
             bottom = swap
         return Rect(left, top, right - left, bottom - top)
 
+    def _index_column(self, x: Float32) -> Int:
+        var column = Int((x - self.index_origin_x) / PLOT_INDEX_CELL_SIZE)
+        if column < 0:
+            column = 0
+        if column >= self.index_columns:
+            column = self.index_columns - 1
+        return column
+
+    def _index_row(self, y: Float32) -> Int:
+        var row = Int((y - self.index_origin_y) / PLOT_INDEX_CELL_SIZE)
+        if row < 0:
+            row = 0
+        if row >= self.index_rows:
+            row = self.index_rows - 1
+        return row
+
+    def _ensure_spatial_index(mut self):
+        """Build a fixed screen-space grid only after model/viewport changes."""
+        var width = self.plot.plot_area.width
+        var height = self.plot.plot_area.height
+        if width <= 0.0:
+            width = 1.0
+        if height <= 0.0:
+            height = 1.0
+        var columns = Int(width / PLOT_INDEX_CELL_SIZE)
+        if Float32(columns) * PLOT_INDEX_CELL_SIZE < width:
+            columns += 1
+        var rows = Int(height / PLOT_INDEX_CELL_SIZE)
+        if Float32(rows) * PLOT_INDEX_CELL_SIZE < height:
+            rows += 1
+        if columns < 1:
+            columns = 1
+        if rows < 1:
+            rows = 1
+        if (
+            self.index_revision == self.plot.revision
+            and self.index_origin_x == self.plot.plot_area.x
+            and self.index_origin_y == self.plot.plot_area.y
+            and self.index_columns == columns
+            and self.index_rows == rows
+        ):
+            return
+
+        self.index_origin_x = self.plot.plot_area.x
+        self.index_origin_y = self.plot.plot_area.y
+        self.index_columns = columns
+        self.index_rows = rows
+        self.index_cells = List[PlotIndexCell](capacity=columns * rows)
+        for _ in range(columns * rows):
+            self.index_cells.append(PlotIndexCell())
+
+        for series_index in range(len(self.plot.series)):
+            if not self.plot.series[series_index].visible:
+                continue
+            for point_index in range(self.plot.series[series_index].count()):
+                var point = self.plot.series[series_index].points[point_index]
+                if not self.plot.point_is_renderable(point):
+                    continue
+                var screen = self.plot.screen_point(point)
+                var cell_index = (
+                    self._index_row(screen.y) * self.index_columns
+                    + self._index_column(screen.x)
+                )
+                self.index_cells[cell_index].series_indices.append(series_index)
+                self.index_cells[cell_index].point_indices.append(point_index)
+        self.index_revision = self.plot.revision
+        self.index_rebuild_count += 1
+
+    def _query_rect(mut self, region: Rect) -> List[PlotIndexCandidate]:
+        """Return source candidates from grid cells overlapping ``region``."""
+        var result = List[PlotIndexCandidate]()
+        self.last_query_candidate_count = 0
+        self._ensure_spatial_index()
+        if self.index_columns == 0 or self.index_rows == 0:
+            return result^
+
+        var left = region.x
+        var top = region.y
+        var right = region.x + region.width
+        var bottom = region.y + region.height
+        var plot_left = self.plot.plot_area.x
+        var plot_top = self.plot.plot_area.y
+        var plot_right = plot_left + self.plot.plot_area.width
+        var plot_bottom = plot_top + self.plot.plot_area.height
+        if left < plot_left:
+            left = plot_left
+        if top < plot_top:
+            top = plot_top
+        if right > plot_right:
+            right = plot_right
+        if bottom > plot_bottom:
+            bottom = plot_bottom
+        if right < left or bottom < top:
+            return result^
+
+        var first_column = self._index_column(left)
+        var last_column = self._index_column(right)
+        var first_row = self._index_row(top)
+        var last_row = self._index_row(bottom)
+        for row in range(first_row, last_row + 1):
+            for column in range(first_column, last_column + 1):
+                var cell_index = row * self.index_columns + column
+                for item in range(len(self.index_cells[cell_index].point_indices)):
+                    result.append(
+                        PlotIndexCandidate(
+                            self.index_cells[cell_index].series_indices[item],
+                            self.index_cells[cell_index].point_indices[item],
+                        )
+                    )
+        self.last_query_candidate_count = len(result)
+        return result^
+
+    def _lasso_bounds(self) -> Rect:
+        if len(self.lasso_points) == 0:
+            return Rect(0.0, 0.0, 0.0, 0.0)
+        var left = self.lasso_points[0].x
+        var right = left
+        var top = self.lasso_points[0].y
+        var bottom = top
+        for index in range(1, len(self.lasso_points)):
+            var point = self.lasso_points[index]
+            if point.x < left:
+                left = point.x
+            if point.x > right:
+                right = point.x
+            if point.y < top:
+                top = point.y
+            if point.y > bottom:
+                bottom = point.y
+        return Rect(left, top, right - left, bottom - top)
+
+    def _hit_test_index(mut self, point: Point, tolerance: Float32 = 8.0) -> PlotHit:
+        """Find the nearest mark by inspecting only nearby grid cells."""
+        var result = PlotHit()
+        var limit = tolerance if tolerance > 0.0 else 0.0
+        var limit_squared = limit * limit
+        var best = limit_squared
+        var candidates = self._query_rect(
+            Rect(point.x - limit, point.y - limit, limit * 2.0, limit * 2.0)
+        )
+        for candidate_index in range(len(candidates)):
+            var candidate = candidates[candidate_index]
+            var source_point = self.plot.series[candidate.series_index].points[
+                candidate.point_index
+            ]
+            if not self.plot.point_is_renderable(source_point):
+                continue
+            var screen = self.plot.screen_point(source_point)
+            var dx = point.x - screen.x
+            var dy = point.y - screen.y
+            var distance = dx * dx + dy * dy
+            if distance <= best:
+                best = distance
+                result.series_id = self.plot.series[candidate.series_index].id
+                result.point_index = candidate.point_index
+                result.row_key = source_point.row_key
+                result.distance_squared = distance
+        return result
+
+    def hit_test(mut self, point: Point, tolerance: Float32 = 8.0) -> PlotHit:
+        """Indexed nearest-point query for interactive hosts."""
+        return self._hit_test_index(point, tolerance)
+
+    def spatial_index_rebuilds(self) -> Int:
+        """Return how often the retained screen-space index was rebuilt."""
+        return self.index_rebuild_count
+
+    def last_query_candidates(self) -> Int:
+        """Return candidates returned by the most recent indexed query."""
+        return self.last_query_candidate_count
+
     def _hit_is_selected(self, hit: PlotHit) -> Bool:
-        if not hit.found():
-            return False
-        for index in range(len(self.selected_hits)):
-            var selected = self.selected_hits[index]
-            if selected.series_id == hit.series_id and selected.row_key == hit.row_key:
-                return True
-        return False
+        return hit.found() and self.linked_selection.contains(hit.row_key)
 
     def _replace_selection(mut self, hit: PlotHit):
         self.selected_hits = List[PlotHit]()
+        self.linked_selection.clear()
         if hit.found():
             self.selected_hits.append(hit)
+            _ = self.linked_selection.add(hit.row_key)
         self.selected = hit
-        self._sync_linked_selection()
 
     def _toggle_selection(mut self, hit: PlotHit):
         if not hit.found():
@@ -117,40 +415,42 @@ struct PlotRuntime:
             var selected = self.selected_hits[index]
             if selected.series_id == hit.series_id and selected.row_key == hit.row_key:
                 _ = self.selected_hits.pop(index)
+                _ = self.linked_selection.remove(hit.row_key)
                 if len(self.selected_hits) == 0:
                     self.selected = PlotHit()
                 else:
                     self.selected = self.selected_hits[len(self.selected_hits) - 1]
-                self._sync_linked_selection()
                 return
         self.selected_hits.append(hit)
+        _ = self.linked_selection.add(hit.row_key)
         self.selected = hit
-        self._sync_linked_selection()
 
     def _apply_brush(mut self):
         var region = self._selection_rect()
         if not self.brush_additive:
             self.selected_hits = List[PlotHit]()
-        for series_index in range(len(self.plot.series)):
-            if not self.plot.series[series_index].visible:
+            self.linked_selection.clear()
+        var candidates = self._query_rect(region)
+        for candidate_index in range(len(candidates)):
+            var candidate = candidates[candidate_index]
+            var point = self.plot.series[candidate.series_index].points[
+                candidate.point_index
+            ]
+            var screen = self.plot.screen_point(point)
+            if not region.contains(screen):
                 continue
-            for point_index in range(self.plot.series[series_index].count()):
-                var point = self.plot.series[series_index].points[point_index]
-                var screen = self.plot.screen_point(point)
-                if not region.contains(screen):
-                    continue
-                var hit = PlotHit()
-                hit.series_id = self.plot.series[series_index].id
-                hit.point_index = point_index
-                hit.row_key = point.row_key
-                hit.distance_squared = 0.0
-                if not self._hit_is_selected(hit):
-                    self.selected_hits.append(hit)
+            var hit = PlotHit()
+            hit.series_id = self.plot.series[candidate.series_index].id
+            hit.point_index = candidate.point_index
+            hit.row_key = point.row_key
+            hit.distance_squared = 0.0
+            if not self._hit_is_selected(hit):
+                self.selected_hits.append(hit)
+                _ = self.linked_selection.add(hit.row_key)
         if len(self.selected_hits) > 0:
             self.selected = self.selected_hits[len(self.selected_hits) - 1]
         else:
             self.selected = PlotHit()
-        self._sync_linked_selection()
 
     def _point_in_lasso(self, target: Point) -> Bool:
         """Use an even-odd winding test for a closed pointer polygon."""
@@ -177,24 +477,26 @@ struct PlotRuntime:
     def _apply_lasso(mut self):
         if not self.lasso_additive:
             self.selected_hits = List[PlotHit]()
-        for series_index in range(len(self.plot.series)):
-            if not self.plot.series[series_index].visible:
+            self.linked_selection.clear()
+        var candidates = self._query_rect(self._lasso_bounds())
+        for candidate_index in range(len(candidates)):
+            var candidate = candidates[candidate_index]
+            var point = self.plot.series[candidate.series_index].points[
+                candidate.point_index
+            ]
+            if not self._point_in_lasso(self.plot.screen_point(point)):
                 continue
-            for point_index in range(self.plot.series[series_index].count()):
-                var point = self.plot.series[series_index].points[point_index]
-                if not self._point_in_lasso(self.plot.screen_point(point)):
-                    continue
-                var hit = PlotHit()
-                hit.series_id = self.plot.series[series_index].id
-                hit.point_index = point_index
-                hit.row_key = point.row_key
-                if not self._hit_is_selected(hit):
-                    self.selected_hits.append(hit)
+            var hit = PlotHit()
+            hit.series_id = self.plot.series[candidate.series_index].id
+            hit.point_index = candidate.point_index
+            hit.row_key = point.row_key
+            if not self._hit_is_selected(hit):
+                self.selected_hits.append(hit)
+                _ = self.linked_selection.add(hit.row_key)
         if len(self.selected_hits) > 0:
             self.selected = self.selected_hits[len(self.selected_hits) - 1]
         else:
             self.selected = PlotHit()
-        self._sync_linked_selection()
 
     def _sync_linked_selection(mut self):
         self.linked_selection.clear()
@@ -295,6 +597,9 @@ struct PlotRuntime:
     def set_tooltip(mut self, enabled: Bool):
         self.show_tooltip = enabled
 
+    def _has_pointer_gesture(self) -> Bool:
+        return self.brush_enabled or self.pan_zoom_enabled or self.lasso_enabled
+
     def zoom_to_selection(mut self) -> Bool:
         """Fit both axes to the selected stable rows, if any are selected."""
         if len(self.selected_hits) == 0:
@@ -334,26 +639,34 @@ struct PlotRuntime:
     def dispatch(mut self, event: Event) -> Bool:
         """Apply one pointer/scroll/key event and report visible state change."""
         if event.kind == POINTER_DOWN_KIND or event.kind == TOUCH_BEGIN_KIND:
-            if not self.plot.bounds.contains(event.position):
+            if not self.plot.bounds.contains(event.position) or not self._has_pointer_gesture():
                 return False
-            self.lassoing = (event.modifiers & MOD_OPTION) != 0
+            self.lassoing = self.lasso_enabled and (
+                (event.modifiers & MOD_OPTION) != 0
+            )
             self.lasso_additive = self.lassoing and (
+                self.lasso_additive_default
+                or
                 (event.modifiers & MOD_COMMAND) != 0
                 or (event.modifiers & MOD_CONTROL) != 0
             )
             self.lasso_points = List[Point]()
             if self.lassoing:
                 self.lasso_points.append(event.position)
-            self.brushing = (event.modifiers & MOD_SHIFT) != 0 and not self.lassoing
+            self.brushing = self.brush_enabled and (
+                (event.modifiers & MOD_SHIFT) != 0
+            ) and not self.lassoing
             self.brush_additive = self.brushing and (
+                self.brush_additive_default
+                or
                 (event.modifiers & MOD_COMMAND) != 0
                 or (event.modifiers & MOD_CONTROL) != 0
             )
-            self.dragging = not self.brushing and not self.lassoing
+            self.dragging = self.pan_zoom_enabled and not self.brushing and not self.lassoing
             self.last_pointer = event.position
             self.brush_origin = event.position
             self.brush_current = event.position
-            return True
+            return self.brushing or self.lassoing or self.dragging
         if event.kind == POINTER_MOVE_KIND or event.kind == TOUCH_UPDATE_KIND:
             var changed = False
             if self.brushing:
@@ -371,10 +684,20 @@ struct PlotRuntime:
                     event.position.x - self.last_pointer.x,
                     event.position.y - self.last_pointer.y,
                 )
+                if self.pan_x_only:
+                    delta.y = 0.0
+                if self.pan_y_only:
+                    delta.x = 0.0
                 self.plot.pan(delta)
                 self.last_pointer = event.position
                 changed = True
-            var next_hover = self.plot.hit_test(event.position)
+            var next_hover = self.hovered
+            if self.brushing or self.lassoing or self.dragging:
+                next_hover = PlotHit()
+            elif self.hover_enabled and self.plot.bounds.contains(event.position):
+                next_hover = self._hit_test_index(event.position)
+            elif not self.hover_enabled:
+                next_hover = PlotHit()
             if self._hit_changed(self.hovered, next_hover):
                 changed = True
             self.hovered = next_hover
@@ -397,16 +720,19 @@ struct PlotRuntime:
             self.dragging = False
             return True
         if event.kind == CLICK_KIND:
-            var next_selected = self.plot.hit_test(event.position)
+            if not self.click_select_enabled:
+                return False
+            var previous_selected = self.selected
+            var next_selected = self._hit_test_index(event.position)
             var before = len(self.selected_hits)
-            if (event.modifiers & MOD_SHIFT) != 0:
+            if self.click_additive_default and (event.modifiers & MOD_SHIFT) != 0:
                 self._toggle_selection(next_selected)
             else:
                 self._replace_selection(next_selected)
-            var changed = self._hit_changed(self.selected, next_selected) or before != len(self.selected_hits)
+            var changed = self._hit_changed(previous_selected, next_selected) or before != len(self.selected_hits)
             return changed
         if event.kind == SCROLL_KIND:
-            if not self.plot.bounds.contains(event.position):
+            if not self.pan_zoom_enabled or not self.plot.bounds.contains(event.position):
                 return False
             var factor = 1.0 + event.scroll_delta.y * 0.01
             if factor < 0.1:
@@ -414,6 +740,8 @@ struct PlotRuntime:
             self.plot.zoom(factor, event.position)
             return True
         if event.kind == KEY_DOWN_KIND and event.key == KEY_ESCAPE:
+            if not self.keyboard_enabled:
+                return False
             self.plot.reset_view()
             var changed = self.selected.found() or self.hovered.found() or len(self.selected_hits) > 0
             self.selected = PlotHit()
@@ -422,6 +750,8 @@ struct PlotRuntime:
             self.linked_selection.clear()
             return changed or True
         if event.kind == KEY_DOWN_KIND:
+            if not self.keyboard_enabled:
+                return False
             if event.key == KEY_LEFT or event.key == KEY_RIGHT or event.key == KEY_UP or event.key == KEY_DOWN:
                 return self._move_focus(event.key)
             if event.key == KEY_ENTER:
@@ -533,9 +863,21 @@ struct PlotRuntime:
             )
         return scene^
 
-    def build_render_packet(self) -> PlotRenderPacket:
+    def _base_render_packet(mut self) -> PlotRenderPacket:
+        """Return cached dense marks, rebuilding only after a plot revision."""
+        if (
+            not self.packet_cache_valid
+            or self.cached_packet_revision != self.plot.revision
+        ):
+            self.cached_packet = self.plot.build_render_packet()
+            self.cached_packet_revision = self.plot.revision
+            self.packet_cache_valid = True
+            self.packet_rebuild_count += 1
+        return self.cached_packet.clone()
+
+    def build_render_packet(mut self) -> PlotRenderPacket:
         """Build dense marks plus fast-path-safe interaction overlays."""
-        var packet = self.plot.build_render_packet()
+        var packet = self._base_render_packet()
         for selection_index in range(len(self.selected_hits)):
             var selected_hit = self.selected_hits[selection_index]
             var series_index = self.plot.series_index(selected_hit.series_id)
@@ -579,10 +921,6 @@ struct PlotRuntime:
                     Color(1.0, 1.0, 1.0, 0.9),
                     1.0,
                 )
-                # The packet has no text-run representation yet.  Refuse the
-                # fast path rather than dropping an active tooltip.
-                if self.show_tooltip:
-                    packet.fallback_required = True
         if self.brushing:
             packet.append_rect(
                 self._selection_rect(),
@@ -595,9 +933,63 @@ struct PlotRuntime:
             packet.fallback_required = True
         return packet^
 
+    def build_overlay_scene(self) -> Scene:
+        """Build interaction text that is intentionally separate from marks.
+
+        Keeping tooltips out of the dense packet prevents a transient hover
+        from invalidating the cached GPU mark layer.  Hosts draw this small
+        scene after the packet; lasso paths still use the full Scene fallback.
+        """
+        var scene = Scene()
+        if not self.hovered.found() or not self.show_tooltip:
+            return scene^
+        var series_index = self.plot.series_index(self.hovered.series_id)
+        if (
+            series_index == -1
+            or self.hovered.point_index < 0
+            or self.hovered.point_index >= self.plot.series[series_index].count()
+        ):
+            return scene^
+        var point = self.plot.series[series_index].points[self.hovered.point_index]
+        var position = self.plot.screen_point(point)
+        var tooltip = point.tooltip
+        if tooltip.count_codepoints() == 0:
+            tooltip = String(
+                self.plot.series[series_index].label,
+                "  x=",
+                point.x,
+                "  y=",
+                point.y,
+                "  key=",
+                point.row_key,
+            )
+        var tooltip_x = position.x + 10.0
+        var tooltip_y = position.y - 28.0
+        if tooltip_x + 190.0 > self.plot.bounds.x + self.plot.bounds.width:
+            tooltip_x = position.x - 200.0
+        if tooltip_y < self.plot.bounds.y:
+            tooltip_y = position.y + 10.0
+        scene.append_rounded_rect(
+            920000,
+            Rect(tooltip_x, tooltip_y, 190.0, 22.0),
+            Color(0.03, 0.04, 0.07, 0.92),
+            5.0,
+        )
+        scene.append_text(
+            920001,
+            tooltip,
+            Rect(tooltip_x + 6.0, tooltip_y + 3.0, 178.0, 16.0),
+            Color(0.95, 0.97, 1.0, 1.0),
+        )
+        return scene^
+
     def build_chrome_scene(self) -> Scene:
         """Build plot chrome while leaving dense marks to a fast renderer."""
         return self.plot.build_scene(False)
+
+    def packet_rebuilds(self) -> Int:
+        """Return the number of dense mark packet compilations."""
+        return self.packet_rebuild_count
 
     def accessibility(self) -> AccessibilitySnapshot:
         var snapshot = self.plot.accessibility()
