@@ -101,6 +101,17 @@ comptime FRACTAL_TARGET_GENERATOR_SHAPE: Int = 500
 comptime FRACTAL_TARGET_BASELINE: Int = 501
 
 
+struct FractalSegment(ImplicitlyCopyable):
+    """One terminal segment ready to be drawn."""
+
+    var start: Point
+    var end: Point
+
+    def __init__(out self, start: Point, end: Point):
+        self.start = start
+        self.end = end
+
+
 trait FractalCanvasPainter:
     """Small host-facing drawing contract used by ``FractalState``."""
 
@@ -132,6 +143,23 @@ trait FractalCanvasPainter:
     ) raises:
         pass
 
+    def line_batch(
+        mut self,
+        ref segments: List[FractalSegment],
+        offset: Point,
+        color: Color,
+        width: Float32,
+    ) raises:
+        """Draw a uniform batch, with a per-line fallback for simple hosts."""
+        for index in range(len(segments)):
+            var segment = segments[index]
+            self.line(
+                Point(segment.start.x + offset.x, segment.start.y + offset.y),
+                Point(segment.end.x + offset.x, segment.end.y + offset.y),
+                color,
+                width,
+            )
+
     def circle(
         mut self,
         center: Point,
@@ -149,18 +177,6 @@ trait FractalCanvasPainter:
     def end_line_geometry(mut self) raises:
         """Finish timing or batching the dense terminal-line portion."""
         pass
-
-
-struct FractalSegment(ImplicitlyCopyable):
-    """One terminal segment ready to be drawn."""
-
-    var start: Point
-    var end: Point
-
-    def __init__(out self, start: Point, end: Point):
-        self.start = start
-        self.end = end
-
 
 struct FractalSegmentJob(ImplicitlyCopyable):
     """A deferred branch expansion in the depth-first renderer."""
@@ -1330,17 +1346,23 @@ struct FractalState(Component):
             1.0,
         )
         painter.begin_line_geometry()
-        for index in range(len(self.rendered_segments)):
-            var segment = self.rendered_segments[index]
-            var color = Color(28.0 / 255.0, 96.0 / 255.0, 99.0 / 255.0, 1.0)
-            if self.random_colors:
-                color = _random_line_color(segment.start, segment.end)
-            painter.line(
-                Point(canvas_bounds.x + segment.start.x, canvas_bounds.y + segment.start.y),
-                Point(canvas_bounds.x + segment.end.x, canvas_bounds.y + segment.end.y),
+        var color = Color(28.0 / 255.0, 96.0 / 255.0, 99.0 / 255.0, 1.0)
+        if not self.random_colors:
+            painter.line_batch(
+                self.rendered_segments,
+                Point(canvas_bounds.x, canvas_bounds.y),
                 color,
                 1.0,
             )
+        else:
+            for index in range(len(self.rendered_segments)):
+                var segment = self.rendered_segments[index]
+                painter.line(
+                    Point(canvas_bounds.x + segment.start.x, canvas_bounds.y + segment.start.y),
+                    Point(canvas_bounds.x + segment.end.x, canvas_bounds.y + segment.end.y),
+                    _random_line_color(segment.start, segment.end),
+                    1.0,
+                )
         painter.end_line_geometry()
 
         var baseline_start = Point(

@@ -1,7 +1,9 @@
 """Metal scene renderer for the macOS GPU slice.
 
-The native bridge keeps one reusable vertex buffer and one render submission per
-frame. The Mojo side owns the scene-state interpretation (transforms, layers,
+The native bridge owns reusable per-frame buffers and ordered render
+submissions. Dense line batches use a compact endpoint upload and GPU-side
+quad expansion; visible CAMetalLayer frames use a three-slot asynchronous
+ring. The Mojo side owns scene-state interpretation (transforms, layers,
 opacity, and fallback accounting), so the same command stream can still be
 checked against the software renderer.
 """
@@ -10,7 +12,7 @@ from std.collections import List
 from std.ffi import external_call
 
 from .backend import BACKEND_GPU, BackendCapabilities, backend_capabilities
-from .fractal import FractalCanvasPainter
+from .fractal import FractalCanvasPainter, FractalSegment
 from .scene import (
     SCENE_CLIP,
     SCENE_IMAGE,
@@ -31,6 +33,13 @@ from .scene import (
 )
 from .event import Event
 from .geometry import Point, Rect, Size, Transform
+from .plot_render import (
+    PLOT_RENDER_INSTANCES,
+    PLOT_RENDER_LINES,
+    PlotRenderPacket,
+)
+from .plotting import Plot
+from .plot_view import PlotView
 from .resources import ImageResource
 from .style import Color
 from .window import WindowBackend, WindowConfig
@@ -115,6 +124,9 @@ struct MacOSMetalRenderer(SceneRenderer):
     var layer_stack: List[Float32]
     var frame_rect_count: Int
     var frame_line_count: Int
+    var frame_plot_line_count: Int
+    var frame_plot_instance_count: Int
+    var frame_plot_submission_count: Int
     var frame_fallback_count: Int
     var frame_clip_count: Int
     var frame_text_count: Int
@@ -141,6 +153,9 @@ struct MacOSMetalRenderer(SceneRenderer):
         self.layer_stack = List[Float32]()
         self.frame_rect_count = 0
         self.frame_line_count = 0
+        self.frame_plot_line_count = 0
+        self.frame_plot_instance_count = 0
+        self.frame_plot_submission_count = 0
         self.frame_fallback_count = 0
         self.frame_clip_count = 0
         self.frame_text_count = 0
@@ -176,6 +191,9 @@ struct MacOSMetalRenderer(SceneRenderer):
             self.layer_stack = List[Float32]()
             self.frame_rect_count = 0
             self.frame_line_count = 0
+            self.frame_plot_line_count = 0
+            self.frame_plot_instance_count = 0
+            self.frame_plot_submission_count = 0
             self.frame_fallback_count = 0
             self.frame_clip_count = 0
             self.frame_text_count = 0
@@ -371,6 +389,84 @@ struct MacOSMetalRenderer(SceneRenderer):
             self.draw_scene_command(scene.command(index))
         self.end_scene()
 
+    def draw_plot_packet(mut self, packet: PlotRenderPacket) raises -> Bool:
+        """Draw ordered dense plot batches with one native call per batch.
+
+        Packet coordinates are surface-space values.  The packet is rejected
+        when it contains marks that still require the generic Scene fallback,
+        preventing a partial fast path from silently changing the plot.
+        """
+        if not self.initialized or packet.fallback_required:
+            return False
+        if packet.batch_count() == 0:
+            return True
+        external_call["moxi_metal_push_clip", NoneType](
+            packet.clip.x,
+            packet.clip.y,
+            packet.clip.width,
+            packet.clip.height,
+        )
+        self.frame_clip_count += 1
+        for batch_index in range(packet.batch_count()):
+            var batch = packet.batch(batch_index)
+            if batch.kind == PLOT_RENDER_LINES:
+                external_call["moxi_metal_draw_plot_line_batch", NoneType](
+                    packet.line_values.unsafe_ptr(),
+                    Int32(batch.offset),
+                    Int32(batch.count),
+                )
+                self.frame_plot_line_count += batch.count
+            elif batch.kind == PLOT_RENDER_INSTANCES:
+                external_call["moxi_metal_draw_plot_instance_batch", NoneType](
+                    packet.instance_values.unsafe_ptr(),
+                    Int32(batch.offset),
+                    Int32(batch.count),
+                )
+                self.frame_plot_instance_count += batch.count
+            self.frame_plot_submission_count += 1
+        external_call["moxi_metal_pop_clip", NoneType]()
+        return True
+
+    def render_plot_packet(mut self, packet: PlotRenderPacket) raises -> Bool:
+        """Render a dense plot packet as a complete synchronized frame."""
+        self.begin_scene()
+        var rendered = self.draw_plot_packet(packet)
+        self.end_scene()
+        return rendered
+
+    def render_plot(mut self, plot: Plot) raises -> Bool:
+        """Render a complete plot, using the packet for supported dense marks.
+
+        The packet is placed after the chrome scene and clipped to the plot
+        area.  If a mark family still requires the generic Scene path, the
+        complete portable scene is rendered instead.
+        """
+        var packet = plot.build_render_packet()
+        if packet.fallback_required:
+            self.render_scene(plot.build_scene())
+            return False
+        self.begin_scene()
+        var chrome = plot.build_scene(False)
+        for index in range(chrome.count()):
+            self.draw_scene_command(chrome.command(index))
+        var rendered = self.draw_plot_packet(packet)
+        self.end_scene()
+        return rendered
+
+    def render_plot_view(mut self, view: PlotView) raises -> Bool:
+        """Render an interactive PlotView with the dense packet fast path."""
+        var packet = view.build_render_packet()
+        if packet.fallback_required:
+            self.render_scene(view.build_scene())
+            return False
+        self.begin_scene()
+        var chrome = view.build_chrome_scene()
+        for index in range(chrome.count()):
+            self.draw_scene_command(chrome.command(index))
+        var rendered = self.draw_plot_packet(packet)
+        self.end_scene()
+        return rendered
+
     def frame_count(self) -> Int:
         return Int(external_call["moxi_metal_frame_count_value", Int32]())
 
@@ -401,6 +497,15 @@ struct MacOSMetalRenderer(SceneRenderer):
 
     def rendered_line_count(self) -> Int:
         return self.frame_line_count
+
+    def rendered_plot_line_count(self) -> Int:
+        return self.frame_plot_line_count
+
+    def rendered_plot_instance_count(self) -> Int:
+        return self.frame_plot_instance_count
+
+    def plot_submission_count(self) -> Int:
+        return self.frame_plot_submission_count
 
     def rendered_text_count(self) -> Int:
         return self.frame_text_count
@@ -476,9 +581,10 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
     """GPU painter for dense component-owned canvases.
 
     The parent AppKit view still owns input, accessibility, and native
-    controls.  A transparent CAMetalLayer is positioned over the canvas and
-    receives only the canvas drawing commands, keeping the dense path out of
-    AppKit's immediate-mode stroke API.
+    controls. A CAMetalLayer is positioned over the canvas and receives only
+    the canvas drawing commands, keeping the dense path out of AppKit's
+    immediate-mode stroke API. Visible frames are submitted asynchronously;
+    offscreen benchmark targets retain a synchronized completion contract.
     """
 
     var width: Int
@@ -552,6 +658,14 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
         return self.attached
 
     def set_canvas_bounds(mut self, bounds: Rect) raises:
+        if (
+            self.attached and
+            self.origin.x == bounds.x and
+            self.origin.y == bounds.y and
+            self.width == Int(bounds.width) and
+            self.height == Int(bounds.height)
+        ):
+            return
         _ = self.attach_to_window(bounds)
 
     def begin(mut self, clip: Rect) raises:
@@ -580,7 +694,7 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
         if self.clip_pushed:
             external_call["moxi_metal_pop_clip", NoneType]()
             self.clip_pushed = False
-        external_call["moxi_metal_end", NoneType]()
+        external_call["moxi_metal_end_async", NoneType]()
         self.last_line_geometry_ms = external_call[
             "moxi_metal_line_geometry_time_ms_value", Float32
         ]()
@@ -609,6 +723,23 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
     def end_line_geometry(mut self) raises:
         if self.initialized:
             external_call["moxi_metal_end_line_geometry", NoneType]()
+
+    def synchronize(mut self):
+        """Wait for submitted canvas frames; intended for benchmarks and snapshots."""
+        if not self.initialized:
+            return
+        external_call["moxi_metal_synchronize", NoneType]()
+        self.last_cpu_encode_ms = external_call[
+            "moxi_metal_cpu_encode_time_ms_value", Float32
+        ]()
+        self.last_cpu_wait_ms = external_call[
+            "moxi_metal_cpu_wait_time_ms_value", Float32
+        ]()
+        self.last_gpu_ms = external_call["moxi_metal_gpu_time_ms_value", Float32]()
+        self.last_frame_ms = external_call["moxi_metal_frame_time_ms_value", Float32]()
+        self.gpu_timing_available_value = external_call[
+            "moxi_metal_gpu_timing_available_value", Int32
+        ]() != 0
 
     def fill_rect(
         mut self,
@@ -682,6 +813,29 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
             color.alpha,
         )
 
+    def line_batch(
+        mut self,
+        ref segments: List[FractalSegment],
+        offset: Point,
+        color: Color,
+        width: Float32,
+    ) raises:
+        """Submit dense fractal endpoints through one borrowed-buffer FFI call."""
+        if not self.initialized or len(segments) == 0:
+            return
+        var segment_pointer = segments.unsafe_ptr()
+        external_call["moxi_metal_draw_line_batch", NoneType](
+            segment_pointer,
+            Int32(len(segments)),
+            width,
+            color.red,
+            color.green,
+            color.blue,
+            color.alpha,
+            offset.x - self.origin.x,
+            offset.y - self.origin.y,
+        )
+
     def circle(
         mut self,
         center: Point,
@@ -738,6 +892,8 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
 
     def reset_metrics(mut self):
         """Reset painter-side aggregates before measuring a new workload."""
+        if self.initialized:
+            external_call["moxi_metal_reset_timing_metrics", NoneType]()
         self.frame_count_value = 0
         self.last_line_geometry_ms = 0.0
         self.last_cpu_encode_ms = 0.0
@@ -762,22 +918,35 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
         return self.total_cpu_encode_ms / Float32(self.frame_count_value)
 
     def average_cpu_wait_ms(self) -> Float32:
-        if self.frame_count_value <= 0:
+        var completed = Int(
+            external_call["moxi_metal_completed_frame_count_value", Int32]()
+        ) if self.initialized else 0
+        if completed <= 0:
             return 0.0
-        return self.total_cpu_wait_ms / Float32(self.frame_count_value)
+        return external_call["moxi_metal_total_cpu_wait_time_ms_value", Float32]() / Float32(completed)
 
     def average_gpu_ms(self) -> Float32:
-        if self.frame_count_value <= 0:
+        var completed = Int(
+            external_call["moxi_metal_completed_frame_count_value", Int32]()
+        ) if self.initialized else 0
+        if completed <= 0:
             return 0.0
-        return self.total_gpu_ms / Float32(self.frame_count_value)
+        return external_call["moxi_metal_total_gpu_time_ms_value", Float32]() / Float32(completed)
 
     def average_frame_ms(self) -> Float32:
-        if self.frame_count_value <= 0:
+        var completed = Int(
+            external_call["moxi_metal_completed_frame_count_value", Int32]()
+        ) if self.initialized else 0
+        if completed <= 0:
             return 0.0
-        return self.total_frame_ms / Float32(self.frame_count_value)
+        return external_call["moxi_metal_total_frame_time_ms_value", Float32]() / Float32(completed)
 
     def vertex_count(self) -> Int:
         return Int(external_call["moxi_metal_vertex_count_value", Int32]())
+
+    def line_count(self) -> Int:
+        """Return the number of dense line segments submitted this frame."""
+        return Int(external_call["moxi_metal_line_count_value", Int32]())
 
     def draw_submission_count(self) -> Int:
         return Int(
@@ -786,6 +955,15 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
 
     def overflow_count(self) -> Int:
         return Int(external_call["moxi_metal_overflow_count_value", Int32]())
+
+    def in_flight_count(self) -> Int:
+        return Int(external_call["moxi_metal_in_flight_count_value", Int32]())
+
+    def completed_frame_count(self) -> Int:
+        """Return the number of submitted frames whose completion was observed."""
+        return Int(
+            external_call["moxi_metal_completed_frame_count_value", Int32]()
+        )
 
     def shutdown(mut self):
         if self.initialized:

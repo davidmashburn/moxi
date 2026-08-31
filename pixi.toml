@@ -8,9 +8,9 @@ version = "0.5.0"
 
 [tasks]
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
-native-object = "clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
-metal-object = "clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_metal.m -o native/macos_metal.o"
-text-object = "clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_text.m -o native/macos_text.o"
+native-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
+metal-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_metal.m -o native/macos_metal.o"
+text-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_text.m -o native/macos_text.o"
 demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/demo_browser.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
 demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
 hello-window-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/hello_window.mojo -o dist/moxi-hello-window-demo", depends-on = ["native-object"] }
@@ -37,7 +37,7 @@ demo-browser-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -
 demo-browser = { cmd = "./dist/moxi-demo-browser", depends-on = ["demo-browser-build"] }
 interactive-fractal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation examples/interactive_fractal.mojo -o dist/moxi-interactive-fractal-demo", depends-on = ["native-object", "metal-object"] }
 interactive-fractal-demo = { cmd = "./dist/moxi-interactive-fractal-demo", depends-on = ["interactive-fractal-demo-build"] }
-fractal-benchmark-clock = "clang -Wall -Wextra -Werror -c native/benchmark_clock.c -o native/benchmark_clock.o"
+fractal-benchmark-clock = "clang -O3 -Wall -Wextra -Werror -c native/benchmark_clock.c -o native/benchmark_clock.o"
 fractal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker native/benchmark_clock.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation benchmarks/interactive_fractal.mojo -o dist/moxi-fractal-benchmark", depends-on = ["native-object", "metal-object", "fractal-benchmark-clock"] }
 fractal-benchmark = { cmd = "./dist/moxi-fractal-benchmark", depends-on = ["fractal-benchmark-build"] }
 demo-catalog-check = "bash scripts/demo_catalog_check.sh"
@@ -55,6 +55,8 @@ metal-window-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_metal
 metal-window-demo = { cmd = "./dist/moxi-metal-window-demo", depends-on = ["metal-window-demo-build"] }
 metal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker Foundation benchmarks/metal.mojo -o dist/moxi-metal-benchmark", depends-on = ["metal-object"] }
 metal-benchmark = { cmd = "./dist/moxi-metal-benchmark", depends-on = ["metal-benchmark-build"] }
+plot-metal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker Foundation benchmarks/plotting_metal.mojo -o dist/moxi-plot-metal-benchmark", depends-on = ["metal-object"] }
+plot-metal-benchmark = { cmd = "./dist/moxi-plot-metal-benchmark", depends-on = ["plot-metal-benchmark-build"] }
 text-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_text.o -Xlinker -framework -Xlinker CoreText -Xlinker -framework -Xlinker Cocoa examples/coretext.mojo -o dist/moxi-coretext-demo", depends-on = ["text-object"] }
 text-demo = { cmd = "./dist/moxi-coretext-demo", depends-on = ["text-demo-build"] }
 harfbuzz-demo = "bash scripts/harfbuzz_check.sh"

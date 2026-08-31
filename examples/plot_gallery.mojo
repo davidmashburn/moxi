@@ -42,6 +42,7 @@ def main() raises:
 
     var view = PlotView(spec, data, Rect(0.0, 0.0, 860.0, 520.0))
     var scene = view.build_scene()
+    var packet = view.build_render_packet()
     var renderer = SoftwareSceneRenderer(860, 520)
     renderer.render_scene(scene)
     var main_checksum = renderer.checksum()
@@ -83,6 +84,8 @@ def main() raises:
     print("  layers: ", spec.layer_count(), " (", plot_mark_name(spec.layer(0).mark), ", ", plot_mark_name(spec.layer(1).mark), ")")
     print("  rows: ", data.row_count(), " facets: ", view.runtime.plot.facet_count())
     print("  scene commands: ", scene.count())
+    print("  render packet lines/instances/batches/bytes: ", packet.line_count(), "/", packet.instance_count(), "/", packet.batch_count(), "/", packet.total_byte_count())
+    print("  packet fallback required: ", packet.fallback_required)
     print("  checksum: ", main_checksum)
     print("  accessibility nodes: ", view.accessibility().count())
     print("  histogram rows/commands/checksum: ", histogram.point_count(1), "/", histogram.build_scene().count(), "/", histogram_checksum)

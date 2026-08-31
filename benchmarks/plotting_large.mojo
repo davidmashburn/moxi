@@ -13,6 +13,7 @@ def main():
     line.fit_to_data()
     line.set_line_point_limit(2048)
     var line_scene = line.build_scene()
+    var line_packet = line.build_render_packet()
 
     var scatter = Plot(Rect(0.0, 0.0, 1280.0, 720.0))
     var scatter_id = scatter.add_series(
@@ -27,15 +28,18 @@ def main():
     scatter.set_scatter_point_limit(20000)
     scatter.fit_to_data()
     var scatter_scene = scatter.build_scene()
+    var scatter_packet = scatter.build_render_packet()
 
     var metrics = PerformanceCounters()
     metrics.record_frame(0, 10000, line_scene.count(), line_scene.count())
     metrics.record_frame(0, 100000, scatter_scene.count(), scatter_scene.count())
     print("Moxi large-plot line rows: 10000")
     print("Moxi large-plot line commands: ", line_scene.count())
+    print("Moxi large-plot line packet segments/batches/bytes: ", line_packet.line_count(), "/", line_packet.batch_count(), "/", line_packet.total_byte_count())
     print("Moxi large-plot line limit: 2048")
     print("Moxi large-plot scatter rows: 100000")
     print("Moxi large-plot scatter rendered limit: 20000")
     print("Moxi large-plot scatter commands: ", scatter_scene.count())
+    print("Moxi large-plot scatter packet instances/batches/bytes: ", scatter_packet.instance_count(), "/", scatter_packet.batch_count(), "/", scatter_packet.total_byte_count())
     print("Moxi large-plot average operations/frame: ", metrics.average_operations())
     print("Moxi large-plot timing: /usr/bin/time reports wall-clock process time")

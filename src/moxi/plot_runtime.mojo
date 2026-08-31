@@ -28,6 +28,7 @@ from .event import (
 )
 from .geometry import Point, Rect
 from .plotting import Plot, PlotHit
+from .plot_render import PlotRenderPacket
 from .plot_selection import PlotSelection
 from .scene import Scene
 from .style import Color
@@ -531,6 +532,72 @@ struct PlotRuntime:
                 1.5,
             )
         return scene^
+
+    def build_render_packet(self) -> PlotRenderPacket:
+        """Build dense marks plus fast-path-safe interaction overlays."""
+        var packet = self.plot.build_render_packet()
+        for selection_index in range(len(self.selected_hits)):
+            var selected_hit = self.selected_hits[selection_index]
+            var series_index = self.plot.series_index(selected_hit.series_id)
+            if (
+                series_index != -1
+                and selected_hit.point_index >= 0
+                and selected_hit.point_index < self.plot.series[series_index].count()
+            ):
+                var point = self.plot.series[series_index].points[selected_hit.point_index]
+                packet.append_marker(
+                    self.plot.screen_point(point),
+                    14.0,
+                    Color(1.0, 0.8, 0.25, 0.95),
+                    1.0,
+                )
+        if self.hovered.found():
+            var series_index = self.plot.series_index(self.hovered.series_id)
+            if (
+                series_index != -1
+                and self.hovered.point_index >= 0
+                and self.hovered.point_index < self.plot.series[series_index].count()
+            ):
+                var point = self.plot.series[series_index].points[self.hovered.point_index]
+                var position = self.plot.screen_point(point)
+                if self.show_crosshair:
+                    packet.append_line(
+                        Point(position.x, self.plot.plot_area.y),
+                        Point(position.x, self.plot.plot_area.y + self.plot.plot_area.height),
+                        Color(0.9, 0.95, 1.0, 0.55),
+                        1.0,
+                    )
+                    packet.append_line(
+                        Point(self.plot.plot_area.x, position.y),
+                        Point(self.plot.plot_area.x + self.plot.plot_area.width, position.y),
+                        Color(0.9, 0.95, 1.0, 0.55),
+                        1.0,
+                    )
+                packet.append_marker(
+                    position,
+                    10.0,
+                    Color(1.0, 1.0, 1.0, 0.9),
+                    1.0,
+                )
+                # The packet has no text-run representation yet.  Refuse the
+                # fast path rather than dropping an active tooltip.
+                if self.show_tooltip:
+                    packet.fallback_required = True
+        if self.brushing:
+            packet.append_rect(
+                self._selection_rect(),
+                Color(0.25, 0.65, 1.0, 0.20),
+                1.0,
+            )
+        if self.lassoing:
+            # Lasso paths are intentionally unclipped in the Scene contract;
+            # keep that behavior until packets gain an explicit scope model.
+            packet.fallback_required = True
+        return packet^
+
+    def build_chrome_scene(self) -> Scene:
+        """Build plot chrome while leaving dense marks to a fast renderer."""
+        return self.plot.build_scene(False)
 
     def accessibility(self) -> AccessibilitySnapshot:
         var snapshot = self.plot.accessibility()

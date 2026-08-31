@@ -96,6 +96,9 @@ separately below and are not being presented as a 0.5 compatibility promise.
   transforms, independent facet scales, lasso/linked selection, line/scatter
   level-of-detail reduction, accessibility summary, deterministic software
   output, and Web-compatible SVG serialization.
+- An optional ordered `PlotRenderPacket` fast path for dense line, marker,
+  bar, and rectangle marks, with software parity and instanced Metal
+  expansion.
 - Shared platform host bridges for iOS, Android, and Web that normalize
   touch/pointer/key/text/resize input and provide deterministic software/SVG
   fallbacks. SDK-backed host artifacts now include an arm64 iOS simulator app,
@@ -217,6 +220,7 @@ pixi run plot-gallery
 pixi run plot-svg
 pixi run plot-analytics-benchmark
 pixi run plot-large-benchmark
+pixi run plot-metal-benchmark
 pixi run metal-benchmark
 pixi run fractal-benchmark
 pixi run harfbuzz-demo
@@ -276,9 +280,11 @@ excerpt, and mount the stateful component examples in the `Demo` tab. Use
 
 `pixi run interactive-fractal-demo` opens the interactive line-fractal port of
 Xilem's paint example. Its dense canvas uses Metal when available, with AppKit
-as a fallback; `pixi run fractal-benchmark` measures expansion, line geometry,
-Metal encoding, GPU completion, and synchronized frame time. The methodology
-and comparison caveats are in [docs/performance.md](docs/performance.md).
+as a fallback. Uniform line endpoints are uploaded once per frame and expanded
+to quads in an instanced Metal vertex shader; visible frames use a three-slot
+asynchronous ring. `pixi run fractal-benchmark` measures expansion, endpoint
+upload, Metal encoding, GPU completion, and synchronized frame time. The
+methodology and comparison caveats are in [docs/performance.md](docs/performance.md).
 
 `pixi run form-demo` opens the 0.5 interaction scenario. The name field starts
 focused; type, use the arrow/Home/End keys, press Tab to focus `Submit`, and
@@ -309,7 +315,9 @@ repeats those recipes and links stable-key selections. `pixi run plot-svg`
 prints the same scene as Web-compatible SVG;
 `pixi run plot-large-benchmark` measures a 10k-point line and bounded 100k
 scatter scene. `pixi run plot-stress-benchmark` runs the 1M-row scatter stress
-case with a 50k geometry limit. `pixi run metal-window-demo-build` compiles
+case with a 50k geometry limit. `pixi run plot-metal-benchmark` measures the
+packetized dense-mark path and complete plot composition.
+`pixi run metal-window-demo-build` compiles
 the visible Metal window; run the resulting binary locally when a GUI session
 is available.
 
@@ -511,7 +519,8 @@ Component + root bounds -> App -> ColumnView/tree -> ColumnRuntime -> PaintComma
  Event <- WindowBackend <-------+       +-- focus --+-> AppKit canvas
                    pointer/key/text/resize/action
 
-PlotSpec + PlotDataTable -> PlotView/PlotRuntime -> Scene -> Software | Metal | SVG/Web export
+PlotSpec + PlotDataTable -> PlotView/PlotRuntime -> Scene (oracle/export/fallback)
+                                               └-> PlotRenderPacket -> Software | Metal
 ```
 
 The Mojo core does not own AppKit handles. The platform adapter owns the native

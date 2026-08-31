@@ -5,6 +5,7 @@ from .event import Event
 from .geometry import Rect
 from .plot_data import PlotDataSnapshot, PlotDataTable
 from .plot_runtime import PlotRuntime
+from .plot_render import PlotRenderPacket
 from .plotting import PlotHit
 from .plot_spec import (
     INTERACTION_HOVER,
@@ -54,6 +55,14 @@ struct PlotView:
         """Build the current renderer-neutral scene."""
         return self.runtime.build_scene()
 
+    def build_render_packet(self) -> PlotRenderPacket:
+        """Expose the optional dense-mark packet for a capable host."""
+        return self.runtime.build_render_packet()
+
+    def build_chrome_scene(self) -> Scene:
+        """Build plot chrome for hosts that draw the packet separately."""
+        return self.runtime.build_chrome_scene()
+
     def accessibility(self) -> AccessibilitySnapshot:
         """Return the current semantic plot subtree."""
         return self.runtime.accessibility()
@@ -98,6 +107,12 @@ struct PlotControl:
 
     def build_scene(self) -> Scene:
         return self.view.build_scene()
+
+    def build_render_packet(self) -> PlotRenderPacket:
+        return self.view.build_render_packet()
+
+    def build_chrome_scene(self) -> Scene:
+        return self.view.build_chrome_scene()
 
     def accessibility(self) -> AccessibilitySnapshot:
         return self.view.accessibility()

@@ -27,6 +27,8 @@ run_case "retained layout/paint/scene" mojo run -I src benchmarks/layout.mojo
 run_case "portable plot scene" mojo run -I src benchmarks/plotting.mojo
 run_case "statistical and linked plot scene" mojo run -I src benchmarks/plotting_analytics.mojo
 run_case "large plot scene generation" mojo run -I src benchmarks/plotting_large.mojo
+pixi run plot-metal-benchmark-build
+run_case "Metal plot render packet" ./dist/moxi-plot-metal-benchmark
 
 pixi run fractal-benchmark-build
 run_case "interactive fractal component and canvas commands" ./dist/moxi-fractal-benchmark

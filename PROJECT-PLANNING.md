@@ -32,8 +32,8 @@ The remaining explicitly deferred post-0.5 work is now narrower:
 - Native iOS, Android, and browser app targets with device/emulator/browser CI;
   host lifecycle/input shims now live under `native/hosts/`, with local iOS,
   Android, and browser demo artifacts checked by `scripts/host_check.sh`.
-- Complex GPU typography, asynchronous frame pacing, and portable
-  cross-platform resource loaders; Metal now covers printable ASCII glyphs,
+- Complex GPU typography, portable shaping, and cross-platform resource
+  loaders; Metal now covers printable ASCII glyphs,
   CoreText Unicode text textures, registered file-backed images,
   quadratic/cubic curves, elliptical arcs, concave polygons, and bounded
   even-odd compound/self-intersecting fills, with optional GPU timestamps.
@@ -62,10 +62,20 @@ Metal benchmark records Unicode texture draws, cache hits, and rasterizations
 separately from geometry and continues to report vertices, submissions, paths,
 fallbacks, and checksums.
 
-Remaining renderer limits are asynchronous pacing, portable shaping/font
-fallback, and platform-specific GPU text/image/path tessellation. Remaining
-native limits are editable collection cells, system menu/dialog tracking,
-live Mojo-runtime publication on iOS/Android/Web, and device-level
+The dense-plot rendering slice now follows the same contract: supported line,
+step, scatter, bar, box, rule, interval, tick, heatmap, and rectangle marks can
+compile into an ordered `PlotRenderPacket` of flat screen-space records. The
+software renderer consumes that packet for parity, while Metal uploads each
+contiguous batch once and expands lines and quads on the GPU. Packet reduction
+is viewport-aware, source rows and stable keys remain intact, and unsupported
+area/band/text/tooltip/lasso cases explicitly request the Scene fallback.
+
+Remaining renderer limits are portable shaping/font fallback and
+platform-specific GPU text/image/path tessellation. Dense visible canvas
+frames now use asynchronous Metal pacing with a bounded three-slot ring;
+offscreen benchmarks intentionally synchronize for complete checksums.
+Remaining native limits are editable collection cells, system menu/dialog
+tracking, live Mojo-runtime publication on iOS/Android/Web, and device-level
 screen-reader automation.
 
 The first product built on these contracts is a first-class plotting library:
@@ -171,6 +181,10 @@ layout, component, capability, and plotting code.
   readback/checksum test seams.
 - Add repeatable CPU and GPU benchmark cases and use evidence to improve hot
   paths (batching, command storage, invalidation, and resource reuse).
+- Compile dense plot marks into ordered `PlotRenderPacket` buffers and measure
+  packet bytes, batch submissions, GPU vertices, timing, and full-frame
+  checksum composition. Keep packet rebuilds explicit so stable data can be
+  retained across frames.
 - Route dense component-owned canvases through the Metal scene path when a
   device is available, embedding a transparent `CAMetalLayer` in the regular
   AppKit host while preserving native controls, input, accessibility, and an
@@ -282,9 +296,9 @@ module are contract-tested.
 
 This is an implemented foundation, not completion of every item in the
 design. Custom production font fallback, scrollbar policy, editable collection
-widget ownership, Mojo-host runtime integration, asynchronous GPU pacing and
-resource lifetime, PDF/PNG export, and the broader polar/geographic/3D
-families remain explicitly staged work.
+widget ownership, Mojo-host runtime integration, portable GPU resource
+lifetime, PDF/PNG export, and the broader polar/geographic/3D families remain
+explicitly staged work.
 
 ### Core interface
 
@@ -505,11 +519,15 @@ GPU-inclusive, cold-start, and steady-state results identified separately.
 #### Production rendering
 
 - Add GPU instancing, progressive rendering, and resource upload for text and
-  images. Batched basic geometry, line decimation, level of detail, and vertex
-  resource reuse are implemented.
+  images. Batched basic geometry, viewport-aware line/scatter level of detail,
+  and vertex/resource reuse are implemented for the macOS plot packet path;
+  continuous line joins/caps, filled-area tessellation, plot text/image
+  resources, and cross-platform GPU paths remain staged.
 - Add PNG/SVG/PDF export, versioned specification serialization, themes, and
   print-quality output.
-- Add full plot benchmark artifacts and backend capability reports.
+- Add full plot benchmark artifacts and backend capability reports. The current
+  packet workload is `pixi run plot-metal-benchmark`; it must remain separate
+  from the generic scene benchmark so packet and fallback costs stay visible.
 
 #### Advanced extensions
 

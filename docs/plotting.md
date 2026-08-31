@@ -90,6 +90,7 @@ Run the focused workloads with:
 ```sh
 pixi run plot-gallery
 pixi run plot-analytics-benchmark
+pixi run plot-metal-benchmark
 pixi run metal-benchmark
 MOXI_BENCHMARK_RUNS=1 pixi run benchmark
 ```
@@ -99,6 +100,49 @@ regression scene generation plus linked selection. The Metal benchmark also
 forces one bounded vertex-buffer growth step. Wall-clock values are host
 measurements; deterministic command counts, vertices, checksums, and selected
 keys are the portable regression signals.
+
+### Dense mark packets
+
+The ordinary `Scene` path is the correctness, export, and fallback contract.
+For dense line/scatter/bar/rect marks, `Plot.build_render_packet()` and
+`PlotView.build_render_packet()` expose a compact screen-space packet with flat
+ten-`Float32` wire records and ordered contiguous batches. The source table,
+row keys, and accessibility model are not reduced.
+
+Static plot composition can use the packet explicitly:
+
+```mojo
+var packet = plot.build_render_packet()
+var chrome = plot.build_scene(False)
+software.render_scene(chrome)
+software.draw_plot_packet(packet)
+```
+
+`MacOSMetalRenderer.render_plot(plot)` and
+`MacOSMetalRenderer.render_plot_view(view)` perform this composition for a
+complete frame. The Metal path expands line records into quads in one
+instanced draw and expands marker/bar/rect records into rounded or square
+instances in another. Per-mark color, opacity, width, and size remain in the
+packet, so a plot does not need one native call per point. A packet retains
+batch order across line and instance groups; renderers must not reorder it
+across clip or compositing boundaries.
+
+The packet reducer is viewport-aware: lines use up to four extrema-preserving
+representatives per horizontal pixel by default, while scatter uses a
+deterministic screen-space cell representative. Explicit line/scatter limits
+remain available for application budgets. Reduction affects only visual
+geometry; hit testing, tooltips, stable selections, accessibility, and CSV
+fallback continue to use source rows.
+
+The million-row stress case uses the same packet builder after its source table
+is fitted to the viewport. Its geometry remains bounded by occupied screen
+cells rather than by source-row count; `pixi run plot-stress-benchmark` reports
+both source/emitted representatives and packet bytes.
+
+`fallback_required` is a deliberate correctness guard. Filled area/band marks,
+text marks, active tooltip text, and lasso states remain on the full Scene path
+until their packet representations exist. Software packet rendering is the
+deterministic visual oracle for the Metal packet path.
 
 ## Target matrix
 

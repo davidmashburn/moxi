@@ -14,6 +14,7 @@ from .scene import Scene
 from .style import Color
 from .accessibility import AccessibilitySnapshot, ROLE_CANVAS, ROLE_LABEL, Semantics
 from .plot_data import COLUMN_CATEGORY, COLUMN_STRING, PlotDataTable
+from .plot_render import PlotRenderPacket
 
 
 comptime PLOT_LINE = 1
@@ -1143,14 +1144,13 @@ struct Plot:
             return False
         return True
 
-    def line_indices(self, series_id: Int) -> List[Int]:
+    def _line_indices_for_limit(self, series_id: Int, limit: Int) -> List[Int]:
         """Return bounded line indices while preserving per-bucket extrema."""
         var result = List[Int]()
         var series_index = self.series_index(series_id)
         if series_index == -1:
             return result^
         var count = self.series[series_index].count()
-        var limit = self.line_point_limit
         if limit <= 2 or count <= limit:
             for index in range(count):
                 result.append(index)
@@ -1185,23 +1185,40 @@ struct Plot:
                 candidates.append(maximum)
             if last != first:
                 candidates.append(last)
-            # The extrema need to be emitted in source order so the line does
-            # not jump backwards when min/max occur out of order.
+            # Candidates from a bucket are small, so sort them locally and
+            # append.  Buckets are already source-ordered; rebuilding the whole
+            # result list for every candidate made reduction quadratic in the
+            # output limit.
+            for left in range(len(candidates)):
+                for right in range(left + 1, len(candidates)):
+                    if candidates[right] < candidates[left]:
+                        var swap = candidates[left]
+                        candidates[left] = candidates[right]
+                        candidates[right] = swap
             for candidate_position in range(len(candidates)):
                 var candidate = candidates[candidate_position]
-                var insert_at = 0
-                while insert_at < len(result) and result[insert_at] < candidate:
-                    insert_at += 1
-                var duplicate = insert_at < len(result) and result[insert_at] == candidate
-                if not duplicate:
-                    var reordered = List[Int](capacity=len(result) + 1)
-                    for existing in range(insert_at):
-                        reordered.append(result[existing])
-                    reordered.append(candidate)
-                    for existing in range(insert_at, len(result)):
-                        reordered.append(result[existing])
-                    result = reordered^
+                if len(result) == 0 or result[len(result) - 1] != candidate:
+                    result.append(candidate)
         return result^
+
+    def line_indices(self, series_id: Int) -> List[Int]:
+        """Return the explicitly configured line reduction indices."""
+        return self._line_indices_for_limit(series_id, self.line_point_limit)
+
+    def packet_line_indices(self, series_id: Int) -> List[Int]:
+        """Return line representatives sized to the current plot viewport.
+
+        Four values per horizontal pixel preserve first/last plus local
+        extrema.  An explicit ``set_line_point_limit`` remains the tighter
+        application-level budget when one is configured.
+        """
+        var limit = self.line_point_limit
+        if limit <= 0:
+            limit = Int(self.plot_area.width)
+            if limit < 1:
+                limit = 1
+            limit *= 4
+        return self._line_indices_for_limit(series_id, limit)
 
     def scatter_indices(self, series_id: Int) -> List[Int]:
         """Return deterministic representatives for dense scatter geometry."""
@@ -1223,11 +1240,432 @@ struct Plot:
                 result.append(index)
         return result^
 
+    def packet_scatter_indices(self, series_id: Int) -> List[Int]:
+        """Return one deterministic representative per screen-space cell.
+
+        The packet can use a bounded viewport grid even when the legacy Scene
+        path is left at full fidelity.  Source order and stable row keys remain
+        intact in ``Plot`` for hit testing, selection, and accessibility.
+        """
+        var result = List[Int]()
+        var series_index = self.series_index(series_id)
+        if series_index == -1:
+            return result^
+        var count = self.series[series_index].count()
+        var limit = self.scatter_point_limit
+        if limit <= 0:
+            var width = Int(self.plot_area.width)
+            var height = Int(self.plot_area.height)
+            if width < 1:
+                width = 1
+            if height < 1:
+                height = 1
+            limit = width * height // 4
+            if limit < 1024:
+                limit = 1024
+        if count <= limit:
+            for index in range(count):
+                result.append(index)
+            return result^
+
+        var width = self.plot_area.width if self.plot_area.width > 0.0 else 1.0
+        var height = self.plot_area.height if self.plot_area.height > 0.0 else 1.0
+        var aspect = width / height
+        var columns = Int(sqrt(Float32(limit) * aspect))
+        if columns < 1:
+            columns = 1
+        if columns > limit:
+            columns = limit
+        var rows = limit // columns
+        if rows < 1:
+            rows = 1
+        var cells = List[Int]()
+        for _ in range(columns * rows):
+            cells.append(-1)
+        for index in range(count):
+            var point = self.series[series_index].points[index]
+            if not self.point_is_renderable(point):
+                continue
+            var screen = self._screen_point(point)
+            var column = Int((screen.x - self.plot_area.x) / width * Float32(columns))
+            var row = Int((screen.y - self.plot_area.y) / height * Float32(rows))
+            if column < 0:
+                column = 0
+            if column >= columns:
+                column = columns - 1
+            if row < 0:
+                row = 0
+            if row >= rows:
+                row = rows - 1
+            var cell = row * columns + column
+            if cells[cell] == -1:
+                cells[cell] = index
+        for cell in range(len(cells)):
+            if cells[cell] != -1:
+                result.append(cells[cell])
+        return result^
+
     def _grid_line_id(self, axis: Int, index: Int) -> Int:
         return 100 + axis * 10 + index
 
-    def build_scene(self) -> Scene:
-        """Build a complete plot scene for any Moxi scene renderer."""
+    def build_render_packet(self) -> PlotRenderPacket:
+        """Build the dense mark layer as ordered contiguous batches.
+
+        This is an optional acceleration path.  The full ``Scene`` remains the
+        portable fallback and still carries axes, labels, legends, annotations,
+        and unsupported marks.  The packet contains screen-space line and
+        instance data only, so a native renderer can cross the FFI boundary once
+        per ordered batch while retaining the complete source data in ``Plot``.
+        """
+        var source_count = 0
+        var emitted_count = 0
+        for series_index in range(len(self.series)):
+            source_count += self.series[series_index].count()
+        var packet = PlotRenderPacket(self.bounds, self.plot_area)
+        # Size the wire buffers from the mark families that will actually use
+        # them.  In particular, a million-point scatter plot should reserve
+        # for its viewport budget rather than for a hypothetical million line
+        # segments and two million instances.  List growth remains available
+        # for future marks with larger expansion.
+        var line_capacity = 0
+        var instance_capacity = 0
+        var scatter_limit = self.scatter_point_limit
+        if scatter_limit <= 0:
+            var scatter_width = Int(self.plot_area.width)
+            var scatter_height = Int(self.plot_area.height)
+            if scatter_width < 1:
+                scatter_width = 1
+            if scatter_height < 1:
+                scatter_height = 1
+            scatter_limit = scatter_width * scatter_height // 4
+            if scatter_limit < 1024:
+                scatter_limit = 1024
+        var line_limit = self.line_point_limit
+        if line_limit <= 0:
+            line_limit = Int(self.plot_area.width)
+            if line_limit < 1:
+                line_limit = 1
+            line_limit *= 4
+        for series_index in range(len(self.series)):
+            var series_count = self.series[series_index].count()
+            if not self.series[series_index].visible or series_count == 0:
+                continue
+            var kind = self.series[series_index].kind
+            if kind == PLOT_AREA or kind == PLOT_BAND or kind == PLOT_TEXT:
+                continue
+            if kind == PLOT_BAR or kind == PLOT_COLUMN or kind == PLOT_HISTOGRAM:
+                instance_capacity += series_count
+            elif kind == PLOT_RULE:
+                line_capacity += 1
+            elif kind == PLOT_BOX:
+                instance_capacity += series_count
+                line_capacity += series_count * 4
+            elif kind == PLOT_ERROR_BAR or kind == PLOT_INTERVAL or kind == PLOT_TICK:
+                line_capacity += series_count
+            elif (
+                kind == PLOT_LINE
+                or kind == PLOT_STEP
+                or kind == PLOT_DENSITY
+                or kind == PLOT_ECDF
+                or kind == PLOT_REGRESSION
+            ):
+                var point_capacity = series_count if series_count < line_limit else line_limit
+                if point_capacity > 1:
+                    if kind == PLOT_STEP or kind == PLOT_ECDF:
+                        line_capacity += (point_capacity - 1) * 2
+                    else:
+                        line_capacity += point_capacity - 1
+            elif kind == PLOT_SCATTER or kind == PLOT_DOT or kind == PLOT_BUBBLE:
+                var marker_capacity = series_count if series_count < scatter_limit else scatter_limit
+                instance_capacity += marker_capacity
+            elif kind == PLOT_RECT or kind == PLOT_HEATMAP or kind == PLOT_HEXBIN:
+                instance_capacity += series_count
+        packet.reserve(line_capacity, instance_capacity, len(self.series) * 2)
+        for series_index in range(len(self.series)):
+            var series_count = self.series[series_index].count()
+            if not self.series[series_index].visible or series_count == 0:
+                continue
+
+            var kind = self.series[series_index].kind
+            if (
+                kind == PLOT_AREA
+                or kind == PLOT_BAND
+                or kind == PLOT_TEXT
+            ):
+                # Filled areas and text still use the ordered Scene path until
+                # their dedicated GPU representations are available.
+                packet.fallback_required = True
+                continue
+
+            if (
+                kind == PLOT_BAR
+                or kind == PLOT_COLUMN
+                or kind == PLOT_HISTOGRAM
+            ):
+                var baseline = self.y_scale.map(0.0)
+                var bar_width = self.plot_area.width / Float32(series_count * 2)
+                if bar_width < 2.0:
+                    bar_width = 2.0
+                for point_index in range(series_count):
+                    var source_point = self.series[series_index].points[point_index]
+                    var point = self._screen_point(source_point)
+                    var point_color = self.series[series_index].color
+                    if source_point.has_color:
+                        point_color = source_point.color
+                    var current_width = bar_width
+                    var bar_left = point.x - current_width * 0.5
+                    if source_point.has_x2:
+                        var extent_point = source_point
+                        extent_point.x = source_point.x2
+                        var extent = self._screen_point(extent_point)
+                        bar_left = point.x if point.x < extent.x else extent.x
+                        current_width = point.x - extent.x
+                        if current_width < 0.0:
+                            current_width = -current_width
+                        if current_width < 1.0:
+                            current_width = 1.0
+                    var top = point.y if point.y < baseline else baseline
+                    var bottom = point.y if point.y > baseline else baseline
+                    packet.append_rect(
+                        Rect(bar_left, top, current_width, bottom - top),
+                        point_color,
+                        self.series[series_index].opacity * source_point.opacity,
+                    )
+                    emitted_count += 1
+                continue
+
+            if kind == PLOT_RULE:
+                var source_point = self.series[series_index].points[0]
+                var screen = self._screen_point(source_point)
+                var rule_color = self.series[series_index].color
+                if source_point.has_color:
+                    rule_color = source_point.color
+                packet.append_line(
+                    Point(self.plot_area.x, screen.y),
+                    Point(self.plot_area.x + self.plot_area.width, screen.y),
+                    rule_color,
+                    self.series[series_index].line_width,
+                    self.series[series_index].opacity * source_point.opacity,
+                )
+                emitted_count += 1
+                continue
+
+            if kind == PLOT_BOX:
+                for point_index in range(series_count):
+                    var source_point = self.series[series_index].points[point_index]
+                    if not source_point.has_statistics:
+                        continue
+                    var point = self._screen_point(source_point)
+                    var q3_point = source_point
+                    q3_point.y = source_point.y2
+                    var q3 = self._screen_point(q3_point)
+                    var low_point = source_point
+                    low_point.y = source_point.stat_low
+                    var low = self._screen_point(low_point)
+                    var high_point = source_point
+                    high_point.y = source_point.stat_high
+                    var high = self._screen_point(high_point)
+                    var median_point = source_point
+                    median_point.y = source_point.stat_median
+                    var median = self._screen_point(median_point)
+                    var point_color = self.series[series_index].color
+                    if source_point.has_color:
+                        point_color = source_point.color
+                    var box_width = source_point.size
+                    if box_width == 6.0:
+                        box_width = 18.0
+                    var left = point.x - box_width * 0.5
+                    var top = point.y if point.y < q3.y else q3.y
+                    var height = point.y - q3.y
+                    if height < 0.0:
+                        height = -height
+                    var opacity = self.series[series_index].opacity * source_point.opacity
+                    packet.append_rect(
+                        Rect(left, top, box_width, height), point_color, opacity
+                    )
+                    packet.append_line(
+                        Point(left, median.y),
+                        Point(left + box_width, median.y),
+                        self.axis_color,
+                        self.series[series_index].line_width,
+                        opacity,
+                    )
+                    packet.append_line(
+                        Point(point.x, low.y),
+                        Point(point.x, high.y),
+                        point_color,
+                        self.series[series_index].line_width,
+                        opacity,
+                    )
+                    packet.append_line(
+                        Point(left + box_width * 0.2, low.y),
+                        Point(left + box_width * 0.8, low.y),
+                        point_color,
+                        self.series[series_index].line_width,
+                        opacity,
+                    )
+                    packet.append_line(
+                        Point(left + box_width * 0.2, high.y),
+                        Point(left + box_width * 0.8, high.y),
+                        point_color,
+                        self.series[series_index].line_width,
+                        opacity,
+                    )
+                    emitted_count += 1
+                continue
+
+            if kind == PLOT_ERROR_BAR or kind == PLOT_INTERVAL:
+                for point_index in range(series_count):
+                    var source_point = self.series[series_index].points[point_index]
+                    var point = self._screen_point(source_point)
+                    var end_point = source_point
+                    if source_point.has_y2:
+                        end_point.y = source_point.y2
+                    var end_screen = self._screen_point(end_point)
+                    var point_color = self.series[series_index].color
+                    if source_point.has_color:
+                        point_color = source_point.color
+                    var error = self.series[series_index].marker_size * 1.5
+                    var lower = point.y - error
+                    var upper = point.y + error
+                    if source_point.has_y2:
+                        lower = point.y if point.y < end_screen.y else end_screen.y
+                        upper = point.y if point.y > end_screen.y else end_screen.y
+                    packet.append_line(
+                        Point(point.x, lower),
+                        Point(point.x, upper),
+                        point_color,
+                        self.series[series_index].line_width,
+                        self.series[series_index].opacity * source_point.opacity,
+                    )
+                    emitted_count += 1
+                continue
+
+            var indices = List[Int]()
+            var is_line = (
+                kind == PLOT_LINE
+                or kind == PLOT_STEP
+                or kind == PLOT_DENSITY
+                or kind == PLOT_ECDF
+                or kind == PLOT_REGRESSION
+            )
+            var is_marker = (
+                kind == PLOT_SCATTER
+                or kind == PLOT_DOT
+                or kind == PLOT_BUBBLE
+            )
+            if is_line:
+                indices = self.packet_line_indices(self.series[series_index].id)
+            elif is_marker:
+                indices = self.packet_scatter_indices(self.series[series_index].id)
+            else:
+                for index in range(series_count):
+                    indices.append(index)
+
+            for rendered_index in range(len(indices)):
+                var point_index = indices[rendered_index]
+                var source_point = self.series[series_index].points[point_index]
+                var point = self._screen_point(source_point)
+                var point_color = self.series[series_index].color
+                if source_point.has_color:
+                    point_color = source_point.color
+                var point_size = self.series[series_index].marker_size
+                if source_point.size != 6.0:
+                    point_size = source_point.size
+                var opacity = self.series[series_index].opacity * source_point.opacity
+
+                if is_marker:
+                    packet.append_marker(point, point_size, point_color, opacity)
+                elif (
+                    kind == PLOT_RECT
+                    or kind == PLOT_HEATMAP
+                    or kind == PLOT_HEXBIN
+                ):
+                    var half_size = point_size * 0.5
+                    var rect_end = source_point
+                    if source_point.has_x2:
+                        rect_end.x = source_point.x2
+                    if source_point.has_y2:
+                        rect_end.y = source_point.y2
+                    var rect_end_screen = self._screen_point(rect_end)
+                    var rect_left = point.x if point.x < rect_end_screen.x else rect_end_screen.x
+                    var rect_top = point.y if point.y < rect_end_screen.y else rect_end_screen.y
+                    var rect_width = point.x - rect_end_screen.x
+                    if rect_width < 0.0:
+                        rect_width = -rect_width
+                    var rect_height = point.y - rect_end_screen.y
+                    if rect_height < 0.0:
+                        rect_height = -rect_height
+                    if not source_point.has_x2:
+                        rect_left = point.x - half_size
+                        rect_width = point_size
+                    if not source_point.has_y2:
+                        rect_top = point.y - half_size
+                        rect_height = point_size
+                    if (
+                        (kind == PLOT_HEATMAP or kind == PLOT_HEXBIN)
+                        and source_point.size <= 0.0
+                    ):
+                        continue
+                    packet.append_rect(
+                        Rect(rect_left, rect_top, rect_width, rect_height),
+                        point_color,
+                        opacity,
+                    )
+                elif kind == PLOT_TICK:
+                    packet.append_line(
+                        Point(point.x, point.y - point_size),
+                        Point(point.x, point.y + point_size),
+                        point_color,
+                        self.series[series_index].line_width,
+                        opacity,
+                    )
+
+                if is_line and rendered_index > 0:
+                    var previous_index = indices[rendered_index - 1]
+                    var previous_source = self.series[series_index].points[previous_index]
+                    if (
+                        previous_source.facet_value == source_point.facet_value
+                        and previous_source.facet_column_value == source_point.facet_column_value
+                    ):
+                        var previous = self._screen_point(previous_source)
+                        if kind == PLOT_STEP or kind == PLOT_ECDF:
+                            packet.append_line(
+                                previous,
+                                Point(point.x, previous.y),
+                                point_color,
+                                self.series[series_index].line_width,
+                                opacity,
+                            )
+                            packet.append_line(
+                                Point(point.x, previous.y),
+                                point,
+                                point_color,
+                                self.series[series_index].line_width,
+                                opacity,
+                            )
+                        else:
+                            packet.append_line(
+                                previous,
+                                point,
+                                point_color,
+                                self.series[series_index].line_width,
+                                opacity,
+                            )
+            emitted_count += len(indices)
+
+        packet.source_point_count = source_count
+        packet.emitted_point_count = emitted_count
+        return packet^
+
+    def build_scene(self, include_marks: Bool = True) -> Scene:
+        """Build a complete plot scene for any Moxi scene renderer.
+
+        ``include_marks=False`` keeps the plot chrome while leaving the dense
+        mark layer to ``build_render_packet``.  This is the composition seam
+        used by the Metal fast path; the default remains the complete portable
+        scene.
+        """
         var scene = Scene()
         scene.append_rounded_rect(1, self.bounds, self.background, 12.0)
         scene.push_clip(2, self.plot_area)
@@ -1349,6 +1787,8 @@ struct Plot:
         )
 
         for series_index in range(len(self.series)):
+            if not include_marks:
+                continue
             if (
                 not self.series[series_index].visible
                 or self.series[series_index].count() == 0

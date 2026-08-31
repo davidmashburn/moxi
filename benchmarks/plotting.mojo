@@ -6,6 +6,7 @@ from moxi import Rect
 
 def main() raises:
     var plot = make_plot_scenario(Rect(0.0, 0.0, 640.0, 420.0))
+    var packet = plot.build_render_packet()
     var renderer = SoftwareSceneRenderer(640, 420)
     var metrics = PerformanceCounters()
     var passes = 100
@@ -16,5 +17,6 @@ def main() raises:
     print("Moxi plot benchmark passes: ", passes)
     print("Moxi plot benchmark commands/frame: ", metrics.scene_commands // passes)
     print("Moxi plot benchmark rasterized pixels/frame: ", metrics.rasterized_pixels // passes)
+    print("Moxi plot packet lines/instances/batches/bytes: ", packet.line_count(), "/", packet.instance_count(), "/", packet.batch_count(), "/", packet.total_byte_count())
     print("Moxi plot benchmark checksum: ", renderer.checksum())
     print("Moxi plot benchmark timing: /usr/bin/time reports wall-clock process time")

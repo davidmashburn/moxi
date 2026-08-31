@@ -2,7 +2,7 @@
 
 The workload intentionally uses the same canvas size, generator presets, and
 minimum segment length as the Xilem example. It reports component expansion,
-neutral canvas command generation, Metal line geometry/tessellation, CPU
+neutral canvas command generation, GPU-instanced Metal line submission, CPU
 encoding, GPU completion, and synchronized frame time separately.
 """
 
@@ -185,10 +185,16 @@ def run_case(
         metal_painter.average_frame_ms(),
         " gpu_timing=",
         metal_painter.gpu_timing_available(),
+        " metal_line_segments=",
+        metal_painter.line_count(),
         " metal_vertices=",
         metal_painter.vertex_count(),
         " metal_submissions=",
         metal_painter.draw_submission_count(),
+        " metal_completed_frames=",
+        metal_painter.completed_frame_count(),
+        " metal_in_flight=",
+        metal_painter.in_flight_count(),
         " metal_overflows=",
         metal_painter.overflow_count(),
         " rects=",

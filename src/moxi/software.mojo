@@ -21,6 +21,13 @@ from .scene import (
     SceneRenderer,
 )
 from .style import Color
+from .plot_render import (
+    PLOT_RENDER_INSTANCES,
+    PLOT_RENDER_LINES,
+    PlotRenderPacket,
+)
+from .plotting import Plot
+from .plot_view import PlotView
 
 
 def _clamp_unit(value: Float32) -> Float32:
@@ -279,6 +286,85 @@ struct SoftwareSceneRenderer(SceneRenderer):
 
     def end_scene(mut self) raises:
         self.frame_count += 1
+
+    def draw_plot_packet(mut self, packet: PlotRenderPacket):
+        """Rasterize a compact plot packet inside its declared clip.
+
+        Packet coordinates are already in surface space and deliberately do
+        not participate in the renderer transform stack.  This makes the
+        method a useful software oracle for the native batch path; callers
+        should use the ordinary Scene path when they need transformed marks.
+        """
+        var saved_has_clip = self.has_clip
+        var saved_clip = self.clip
+        if self.has_clip:
+            self.clip = self.clip.intersection(packet.clip)
+        else:
+            self.clip = packet.clip
+            self.has_clip = True
+
+        for batch_index in range(packet.batch_count()):
+            var batch = packet.batch(batch_index)
+            if batch.kind == PLOT_RENDER_LINES:
+                for item_index in range(batch.count):
+                    var line = packet.line(batch.offset + item_index)
+                    self.stroke_line(
+                        line.start,
+                        line.end,
+                        _with_opacity(line.color, self.opacity * line.opacity),
+                        line.width,
+                    )
+            elif batch.kind == PLOT_RENDER_INSTANCES:
+                for item_index in range(batch.count):
+                    var instance = packet.instance(batch.offset + item_index)
+                    var color = _with_opacity(
+                        instance.color,
+                        self.opacity * instance.opacity,
+                    )
+                    if instance.corner_radius > 0.0:
+                        self.fill_rounded_rect(
+                            instance.bounds,
+                            color,
+                            instance.corner_radius,
+                        )
+                    else:
+                        self.fill_rect(instance.bounds, color)
+        self.has_clip = saved_has_clip
+        self.clip = saved_clip
+
+    def render_plot_packet(mut self, packet: PlotRenderPacket) raises:
+        """Render a packet as a complete deterministic software frame."""
+        self.begin_scene()
+        self.draw_plot_packet(packet)
+        self.end_scene()
+
+    def render_plot(mut self, plot: Plot) raises -> Bool:
+        """Render a complete plot using the packet when it is safe to do so."""
+        var packet = plot.build_render_packet()
+        if packet.fallback_required:
+            self.render_scene(plot.build_scene())
+            return False
+        self.begin_scene()
+        var chrome = plot.build_scene(False)
+        for index in range(chrome.count()):
+            self.draw_scene_command(chrome.command(index))
+        self.draw_plot_packet(packet)
+        self.end_scene()
+        return True
+
+    def render_plot_view(mut self, view: PlotView) raises -> Bool:
+        """Render an interactive PlotView with packet-safe overlays."""
+        var packet = view.build_render_packet()
+        if packet.fallback_required:
+            self.render_scene(view.build_scene())
+            return False
+        self.begin_scene()
+        var chrome = view.build_chrome_scene()
+        for index in range(chrome.count()):
+            self.draw_scene_command(chrome.command(index))
+        self.draw_plot_packet(packet)
+        self.end_scene()
+        return True
 
     def fill_rect(mut self, bounds: Rect, color: Color):
         var visible = bounds

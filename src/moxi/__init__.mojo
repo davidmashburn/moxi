@@ -637,6 +637,16 @@ from .plot_runtime import PlotRuntime
 from .plot_view import PlotControl, PlotView
 from .plot_selection import PlotSelection, selection_from_keys
 from .plot_link import PlotLink
+from .plot_render import (
+    PLOT_RENDER_LINES,
+    PLOT_RENDER_INSTANCES,
+    PLOT_RENDER_LINE_STRIDE,
+    PLOT_RENDER_INSTANCE_STRIDE,
+    PlotRenderBatch,
+    PlotRenderLine,
+    PlotRenderInstance,
+    PlotRenderPacket,
+)
 from .virtual_view import VirtualItemBuilder, VirtualizedList
 from .svg import SvgSceneRenderer
 from .coretext import MacOSTextShaper
