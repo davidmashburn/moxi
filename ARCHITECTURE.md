@@ -201,6 +201,14 @@ rather than a custom shaping engine. Rectangle clipping is opt-in at the root
 or container level. A caller can rebuild the root with new bounds;
 `App.resize()` supplies that relayout path for the native demo.
 
+The repository-level demo browser in `src/moxi/demo_browser.mojo` is a catalog
+and typed workbench, not a dynamic component registry in the core. It keeps
+the example inventory searchable, mounts the stateful pages through explicit
+`ComponentSlot`s, and exposes the real standalone Pixi task for scene, plot,
+GPU, and text examples. The macOS example host uses `MacOSDemoRunner` to
+launch validated task names as sibling processes; this side effect remains
+outside the portable `App` contract.
+
 ## Retained runtime
 
 `ColumnRuntime.reconcile()` matches the current `ViewNode` list against active
@@ -423,6 +431,7 @@ The shared counter scenario is exercised by:
 - `examples/alignment.mojo` — native alignment scenario
 - `examples/nested.mojo` — native nested-container scenario
 - `examples/wx_style.mojo` — wxPython-style frame/panel/sizer lesson
+- `examples/demo_browser.mojo` — searchable wxPython-style runnable demo browser
 - `examples/animation.mojo` — deterministic frame-clock and dirty-region lesson
 - `examples/wrapped_text.mojo` — opt-in wrapping and resize-aware intrinsic height
 - `examples/composed.mojo` — typed child composition and namespaced event routing

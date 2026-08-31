@@ -617,6 +617,27 @@ struct MacOSClipboard(ClipboardBackend):
         return text
 
 
+struct MacOSDemoRunner:
+    """Launch one validated Pixi task as a sibling demo process."""
+
+    def __init__(out self):
+        pass
+
+    def launch(mut self, task: String) raises -> Bool:
+        """Launch a task name, rejecting shell syntax at the native boundary."""
+        var task_copy = task
+        var c_task = task_copy.as_c_string_slice()
+        return external_call["moxi_demo_launch", Int32](c_task.ptr()) != 0
+
+    def is_running(self) raises -> Bool:
+        """Return whether the most recently launched task is still running."""
+        return external_call["moxi_demo_is_running", Int32]() != 0
+
+    def exit_status(self) raises -> Int:
+        """Return the last task's exit status, or -1 before it has exited."""
+        return Int(external_call["moxi_demo_exit_status", Int32]())
+
+
 struct MacOSWindow(WindowBackend):
     """Owns the AppKit window lifecycle without owning view state."""
 

@@ -85,6 +85,7 @@ static NSWindow *moxi_window;
 static MoxiWindowDelegate *moxi_delegate;
 static MoxiCanvasView *moxi_canvas;
 static BOOL moxi_window_opened;
+static NSTask *moxi_demo_task;
 
 static BOOL moxi_click_pending;
 static float moxi_last_click_x;
@@ -3168,4 +3169,69 @@ float moxi_window_height(void) {
         return 0.0;
     }
     return NSHeight(moxi_canvas.bounds);
+}
+
+static BOOL moxi_demo_task_name_is_safe(NSString *task) {
+    NSUInteger length = [task length];
+    if (length == 0 || length > 64) {
+        return NO;
+    }
+    for (NSUInteger index = 0; index < length; index++) {
+        unichar value = [task characterAtIndex:index];
+        BOOL lowercase = value >= 'a' && value <= 'z';
+        BOOL digit = value >= '0' && value <= '9';
+        if (!lowercase && !digit && value != '-' && value != '_') {
+            return NO;
+        }
+    }
+    return YES;
+}
+
+int moxi_demo_launch(const char *task) {
+    @autoreleasepool {
+        if (task == NULL) {
+            return 0;
+        }
+        NSString *taskName = [NSString stringWithUTF8String:task];
+        if (taskName == nil || !moxi_demo_task_name_is_safe(taskName)) {
+            return 0;
+        }
+        if (moxi_demo_task != nil && [moxi_demo_task isRunning]) {
+            return 0;
+        }
+
+        NSTask *process = [[NSTask alloc] init];
+        process.executableURL = [NSURL fileURLWithPath:@"/bin/zsh"];
+        process.arguments = @[
+            @"-lc",
+            [NSString stringWithFormat:@"exec pixi run %@", taskName],
+        ];
+        process.currentDirectoryURL = [NSURL fileURLWithPath:
+            [[NSFileManager defaultManager] currentDirectoryPath]
+            isDirectory:YES];
+        process.standardOutput = [NSFileHandle fileHandleWithStandardOutput];
+        process.standardError = [NSFileHandle fileHandleWithStandardError];
+
+        NSError *error = nil;
+        if (![process launchAndReturnError:&error]) {
+            return 0;
+        }
+        moxi_demo_task = process;
+        return 1;
+    }
+}
+
+int moxi_demo_is_running(void) {
+    @autoreleasepool {
+        return moxi_demo_task != nil && [moxi_demo_task isRunning] ? 1 : 0;
+    }
+}
+
+int moxi_demo_exit_status(void) {
+    @autoreleasepool {
+        if (moxi_demo_task == nil || [moxi_demo_task isRunning]) {
+            return -1;
+        }
+        return (int)[moxi_demo_task terminationStatus];
+    }
 }

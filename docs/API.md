@@ -21,6 +21,14 @@ Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and
 text editing.
 
+`DemoEntry`, `DemoCatalog`, and `DemoBrowserState` provide the searchable
+wxPython-style example browser. The catalog exposes real source paths, Pixi
+tasks, page kinds, and source excerpts; `DemoBrowserState` mounts the
+stateful component examples through typed `ComponentSlot`s and leaves scene,
+plot, GPU, and text examples as standalone runnable scripts. The macOS
+`MacOSDemoRunner` host adapter launches only catalog-style task names as
+sibling `pixi run` processes; the core `App` remains process-neutral.
+
 ## View and layout
 
 `ColumnView` owns an ordered flat tree of `ViewNode` values. Use
@@ -178,5 +186,6 @@ the complete visible approval flow.
 | Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`src/moxi/harfbuzz.mojo`](../src/moxi/harfbuzz.mojo), [`native/macos_text.m`](../native/macos_text.m), [`native/harfbuzz_text.cpp`](../native/harfbuzz_text.cpp) |
 | Reactivity and tasks | [`src/moxi/reactivity.mojo`](../src/moxi/reactivity.mojo), [`src/moxi/tasks.mojo`](../src/moxi/tasks.mojo) |
 | Capabilities and conversation | [`src/moxi/capability.mojo`](../src/moxi/capability.mojo), [`src/moxi/conversation.mojo`](../src/moxi/conversation.mojo) |
+| Demo browser | [`docs/demo-browser.md`](demo-browser.md), [`src/moxi/demo_browser.mojo`](../src/moxi/demo_browser.mojo), [`examples/demo_browser.mojo`](../examples/demo_browser.mojo) |
 | Native adapter | [`src/moxi/macos.mojo`](../src/moxi/macos.mojo), [`native/macos_window.m`](../native/macos_window.m) |
 | Contract tests | [`tests/`](../tests/) |

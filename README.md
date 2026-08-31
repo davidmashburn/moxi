@@ -107,6 +107,8 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - Native alignment and nested-container demos for the first 0.5 slice.
 - A wxPython-style teaching demo that maps frames, panels, box sizers, and
   controls onto the same public component/view contracts.
+- A searchable wxPython-style demo browser that catalogs every checked-in
+  example, mounts stateful component pages, and exposes runnable Pixi tasks.
 - A visible agent-approval path: `Agent reset` creates a blocked request and
   `Approve reset` is enabled only after a trusted approval is available.
 
@@ -192,6 +194,7 @@ pixi run mojo --version
 pixi run build
 pixi run test
 pixi run demo
+pixi run hello-window-demo
 pixi run counter-demo
 pixi run component-demo
 pixi run form-demo
@@ -202,12 +205,14 @@ pixi run wx-style-demo
 pixi run animation-demo
 pixi run wrapped-text-demo
 pixi run composed-demo
+pixi run demo-browser
 pixi run plot-demo
 pixi run plot-gallery
 pixi run plot-svg
 pixi run plot-analytics-benchmark
 pixi run plot-large-benchmark
 pixi run metal-benchmark
+pixi run harfbuzz-demo
 pixi run benchmark
 pixi run package-consumer
 pixi run check
@@ -215,7 +220,9 @@ pixi run ios-build
 pixi run android-build
 ```
 
-`pixi run demo` opens the native window. Close the window to end the event loop.
+`pixi run demo` opens the full-scope demo browser. Close the window to end the
+event loop. `pixi run hello-window-demo` retains the smallest native window
+example.
 The generated `dist/` files and native object file are local build artifacts.
 
 `pixi run ios-build` requires Xcode and produces a signed arm64 simulator app
@@ -251,6 +258,12 @@ comparison harness.
 `pixi run counter-demo` opens the interactive counter. Click `Increment` to
 regenerate the composed view and repaint the updated count; resize the window
 to see the root column relayout.
+
+`pixi run demo-browser` opens the full-scope wxPython-style example browser.
+Use the catalog search and category filters, inspect an overview or source
+excerpt, and mount the stateful component examples in the `Demo` tab. Use
+`Run script` to launch a scene, plot, GPU, or text entry's standalone
+`pixi run …` task as a sibling process; its status is reported in the browser.
 
 `pixi run form-demo` opens the 0.5 interaction scenario. The name field starts
 focused; type, use the arrow/Home/End keys, press Tab to focus `Submit`, and

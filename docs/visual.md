@@ -1,11 +1,27 @@
 # Moxi visual documentation
 
-The wx-style showcase is the release's visual acceptance surface. It is a
-single native AppKit window that deliberately exposes the component tree and
-the integration seams instead of hiding them behind a polished application
-shell.
+The wx-style showcase remains the component-level visual acceptance surface.
+The full demo browser is the repository's workbench acceptance surface: it
+deliberately exposes the catalog, source/task metadata, live component pages,
+and standalone plot/rendering/text entrypoints in one native AppKit window.
 
-Run it with:
+Run the browser with:
+
+```sh
+pixi run demo-browser
+```
+
+`pixi run demo` is the default alias for the same browser; use
+`pixi run hello-window-demo` for the minimal renderer-only window.
+
+The browser contract and catalog policy are documented in
+[demo-browser.md](demo-browser.md).
+
+Stateful component entries run inside the browser. Standalone scene, plot,
+GPU, and text entries use the macOS host runner to launch their checked-in
+`pixi run` task, with launch and exit status shown in the browser.
+
+Inspect the component-level showcase separately with:
 
 ```sh
 pixi run wx-style-demo
