@@ -215,6 +215,15 @@ from .popup import (
     PopupLayerState,
     place_popup,
 )
+from .reorder import (
+    REORDER_IDLE,
+    REORDER_ARMED,
+    REORDER_DRAGGING,
+    REORDER_CANCELLED,
+    REORDER_DROPPED,
+    REORDER_NO_INDEX,
+    ReorderInteraction,
+)
 from .app import COUNTER_INCREMENT_ACTION, CounterState
 from .alignment import AlignmentState
 from .app_runtime import App

@@ -53,7 +53,9 @@ stable-key overscan slots, recycling, measured variable heights,
 prefix-offset lookup, anchor-preserving updates, clamped offsets, and
 `ensure_visible()`. `CollectionSelection`, `CollectionColumn`, and
 `TreeCollectionState` add stable-key focus/selection, column metadata, tree
-disclosure, keyboard navigation, and reorder results. `ScrollbarState` adds
+disclosure, keyboard navigation, and reorder results. `ReorderInteraction`
+adds a pointer-owned press threshold, cancellation, and stable-key drop
+command around that collection mutation. `ScrollbarState` adds
 renderer-independent thumb geometry and step/page movement for fixed or
 variable content; scrollbar painting and final viewport integration remain a
 follow-up. `PopupLayerState` provides nested combo/menu/context-menu/dialog

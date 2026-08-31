@@ -44,6 +44,7 @@ def main():
     test_check(shared.tree.selection.item_count() == 3)
     test_check(shared.scrollbar.can_scroll())
     test_check(shared.popups.top_kind() == POPUP_COMBO)
+    test_check(shared.reorder.item_count == 10000)
 
     var selection = CollectionSelection(5, True)
     test_check(selection.item_count() == 5)

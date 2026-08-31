@@ -7,6 +7,7 @@ from .geometry import Rect
 from .plot_data import PlotDataTable
 from .plotting import PLOT_LINE, PLOT_SCATTER, Plot
 from .popup import POPUP_COMBO, POPUP_PLACE_BELOW, PopupLayerState
+from .reorder import ReorderInteraction
 from .scrollbar import SCROLLBAR_VERTICAL, ScrollbarState
 from .style import Color
 
@@ -18,12 +19,14 @@ struct InteractionScenario:
     var tree: TreeCollectionState
     var scrollbar: ScrollbarState
     var popups: PopupLayerState
+    var reorder: ReorderInteraction
 
     def __init__(out self):
         self.collection = CollectionSelection(0, True)
         self.tree = TreeCollectionState(True)
         self.scrollbar = ScrollbarState(SCROLLBAR_VERTICAL, 18.0)
         self.popups = PopupLayerState()
+        self.reorder = ReorderInteraction()
 
 
 def make_interaction_foundation_scenario(
@@ -38,6 +41,7 @@ def make_interaction_foundation_scenario(
         # stable keys rather than accidentally relying on positions.
         keys.append(1000 + index * 3)
     _ = result.collection.set_keys(keys)
+    _ = result.reorder.set_item_count(result.collection.item_count())
 
     _ = result.tree.add_node(10, -1, True)
     _ = result.tree.add_node(20, 10, False)
