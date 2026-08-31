@@ -39,6 +39,14 @@ from .fractal import FractalCanvasPainter
 from .geometry import Point, Rect, Size
 from .paint import PANEL_KIND, SURFACE_KIND, PaintCommand, Renderer
 from .resources import ImageResource
+from .scene import (
+    SCENE_LINE,
+    SCENE_RECT,
+    SCENE_ROUNDED_RECT,
+    SCENE_TEXT,
+    SceneCommand,
+    SceneRenderer,
+)
 from .style import Color
 from .view import (
     BUTTON_KIND,
@@ -613,6 +621,102 @@ struct MacOSRenderer(Renderer):
         self.draw_native_widget(command, NATIVE_WIDGET_SEPARATOR)
 
 
+struct MacOSCanvasSceneRenderer(SceneRenderer):
+    """Draw a component-owned ``Scene`` into the active AppKit canvas.
+
+    The retained Moxi view tree still owns layout, hit testing, and
+    accessibility.  This adapter only fills a canvas node declared by that
+    component; it does not create a second widget surface.
+    """
+
+    var clip: Rect
+    var clip_enabled: Bool
+
+    def __init__(out self):
+        self.clip = Rect(0.0, 0.0, 0.0, 0.0)
+        self.clip_enabled = False
+
+    def set_clip(mut self, bounds: Rect):
+        """Restrict scene output to the component's declared canvas."""
+        self.clip = bounds
+        self.clip_enabled = bounds.width > 0.0 and bounds.height > 0.0
+
+    def begin_scene(mut self) raises:
+        external_call["moxi_window_begin_custom_paint", NoneType]()
+        if self.clip_enabled:
+            external_call["moxi_window_set_custom_clip", NoneType](
+                self.clip.x,
+                self.clip.y,
+                self.clip.width,
+                self.clip.height,
+            )
+
+    def draw_scene_command(mut self, command: SceneCommand) raises:
+        if command.kind == SCENE_RECT:
+            external_call["moxi_window_add_custom_rect", NoneType](
+                command.bounds.x,
+                command.bounds.y,
+                command.bounds.width,
+                command.bounds.height,
+                command.fill.red,
+                command.fill.green,
+                command.fill.blue,
+                command.fill.alpha * command.opacity,
+                command.stroke.red,
+                command.stroke.green,
+                command.stroke.blue,
+                command.stroke.alpha * command.opacity,
+                command.stroke_width,
+            )
+        elif command.kind == SCENE_ROUNDED_RECT:
+            external_call["moxi_window_add_custom_rounded_rect", NoneType](
+                command.bounds.x,
+                command.bounds.y,
+                command.bounds.width,
+                command.bounds.height,
+                command.fill.red,
+                command.fill.green,
+                command.fill.blue,
+                command.fill.alpha * command.opacity,
+                command.stroke.red,
+                command.stroke.green,
+                command.stroke.blue,
+                command.stroke.alpha * command.opacity,
+                command.stroke_width,
+                command.corner_radius,
+            )
+        elif command.kind == SCENE_LINE:
+            external_call["moxi_window_add_custom_line", NoneType](
+                command.point_start.x,
+                command.point_start.y,
+                command.point_end.x,
+                command.point_end.y,
+                command.stroke.red,
+                command.stroke.green,
+                command.stroke.blue,
+                command.stroke.alpha * command.opacity,
+                command.stroke_width,
+            )
+        elif command.kind == SCENE_TEXT:
+            var text = command.text
+            var c_text = text.as_c_string_slice()
+            external_call["moxi_window_add_custom_text", NoneType](
+                c_text.ptr(),
+                command.bounds.x,
+                command.bounds.y,
+                command.bounds.width,
+                command.bounds.height,
+                command.fill.red,
+                command.fill.green,
+                command.fill.blue,
+                command.fill.alpha * command.opacity,
+                14.0,
+            )
+
+    def end_scene(mut self) raises:
+        pass
+
+
 struct MacOSCanvasPainter(FractalCanvasPainter):
     """AppKit painter for a dense custom canvas owned by a Moxi component."""
 
@@ -695,6 +799,99 @@ struct MacOSCanvasPainter(FractalCanvasPainter):
             stroke.alpha,
             stroke_width,
         )
+
+
+struct MacOSFileWatcher:
+    """Small mtime watcher for source-driven development hosts."""
+
+    var path: String
+    var last_mtime: Int64
+
+    def __init__(out self):
+        self.path = ""
+        self.last_mtime = -1
+
+    def watch(mut self, path: String) -> Bool:
+        self.path = path
+        var source = self.path
+        var c_source = source.as_c_string_slice()
+        self.last_mtime = external_call[
+            "moxi_dev_source_mtime_ns",
+            Int64,
+        ](c_source.ptr())
+        return self.last_mtime >= 0
+
+    def changed(mut self) -> Bool:
+        if self.path.count_codepoints() == 0:
+            return False
+        var source = self.path
+        var c_source = source.as_c_string_slice()
+        var current = external_call[
+            "moxi_dev_source_mtime_ns",
+            Int64,
+        ](c_source.ptr())
+        if current < 0 or current == self.last_mtime:
+            return False
+        self.last_mtime = current
+        return True
+
+    def clear(mut self):
+        self.path = ""
+        self.last_mtime = -1
+
+
+struct MacOSLiveScript:
+    """Build, load, and invoke Moxi's small development C ABI."""
+
+    var loaded: Bool
+    var build_revision: Int
+
+    def __init__(out self):
+        self.loaded = False
+        self.build_revision = 0
+
+    def reload(mut self, source: String, mtime: Int64) -> Bool:
+        """Compile a source module and atomically swap its exported frame."""
+        self.build_revision += 1
+        var output = String(
+            "/tmp/moxi-live-",
+            self.build_revision,
+            "-",
+            mtime,
+            ".dylib",
+        )
+        var source_copy = source
+        var output_copy = output
+        var c_source = source_copy.as_c_string_slice()
+        var c_output = output_copy.as_c_string_slice()
+        var built = external_call["moxi_dev_build_live_script", Int32](
+            c_source.ptr(),
+            c_output.ptr(),
+        )
+        if built == 0:
+            return False
+        var loaded = external_call["moxi_dev_load_live_script", Int32](
+            c_output.ptr()
+        )
+        if loaded == 0:
+            return False
+        self.loaded = True
+        return True
+
+    def render(mut self, bounds: Rect) -> Bool:
+        """Render the currently loaded module into its component canvas."""
+        if not self.loaded:
+            return False
+        return external_call["moxi_dev_render_live_script", Int32](
+            bounds.x,
+            bounds.y,
+            bounds.width,
+            bounds.height,
+        ) > 0
+
+    def clear(mut self):
+        external_call["moxi_dev_clear_live_script", NoneType]()
+        self.loaded = False
 
 
 struct MacOSClipboard(ClipboardBackend):

@@ -16,6 +16,7 @@ metadata.
 | `WindowManager` / `WindowId` | Bounded portable multi-window ownership model. |
 | `Renderer` / `PaintCommands` | Backend-neutral complete-frame and optional incremental paint boundary. |
 | `TestWindow` / `TestRenderer` | Deterministic headless integration adapters. |
+| `LiveScriptState` | Ordinary component shell for a development-reloadable canvas module. |
 
 Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and
@@ -24,10 +25,11 @@ text editing.
 `DemoEntry`, `DemoCatalog`, and `DemoBrowserState` provide the searchable
 wxPython-style example browser. The catalog exposes real source paths, Pixi
 tasks, page kinds, and source excerpts; `DemoBrowserState` mounts the
-stateful component examples through typed `ComponentSlot`s and leaves scene,
-plot, GPU, and text examples as standalone runnable scripts. The macOS
-`MacOSDemoRunner` host adapter launches only catalog-style task names as
-sibling `pixi run` processes; the core `App` remains process-neutral.
+catalog pages through typed `ComponentSlot`s. Scene and plot pages mount a
+real canvas node and the host renders their `Scene` in the same window. The
+opt-in editable page uses `MacOSFileWatcher` and `MacOSLiveScript` to rebuild
+an exported `moxi_live_frame` module in place; standalone Pixi tasks remain
+separate companion entrypoints. The core `App` remains process-neutral.
 
 ## View and layout
 
@@ -197,6 +199,7 @@ the complete visible approval flow.
 | Controls and editing | [`src/moxi/controls.mojo`](../src/moxi/controls.mojo), [`src/moxi/control_state.mojo`](../src/moxi/control_state.mojo) |
 | Runtime and invalidation | [`src/moxi/runtime.mojo`](../src/moxi/runtime.mojo), [`src/moxi/invalidation.mojo`](../src/moxi/invalidation.mojo) |
 | Scene and resources | [`src/moxi/scene.mojo`](../src/moxi/scene.mojo), [`src/moxi/software.mojo`](../src/moxi/software.mojo), [`src/moxi/resources.mojo`](../src/moxi/resources.mojo) |
+| Live development host | [`src/moxi/live_script.mojo`](../src/moxi/live_script.mojo), [`src/moxi/macos.mojo`](../src/moxi/macos.mojo), [`native/macos_window.m`](../native/macos_window.m), [`tests/live_reload.mojo`](../tests/live_reload.mojo) |
 | Plotting | [`docs/plotting.md`](plotting.md), [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/plot_selection.mojo`](../src/moxi/plot_selection.mojo), [`src/moxi/plot_link.mojo`](../src/moxi/plot_link.mojo), [`src/moxi/plot_view.mojo`](../src/moxi/plot_view.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
 | Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh) |
 | Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo), [`src/moxi/host_contract.mojo`](../src/moxi/host_contract.mojo), [`native/hosts/`](../native/hosts/) |

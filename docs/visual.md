@@ -1,9 +1,10 @@
 # Moxi visual documentation
 
 The wx-style showcase remains the component-level visual acceptance surface.
-The full demo browser is the repository's workbench acceptance surface: it
-deliberately exposes the catalog, source/task metadata, live component pages,
-and standalone plot/rendering/text entrypoints in one native AppKit window.
+The full Moxi Playground is the repository's workbench acceptance surface: it
+deliberately exposes the catalog, source/task metadata, real embedded
+component pages, editable live reload, and standalone plot/rendering/text
+entrypoints in one native AppKit window.
 
 Run the browser with:
 
@@ -14,12 +15,15 @@ pixi run demo-browser
 `pixi run demo` is the default alias for the same browser; use
 `pixi run hello-window-demo` for the minimal renderer-only window.
 
-The browser contract and catalog policy are documented in
+The browser interaction model and catalog policy are documented in
 [demo-browser.md](demo-browser.md).
 
-Stateful component entries run inside the browser. Standalone scene, plot,
-GPU, and text entries use the macOS host runner to launch their checked-in
-`pixi run` task, with launch and exit status shown in the browser.
+Every catalog entry is mounted in the browser through a real component. Scene
+and plot entries declare a canvas and send their renderer-neutral scene to the
+active host renderer in that same window. The `Editable Live Component`
+entry watches `examples/editable_showcase.mojo` and swaps a rebuilt module into
+its existing canvas when the file is saved. Standalone tasks remain available
+as companion commands from the terminal.
 
 Inspect the component-level showcase separately with:
 

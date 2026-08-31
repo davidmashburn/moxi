@@ -1,26 +1,23 @@
-"""Deterministic animation/invalidation example for the Moxi core."""
+"""Deterministic animation/invalidation example using a real component."""
 
 from moxi import (
-    Animation,
-    EASE_IN_OUT,
-    INVALIDATE_CONTENT,
-    Invalidation,
+    App,
+    SHOWCASE_ANIMATION,
+    ShowcaseState,
     Rect,
 )
 
 
 def main():
-    var slide = Animation(0.0, 240.0, 1.0, EASE_IN_OUT)
-    var invalidation = Invalidation()
+    var app = App[ShowcaseState](
+        ShowcaseState(SHOWCASE_ANIMATION),
+        Rect(0.0, 0.0, 640.0, 420.0),
+    )
     var frames = 0
-    while not slide.finished():
-        _ = slide.advance(0.25)
-        invalidation.invalidate(
-            INVALIDATE_CONTENT,
-            Rect(slide.value(), 24.0, 48.0, 32.0),
-        )
+    while frames < 4:
+        _ = app.tick(0.25)
         frames += 1
 
     print("Moxi animation demo frames: ", frames)
-    print("Moxi animation final x: ", slide.value())
-    print("Moxi animation dirty width: ", invalidation.bounds.width)
+    print("Moxi animation final value: ", app.component.animation.value())
+    print("Moxi animation component frame: ", app.component.frame_count)

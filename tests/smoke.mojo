@@ -13,5 +13,5 @@ def main():
     test_check(runtime.widget.id == 7)
     test_check(runtime.widget.text == "Smoke test")
     test_check(command.bounds.width == 120.0)
-    test_check(moxi_version() == "0.5.0")
+    test_check(moxi_version() == "0.5.1")
     print("Moxi smoke test passed")

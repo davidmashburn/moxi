@@ -59,6 +59,18 @@
 - Made packet capacity planning mark-aware so dense scatter builds reserve for
   the viewport budget rather than worst-case source-row expansion.
 
+## 0.5.1 — 2026-08-31
+
+- Reworked the Playground so catalog pages mount real typed Moxi components;
+  scene and plotting examples now render into their component-owned canvas in
+  the same window.
+- Added the editable component example and macOS development host path that
+  watches source, rebuilds an exported Mojo module, and swaps its scene
+  in-place while retaining the host view tree.
+- Added headless and native live-reload contract coverage, standalone
+  companion tasks, and documentation for the composability and reload
+  boundaries.
+
 ## 0.5.0 — 2026-08-30
 
 - Added a deterministic in-process capability bus with manifests, side-effect

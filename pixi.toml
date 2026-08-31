@@ -4,15 +4,18 @@ channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
 name = "moxi"
 platforms = ["osx-arm64"]
 preview = ["pixi-build"]
-version = "0.5.0"
+version = "0.5.1"
 
 [tasks]
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
 native-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
 metal-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_metal.m -o native/macos_metal.o"
 text-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_text.m -o native/macos_text.o"
-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/demo_browser.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
+demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
 demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
+live-script-demo-build = { cmd = "mojo build -I src -I examples -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/live_script_demo.mojo -o dist/moxi-live-script-demo", depends-on = ["native-object"] }
+live-script-demo = { cmd = "./dist/moxi-live-script-demo", depends-on = ["live-script-demo-build"] }
+live-reload-check = "bash scripts/live_reload_check.sh"
 hello-window-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/hello_window.mojo -o dist/moxi-hello-window-demo", depends-on = ["native-object"] }
 hello-window-demo = { cmd = "./dist/moxi-hello-window-demo", depends-on = ["hello-window-demo-build"] }
 counter-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/counter.mojo -o dist/moxi-counter-demo", depends-on = ["native-object"] }
@@ -33,7 +36,7 @@ wrapped-text-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_windo
 wrapped-text-demo = { cmd = "./dist/moxi-wrapped-text-demo", depends-on = ["wrapped-text-demo-build"] }
 composed-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/composed.mojo -o dist/moxi-composed-demo", depends-on = ["native-object"] }
 composed-demo = { cmd = "./dist/moxi-composed-demo", depends-on = ["composed-demo-build"] }
-demo-browser-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/demo_browser.mojo -o dist/moxi-demo-browser", depends-on = ["native-object"] }
+demo-browser-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo-browser", depends-on = ["native-object"] }
 demo-browser = { cmd = "./dist/moxi-demo-browser", depends-on = ["demo-browser-build"] }
 interactive-fractal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation examples/interactive_fractal.mojo -o dist/moxi-interactive-fractal-demo", depends-on = ["native-object", "metal-object"] }
 interactive-fractal-demo = { cmd = "./dist/moxi-interactive-fractal-demo", depends-on = ["interactive-fractal-demo-build"] }
@@ -77,7 +80,7 @@ mojo = ">=1.1.0.dev2026082605,<2"
 
 [package]
 name = "moxi"
-version = "0.5.0"
+version = "0.5.1"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "0.*" }

@@ -203,12 +203,13 @@ or container level. A caller can rebuild the root with new bounds;
 `App.resize()` supplies that relayout path for the native demo.
 
 The repository-level demo browser in `src/moxi/demo_browser.mojo` is a catalog
-and typed workbench, not a dynamic component registry in the core. It keeps
-the example inventory searchable, mounts the stateful pages through explicit
-`ComponentSlot`s, and exposes the real standalone Pixi task for scene, plot,
-GPU, and text examples. The macOS example host uses `MacOSDemoRunner` to
-launch validated task names as sibling processes; this side effect remains
-outside the portable `App` contract.
+and typed workbench, not a dynamic component registry in the portable core. It
+keeps the example inventory searchable, mounts every catalog page through an
+explicit `ComponentSlot`, and renders scene/plot output into a declared canvas
+in the same window. The development-only `MacOSLiveScript` adapter watches an
+explicit C-ABI module (`moxi_live_frame`) and swaps its scene without replacing
+the host window; standalone Pixi tasks remain separate companion entrypoints.
+This side effect remains outside the portable `App` contract.
 
 ## Retained runtime
 
@@ -440,6 +441,7 @@ The shared counter scenario is exercised by:
 - `tests/accessibility_contract.mojo` — semantic roles, actions, ancestry, and
   snapshot validity
 - `tests/scene_renderer.mojo` — deterministic scene pixels and scope markers
+- `tests/live_reload.mojo` — shared-module build/load/render ABI smoke test
 - `tests/property_contracts.mojo` — generated edge cases for ranges, scroll,
   trees, and accessibility identities
 - `tests/reactivity_tasks.mojo` — action queues, task completion, and bounds
@@ -453,6 +455,8 @@ The shared counter scenario is exercised by:
 - `examples/nested.mojo` — native nested-container scenario
 - `examples/wx_style.mojo` — wxPython-style frame/panel/sizer lesson
 - `examples/demo_browser.mojo` — searchable wxPython-style runnable demo browser
+- `examples/editable_showcase.mojo` — ordinary Component with the opt-in live ABI
+- `examples/live_script_demo.mojo` — headless editable-component smoke test
 - `examples/animation.mojo` — deterministic frame-clock and dirty-region lesson
 - `examples/wrapped_text.mojo` — opt-in wrapping and resize-aware intrinsic height
 - `examples/composed.mojo` — typed child composition and namespaced event routing

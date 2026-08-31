@@ -1,4 +1,4 @@
 name = "moxi"
-version = "0.5.0"
+version = "0.5.1"
 description = "Experimental native reactive UI building blocks and capability contracts for Mojo"
 tags = ["mojo", "ui", "reactive", "accessibility", "capability-bus", "macos", "graphics"]

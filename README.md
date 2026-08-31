@@ -4,7 +4,7 @@ Moxi (pronounced “mox-ee”) is an experimental native UI library for Mojo bas
 name is a portmanteau of Mojo+Xilem and also plays off the meanings of "mojo" / "moxie." It's also a nod to the `xi` lineage behind
 Xilem. Notably, Xilem is based on SwiftUI, another major Chris Lattner project.
 
-The `0.5.0` release surface provides a small interactive view
+The `0.5.1` release surface provides a small interactive view
 tree:
 declarative children are laid out into retained bounds, reconciled into an
 ordered backend-neutral command stream, and drawn by native AppKit. A small
@@ -112,8 +112,9 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - Native alignment and nested-container demos for the first 0.5 slice.
 - A wxPython-style teaching demo that maps frames, panels, box sizers, and
   controls onto the same public component/view contracts.
-- A searchable wxPython-style demo browser that catalogs every checked-in
-  example, mounts stateful component pages, and exposes runnable Pixi tasks.
+- A searchable Moxi Playground, inspired by wxPython's demo browser, that
+  catalogs every checked-in example, mounts stateful component pages, and
+  exposes runnable Pixi tasks.
 - A visible agent-approval path: `Agent reset` creates a blocked request and
   `Approve reset` is enabled only after a trusted approval is available.
 
@@ -202,6 +203,7 @@ pixi run mojo --version
 pixi run build
 pixi run test
 pixi run demo
+pixi run live-script-demo
 pixi run hello-window-demo
 pixi run counter-demo
 pixi run component-demo
@@ -231,9 +233,14 @@ pixi run ios-build
 pixi run android-build
 ```
 
-`pixi run demo` opens the full-scope demo browser. Close the window to end the
-event loop. `pixi run hello-window-demo` retains the smallest native window
-example.
+`pixi run demo` opens the Moxi Playground. Search or filter the catalog, read
+the selected example's overview/source, and mount its real component page in
+the same window. The `Editable Live Component` watches
+`examples/editable_showcase.mojo`: save that file in your editor and its
+exported scene is rebuilt and swapped into the existing canvas. Close the
+window to end the event loop. `pixi run live-reload-check` validates that
+build/load/render ABI without a GUI. `pixi run hello-window-demo` retains the
+smallest native window example.
 The generated `dist/` files and native object file are local build artifacts.
 
 `pixi run ios-build` requires Xcode and produces a signed arm64 simulator app
@@ -272,11 +279,12 @@ comparison harness.
 regenerate the composed view and repaint the updated count; resize the window
 to see the root column relayout.
 
-`pixi run demo-browser` opens the full-scope wxPython-style example browser.
-Use the catalog search and category filters, inspect an overview or source
-excerpt, and mount the stateful component examples in the `Demo` tab. Use
-`Run script` to launch a scene, plot, GPU, or text entry's standalone
-`pixi run …` task as a sibling process; its status is reported in the browser.
+`pixi run demo-browser` opens the Moxi Playground. Use the catalog search and
+category filters, inspect an overview or source excerpt, and mount the
+stateful component examples in the `Demo` tab. Scene and plotting pages render
+their component-owned canvas in this same window. Select `Editable Live
+Component`, edit `examples/editable_showcase.mojo`, and save to hot-reload the
+scene in place. Press `Escape` to clear the search query.
 
 `pixi run interactive-fractal-demo` opens the interactive line-fractal port of
 Xilem's paint example. Its dense canvas uses Metal when available, with AppKit
@@ -447,21 +455,17 @@ and `set_panel()` on `ColumnView`.
 
 ## Examples
 
-The static first vertical slice is in
+The first component slice is in
 [examples/hello_window.mojo](examples/hello_window.mojo):
 
 ```mojo
-var runtime = Runtime()
-var view = Label(1, "Hello from Moxi", Rect(32.0, 28.0, 320.0, 56.0))
-runtime.reconcile(view)
-var command = runtime.paint()
-
+var app = App[ShowcaseState](
+    ShowcaseState(SHOWCASE_HELLO_WINDOW), bounds
+)
 var window = MacOSWindow()
 var renderer = MacOSRenderer()
-window.open(WindowConfig("Moxi", 384.0, 144.0))
-renderer.begin_frame()
-renderer.draw_label(command)
-window.run()
+window.open(WindowConfig("Moxi · Hello Window", 560.0, 320.0))
+app.run(window, renderer)
 ```
 
 The event-driven composition slice is in
@@ -469,6 +473,9 @@ The event-driven composition slice is in
 label, and button, then regenerates the view and command stream after each
 click on `Increment` or root-size change. The smaller lifecycle example is in
 [examples/hello_component.mojo](examples/hello_component.mojo).
+For a source file that can be edited and reloaded while the host stays open,
+see [examples/editable_showcase.mojo](examples/editable_showcase.mojo) and
+[docs/demo-browser.md](docs/demo-browser.md#editable-source-and-hot-reload).
 The keyboard and text-input slice is in [examples/form.mojo](examples/form.mojo)
 and uses the shared `FormState` scenario, including selection, marked-text IME
 composition, and portable clipboard commands.

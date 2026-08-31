@@ -1,18 +1,22 @@
-"""Minimal visible Moxi demo."""
+"""Minimal visible Moxi demo using the shared embeddable component."""
 
-from moxi import Label, Rect, Runtime, WindowConfig
+from moxi import (
+    App,
+    Rect,
+    SHOWCASE_HELLO_WINDOW,
+    ShowcaseState,
+    WindowConfig,
+)
 from moxi.macos import MacOSRenderer, MacOSWindow
 
 
 def main() raises:
-    var runtime = Runtime()
-    var view = Label(1, "Hello from Moxi", Rect(32.0, 28.0, 320.0, 56.0))
-    runtime.reconcile(view)
-    var command = runtime.paint()
-
     var window = MacOSWindow()
     var renderer = MacOSRenderer()
-    window.open(WindowConfig("Moxi", 384.0, 144.0))
-    renderer.begin_frame()
-    renderer.draw_label(command)
-    window.run()
+    window.open(WindowConfig("Moxi · Hello Window", 560.0, 320.0))
+    var size = window.size()
+    var app = App[ShowcaseState](
+        ShowcaseState(SHOWCASE_HELLO_WINDOW),
+        Rect(0.0, 0.0, size.width, size.height),
+    )
+    app.run(window, renderer)

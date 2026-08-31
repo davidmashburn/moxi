@@ -1,4 +1,6 @@
 #import <Cocoa/Cocoa.h>
+#include <dlfcn.h>
+#include <sys/stat.h>
 
 @interface MoxiWindowDelegate : NSObject <NSWindowDelegate>
 @end
@@ -22,6 +24,7 @@
 #define MOXI_MAX_CUSTOM_LINES 32768
 #define MOXI_MAX_CUSTOM_CIRCLES 4096
 #define MOXI_MAX_CUSTOM_RECTS 64
+#define MOXI_MAX_CUSTOM_TEXT 256
 #define MOXI_EVENT_QUEUE_CAPACITY 64
 
 #define MOXI_EVENT_NONE 0
@@ -96,6 +99,9 @@ static MoxiWindowDelegate *moxi_delegate;
 static MoxiCanvasView *moxi_canvas;
 static BOOL moxi_window_opened;
 static NSTask *moxi_demo_task;
+typedef int (*MoxiLiveFrameFunction)(float, float, float, float);
+static void *moxi_live_handle;
+static MoxiLiveFrameFunction moxi_live_frame;
 
 static BOOL moxi_click_pending;
 static float moxi_last_click_x;
@@ -316,6 +322,13 @@ static NSRect moxi_custom_rect_frames[MOXI_MAX_CUSTOM_RECTS];
 static float moxi_custom_rect_fills[MOXI_MAX_CUSTOM_RECTS][4];
 static float moxi_custom_rect_strokes[MOXI_MAX_CUSTOM_RECTS][4];
 static float moxi_custom_rect_stroke_widths[MOXI_MAX_CUSTOM_RECTS];
+static float moxi_custom_rect_radii[MOXI_MAX_CUSTOM_RECTS];
+
+static int moxi_custom_text_count;
+static NSString *moxi_custom_texts[MOXI_MAX_CUSTOM_TEXT];
+static NSRect moxi_custom_text_frames[MOXI_MAX_CUSTOM_TEXT];
+static float moxi_custom_text_colors[MOXI_MAX_CUSTOM_TEXT][4];
+static float moxi_custom_text_font_sizes[MOXI_MAX_CUSTOM_TEXT];
 
 static BOOL moxi_custom_clip_enabled;
 static NSRect moxi_custom_clip_frame;
@@ -991,6 +1004,16 @@ static void moxi_reset_custom_commands(void) {
     moxi_custom_line_count = 0;
     moxi_custom_circle_count = 0;
     moxi_custom_rect_count = 0;
+    moxi_custom_text_count = 0;
+    for (int i = 0; i < MOXI_MAX_CUSTOM_TEXT; i++) {
+        moxi_custom_texts[i] = nil;
+        moxi_custom_text_frames[i] = NSZeroRect;
+        moxi_copy_color(moxi_custom_text_colors[i], 1.0, 1.0, 1.0, 1.0);
+        moxi_custom_text_font_sizes[i] = 14.0;
+    }
+    for (int i = 0; i < MOXI_MAX_CUSTOM_RECTS; i++) {
+        moxi_custom_rect_radii[i] = 0.0;
+    }
     moxi_custom_clip_enabled = NO;
     moxi_custom_clip_frame = NSZeroRect;
 }
@@ -1837,14 +1860,16 @@ static void moxi_draw_custom_commands(void) {
 
     for (int i = 0; i < moxi_custom_rect_count; i++) {
         [moxi_color(moxi_custom_rect_fills[i]) setFill];
-        NSRectFill(moxi_custom_rect_frames[i]);
+        NSBezierPath *rectPath = [NSBezierPath bezierPathWithRoundedRect:
+            moxi_custom_rect_frames[i]
+            xRadius:moxi_custom_rect_radii[i]
+            yRadius:moxi_custom_rect_radii[i]];
+        [rectPath fill];
         if (moxi_custom_rect_stroke_widths[i] > 0.0 &&
             moxi_custom_rect_strokes[i][3] > 0.0) {
             [moxi_color(moxi_custom_rect_strokes[i]) setStroke];
-            NSBezierPath *path = [NSBezierPath bezierPathWithRect:
-                moxi_custom_rect_frames[i]];
-            [path setLineWidth:moxi_custom_rect_stroke_widths[i]];
-            [path stroke];
+            [rectPath setLineWidth:moxi_custom_rect_stroke_widths[i]];
+            [rectPath stroke];
         }
     }
 
@@ -1889,6 +1914,16 @@ static void moxi_draw_custom_commands(void) {
             [path setLineWidth:moxi_custom_circle_stroke_widths[i]];
             [path stroke];
         }
+    }
+
+    for (int i = 0; i < moxi_custom_text_count; i++) {
+        NSDictionary *attributes = @{
+            NSFontAttributeName: [NSFont systemFontOfSize:moxi_custom_text_font_sizes[i]
+                                                       weight:NSFontWeightSemibold],
+            NSForegroundColorAttributeName: moxi_color(moxi_custom_text_colors[i]),
+        };
+        [moxi_custom_texts[i] drawInRect:moxi_custom_text_frames[i]
+                          withAttributes:attributes];
     }
     moxi_end_clip(moxi_custom_clip_enabled);
 }
@@ -2946,7 +2981,45 @@ void moxi_window_add_custom_rect(
         stroke_alpha
     );
     moxi_custom_rect_stroke_widths[index] = stroke_width;
+    moxi_custom_rect_radii[index] = 0.0;
     moxi_custom_rect_count += 1;
+}
+
+void moxi_window_add_custom_rounded_rect(
+    float x,
+    float y,
+    float width,
+    float height,
+    float fill_red,
+    float fill_green,
+    float fill_blue,
+    float fill_alpha,
+    float stroke_red,
+    float stroke_green,
+    float stroke_blue,
+    float stroke_alpha,
+    float stroke_width,
+    float radius
+) {
+    int previous_count = moxi_custom_rect_count;
+    moxi_window_add_custom_rect(
+        x,
+        y,
+        width,
+        height,
+        fill_red,
+        fill_green,
+        fill_blue,
+        fill_alpha,
+        stroke_red,
+        stroke_green,
+        stroke_blue,
+        stroke_alpha,
+        stroke_width
+    );
+    if (moxi_custom_rect_count > previous_count) {
+        moxi_custom_rect_radii[previous_count] = radius > 0.0 ? radius : 0.0;
+    }
 }
 
 void moxi_window_add_custom_line(
@@ -3009,6 +3082,41 @@ void moxi_window_add_custom_circle(
     );
     moxi_custom_circle_stroke_widths[index] = stroke_width;
     moxi_custom_circle_count += 1;
+}
+
+void moxi_window_add_custom_text(
+    const char *text,
+    float x,
+    float y,
+    float width,
+    float height,
+    float red,
+    float green,
+    float blue,
+    float alpha,
+    float font_size
+) {
+    if (moxi_custom_text_count >= MOXI_MAX_CUSTOM_TEXT || text == NULL) {
+        if (moxi_custom_text_count >= MOXI_MAX_CUSTOM_TEXT) {
+            moxi_command_overflow_count += 1;
+        }
+        return;
+    }
+    int index = moxi_custom_text_count;
+    moxi_custom_texts[index] = [[NSString alloc] initWithUTF8String:text];
+    if (moxi_custom_texts[index] == nil) {
+        return;
+    }
+    moxi_custom_text_frames[index] = NSMakeRect(x, y, width, height);
+    moxi_copy_color(
+        moxi_custom_text_colors[index],
+        red,
+        green,
+        blue,
+        alpha
+    );
+    moxi_custom_text_font_sizes[index] = font_size > 0.0 ? font_size : 14.0;
+    moxi_custom_text_count += 1;
 }
 
 void moxi_window_end_frame(void) {
@@ -3993,6 +4101,112 @@ static BOOL moxi_demo_task_name_is_safe(NSString *task) {
         }
     }
     return YES;
+}
+
+long long moxi_dev_source_mtime_ns(const char *path) {
+    if (path == NULL) {
+        return -1;
+    }
+    struct stat info;
+    if (stat(path, &info) != 0) {
+        return -1;
+    }
+    return (long long)info.st_mtimespec.tv_sec * 1000000000LL +
+        (long long)info.st_mtimespec.tv_nsec;
+}
+
+int moxi_dev_build_live_script(const char *source, const char *output) {
+    @autoreleasepool {
+        if (source == NULL || output == NULL) {
+            return 0;
+        }
+        NSString *sourcePath = [NSString stringWithUTF8String:source];
+        NSString *outputPath = [NSString stringWithUTF8String:output];
+        if (sourcePath == nil || outputPath == nil ||
+            ![sourcePath hasSuffix:@".mojo"] ||
+            ![[NSFileManager defaultManager] fileExistsAtPath:sourcePath]) {
+            return 0;
+        }
+
+        NSTask *process = [[NSTask alloc] init];
+        process.executableURL = [NSURL fileURLWithPath:@"/usr/bin/env"];
+        process.arguments = @[
+            @"mojo",
+            @"build",
+            @"--emit",
+            @"shared-lib",
+            @"-I",
+            @"src",
+            sourcePath,
+            @"-Xlinker",
+            @"-undefined",
+            @"-Xlinker",
+            @"dynamic_lookup",
+            @"-o",
+            outputPath,
+        ];
+        process.currentDirectoryURL = [NSURL fileURLWithPath:
+            [[NSFileManager defaultManager] currentDirectoryPath]
+            isDirectory:YES];
+        process.standardOutput = [NSFileHandle fileHandleWithStandardOutput];
+        process.standardError = [NSFileHandle fileHandleWithStandardError];
+
+        NSError *error = nil;
+        if (![process launchAndReturnError:&error]) {
+            return 0;
+        }
+        [process waitUntilExit];
+        if (process.terminationStatus != 0) {
+            return 0;
+        }
+        return [[NSFileManager defaultManager] fileExistsAtPath:outputPath]
+            ? 1
+            : 0;
+    }
+}
+
+int moxi_dev_load_live_script(const char *path) {
+    @autoreleasepool {
+        if (path == NULL) {
+            return 0;
+        }
+        void *next_handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+        if (next_handle == NULL) {
+            return 0;
+        }
+        MoxiLiveFrameFunction next_frame =
+            (MoxiLiveFrameFunction)dlsym(next_handle, "moxi_live_frame");
+        if (next_frame == NULL) {
+            dlclose(next_handle);
+            return 0;
+        }
+        if (moxi_live_handle != NULL) {
+            dlclose(moxi_live_handle);
+        }
+        moxi_live_handle = next_handle;
+        moxi_live_frame = next_frame;
+        return 1;
+    }
+}
+
+int moxi_dev_render_live_script(
+    float x,
+    float y,
+    float width,
+    float height
+) {
+    if (moxi_live_frame == NULL) {
+        return 0;
+    }
+    return moxi_live_frame(x, y, width, height);
+}
+
+void moxi_dev_clear_live_script(void) {
+    if (moxi_live_handle != NULL) {
+        dlclose(moxi_live_handle);
+        moxi_live_handle = NULL;
+        moxi_live_frame = NULL;
+    }
 }
 
 int moxi_demo_launch(const char *task) {

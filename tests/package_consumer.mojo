@@ -34,7 +34,7 @@ from moxi import (
 
 
 def main() raises:
-    test_check(moxi_version() == "0.5.0")
+    test_check(moxi_version() == "0.5.1")
 
     var editing = TextInputState("package")
     test_check(editing.select_all())

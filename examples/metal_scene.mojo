@@ -1,22 +1,16 @@
 """GPU scene smoke demo; links the offscreen Metal renderer."""
 
-from moxi import Color, MacOSMetalRenderer, Point, Rect, Scene
+from moxi import (
+    MacOSMetalRenderer,
+    Rect,
+    SHOWCASE_METAL_SCENE,
+    ShowcaseState,
+)
 
 
 def main() raises:
-    var scene = Scene()
-    scene.append_rect(
-        1,
-        Rect(32.0, 32.0, 240.0, 140.0),
-        Color(0.12, 0.35, 0.80, 1.0),
-    )
-    scene.append_line(
-        2,
-        Point(32.0, 32.0),
-        Point(272.0, 172.0),
-        Color(1.0, 0.45, 0.2, 1.0),
-        4.0,
-    )
+    var component = ShowcaseState(SHOWCASE_METAL_SCENE)
+    var scene = component.scene(Rect(0.0, 0.0, 320.0, 220.0))
     var renderer = MacOSMetalRenderer(320, 220)
     if not renderer.is_ready():
         print("Moxi Metal unavailable")

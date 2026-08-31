@@ -15,6 +15,7 @@ done < <(rg -o 'examples/[A-Za-z0-9_]+\.mojo' "$catalog_file" | sort -u)
 
 for task in \
   demo \
+  live-script-demo \
   hello-window-demo \
   component-demo \
   counter-demo \

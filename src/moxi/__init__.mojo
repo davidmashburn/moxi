@@ -652,6 +652,28 @@ from .svg import SvgSceneRenderer
 from .coretext import MacOSTextShaper
 from .harfbuzz import HarfBuzzTextShaper
 from .metal import MacOSMetalCanvasPainter, MacOSMetalRenderer, MacOSMetalWindow
+from .live_script import (
+    LIVE_SCRIPT_CANVAS_ID,
+    LIVE_SCRIPT_DETAIL_ID,
+    LIVE_SCRIPT_STATUS_ID,
+    LIVE_SCRIPT_TITLE_ID,
+    LiveScriptState,
+)
+from .showcase import (
+    SHOWCASE_ANIMATION,
+    SHOWCASE_CORETEXT,
+    SHOWCASE_HARFBUZZ,
+    SHOWCASE_HELLO_COMPONENT,
+    SHOWCASE_HELLO_WINDOW,
+    SHOWCASE_METAL_SCENE,
+    SHOWCASE_METAL_WINDOW,
+    SHOWCASE_PLOT,
+    SHOWCASE_PLOT_GALLERY,
+    SHOWCASE_PLOT_SVG,
+    SHOWCASE_CANVAS_ID,
+    SHOWCASE_RESET_ID,
+    ShowcaseState,
+)
 from .demo_browser import (
     DEMO_CATEGORY_ALL,
     DEMO_CATEGORY_START,
@@ -669,6 +691,9 @@ from .demo_browser import (
     DEMO_PAGE_ROW,
     DEMO_PAGE_ALIGNMENT,
     DEMO_PAGE_WRAPPED,
+    DEMO_PAGE_SHOWCASE,
+    DEMO_PAGE_FRACTAL,
+    DEMO_PAGE_LIVE_SCRIPT,
     DEMO_HELLO_WINDOW_ID,
     DEMO_HELLO_COMPONENT_ID,
     DEMO_COUNTER_ID,
@@ -688,14 +713,24 @@ from .demo_browser import (
     DEMO_METAL_WINDOW_ID,
     DEMO_CORETEXT_ID,
     DEMO_HARFBUZZ_ID,
+    DEMO_LIVE_SCRIPT_ID,
     DEMO_TAB_OVERVIEW,
     DEMO_TAB_SOURCE,
     DEMO_TAB_DEMO,
     DEMO_SEARCH_ID,
+    DEMO_CLEAR_SEARCH_ID,
     DEMO_ENTRY_VIEW_BASE,
     DEMO_CATEGORY_BUTTON_BASE,
     DEMO_COUNTER_ID_OFFSET,
     DEMO_WX_STYLE_ID_OFFSET,
+    DEMO_SHOWCASE_SLOT_ID,
+    DEMO_FRACTAL_SLOT_ID,
+    DEMO_SHOWCASE_ID_OFFSET,
+    DEMO_FRACTAL_ID_OFFSET,
+    DEMO_LIVE_SCRIPT_SLOT_ID,
+    DEMO_LIVE_SCRIPT_ID_OFFSET,
+    DEMO_HEADER_KICKER_ID,
+    DEMO_PAGE_QUICKSTART_ID,
     DEMO_TAB_OVERVIEW_ID,
     DEMO_TAB_SOURCE_ID,
     DEMO_TAB_DEMO_ID,
@@ -704,6 +739,7 @@ from .demo_browser import (
     DEMO_NAV_PORTAL_ID,
     DEMO_CONTENT_PORTAL_ID,
     DEMO_SOURCE_TEXT_ID,
+    DEMO_EMPTY_CLEAR_ID,
     DemoEntry,
     DemoCatalog,
     DemoBrowserState,
@@ -714,4 +750,4 @@ from .demo_browser import (
 
 def moxi_version() -> String:
     """Return the package version embedded in this release."""
-    return "0.5.0"
+    return "0.5.1"
