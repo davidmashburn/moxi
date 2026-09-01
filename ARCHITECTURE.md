@@ -132,17 +132,21 @@ producing a paint command. `add_column()` and `add_row()` create nested
 containers; `add_column_to()` and `add_row_to()` allow a container to own
 another container, while `add_to()` and the typed helpers attach leaf children.
 `add_stack*`, `add_grid*`, `add_split*`, and `add_portal*` select z-stack,
-fixed-column grid, split-pane, and clipped scrolling portal containers. Portal
-offsets are bounded and persistent through `App` rebuilds. `layout()` must be
-called after adding children; the older `layout_children()` spelling remains a
-compatibility wrapper. `ScrollState`, `VirtualListState`, and
+fixed-column grid, split-pane, and explicitly clipped scrolling containers.
+The root and all linear containers become clipped scroll viewports when their
+content overflows, including typed component slots. Offsets are bounded and
+persistent through `App` rebuilds. `layout()` must be called after adding
+children; the older `layout_children()` spelling remains a compatibility
+wrapper. `ScrollState`, `VirtualListState`, and
 `visible_range()` provide portable scroll and fixed-extent range math.
 `VirtualRecycler` adds stable-key slot ownership, overscan, release-before-
 allocate recycling, measured item extents, cumulative offsets, binary-search
 range lookup, clamped offsets, and `ensure_visible()`. `VirtualizedList` builds
 only active slots through a typed item builder; `set_item_height_preserving_offset()`
 keeps the current content anchor stable when an earlier item changes size.
-Scrollbar painting remains a separate follow-up.
+Overflow track/thumb painting is emitted as a backend-neutral command and is
+visible in the native and scene paths; interactive scrollbar input remains a
+separate follow-up.
 
 Text measurement is deterministic and backend-neutral. `measure_text()` uses
 the current style's font size and codepoint count to provide a stable

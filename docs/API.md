@@ -46,8 +46,11 @@ declare behavior. `ColumnRuntime` reconciles that declaration into retained
 widgets by `(id, kind)`.
 
 `add_stack*`, `add_grid*`, `add_split*`, and `add_portal*` provide the 0.5
-container modes. Portal offsets are bounded and persistent through `App`
-rebuilds. `ScrollState`, `VirtualListState`, and `visible_range()` provide
+container modes. The root and linear containers automatically become clipped
+scroll viewports when content exceeds their allocated bounds; typed component
+slots use the same policy. Portal and automatic overflow offsets are bounded
+and persistent through `App` rebuilds. `ScrollState`, `VirtualListState`, and
+`visible_range()` provide
 portable range math; `VirtualRecycler` and `VirtualizedList[Builder]` add
 stable-key overscan slots, recycling, measured variable heights,
 prefix-offset lookup, anchor-preserving updates, clamped offsets, and
@@ -57,8 +60,10 @@ disclosure, keyboard navigation, and reorder results. `ReorderInteraction`
 adds a pointer-owned press threshold, cancellation, and stable-key drop
 command around that collection mutation. `ScrollbarState` adds
 renderer-independent thumb geometry and step/page movement for fixed or
-variable content; scrollbar painting and final viewport integration remain a
-follow-up. `PopupLayerState` provides nested combo/menu/context-menu/dialog
+variable content; overflowing roots and linear containers emit a static
+track/thumb paint command that every renderer can consume. Pointer-driven thumb
+dragging remains a follow-up. `PopupLayerState` provides nested
+combo/menu/context-menu/dialog
 layers with placement, keyboard dismissal, stable action IDs, and explicit
 focus restoration.
 

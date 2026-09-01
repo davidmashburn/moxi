@@ -22,6 +22,7 @@ from moxi import (
     ROLE_CHECKBOX,
     ROLE_PROGRESS_INDICATOR,
     ROLE_TEXT_INPUT,
+    SCROLLBAR_KIND,
     TEXT_INPUT_VIEW_KIND,
     TextInputEvent,
     TestRenderer,
@@ -133,6 +134,11 @@ def main() raises:
     var renderer = TestRenderer()
     app.render(renderer)
     test_check(app.view.child_count() == 45)
-    test_check(renderer.count() == 39)
+    test_check(renderer.count() == 42)
+    var scrollbar_count = 0
+    for index in range(renderer.count()):
+        if renderer.command(index).kind == SCROLLBAR_KIND:
+            scrollbar_count += 1
+    test_check(scrollbar_count == 3)
     test_check(renderer.last_accessibility_count == 44)
     print("Moxi wx-style test passed")

@@ -24,8 +24,20 @@ from .accessibility import (
 )
 from .geometry import Point, Rect
 from .event import KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_UP, NO_ACTION
-from .layout import ALIGN_STRETCH, COLUMN_AXIS, JUSTIFY_START, LAYOUT_PORTAL
+from .layout import (
+    ALIGN_STRETCH,
+    COLUMN_AXIS,
+    JUSTIFY_START,
+    LAYOUT_LINEAR,
+    LAYOUT_PORTAL,
+    ROW_AXIS,
+)
 from .paint import PANEL_KIND, SURFACE_KIND, PaintCommand, PaintCommands
+from .scrollbar import (
+    SCROLLBAR_HORIZONTAL,
+    SCROLLBAR_VERTICAL,
+    ScrollbarState,
+)
 from .style import (
     Color,
     Panel,
@@ -52,11 +64,13 @@ from .view import (
     MENU_KIND,
     TABS_KIND,
     SPACER_KIND,
+    SCROLLBAR_KIND,
     TEXT_INPUT_VIEW_KIND,
     CounterView,
     LABEL_KIND,
     ColumnView,
     Label,
+    ROOT_SCROLL_ID,
     ViewNode,
 )
 
@@ -342,6 +356,10 @@ struct ColumnRuntime:
     var active_indices: List[Int]
     var previous_commands: List[PaintCommand]
     var root_bounds: Rect
+    var root_axis: Int
+    var root_padding: Float32
+    var root_spacing: Float32
+    var root_scroll_offset: Float32
     var clip_to_bounds: Bool
     var surface_style: Style
     var panel: Panel
@@ -364,6 +382,10 @@ struct ColumnRuntime:
         self.active_indices = List[Int]()
         self.previous_commands = List[PaintCommand]()
         self.root_bounds = Rect(0.0, 0.0, 0.0, 0.0)
+        self.root_axis = COLUMN_AXIS
+        self.root_padding = 0.0
+        self.root_spacing = 0.0
+        self.root_scroll_offset = 0.0
         self.clip_to_bounds = False
         self.surface_style = default_surface_style()
         self.panel = Panel(0, Rect(0.0, 0.0, 0.0, 0.0), default_panel_style())
@@ -443,6 +465,10 @@ struct ColumnRuntime:
         var previous_hover = self.hovered_id
         var previous_pressed = self.pressed_id
         self.root_bounds = view.layout_spec.bounds
+        self.root_axis = view.axis
+        self.root_padding = view.layout_spec.padding
+        self.root_spacing = view.layout_spec.spacing
+        self.root_scroll_offset = view.root_scroll_offset
         self.clip_to_bounds = view.clip_to_bounds
         self.surface_style = view.surface_style
         self.panel = view.panel
@@ -673,18 +699,82 @@ struct ColumnRuntime:
                 return widget.action_id
         return NO_ACTION
 
+    def _is_linear_layout(self, layout_kind: Int) -> Bool:
+        """Return whether a container has a one-dimensional scroll axis."""
+        return layout_kind == LAYOUT_LINEAR or layout_kind == LAYOUT_PORTAL
+
+    def _root_content_extent(self) -> Float32:
+        """Measure the laid-out direct children of the implicit root viewport."""
+        var extent = self.root_padding * 2.0
+        var child_count = 0
+        for index in range(self.widget_count()):
+            var child = self.widget(index)
+            if child.parent_id != -1:
+                continue
+            if self.root_axis == ROW_AXIS:
+                extent += child.bounds.width
+            else:
+                extent += child.bounds.height
+            child_count += 1
+        if child_count > 1:
+            extent += self.root_spacing * Float32(child_count - 1)
+        return extent
+
+    def _container_content_extent(self, container: Widget) -> Float32:
+        """Measure the laid-out direct children inside one linear container."""
+        var extent = container.container_padding * 2.0
+        var child_count = 0
+        for index in range(self.widget_count()):
+            var child = self.widget(index)
+            if child.parent_id != container.id:
+                continue
+            if container.container_axis == ROW_AXIS:
+                extent += child.bounds.width
+            else:
+                extent += child.bounds.height
+            child_count += 1
+        if child_count > 1:
+            extent += container.container_spacing * Float32(child_count - 1)
+        return extent
+
+    def _container_viewport_extent(self, container: Widget) -> Float32:
+        """Return the viewport length along a container's scroll axis."""
+        if container.container_axis == ROW_AXIS:
+            return container.bounds.width
+        return container.bounds.height
+
+    def _container_is_scrollable(self, container: Widget) -> Bool:
+        """Return whether a linear container currently has overflow."""
+        if (
+            container.kind != CONTAINER_KIND
+            or not self._is_linear_layout(container.container_layout_kind)
+        ):
+            return False
+        return (
+            self._container_content_extent(container)
+            > self._container_viewport_extent(container)
+        )
+
+    def _root_is_scrollable(self) -> Bool:
+        """Return whether the implicit root viewport currently has overflow."""
+        var viewport = self.root_bounds.height
+        if self.root_axis == ROW_AXIS:
+            viewport = self.root_bounds.width
+        return self._root_content_extent() > viewport
+
     def scroll_target(self, position: Point) -> Int:
-        """Return the deepest portal containing a scroll position."""
+        """Return the deepest overflowing container containing a scroll position."""
         var index = self.widget_count() - 1
         while index >= 0:
             var widget = self.widget(index)
             if (
-                widget.kind == CONTAINER_KIND
-                and widget.container_layout_kind == LAYOUT_PORTAL
+                self._container_is_scrollable(widget)
                 and widget.bounds.contains(position)
             ):
                 return widget.id
             index -= 1
+        if self._root_is_scrollable() and self.root_bounds.contains(position):
+            return ROOT_SCROLL_ID
         return -1
 
     def move_focus_direction(mut self, key: Int) -> Bool:
@@ -813,6 +903,7 @@ struct ColumnRuntime:
         var checkbox_slot = 0
         var progress_slot = 0
         var slider_slot = 0
+        var scrollbar_slot = 0
         for index in range(self.widget_count()):
             var widget = self.widget(index)
             if widget.kind == SPACER_KIND or widget.kind == CONTAINER_KIND:
@@ -882,7 +973,7 @@ struct ColumnRuntime:
             command.set_progress(widget.progress)
             command.set_resource_id(widget.resource_id)
             var clip = self.root_bounds
-            var clip_enabled = self.clip_to_bounds
+            var clip_enabled = self.clip_to_bounds or self._root_is_scrollable()
             var parent_id = widget.parent_id
             var clip_hops = 0
             while parent_id != -1:
@@ -893,7 +984,7 @@ struct ColumnRuntime:
                     if parent.id == parent_id:
                         parent_found = True
                         next_parent = parent.parent_id
-                        if parent.clip_children:
+                        if parent.clip_children or self._container_is_scrollable(parent):
                             if clip_enabled:
                                 clip = clip.intersection(parent.bounds)
                             else:
@@ -924,6 +1015,137 @@ struct ColumnRuntime:
                 commands.mark_dirty(self.previous_commands[previous_index].bounds)
             command.set_changed(changed)
             commands.append(command)
+
+        # Overflowing linear containers are clipped and wheel-scrollable, so keep a visible static
+        # affordance in the same retained command stream. The renderer owns
+        # only the final track/thumb pixels; offset and geometry stay portable.
+        for index in range(self.widget_count()):
+            var portal = self.widget(index)
+            if not self._container_is_scrollable(portal):
+                continue
+
+            var orientation = SCROLLBAR_VERTICAL
+            var viewport_extent = portal.bounds.height
+            var track = Rect(
+                portal.bounds.x + portal.bounds.width - 12.0,
+                portal.bounds.y + 4.0,
+                8.0,
+                portal.bounds.height - 8.0,
+            )
+            if portal.container_axis == ROW_AXIS:
+                orientation = SCROLLBAR_HORIZONTAL
+                viewport_extent = portal.bounds.width
+                track = Rect(
+                    portal.bounds.x + 4.0,
+                    portal.bounds.y + portal.bounds.height - 12.0,
+                    portal.bounds.width - 8.0,
+                    8.0,
+                )
+            if viewport_extent <= 0.0:
+                continue
+
+            var scrollbar = ScrollbarState(orientation, 18.0)
+            scrollbar.set_metrics(
+                self._container_content_extent(portal),
+                viewport_extent,
+            )
+            _ = scrollbar.set_offset(portal.container_scroll_offset)
+            var geometry = scrollbar.geometry(track)
+            if not geometry.visible:
+                continue
+
+            var scrollbar_command = PaintCommand(
+                SCROLLBAR_KIND,
+                portal.id,
+                scrollbar_slot,
+                "",
+                geometry.track,
+                Style(
+                    Color(0.055, 0.075, 0.125, 0.72),
+                    Color(0.48, 0.79, 1.0, 0.94),
+                    4.0,
+                    0.0,
+                ),
+            )
+            scrollbar_command.set_scrollbar(
+                orientation,
+                geometry.thumb,
+                geometry.visible,
+            )
+            if self.clip_to_bounds or self._root_is_scrollable():
+                scrollbar_command.set_clip(
+                    self.root_bounds.intersection(portal.bounds)
+                )
+            elif portal.clip_children or self._container_is_scrollable(portal):
+                scrollbar_command.set_clip(portal.bounds)
+
+            var previous_index = self.previous_command_index(scrollbar_command)
+            var changed = self.command_changed(scrollbar_command)
+            if previous_index != -1 and previous_index != commands.count():
+                changed = True
+            if previous_index != -1 and changed:
+                commands.mark_dirty(self.previous_commands[previous_index].bounds)
+            scrollbar_command.set_changed(changed)
+            commands.append(scrollbar_command)
+            scrollbar_slot += 1
+
+        # A ColumnView root is itself a viewport. Keep its bar in the same
+        # command stream so standalone components get the same affordance as
+        # content mounted inside an explicit portal.
+        if self._root_is_scrollable():
+            var root_orientation = SCROLLBAR_VERTICAL
+            var root_viewport_extent = self.root_bounds.height
+            var root_track = Rect(
+                self.root_bounds.x + self.root_bounds.width - 12.0,
+                self.root_bounds.y + 4.0,
+                8.0,
+                self.root_bounds.height - 8.0,
+            )
+            if self.root_axis == ROW_AXIS:
+                root_orientation = SCROLLBAR_HORIZONTAL
+                root_viewport_extent = self.root_bounds.width
+                root_track = Rect(
+                    self.root_bounds.x + 4.0,
+                    self.root_bounds.y + self.root_bounds.height - 12.0,
+                    self.root_bounds.width - 8.0,
+                    8.0,
+                )
+            if root_viewport_extent > 0.0:
+                var root_scrollbar = ScrollbarState(root_orientation, 18.0)
+                root_scrollbar.set_metrics(
+                    self._root_content_extent(),
+                    root_viewport_extent,
+                )
+                _ = root_scrollbar.set_offset(self.root_scroll_offset)
+                var root_geometry = root_scrollbar.geometry(root_track)
+                if root_geometry.visible:
+                    var root_command = PaintCommand(
+                        SCROLLBAR_KIND,
+                        ROOT_SCROLL_ID,
+                        scrollbar_slot,
+                        "",
+                        root_geometry.track,
+                        Style(
+                            Color(0.055, 0.075, 0.125, 0.72),
+                            Color(0.48, 0.79, 1.0, 0.94),
+                            4.0,
+                            0.0,
+                        ),
+                    )
+                    root_command.set_scrollbar(
+                        root_orientation,
+                        root_geometry.thumb,
+                        root_geometry.visible,
+                    )
+                    root_command.set_clip(self.root_bounds)
+                    var previous_index = self.previous_command_index(root_command)
+                    var changed = self.command_changed(root_command)
+                    if previous_index != -1 and previous_index != commands.count():
+                        changed = True
+                    if previous_index != -1 and changed:
+                        commands.mark_dirty(self.previous_commands[previous_index].bounds)
+                    root_command.set_changed(changed)
+                    commands.append(root_command)
 
         # A removed command leaves a stale region that an incremental backend
         # must clear, even though there is no current draw command for it.
@@ -976,7 +1198,10 @@ struct ColumnRuntime:
 
     def point_is_visible(self, widget: Widget, position: Point) -> Bool:
         """Respect root and ancestor clipping while routing pointer input."""
-        if self.clip_to_bounds and not self.root_bounds.contains(position):
+        if (
+            (self.clip_to_bounds or self._root_is_scrollable())
+            and not self.root_bounds.contains(position)
+        ):
             return False
         var parent_id = widget.parent_id
         var hops = 0
@@ -988,7 +1213,10 @@ struct ColumnRuntime:
                 if parent.id == parent_id:
                     found_parent = True
                     next_parent = parent.parent_id
-                    if parent.clip_children and not parent.bounds.contains(position):
+                    if (
+                        (parent.clip_children or self._container_is_scrollable(parent))
+                        and not parent.bounds.contains(position)
+                    ):
                         return False
                     break
             if not found_parent:

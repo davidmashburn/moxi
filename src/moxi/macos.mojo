@@ -68,6 +68,7 @@ from .view import (
     TABS_KIND,
     CANVAS_KIND,
     SEPARATOR_KIND,
+    SCROLLBAR_KIND,
 )
 from .native_widgets import (
     NATIVE_WIDGET_CANVAS,
@@ -226,6 +227,8 @@ struct MacOSRenderer(Renderer):
             self.draw_canvas(command)
         elif command.kind == SEPARATOR_KIND:
             self.draw_separator(command)
+        elif command.kind == SCROLLBAR_KIND:
+            self.draw_scrollbar(command)
 
     def draw_surface(mut self, command: PaintCommand) raises:
         external_call["moxi_window_set_surface", NoneType](
@@ -619,6 +622,33 @@ struct MacOSRenderer(Renderer):
     def draw_separator(mut self, command: PaintCommand) raises:
         """Present a native separator instead of a filled panel."""
         self.draw_native_widget(command, NATIVE_WIDGET_SEPARATOR)
+
+    def draw_scrollbar(mut self, command: PaintCommand) raises:
+        """Submit a static portal track/thumb to the AppKit canvas."""
+        var visible = 0
+        if command.scrollbar_visible:
+            visible = 1
+        external_call["moxi_window_set_scrollbar_at", NoneType](
+            Int32(command.slot),
+            command.bounds.x,
+            command.bounds.y,
+            command.bounds.width,
+            command.bounds.height,
+            command.scrollbar_thumb.x,
+            command.scrollbar_thumb.y,
+            command.scrollbar_thumb.width,
+            command.scrollbar_thumb.height,
+            command.style.fill.red,
+            command.style.fill.green,
+            command.style.fill.blue,
+            command.style.fill.alpha,
+            command.style.text.red,
+            command.style.text.green,
+            command.style.text.blue,
+            command.style.text.alpha,
+            command.style.corner_radius,
+            visible,
+        )
 
 
 struct MacOSCanvasSceneRenderer(SceneRenderer):
@@ -1048,16 +1078,21 @@ struct MacOSWindow(WindowBackend):
         elif kind == COMPOSITION_END_KIND:
             return Event(CompositionEvent())
         elif kind == SCROLL_KIND:
+            # AppKit has already applied the user's natural-scrolling
+            # preference to scrollingDeltaY. Moxi's vertical viewport offset
+            # grows in content coordinates, so normalize that sign once at
+            # the platform boundary and leave portable events untouched.
+            var raw_scroll = Point(
+                external_call["moxi_window_event_scroll_x", Float32](),
+                external_call["moxi_window_event_scroll_y", Float32](),
+            )
             return Event(
                 ScrollEvent(
                     Point(
                         external_call["moxi_window_event_x", Float32](),
                         external_call["moxi_window_event_y", Float32](),
                     ),
-                    Point(
-                        external_call["moxi_window_event_scroll_x", Float32](),
-                        external_call["moxi_window_event_scroll_y", Float32](),
-                    ),
+                    Point(raw_scroll.x, -raw_scroll.y),
                 )
             )
         elif kind == WINDOW_RESIZED_KIND:

@@ -504,6 +504,8 @@ from .view import (
     TABS_KIND,
     CANVAS_KIND,
     SEPARATOR_KIND,
+    SCROLLBAR_KIND,
+    ROOT_SCROLL_ID,
     PROGRESS_KIND,
     SPACER_KIND,
     Button,

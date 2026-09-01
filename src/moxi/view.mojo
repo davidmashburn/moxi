@@ -64,6 +64,10 @@ comptime DIALOG_KIND = 20
 comptime TABS_KIND = 21
 comptime CANVAS_KIND = 22
 comptime SEPARATOR_KIND = 23
+# Paint-only affordance emitted for overflowing scroll containers.
+comptime SCROLLBAR_KIND = 24
+# Reserved target for the implicit viewport owned by a ColumnView root.
+comptime ROOT_SCROLL_ID = -2
 
 
 struct Label(ImplicitlyCopyable):
@@ -531,7 +535,7 @@ struct ViewNode(ImplicitlyCopyable):
         self.container_split_fraction = value
 
     def set_scroll_offset(mut self, offset: Float32):
-        """Set the main-axis scroll offset for a portal container."""
+        """Set the main-axis scroll offset for a scroll container."""
         self.container_scroll_offset = offset if offset > 0.0 else 0.0
 
     def set_resource_id(mut self, resource_id: Int):
@@ -711,6 +715,7 @@ struct ColumnView:
     var main_alignment: Int
     var cross_alignment: Int
     var clip_to_bounds: Bool
+    var root_scroll_offset: Float32
     var theme: Theme
 
     def __init__(
@@ -733,6 +738,7 @@ struct ColumnView:
         self.main_alignment = JUSTIFY_START
         self.cross_alignment = ALIGN_STRETCH
         self.clip_to_bounds = False
+        self.root_scroll_offset = 0.0
         self.theme = Theme()
 
     def add(mut self, child: ViewNode):
@@ -1071,41 +1077,93 @@ struct ColumnView:
                 self.children[index].set_split_fraction(fraction)
 
     def set_scroll_offset(mut self, id: Int, offset: Float32):
-        """Set a portal's main-axis scroll offset."""
+        """Set a scroll container's main-axis scroll offset."""
+        if id == ROOT_SCROLL_ID:
+            self.root_scroll_offset = offset if offset > 0.0 else 0.0
+            return
         for index in range(len(self.children)):
             if self.children[index].id == id:
                 self.children[index].set_scroll_offset(offset)
 
     def scroll_offset_for(self, id: Int) -> Float32:
-        """Return one portal's current main-axis scroll offset."""
+        """Return one scroll container's current main-axis scroll offset."""
+        if id == ROOT_SCROLL_ID:
+            return self.root_scroll_offset
         for index in range(len(self.children)):
             if self.children[index].id == id:
                 return self.children[index].container_scroll_offset
         return 0.0
 
-    def scroll_max_offset(self, id: Int) -> Float32:
-        """Return the clamped scroll extent for a portal container."""
+    def scroll_axis_for(self, id: Int) -> Int:
+        """Return the main axis used by one scroll container."""
+        if id == ROOT_SCROLL_ID:
+            return self.axis
         for index in range(len(self.children)):
             if (
                 self.children[index].id == id
                 and self.children[index].kind == CONTAINER_KIND
-                and self.children[index].container_layout_kind == LAYOUT_PORTAL
+            ):
+                return self.children[index].container_axis
+        return COLUMN_AXIS
+
+    def _linear_content_extent(
+        self,
+        parent_id: Int,
+        axis: Int,
+        padding: Float32,
+        spacing: Float32,
+    ) -> Float32:
+        """Measure the main-axis extent produced by a linear layout pass."""
+        var extent = padding * 2.0
+        var count = 0
+        for index in range(len(self.children)):
+            if self.children[index].parent_id != parent_id:
+                continue
+            if axis == ROW_AXIS:
+                extent += self.layout_width(index)
+            else:
+                extent += self.layout_height(index)
+            count += 1
+        if count > 1:
+            extent += spacing * Float32(count - 1)
+        return extent
+
+    def scroll_max_offset(self, id: Int) -> Float32:
+        """Return the clamped scroll extent for a scroll container."""
+        if id == ROOT_SCROLL_ID:
+            var content = self._linear_content_extent(
+                -1,
+                self.axis,
+                self.layout_spec.padding,
+                self.layout_spec.spacing,
+            )
+            var viewport = self.layout_spec.bounds.height
+            if self.axis == ROW_AXIS:
+                viewport = self.layout_spec.bounds.width
+            var maximum = content - viewport
+            return maximum if maximum > 0.0 else 0.0
+        for index in range(len(self.children)):
+            if (
+                self.children[index].id == id
+                and self.children[index].kind == CONTAINER_KIND
+                and (
+                    self.children[index].container_layout_kind == LAYOUT_LINEAR
+                    or self.children[index].container_layout_kind == LAYOUT_PORTAL
+                )
             ):
                 var node = self.children[index]
-                var content = self.intrinsic_group_size(
+                var content = self._linear_content_extent(
                     id,
                     node.container_axis,
                     node.container_padding,
                     node.container_spacing,
-                    node.container_layout_kind,
-                    node.container_grid_columns,
                 )
                 var viewport = node.bounds.height
                 if node.container_axis == ROW_AXIS:
                     viewport = node.bounds.width
-                    var horizontal = content.width - viewport
+                    var horizontal = content - viewport
                     return horizontal if horizontal > 0.0 else 0.0
-                var vertical = content.height - viewport
+                var vertical = content - viewport
                 return vertical if vertical > 0.0 else 0.0
         return 0.0
 
@@ -1912,6 +1970,24 @@ struct ColumnView:
         var spacing = self.layout_spec.spacing
         var main_alignment = self.main_alignment
         var cross_alignment = self.cross_alignment
+        var root_scroll = self.root_scroll_offset
+        var root_content = self._linear_content_extent(
+            -1,
+            axis,
+            padding,
+            spacing,
+        )
+        var root_viewport = bounds.height
+        if axis == ROW_AXIS:
+            root_viewport = bounds.width
+        var root_max = root_content - root_viewport
+        if root_max < 0.0:
+            root_max = 0.0
+        if root_scroll > root_max:
+            root_scroll = root_max
+        if root_scroll < 0.0:
+            root_scroll = 0.0
+        self.root_scroll_offset = root_scroll
         self.layout_group(
             -1,
             bounds,
@@ -1920,6 +1996,10 @@ struct ColumnView:
             spacing,
             main_alignment,
             cross_alignment,
+            LAYOUT_LINEAR,
+            1,
+            0.5,
+            root_scroll,
         )
 
     def is_valid(self) -> Bool:
@@ -1979,6 +2059,24 @@ struct ColumnView:
         var child_columns = self.children[index].container_grid_columns
         var child_split = self.children[index].container_split_fraction
         var child_scroll = self.children[index].container_scroll_offset
+        if child_layout == LAYOUT_LINEAR or child_layout == LAYOUT_PORTAL:
+            var child_content = self._linear_content_extent(
+                child_id,
+                child_axis,
+                child_padding,
+                child_spacing,
+            )
+            var child_viewport = child_bounds.height
+            if child_axis == ROW_AXIS:
+                child_viewport = child_bounds.width
+            var child_max = child_content - child_viewport
+            if child_max < 0.0:
+                child_max = 0.0
+            if child_scroll > child_max:
+                child_scroll = child_max
+            if child_scroll < 0.0:
+                child_scroll = 0.0
+            self.children[index].container_scroll_offset = child_scroll
         self.layout_group(
             child_id,
             child_bounds,
@@ -2189,7 +2287,7 @@ struct ColumnView:
                 leading = unused_width
 
             var left = bounds.x + padding + leading
-            if layout_kind == LAYOUT_PORTAL:
+            if layout_kind == LAYOUT_LINEAR or layout_kind == LAYOUT_PORTAL:
                 left -= scroll_offset
             for index in range(len(self.children)):
                 if self.children[index].parent_id != parent_id:
@@ -2212,32 +2310,7 @@ struct ColumnView:
                     elif cross_alignment == ALIGN_END:
                         top += content_height - child_height
                 self.children[index].bounds = Rect(left, top, child_width, child_height)
-                var child_kind = self.children[index].kind
-                var child_id = self.children[index].id
-                var child_bounds = self.children[index].bounds
-                var child_axis = self.children[index].container_axis
-                var child_padding = self.children[index].container_padding
-                var child_spacing = self.children[index].container_spacing
-                var child_main = self.children[index].container_main_alignment
-                var child_cross = self.children[index].container_cross_alignment
-                var child_layout = self.children[index].container_layout_kind
-                var child_columns = self.children[index].container_grid_columns
-                var child_split = self.children[index].container_split_fraction
-                var child_scroll = self.children[index].container_scroll_offset
-                if child_kind == CONTAINER_KIND:
-                    self.layout_group(
-                        child_id,
-                        child_bounds,
-                        child_axis,
-                        child_padding,
-                        child_spacing,
-                        child_main,
-                        child_cross,
-                        child_layout,
-                        child_columns,
-                        child_split,
-                        child_scroll,
-                    )
+                self.layout_child_if_container(index)
                 left += child_width + actual_spacing
             return
 
@@ -2260,7 +2333,7 @@ struct ColumnView:
             leading = unused_height
 
         var cursor = bounds.y + padding + leading
-        if layout_kind == LAYOUT_PORTAL:
+        if layout_kind == LAYOUT_LINEAR or layout_kind == LAYOUT_PORTAL:
             cursor -= scroll_offset
         for index in range(len(self.children)):
             if self.children[index].parent_id != parent_id:
@@ -2283,32 +2356,7 @@ struct ColumnView:
                 elif cross_alignment == ALIGN_END:
                     left += content_width - width
             self.children[index].bounds = Rect(left, cursor, width, height)
-            var child_kind = self.children[index].kind
-            var child_id = self.children[index].id
-            var child_bounds = self.children[index].bounds
-            var child_axis = self.children[index].container_axis
-            var child_padding = self.children[index].container_padding
-            var child_spacing = self.children[index].container_spacing
-            var child_main = self.children[index].container_main_alignment
-            var child_cross = self.children[index].container_cross_alignment
-            var child_layout = self.children[index].container_layout_kind
-            var child_columns = self.children[index].container_grid_columns
-            var child_split = self.children[index].container_split_fraction
-            var child_scroll = self.children[index].container_scroll_offset
-            if child_kind == CONTAINER_KIND:
-                self.layout_group(
-                    child_id,
-                    child_bounds,
-                    child_axis,
-                    child_padding,
-                    child_spacing,
-                    child_main,
-                    child_cross,
-                    child_layout,
-                    child_columns,
-                    child_split,
-                    child_scroll,
-                )
+            self.layout_child_if_container(index)
             cursor += height + actual_spacing
 
     def layout_children(mut self):
@@ -2356,7 +2404,13 @@ struct ColumnView:
 
     def point_is_visible(self, child: ViewNode, position: Point) -> Bool:
         """Respect root and ancestor clipping while routing pointer input."""
-        if self.clip_to_bounds and not self.layout_spec.bounds.contains(position):
+        if (
+            (
+                self.clip_to_bounds
+                or self.scroll_max_offset(ROOT_SCROLL_ID) > 0.0
+            )
+            and not self.layout_spec.bounds.contains(position)
+        ):
             return False
         var parent_id = child.parent_id
         var hops = 0
@@ -2368,7 +2422,13 @@ struct ColumnView:
                 if parent.id == parent_id:
                     found_parent = True
                     next_parent = parent.parent_id
-                    if parent.clip_children and not parent.bounds.contains(position):
+                    if (
+                        (
+                            parent.clip_children
+                            or self._is_scrollable_node(parent)
+                        )
+                        and not parent.bounds.contains(position)
+                    ):
                         return False
                     break
             if not found_parent:
@@ -2378,6 +2438,27 @@ struct ColumnView:
             if hops > len(self.children):
                 return False
         return True
+
+    def _is_scrollable_node(self, node: ViewNode) -> Bool:
+        """Return whether a linear container node currently has overflow."""
+        if (
+            node.kind != CONTAINER_KIND
+            or (
+                node.container_layout_kind != LAYOUT_LINEAR
+                and node.container_layout_kind != LAYOUT_PORTAL
+            )
+        ):
+            return False
+        var content = self._linear_content_extent(
+            node.id,
+            node.container_axis,
+            node.container_padding,
+            node.container_spacing,
+        )
+        var viewport = node.bounds.height
+        if node.container_axis == ROW_AXIS:
+            viewport = node.bounds.width
+        return content > viewport
 
 
 def make_row(bounds: Rect, padding: Float32, spacing: Float32) -> ColumnView:

@@ -49,7 +49,8 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - Visible native text selection plus portable copy, cut, and paste commands.
 - Pointer down/move/up routing with hover, pressed, enabled, and click state.
 - A horizontal row layout with fixed-width children and flexible slots.
-- Stack, grid, split, and clipped portal containers with persistent scroll
+- Stack, grid, split, and automatic overflow scrolling for roots, linear
+  containers, typed component slots, and explicit portals, with persistent
   offsets and fixed/variable-extent virtual-range math.
 - Opt-in deterministic intrinsic text and control measurement.
 - Opt-in deterministic wrapped text measurement with intrinsic-height updates.
@@ -165,9 +166,10 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
   min/max constraints, intrinsic estimates, and deterministic wrapping.
   Portable glyph shaping and rich-text painting remain outside the headless
   rasterizer; the explicit portable shaper is approximate, while CoreText
-  supplies native shaping/bidi on macOS. Portal scrolling is bounded and
+  supplies native shaping/bidi on macOS. Overflow scrolling is bounded and
   persistent. `VirtualRecycler` provides fixed estimates plus measured
-  variable-height item recycling; scrollbar painting remains follow-up work.
+  variable-height item recycling; static track/thumb painting is part of the
+  retained path, while interactive scrollbar input remains follow-up work.
   The animation API is
   frame-stepped; it does not provide a hidden platform scheduler.
 - The macOS adapter translates pointer down/move/up, key, committed-text,

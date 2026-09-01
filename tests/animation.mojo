@@ -201,7 +201,7 @@ def main() raises:
         Rect(0.0, 0.0, 160.0, 80.0),
     )
     run_app.run(closed_window, run_renderer)
-    test_check(run_renderer.count() == 5)
+    test_check(run_renderer.count() == 6)
 
     var clipboard_window = TestWindow()
     var clipboard_renderer = TestRenderer()
@@ -215,5 +215,5 @@ def main() raises:
         clipboard_renderer,
         clipboard,
     )
-    test_check(clipboard_renderer.count() == 5)
+    test_check(clipboard_renderer.count() == 6)
     print("Moxi animation and invalidation test passed")

@@ -27,6 +27,7 @@ from .view import (
     TABS_KIND,
     CANVAS_KIND,
     SEPARATOR_KIND,
+    SCROLLBAR_KIND,
 )
 
 
@@ -113,6 +114,9 @@ struct PaintCommand(ImplicitlyCopyable):
     var checked: Bool
     var progress: Float32
     var resource_id: Int
+    var scrollbar_orientation: Int
+    var scrollbar_thumb: Rect
+    var scrollbar_visible: Bool
     var changed: Bool
 
     def __init__(out self, text: String, bounds: Rect):
@@ -141,6 +145,9 @@ struct PaintCommand(ImplicitlyCopyable):
         self.checked = False
         self.progress = 0.0
         self.resource_id = -1
+        self.scrollbar_orientation = 0
+        self.scrollbar_thumb = Rect(0.0, 0.0, 0.0, 0.0)
+        self.scrollbar_visible = False
         self.changed = True
 
     def __init__(
@@ -177,6 +184,9 @@ struct PaintCommand(ImplicitlyCopyable):
         self.checked = False
         self.progress = 0.0
         self.resource_id = -1
+        self.scrollbar_orientation = 0
+        self.scrollbar_thumb = Rect(0.0, 0.0, 0.0, 0.0)
+        self.scrollbar_visible = False
         self.changed = True
 
     def __init__(
@@ -218,6 +228,9 @@ struct PaintCommand(ImplicitlyCopyable):
         self.checked = False
         self.progress = 0.0
         self.resource_id = -1
+        self.scrollbar_orientation = 0
+        self.scrollbar_thumb = Rect(0.0, 0.0, 0.0, 0.0)
+        self.scrollbar_visible = False
         self.changed = True
 
     def set_selection(mut self, anchor: Int, cursor: Int):
@@ -269,6 +282,9 @@ struct PaintCommand(ImplicitlyCopyable):
             and self.checked == other.checked
             and self.progress == other.progress
             and self.resource_id == other.resource_id
+            and self.scrollbar_orientation == other.scrollbar_orientation
+            and paint_rects_equal(self.scrollbar_thumb, other.scrollbar_thumb)
+            and self.scrollbar_visible == other.scrollbar_visible
         )
 
     def set_composition(
@@ -315,6 +331,17 @@ struct PaintCommand(ImplicitlyCopyable):
     def set_resource_id(mut self, resource_id: Int):
         """Associate a paint command with an external image/resource id."""
         self.resource_id = resource_id
+
+    def set_scrollbar(
+        mut self,
+        orientation: Int,
+        thumb: Rect,
+        visible: Bool,
+    ):
+        """Attach computed thumb geometry for an overflowing viewport."""
+        self.scrollbar_orientation = orientation
+        self.scrollbar_thumb = thumb
+        self.scrollbar_visible = visible
 
 
 struct PaintCommands:
@@ -458,6 +485,8 @@ trait Renderer:
             self.draw_canvas(command)
         elif command.kind == SEPARATOR_KIND:
             self.draw_separator(command)
+        elif command.kind == SCROLLBAR_KIND:
+            self.draw_scrollbar(command)
 
     def draw_surface(mut self, command: PaintCommand) raises:
         pass
@@ -522,6 +551,9 @@ trait Renderer:
     def draw_separator(mut self, command: PaintCommand) raises:
         pass
 
+    def draw_scrollbar(mut self, command: PaintCommand) raises:
+        pass
+
 
 def scene_from_paint(commands: PaintCommands) -> Scene:
     """Translate the retained paint stream into the backend-neutral scene IR."""
@@ -542,6 +574,20 @@ def scene_from_paint(commands: PaintCommands) -> Scene:
             scene.append_image(command.id, command.resource_id, command.bounds)
         elif command.kind == SEPARATOR_KIND:
             scene.append_rect(command.id, command.bounds, command.style.fill)
+        elif command.kind == SCROLLBAR_KIND:
+            scene.append_rounded_rect(
+                command.id * 2,
+                command.bounds,
+                command.style.fill,
+                command.style.corner_radius,
+            )
+            if command.scrollbar_visible:
+                scene.append_rounded_rect(
+                    command.id * 2 + 1,
+                    command.scrollbar_thumb,
+                    command.style.text,
+                    command.style.corner_radius,
+                )
         else:
             scene.append_text(command.id, command.text, command.bounds, command.style.text)
     return scene^

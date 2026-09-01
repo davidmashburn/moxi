@@ -20,8 +20,9 @@ The remaining explicitly deferred post-0.5 work is now narrower:
   adapter; the adapter now supplies OpenType shaping/positioning and stable
   clusters through a host-selected Unicode font, while custom collections,
   fallback chains, and full paragraph bidi remain host policy.
-- Scrollbar painting and final viewport policy around the implemented
-  variable-height recycler.
+- Interactive scrollbar widgets and final viewport policy around the
+  implemented variable-height recycler; automatic root/linear overflow
+  viewports and static track/thumb painting are now part of the retained path.
 - Deep native widgets and platform-native interaction/accessibility fidelity;
   the macOS slice now carries explicit checked/expanded/range semantics,
   richer AX attributes/notifications, nested hit testing, deeper
@@ -206,8 +207,8 @@ later milestones.
   chains and full paragraph bidi remain explicit extensions.
 - Replace visible-range-only lists with stable-key item builders, recycling,
   measured extents, prefix offsets, overscan, anchoring, and ensure-visible
-  behavior; scrollbar painting remains separate from the state/geometry
-  policy.
+  behavior; interactive scrollbar input remains separate from the
+  state/geometry policy.
 - Benchmark text-heavy and variable-height long-list scenarios separately from
   small trees.
 
@@ -296,8 +297,8 @@ text, and path support, target fallback bridges, host status contract, and brows
 module are contract-tested.
 
 This is an implemented foundation, not completion of every item in the
-design. Custom production font fallback, scrollbar painting and final viewport
-integration, editable collection
+design. Custom production font fallback, interactive scrollbar and final
+viewport integration, editable collection
 widget ownership, Mojo-host runtime integration, portable GPU resource
 lifetime, PDF/PNG export, and the broader polar/geographic/3D families remain
 explicitly staged work.

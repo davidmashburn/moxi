@@ -61,5 +61,5 @@ def main():
     var runtime = ColumnRuntime()
     runtime.reconcile(view)
     test_check(runtime.focus_id() == 1)
-    test_check(runtime.paint().count() == 10)
+    test_check(runtime.paint().count() == 11)
     print("Moxi widget-catalog test passed")

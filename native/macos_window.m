@@ -303,6 +303,20 @@ typedef struct {
 static int moxi_native_widget_count;
 static MoxiNativeWidgetSlot moxi_native_widget_slots[MOXI_MAX_DRAW_COMMANDS];
 
+typedef struct {
+    NSRect track;
+    NSRect thumb;
+    float trackColor[4];
+    float thumbColor[4];
+    float radius;
+    BOOL visible;
+    BOOL clipEnabled;
+    NSRect clipFrame;
+} MoxiScrollbarSlot;
+
+static int moxi_scrollbar_count;
+static MoxiScrollbarSlot moxi_scrollbar_slots[MOXI_MAX_DRAW_COMMANDS];
+
 /* Dense custom canvas content lives beside the semantic widget stream. */
 static int moxi_custom_line_count;
 static NSPoint moxi_custom_line_starts[MOXI_MAX_CUSTOM_LINES];
@@ -414,6 +428,25 @@ static void moxi_begin_clip(BOOL enabled, NSRect frame) {
 static void moxi_end_clip(BOOL enabled) {
     if (enabled) {
         [NSGraphicsContext restoreGraphicsState];
+    }
+}
+
+static void moxi_draw_scrollbars(void) {
+    for (int i = 0; i < moxi_scrollbar_count; i++) {
+        MoxiScrollbarSlot slot = moxi_scrollbar_slots[i];
+        if (!slot.visible) {
+            continue;
+        }
+        moxi_begin_clip(slot.clipEnabled, slot.clipFrame);
+        [moxi_color(slot.trackColor) setFill];
+        [[NSBezierPath bezierPathWithRoundedRect:slot.track
+                                          xRadius:slot.radius
+                                          yRadius:slot.radius] fill];
+        [moxi_color(slot.thumbColor) setFill];
+        [[NSBezierPath bezierPathWithRoundedRect:slot.thumb
+                                          xRadius:slot.radius
+                                          yRadius:slot.radius] fill];
+        moxi_end_clip(slot.clipEnabled);
     }
 }
 
@@ -874,6 +907,7 @@ static void moxi_reset_commands(void) {
     moxi_active_text_input_index = -1;
     moxi_panel_count = 0;
     moxi_native_widget_count = 0;
+    moxi_scrollbar_count = 0;
     moxi_reset_custom_commands();
     moxi_copy_color(moxi_surface_fill, 0.08, 0.10, 0.16, 1.0);
     for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
@@ -911,6 +945,15 @@ static void moxi_reset_commands(void) {
         moxi_native_widget_slots[i].expanded = NO;
         moxi_native_widget_slots[i].clipEnabled = NO;
         moxi_native_widget_slots[i].clipFrame = NSZeroRect;
+
+        moxi_scrollbar_slots[i].track = NSZeroRect;
+        moxi_scrollbar_slots[i].thumb = NSZeroRect;
+        moxi_copy_color(moxi_scrollbar_slots[i].trackColor, 0.055, 0.075, 0.125, 0.72);
+        moxi_copy_color(moxi_scrollbar_slots[i].thumbColor, 0.48, 0.79, 1.0, 0.94);
+        moxi_scrollbar_slots[i].radius = 4.0;
+        moxi_scrollbar_slots[i].visible = NO;
+        moxi_scrollbar_slots[i].clipEnabled = NO;
+        moxi_scrollbar_slots[i].clipFrame = NSZeroRect;
 
         moxi_copy_color(moxi_label_text_colors[i], 1.0, 1.0, 1.0, 1.0);
         moxi_label_font_sizes[i] = 24.0;
@@ -2554,6 +2597,8 @@ double moxi_window_benchmark_custom_paint(int iterations) {
     }
 
     moxi_draw_custom_commands();
+    /* Keep the scroll affordance above component-owned canvas content. */
+    moxi_draw_scrollbars();
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -3387,6 +3432,50 @@ void moxi_window_set_native_widget_at(
         slot->clipFrame = moxi_current_clip_frame;
         if (index + 1 > moxi_native_widget_count) {
             moxi_native_widget_count = index + 1;
+        }
+        [moxi_canvas setNeedsDisplay:YES];
+    }
+}
+
+void moxi_window_set_scrollbar_at(
+    int index,
+    float track_x,
+    float track_y,
+    float track_width,
+    float track_height,
+    float thumb_x,
+    float thumb_y,
+    float thumb_width,
+    float thumb_height,
+    float track_red,
+    float track_green,
+    float track_blue,
+    float track_alpha,
+    float thumb_red,
+    float thumb_green,
+    float thumb_blue,
+    float thumb_alpha,
+    float radius,
+    int visible
+) {
+    @autoreleasepool {
+        if (moxi_canvas == nil || index < 0 || index >= MOXI_MAX_DRAW_COMMANDS) {
+            if (index >= MOXI_MAX_DRAW_COMMANDS) {
+                moxi_command_overflow_count += 1;
+            }
+            return;
+        }
+        MoxiScrollbarSlot *slot = &moxi_scrollbar_slots[index];
+        slot->track = NSMakeRect(track_x, track_y, track_width, track_height);
+        slot->thumb = NSMakeRect(thumb_x, thumb_y, thumb_width, thumb_height);
+        moxi_copy_color(slot->trackColor, track_red, track_green, track_blue, track_alpha);
+        moxi_copy_color(slot->thumbColor, thumb_red, thumb_green, thumb_blue, thumb_alpha);
+        slot->radius = radius > 0.0 ? radius : 0.0;
+        slot->visible = visible != 0;
+        slot->clipEnabled = moxi_current_clip_enabled;
+        slot->clipFrame = moxi_current_clip_frame;
+        if (index + 1 > moxi_scrollbar_count) {
+            moxi_scrollbar_count = index + 1;
         }
         [moxi_canvas setNeedsDisplay:YES];
     }

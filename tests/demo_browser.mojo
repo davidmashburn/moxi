@@ -48,6 +48,7 @@ from moxi import (
     Point,
     Rect,
     ScrollEvent,
+    SCROLLBAR_KIND,
     SHOWCASE_CANVAS_ID,
     SHOWCASE_PLOT_CLEAR_SELECTION_ID,
     SHOWCASE_PLOT_STREAM_ID,
@@ -117,6 +118,17 @@ def main() raises:
     )
     test_check(app.dispatch(nav_scroll))
     test_check(app.view.scroll_offset_for(DEMO_NAV_PORTAL_ID) > 0.0)
+    var browser_commands = app.paint()
+    var nav_scrollbar_count = 0
+    for index in range(browser_commands.count()):
+        var command = browser_commands.command(index)
+        if (
+            command.kind == SCROLLBAR_KIND
+            and command.id == DEMO_NAV_PORTAL_ID
+        ):
+            nav_scrollbar_count += 1
+            test_check(command.scrollbar_visible)
+    test_check(nav_scrollbar_count == 1)
 
     test_check(app.dispatch(action(DEMO_RUN_BUTTON_ID)))
     test_check(app.component.tab == DEMO_TAB_DEMO)

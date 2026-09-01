@@ -29,6 +29,12 @@ is a clipped, wheel-scrollable portal, and the selected-example content pane
 uses the same scrolling behavior for long source and demo pages. The `Clear`
 button and the `Escape` key clear only the text query, preserving the selected
 area filter.
+Standalone and embedded component views inherit the same policy from their
+root or linear slot, so content that exceeds its allocated box remains
+reachable without a page-specific scroll wrapper.
+Scrollable panes keep a static track and thumb visible while their content
+overflows. On macOS, wheel direction follows the system Natural scrolling
+setting while the portable event model remains unchanged.
 When no entry matches, the detail pane switches to an explicit empty state so
 stale selection details are never mistaken for a result. `Reset` is enabled
 only for live in-browser components; standalone tasks remain the source of

@@ -46,8 +46,8 @@ determinate progress, and stateful controls are visible together:
 - A text field, checkbox, determinate progress indicator, and routed actions.
 - Slider, switch, radio, combo, list, table, tree, menu, dialog, tabs, canvas,
   separator, and image/resource descriptors in the shared catalog surface.
-- A clipped portal with persistent scroll state and fixed/variable-extent
-  visible-range math.
+- Automatic root/linear overflow viewports plus an explicit clipped portal,
+  with persistent scroll state and fixed/variable-extent visible-range math.
 - A deterministic software scene surface covering basic shapes, gradients,
   clipping, opacity layers, and transforms.
 - Backend, text-layout, rich-text, conversation, and capability status.

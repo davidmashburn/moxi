@@ -48,6 +48,7 @@ from .paint import PaintCommands, Renderer
 from .runtime import ColumnRuntime
 from .reactivity import ActionMessage, ActionQueue
 from .execution import LocalizedExecution
+from .layout import ROW_AXIS
 from .tasks import TaskHandle, TaskScheduler
 from .view import ColumnView, TEXT_INPUT_VIEW_KIND
 from .window import WindowBackend
@@ -265,7 +266,13 @@ struct App[ComponentType: Component & Deinitable]:
             routed.set_action(self.runtime.action_for(target))
             if target != -1:
                 var current = self.scroll_offset_for(target)
-                var next = current + event.scroll_delta.y
+                var delta = event.scroll_delta.y
+                if (
+                    self.view.scroll_axis_for(target) == ROW_AXIS
+                    and event.scroll_delta.x != 0.0
+                ):
+                    delta = event.scroll_delta.x
+                var next = current + delta
                 var maximum = self.view.scroll_max_offset(target)
                 if next < 0.0:
                     next = 0.0
@@ -418,14 +425,14 @@ struct App[ComponentType: Component & Deinitable]:
         self.pending.invalidate(INVALIDATE_ALL, self.root_bounds)
 
     def scroll_offset_for(self, id: Int) -> Float32:
-        """Return the app-owned persistent offset for a portal id."""
+        """Return the app-owned persistent offset for a scroll container id."""
         for index in range(len(self.scroll_ids)):
             if self.scroll_ids[index] == id:
                 return self.scroll_values[index]
         return self.view.scroll_offset_for(id)
 
     def remember_scroll(mut self, id: Int, offset: Float32):
-        """Record a portal offset so a later component rebuild preserves it."""
+        """Record an offset so a later component rebuild preserves it."""
         for index in range(len(self.scroll_ids)):
             if self.scroll_ids[index] == id:
                 self.scroll_values[index] = offset
