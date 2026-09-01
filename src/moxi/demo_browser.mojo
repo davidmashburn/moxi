@@ -9,7 +9,7 @@ replacement for composition.
 
 from std.collections import List
 
-from .accessibility import ACTION_PRESS
+from .accessibility import ACTION_COLLAPSE, ACTION_EXPAND, ACTION_PRESS
 from .alignment import AlignmentState
 from .app import CounterState
 from .component import Component, ComponentSlot
@@ -132,6 +132,8 @@ comptime DEMO_CLEAR_SEARCH_ID = 110
 comptime DEMO_NAV_FILTER_LABEL_ID = 111
 comptime DEMO_NAV_TIP_ID = 112
 comptime DEMO_NAV_DIVIDER_ID = 113
+comptime DEMO_NAV_TREE_ID = 114
+comptime DEMO_NAV_COLLAPSED_ID = 115
 comptime DEMO_ENTRY_VIEW_BASE = 1000
 comptime DEMO_CATEGORY_BUTTON_BASE = 2000
 comptime DEMO_CATEGORY_LABEL_BASE = 2100
@@ -742,6 +744,7 @@ struct DemoBrowserState(Component):
     var category: Int
     var selected_id: Int
     var tab: Int
+    var nav_tree_expanded: Bool
     var status: String
     var pending_task: String
     var task_running: Bool
@@ -765,6 +768,7 @@ struct DemoBrowserState(Component):
         self.category = DEMO_CATEGORY_ALL
         self.selected_id = DEMO_HELLO_WINDOW_ID
         self.tab = DEMO_TAB_OVERVIEW
+        self.nav_tree_expanded = True
         self.status = "Ready · choose an example to explore."
         self.pending_task = ""
         self.task_running = False
@@ -1137,71 +1141,100 @@ struct DemoBrowserState(Component):
             root,
             nav,
             DEMO_NAV_TIP_ID,
-            "Tip: type to filter · Esc clears",
+            "Tip: scroll catalog · type to filter · Esc clears",
             22.0,
             _subtle_style(),
         )
 
-        var nav_height = bounds.height - 393.0
-        if nav_height < 160.0:
-            nav_height = 160.0
-        var nav_portal = root.add_portal_to(
-            nav,
-            DEMO_NAV_PORTAL_ID,
-            nav_height,
-            4.0,
-            6.0,
-            0.0,
+        var tree_text = "Browse examples"
+        if not self.nav_tree_expanded:
+            tree_text = "Browse examples (collapsed)"
+        root.add_tree_to(nav, DEMO_NAV_TREE_ID, tree_text, 72.0)
+        root.set_expanded(DEMO_NAV_TREE_ID, self.nav_tree_expanded)
+        root.set_accessibility_label(DEMO_NAV_TREE_ID, "Browse examples")
+        root.set_accessibility_value(
+            DEMO_NAV_TREE_ID,
+            "expanded" if self.nav_tree_expanded else "collapsed",
         )
-        root.set_accessibility_label(nav_portal, "Demo catalog")
-        var last_category = -1
-        var added = 0
-        for index in range(catalog.count()):
-            if not catalog.matches(index, self.search.text, self.category):
-                continue
-            var item = catalog.entry(index)
-            if item.category != last_category:
-                root.add_label_to(
-                    nav_portal,
-                    DEMO_CATEGORY_LABEL_BASE + item.category,
-                    demo_category_name(item.category),
-                    20.0,
-                )
-                root.set_style(
-                    DEMO_CATEGORY_LABEL_BASE + item.category,
-                    _kicker_style(),
-                )
-                last_category = item.category
-            var item_id = DEMO_ENTRY_VIEW_BASE + item.id
-            var item_text = String("   ", item.name)
-            if item.id == self.selected_id:
-                item_text = String("●  ", item.name)
-            var item_button = ButtonControl(
-                item_id,
-                item_text,
-                34.0,
-                _nav_button_style(item.id == self.selected_id),
+        root.set_accessibility_hint(
+            DEMO_NAV_TREE_ID,
+            "Expand or collapse the scrollable demo catalog",
+        )
+
+        if self.nav_tree_expanded:
+            var nav_height = bounds.height - 475.0
+            if nav_height < 160.0:
+                nav_height = 160.0
+            var nav_portal = root.add_portal_to(
+                nav,
+                DEMO_NAV_PORTAL_ID,
+                nav_height,
+                4.0,
+                6.0,
+                0.0,
             )
-            root.add_to(nav_portal, item_button.node())
-            root.set_accessibility_label(item_id, item.name)
-            root.set_accessibility_value(item_id, item.summary)
-            root.set_selected(item_id, item.id == self.selected_id)
+            root.set_accessibility_label(nav_portal, "Scrollable demo catalog")
+            root.set_accessibility_hint(
+                nav_portal,
+                "Use the mouse wheel to browse the catalog",
+            )
+            var last_category = -1
+            var added = 0
+            for index in range(catalog.count()):
+                if not catalog.matches(index, self.search.text, self.category):
+                    continue
+                var item = catalog.entry(index)
+                if item.category != last_category:
+                    root.add_label_to(
+                        nav_portal,
+                        DEMO_CATEGORY_LABEL_BASE + item.category,
+                        demo_category_name(item.category),
+                        20.0,
+                    )
+                    root.set_style(
+                        DEMO_CATEGORY_LABEL_BASE + item.category,
+                        _kicker_style(),
+                    )
+                    last_category = item.category
+                var item_id = DEMO_ENTRY_VIEW_BASE + item.id
+                var item_text = String("   ", item.name)
+                if item.id == self.selected_id:
+                    item_text = String("●  ", item.name)
+                var item_button = ButtonControl(
+                    item_id,
+                    item_text,
+                    34.0,
+                    _nav_button_style(item.id == self.selected_id),
+                )
+                root.add_to(nav_portal, item_button.node())
+                root.set_accessibility_label(item_id, item.name)
+                root.set_accessibility_value(item_id, item.summary)
+                root.set_selected(item_id, item.id == self.selected_id)
+                _add_wrapped_label_styled(
+                    root,
+                    nav_portal,
+                    DEMO_ENTRY_SUMMARY_BASE + item.id,
+                    item.summary,
+                    280.0,
+                    _subtle_style(),
+                )
+                added += 1
+            if added == 0:
+                _add_wrapped_label(
+                    root,
+                    nav_portal,
+                    DEMO_CATEGORY_BUTTON_BASE + 100,
+                    "No examples match. Clear the query or choose another area.",
+                    280.0,
+                )
+        else:
             _add_wrapped_label_styled(
                 root,
-                nav_portal,
-                DEMO_ENTRY_SUMMARY_BASE + item.id,
-                item.summary,
+                nav,
+                DEMO_NAV_COLLAPSED_ID,
+                "Catalog collapsed. Expand Browse examples to navigate.",
                 280.0,
                 _subtle_style(),
-            )
-            added += 1
-        if added == 0:
-            _add_wrapped_label(
-                root,
-                nav_portal,
-                DEMO_CATEGORY_BUTTON_BASE + 100,
-                "No examples match. Clear the query or choose another area.",
-                280.0,
             )
 
         var main_width = bounds.width - 384.0
@@ -1818,6 +1851,31 @@ struct DemoBrowserState(Component):
                 if event.key == KEY_ESCAPE and not self.search.has_composition():
                     return self.clear_search()
                 return self.search.handle_key(event.key, event.modifiers)
+
+        if event.target == DEMO_NAV_TREE_ID:
+            var changed = False
+            if event.kind == ACTION_KIND:
+                if event.action_id == ACTION_EXPAND:
+                    if not self.nav_tree_expanded:
+                        self.nav_tree_expanded = True
+                        changed = True
+                elif event.action_id == ACTION_COLLAPSE:
+                    if self.nav_tree_expanded:
+                        self.nav_tree_expanded = False
+                        changed = True
+                elif event.action_id == ACTION_PRESS:
+                    self.nav_tree_expanded = not self.nav_tree_expanded
+                    changed = True
+            elif _is_activation(event):
+                self.nav_tree_expanded = not self.nav_tree_expanded
+                changed = True
+            if changed:
+                self.status = (
+                    "Catalog expanded · scroll to browse examples."
+                    if self.nav_tree_expanded
+                    else "Catalog collapsed · expand Browse examples to navigate."
+                )
+            return changed
 
         if _is_activation(event):
             if event.target == DEMO_CLEAR_SEARCH_ID:

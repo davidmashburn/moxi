@@ -23,8 +23,12 @@ The window is organized like this:
 
 ## Interaction model
 
-Use `Find an example` to search the full catalog. The `Clear` button and the
-`Escape` key clear only the text query, preserving the selected area filter.
+Use `Find an example` to search the full catalog. Expand or collapse `Browse
+examples` to give the catalog more or less room while exploring. The catalog
+is a clipped, wheel-scrollable portal, and the selected-example content pane
+uses the same scrolling behavior for long source and demo pages. The `Clear`
+button and the `Escape` key clear only the text query, preserving the selected
+area filter.
 When no entry matches, the detail pane switches to an explicit empty state so
 stale selection details are never mistaken for a result. `Reset` is enabled
 only for live in-browser components; standalone tasks remain the source of

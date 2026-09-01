@@ -22,6 +22,8 @@ from moxi import (
     DEMO_PLOT_ID,
     DEMO_PLOT_GALLERY_ID,
     DEMO_PLOT_SVG_ID,
+    DEMO_NAV_PORTAL_ID,
+    DEMO_NAV_TREE_ID,
     DEMO_RUN_BUTTON_ID,
     DEMO_SEARCH_ID,
     DEMO_SHOWCASE_ID_OFFSET,
@@ -94,9 +96,27 @@ def main() raises:
     test_check(app.view.bounds_for(DEMO_SEARCH_ID).width > 0.0)
     test_check(app.view.bounds_for(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID).width > 0.0)
     test_check(app.view.bounds_for(DEMO_CLEAR_SEARCH_ID).width > 0.0)
+    test_check(app.view.bounds_for(DEMO_NAV_TREE_ID).height > 0.0)
     test_check(app.view.bounds_for(DEMO_HEADER_KICKER_ID).height > 0.0)
     test_check(app.view.bounds_for(DEMO_PAGE_QUICKSTART_ID).height > 0.0)
     test_check(app.accessibility().count() > 12)
+
+    # The catalog is a real collapsible tree entrypoint, and its existing
+    # portal remains wheel-scrollable when expanded.
+    test_check(app.dispatch(action(DEMO_NAV_TREE_ID)))
+    test_check(not app.component.nav_tree_expanded)
+    test_check(app.dispatch(action(DEMO_NAV_TREE_ID)))
+    test_check(app.component.nav_tree_expanded)
+    var nav_bounds = app.view.bounds_for(DEMO_NAV_PORTAL_ID)
+    test_check(nav_bounds.height > 0.0)
+    var nav_scroll = Event(
+        ScrollEvent(
+            Point(nav_bounds.x + 2.0, nav_bounds.y + 2.0),
+            Point(0.0, 180.0),
+        )
+    )
+    test_check(app.dispatch(nav_scroll))
+    test_check(app.view.scroll_offset_for(DEMO_NAV_PORTAL_ID) > 0.0)
 
     test_check(app.dispatch(action(DEMO_RUN_BUTTON_ID)))
     test_check(app.component.tab == DEMO_TAB_DEMO)
