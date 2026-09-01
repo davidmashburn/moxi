@@ -215,7 +215,7 @@ struct PlotDataView[origin: Origin]:
         return self.source[].string_field_at(field, source_index)
 
 
-struct PlotDataTable:
+struct PlotDataTable(ImplicitlyCopyable):
     """A numeric x/y table with stable row keys and bounded mutations.
 
     The initial plot contract deliberately starts with two numeric columns.
@@ -242,6 +242,20 @@ struct PlotDataTable:
         self.columns = List[PlotColumn]()
         self.next_key = 0
         self.version = 0
+
+    def __init__(out self, *, copy: Self):
+        """Copy table storage for value-based component state."""
+        self.keys = copy.keys.copy()
+        self.x_values = copy.x_values.copy()
+        self.y_values = copy.y_values.copy()
+        self.x_valid = copy.x_valid.copy()
+        self.y_valid = copy.y_valid.copy()
+        self.columns = List[PlotColumn]()
+        for index in range(len(copy.columns)):
+            var column = copy.columns[index].clone()
+            self.columns.append(column^)
+        self.next_key = copy.next_key
+        self.version = copy.version
 
     def clone(self) -> PlotDataTable:
         var result = PlotDataTable()

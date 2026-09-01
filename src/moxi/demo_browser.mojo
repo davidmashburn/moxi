@@ -619,7 +619,7 @@ struct DemoCatalog:
             DEMO_PLOT_ID,
             "Plot Scene",
             DEMO_CATEGORY_PLOTTING,
-            "A portable line/scatter scene with hit testing and software rendering.",
+            "A live line/scatter scene with hover, selection, pan/zoom, and source updates.",
             "examples/plot.mojo",
             "plot-demo",
             DEMO_PAGE_SHOWCASE,
@@ -630,7 +630,7 @@ struct DemoCatalog:
             DEMO_PLOT_GALLERY_ID,
             "Plot Gallery",
             DEMO_CATEGORY_PLOTTING,
-            "Typed data, encodings, facets, statistical recipes, and interactions.",
+            "Typed data, facets, linked selection, and reactive interactions.",
             "examples/plot_gallery.mojo",
             "plot-gallery",
             DEMO_PAGE_SHOWCASE,
@@ -935,7 +935,7 @@ struct DemoBrowserState(Component):
         elif self.selected_entry().page_kind == DEMO_PAGE_LIVE_SCRIPT:
             self.live_script.component = LiveScriptState()
 
-    def selected_scene(self, view: ColumnView) -> Scene:
+    def selected_scene(mut self, view: ColumnView) -> Scene:
         """Return the selected component's scene for the host canvas.
 
         The returned scene uses the laid-out, namespaced canvas bounds.  This
@@ -1769,8 +1769,18 @@ struct DemoBrowserState(Component):
                 return self.alignment.route(event, view)
             if self.selected_id == DEMO_WRAPPED_ID and self.wrapped.contains(event.target, view):
                 return self.wrapped.route(event, view)
-            if self.selected_entry().page_kind == DEMO_PAGE_SHOWCASE and self.showcase.contains(event.target, view):
-                return self.showcase.route(event, view)
+            if self.selected_entry().page_kind == DEMO_PAGE_SHOWCASE:
+                var showcase_canvas = view.bounds_for(
+                    DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_CANVAS_ID
+                )
+                if self.showcase.contains(event.target, view) or (
+                    event.kind == SCROLL_KIND
+                    and showcase_canvas.contains(event.position)
+                ):
+                    var showcase_event = event
+                    if not self.showcase.contains(event.target, view):
+                        showcase_event.set_target(-1)
+                    return self.showcase.route(showcase_event, view)
             if self.selected_id == DEMO_FRACTAL_ID and self.fractal.contains(event.target, view):
                 return self.fractal.route(event, view)
             if self.selected_entry().page_kind == DEMO_PAGE_LIVE_SCRIPT and self.live_script.contains(event.target, view):

@@ -6,12 +6,22 @@ from moxi import (
     CHANNEL_SIZE,
     CHANNEL_TOOLTIP,
     CHANNEL_X,
+    ClickEvent,
     Color,
+    Event,
     make_plot_data_fixture,
+    MOD_SHIFT,
+    PlotLink,
     PlotSpec,
     PlotView,
+    PointerEvent,
+    POINTER_DOWN_KIND,
+    POINTER_MOVE_KIND,
+    POINTER_UP_KIND,
+    Point,
     Rect,
     SCALE_TEMPORAL,
+    ScrollEvent,
     SoftwareSceneRenderer,
     TYPE_NOMINAL,
     plot_mark_name,
@@ -46,6 +56,63 @@ def main() raises:
     var renderer = SoftwareSceneRenderer(860, 520)
     renderer.render_scene(scene)
     var main_checksum = renderer.checksum()
+
+    # Replay the same interactions a native host sends to PlotView. This keeps
+    # the standalone demo useful in CI while the browser exposes the identical
+    # trace to a person using the canvas.
+    var first = view.runtime.plot.screen_point(
+        view.runtime.plot.series[0].points[0]
+    )
+    var hover_changed = view.dispatch(
+        Event(PointerEvent(POINTER_MOVE_KIND, first))
+    )
+    var click_changed = view.dispatch(Event(ClickEvent(first)))
+    var zoom_before = view.runtime.plot.x_scale.data_max
+    var scroll = Event(ScrollEvent(Point(0.0, 10.0)))
+    scroll.position = first
+    var zoom_changed = view.dispatch(scroll)
+    var zoom_domain_changed = view.runtime.plot.x_scale.data_max != zoom_before
+    var brush_start = Point(
+        view.runtime.plot.bounds.x,
+        view.runtime.plot.bounds.y,
+    )
+    var brush_end = Point(
+        view.runtime.plot.bounds.x + view.runtime.plot.bounds.width - 1.0,
+        view.runtime.plot.bounds.y + view.runtime.plot.bounds.height - 1.0,
+    )
+    var brush_down = Event(PointerEvent(POINTER_DOWN_KIND, brush_start))
+    brush_down.modifiers = MOD_SHIFT
+    _ = view.dispatch(brush_down)
+    _ = view.dispatch(Event(PointerEvent(POINTER_MOVE_KIND, brush_end)))
+    _ = view.dispatch(Event(PointerEvent(POINTER_UP_KIND, brush_end)))
+    var brushed_count = view.selected_count()
+    var interactive_scene = view.build_scene()
+    renderer.render_scene(interactive_scene)
+    var interactive_checksum = renderer.checksum()
+
+    var linked_spec = PlotSpec("Linked source")
+    _ = linked_spec.add_scatter("linked", "x", "y")
+    _ = linked_spec.add_click_select()
+    var linked_view = PlotView(
+        linked_spec,
+        data,
+        Rect(0.0, 0.0, 320.0, 220.0),
+    )
+    var link = PlotLink()
+    link.capture(view.runtime)
+    link.apply(linked_view.runtime)
+    var linked_count = linked_view.selected_count()
+
+    # Mutating the source increments its version; replace_data() then rebuilds
+    # the retained scene from the new snapshot and invalidates render caches.
+    var reactive_data = data.clone()
+    var source_version = reactive_data.version
+    var next_value = reactive_data.float_field_at("value", 0) + 0.75
+    _ = reactive_data.set_float_field("value", 0, next_value)
+    var data_refreshed = view.replace_data(reactive_data)
+    var refreshed_scene = view.build_scene()
+    renderer.render_scene(refreshed_scene)
+    var refreshed_checksum = renderer.checksum()
 
     # The gallery also exercises the statistical recipe boundary. Each recipe
     # owns its transformed table, so independent panels can be linked by row
@@ -87,6 +154,10 @@ def main() raises:
     print("  render packet lines/instances/batches/bytes: ", packet.line_count(), "/", packet.instance_count(), "/", packet.batch_count(), "/", packet.total_byte_count())
     print("  packet fallback required: ", packet.fallback_required)
     print("  checksum: ", main_checksum)
+    print("  replay hover/click/zoom: ", hover_changed, "/", click_changed, "/", zoom_changed, " (domain max changed: ", zoom_domain_changed, ")")
+    print("  brush selected / linked: ", brushed_count, " / ", linked_count)
+    print("  interactive checksum: ", interactive_checksum)
+    print("  reactive source version/refreshed/checksum: ", source_version, " -> ", reactive_data.version, " / ", data_refreshed, " / ", refreshed_checksum)
     print("  accessibility nodes: ", view.accessibility().count())
     print("  histogram rows/commands/checksum: ", histogram.point_count(1), "/", histogram.build_scene().count(), "/", histogram_checksum)
     print("  box rows/commands/checksum: ", boxes.point_count(1), "/", boxes.build_scene().count(), "/", box_checksum)

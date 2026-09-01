@@ -286,7 +286,11 @@ to see the root column relayout.
 `pixi run demo-browser` opens the Moxi Playground. Use the catalog search and
 category filters, inspect an overview or source excerpt, and mount the
 stateful component examples in the `Demo` tab. Scene and plotting pages render
-their component-owned canvas in this same window. Select `Editable Live
+their component-owned canvas in this same window. `Plot Scene` and `Plot
+Gallery` are live surfaces: hover/click/keyboard selection, pan/zoom,
+shift-brush, option-lasso, mark visibility, and a deterministic streaming
+update are all exercised in place. The headless `plot-gallery` replay also
+demonstrates linked selection. Select `Editable Live
 Component`, edit `examples/editable_showcase.mojo`, and save to hot-reload the
 scene in place. Press `Escape` to clear the search query.
 
@@ -325,9 +329,10 @@ and open nested menu/modal layers. The same component is available as
 scroll, and popup paths are covered in-process.
 `pixi run plot-demo` renders the shared first-class plot through the software
 scene backend. `pixi run plot-gallery` exercises typed fields, categorical
-color, per-row size/opacity/tooltips, temporal axes, facets, and declarative
-interactions. It also runs the shared histogram, box, heatmap, and regression
-recipes with lasso-ready selections. `pixi run plot-analytics-benchmark`
+color, per-row size/opacity/tooltips, temporal axes, facets, declarative
+interactions, linked selection, and a reactive source refresh. It also runs
+the shared histogram, box, heatmap, and regression recipes with lasso-ready
+selections. `pixi run plot-analytics-benchmark`
 repeats those recipes and links stable-key selections. `pixi run plot-svg`
 prints the same scene as Web-compatible SVG;
 `pixi run plot-large-benchmark` measures a 10k-point line and bounded 100k

@@ -45,8 +45,9 @@ def main():
     test_check(view.data_table_csv().startswith("key,x,y"))
     var replacement = PlotDataTable()
     _ = replacement.append(10.0, 20.0)
-    view.replace_data(replacement)
+    _ = view.replace_data(replacement)
     test_check(view.runtime.plot.point_count(1) == 1)
+    test_check(not view.replace_data(replacement))
 
     var control = PlotControl(spec, data, Rect(0.0, 0.0, 320.0, 240.0))
     test_check(control.build_scene().count() > 0)

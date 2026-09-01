@@ -62,9 +62,13 @@ The plotting API and its current renderer/host limits are described in
 
 - `pixi run plot-demo` renders the first plotting library slice through the
   deterministic software scene path.
+- `pixi run demo-browser` mounts `Plot Scene` and `Plot Gallery` as live
+  component-owned canvases with hover, click/keyboard selection, pan/zoom,
+  brush, lasso, mark toggling, and a reactive stream toolbar.
 - `pixi run plot-gallery` exercises the supported declarative plot surface;
-  the [gallery reference](plot-gallery.svg) shows its two facet panels,
-  layered line/dot marks, categorical color, and size variation.
+  its headless replay covers the same interactions, linked selection, and a
+  source refresh; the [gallery reference](plot-gallery.svg) shows its two
+  facet panels, layered line/dot marks, categorical color, and size variation.
 - The [statistical gallery reference](plot-analytics.svg) records the current
   histogram/density, box, heatmap, regression, and linked-selection slice.
   `pixi run plot-analytics-benchmark` exercises the same recipes from the

@@ -15,6 +15,9 @@ for index in range(20):
 var spec = PlotSpec("signal")
 _ = spec.add_line("signal", "x", "y")
 _ = spec.add_hover()
+_ = spec.add_brush()
+_ = spec.add_pan_zoom()
+_ = spec.add_click_select()
 _ = spec.add_lasso()
 var plot = plot_from_spec(spec, data, Rect(0.0, 0.0, 640.0, 360.0))
 var scene = plot.build_scene()
@@ -65,6 +68,36 @@ no interaction declarations is inert, and only declared hover, brush,
 pan/zoom, click-select, keyboard, and lasso gestures are accepted. The
 lower-level `PlotRuntime` constructor remains permissive for imperative hosts;
 call `runtime.configure(spec)` when compiling a declarative view.
+
+The plotting demos use that contract as a retained interaction surface. In
+`pixi run demo-browser`, open `Plot Scene` or `Plot Gallery` and use the
+toolbar to reset the viewport, clear the selection, toggle the sample marks,
+or start the reactive stream. Hovering shows the crosshair/tooltip; clicking
+or using the arrow keys selects a point; drag pans; scroll zooms; shift-drag
+brushes an interval; and option-drag selects a free-form lasso. The gallery
+also demonstrates stable-key linked selection in its headless replay. These
+patterns are inspired by Altair's declarative selections and linked-brush
+examples ([interaction guide](https://altair-viz.github.io/user_guide/interactions/index.html),
+[linked brush](https://altair-viz.github.io/gallery/scatter_linked_brush.html)).
+
+`PlotView` is the reactive boundary for a changing source. Its
+`replace_data()` method compares the source's monotonic version, snapshots
+only a changed source, recompiles the scene, and returns whether a refresh
+occurred. `replace_spec()` replaces the declarative grammar, while
+`reset_view()` and `clear_hover()` expose the small host controls used by the
+demo toolbar:
+
+```mojo
+var view = PlotView(spec, source, bounds)
+var previous_version = source.version
+_ = source.append(next_x, next_y)
+if source.version != previous_version:
+    _ = view.replace_data(source)
+```
+
+The standalone `plot-gallery` command replays the same hover, click, zoom,
+brush, and linked-selection events before patching a source field, so these
+behaviors remain deterministic and testable without a window.
 
 Facet scale resolution is independently configurable for x and y. Shared
 scales are the default; `PlotSpec.set_shared_scales(False, True)` gives each

@@ -3,6 +3,7 @@
 from moxi import (
     ACTION_PRESS,
     App,
+    ClickEvent,
     DEMO_CATEGORY_ALL,
     DEMO_CATEGORY_BUTTON_BASE,
     DEMO_CATEGORY_PLOTTING,
@@ -37,13 +38,18 @@ from moxi import (
     Event,
     KEY_ESCAPE,
     KeyEvent,
+    MOD_SHIFT,
     PointerEvent,
     POINTER_DOWN_KIND,
     POINTER_MOVE_KIND,
     POINTER_UP_KIND,
     Point,
     Rect,
+    ScrollEvent,
     SHOWCASE_CANVAS_ID,
+    SHOWCASE_PLOT_CLEAR_SELECTION_ID,
+    SHOWCASE_PLOT_STREAM_ID,
+    SHOWCASE_PLOT_TOGGLE_MARKS_ID,
     SHOWCASE_PLOT,
     LIVE_SCRIPT_CANVAS_ID,
     INTERACTION_SHOWCASE_CANVAS_ID,
@@ -116,6 +122,70 @@ def main() raises:
         ).width > 0.0
     )
     test_check(app.component.selected_scene(app.view).count() > 0)
+
+    # The plot canvas owns a retained PlotView. Pointer input reaches the
+    # runtime, and the surrounding component exposes its state reactively.
+    var plot_canvas = app.view.bounds_for(
+        DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_CANVAS_ID
+    )
+    var plot_target = app.component.showcase.component.plot_view.runtime.plot.screen_point(
+        app.component.showcase.component.plot_view.runtime.plot.series[0].points[0]
+    )
+    test_check(app.dispatch(Event(PointerEvent(POINTER_MOVE_KIND, plot_target))))
+    test_check(app.component.showcase.component.plot_view.runtime.hovered.found())
+    test_check(app.dispatch(Event(ClickEvent(plot_target))))
+    test_check(app.component.showcase.component.plot_view.selected_count() == 1)
+    var zoom_before = app.component.showcase.component.plot_view.runtime.plot.x_scale.data_max
+    var scroll = Event(ScrollEvent(Point(0.0, 10.0)))
+    scroll.position = plot_target
+    test_check(app.dispatch(scroll))
+    test_check(
+        app.component.showcase.component.plot_view.runtime.plot.x_scale.data_max
+        != zoom_before
+    )
+
+    # Shift-drag is delivered through App's pointer lifecycle as an interval
+    # brush, including the synthesized in-bounds release click.
+    var brush_down = Event(
+        PointerEvent(POINTER_DOWN_KIND, Point(plot_canvas.x, plot_canvas.y))
+    )
+    brush_down.modifiers = MOD_SHIFT
+    test_check(app.dispatch(brush_down))
+    var brush_end = Point(
+        plot_canvas.x + plot_canvas.width - 1.0,
+        plot_canvas.y + plot_canvas.height - 1.0,
+    )
+    test_check(app.dispatch(Event(PointerEvent(POINTER_MOVE_KIND, brush_end))))
+    test_check(app.dispatch(Event(PointerEvent(POINTER_UP_KIND, brush_end))))
+    test_check(app.component.showcase.component.plot_view.selected_count() > 0)
+
+    var clear_action = action(
+        DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_PLOT_CLEAR_SELECTION_ID
+    )
+    test_check(app.dispatch(clear_action))
+    test_check(app.component.showcase.component.plot_view.selected_count() == 0)
+
+    var marks_action = action(
+        DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_PLOT_TOGGLE_MARKS_ID
+    )
+    test_check(app.dispatch(marks_action))
+    test_check(not app.component.showcase.component.plot_points_visible)
+    test_check(not app.component.showcase.component.plot_view.runtime.plot.series[1].visible)
+    test_check(app.dispatch(marks_action))
+    test_check(app.component.showcase.component.plot_points_visible)
+
+    var stream_action = action(
+        DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_PLOT_STREAM_ID
+    )
+    test_check(app.dispatch(stream_action))
+    var rows_before_stream = app.component.showcase.component.plot_data.row_count()
+    test_check(app.tick(0.25))
+    test_check(
+        app.component.showcase.component.plot_data.row_count()
+        == rows_before_stream + 1
+    )
+    test_check(app.component.showcase.component.plot_update_count == 1)
+    test_check(app.dispatch(stream_action))
 
     # The interaction lab mounts as a real child component and exposes the
     # state/scene primitives through the same browser route as every other

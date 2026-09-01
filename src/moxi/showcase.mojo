@@ -7,12 +7,33 @@ components through ``ComponentSlot``; it does not manufacture a preview that
 looks like a widget while running something else in a sibling process.
 """
 
+from .accessibility import ACTION_PRESS
 from .animation import Animation, EASE_IN_OUT
 from .component import Component
 from .controls import ButtonControl, LabelControl
-from .event import CLICK_KIND, FRAME_TICK_KIND, KEY_ENTER, KEY_SPACE, KEY_DOWN_KIND, Event
+from .event import (
+    ACTION_KIND,
+    CLICK_KIND,
+    FRAME_TICK_KIND,
+    KEY_ENTER,
+    KEY_SPACE,
+    KEY_DOWN_KIND,
+    Event,
+)
 from .geometry import Point, Rect
-from .scenarios import make_plot_scenario
+from .plot_data import PlotDataTable
+from .plot_spec import (
+    CHANNEL_COLOR,
+    CHANNEL_OPACITY,
+    CHANNEL_SIZE,
+    CHANNEL_TOOLTIP,
+    CHANNEL_X,
+    PlotSpec,
+    SCALE_TEMPORAL,
+    TYPE_NOMINAL,
+)
+from .plot_view import PlotView
+from .scenarios import make_plot_data_fixture, make_plot_scenario
 from .scene import Scene
 from .style import (
     Color,
@@ -42,6 +63,13 @@ comptime SHOWCASE_PROGRESS_ID = 4
 comptime SHOWCASE_RESET_ID = 5
 comptime SHOWCASE_CANVAS_ID = 6
 comptime SHOWCASE_DETAIL_ID = 7
+comptime SHOWCASE_PLOT_TOOLBAR_ID = 8
+comptime SHOWCASE_PLOT_RESET_VIEW_ID = 9
+comptime SHOWCASE_PLOT_CLEAR_SELECTION_ID = 10
+comptime SHOWCASE_PLOT_TOGGLE_MARKS_ID = 11
+comptime SHOWCASE_PLOT_STREAM_ID = 12
+comptime SHOWCASE_PLOT_SPACER_ID = 13
+comptime SHOWCASE_PLOT_STATUS_ID = 14
 
 
 def _is_activation(event: Event) -> Bool:
@@ -51,6 +79,7 @@ def _is_activation(event: Event) -> Bool:
             event.kind == KEY_DOWN_KIND
             and (event.key == KEY_ENTER or event.key == KEY_SPACE)
         )
+        or (event.kind == ACTION_KIND and event.action_id == ACTION_PRESS)
     )
 
 
@@ -118,6 +147,63 @@ def _is_scene_mode(mode: Int) -> Bool:
     )
 
 
+def _is_interactive_plot_mode(mode: Int) -> Bool:
+    return mode == SHOWCASE_PLOT or mode == SHOWCASE_PLOT_GALLERY
+
+
+def _simple_plot_data() -> PlotDataTable:
+    """Build the small source table used by the interactive plot lesson."""
+    var data = PlotDataTable()
+    for index in range(12):
+        var x = Float32(index)
+        var y = 0.5 + Float32((index * 7) % 5) * 0.35
+        _ = data.append(x, y)
+    return data^
+
+
+def _plot_data_for_mode(mode: Int) -> PlotDataTable:
+    if mode == SHOWCASE_PLOT_GALLERY:
+        # Keep the gallery tied to the same fixture as the standalone recipe
+        # demo and analytics benchmark.
+        return make_plot_data_fixture()
+    return _simple_plot_data()
+
+
+def _plot_spec_for_mode(mode: Int) -> PlotSpec:
+    var title = "Moxi plotting preview"
+    var spec = PlotSpec(title)
+    var line = spec.add_line(
+        "signal",
+        "x",
+        "y",
+        Color(0.25, 0.72, 1.0, 1.0),
+    )
+    var dots = spec.add_dot(
+        "samples",
+        "x",
+        "y",
+        Color(1.0, 0.45, 0.25, 1.0),
+    )
+    if mode == SHOWCASE_PLOT_GALLERY:
+        title = "Telemetry gallery"
+        spec.title = title
+        _ = spec.encode(line, CHANNEL_COLOR, "series", TYPE_NOMINAL)
+        _ = spec.set_tooltip_fields(line, "time,value,series,region")
+        _ = spec.encode(dots, CHANNEL_COLOR, "series", TYPE_NOMINAL)
+        _ = spec.encode(dots, CHANNEL_SIZE, "size")
+        _ = spec.encode(dots, CHANNEL_OPACITY, "opacity")
+        _ = spec.encode(dots, CHANNEL_TOOLTIP, "time,value,series")
+        spec.set_scale(CHANNEL_X, SCALE_TEMPORAL)
+        spec.set_facet("region")
+    _ = spec.add_hover(True, True)
+    _ = spec.add_brush()
+    _ = spec.add_pan_zoom()
+    _ = spec.add_click_select()
+    _ = spec.add_lasso()
+    _ = spec.add_keyboard()
+    return spec^
+
+
 struct ShowcaseState(Component):
     """A small, genuinely embeddable sample component.
 
@@ -129,11 +215,31 @@ struct ShowcaseState(Component):
     var mode: Int
     var animation: Animation
     var frame_count: Int
+    var plot_data: PlotDataTable
+    var plot_view: PlotView
+    var plot_streaming: Bool
+    var plot_stream_elapsed: Float32
+    var plot_stream_index: Int
+    var plot_update_count: Int
+    var plot_points_visible: Bool
 
     def __init__(out self, mode: Int = SHOWCASE_HELLO_WINDOW):
         self.mode = mode
         self.animation = Animation(0.0, 1.0, 1.0, EASE_IN_OUT)
         self.frame_count = 0
+        var initial_data = _plot_data_for_mode(mode)
+        var initial_spec = _plot_spec_for_mode(mode)
+        self.plot_data = initial_data^
+        self.plot_view = PlotView(
+            initial_spec,
+            self.plot_data,
+            Rect(0.0, 0.0, 640.0, 420.0),
+        )
+        self.plot_streaming = False
+        self.plot_stream_elapsed = 0.0
+        self.plot_stream_index = self.plot_data.row_count()
+        self.plot_update_count = 0
+        self.plot_points_visible = True
 
     def set_mode(mut self, mode: Int):
         """Switch the shared component to a catalog lesson and reset it."""
@@ -142,11 +248,50 @@ struct ShowcaseState(Component):
         self.mode = mode
         self.animation = Animation(0.0, 1.0, 1.0, EASE_IN_OUT)
         self.frame_count = 0
+        var next_data = _plot_data_for_mode(mode)
+        var next_spec = _plot_spec_for_mode(mode)
+        self.plot_data = next_data^
+        self.plot_view.replace_spec(next_spec, self.plot_data)
+        self.plot_streaming = False
+        self.plot_stream_elapsed = 0.0
+        self.plot_stream_index = self.plot_data.row_count()
+        self.plot_update_count = 0
+        self.plot_points_visible = True
 
     def reset(mut self):
         """Restore the mode's initial state without replacing the host slot."""
         self.animation = Animation(0.0, 1.0, 1.0, EASE_IN_OUT)
         self.frame_count = 0
+        if _is_interactive_plot_mode(self.mode):
+            self.plot_view.reset_view()
+            self.plot_view.clear_selection()
+            self.plot_view.clear_hover()
+            self.plot_streaming = False
+            self.plot_stream_elapsed = 0.0
+            self.plot_update_count = 0
+            self.plot_points_visible = True
+            if self.plot_view.runtime.plot.series_count() > 1:
+                var points_id = self.plot_view.runtime.plot.series[1].id
+                _ = self.plot_view.runtime.plot.set_series_visible(points_id, True)
+
+    def plot_status(self) -> String:
+        """Return the compact live status shown beside plot controls."""
+        var hover = "none"
+        if self.plot_view.runtime.hovered.found():
+            hover = String("key ", self.plot_view.runtime.hovered.row_key)
+        var stream = "paused"
+        if self.plot_streaming:
+            stream = "streaming"
+        return String(
+            "selected ",
+            self.plot_view.selected_count(),
+            " · hover ",
+            hover,
+            " · ",
+            stream,
+            " · updates ",
+            self.plot_update_count,
+        )
 
     def has_scene(self) -> Bool:
         return _is_scene_mode(self.mode)
@@ -196,7 +341,90 @@ struct ShowcaseState(Component):
                 28.0,
             )
         elif _is_scene_mode(self.mode):
+            var has_plot_controls = _is_interactive_plot_mode(self.mode)
+            if has_plot_controls:
+                var toolbar = root.add_row(
+                    SHOWCASE_PLOT_TOOLBAR_ID,
+                    0.0,
+                    36.0,
+                    0.0,
+                    6.0,
+                )
+                var reset_view = ButtonControl(
+                    SHOWCASE_PLOT_RESET_VIEW_ID,
+                    "Reset view",
+                    34.0,
+                )
+                root.add_to(toolbar, reset_view.node())
+                root.set_intrinsic_width(SHOWCASE_PLOT_RESET_VIEW_ID)
+                root.set_accessibility_label(
+                    SHOWCASE_PLOT_RESET_VIEW_ID,
+                    "Reset plot view",
+                )
+                var clear_selection = ButtonControl(
+                    SHOWCASE_PLOT_CLEAR_SELECTION_ID,
+                    "Clear selection",
+                    34.0,
+                )
+                root.add_to(toolbar, clear_selection.node())
+                root.set_intrinsic_width(SHOWCASE_PLOT_CLEAR_SELECTION_ID)
+                root.set_accessibility_label(
+                    SHOWCASE_PLOT_CLEAR_SELECTION_ID,
+                    "Clear plot selection",
+                )
+                var marks_text = "Hide dots"
+                if not self.plot_points_visible:
+                    marks_text = "Show dots"
+                var marks = ButtonControl(
+                    SHOWCASE_PLOT_TOGGLE_MARKS_ID,
+                    marks_text,
+                    34.0,
+                )
+                root.add_to(toolbar, marks.node())
+                root.set_intrinsic_width(SHOWCASE_PLOT_TOGGLE_MARKS_ID)
+                root.set_accessibility_label(
+                    SHOWCASE_PLOT_TOGGLE_MARKS_ID,
+                    "Toggle sample marks",
+                )
+                var stream_text = "Start stream"
+                if self.plot_streaming:
+                    stream_text = "Pause stream"
+                var stream = ButtonControl(
+                    SHOWCASE_PLOT_STREAM_ID,
+                    stream_text,
+                    34.0,
+                )
+                root.add_to(toolbar, stream.node())
+                root.set_intrinsic_width(SHOWCASE_PLOT_STREAM_ID)
+                root.set_accessibility_label(
+                    SHOWCASE_PLOT_STREAM_ID,
+                    "Toggle reactive data stream",
+                )
+                root.add_flexible_spacer_to(toolbar, SHOWCASE_PLOT_SPACER_ID)
+                root.add_to(
+                    toolbar,
+                    LabelControl(
+                        SHOWCASE_PLOT_STATUS_ID,
+                        self.plot_status(),
+                        34.0,
+                    ).node(),
+                )
+                root.set_preferred_width(
+                    SHOWCASE_PLOT_STATUS_ID,
+                    bounds.width - 430.0,
+                )
+                root.set_accessibility_label(
+                    SHOWCASE_PLOT_STATUS_ID,
+                    "Plot interaction status",
+                )
+                root.set_accessibility_value(
+                    SHOWCASE_PLOT_STATUS_ID,
+                    self.plot_status(),
+                )
+
             var canvas_height = bounds.height - 176.0
+            if has_plot_controls:
+                canvas_height -= 50.0
             if canvas_height < 190.0:
                 canvas_height = 190.0
             root.add_canvas(
@@ -214,7 +442,11 @@ struct ShowcaseState(Component):
             )
             root.add_label(
                 SHOWCASE_DETAIL_ID,
-                "Scene output is owned by this component and rendered by the active host canvas.",
+                (
+                    "Drag to pan · scroll to zoom · shift-drag to brush · option-drag to lasso · click or use the arrow keys to select."
+                    if has_plot_controls
+                    else "Scene output is owned by this component and rendered by the active host canvas."
+                ),
                 28.0,
             )
         else:
@@ -245,6 +477,47 @@ struct ShowcaseState(Component):
         return root^
 
     def update(mut self, event: Event, view: ColumnView) -> Bool:
+        if _is_interactive_plot_mode(self.mode):
+            if event.kind == FRAME_TICK_KIND and self.plot_streaming:
+                self.plot_stream_elapsed += event.delta_seconds
+                if self.plot_stream_elapsed >= 0.25:
+                    self.plot_stream_elapsed = 0.0
+                    if self._append_stream_sample():
+                        self.plot_update_count += 1
+                        return True
+
+            var canvas = view.bounds_for(SHOWCASE_CANVAS_ID)
+            var canvas_targeted = event.target == SHOWCASE_CANVAS_ID
+            var canvas_positioned = canvas.contains(event.position)
+            if canvas_targeted or (
+                event.target == -1
+                and canvas_positioned
+                and event.kind != FRAME_TICK_KIND
+            ):
+                self.plot_view.set_bounds(canvas)
+                return self.plot_view.dispatch(event)
+
+            if event.target == SHOWCASE_PLOT_RESET_VIEW_ID and _is_activation(event):
+                self.plot_view.reset_view()
+                self.plot_view.clear_hover()
+                return True
+            if event.target == SHOWCASE_PLOT_CLEAR_SELECTION_ID and _is_activation(event):
+                self.plot_view.clear_selection()
+                return True
+            if event.target == SHOWCASE_PLOT_TOGGLE_MARKS_ID and _is_activation(event):
+                self.plot_points_visible = not self.plot_points_visible
+                if self.plot_view.runtime.plot.series_count() > 1:
+                    var points_id = self.plot_view.runtime.plot.series[1].id
+                    _ = self.plot_view.runtime.plot.set_series_visible(
+                        points_id,
+                        self.plot_points_visible,
+                    )
+                return True
+            if event.target == SHOWCASE_PLOT_STREAM_ID and _is_activation(event):
+                self.plot_streaming = not self.plot_streaming
+                self.plot_stream_elapsed = 0.0
+                return True
+
         if self.mode == SHOWCASE_ANIMATION and event.kind == FRAME_TICK_KIND:
             if self.animation.finished():
                 self.animation.restart()
@@ -256,22 +529,59 @@ struct ShowcaseState(Component):
             return True
         return False
 
-    def scene(self, bounds: Rect) -> Scene:
+    def _append_stream_sample(mut self) -> Bool:
+        """Append one deterministic row and refresh the retained plot view."""
+        var sample = self.plot_stream_index
+        var value = 1.0 + Float32((sample * 11) % 17) * 0.35
+        var key = self.plot_data.append(Float32(sample), value)
+        var row = self.plot_data.row_index(key)
+        if self.mode == SHOWCASE_PLOT_GALLERY and row >= 0:
+            _ = self.plot_data.set_int_field(
+                "time",
+                row,
+                Int64(1700000000 + sample * 3600),
+            )
+            _ = self.plot_data.set_float_field("value", row, value)
+            _ = self.plot_data.set_float_field(
+                "size",
+                row,
+                4.0 + Float32(sample % 5) * 1.5,
+            )
+            _ = self.plot_data.set_category_field(
+                "series",
+                row,
+                "A" if sample % 2 == 0 else "B",
+            )
+            _ = self.plot_data.set_category_field(
+                "region",
+                row,
+                "north" if sample % 24 < 12 else "south",
+            )
+        self.plot_data.rollover(64)
+        self.plot_stream_index += 1
+        var refreshed = self.plot_view.replace_data(self.plot_data)
+        if refreshed and not self.plot_points_visible:
+            if self.plot_view.runtime.plot.series_count() > 1:
+                var points_id = self.plot_view.runtime.plot.series[1].id
+                _ = self.plot_view.runtime.plot.set_series_visible(
+                    points_id,
+                    False,
+                )
+        return refreshed
+
+    def scene(mut self, bounds: Rect) -> Scene:
         """Return the current scene for a component-owned canvas."""
         var scene = Scene()
         if not self.has_scene():
             return scene^
 
-        if (
-            self.mode == SHOWCASE_PLOT
-            or self.mode == SHOWCASE_PLOT_GALLERY
-            or self.mode == SHOWCASE_PLOT_SVG
-        ):
+        if _is_interactive_plot_mode(self.mode):
+            self.plot_view.set_bounds(bounds)
+            return self.plot_view.build_scene()
+
+        if self.mode == SHOWCASE_PLOT_SVG:
             var plot = make_plot_scenario(bounds)
-            if self.mode == SHOWCASE_PLOT_GALLERY:
-                plot.set_title("Telemetry gallery")
-            elif self.mode == SHOWCASE_PLOT_SVG:
-                plot.set_title("SVG export scene")
+            plot.set_title("SVG export scene")
             return plot.build_scene()
 
         scene.append_rounded_rect(

@@ -720,6 +720,24 @@ struct PlotRuntime:
             self.dragging = False
             return True
         if event.kind == CLICK_KIND:
+            # App synthesizes a click from an in-bounds pointer release after
+            # its generic control activation pass. Finish an active plot
+            # gesture before treating that release as a point click.
+            if self.lassoing:
+                self.lasso_points.append(event.position)
+                self._apply_lasso()
+                self.lassoing = False
+                self.dragging = False
+                return True
+            if self.brushing:
+                self.brush_current = event.position
+                self._apply_brush()
+                self.brushing = False
+                self.dragging = False
+                return True
+            if self.dragging:
+                self.dragging = False
+                return True
             if not self.click_select_enabled:
                 return False
             var previous_selected = self.selected
