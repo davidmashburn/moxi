@@ -78,7 +78,7 @@ def place_popup(
     return Rect(x, y, width, height)
 
 
-struct PopupEntry:
+struct PopupEntry(ImplicitlyCopyable):
     """One open popup and its stable action IDs."""
 
     var id: Int
@@ -116,6 +116,19 @@ struct PopupEntry:
         self.restore_focus_id = restore_focus_id
         self.action_ids = List[Int]()
         self.highlighted_index = -1
+
+    def __init__(out self, *, copy: Self):
+        self.id = copy.id
+        self.kind = copy.kind
+        self.owner_id = copy.owner_id
+        self.anchor = copy.anchor
+        self.bounds = copy.bounds
+        self.placement = copy.placement
+        self.modal = copy.modal
+        self.focus_scope_id = copy.focus_scope_id
+        self.restore_focus_id = copy.restore_focus_id
+        self.action_ids = copy.action_ids.copy()
+        self.highlighted_index = copy.highlighted_index
 
     def set_actions(mut self, actions: List[Int]):
         self.action_ids = List[Int](capacity=len(actions))

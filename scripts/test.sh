@@ -57,6 +57,7 @@ tests=(
   tests/control_state.mojo
   tests/interaction_foundation.mojo
   tests/reorder_interaction.mojo
+  tests/interaction_showcase.mojo
   tests/catalog_state.mojo
   tests/style_theme.mojo
   tests/widget_catalog.mojo

@@ -36,6 +36,8 @@ wrapped-text-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_windo
 wrapped-text-demo = { cmd = "./dist/moxi-wrapped-text-demo", depends-on = ["wrapped-text-demo-build"] }
 composed-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/composed.mojo -o dist/moxi-composed-demo", depends-on = ["native-object"] }
 composed-demo = { cmd = "./dist/moxi-composed-demo", depends-on = ["composed-demo-build"] }
+interaction-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/interaction_showcase.mojo -o dist/moxi-interaction-showcase-demo", depends-on = ["native-object"] }
+interaction-showcase-demo = { cmd = "./dist/moxi-interaction-showcase-demo", depends-on = ["interaction-showcase-demo-build"] }
 demo-browser-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo-browser", depends-on = ["native-object"] }
 demo-browser = { cmd = "./dist/moxi-demo-browser", depends-on = ["demo-browser-build"] }
 interactive-fractal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation examples/interactive_fractal.mojo -o dist/moxi-interactive-fractal-demo", depends-on = ["native-object", "metal-object"] }
