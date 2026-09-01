@@ -112,6 +112,9 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - Native alignment and nested-container demos for the first 0.5 slice.
 - A wxPython-style teaching demo that maps frames, panels, box sizers, and
   controls onto the same public component/view contracts.
+- An interaction lab that renders and exercises stable-key collection/table,
+  tree disclosure, scrollbar geometry, nested popup layers, and pointer reorder
+  state in one live component.
 - A searchable Moxi Playground, inspired by wxPython's demo browser, that
   catalogs every checked-in example, mounts stateful component pages, and
   exposes runnable Pixi tasks.
@@ -215,6 +218,7 @@ pixi run wx-style-demo
 pixi run animation-demo
 pixi run wrapped-text-demo
 pixi run composed-demo
+pixi run interaction-showcase-demo
 pixi run demo-browser
 pixi run interactive-fractal-demo
 pixi run plot-demo
@@ -314,6 +318,11 @@ embedded counter component.
 height recomputation as the root width changes.
 `pixi run composed-demo` shows a parent component owning a typed counter child;
 the child is embedded with namespaced ids and still handles its local action.
+`pixi run interaction-showcase-demo` opens the interaction lab: select and
+reorder sparse stable-key rows, inspect tree disclosure and scrollbar movement,
+and open nested menu/modal layers. The same component is available as
+`Collection & Interaction Lab` in the Playground, where its pointer, keyboard,
+scroll, and popup paths are covered in-process.
 `pixi run plot-demo` renders the shared first-class plot through the software
 scene backend. `pixi run plot-gallery` exercises typed fields, categorical
 color, per-row size/opacity/tooltips, temporal axes, facets, and declarative

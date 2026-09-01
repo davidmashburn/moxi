@@ -26,11 +26,16 @@ from .event import (
     KEY_ENTER,
     KEY_ESCAPE,
     KEY_SPACE,
+    SCROLL_KIND,
     TEXT_INPUT_KIND,
 )
 from .form import FormState
 from .fractal import FRACTAL_CANVAS_ID, FractalState
 from .geometry import Rect
+from .interaction_showcase import (
+    INTERACTION_SHOWCASE_CANVAS_ID,
+    InteractionShowcaseState,
+)
 from .layout import ALIGN_STRETCH, JUSTIFY_START
 from .live_script import LIVE_SCRIPT_CANVAS_ID, LiveScriptState
 from .nested import NestedState
@@ -84,6 +89,7 @@ comptime DEMO_PAGE_WRAPPED = 8
 comptime DEMO_PAGE_SHOWCASE = 9
 comptime DEMO_PAGE_FRACTAL = 10
 comptime DEMO_PAGE_LIVE_SCRIPT = 11
+comptime DEMO_PAGE_INTERACTION = 12
 
 comptime DEMO_HELLO_WINDOW_ID = 1
 comptime DEMO_HELLO_COMPONENT_ID = 2
@@ -105,6 +111,7 @@ comptime DEMO_METAL_WINDOW_ID = 17
 comptime DEMO_CORETEXT_ID = 18
 comptime DEMO_HARFBUZZ_ID = 19
 comptime DEMO_LIVE_SCRIPT_ID = 20
+comptime DEMO_INTERACTION_ID = 21
 
 comptime DEMO_TAB_OVERVIEW = 0
 comptime DEMO_TAB_SOURCE = 1
@@ -186,9 +193,11 @@ comptime DEMO_WRAPPED_ID_OFFSET = 17000
 comptime DEMO_SHOWCASE_SLOT_ID = 8009
 comptime DEMO_FRACTAL_SLOT_ID = 8010
 comptime DEMO_LIVE_SCRIPT_SLOT_ID = 8011
+comptime DEMO_INTERACTION_SLOT_ID = 8012
 comptime DEMO_SHOWCASE_ID_OFFSET = 18000
 comptime DEMO_FRACTAL_ID_OFFSET = 19000
 comptime DEMO_LIVE_SCRIPT_ID_OFFSET = 20000
+comptime DEMO_INTERACTION_ID_OFFSET = 21000
 
 
 def demo_category_name(category: Int) -> String:
@@ -462,7 +471,7 @@ struct DemoCatalog:
     var entries: List[DemoEntry]
 
     def __init__(out self):
-        self.entries = List[DemoEntry](capacity=20)
+        self.entries = List[DemoEntry](capacity=24)
         self.entries.append(DemoEntry(
             DEMO_HELLO_WINDOW_ID,
             "Hello Window",
@@ -539,6 +548,17 @@ struct DemoCatalog:
             DEMO_PAGE_WX_STYLE,
             True,
             "window.open(WindowConfig(\"Moxi wxPython-style demo\", 560.0, 1100.0))\nvar app = App[WxStyleState](WxStyleState(), bounds)",
+        ))
+        self.entries.append(DemoEntry(
+            DEMO_INTERACTION_ID,
+            "Collection & Interaction Lab",
+            DEMO_CATEGORY_COMPONENTS,
+            "A live stable-key table, tree disclosure, scrollbar, popup stack, and reorder gesture in one component.",
+            "examples/interaction_showcase.mojo",
+            "interaction-showcase-demo",
+            DEMO_PAGE_INTERACTION,
+            True,
+            "var app = App[InteractionShowcaseState](InteractionShowcaseState(), bounds)\napp.run(window, renderer)",
         ))
         self.entries.append(DemoEntry(
             DEMO_LIVE_SCRIPT_ID,
@@ -732,6 +752,7 @@ struct DemoBrowserState(Component):
     var nested: ComponentSlot[NestedState]
     var composed: ComponentSlot[ComposedState]
     var wx_style: ComponentSlot[WxStyleState]
+    var interaction: ComponentSlot[InteractionShowcaseState]
     var row: ComponentSlot[RowState]
     var alignment: ComponentSlot[AlignmentState]
     var wrapped: ComponentSlot[WrappedTextState]
@@ -762,6 +783,11 @@ struct DemoBrowserState(Component):
         )
         self.wx_style = ComponentSlot[WxStyleState](
             WxStyleState(), DEMO_WX_STYLE_SLOT_ID, DEMO_WX_STYLE_ID_OFFSET
+        )
+        self.interaction = ComponentSlot[InteractionShowcaseState](
+            InteractionShowcaseState(),
+            DEMO_INTERACTION_SLOT_ID,
+            DEMO_INTERACTION_ID_OFFSET,
         )
         self.row = ComponentSlot[RowState](
             RowState(), DEMO_ROW_SLOT_ID, DEMO_ROW_ID_OFFSET
@@ -892,6 +918,8 @@ struct DemoBrowserState(Component):
             self.composed.component = ComposedState()
         elif self.selected_id == DEMO_WX_STYLE_ID:
             self.wx_style.component = WxStyleState()
+        elif self.selected_id == DEMO_INTERACTION_ID:
+            self.interaction.component = InteractionShowcaseState()
         elif self.selected_id == DEMO_ROW_ID:
             self.row.component = RowState()
         elif self.selected_id == DEMO_ALIGNMENT_ID:
@@ -918,6 +946,11 @@ struct DemoBrowserState(Component):
         if self.tab != DEMO_TAB_DEMO:
             return empty^
         var entry = self.selected_entry()
+        if entry.page_kind == DEMO_PAGE_INTERACTION:
+            var canvas = view.bounds_for(
+                DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_CANVAS_ID
+            )
+            return self.interaction.component.scene(canvas)
         if entry.page_kind == DEMO_PAGE_SHOWCASE:
             var canvas = view.bounds_for(
                 DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_CANVAS_ID
@@ -935,6 +968,10 @@ struct DemoBrowserState(Component):
         if self.tab != DEMO_TAB_DEMO:
             return Rect(0.0, 0.0, 0.0, 0.0)
         var entry = self.selected_entry()
+        if entry.page_kind == DEMO_PAGE_INTERACTION:
+            return view.bounds_for(
+                DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_CANVAS_ID
+            )
         if entry.page_kind == DEMO_PAGE_SHOWCASE and self.showcase.component.has_scene():
             return view.bounds_for(
                 DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_CANVAS_ID
@@ -1609,6 +1646,18 @@ struct DemoBrowserState(Component):
                 child_height,
             )
             return
+        if entry.page_kind == DEMO_PAGE_INTERACTION:
+            var child = self.interaction.build(
+                Rect(0.0, 0.0, page_width, page_height)
+            )
+            root.add_component_view_to(
+                parent_id,
+                DEMO_INTERACTION_SLOT_ID,
+                child,
+                DEMO_INTERACTION_ID_OFFSET,
+                page_height,
+            )
+            return
         if entry.page_kind == DEMO_PAGE_ROW:
             var child = self.row.build(Rect(0.0, 0.0, page_width, page_height))
             root.add_component_view_to(
@@ -1697,6 +1746,23 @@ struct DemoBrowserState(Component):
                 return self.composed.route(event, view)
             if self.selected_id == DEMO_WX_STYLE_ID and self.wx_style.contains(event.target, view):
                 return self.wx_style.route(event, view)
+            if (
+                self.selected_id == DEMO_INTERACTION_ID
+                and event.kind == KEY_DOWN_KIND
+                and self.interaction.component.popups.is_open()
+            ):
+                # Popup focus scopes are owned by the child scene rather than
+                # the declarative parent tree. Route their keyboard stream as
+                # an unscoped child event so synthetic focus ids do not get
+                # rejected by ComponentSlot.contains().
+                var popup_event = event
+                popup_event.set_target(-1)
+                return self.interaction.route(popup_event, view)
+            if self.selected_id == DEMO_INTERACTION_ID and (
+                self.interaction.contains(event.target, view)
+                or event.kind == SCROLL_KIND
+            ):
+                return self.interaction.route(event, view)
             if self.selected_id == DEMO_ROW_ID and self.row.contains(event.target, view):
                 return self.row.route(event, view)
             if self.selected_id == DEMO_ALIGNMENT_ID and self.alignment.contains(event.target, view):

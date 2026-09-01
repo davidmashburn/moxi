@@ -66,10 +66,13 @@ without a GUI with `pixi run live-reload-check`.
 The initial catalog covers the current repository scope:
 
 - getting started: the minimal window and component lifecycle;
-- components and input: counter, form, nested, composed, wx-style, and
-  editable live-component pages;
+- components and input: counter, form, nested, composed, wx-style,
+  interaction lab, and editable live-component pages;
 - layout and runtime: row, alignment, wrapped text, animation, and
   invalidation;
+- interaction state: the live interaction lab combines stable-key table
+  selection/reorder, tree disclosure, scrollbar geometry, and nested
+  menu/modal popup layers;
 - plotting: the portable scene, declarative gallery, and SVG export;
 - rendering: offscreen Metal and the visible Metal window;
 - text: CoreText and optional HarfBuzz shaping.

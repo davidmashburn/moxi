@@ -22,6 +22,7 @@ for task in \
   form-demo \
   nested-demo \
   composed-demo \
+  interaction-showcase-demo \
   wx-style-demo \
   row-demo \
   alignment-demo \
