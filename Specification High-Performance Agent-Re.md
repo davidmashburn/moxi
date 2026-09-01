@@ -9,6 +9,10 @@ The source of truth for the UI lifecycle is [ARCHITECTURE.md](ARCHITECTURE.md).
 The executable contract examples are in [tests/capability.mojo](tests/capability.mojo)
 and [tests/conversation.mojo](tests/conversation.mojo).
 
+Attribution: the capability-bus concept is credited to David Ash and was seeded
+from [The Mythophor capability-bus article](https://www.mythophor.com/agent-ready-architecture-the-capability-bus-pattern/).
+Moxi adapts that seed into the in-process UI policy boundary described here.
+
 ## Purpose and topology
 
 An agent adapter may propose a tool call, but it never receives a direct mutable

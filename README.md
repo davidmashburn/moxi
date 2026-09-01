@@ -135,6 +135,10 @@ network client or LLM session into the UI core. `invoke()` is deliberately
 executor-less and returns `CAPABILITY_EXECUTOR_REQUIRED`; typed handlers use
 `invoke_handler()`.
 
+The capability-bus concept is credited to David Ash and was seeded from [The
+Mythophor capability-bus article](https://www.mythophor.com/agent-ready-architecture-the-capability-bus-pattern/). The
+Moxi implementation adapts that seed into an in-process UI policy boundary.
+
 The component surface includes labels, buttons, single-line and multiline text
 inputs, checkbox/switch/radio controls, determinate progress and slider
 controls, image/resource descriptors, combo boxes, lists, tables, trees, menus,
