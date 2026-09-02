@@ -60,6 +60,7 @@ tests=(
   tests/interaction_showcase.mojo
   tests/catalog_state.mojo
   tests/style_theme.mojo
+  tests/tokens_recipes.mojo
   tests/widget_catalog.mojo
   tests/accessibility_contract.mojo
   tests/scene_renderer.mojo

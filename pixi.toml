@@ -40,6 +40,8 @@ interaction-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/mac
 interaction-showcase-demo = { cmd = "./dist/moxi-interaction-showcase-demo", depends-on = ["interaction-showcase-demo-build"] }
 demo-browser-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo-browser", depends-on = ["native-object"] }
 demo-browser = { cmd = "./dist/moxi-demo-browser", depends-on = ["demo-browser-build"] }
+theme-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/theme_showcase.mojo -o dist/moxi-theme-showcase-demo", depends-on = ["native-object"] }
+theme-showcase-demo = { cmd = "./dist/moxi-theme-showcase-demo", depends-on = ["theme-showcase-demo-build"] }
 interactive-fractal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation examples/interactive_fractal.mojo -o dist/moxi-interactive-fractal-demo", depends-on = ["native-object", "metal-object"] }
 interactive-fractal-demo = { cmd = "./dist/moxi-interactive-fractal-demo", depends-on = ["interactive-fractal-demo-build"] }
 fractal-benchmark-clock = "clang -O3 -Wall -Wextra -Werror -c native/benchmark_clock.c -o native/benchmark_clock.o"

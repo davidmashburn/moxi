@@ -18,6 +18,8 @@ from moxi import (
     DEMO_INTERACTION_ID_OFFSET,
     DEMO_LIVE_SCRIPT_ID,
     DEMO_LIVE_SCRIPT_ID_OFFSET,
+    DEMO_THEME_SHOWCASE_ID,
+    DEMO_THEME_SHOWCASE_ID_OFFSET,
     DEMO_PAGE_QUICKSTART_ID,
     DEMO_PLOT_ID,
     DEMO_PLOT_GALLERY_ID,
@@ -78,7 +80,7 @@ def action(target: Int) -> Event:
 
 def main() raises:
     var catalog = DemoCatalog()
-    test_check(catalog.count() == 21)
+    test_check(catalog.count() == 22)
     test_check(catalog.visible_count("plot", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("PLOT", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("", DEMO_CATEGORY_PLOTTING) == 4)
@@ -327,6 +329,18 @@ def main() raises:
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_WX_STYLE_ID)))
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
     test_check(app.view.bounds_for(DEMO_WX_STYLE_ID_OFFSET + WX_TITLE_ID).width > 0.0)
+
+    # The token/recipe showcase is mounted through the same typed component
+    # slot as the rest of the in-process catalog.
+    test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_THEME_SHOWCASE_ID)))
+    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.view.bounds_for(DEMO_THEME_SHOWCASE_ID_OFFSET + 3101).width > 0.0)
+    test_check(
+        app.dispatch(
+            action(DEMO_THEME_SHOWCASE_ID_OFFSET + 11)
+        )
+    )
+    test_check(app.component.theme_showcase.component.theme_mode == 1)
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID)))
     test_check(app.component.selected_id == DEMO_COUNTER_ID)
     test_check(app.component.tab == 0)
