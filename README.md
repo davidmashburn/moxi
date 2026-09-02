@@ -24,6 +24,9 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - Backend-neutral `PaintCommand` and `Renderer` contracts.
 - Ordered `PaintCommands` streams for a complete frame.
 - Backend-neutral RGBA `Color`, `Style`, and rounded `Panel` primitives.
+- Semantic spacing, radius, typography, and color tokens with dark, light,
+  zinc, and emerald theme presets, plus reusable button, badge, and card
+  recipes.
 - Separate `WindowBackend` and `WindowConfig` contracts.
 - A native macOS AppKit window and canvas renderer.
 - Resize-aware root layout and repainting in the native counter example.
@@ -225,6 +228,7 @@ pixi run animation-demo
 pixi run wrapped-text-demo
 pixi run composed-demo
 pixi run interaction-showcase-demo
+pixi run theme-showcase-demo
 pixi run demo-browser
 pixi run interactive-fractal-demo
 pixi run plot-demo
@@ -333,6 +337,10 @@ reorder sparse stable-key rows, inspect tree disclosure and scrollbar movement,
 and open nested menu/modal layers. The same component is available as
 `Collection & Interaction Lab` in the Playground, where its pointer, keyboard,
 scroll, and popup paths are covered in-process.
+`pixi run theme-showcase-demo` opens the token and recipe showcase. Switch
+between the built-in palettes and exercise the primary, secondary, destructive,
+outline, ghost, input, checkbox, and switch recipes; the same page is available
+as `Theme & Recipe Showcase` in the Playground.
 `pixi run plot-demo` renders the shared first-class plot through the software
 scene backend. `pixi run plot-gallery` exercises typed fields, categorical
 color, per-row size/opacity/tooltips, temporal axes, facets, declarative

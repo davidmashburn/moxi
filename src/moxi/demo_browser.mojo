@@ -40,6 +40,7 @@ from .layout import ALIGN_STRETCH, JUSTIFY_START
 from .live_script import LIVE_SCRIPT_CANVAS_ID, LiveScriptState
 from .nested import NestedState
 from .row import RowState
+from .theme_showcase import ThemeShowcaseState
 from .style import (
     Color,
     Style,
@@ -90,6 +91,7 @@ comptime DEMO_PAGE_SHOWCASE = 9
 comptime DEMO_PAGE_FRACTAL = 10
 comptime DEMO_PAGE_LIVE_SCRIPT = 11
 comptime DEMO_PAGE_INTERACTION = 12
+comptime DEMO_PAGE_THEME_SHOWCASE = 13
 
 comptime DEMO_HELLO_WINDOW_ID = 1
 comptime DEMO_HELLO_COMPONENT_ID = 2
@@ -112,6 +114,7 @@ comptime DEMO_CORETEXT_ID = 18
 comptime DEMO_HARFBUZZ_ID = 19
 comptime DEMO_LIVE_SCRIPT_ID = 20
 comptime DEMO_INTERACTION_ID = 21
+comptime DEMO_THEME_SHOWCASE_ID = 22
 
 comptime DEMO_TAB_OVERVIEW = 0
 comptime DEMO_TAB_SOURCE = 1
@@ -200,6 +203,8 @@ comptime DEMO_SHOWCASE_ID_OFFSET = 18000
 comptime DEMO_FRACTAL_ID_OFFSET = 19000
 comptime DEMO_LIVE_SCRIPT_ID_OFFSET = 20000
 comptime DEMO_INTERACTION_ID_OFFSET = 21000
+comptime DEMO_THEME_SHOWCASE_SLOT_ID = 8013
+comptime DEMO_THEME_SHOWCASE_ID_OFFSET = 22000
 
 
 def demo_category_name(category: Int) -> String:
@@ -552,6 +557,17 @@ struct DemoCatalog:
             "window.open(WindowConfig(\"Moxi wxPython-style demo\", 560.0, 1100.0))\nvar app = App[WxStyleState](WxStyleState(), bounds)",
         ))
         self.entries.append(DemoEntry(
+            DEMO_THEME_SHOWCASE_ID,
+            "Theme & Recipe Showcase",
+            DEMO_CATEGORY_COMPONENTS,
+            "Token-driven palettes, shadcn-style recipes, and live theme switching.",
+            "examples/theme_showcase.mojo",
+            "theme-showcase-demo",
+            DEMO_PAGE_THEME_SHOWCASE,
+            True,
+            "var app = App[ThemeShowcaseState](ThemeShowcaseState(), bounds)\napp.run(window, renderer)",
+        ))
+        self.entries.append(DemoEntry(
             DEMO_INTERACTION_ID,
             "Collection & Interaction Lab",
             DEMO_CATEGORY_COMPONENTS,
@@ -762,6 +778,7 @@ struct DemoBrowserState(Component):
     var showcase: ComponentSlot[ShowcaseState]
     var fractal: ComponentSlot[FractalState]
     var live_script: ComponentSlot[LiveScriptState]
+    var theme_showcase: ComponentSlot[ThemeShowcaseState]
 
     def __init__(out self):
         self.search = TextInputState()
@@ -814,6 +831,11 @@ struct DemoBrowserState(Component):
             LiveScriptState(),
             DEMO_LIVE_SCRIPT_SLOT_ID,
             DEMO_LIVE_SCRIPT_ID_OFFSET,
+        )
+        self.theme_showcase = ComponentSlot[ThemeShowcaseState](
+            ThemeShowcaseState(),
+            DEMO_THEME_SHOWCASE_SLOT_ID,
+            DEMO_THEME_SHOWCASE_ID_OFFSET,
         )
 
     def selected_entry(self) -> DemoEntry:
@@ -922,6 +944,8 @@ struct DemoBrowserState(Component):
             self.composed.component = ComposedState()
         elif self.selected_id == DEMO_WX_STYLE_ID:
             self.wx_style.component = WxStyleState()
+        elif self.selected_id == DEMO_THEME_SHOWCASE_ID:
+            self.theme_showcase.component = ThemeShowcaseState()
         elif self.selected_id == DEMO_INTERACTION_ID:
             self.interaction.component = InteractionShowcaseState()
         elif self.selected_id == DEMO_ROW_ID:
@@ -1691,6 +1715,18 @@ struct DemoBrowserState(Component):
                 page_height,
             )
             return
+        if entry.page_kind == DEMO_PAGE_THEME_SHOWCASE:
+            var child = self.theme_showcase.build(
+                Rect(0.0, 0.0, page_width, page_height)
+            )
+            root.add_component_view_to(
+                parent_id,
+                DEMO_THEME_SHOWCASE_SLOT_ID,
+                child,
+                DEMO_THEME_SHOWCASE_ID_OFFSET,
+                page_height,
+            )
+            return
         if entry.page_kind == DEMO_PAGE_ROW:
             var child = self.row.build(Rect(0.0, 0.0, page_width, page_height))
             root.add_component_view_to(
@@ -1786,6 +1822,8 @@ struct DemoBrowserState(Component):
                 return self.composed.route(event, view)
             if self.selected_id == DEMO_WX_STYLE_ID and self.wx_style.contains(event.target, view):
                 return self.wx_style.route(event, view)
+            if self.selected_id == DEMO_THEME_SHOWCASE_ID and self.theme_showcase.contains(event.target, view):
+                return self.theme_showcase.route(event, view)
             if (
                 self.selected_id == DEMO_INTERACTION_ID
                 and event.kind == KEY_DOWN_KIND
