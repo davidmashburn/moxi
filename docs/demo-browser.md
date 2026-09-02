@@ -14,6 +14,9 @@ The window is organized like this:
 - `Run live page` mounts the selected `Component` page in-process, preserving
   the same event, focus, clipboard, and component-slot contracts as its
   standalone example;
+- ordinary live-component pages use a Storybook-style `Demo` surface: the
+  mounted `LIVE PREVIEW` sits beside a `COMPONENT USAGE` code panel showing
+  the snippet that constructs and mounts that component;
 - scene and plotting pages declare a real `Canvas` node in that component;
   the host renders the component's `Scene` into that node in the same window;
 - `Editable Live Component` is a development page whose Mojo component is

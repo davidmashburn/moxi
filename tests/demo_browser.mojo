@@ -12,6 +12,8 @@ from moxi import (
     DEMO_CLEAR_SEARCH_ID,
     DEMO_ENTRY_VIEW_BASE,
     DEMO_EMPTY_CLEAR_ID,
+    DEMO_STORY_SPLIT_ID,
+    DEMO_STORY_CODE_TEXT_ID,
     DEMO_FRACTAL_ID,
     DEMO_HEADER_KICKER_ID,
     DEMO_INTERACTION_ID,
@@ -334,6 +336,19 @@ def main() raises:
     # slot as the rest of the in-process catalog.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_THEME_SHOWCASE_ID)))
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.view.bounds_for(DEMO_STORY_SPLIT_ID).width > 0.0)
+    test_check(app.view.bounds_for(DEMO_STORY_CODE_TEXT_ID).width > 0.0)
+    var theme_index = catalog.index_for_id(DEMO_THEME_SHOWCASE_ID)
+    test_check("ThemeShowcaseState" in catalog.entry(theme_index).source_excerpt)
+    var usage_code_found = False
+    for index in range(app.view.child_count()):
+        var node = app.view.child(index)
+        if node.id == DEMO_STORY_CODE_TEXT_ID:
+            usage_code_found = True
+            test_check(node.text == catalog.entry(theme_index).source_excerpt)
+            test_check(not node.enabled)
+            test_check(node.style.fill.red < 0.1)
+    test_check(usage_code_found)
     test_check(app.view.bounds_for(DEMO_THEME_SHOWCASE_ID_OFFSET + 3101).width > 0.0)
     test_check(
         app.dispatch(

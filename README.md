@@ -295,8 +295,10 @@ to see the root column relayout.
 
 `pixi run demo-browser` opens the Moxi Playground. Use the catalog search and
 category filters, inspect an overview or source excerpt, and mount the
-stateful component examples in the `Demo` tab. Scene and plotting pages render
-their component-owned canvas in this same window. `Plot Scene` and `Plot
+stateful component examples in the `Demo` tab. Ordinary component pages show a
+Storybook-style live preview next to the component-usage code that mounts it;
+scene and plotting pages render their component-owned canvas in this same
+window. `Plot Scene` and `Plot
 Gallery` are live surfaces: hover/click/keyboard selection, pan/zoom,
 shift-brush, option-lasso, mark visibility, and a deterministic streaming
 update are all exercised in place. The headless `plot-gallery` replay also

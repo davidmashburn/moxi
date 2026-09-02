@@ -36,7 +36,7 @@ from .interaction_showcase import (
     INTERACTION_SHOWCASE_CANVAS_ID,
     InteractionShowcaseState,
 )
-from .layout import ALIGN_STRETCH, JUSTIFY_START
+from .layout import ALIGN_STRETCH, JUSTIFY_START, ROW_AXIS
 from .live_script import LIVE_SCRIPT_CANVAS_ID, LiveScriptState
 from .nested import NestedState
 from .row import RowState
@@ -176,6 +176,16 @@ comptime DEMO_EMPTY_KICKER_ID = 3071
 comptime DEMO_EMPTY_TITLE_ID = 3072
 comptime DEMO_EMPTY_BODY_ID = 3073
 comptime DEMO_EMPTY_CLEAR_ID = 3074
+
+# The Demo tab intentionally mirrors a small Storybook workbench: the live
+# component stays beside the usage excerpt that mounts it.
+comptime DEMO_STORY_SPLIT_ID = 3080
+comptime DEMO_STORY_PREVIEW_ID = 3081
+comptime DEMO_STORY_PREVIEW_KICKER_ID = 3082
+comptime DEMO_STORY_CODE_ID = 3083
+comptime DEMO_STORY_CODE_KICKER_ID = 3084
+comptime DEMO_STORY_CODE_TEXT_ID = 3085
+comptime DEMO_STORY_CODE_HINT_ID = 3086
 
 # Component slots use distinct slot and id-offset pairs because the flat view
 # tree must remain globally unique even when the selected page changes.
@@ -336,6 +346,19 @@ def _body_style() -> Style:
 
 def _small_style() -> Style:
     return _label_style(13.0, _muted_ink())
+
+
+def _code_style() -> Style:
+    """Return the compact code-panel style used by live stories."""
+    return Style(
+        _field_fill(),
+        Color(0.78, 0.90, 1.0, 1.0),
+        9.0,
+        12.0,
+        Color(0.22, 0.34, 0.52, 1.0),
+        1.0,
+        1.0,
+    )
 
 
 def _subtle_style() -> Style:
@@ -565,7 +588,7 @@ struct DemoCatalog:
             "theme-showcase-demo",
             DEMO_PAGE_THEME_SHOWCASE,
             True,
-            "var app = App[ThemeShowcaseState](ThemeShowcaseState(), bounds)\napp.run(window, renderer)",
+            "var component = ThemeShowcaseState()\nvar app = App[ThemeShowcaseState](component, bounds)\napp.run(window, renderer)",
         ))
         self.entries.append(DemoEntry(
             DEMO_INTERACTION_ID,
@@ -1652,51 +1675,146 @@ struct DemoBrowserState(Component):
         if page_height < 140.0:
             page_height = 140.0
 
-        if entry.page_kind == DEMO_PAGE_COUNTER:
-            var child = self.counter.build(Rect(0.0, 0.0, page_width, page_height))
-            root.add_component_view_to(
+        # Live pages are presented as a small Storybook-style workbench:
+        # the actual Component view is mounted on the left and the executable
+        # usage excerpt that mounts it stays visible on the right.
+        var component_parent = parent_id
+        var component_height = page_height
+        var component_width = page_width
+        # Canvas-backed pages already need the full content width for their
+        # renderer-owned surface. Keep those previews full-width while the
+        # ordinary retained-view pages use the split workbench below.
+        var storybook_layout = entry.in_process
+        if (
+            entry.page_kind == DEMO_PAGE_SHOWCASE
+            or entry.page_kind == DEMO_PAGE_FRACTAL
+            or entry.page_kind == DEMO_PAGE_INTERACTION
+            or entry.page_kind == DEMO_PAGE_LIVE_SCRIPT
+        ):
+            storybook_layout = False
+        if storybook_layout:
+            var story = root.add_split_to(
                 parent_id,
+                DEMO_STORY_SPLIT_ID,
+                0.0,
+                page_height,
+                ROW_AXIS,
+                0.58,
+                4.0,
+                12.0,
+            )
+            var preview = root.add_column_to(
+                story,
+                DEMO_STORY_PREVIEW_ID,
+                0.0,
+                8.0,
+                8.0,
+            )
+            var code = root.add_column_to(
+                story,
+                DEMO_STORY_CODE_ID,
+                0.0,
+                8.0,
+                8.0,
+            )
+            _add_styled_label(
+                root,
+                preview,
+                DEMO_STORY_PREVIEW_KICKER_ID,
+                "LIVE PREVIEW",
+                18.0,
+                _kicker_style(),
+            )
+            _add_styled_label(
+                root,
+                code,
+                DEMO_STORY_CODE_KICKER_ID,
+                "COMPONENT USAGE",
+                18.0,
+                _kicker_style(),
+            )
+            var code_height: Float32 = 190.0
+            if page_height < 300.0:
+                code_height = page_height - 86.0
+            if code_height < 96.0:
+                code_height = 96.0
+            root.add_multiline_text_to(
+                code,
+                DEMO_STORY_CODE_TEXT_ID,
+                entry.source_excerpt,
+                code_height,
+            )
+            root.set_style(DEMO_STORY_CODE_TEXT_ID, _code_style())
+            root.set_enabled(DEMO_STORY_CODE_TEXT_ID, False)
+            root.set_accessibility_label(
+                DEMO_STORY_CODE_TEXT_ID,
+                "Component usage code",
+            )
+            _add_wrapped_label_styled(
+                root,
+                code,
+                DEMO_STORY_CODE_HINT_ID,
+                "The preview and this snippet share the same Component boundary.",
+                page_width * 0.42,
+                _small_style(),
+            )
+            component_parent = preview
+            component_height = page_height - 42.0
+            if component_height < 96.0:
+                component_height = 96.0
+            # Match the child build width to the first split pane, including
+            # the pane's padding, so a component lays out for its preview
+            # instead of building at the full browser width and overflowing
+            # into the code panel.
+            component_width = (width - 20.0) * 0.58 - 16.0
+            if component_width < 160.0:
+                component_width = 160.0
+
+        if entry.page_kind == DEMO_PAGE_COUNTER:
+            var child = self.counter.build(Rect(0.0, 0.0, component_width, component_height))
+            root.add_component_view_to(
+                component_parent,
                 DEMO_COUNTER_SLOT_ID,
                 child,
                 DEMO_COUNTER_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_FORM:
-            var child = self.form.build(Rect(0.0, 0.0, page_width, page_height))
+            var child = self.form.build(Rect(0.0, 0.0, component_width, component_height))
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_FORM_SLOT_ID,
                 child,
                 DEMO_FORM_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_NESTED:
-            var child = self.nested.build(Rect(0.0, 0.0, page_width, page_height))
+            var child = self.nested.build(Rect(0.0, 0.0, component_width, component_height))
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_NESTED_SLOT_ID,
                 child,
                 DEMO_NESTED_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_COMPOSED:
-            var child = self.composed.build(Rect(0.0, 0.0, page_width, page_height))
+            var child = self.composed.build(Rect(0.0, 0.0, component_width, component_height))
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_COMPOSED_SLOT_ID,
                 child,
                 DEMO_COMPOSED_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_WX_STYLE:
             var child_height: Float32 = 1080.0
-            var child = self.wx_style.build(Rect(0.0, 0.0, page_width, child_height))
+            var child = self.wx_style.build(Rect(0.0, 0.0, component_width, child_height))
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_WX_STYLE_SLOT_ID,
                 child,
                 DEMO_WX_STYLE_ID_OFFSET,
@@ -1705,77 +1823,77 @@ struct DemoBrowserState(Component):
             return
         if entry.page_kind == DEMO_PAGE_INTERACTION:
             var child = self.interaction.build(
-                Rect(0.0, 0.0, page_width, page_height)
+                Rect(0.0, 0.0, component_width, component_height)
             )
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_INTERACTION_SLOT_ID,
                 child,
                 DEMO_INTERACTION_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_THEME_SHOWCASE:
             var child = self.theme_showcase.build(
-                Rect(0.0, 0.0, page_width, page_height)
+                Rect(0.0, 0.0, component_width, component_height)
             )
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_THEME_SHOWCASE_SLOT_ID,
                 child,
                 DEMO_THEME_SHOWCASE_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_ROW:
-            var child = self.row.build(Rect(0.0, 0.0, page_width, page_height))
+            var child = self.row.build(Rect(0.0, 0.0, component_width, component_height))
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_ROW_SLOT_ID,
                 child,
                 DEMO_ROW_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_ALIGNMENT:
-            var child = self.alignment.build(Rect(0.0, 0.0, page_width, page_height))
+            var child = self.alignment.build(Rect(0.0, 0.0, component_width, component_height))
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_ALIGNMENT_SLOT_ID,
                 child,
                 DEMO_ALIGNMENT_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_WRAPPED:
-            var child = self.wrapped.build(Rect(0.0, 0.0, page_width, page_height))
+            var child = self.wrapped.build(Rect(0.0, 0.0, component_width, component_height))
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_WRAPPED_SLOT_ID,
                 child,
                 DEMO_WRAPPED_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_SHOWCASE:
             var child = self.showcase.build(
-                Rect(0.0, 0.0, page_width, page_height)
+                Rect(0.0, 0.0, component_width, component_height)
             )
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_SHOWCASE_SLOT_ID,
                 child,
                 DEMO_SHOWCASE_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_FRACTAL:
             var child_height: Float32 = 1080.0
             var child = self.fractal.build(
-                Rect(0.0, 0.0, page_width, child_height)
+                Rect(0.0, 0.0, component_width, child_height)
             )
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_FRACTAL_SLOT_ID,
                 child,
                 DEMO_FRACTAL_ID_OFFSET,
@@ -1784,14 +1902,14 @@ struct DemoBrowserState(Component):
             return
         if entry.page_kind == DEMO_PAGE_LIVE_SCRIPT:
             var child = self.live_script.build(
-                Rect(0.0, 0.0, page_width, page_height)
+                Rect(0.0, 0.0, component_width, component_height)
             )
             root.add_component_view_to(
-                parent_id,
+                component_parent,
                 DEMO_LIVE_SCRIPT_SLOT_ID,
                 child,
                 DEMO_LIVE_SCRIPT_ID_OFFSET,
-                page_height,
+                component_height,
             )
             return
 

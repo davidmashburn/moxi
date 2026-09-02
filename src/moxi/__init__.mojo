@@ -854,6 +854,8 @@ from .demo_browser import (
     DEMO_CONTENT_PORTAL_ID,
     DEMO_SOURCE_TEXT_ID,
     DEMO_EMPTY_CLEAR_ID,
+    DEMO_STORY_SPLIT_ID,
+    DEMO_STORY_CODE_TEXT_ID,
     DemoEntry,
     DemoCatalog,
     DemoBrowserState,
