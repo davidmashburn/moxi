@@ -713,6 +713,58 @@ def _random_line_color(start: Point, end: Point) -> Color:
     return Color(red, green, blue, 1.0)
 
 
+def _append_scene_circle(
+    mut scene: Scene,
+    id: Int,
+    center: Point,
+    radius: Float32,
+    fill: Color,
+):
+    """Represent a canvas circle with the portable rounded-rect primitive."""
+    scene.append_rounded_rect(
+        id,
+        Rect(
+            center.x - radius,
+            center.y - radius,
+            radius * 2.0,
+            radius * 2.0,
+        ),
+        fill,
+        radius,
+    )
+
+
+def _append_scene_docked_endpoint(
+    mut scene: Scene,
+    id: Int,
+    center: Point,
+    red_active: Bool,
+):
+    """Add the layered endpoint affordance used by the canvas painter."""
+    var outer = Color(184.0 / 255.0, 49.0 / 255.0, 90.0 / 255.0, 1.0)
+    var inner = Color(87.0 / 255.0, 140.0 / 255.0, 201.0 / 255.0, 1.0)
+    var ring = Color(250.0 / 255.0, 227.0 / 255.0, 235.0 / 255.0, 1.0)
+    if red_active:
+        outer = Color(87.0 / 255.0, 140.0 / 255.0, 201.0 / 255.0, 1.0)
+        inner = Color(184.0 / 255.0, 49.0 / 255.0, 90.0 / 255.0, 1.0)
+        ring = Color(230.0 / 255.0, 238.0 / 255.0, 250.0 / 255.0, 1.0)
+    _append_scene_circle(scene, id, center, FRACTAL_BASELINE_RADIUS, outer)
+    _append_scene_circle(
+        scene,
+        id + 1,
+        center,
+        FRACTAL_BASELINE_RADIUS - 1.0,
+        ring,
+    )
+    _append_scene_circle(
+        scene,
+        id + 2,
+        center,
+        FRACTAL_NESTED_ENDPOINT_RADIUS,
+        inner,
+    )
+
+
 struct FractalState(Component):
     """A complete Moxi component for the interactive line fractal explorer."""
 
@@ -1311,6 +1363,64 @@ struct FractalState(Component):
                     Point(canvas_bounds.x + self.geometry.generator_points[index + 1].x, canvas_bounds.y + self.geometry.generator_points[index + 1].y),
                     Color(186.0 / 255.0, 57.0 / 255.0, 39.0 / 255.0, 1.0),
                     2.0,
+                )
+
+            # The browser hosts this component through the scene contract,
+            # while the standalone example uses the richer canvas painter.
+            # Keep the editable scaffold and endpoint affordances in the
+            # shared scene so both hosts expose the same interaction model.
+            var handle_base = FRACTAL_CANVAS_ID + 20000
+            for index in range(len(self.geometry.generator_points)):
+                var is_first = index == 0
+                var is_last = index == len(self.geometry.generator_points) - 1
+                var point = self.geometry.generator_points[index]
+                var center = Point(
+                    canvas_bounds.x + point.x,
+                    canvas_bounds.y + point.y,
+                )
+                if is_first and self.geometry.endpoint0_docked:
+                    _append_scene_docked_endpoint(
+                        scene,
+                        handle_base + index * 4,
+                        center,
+                        self.endpoint0_revealed,
+                    )
+                elif is_last and self.geometry.endpoint1_docked:
+                    _append_scene_docked_endpoint(
+                        scene,
+                        handle_base + index * 4,
+                        center,
+                        self.endpoint1_revealed,
+                    )
+                else:
+                    _append_scene_circle(
+                        scene,
+                        handle_base + index * 4,
+                        center,
+                        FRACTAL_HANDLE_RADIUS,
+                        Color(215.0 / 255.0, 83.0 / 255.0, 63.0 / 255.0, 1.0),
+                    )
+
+        var baseline_handle_base = FRACTAL_CANVAS_ID + 21000
+        for index in range(2):
+            var point = self.geometry.baseline_start if index == 0 else self.geometry.baseline_end
+            var center = Point(canvas_bounds.x + point.x, canvas_bounds.y + point.y)
+            var docked = self.geometry.endpoint0_docked if index == 0 else self.geometry.endpoint1_docked
+            var revealed = self.endpoint0_revealed if index == 0 else self.endpoint1_revealed
+            if docked:
+                _append_scene_docked_endpoint(
+                    scene,
+                    baseline_handle_base + index * 4,
+                    center,
+                    revealed,
+                )
+            else:
+                _append_scene_circle(
+                    scene,
+                    baseline_handle_base + index * 4,
+                    center,
+                    FRACTAL_BASELINE_RADIUS,
+                    Color(87.0 / 255.0, 140.0 / 255.0, 201.0 / 255.0, 1.0),
                 )
         return scene^
 

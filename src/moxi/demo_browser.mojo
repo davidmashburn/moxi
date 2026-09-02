@@ -1768,7 +1768,14 @@ struct DemoBrowserState(Component):
                 if self.selected_entry().page_kind == DEMO_PAGE_SHOWCASE:
                     return self.showcase.route(frame, view)
                 if self.selected_id == DEMO_FRACTAL_ID:
-                    return self.fractal.route(frame, view)
+                    # The fractal's dense terminal geometry is intentionally
+                    # advanced by the embedding host, so the browser drives
+                    # the same incremental render loop as the standalone
+                    # example. The child update still receives the tick for
+                    # double-click timing and other interaction state.
+                    var rendered = self.fractal.component.advance_render()
+                    var routed = self.fractal.route(frame, view)
+                    return rendered or routed
             if self.selected_id == DEMO_COUNTER_ID and self.counter.contains(event.target, view):
                 return self.counter.route(event, view)
             if self.selected_id == DEMO_FORM_ID and self.form.contains(event.target, view):

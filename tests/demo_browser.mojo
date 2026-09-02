@@ -49,6 +49,7 @@ from moxi import (
     Rect,
     ScrollEvent,
     SCROLLBAR_KIND,
+    SCENE_ROUNDED_RECT,
     SHOWCASE_CANVAS_ID,
     SHOWCASE_PLOT_CLEAR_SELECTION_ID,
     SHOWCASE_PLOT_STREAM_ID,
@@ -309,7 +310,19 @@ def main() raises:
     # The line-fractal page is embedded through the same Component contract.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_FRACTAL_ID)))
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
-    test_check(app.component.selected_scene(app.view).count() > 0)
+    var fractal_scene_before = app.component.selected_scene(app.view)
+    var fractal_handle_count = 0
+    for index in range(fractal_scene_before.count()):
+        if fractal_scene_before.command(index).kind == SCENE_ROUNDED_RECT:
+            fractal_handle_count += 1
+    test_check(fractal_handle_count > 0)
+    test_check(app.component.fractal.component.rendered_segment_count() == 0)
+    test_check(app.tick(1.0 / 60.0))
+    test_check(app.component.fractal.component.rendered_segment_count() > 0)
+    test_check(
+        app.component.selected_scene(app.view).count()
+        > fractal_scene_before.count()
+    )
 
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_WX_STYLE_ID)))
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
