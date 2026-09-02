@@ -1,10 +1,10 @@
-"""Small embeddable components shared by the browser and standalone demos.
+"""Small embeddable components used by the browser's catalog previews.
 
-The showcase is intentionally ordinary Moxi code: each example is a
-``Component`` with a normal view tree, and scene-oriented examples expose a
-renderer-neutral ``Scene`` for a host canvas.  The demo browser mounts these
-components through ``ComponentSlot``; it does not manufacture a preview that
-looks like a widget while running something else in a sibling process.
+The browser previews are ordinary Moxi code: each page is a ``Component`` with
+a normal view tree, and scene-oriented pages expose a renderer-neutral
+``Scene`` for a host canvas. The standalone examples that teach composition
+keep their component source in the ``examples/`` directory; reusable
+stateful scenarios remain available in ``src/moxi`` for larger applications.
 """
 
 from .accessibility import ACTION_PRESS
@@ -117,7 +117,7 @@ def _title_for_mode(mode: Int) -> String:
 
 def _body_for_mode(mode: Int) -> String:
     if mode == SHOWCASE_HELLO_WINDOW:
-        return "A real Moxi component mounted in a native window. The standalone example and the Playground use this same component source."
+        return "A real Moxi component mounted in a native window. Open the standalone example to see the same build pattern in editable source."
     if mode == SHOWCASE_HELLO_COMPONENT:
         return "The smallest reusable component: state owns a view builder and the host owns the window and renderer lifecycle."
     if mode == SHOWCASE_ANIMATION:

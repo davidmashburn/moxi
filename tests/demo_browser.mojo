@@ -87,6 +87,12 @@ def main() raises:
     test_check(catalog.visible_count("PLOT", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("", DEMO_CATEGORY_PLOTTING) == 4)
     test_check(catalog.entry(0).source == "examples/hello_window.mojo")
+    # The browser's source panels must teach Component construction directly;
+    # a mode selector is not a substitute for the example's build code.
+    for index in range(catalog.count()):
+        test_check("SHOWCASE_" not in catalog.entry(index).source_excerpt)
+    test_check("struct HelloWindow(Component)" in catalog.entry(0).source_excerpt)
+    test_check("def build" in catalog.entry(0).source_excerpt)
     var plot_index = catalog.index_for_id(DEMO_PLOT_ID)
     test_check(plot_index >= 0)
     test_check(catalog.entry(plot_index).id == DEMO_PLOT_ID)

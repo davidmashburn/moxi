@@ -504,12 +504,20 @@ The first component slice is in
 [examples/hello_window.mojo](examples/hello_window.mojo):
 
 ```mojo
-var app = App[ShowcaseState](
-    ShowcaseState(SHOWCASE_HELLO_WINDOW), bounds
-)
+struct HelloWindow(Component):
+    def build(self, bounds: Rect) -> ColumnView:
+        var root = ColumnView(bounds, 24.0, 12.0)
+        root.add_label(1, "Hello from Moxi", 36.0)
+        root.add_label(2, "This view is built by a Component.", 0.0)
+        root.layout()
+        return root^
+
 var window = MacOSWindow()
 var renderer = MacOSRenderer()
 window.open(WindowConfig("Moxi · Hello Window", 560.0, 320.0))
+var size = window.size()
+var bounds = Rect(0.0, 0.0, size.width, size.height)
+var app = App[HelloWindow](HelloWindow(), bounds)
 app.run(window, renderer)
 ```
 

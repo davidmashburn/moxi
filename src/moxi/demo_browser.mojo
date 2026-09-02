@@ -511,7 +511,7 @@ struct DemoCatalog:
             "hello-window-demo",
             DEMO_PAGE_SHOWCASE,
             True,
-            "var app = App[ShowcaseState](\n    ShowcaseState(SHOWCASE_HELLO_WINDOW), bounds\n)\napp.run(window, renderer)",
+            "struct HelloWindow(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 24.0, 12.0)\n        root.add_label(1, \"Hello from Moxi\", 36.0)\n        root.add_label(2, \"This view is built by a Component.\", 0.0)\n        root.layout()\n        return root^\n\nvar app = App[HelloWindow](HelloWindow(), bounds)\napp.run(window, renderer)",
         ))
         self.entries.append(DemoEntry(
             DEMO_HELLO_COMPONENT_ID,
@@ -522,7 +522,7 @@ struct DemoCatalog:
             "component-demo",
             DEMO_PAGE_SHOWCASE,
             True,
-            "var app = App[ShowcaseState](\n    ShowcaseState(SHOWCASE_HELLO_COMPONENT), bounds\n)\napp.run(window, renderer)",
+            "struct HelloComponent(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 24.0, 12.0)\n        root.add_label(1, \"A reusable Moxi component\", 34.0)\n        root.add_label(2, \"The host owns the window.\", 0.0)\n        root.layout()\n        return root^\n\nvar app = App[HelloComponent](HelloComponent(), bounds)\napp.run(window, renderer)",
         ))
         self.entries.append(DemoEntry(
             DEMO_COUNTER_ID,
@@ -533,7 +533,7 @@ struct DemoCatalog:
             "counter-demo",
             DEMO_PAGE_COUNTER,
             True,
-            "var app = App[CounterState](\n    CounterState(), bounds\n)\napp.run(window, renderer)",
+            "struct CounterState(Component):\n    var count: Int\n\n    def build(self, bounds: Rect) -> ColumnView:\n        var view = make_counter_column(self.count, bounds)\n        view.set_action(3, COUNTER_INCREMENT_ACTION)\n        return view^\n\n    def update(mut self, event: Event, view: ColumnView) -> Bool:\n        if event.target == 3 and event.kind == CLICK_KIND:\n            self.count += 1\n            return True\n        return False",
         ))
         self.entries.append(DemoEntry(
             DEMO_FORM_ID,
@@ -544,7 +544,7 @@ struct DemoCatalog:
             "form-demo",
             DEMO_PAGE_FORM,
             True,
-            "var app = App[FormState](\n    FormState(), bounds\n)\napp.run_with_clipboard(window, renderer, clipboard)",
+            "struct FormState(Component):\n    var input: TextInputState\n\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 32.0, 8.0)\n        var input = TextInputControl(2, self.input.text, self.input.cursor, self.input.anchor, 44.0)\n        root.add(input.node())\n        root.add_label(3, String(\"Submitted: \", self.submissions), 28.0)\n        root.add_button(4, \"Submit\", 40.0)\n        root.layout()\n        return root^",
         ))
         self.entries.append(DemoEntry(
             DEMO_NESTED_ID,
@@ -555,7 +555,7 @@ struct DemoCatalog:
             "nested-demo",
             DEMO_PAGE_NESTED,
             True,
-            "var content = root.add_column(CONTENT_CONTAINER_ID, ...)\nroot.add_row(ACTIONS_CONTAINER_ID, ...)",
+            "struct NestedState(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 16.0, 12.0)\n        var content = root.add_column(10, 150.0, 8.0, 6.0)\n        root.add_to(content, TextInputControl(12, \"Nested\", 0, 0, 40.0).node())\n        var actions = root.add_row(20, 0.0, 48.0, 8.0, 8.0)\n        root.add_button_to(actions, 21, \"One\", 32.0)\n        root.add_button_to(actions, 22, \"Two\", 32.0)\n        root.layout()\n        return root^",
         ))
         self.entries.append(DemoEntry(
             DEMO_COMPOSED_ID,
@@ -566,7 +566,7 @@ struct DemoCatalog:
             "composed-demo",
             DEMO_PAGE_COMPOSED,
             True,
-            "var child = self.counter.build(child_bounds)\nroot.add_component_view_to(..., id_offset)",
+            "struct ComposedState(Component):\n    var counter: ComponentSlot[CounterState]\n\n    def build(self, bounds: Rect) -> ColumnView:\n        var child_bounds = Rect(bounds.x + 32.0, bounds.y + 72.0, bounds.width - 64.0, bounds.height - 88.0)\n        var child = self.counter.build(child_bounds)\n        root.add_component_view_to(-1, 10, child, 1000)\n        root.layout()\n        return root^",
         ))
         self.entries.append(DemoEntry(
             DEMO_WX_STYLE_ID,
@@ -577,7 +577,7 @@ struct DemoCatalog:
             "wx-style-demo",
             DEMO_PAGE_WX_STYLE,
             True,
-            "window.open(WindowConfig(\"Moxi wxPython-style demo\", 560.0, 1100.0))\nvar app = App[WxStyleState](WxStyleState(), bounds)",
+            "struct WxStyleState(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 24.0, 12.0)\n        var frame = root.add_column(WX_PANEL_ID, 0.0, 12.0, 8.0)\n        root.add_label_to(frame, WX_TITLE_ID, \"Moxi Frame\", 34.0)\n        root.add_button_to(frame, WX_OK_BUTTON_ID, \"OK\", 34.0)\n        root.layout()\n        return root^\n\nvar app = App[WxStyleState](WxStyleState(), bounds)",
         ))
         self.entries.append(DemoEntry(
             DEMO_THEME_SHOWCASE_ID,
@@ -588,7 +588,7 @@ struct DemoCatalog:
             "theme-showcase-demo",
             DEMO_PAGE_THEME_SHOWCASE,
             True,
-            "var component = ThemeShowcaseState()\nvar app = App[ThemeShowcaseState](component, bounds)\napp.run(window, renderer)",
+            "struct ThemeShowcaseState(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var tokens = self.current_tokens()\n        var view = ColumnView(bounds, tokens.spacing.space_lg, tokens.spacing.space_md)\n        view.set_theme(theme_from_tokens(tokens))\n        view.add_to(2100, primary_button(20, \"Primary\", 34.0, 5, tokens))\n        view.layout()\n        return view^",
         ))
         self.entries.append(DemoEntry(
             DEMO_INTERACTION_ID,
@@ -599,7 +599,7 @@ struct DemoCatalog:
             "interaction-showcase-demo",
             DEMO_PAGE_INTERACTION,
             True,
-            "var app = App[InteractionShowcaseState](InteractionShowcaseState(), bounds)\napp.run(window, renderer)",
+            "struct InteractionShowcaseState(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 16.0, 10.0)\n        root.add_label(11, \"Collection & interaction lab\", 34.0)\n        root.add_canvas(1, \"Interactive collection canvas\", bounds.height - 100.0)\n        root.layout()\n        return root^\n\nvar app = App[InteractionShowcaseState](InteractionShowcaseState(), bounds)",
         ))
         self.entries.append(DemoEntry(
             DEMO_LIVE_SCRIPT_ID,
@@ -610,7 +610,7 @@ struct DemoCatalog:
             "live-script-demo",
             DEMO_PAGE_LIVE_SCRIPT,
             True,
-            "@export\ndef moxi_live_frame(x, y, width, height) abi(\"C\") -> Int32:\n    ...",
+            "struct EditableShowcase(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 22.0, 10.0)\n        root.add_label(1, \"Editable component\", 34.0)\n        root.add_canvas(3, \"Editable scene canvas\", bounds.height - 120.0)\n        root.layout()\n        return root^\n\n@export\ndef moxi_live_frame(x, y, width, height) abi(\"C\") -> Int32:",
         ))
         self.entries.append(DemoEntry(
             DEMO_ROW_ID,
@@ -621,7 +621,7 @@ struct DemoCatalog:
             "row-demo",
             DEMO_PAGE_ROW,
             True,
-            "var row = make_row(bounds, 24.0, 16.0)\nrow.add(previous.node())\nrow.add(next.node())",
+            "struct RowState(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var row = make_row(bounds, 24.0, 16.0)\n        row.add(ButtonControl(1, \"Previous\", 44.0).node())\n        row.add_spacer(2, 32.0)\n        row.add(ButtonControl(3, \"Next\", 44.0).node())\n        row.layout()\n        return row^",
         ))
         self.entries.append(DemoEntry(
             DEMO_ALIGNMENT_ID,
@@ -632,7 +632,7 @@ struct DemoCatalog:
             "alignment-demo",
             DEMO_PAGE_ALIGNMENT,
             True,
-            "column.set_main_alignment(JUSTIFY_CENTER)\ncolumn.set_cross_alignment(ALIGN_CENTER)",
+            "struct AlignmentState(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var column = ColumnView(bounds, 24.0, 10.0)\n        column.add_button(2, \"Start\", 40.0)\n        column.add_button(3, \"Center\", 40.0)\n        column.add_button(4, \"End\", 40.0)\n        column.set_main_alignment(JUSTIFY_CENTER)\n        column.set_cross_alignment(ALIGN_CENTER)\n        column.layout()\n        return column^",
         ))
         self.entries.append(DemoEntry(
             DEMO_WRAPPED_ID,
@@ -643,7 +643,7 @@ struct DemoCatalog:
             "wrapped-text-demo",
             DEMO_PAGE_WRAPPED,
             True,
-            "node.set_wrap_text()\nnode.set_intrinsic_height()\ncolumn.layout()",
+            "struct WrappedTextState(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var column = ColumnView(bounds, 24.0, 12.0)\n        column.add_label(1, \"Moxi Text Layout\", 30.0)\n        column.add_label(2, \"Resize to reflow this text.\", 0.0)\n        column.set_wrap(2)\n        column.set_intrinsic_height(2)\n        column.layout()\n        return column^",
         ))
         self.entries.append(DemoEntry(
             DEMO_ANIMATION_ID,
@@ -654,7 +654,7 @@ struct DemoCatalog:
             "animation-demo",
             DEMO_PAGE_SHOWCASE,
             True,
-            "var app = App[ShowcaseState](ShowcaseState(SHOWCASE_ANIMATION), bounds)\napp.tick(0.25)",
+            "struct AnimationDemo(Component):\n    var animation = Animation(0.0, 1.0, 1.0, EASE_IN_OUT)\n\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 24.0, 12.0)\n        root.add_progress(1, \"Frame\", self.animation.progress(), 36.0)\n        root.add_button(2, \"Restart animation\", 36.0)\n        root.layout()\n        return root^\n\nvar app = App[AnimationDemo](AnimationDemo(), bounds)\napp.tick(0.25)",
         ))
         self.entries.append(DemoEntry(
             DEMO_PLOT_ID,
@@ -665,7 +665,7 @@ struct DemoCatalog:
             "plot-demo",
             DEMO_PAGE_SHOWCASE,
             True,
-            "var component = ShowcaseState(SHOWCASE_PLOT)\nvar scene = component.scene(bounds)\nrenderer.render_scene(scene)",
+            "struct PlotDemo(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 20.0, 10.0)\n        root.add_canvas(1, \"Plot scene\", bounds.height - 100.0)\n        root.layout()\n        return root^\n\n    def scene(self, bounds: Rect) -> Scene:\n        var plot = make_plot_scenario(bounds)\n        return plot.build_scene()",
         ))
         self.entries.append(DemoEntry(
             DEMO_PLOT_GALLERY_ID,
@@ -676,7 +676,7 @@ struct DemoCatalog:
             "plot-gallery",
             DEMO_PAGE_SHOWCASE,
             True,
-            "var component = ShowcaseState(SHOWCASE_PLOT_GALLERY)\nvar scene = component.scene(bounds)\nrenderer.render_scene(scene)",
+            "var data = make_plot_data_fixture()\nvar spec = PlotSpec(\"Telemetry gallery\")\nvar line = spec.add_line(\"signal\", \"time\", \"value\", color)\n_ = spec.encode(line, CHANNEL_COLOR, \"series\", TYPE_NOMINAL)\nspec.set_scale(CHANNEL_X, SCALE_TEMPORAL)\nspec.set_facet(\"region\")\nvar view = PlotView(spec, data, bounds)\nrenderer.render_scene(view.build_scene())",
         ))
         self.entries.append(DemoEntry(
             DEMO_PLOT_SVG_ID,
@@ -687,7 +687,7 @@ struct DemoCatalog:
             "plot-svg",
             DEMO_PAGE_SHOWCASE,
             True,
-            "var component = ShowcaseState(SHOWCASE_PLOT_SVG)\nvar scene = component.scene(bounds)\nrenderer.render_scene(scene)",
+            "struct PlotSvgDemo(Component):\n    def scene(self, bounds: Rect) -> Scene:\n        var plot = make_plot_scenario(bounds)\n        plot.set_title(\"SVG export scene\")\n        return plot.build_scene()\n\nvar app = App[PlotSvgDemo](PlotSvgDemo(), bounds)\nvar scene = app.component.scene(bounds)\nrenderer.render_scene(scene)",
         ))
         self.entries.append(DemoEntry(
             DEMO_FRACTAL_ID,
@@ -698,7 +698,7 @@ struct DemoCatalog:
             "interactive-fractal-demo",
             DEMO_PAGE_FRACTAL,
             True,
-            "var app = App[FractalState](FractalState(), bounds)\napp.component.advance_render()\napp.component.paint_canvas(painter, canvas, clip)",
+            "struct FractalState(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 16.0, 10.0)\n        root.add_canvas(FRACTAL_CANVAS_ID, \"Interactive line fractal\", 720.0)\n        root.layout()\n        return root^\n\nvar app = App[FractalState](FractalState(), bounds)\napp.component.advance_render()\napp.component.paint_canvas(painter, canvas, clip)",
         ))
         self.entries.append(DemoEntry(
             DEMO_METAL_SCENE_ID,
@@ -709,7 +709,7 @@ struct DemoCatalog:
             "metal-demo",
             DEMO_PAGE_SHOWCASE,
             True,
-            "var component = ShowcaseState(SHOWCASE_METAL_SCENE)\nvar scene = component.scene(bounds)\nrenderer.render_scene(scene)",
+            "struct MetalSceneDemo(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 20.0, 10.0)\n        root.add_canvas(1, \"Metal scene\", bounds.height - 100.0)\n        root.layout()\n        return root^\n\nvar app = App[MetalSceneDemo](MetalSceneDemo(), bounds)\nvar scene = app.component.scene(bounds)\nrenderer.render_scene(scene)",
         ))
         self.entries.append(DemoEntry(
             DEMO_METAL_WINDOW_ID,
@@ -720,7 +720,7 @@ struct DemoCatalog:
             "metal-window-demo",
             DEMO_PAGE_SHOWCASE,
             True,
-            "var component = ShowcaseState(SHOWCASE_METAL_WINDOW)\nvar scene = component.scene(bounds)\nrenderer.render_scene(scene)",
+            "struct MetalWindowDemo(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 20.0, 10.0)\n        root.add_canvas(2, \"Metal scene\", bounds.height - 80.0)\n        root.layout()\n        return root^\n\nvar component = MetalWindowDemo()\nvar scene = component.scene(bounds)\nrenderer.render_scene(scene)",
         ))
         self.entries.append(DemoEntry(
             DEMO_CORETEXT_ID,
@@ -1623,7 +1623,7 @@ struct DemoBrowserState(Component):
             root,
             parent_id,
             DEMO_PAGE_KICKER_ID,
-            "READ-ONLY EXCERPT",
+            "IMPLEMENTATION EXCERPT",
             18.0,
             _kicker_style(),
         )
@@ -1655,7 +1655,7 @@ struct DemoBrowserState(Component):
             root,
             parent_id,
             DEMO_SOURCE_HINT_ID,
-            "The checked-in file is the executable reference. This compact excerpt keeps the browser lightweight and deterministic; use the command above to run the complete example.",
+            "This is the implementation excerpt from the checked-in example. The command above runs the complete source, and the Demo tab mounts its Component in-process.",
             width,
             _body_style(),
         )
@@ -1729,7 +1729,7 @@ struct DemoBrowserState(Component):
                 root,
                 code,
                 DEMO_STORY_CODE_KICKER_ID,
-                "COMPONENT USAGE",
+                "COMPONENT SOURCE",
                 18.0,
                 _kicker_style(),
             )
@@ -1754,7 +1754,7 @@ struct DemoBrowserState(Component):
                 root,
                 code,
                 DEMO_STORY_CODE_HINT_ID,
-                "The preview and this snippet share the same Component boundary.",
+                "The preview runs a real Component; this panel shows the build code.",
                 page_width * 0.42,
                 _small_style(),
             )
