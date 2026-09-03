@@ -18,6 +18,7 @@ for task in \
   live-script-demo \
   hello-window-demo \
   component-demo \
+  capability-bus-demo \
   counter-demo \
   form-demo \
   nested-demo \

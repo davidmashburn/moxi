@@ -1,0 +1,270 @@
+MOXI LIVE COMPONENT WALKTHROUGH
+30-second transcript and capability-bus recording script
+
+PURPOSE
+
+Show Moxi components doing real work in one Moxi Playground window. The
+CapabilityBus is the automation boundary: each scripted action is a named,
+typed invocation that the host authorizes and then applies through the normal
+Component update path.
+
+The recording must show state changing on screen. It must include the live
+counter value changing, a rendered plot changing, the embedded Metal scene,
+the interaction canvas scrolling to different rows, and the collection
+selection/move state changing. Do not substitute a text slide, a static
+preview card, a hidden mode selector, a standalone second window, or a
+precomputed final state.
+
+TRANSCRIPT
+
+00.0–03.5  OPEN THE NORMAL PLAYGROUND
+
+Open the normal Moxi Playground in recording mode with:
+
+pixi run demo-walkthrough
+
+`demo-walkthrough` is a thin entrypoint into the same
+`examples/demo_browser.mojo` host used by `pixi run demo`; it only swaps the
+input source from manual events to the deterministic CapabilityBus driver.
+Use `pixi run demo` for manual input.
+
+Keep this one native Moxi window frontmost for the entire capture. The frame
+contains the searchable catalog and the selected live Component. Do not show
+the terminal, editor, desktop, another demo window, or a second application.
+Retain the ordinary `Moxi Playground` title and normal catalog/detail layout;
+there is no walkthrough-specific window or alternate UI.
+
+The automation starts with a fresh DemoBrowserState and a fresh CapabilityBus.
+The bus manifest includes the demo-navigation and component-interaction
+capabilities used below.
+
+03.5–09.5  MOUNT AND USE THE REAL COUNTER
+
+The script authorizes these invocations in order:
+
+  demo.select   {"demo":"counter"}
+  demo.show    {"tab":"demo"}
+  counter.increment
+  counter.increment
+  counter.increment
+
+Each invocation is routed to the actual DemoBrowserState or CounterState. The
+CounterState view is rebuilt after each completed increment. The recording
+must visibly show the counter change from 0 to 1 to 2 to 3; do not set the
+count field directly and do not draw a fake counter over the browser.
+
+Voiceover:
+
+“The browser mounts CounterState as a typed Component. The bus authorizes the
+same action that a button event uses, so the view rebuilds and the count moves
+from zero to three.”
+
+09.5–15.3  RENDER AND UPDATE THE PLOT COMPONENT
+
+The script authorizes these invocations in order:
+
+  demo.select       {"demo":"plot-gallery"}
+  demo.show         {"tab":"demo"}
+  plot.toggle_marks {"marks":"toggle"}
+  plot.stream       {"streaming":true}
+
+The selected page is the normal `Plot Gallery` entry. The marks toggle is a
+real ShowcaseState action, and the streaming action appends data through the
+plot view so the rendered canvas changes while it remains inside the
+Playground component surface.
+
+Voiceover:
+
+“The same component boundary hosts a typed plot. A bus action changes the
+marks, then streaming data updates the retained plot scene in place.”
+
+15.3–18.7  SHOW THE EMBEDDED METAL SCENE
+
+The script authorizes these invocations:
+
+  demo.select       {"demo":"metal-scene"}
+  demo.show         {"tab":"demo"}
+
+This is the normal `Metal Scene` catalog entry. It mounts a component-owned
+canvas in the existing Playground window, preserving the renderer-neutral
+scene seam and the visible canvas fallback. Do not use the standalone `Metal
+Window` entry for this recording because it creates another native window.
+
+Voiceover:
+
+“The GPU lesson uses the same component-owned canvas. The host can consume
+this scene through its Metal renderer without changing the component.”
+
+18.7–25.7  SCROLL AND MUTATE THE INTERACTION COMPONENT
+
+The script authorizes these invocations:
+
+  demo.select             {"demo":"interaction"}
+  demo.show               {"tab":"demo"}
+  interaction.scroll      {"dy":64}
+  interaction.select_next
+  interaction.move_selected
+  interaction.scroll      {"dy":64}
+
+The scroll invocations create real ScrollEvent values positioned inside the
+mounted interaction canvas. The select and move invocations route normal
+action events to InteractionShowcaseState. The canvas must visibly move to a
+different set of rows, and its metrics/status text must change as the stable
+key is selected and moved.
+
+Voiceover:
+
+“This is another real Component, not a screenshot. A bus command becomes a
+scroll event, the viewport moves, and the collection keeps stable identity as
+selection and reorder update the state.”
+
+25.7–27.0  SHOW THE POLICY BOUNDARY
+
+Send one agent-side reset request for the currently mounted interaction demo:
+
+  demo.reset   {"demo":"interaction","caller":"agent"}
+
+The destructive capability must stop at the bus and expose a pending approval
+state. The automation then issues a trusted approval bound to that exact
+request and retries the invocation:
+
+  approve     {"request_id":"<bus-issued-request-id>"}
+  demo.reset   {"demo":"interaction","caller":"agent","approval":"<bus-issued-token>"}
+
+The visible component returns to its initial rows and metrics only after the
+approval retry completes. The status line must identify the pending request
+and then the approved reset. Approval is a bus token, never a caller-supplied
+Boolean.
+
+27.0–30.0  END ON LIVE STATE
+
+Leave the Interaction Lab visible with its reset result and the changed live
+metrics on screen for the final two seconds. End on the running component,
+not on source code or a terminal.
+
+AUTOMATION CONTRACT
+
+The recording driver is a small host-side script, not a mouse macro. The
+normal `demo_browser.mojo` host owns the `DemoBrowserState`, live-script loader,
+clipboard, renderer, and event loop; recording mode adds a
+`DemoWalkthroughDriver` that advances one scheduled action at a time from
+FRAME_TICK.
+Every scheduled action follows this shape:
+
+  1. Build a CapabilityInvocation with a unique request id.
+  2. Attach the component id, route, caller, and JSON arguments.
+  3. Send it through CapabilityBus.authorize or invoke_handler.
+  4. If authorization succeeds, dispatch the corresponding normal Moxi Event
+     to DemoBrowserState.
+  5. Rebuild and render the view; advance only after the visible state changed.
+  6. Record the result in the status line and bus counters.
+
+The script uses capability names and typed arguments. It may use the existing
+symbolic component/action ids internally, but it must not bypass update by
+assigning CounterState.count, ScrollbarState.offset, collection keys, or any
+other demo state directly.
+
+Required capability descriptors:
+
+  demo.select
+    Select a catalog entry and reset its tab to Overview.
+
+  demo.show
+    Switch the selected entry to the live Demo tab.
+
+  counter.increment
+    Dispatch the mounted CounterState increment action.
+
+  interaction.scroll
+    Dispatch a ScrollEvent inside the mounted interaction canvas.
+
+  interaction.select_next
+    Dispatch the InteractionShowcaseState select-next action.
+
+  interaction.move_selected
+    Dispatch the InteractionShowcaseState move-selected action.
+
+  plot.toggle_marks
+    Toggle the visible marks in the mounted Plot Gallery component.
+
+  plot.stream
+    Toggle the mounted Plot Gallery's deterministic live data stream.
+
+  demo.reset
+    Reset the mounted live component. Agent callers require approval.
+
+  approve
+    Issue a one-shot bus approval for the exact pending request; it is not a
+    component mutation by itself.
+
+VISIBLE ACCEPTANCE CHECKS
+
+Before recording, run the deterministic host test for the same action list.
+It must prove:
+
+  - the CounterState count is 3 after the three bus increments;
+  - the Plot Gallery is mounted and its marks/stream action changes the live
+    ShowcaseState;
+  - the Metal Scene is mounted in the normal browser without opening a second
+    window;
+  - the InteractionShowcaseState scrollbar offset is greater than zero after
+    the scroll capability;
+  - the interaction collection focus index changes after select_next;
+  - the stable-key position changes after move_selected;
+  - an agent reset is blocked before approval and resets only after approval;
+  - every completed action went through CapabilityBus and a typed handler;
+  - the render after each action contains the corresponding live component.
+
+Use the same state/command path in the native host and the headless test. The
+recording is accepted only after the sampled frames show the counter value,
+scroll offset/rows, selection or reorder result, and approval transition.
+
+RECORDING DIRECTIONS
+
+1. Run the complete no-agent recording workflow:
+
+   pixi run demo-record
+
+   This builds the normal host, launches an isolated temporary application
+   bundle, waits for the frontmost `Moxi Playground` window, discovers its
+   actual screen bounds, records the region for thirty seconds, validates the
+   H.264/60fps container, and closes only that recording process. The default
+   output is `output/moxi-capability-bus-walkthrough-30s.mov`; pass another
+   path as the first argument or set `MOXI_RECORD_SECONDS` for a different
+   duration.
+
+2. Do not click the component buttons manually; the point of this recording is
+   to make the bus drive the same Component events.
+
+3. The script uses a region capture instead of window-id capture so the normal
+   title bar is retained without a macOS capture overlay. It resolves the
+   bounds at runtime, so a small change in window placement does not expose a
+   neighboring app.
+
+4. Verify the resulting video contains only the Moxi Playground window and
+   visibly shows CounterState, Plot Gallery updates, Metal Scene, scrolling
+   InteractionShowcaseState, collection mutation, and approval-gated reset.
+
+5. Do not open the standalone capability walkthrough for this capture. That
+   screen explains policy with static lesson text; this recording is the live
+   component proof.
+
+IMPLEMENTATION FILES TO KEEP ALIGNED
+
+  src/moxi/capability.mojo
+  src/moxi/demo_browser.mojo
+  src/moxi/demo_walkthrough.mojo
+  src/moxi/app.mojo
+  src/moxi/interaction_showcase.mojo
+  examples/demo_browser.mojo
+  examples/demo_walkthrough.mojo  (thin wrapper for the same host)
+  native/macos_window_bounds.c
+  native/moxi_demo_recorder_Info.plist
+  scripts/record_demo.sh
+  tests/demo_browser.mojo
+  tests/demo_walkthrough.mojo
+  tests/capability.mojo
+
+The script should be implemented beside the DemoBrowserState host path so the
+same capability names, event routing, and acceptance checks remain visible in
+source. Do not create a second fake demo runtime just for the recording.

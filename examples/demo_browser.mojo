@@ -1,6 +1,13 @@
 """Full-scope wxPython-style browser for Moxi's runnable examples."""
 
-from moxi import App, DemoBrowserState, NONE_KIND, Rect, WindowConfig
+from moxi import (
+    App,
+    DemoBrowserState,
+    DemoWalkthroughDriver,
+    NONE_KIND,
+    Rect,
+    WindowConfig,
+)
 from moxi.macos import (
     MacOSCanvasSceneRenderer,
     MacOSClipboard,
@@ -78,7 +85,8 @@ def sync_live_script(
     return True
 
 
-def main() raises:
+def run_demo(automated: Bool = False) raises:
+    """Run the normal Playground, optionally driven through CapabilityBus."""
     var window = MacOSWindow()
     var renderer = MacOSRenderer()
     var clipboard = MacOSClipboard()
@@ -91,15 +99,25 @@ def main() raises:
     var scene_renderer = MacOSCanvasSceneRenderer()
     var live_watcher = MacOSFileWatcher()
     var live_script = MacOSLiveScript()
+    var walkthrough = DemoWalkthroughDriver()
+    if automated:
+        walkthrough.start()
 
     render_frame(app, renderer, scene_renderer, live_script)
     while window.is_open():
         window.pump()
         var event = window.poll_event()
         var changed = app.tick(1.0 / 60.0)
+        if automated:
+            changed = walkthrough.tick(app, 1.0 / 60.0) or changed
         if event.kind != NONE_KIND:
             changed = app.dispatch_with_clipboard(event, clipboard) or changed
         changed = sync_live_script(app, live_watcher, live_script) or changed
 
         if changed:
             render_frame(app, renderer, scene_renderer, live_script)
+
+
+def main() raises:
+    """Keep `pixi run demo` as the ordinary manual Playground."""
+    run_demo(False)

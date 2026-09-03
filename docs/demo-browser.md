@@ -5,6 +5,19 @@ wxPython-inspired browser for the checked-in Moxi examples. It is a small
 learning workbench: the catalog stays visible while the selected example gets
 its own overview, source, and live/demo surface.
 
+`pixi run demo-walkthrough` runs the exact same `examples/demo_browser.mojo`
+host with a deterministic CapabilityBus event source. It traverses the normal
+catalog and mounted components through their ordinary event path, demonstrating
+the live Counter, Plot Gallery, embedded Metal Scene, scrolling, selection,
+reorder, and approval-gated reset without opening a second window. `pixi run
+demo` remains the manual-input version of that host.
+
+`pixi run demo-record` runs that same walkthrough without agent or GUI
+automation. It builds an isolated temporary app bundle, discovers the live
+Playground window bounds, records a 30-second region capture, validates the
+resulting H.264/60fps MOV, and cleans up its own process. Pass an output path as
+the first argument or set `MOXI_RECORD_SECONDS` to override the defaults.
+
 The window is organized like this:
 
 - the left playground rail groups runnable examples by domain, shows a short
@@ -21,6 +34,9 @@ The window is organized like this:
   the host renders the component's `Scene` into that node in the same window;
 - `Editable Live Component` is a development page whose Mojo component is
   rebuilt and swapped into that existing canvas when its source file changes;
+- `Capability Bus Walkthrough` is a ten-step live component whose navigation,
+  typed handler execution, agent request, and trusted approval all cross the
+  same in-process `CapabilityBus` boundary;
 - standalone Pixi tasks remain available as companion commands, but the
   browser does not replace a page with a fake preview or a sibling window.
 
@@ -80,7 +96,8 @@ The initial catalog covers the current repository scope:
 
 - getting started: the minimal window and component lifecycle;
 - components and input: counter, form, nested, composed, wx-style,
-  interaction lab, and editable live-component pages;
+  interaction lab, capability-bus walkthrough, and editable live-component
+  pages;
 - layout and runtime: row, alignment, wrapped text, animation, and
   invalidation;
 - interaction state: the live interaction lab combines stable-key table

@@ -6,7 +6,9 @@ cd "$repo_dir"
 
 git diff --check
 git diff --cached --check
+bash -n scripts/record_demo.sh
 bash scripts/demo_catalog_check.sh
+pixi run demo-walkthrough-build
 bash scripts/test.sh
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c native/macos_window.m -o native/macos_window.o

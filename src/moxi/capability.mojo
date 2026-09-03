@@ -29,7 +29,7 @@ comptime CAPABILITY_HANDLER_NOT_REGISTERED = 9
 comptime CAPABILITY_HANDLER_MISMATCH = 10
 comptime CAPABILITY_QUEUE_FULL = 11
 comptime CAPABILITY_APPROVAL_INVALID = 12
-comptime MAX_CAPABILITIES = 8
+comptime MAX_CAPABILITIES = 10
 comptime MAX_PENDING_CAPABILITIES = 4
 
 
@@ -734,6 +734,8 @@ struct CapabilityBus(ImplicitlyCopyable):
     var descriptor_5: CapabilityDescriptor
     var descriptor_6: CapabilityDescriptor
     var descriptor_7: CapabilityDescriptor
+    var descriptor_8: CapabilityDescriptor
+    var descriptor_9: CapabilityDescriptor
     var descriptor_count_value: Int
     var handler_name_0: String
     var handler_name_1: String
@@ -743,6 +745,8 @@ struct CapabilityBus(ImplicitlyCopyable):
     var handler_name_5: String
     var handler_name_6: String
     var handler_name_7: String
+    var handler_name_8: String
+    var handler_name_9: String
     var active_token_0: String
     var active_token_1: String
     var active_token_2: String
@@ -751,6 +755,8 @@ struct CapabilityBus(ImplicitlyCopyable):
     var active_token_5: String
     var active_token_6: String
     var active_token_7: String
+    var active_token_8: String
+    var active_token_9: String
     var queue: CapabilityQueue
     var last_invocation: CapabilityInvocation
     var last_result: CapabilityResult
@@ -790,6 +796,8 @@ struct CapabilityBus(ImplicitlyCopyable):
         self.descriptor_5 = CapabilityDescriptor("", "")
         self.descriptor_6 = CapabilityDescriptor("", "")
         self.descriptor_7 = CapabilityDescriptor("", "")
+        self.descriptor_8 = CapabilityDescriptor("", "")
+        self.descriptor_9 = CapabilityDescriptor("", "")
         self.descriptor_count_value = 0
         self.handler_name_0 = ""
         self.handler_name_1 = ""
@@ -799,6 +807,8 @@ struct CapabilityBus(ImplicitlyCopyable):
         self.handler_name_5 = ""
         self.handler_name_6 = ""
         self.handler_name_7 = ""
+        self.handler_name_8 = ""
+        self.handler_name_9 = ""
         self.active_token_0 = ""
         self.active_token_1 = ""
         self.active_token_2 = ""
@@ -807,6 +817,8 @@ struct CapabilityBus(ImplicitlyCopyable):
         self.active_token_5 = ""
         self.active_token_6 = ""
         self.active_token_7 = ""
+        self.active_token_8 = ""
+        self.active_token_9 = ""
         self.queue = CapabilityQueue(queue_capacity)
         self.last_invocation = CapabilityInvocation("", "", CALLER_SYSTEM)
         self.last_result = CapabilityResult("", CAPABILITY_INVALID, "", "")
@@ -855,6 +867,10 @@ struct CapabilityBus(ImplicitlyCopyable):
             return 6
         if self.descriptor_count_value > 7 and self.descriptor_7.name == name:
             return 7
+        if self.descriptor_count_value > 8 and self.descriptor_8.name == name:
+            return 8
+        if self.descriptor_count_value > 9 and self.descriptor_9.name == name:
+            return 9
         return -1
 
     def descriptor_for_index(self, index: Int) -> CapabilityDescriptor:
@@ -875,6 +891,10 @@ struct CapabilityBus(ImplicitlyCopyable):
             return self.descriptor_6
         if index == 7:
             return self.descriptor_7
+        if index == 8:
+            return self.descriptor_8
+        if index == 9:
+            return self.descriptor_9
         return CapabilityDescriptor("", "", parameters_schema="{}")
 
     def set_descriptor(mut self, index: Int, descriptor: CapabilityDescriptor):
@@ -895,6 +915,10 @@ struct CapabilityBus(ImplicitlyCopyable):
             self.descriptor_6 = descriptor
         elif index == 7:
             self.descriptor_7 = descriptor
+        elif index == 8:
+            self.descriptor_8 = descriptor
+        elif index == 9:
+            self.descriptor_9 = descriptor
 
     def set_handler_name(mut self, index: Int, name: String):
         if index == 0:
@@ -913,6 +937,10 @@ struct CapabilityBus(ImplicitlyCopyable):
             self.handler_name_6 = name
         elif index == 7:
             self.handler_name_7 = name
+        elif index == 8:
+            self.handler_name_8 = name
+        elif index == 9:
+            self.handler_name_9 = name
 
     def handler_registered(self, name: String) -> Bool:
         return (
@@ -924,6 +952,8 @@ struct CapabilityBus(ImplicitlyCopyable):
             or self.handler_name_5 == name
             or self.handler_name_6 == name
             or self.handler_name_7 == name
+            or self.handler_name_8 == name
+            or self.handler_name_9 == name
         )
 
     def active_token(self, index: Int) -> String:
@@ -943,6 +973,10 @@ struct CapabilityBus(ImplicitlyCopyable):
             return self.active_token_6
         if index == 7:
             return self.active_token_7
+        if index == 8:
+            return self.active_token_8
+        if index == 9:
+            return self.active_token_9
         return ""
 
     def set_active_token(mut self, index: Int, token: String):
@@ -962,6 +996,10 @@ struct CapabilityBus(ImplicitlyCopyable):
             self.active_token_6 = token
         elif index == 7:
             self.active_token_7 = token
+        elif index == 8:
+            self.active_token_8 = token
+        elif index == 9:
+            self.active_token_9 = token
 
     def register(mut self, descriptor: CapabilityDescriptor) -> Bool:
         """Insert or replace a valid manifest entry by stable name."""
@@ -1031,6 +1069,10 @@ struct CapabilityBus(ImplicitlyCopyable):
         if self.active_token_6.count_codepoints() > 0:
             count += 1
         if self.active_token_7.count_codepoints() > 0:
+            count += 1
+        if self.active_token_8.count_codepoints() > 0:
+            count += 1
+        if self.active_token_9.count_codepoints() > 0:
             count += 1
         return count
 

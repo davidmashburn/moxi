@@ -2,6 +2,7 @@
 
 from .component import Component
 from .event import (
+    ACTION_KIND,
     CLICK_KIND,
     KEY_DOWN_KIND,
     KEY_ENTER,
@@ -38,6 +39,7 @@ struct CounterState(Component):
         """Update the component and report whether its view must be rebuilt."""
         if (event.target == 3 or event.action_id == COUNTER_INCREMENT_ACTION) and (
             event.kind == CLICK_KIND
+            or event.kind == ACTION_KIND
             or (
                 event.kind == KEY_DOWN_KIND
                 and (event.key == KEY_ENTER or event.key == KEY_SPACE)

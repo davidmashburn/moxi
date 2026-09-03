@@ -7,6 +7,7 @@ from moxi import (
     DEMO_CATEGORY_ALL,
     DEMO_CATEGORY_BUTTON_BASE,
     DEMO_CATEGORY_PLOTTING,
+    DEMO_CAPABILITY_WALKTHROUGH_ID,
     DEMO_COUNTER_ID,
     DEMO_COUNTER_ID_OFFSET,
     DEMO_CLEAR_SEARCH_ID,
@@ -32,12 +33,18 @@ from moxi import (
     DEMO_SEARCH_ID,
     DEMO_SHOWCASE_ID_OFFSET,
     DEMO_SOURCE_TEXT_ID,
+    CAPABILITY_WALKTHROUGH_AGENT_RESET_ID,
+    CAPABILITY_WALKTHROUGH_APPROVE_ID,
+    CAPABILITY_WALKTHROUGH_NEXT_ID,
+    CAPABILITY_WALKTHROUGH_STATUS_ID,
+    CapabilityWalkthroughState,
     DEMO_TAB_DEMO,
     DEMO_TAB_DEMO_ID,
     DEMO_TAB_SOURCE,
     DEMO_TAB_SOURCE_ID,
     DEMO_WX_STYLE_ID,
     DEMO_WX_STYLE_ID_OFFSET,
+    DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET,
     WX_TITLE_ID,
     DemoBrowserState,
     DemoCatalog,
@@ -82,7 +89,7 @@ def action(target: Int) -> Event:
 
 def main() raises:
     var catalog = DemoCatalog()
-    test_check(catalog.count() == 22)
+    test_check(catalog.count() == 23)
     test_check(catalog.visible_count("plot", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("PLOT", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("", DEMO_CATEGORY_PLOTTING) == 4)
@@ -93,6 +100,11 @@ def main() raises:
         test_check("SHOWCASE_" not in catalog.entry(index).source_excerpt)
     test_check("struct HelloWindow(Component)" in catalog.entry(0).source_excerpt)
     test_check("def build" in catalog.entry(0).source_excerpt)
+    var walkthrough_index = catalog.index_for_id(DEMO_CAPABILITY_WALKTHROUGH_ID)
+    test_check(walkthrough_index >= 0)
+    test_check("CapabilityBus" in catalog.entry(walkthrough_index).source_excerpt)
+    test_check("invoke_handler" in catalog.entry(walkthrough_index).source_excerpt)
+    test_check("issue_approval" in catalog.entry(walkthrough_index).source_excerpt)
     var plot_index = catalog.index_for_id(DEMO_PLOT_ID)
     test_check(plot_index >= 0)
     test_check(catalog.entry(plot_index).id == DEMO_PLOT_ID)
@@ -144,6 +156,50 @@ def main() raises:
     test_check(app.dispatch(action(DEMO_RUN_BUTTON_ID)))
     test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(app.component.take_pending_task().count_codepoints() == 0)
+
+    # The walkthrough itself uses typed handlers behind the capability bus.
+    var walkthrough_app = App[CapabilityWalkthroughState](
+        CapabilityWalkthroughState(),
+        Rect(0.0, 0.0, 860.0, 640.0),
+    )
+    test_check(
+        walkthrough_app.view.bounds_for(CAPABILITY_WALKTHROUGH_NEXT_ID).width
+        > 0.0
+    )
+    test_check(walkthrough_app.dispatch(action(CAPABILITY_WALKTHROUGH_NEXT_ID)))
+    test_check(walkthrough_app.component.step == 1)
+    test_check(
+        walkthrough_app.dispatch(
+            action(CAPABILITY_WALKTHROUGH_AGENT_RESET_ID)
+        )
+    )
+    test_check(
+        walkthrough_app.component.pending_agent_reset_request_id.count_codepoints()
+        > 0
+    )
+    test_check(walkthrough_app.dispatch(action(CAPABILITY_WALKTHROUGH_APPROVE_ID)))
+    test_check(walkthrough_app.component.step == 0)
+
+    # The same component is mounted in the Storybook-style browser surface.
+    test_check(
+        app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_CAPABILITY_WALKTHROUGH_ID))
+    )
+    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(
+        app.view.bounds_for(
+            DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET
+            + CAPABILITY_WALKTHROUGH_STATUS_ID
+        ).width > 0.0
+    )
+    test_check(
+        app.dispatch(
+            action(
+                DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET
+                + CAPABILITY_WALKTHROUGH_NEXT_ID
+            )
+        )
+    )
+    test_check(app.component.capability_walkthrough.component.step == 1)
 
     # The editable page is a normal component shell with a live module canvas.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_LIVE_SCRIPT_ID)))

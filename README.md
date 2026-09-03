@@ -219,6 +219,9 @@ pixi run live-script-demo
 pixi run hello-window-demo
 pixi run counter-demo
 pixi run component-demo
+pixi run capability-bus-demo
+pixi run demo-walkthrough
+pixi run demo-record
 pixi run form-demo
 pixi run row-demo
 pixi run alignment-demo
@@ -254,7 +257,14 @@ the same window. The `Editable Live Component` watches
 exported scene is rebuilt and swapped into the existing canvas. Close the
 window to end the event loop. `pixi run live-reload-check` validates that
 build/load/render ABI without a GUI. `pixi run hello-window-demo` retains the
-smallest native window example.
+smallest native window example. `pixi run capability-bus-demo` opens the
+ten-step walkthrough component. Its Next, Previous, Restart, and agent
+approval controls all construct capability invocations and execute them
+through a typed `CapabilityBus` handler. The matching plain-text
+transcript and recording directions are in
+`docs/capability-bus-walkthrough.txt`.
+`pixi run demo-record` produces the reproducible 30-second single-window
+capture from the same normal host; it needs no agent or manual UI interaction.
 The generated `dist/` files and native object file are local build artifacts.
 
 `pixi run ios-build` requires Xcode and produces a signed arm64 simulator app

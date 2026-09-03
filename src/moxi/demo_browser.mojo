@@ -12,6 +12,7 @@ from std.collections import List
 from .accessibility import ACTION_COLLAPSE, ACTION_EXPAND, ACTION_PRESS
 from .alignment import AlignmentState
 from .app import CounterState
+from .capability_walkthrough import CapabilityWalkthroughState
 from .component import Component, ComponentSlot
 from .composed import ComposedState
 from .controls import ButtonControl, LabelControl, TextInputControl, TextInputState
@@ -92,6 +93,7 @@ comptime DEMO_PAGE_FRACTAL = 10
 comptime DEMO_PAGE_LIVE_SCRIPT = 11
 comptime DEMO_PAGE_INTERACTION = 12
 comptime DEMO_PAGE_THEME_SHOWCASE = 13
+comptime DEMO_PAGE_CAPABILITY_WALKTHROUGH = 14
 
 comptime DEMO_HELLO_WINDOW_ID = 1
 comptime DEMO_HELLO_COMPONENT_ID = 2
@@ -115,6 +117,7 @@ comptime DEMO_HARFBUZZ_ID = 19
 comptime DEMO_LIVE_SCRIPT_ID = 20
 comptime DEMO_INTERACTION_ID = 21
 comptime DEMO_THEME_SHOWCASE_ID = 22
+comptime DEMO_CAPABILITY_WALKTHROUGH_ID = 23
 
 comptime DEMO_TAB_OVERVIEW = 0
 comptime DEMO_TAB_SOURCE = 1
@@ -215,6 +218,8 @@ comptime DEMO_LIVE_SCRIPT_ID_OFFSET = 20000
 comptime DEMO_INTERACTION_ID_OFFSET = 21000
 comptime DEMO_THEME_SHOWCASE_SLOT_ID = 8013
 comptime DEMO_THEME_SHOWCASE_ID_OFFSET = 22000
+comptime DEMO_CAPABILITY_WALKTHROUGH_SLOT_ID = 8014
+comptime DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET = 23000
 
 
 def demo_category_name(category: Int) -> String:
@@ -613,6 +618,17 @@ struct DemoCatalog:
             "struct EditableShowcase(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 22.0, 10.0)\n        root.add_label(1, \"Editable component\", 34.0)\n        root.add_canvas(3, \"Editable scene canvas\", bounds.height - 120.0)\n        root.layout()\n        return root^\n\n@export\ndef moxi_live_frame(x, y, width, height) abi(\"C\") -> Int32:",
         ))
         self.entries.append(DemoEntry(
+            DEMO_CAPABILITY_WALKTHROUGH_ID,
+            "Capability Bus Walkthrough",
+            DEMO_CATEGORY_COMPONENTS,
+            "A ten-step interactive lesson that routes UI and agent actions through CapabilityBus.",
+            "examples/capability_bus.mojo",
+            "capability-bus-demo",
+            DEMO_PAGE_CAPABILITY_WALKTHROUGH,
+            True,
+            "struct CapabilityWalkthroughState(Component):\n    var bus: CapabilityBus\n    var step: Int\n\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 20.0, 12.0)\n        root.add_label(1, self.step_title(), 30.0)\n        root.add_progress(4, \"Walkthrough progress\", Float32(self.step + 1) / 10.0, 32.0)\n        root.add_button(6, \"Next\", 40.0)\n        root.layout()\n        return root^\n\n    def update(mut self, event: Event, view: ColumnView) -> Bool:\n        var request = CapabilityInvocation(\"next-1\", \"walkthrough.next\", CALLER_UI, \"{}\")\n        var result = self.bus.invoke_handler(self.next_handler, request)\n        if result.completed():\n            self.step += 1\n        return result.completed()\n\n    def approve_agent_reset(mut self, request: CapabilityInvocation):\n        var approval = self.bus.issue_approval(request, \"capability-walkthrough-confirmation\")\n        request.set_approval(approval)\n\nvar app = App[CapabilityWalkthroughState](CapabilityWalkthroughState(), bounds)",
+        ))
+        self.entries.append(DemoEntry(
             DEMO_ROW_ID,
             "Row Layout",
             DEMO_CATEGORY_LAYOUT,
@@ -802,6 +818,7 @@ struct DemoBrowserState(Component):
     var fractal: ComponentSlot[FractalState]
     var live_script: ComponentSlot[LiveScriptState]
     var theme_showcase: ComponentSlot[ThemeShowcaseState]
+    var capability_walkthrough: ComponentSlot[CapabilityWalkthroughState]
 
     def __init__(out self):
         self.search = TextInputState()
@@ -859,6 +876,11 @@ struct DemoBrowserState(Component):
             ThemeShowcaseState(),
             DEMO_THEME_SHOWCASE_SLOT_ID,
             DEMO_THEME_SHOWCASE_ID_OFFSET,
+        )
+        self.capability_walkthrough = ComponentSlot[CapabilityWalkthroughState](
+            CapabilityWalkthroughState(),
+            DEMO_CAPABILITY_WALKTHROUGH_SLOT_ID,
+            DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET,
         )
 
     def selected_entry(self) -> DemoEntry:
@@ -967,6 +989,8 @@ struct DemoBrowserState(Component):
             self.composed.component = ComposedState()
         elif self.selected_id == DEMO_WX_STYLE_ID:
             self.wx_style.component = WxStyleState()
+        elif self.selected_id == DEMO_CAPABILITY_WALKTHROUGH_ID:
+            self.capability_walkthrough.component = CapabilityWalkthroughState()
         elif self.selected_id == DEMO_THEME_SHOWCASE_ID:
             self.theme_showcase.component = ThemeShowcaseState()
         elif self.selected_id == DEMO_INTERACTION_ID:
@@ -1845,6 +1869,18 @@ struct DemoBrowserState(Component):
                 component_height,
             )
             return
+        if entry.page_kind == DEMO_PAGE_CAPABILITY_WALKTHROUGH:
+            var child = self.capability_walkthrough.build(
+                Rect(0.0, 0.0, component_width, component_height)
+            )
+            root.add_component_view_to(
+                component_parent,
+                DEMO_CAPABILITY_WALKTHROUGH_SLOT_ID,
+                child,
+                DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET,
+                component_height,
+            )
+            return
         if entry.page_kind == DEMO_PAGE_ROW:
             var child = self.row.build(Rect(0.0, 0.0, component_width, component_height))
             root.add_component_view_to(
@@ -1940,6 +1976,11 @@ struct DemoBrowserState(Component):
                 return self.composed.route(event, view)
             if self.selected_id == DEMO_WX_STYLE_ID and self.wx_style.contains(event.target, view):
                 return self.wx_style.route(event, view)
+            if (
+                self.selected_id == DEMO_CAPABILITY_WALKTHROUGH_ID
+                and self.capability_walkthrough.contains(event.target, view)
+            ):
+                return self.capability_walkthrough.route(event, view)
             if self.selected_id == DEMO_THEME_SHOWCASE_ID and self.theme_showcase.contains(event.target, view):
                 return self.theme_showcase.route(event, view)
             if (
@@ -1958,7 +1999,17 @@ struct DemoBrowserState(Component):
                 self.interaction.contains(event.target, view)
                 or event.kind == SCROLL_KIND
             ):
-                return self.interaction.route(event, view)
+                var interaction_event = event
+                # App's wheel hit-test may target the browser content portal
+                # that contains the child canvas. Let the embedded component
+                # consume the scroll at its own canvas boundary instead of
+                # rejecting the parent's portal id as an out-of-slot target.
+                if event.kind == SCROLL_KIND and not self.interaction.contains(
+                    event.target,
+                    view,
+                ):
+                    interaction_event.set_target(-1)
+                return self.interaction.route(interaction_event, view)
             if self.selected_id == DEMO_ROW_ID and self.row.contains(event.target, view):
                 return self.row.route(event, view)
             if self.selected_id == DEMO_ALIGNMENT_ID and self.alignment.contains(event.target, view):

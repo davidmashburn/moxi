@@ -22,6 +22,8 @@ counter-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -
 counter-demo = { cmd = "./dist/moxi-counter-demo", depends-on = ["counter-demo-build"] }
 component-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/hello_component.mojo -o dist/moxi-component-demo", depends-on = ["native-object"] }
 component-demo = { cmd = "./dist/moxi-component-demo", depends-on = ["component-demo-build"] }
+capability-bus-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/capability_bus.mojo -o dist/moxi-capability-bus-demo", depends-on = ["native-object"] }
+capability-bus-demo = { cmd = "./dist/moxi-capability-bus-demo", depends-on = ["capability-bus-demo-build"] }
 form-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/form.mojo -o dist/moxi-form-demo", depends-on = ["native-object"] }
 form-demo = { cmd = "./dist/moxi-form-demo", depends-on = ["form-demo-build"] }
 row-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/row.mojo -o dist/moxi-row-demo", depends-on = ["native-object"] }
@@ -40,6 +42,9 @@ interaction-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/mac
 interaction-showcase-demo = { cmd = "./dist/moxi-interaction-showcase-demo", depends-on = ["interaction-showcase-demo-build"] }
 demo-browser-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo-browser", depends-on = ["native-object"] }
 demo-browser = { cmd = "./dist/moxi-demo-browser", depends-on = ["demo-browser-build"] }
+demo-walkthrough-build = { cmd = "mojo build -I src -I examples -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_walkthrough.mojo -o dist/moxi-demo-walkthrough", depends-on = ["native-object"] }
+demo-walkthrough = { cmd = "./dist/moxi-demo-walkthrough", depends-on = ["demo-walkthrough-build"] }
+demo-record = "bash scripts/record_demo.sh"
 theme-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/theme_showcase.mojo -o dist/moxi-theme-showcase-demo", depends-on = ["native-object"] }
 theme-showcase-demo = { cmd = "./dist/moxi-theme-showcase-demo", depends-on = ["theme-showcase-demo-build"] }
 interactive-fractal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation examples/interactive_fractal.mojo -o dist/moxi-interactive-fractal-demo", depends-on = ["native-object", "metal-object"] }

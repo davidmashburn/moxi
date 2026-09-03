@@ -134,6 +134,24 @@ from .capability import (
     SIDE_EFFECT_NONE,
 )
 from .conversation import ChatMessage, ConversationContext
+from .capability_walkthrough import (
+    CAPABILITY_WALKTHROUGH_STEP_COUNT,
+    CAPABILITY_WALKTHROUGH_TITLE_ID,
+    CAPABILITY_WALKTHROUGH_STEP_ID,
+    CAPABILITY_WALKTHROUGH_BODY_ID,
+    CAPABILITY_WALKTHROUGH_PROGRESS_ID,
+    CAPABILITY_WALKTHROUGH_PREVIOUS_ID,
+    CAPABILITY_WALKTHROUGH_NEXT_ID,
+    CAPABILITY_WALKTHROUGH_RESTART_ID,
+    CAPABILITY_WALKTHROUGH_AGENT_RESET_ID,
+    CAPABILITY_WALKTHROUGH_APPROVE_ID,
+    CAPABILITY_WALKTHROUGH_STATUS_ID,
+    CAPABILITY_WALKTHROUGH_BUS_ID,
+    CAPABILITY_WALKTHROUGH_HINT_ID,
+    CapabilityWalkthroughHandler,
+    CapabilityWalkthroughState,
+    capability_walkthrough_step_count,
+)
 from .controls import (
     ButtonControl,
     CheckboxControl,
@@ -801,6 +819,7 @@ from .demo_browser import (
     DEMO_PAGE_FRACTAL,
     DEMO_PAGE_LIVE_SCRIPT,
     DEMO_PAGE_THEME_SHOWCASE,
+    DEMO_PAGE_CAPABILITY_WALKTHROUGH,
     DEMO_HELLO_WINDOW_ID,
     DEMO_HELLO_COMPONENT_ID,
     DEMO_COUNTER_ID,
@@ -823,6 +842,7 @@ from .demo_browser import (
     DEMO_HARFBUZZ_ID,
     DEMO_LIVE_SCRIPT_ID,
     DEMO_THEME_SHOWCASE_ID,
+    DEMO_CAPABILITY_WALKTHROUGH_ID,
     DEMO_TAB_OVERVIEW,
     DEMO_TAB_SOURCE,
     DEMO_TAB_DEMO,
@@ -842,6 +862,8 @@ from .demo_browser import (
     DEMO_LIVE_SCRIPT_ID_OFFSET,
     DEMO_THEME_SHOWCASE_SLOT_ID,
     DEMO_THEME_SHOWCASE_ID_OFFSET,
+    DEMO_CAPABILITY_WALKTHROUGH_SLOT_ID,
+    DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET,
     DEMO_HEADER_KICKER_ID,
     DEMO_PAGE_QUICKSTART_ID,
     DEMO_TAB_OVERVIEW_ID,
@@ -861,6 +883,13 @@ from .demo_browser import (
     DemoBrowserState,
     demo_category_name,
     demo_category_short_name,
+)
+from .demo_walkthrough import (
+    DEMO_WALKTHROUGH_EVENT,
+    DEMO_WALKTHROUGH_APPROVAL,
+    DemoWalkthroughAction,
+    DemoWalkthroughHandler,
+    DemoWalkthroughDriver,
 )
 
 
