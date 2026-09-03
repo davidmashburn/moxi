@@ -14,9 +14,10 @@ notifications, while the platform owns its application object and surface.
   installable APK target; `../../scripts/android_build.sh` builds the arm64
   API-35 APK and forwards IME text through the host ABI.
 - `moxi_web_host.mjs` is framework-free browser glue for Canvas/WebGPU or SVG.
-  It owns pointer/touch, keyboard, composition, resize-observer, animation,
-  and teardown listeners. `../web/host_demo.html` is a browser-run Canvas
-  example, while `presentSVG()` is the deterministic browser fallback.
+  It owns pointer/touch capture, modifier-aware keyboard and pointer input,
+  optional wheel input, composition, resize-observer, animation, and teardown
+  listeners. `../web/host_demo.html` is a browser-run Canvas example, while
+  `presentSVG()` is the deterministic browser fallback.
 
 The current `osx-arm64` Mojo package does not link UIKit, the Android NDK, or a
 browser runtime. `scripts/host_check.sh` checks the Android NDK/APK and iOS

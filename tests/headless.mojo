@@ -146,6 +146,10 @@ def main() raises:
     test_check(app.dispatch(Event(PointerEvent(POINTER_UP_KIND, submit_point))))
     test_check(app.component.submissions == 1)
     test_check(app.pressed_id() == -1)
+    test_check(app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, Point(510.0, 310.0)))))
+    test_check(app.focus_id() == -1)
+    test_check(app.dispatch(Event(PointerEvent(POINTER_UP_KIND, Point(510.0, 310.0)))))
+    test_check(app.focus_id() == -1)
 
     var renderer = TestRenderer()
     app.render(renderer)

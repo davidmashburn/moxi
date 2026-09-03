@@ -78,6 +78,7 @@ def main():
         Point(point.x, point.y + 10.0),
     ))))
     test_check(app.component.geometry.generator_points[1].y == initial_point_y + 10.0)
+    test_check(not app.component.dragging)
 
     test_check(app.dispatch(action(FRACTAL_DEPTH_UP_ID)))
     test_check(app.component.depth == 6)

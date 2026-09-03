@@ -8,9 +8,11 @@ from moxi import (
     CONTAINER_KIND,
     ColumnRuntime,
     ColumnView,
+    Event,
     ROLE_CONTAINER,
     Rect,
     TEXT_INPUT_VIEW_KIND,
+    TextInputEvent,
     NestedState,
 )
 
@@ -53,4 +55,6 @@ def main():
     test_check(app.view.child(0).kind == CONTAINER_KIND)
     test_check(app.view.child(2).kind == TEXT_INPUT_VIEW_KIND)
     test_check(app.accessibility().node(2).parent_id == 10)
+    test_check(app.dispatch(Event(TextInputEvent("Ada", 0, 6))))
+    test_check(app.component.input.text == "Ada")
     print("Moxi nested test passed")

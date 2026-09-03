@@ -37,7 +37,8 @@ def main() raises:
         window.pump()
         var event = window.poll_event()
         var changed = app.tick(1.0 / 60.0)
-        if event.kind != NONE_KIND:
+        while event.kind != NONE_KIND:
             changed = app.dispatch(event) or changed
+            event = window.poll_event()
         if changed:
             render_frame(app, renderer, scene_renderer)

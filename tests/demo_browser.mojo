@@ -11,6 +11,7 @@ from moxi import (
     DEMO_COUNTER_ID,
     DEMO_COUNTER_ID_OFFSET,
     DEMO_CLEAR_SEARCH_ID,
+    DEMO_CONTENT_PORTAL_ID,
     DEMO_ENTRY_VIEW_BASE,
     DEMO_EMPTY_CLEAR_ID,
     DEMO_STORY_SPLIT_ID,
@@ -48,6 +49,9 @@ from moxi import (
     WX_TITLE_ID,
     DemoBrowserState,
     DemoCatalog,
+    DRAG_BEGIN_KIND,
+    DRAG_UPDATE_KIND,
+    DROP_KIND,
     Event,
     KEY_ESCAPE,
     KeyEvent,
@@ -141,6 +145,34 @@ def main() raises:
     )
     test_check(app.dispatch(nav_scroll))
     test_check(app.view.scroll_offset_for(DEMO_NAV_PORTAL_ID) > 0.0)
+    var nav_track = app.scrollbar_track_for(DEMO_NAV_PORTAL_ID)
+    var nav_thumb = app.scrollbar_state_for(DEMO_NAV_PORTAL_ID).geometry(nav_track)
+    var nav_thumb_point = Point(nav_thumb.thumb.x + 4.0, nav_thumb.thumb.y + 2.0)
+    test_check(app.dispatch(Event(PointerEvent(
+        POINTER_DOWN_KIND,
+        nav_thumb_point,
+        7,
+        1,
+    ))))
+    test_check(app.dispatch(Event(PointerEvent(
+        DRAG_BEGIN_KIND,
+        nav_thumb_point,
+        7,
+        1,
+    ))))
+    test_check(app.dispatch(Event(PointerEvent(
+        DRAG_UPDATE_KIND,
+        Point(nav_thumb_point.x, nav_track.y + nav_track.height - 2.0),
+        7,
+        1,
+    ))))
+    test_check(app.view.scroll_offset_for(DEMO_NAV_PORTAL_ID) == app.view.scroll_max_offset(DEMO_NAV_PORTAL_ID))
+    test_check(app.dispatch(Event(PointerEvent(
+        DROP_KIND,
+        Point(nav_thumb_point.x, nav_track.y + nav_track.height - 2.0),
+        7,
+        0,
+    ))))
     var browser_commands = app.paint()
     var nav_scrollbar_count = 0
     for index in range(browser_commands.count()):
@@ -152,6 +184,36 @@ def main() raises:
             nav_scrollbar_count += 1
             test_check(command.scrollbar_visible)
     test_check(nav_scrollbar_count == 1)
+
+    # Filtering and category changes rebuild the catalog; the retained portal
+    # offset must follow the new result set instead of leaving its first item
+    # clipped off-screen.
+    var filter_app = App[DemoBrowserState](
+        DemoBrowserState(),
+        Rect(0.0, 0.0, 1180.0, 760.0),
+    )
+    var filter_nav_bounds = filter_app.view.bounds_for(DEMO_NAV_PORTAL_ID)
+    test_check(
+        filter_app.dispatch(
+            Event(
+                ScrollEvent(
+                    Point(filter_nav_bounds.x + 2.0, filter_nav_bounds.y + 2.0),
+                    Point(0.0, 180.0),
+                )
+            )
+        )
+    )
+    test_check(filter_app.view.scroll_offset_for(DEMO_NAV_PORTAL_ID) > 0.0)
+    test_check(filter_app.dispatch(Event(TextInputEvent("plot"))))
+    test_check(filter_app.component.selected_id == DEMO_PLOT_ID)
+    test_check(filter_app.component.status == "Selected Plot Scene.")
+    test_check(filter_app.view.scroll_offset_for(DEMO_NAV_PORTAL_ID) == 0.0)
+    test_check(
+        filter_app.dispatch(
+            action(DEMO_CATEGORY_BUTTON_BASE + DEMO_CATEGORY_PLOTTING)
+        )
+    )
+    test_check(filter_app.view.scroll_offset_for(DEMO_NAV_PORTAL_ID) == 0.0)
 
     test_check(app.dispatch(action(DEMO_RUN_BUTTON_ID)))
     test_check(app.component.tab == DEMO_TAB_DEMO)
@@ -232,6 +294,13 @@ def main() raises:
     )
     test_check(app.dispatch(Event(PointerEvent(POINTER_MOVE_KIND, plot_target))))
     test_check(app.component.showcase.component.plot_view.runtime.hovered.found())
+    # A native click arrives as pointer-down/pointer-up; App synthesizes the
+    # in-bounds click while the plot's pan gesture is armed. It must still
+    # select the point rather than being mistaken for a drag completion.
+    test_check(app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, plot_target))))
+    test_check(app.dispatch(Event(PointerEvent(POINTER_UP_KIND, plot_target))))
+    test_check(app.component.showcase.component.plot_view.selected_count() == 1)
+    app.component.showcase.component.plot_view.clear_selection()
     test_check(app.dispatch(Event(ClickEvent(plot_target))))
     test_check(app.component.showcase.component.plot_view.selected_count() == 1)
     var zoom_before = app.component.showcase.component.plot_view.runtime.plot.x_scale.data_max
@@ -241,6 +310,22 @@ def main() raises:
     test_check(
         app.component.showcase.component.plot_view.runtime.plot.x_scale.data_max
         != zoom_before
+    )
+    test_check(app.view.scroll_offset_for(DEMO_CONTENT_PORTAL_ID) == 0.0)
+
+    var pan_start = Point(
+        plot_canvas.x + plot_canvas.width * 0.5,
+        plot_canvas.y + plot_canvas.height * 0.5,
+    )
+    var pan_end = Point(pan_start.x + 28.0, pan_start.y + 16.0)
+    var plot_x_min_before = app.component.showcase.component.plot_view.runtime.plot.x_scale.data_min
+    test_check(app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, pan_start))))
+    test_check(app.dispatch(Event(PointerEvent(DRAG_BEGIN_KIND, pan_start))))
+    test_check(app.dispatch(Event(PointerEvent(DRAG_UPDATE_KIND, pan_end))))
+    test_check(app.dispatch(Event(PointerEvent(DROP_KIND, pan_end))))
+    test_check(
+        app.component.showcase.component.plot_view.runtime.plot.x_scale.data_min
+        != plot_x_min_before
     )
 
     # Shift-drag is delivered through App's pointer lifecycle as an interval
@@ -296,6 +381,21 @@ def main() raises:
     )
     test_check(interaction_canvas.width > 0.0)
     test_check(app.component.selected_scene(app.view).count() > 20)
+    test_check(
+        app.dispatch(
+            Event(
+                ScrollEvent(
+                    Point(
+                        interaction_canvas.x + interaction_canvas.width * 0.5,
+                        interaction_canvas.y + interaction_canvas.height * 0.5,
+                    ),
+                    Point(0.0, 32.0),
+                )
+            )
+        )
+    )
+    test_check(app.component.interaction.component.scrollbar.offset == 32.0)
+    test_check(app.view.scroll_offset_for(DEMO_CONTENT_PORTAL_ID) == 0.0)
     test_check(
         app.dispatch(
             action(
@@ -371,6 +471,94 @@ def main() raises:
     test_check(app.dispatch(move))
     var up = Event(PointerEvent(POINTER_UP_KIND, move_point, 4, 0))
     test_check(app.dispatch(up))
+    test_check(app.component.interaction.component.collection.key_at(2) == 107)
+
+    # Scene popups are not view-tree children, so an AppKit click must still
+    # reach the scene when the native hit-test reports its canvas/portal.
+    test_check(
+        app.dispatch(
+            action(DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_MENU_ID)
+        )
+    )
+    test_check(app.component.interaction.component.popups.depth() == 2)
+    var nested_popup = app.component.interaction.component.popups.top_bounds()
+    var nested_popup_point = Point(
+        interaction_canvas.x + nested_popup.x + 20.0,
+        interaction_canvas.y + nested_popup.y + 48.0,
+    )
+    test_check(
+        app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, nested_popup_point)))
+    )
+    test_check(
+        app.dispatch(Event(PointerEvent(POINTER_UP_KIND, nested_popup_point)))
+    )
+    test_check(app.component.interaction.component.popups.depth() == 1)
+    var outside_popup_point = Point(
+        interaction_canvas.x + 80.0,
+        interaction_canvas.y + 90.0,
+    )
+    test_check(
+        app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, outside_popup_point)))
+    )
+    test_check(app.component.interaction.component.popups.depth() == 0)
+    test_check(
+        app.dispatch(Event(PointerEvent(POINTER_UP_KIND, outside_popup_point)))
+    )
+    test_check(
+        app.component.interaction.component.collection.focus_key == 107
+    )
+
+    test_check(
+        app.dispatch(
+            action(DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_RESET_ID)
+        )
+    )
+    interaction_canvas = app.view.bounds_for(
+        DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_CANVAS_ID
+    )
+    var native_down = Event(PointerEvent(
+        POINTER_DOWN_KIND,
+        Point(interaction_canvas.x + 30.0, interaction_canvas.y + 90.0),
+        9,
+        1,
+    ))
+    test_check(app.dispatch(native_down))
+    test_check(
+        app.dispatch(
+            Event(
+                PointerEvent(
+                    DRAG_BEGIN_KIND,
+                    Point(interaction_canvas.x + 30.0, interaction_canvas.y + 90.0),
+                    9,
+                    1,
+                )
+            )
+        )
+    )
+    test_check(
+        app.dispatch(
+            Event(
+                PointerEvent(
+                    DRAG_UPDATE_KIND,
+                    Point(interaction_canvas.x + 30.0, interaction_canvas.y + 122.0),
+                    9,
+                    1,
+                )
+            )
+        )
+    )
+    test_check(
+        app.dispatch(
+            Event(
+                PointerEvent(
+                    DROP_KIND,
+                    Point(interaction_canvas.x + 30.0, interaction_canvas.y + 122.0),
+                    9,
+                    0,
+                )
+            )
+        )
+    )
     test_check(app.component.interaction.component.collection.key_at(2) == 107)
 
     # The line-fractal page is embedded through the same Component contract.

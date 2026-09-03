@@ -4,6 +4,9 @@ from moxi import (
     CLICK_KIND,
     ClickEvent,
     Color,
+    DRAG_BEGIN_KIND,
+    DRAG_UPDATE_KIND,
+    DROP_KIND,
     Event,
     KEY_ENTER,
     KEY_LEFT,
@@ -58,6 +61,16 @@ def main():
     scroll.position = target
     test_check(runtime.dispatch(scroll))
     test_check(runtime.build_scene().count() > 0)
+
+    # AppKit emits the backend-neutral drag aliases after pointer-down. The
+    # plot must keep panning through that stream just as it does for the
+    # explicit pointer lifecycle used by other hosts.
+    var pan_start = Point(120.0, 100.0)
+    var pan_end = Point(150.0, 118.0)
+    test_check(runtime.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, pan_start))))
+    test_check(runtime.dispatch(Event(PointerEvent(DRAG_BEGIN_KIND, pan_start))))
+    test_check(runtime.dispatch(Event(PointerEvent(DRAG_UPDATE_KIND, pan_end))))
+    test_check(runtime.dispatch(Event(PointerEvent(DROP_KIND, pan_end))))
 
     # Indexed queries preserve the nearest-point result of the original
     # exhaustive implementation on a denser fixture.

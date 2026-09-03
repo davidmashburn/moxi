@@ -2,9 +2,12 @@
 
 from moxi import (
     BUTTON_KIND,
+    ClickEvent,
     Color,
     ColumnView,
+    Event,
     LABEL_KIND,
+    Point,
     Rect,
     SpacingTokens,
     RadiusTokens,
@@ -26,6 +29,7 @@ from moxi import (
     badge,
     card_panel,
     ThemeShowcaseState,
+    TextInputEvent,
     test_check,
 )
 
@@ -121,5 +125,38 @@ def main():
             test_check(node.style.fill.red > 0.9)
         if node.id == 4001:
             test_check(node.style.text.red < 0.2)
+
+    # The showcase controls are live state, not static recipe samples: native
+    # clicks and committed text input must survive a rebuild.
+    var input_event = Event(TextInputEvent("Ada"))
+    input_event.set_target(3101)
+    test_check(showcase.update(input_event, showcase_view))
+    test_check(showcase.input.text == "Ada")
+    var checkbox_event = Event(ClickEvent(Point(0.0, 0.0)))
+    checkbox_event.set_target(3102)
+    test_check(showcase.update(checkbox_event, showcase_view))
+    test_check(not showcase.checkbox_checked)
+    var switch_event = Event(ClickEvent(Point(0.0, 0.0)))
+    switch_event.set_target(3103)
+    test_check(showcase.update(switch_event, showcase_view))
+    test_check(not showcase.switch_checked)
+    var interactive_showcase_view = showcase.build(Rect(0.0, 0.0, 780.0, 480.0))
+    var input_node_found = False
+    var checkbox_node_found = False
+    var switch_node_found = False
+    for index in range(interactive_showcase_view.child_count()):
+        var node = interactive_showcase_view.child(index)
+        if node.id == 3101:
+            input_node_found = True
+            test_check(node.text == "Ada")
+        if node.id == 3102:
+            checkbox_node_found = True
+            test_check(not node.checked)
+        if node.id == 3103:
+            switch_node_found = True
+            test_check(not node.checked)
+    test_check(input_node_found)
+    test_check(checkbox_node_found)
+    test_check(switch_node_found)
 
     print("Moxi tokens and recipes test passed")

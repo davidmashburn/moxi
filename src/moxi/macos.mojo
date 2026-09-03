@@ -1024,7 +1024,8 @@ struct MacOSWindow(WindowBackend):
                     Point(
                         external_call["moxi_window_event_x", Float32](),
                         external_call["moxi_window_event_y", Float32](),
-                    )
+                    ),
+                    Int(external_call["moxi_window_event_modifiers", Int32]()),
                 )
             )
         elif (
@@ -1033,15 +1034,17 @@ struct MacOSWindow(WindowBackend):
             or kind == POINTER_MOVE_KIND
             or kind == POINTER_CANCEL_KIND
         ):
-            return Event(
-                PointerEvent(
-                    kind,
-                    Point(
-                        external_call["moxi_window_event_x", Float32](),
-                        external_call["moxi_window_event_y", Float32](),
-                    ),
-                )
+            var pointer = PointerEvent(
+                kind,
+                Point(
+                    external_call["moxi_window_event_x", Float32](),
+                    external_call["moxi_window_event_y", Float32](),
+                ),
             )
+            pointer.set_modifiers(
+                Int(external_call["moxi_window_event_modifiers", Int32]())
+            )
+            return Event(pointer)
         elif kind == DRAG_BEGIN_KIND or kind == DRAG_UPDATE_KIND or kind == DROP_KIND:
             return Event(
                 DragEvent(

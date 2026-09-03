@@ -51,8 +51,9 @@ area filter.
 Standalone and embedded component views inherit the same policy from their
 root or linear slot, so content that exceeds its allocated box remains
 reachable without a page-specific scroll wrapper.
-Scrollable panes keep a static track and thumb visible while their content
-overflows. On macOS, wheel direction follows the system Natural scrolling
+Scrollable panes keep a visible track and thumb while their content overflows;
+the shared event path supports wheel scrolling, track paging, and thumb
+dragging. On macOS, wheel direction follows the system Natural scrolling
 setting while the portable event model remains unchanged.
 When no entry matches, the detail pane switches to an explicit empty state so
 stale selection details are never mistaken for a result. `Reset` is enabled

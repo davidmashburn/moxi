@@ -96,6 +96,12 @@ struct NestedState(Component):
                 self.input.clear_composition()
                 return True
             if event.kind == TEXT_INPUT_KIND:
+                if event.replacement_start >= 0 and event.replacement_end >= 0:
+                    return self.input.replace_text_range(
+                        event.text,
+                        event.replacement_start,
+                        event.replacement_end,
+                    )
                 return self.input.insert_text(event.text)
             if event.kind == KEY_DOWN_KIND:
                 return self.input.handle_key(event.key, event.modifiers)

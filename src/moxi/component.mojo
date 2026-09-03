@@ -17,6 +17,14 @@ trait Component(ImplicitlyCopyable):
         """Handle an event and report whether the view needs rebuilding."""
         return False
 
+    def scroll_reset_target(self, event: Event) -> Int:
+        """Return a scroll container that should return to its start."""
+        return -1
+
+    def intercepts_pointer(self, event: Event) -> Bool:
+        """Return whether a component-owned layer owns this pointer stream."""
+        return False
+
     def clipboard_copy(mut self, target: Int, view: ColumnView) -> String:
         """Return text copied from a target, or an empty string if unsupported."""
         return ""

@@ -21,12 +21,19 @@ from .event import (
     CLICK_KIND,
     COMPOSITION_END_KIND,
     COMPOSITION_UPDATE_KIND,
+    DRAG_BEGIN_KIND,
+    DRAG_UPDATE_KIND,
+    DROP_KIND,
     Event,
     FRAME_TICK_KIND,
     KEY_DOWN_KIND,
     KEY_ENTER,
     KEY_ESCAPE,
     KEY_SPACE,
+    POINTER_CANCEL_KIND,
+    POINTER_DOWN_KIND,
+    POINTER_MOVE_KIND,
+    POINTER_UP_KIND,
     SCROLL_KIND,
     TEXT_INPUT_KIND,
 )
@@ -893,6 +900,30 @@ struct DemoBrowserState(Component):
     def visible_count(self) -> Int:
         var catalog = DemoCatalog()
         return catalog.visible_count(self.search.text, self.category)
+
+    def scroll_reset_target(self, event: Event) -> Int:
+        """Reset the catalog viewport after a filter or category changes."""
+        if event.target == DEMO_SEARCH_ID:
+            return DEMO_NAV_PORTAL_ID
+        if event.target == DEMO_CLEAR_SEARCH_ID or event.target == DEMO_EMPTY_CLEAR_ID:
+            return DEMO_NAV_PORTAL_ID
+        if (
+            event.target >= DEMO_CATEGORY_BUTTON_BASE
+            and event.target < DEMO_CATEGORY_BUTTON_BASE + 100
+        ):
+            return DEMO_NAV_PORTAL_ID
+        return -1
+
+    def intercepts_pointer(self, event: Event) -> Bool:
+        """Let the embedded interaction layer own popup pointer streams."""
+        return (
+            self.tab == DEMO_TAB_DEMO
+            and self.selected_id == DEMO_INTERACTION_ID
+            and (
+                self.interaction.component.popups.is_open()
+                or self.interaction.component.dismissed_popup_pointer_id >= 0
+            )
+        )
 
     def selected_source_path(self) -> String:
         """Return the checked-in source path for the selected catalog entry."""
@@ -1985,6 +2016,31 @@ struct DemoBrowserState(Component):
                 return self.theme_showcase.route(event, view)
             if (
                 self.selected_id == DEMO_INTERACTION_ID
+                and (
+                    self.interaction.component.popups.is_open()
+                    or self.interaction.component.dismissed_popup_pointer_id >= 0
+                )
+                and (
+                    event.kind == POINTER_DOWN_KIND
+                    or event.kind == POINTER_UP_KIND
+                    or event.kind == POINTER_MOVE_KIND
+                    or event.kind == POINTER_CANCEL_KIND
+                    or event.kind == CLICK_KIND
+                    or event.kind == DRAG_BEGIN_KIND
+                    or event.kind == DRAG_UPDATE_KIND
+                    or event.kind == DROP_KIND
+                )
+            ):
+                # Popups are scene-owned and therefore absent from the
+                # declarative hit-test tree. Give them the complete pointer
+                # stream, including clicks outside the canvas, so dismissal
+                # does not depend on which parent portal was hit.
+                var popup_event = event
+                if not self.interaction.contains(event.target, view):
+                    popup_event.set_target(-1)
+                return self.interaction.route(popup_event, view)
+            if (
+                self.selected_id == DEMO_INTERACTION_ID
                 and event.kind == KEY_DOWN_KIND
                 and self.interaction.component.popups.is_open()
             ):
@@ -2055,11 +2111,23 @@ struct DemoBrowserState(Component):
                     )
                     if changed:
                         self._select_first_visible()
+                        if self.selected_id >= 0:
+                            self.status = String(
+                                "Selected ", self.selected_entry().name, "."
+                            )
+                        else:
+                            self.status = "No examples match."
                     return changed
                 else:
                     var changed = self.search.insert_text(event.text)
                     if changed:
                         self._select_first_visible()
+                        if self.selected_id >= 0:
+                            self.status = String(
+                                "Selected ", self.selected_entry().name, "."
+                            )
+                        else:
+                            self.status = "No examples match."
                     return changed
             if event.kind == KEY_DOWN_KIND:
                 if event.key == KEY_ESCAPE and not self.search.has_composition():

@@ -594,6 +594,9 @@ struct ColumnRuntime:
     def set_focus(mut self, id: Int) -> Bool:
         if id == self.focused_id:
             return False
+        if id == -1:
+            self.focused_id = -1
+            return True
         for index in range(self.widget_count()):
             var widget = self.widget(index)
             if (
@@ -647,9 +650,11 @@ struct ColumnRuntime:
         self.pressed_id = -1
         return activated
 
-    def cancel_press(mut self):
+    def cancel_press(mut self) -> Bool:
         """Cancel pointer capture without synthesizing a click."""
+        var changed = self.pressed_id != -1
         self.pressed_id = -1
+        return changed
 
     def pressed_view_id(self) -> Int:
         return self.pressed_id
@@ -769,6 +774,7 @@ struct ColumnRuntime:
             var widget = self.widget(index)
             if (
                 self._container_is_scrollable(widget)
+                and self.point_is_visible(widget, position)
                 and widget.bounds.contains(position)
             ):
                 return widget.id

@@ -41,7 +41,7 @@ Linebender stack, Parley, and AccessKit.
 | View representation | A flat, parent-aware `ViewNode` list with stable integer ids and typed component slots. | A typed lightweight view tree whose elements are Masonry widgets on native. |
 | Reconciliation | `ColumnRuntime` matches `(id, kind)`, preserves retained storage, reports created/reused/updated/moved/removed counts, and emits changed/removed paint metadata. | Xilem compares new view values and performs minimal updates to the retained Masonry tree. |
 | Layout | Linear columns/rows, padding, spacing, alignment, flexible slots, min/max constraints, intrinsic estimates, wrapping, stack, grid, split, and clipped portal containers. | Flex, grid, sized boxes, split panes, portals, z-stacks, and custom constraint-driven widgets. |
-| Scrolling | Bounded automatic root/linear overflow scrolling plus explicit portals, persistent offsets, clipping-aware hit testing, fixed/variable-extent range math, a stable-key `VirtualRecycler`/`VirtualizedList` with measured heights, prefix offsets, overscan, anchor correction, ensure-visible behavior, renderer-independent scrollbar geometry, and static track/thumb painting. Pointer-driven thumb dragging and richer viewport policy remain staged. | Mature virtual scrolling widgets and viewport integration. |
+| Scrolling | Bounded automatic root/linear overflow scrolling plus explicit portals, persistent offsets, clipping-aware hit testing, fixed/variable-extent range math, a stable-key `VirtualRecycler`/`VirtualizedList` with measured heights, prefix offsets, overscan, anchor correction, ensure-visible behavior, renderer-independent scrollbar geometry, static track/thumb painting, pointer-driven thumb dragging, and track paging. Richer viewport policy remains staged. | Mature virtual scrolling widgets and viewport integration. |
 | Rendering | Backend-neutral paint commands plus a scene IR. AppKit paints the native demo; `SoftwareSceneRenderer` is the deterministic oracle; `MacOSMetalRenderer` batches supported geometry, keeps an ASCII glyph fast path, rasterizes Unicode text through CoreText textures, uploads registered images, flattens quadratic/cubic/arc paths, and handles concave plus bounded even-odd compound/self-intersecting fills with blending, dynamic per-frame buffers, clips, transforms, synchronized CPU/GPU timing, and `CAMetalLayer` presentation. The interactive fractal path additionally uploads endpoints once and expands line quads in an instanced vertex shader; visible canvas frames use a three-slot async ring, while offscreen checksums synchronize. `SvgSceneRenderer` provides Web-compatible export. | Imaging abstraction with a high-performance 2D scene/rendering stack; Vello/wgpu is the current Linebender path. |
 | Windowing | AppKit window/event bridge on macOS Apple Silicon, configurable size limits/resizability/fullscreen, portable lifecycle/scale contracts, native iOS/Android host shims, a framework-free browser host module, and host-side accessibility bridges. Mojo mobile/browser package targets and multi-window ownership are not shipped. | Winit-based native support plus an experimental DOM/web backend. |
 | Text | Deterministic approximate portable shaping with script/direction/fallback runs and stable clusters; CoreText supplies native glyph ids, shaping, bidi, and fallback on macOS; Metal uses printable-ASCII geometry or a CoreText Unicode texture fallback. | Parley supplies rich layout, font fallback, shaping, bidi, segmentation, and editing infrastructure. |
@@ -80,9 +80,9 @@ repeatability harness, not a comparative Xilem/Masonry performance result.
   runtime is linked.
 - Portable text remains approximate; there is no Parley-equivalent shaping or
   font-fallback engine outside the CoreText adapter.
-- Virtualization now has measured variable-height builder/recycling and anchor
-  correction, but it still lacks interactive scrollbar widgets and richer
-  viewport policy.
+- Virtualization now has measured variable-height builder/recycling, anchor
+  correction, and interactive scrollbar widgets, but richer viewport policy
+  remains open.
 - Catalog controls have a deeper semantic/native macOS presentation now, and
   single-line text inputs use a real AppKit field editor; editable collection
   cells, menu tracking, full native control ownership, and device-level
@@ -115,8 +115,8 @@ against the deliberately focused 0.5 release boundary.
    present.
 2. Add a production portable shaping/font-fallback adapter; keep CoreText as
    the native reference path and retain the explicit approximate fallback.
-3. Add interactive scrollbar widgets and richer keyboard/touch reveal policy
-   around the measured variable-height recycler.
+3. Add richer keyboard/touch reveal policy around the measured variable-height
+   recycler.
 4. Add automated native accessibility assertions and an AccessKit-equivalent
    cross-platform adapter contract; macOS, Web, iOS, and Android now have
    source-level semantic bridges, but device/screen-reader automation remains.

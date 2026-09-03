@@ -1,13 +1,17 @@
 """Theme and component recipe showcase demonstrating Moxi's design tokens."""
 
 from .component import Component
+from .controls import CheckboxControl, SwitchControl, TextInputControl, TextInputState
 from .event import (
     ACTION_KIND,
     CLICK_KIND,
+    COMPOSITION_END_KIND,
+    COMPOSITION_UPDATE_KIND,
     Event,
     KEY_DOWN_KIND,
     KEY_ENTER,
     KEY_SPACE,
+    TEXT_INPUT_KIND,
 )
 from .geometry import Rect
 from .recipes import (
@@ -57,11 +61,17 @@ struct ThemeShowcaseState(Component):
     var theme_mode: Int
     var click_count: Int
     var status_message: String
+    var input: TextInputState
+    var checkbox_checked: Bool
+    var switch_checked: Bool
 
     def __init__(out self):
         self.theme_mode = THEME_DARK
         self.click_count = 0
         self.status_message = "Ready. Click theme buttons to switch palettes."
+        self.input = TextInputState()
+        self.checkbox_checked = True
+        self.switch_checked = True
 
     def current_tokens(self) -> ThemeTokens:
         if self.theme_mode == THEME_LIGHT:
@@ -124,9 +134,36 @@ struct ThemeShowcaseState(Component):
         # Section 2: Form & Controls
         view.add_label(3000, "Controls & Inputs", 28.0)
         _ = view.add_row(3100, 0.0, 36.0, 0.0, sp.space_sm)
-        view.add_text_input_to(3100, 3101, "Input field", 34.0)
-        view.add_checkbox_to(3100, 3102, "Checkbox option", True, 34.0)
-        view.add_switch_to(3100, 3103, "Switch toggle", True, 34.0)
+        var input = TextInputControl(
+            3101,
+            self.input.text,
+            self.input.cursor,
+            self.input.anchor,
+            34.0,
+            theme.text_input,
+        )
+        input.set_composition(
+            self.input.composition,
+            self.input.composition_selection_start,
+            self.input.composition_selection_end,
+        )
+        view.add_to(3100, input.node())
+        var checkbox = CheckboxControl(
+            3102,
+            "Checkbox option",
+            self.checkbox_checked,
+            34.0,
+            theme.control,
+        )
+        view.add_to(3100, checkbox.node())
+        var switch_node = SwitchControl(
+            3103,
+            "Switch toggle",
+            self.switch_checked,
+            34.0,
+        ).node()
+        switch_node.set_style(theme.switch_style)
+        view.add_to(3100, switch_node)
 
         # Section 3: Status & Feedback
         view.add_separator(4000)
@@ -149,9 +186,6 @@ struct ThemeShowcaseState(Component):
         var status_style = theme.label
         status_style.font_size = typography.text_sm
         view.set_style(4001, status_style)
-        view.set_style(3101, theme.text_input)
-        view.set_style(3102, theme.control)
-        view.set_style(3103, theme.switch_style)
         view.set_style(4000, theme.separator_style)
 
         view.layout()
@@ -160,6 +194,31 @@ struct ThemeShowcaseState(Component):
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         var target = event.target
         var action_id = event.action_id
+
+        if target == 3101:
+            if event.kind == COMPOSITION_UPDATE_KIND:
+                self.input.set_composition(
+                    event.text,
+                    event.selection_start,
+                    event.selection_end,
+                )
+                return True
+            if event.kind == COMPOSITION_END_KIND:
+                if not self.input.has_composition():
+                    return False
+                self.input.clear_composition()
+                return True
+            if event.kind == TEXT_INPUT_KIND:
+                if event.replacement_start >= 0 and event.replacement_end >= 0:
+                    return self.input.replace_text_range(
+                        event.text,
+                        event.replacement_start,
+                        event.replacement_end,
+                    )
+                return self.input.insert_text(event.text)
+            if event.kind == KEY_DOWN_KIND:
+                return self.input.handle_key(event.key, event.modifiers)
+            return False
 
         var is_trigger = False
         if event.kind == ACTION_KIND:
@@ -192,6 +251,22 @@ struct ThemeShowcaseState(Component):
         elif target == BTN_THEME_EMERALD or (target == -1 and action_id == ACTION_SET_EMERALD):
             self.theme_mode = THEME_EMERALD
             self.status_message = "Switched to Emerald Teal palette."
+            return True
+        elif target == 3102:
+            self.checkbox_checked = not self.checkbox_checked
+            self.status_message = (
+                "Checkbox enabled."
+                if self.checkbox_checked
+                else "Checkbox disabled."
+            )
+            return True
+        elif target == 3103:
+            self.switch_checked = not self.switch_checked
+            self.status_message = (
+                "Switch on."
+                if self.switch_checked
+                else "Switch off."
+            )
             return True
         elif action_id == ACTION_DEMO_CLICK or (target >= BTN_PRIMARY and target <= BTN_GHOST):
             self.click_count += 1

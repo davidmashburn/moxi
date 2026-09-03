@@ -20,6 +20,9 @@ from .event import (
     POINTER_DOWN_KIND,
     POINTER_MOVE_KIND,
     POINTER_UP_KIND,
+    DRAG_BEGIN_KIND,
+    DRAG_UPDATE_KIND,
+    DROP_KIND,
     SCROLL_KIND,
     TOUCH_BEGIN_KIND,
     TOUCH_END_KIND,
@@ -667,7 +670,13 @@ struct PlotRuntime:
             self.brush_origin = event.position
             self.brush_current = event.position
             return self.brushing or self.lassoing or self.dragging
-        if event.kind == POINTER_MOVE_KIND or event.kind == TOUCH_UPDATE_KIND:
+        if event.kind == DRAG_BEGIN_KIND:
+            return self.dragging or self.brushing or self.lassoing
+        if (
+            event.kind == POINTER_MOVE_KIND
+            or event.kind == DRAG_UPDATE_KIND
+            or event.kind == TOUCH_UPDATE_KIND
+        ):
             var changed = False
             if self.brushing:
                 if (
@@ -702,7 +711,11 @@ struct PlotRuntime:
                 changed = True
             self.hovered = next_hover
             return changed
-        if event.kind == POINTER_UP_KIND or event.kind == TOUCH_END_KIND:
+        if (
+            event.kind == POINTER_UP_KIND
+            or event.kind == DROP_KIND
+            or event.kind == TOUCH_END_KIND
+        ):
             if self.lassoing:
                 self.lasso_points.append(event.position)
                 self._apply_lasso()
@@ -736,8 +749,17 @@ struct PlotRuntime:
                 self.dragging = False
                 return True
             if self.dragging:
+                # App turns an in-bounds pointer release into CLICK after
+                # releasing the retained control. A click has still armed
+                # the pan gesture, so distinguish a stationary release from
+                # a real drag before suppressing point selection.
+                var stationary = (
+                    self.last_pointer.x == event.position.x
+                    and self.last_pointer.y == event.position.y
+                )
                 self.dragging = False
-                return True
+                if not stationary:
+                    return True
             if not self.click_select_enabled:
                 return False
             var previous_selected = self.selected

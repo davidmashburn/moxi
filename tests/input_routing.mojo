@@ -69,7 +69,11 @@ def main():
     test_check(app.dispatch(Event(PointerEvent(DRAG_BEGIN_KIND, point))))
     _ = app.dispatch(Event(PointerEvent(POINTER_MOVE_KIND, Point(500.0, 500.0))))
     test_check(app.component.last_target == 1)
-    _ = app.dispatch(Event(PointerEvent(POINTER_CANCEL_KIND, Point(500.0, 500.0))))
+    test_check(app.dispatch(Event(PointerEvent(POINTER_CANCEL_KIND, Point(500.0, 500.0)))))
     test_check(app.pressed_id() == -1)
+    test_check(app.dispatch(Event(PointerEvent(POINTER_MOVE_KIND, point))))
+    test_check(app.hover_id() == 1)
+    test_check(app.dispatch(Event(PointerEvent(POINTER_CANCEL_KIND, point))))
+    test_check(app.hover_id() == -1)
 
     print("Moxi input-routing test passed")

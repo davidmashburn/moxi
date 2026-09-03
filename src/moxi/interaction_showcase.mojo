@@ -26,6 +26,9 @@ from .event import (
     POINTER_DOWN_KIND,
     POINTER_MOVE_KIND,
     POINTER_UP_KIND,
+    DRAG_BEGIN_KIND,
+    DRAG_UPDATE_KIND,
+    DROP_KIND,
     SCROLL_KIND,
     Event,
 )
@@ -208,6 +211,7 @@ struct InteractionShowcaseState(Component):
     var reorder: ReorderInteraction
     var scrollbar_pointer_id: Int
     var scrollbar_grab_offset: Float32
+    var dismissed_popup_pointer_id: Int
     var status: String
 
     def __init__(out self):
@@ -219,6 +223,7 @@ struct InteractionShowcaseState(Component):
         self.reorder = ReorderInteraction(8.0)
         self.scrollbar_pointer_id = -1
         self.scrollbar_grab_offset = 0.0
+        self.dismissed_popup_pointer_id = -1
         self.status = ""
         self._reset_state()
 
@@ -231,6 +236,7 @@ struct InteractionShowcaseState(Component):
         self.reorder = copy.reorder
         self.scrollbar_pointer_id = copy.scrollbar_pointer_id
         self.scrollbar_grab_offset = copy.scrollbar_grab_offset
+        self.dismissed_popup_pointer_id = copy.dismissed_popup_pointer_id
         self.status = copy.status
 
     def _reset_state(mut self):
@@ -263,11 +269,16 @@ struct InteractionShowcaseState(Component):
         self.reorder = ReorderInteraction(8.0, self.collection.item_count())
         self.scrollbar_pointer_id = -1
         self.scrollbar_grab_offset = 0.0
+        self.dismissed_popup_pointer_id = -1
         self.status = "Ready · select rows, drag to reorder, or open a layer."
 
     def reset(mut self):
         """Restore all five interaction primitives to their initial state."""
         self._reset_state()
+
+    def intercepts_pointer(self, event: Event) -> Bool:
+        """Keep scene popup streams out of the underlying view tree."""
+        return self.popups.is_open() or self.dismissed_popup_pointer_id >= 0
 
     def _selected_index(self) -> Int:
         var index = self.collection.focus_index()
@@ -532,7 +543,10 @@ struct InteractionShowcaseState(Component):
                 return True
             return False
 
-        if event.kind == POINTER_MOVE_KIND and self.scrollbar_pointer_id >= 0:
+        if (
+            (event.kind == POINTER_MOVE_KIND or event.kind == DRAG_UPDATE_KIND)
+            and self.scrollbar_pointer_id >= 0
+        ):
             if event.pointer_id != self.scrollbar_pointer_id:
                 return False
             var track = self._scrollbar_track(canvas)
@@ -551,7 +565,11 @@ struct InteractionShowcaseState(Component):
             return False
 
         if (
-            (event.kind == POINTER_UP_KIND or event.kind == CLICK_KIND)
+            (
+                event.kind == POINTER_UP_KIND
+                or event.kind == DROP_KIND
+                or event.kind == CLICK_KIND
+            )
             and self.scrollbar_pointer_id >= 0
         ):
             if event.pointer_id != self.scrollbar_pointer_id:
@@ -573,7 +591,16 @@ struct InteractionShowcaseState(Component):
             self.status = "Scrollbar drag cancelled."
             return True
 
-        if event.kind == POINTER_MOVE_KIND and active:
+        if (
+            event.kind == DRAG_BEGIN_KIND
+            and (active or self.scrollbar_pointer_id >= 0)
+        ):
+            return True
+
+        if (
+            (event.kind == POINTER_MOVE_KIND or event.kind == DRAG_UPDATE_KIND)
+            and active
+        ):
             var moved = self.reorder.update(event.pointer_id, event.position)
             if not moved:
                 return False
@@ -594,7 +621,11 @@ struct InteractionShowcaseState(Component):
             return True
 
         if (
-            (event.kind == POINTER_UP_KIND or event.kind == CLICK_KIND)
+            (
+                event.kind == POINTER_UP_KIND
+                or event.kind == DROP_KIND
+                or event.kind == CLICK_KIND
+            )
             and active
         ):
             var destination = self._row_index_at(event.position, canvas)
@@ -642,6 +673,31 @@ struct InteractionShowcaseState(Component):
         return False
 
     def _handle_popup_input(mut self, event: Event, view: ColumnView) -> Bool:
+        # A non-modal popup closes on pointer-down outside its bounds. Keep
+        # consuming that pointer's terminal events after the layer disappears;
+        # otherwise App's captured release can synthesize a click for the
+        # underlying table or tree.
+        if self.dismissed_popup_pointer_id >= 0:
+            if event.kind == POINTER_DOWN_KIND:
+                # A fresh press starts a new stream. This matters for hosts
+                # that reuse pointer id 0 and deliver a second down before a
+                # synthetic terminal event for the previous stream.
+                self.dismissed_popup_pointer_id = -1
+            elif event.pointer_id != self.dismissed_popup_pointer_id:
+                return False
+            if event.kind != POINTER_DOWN_KIND and (
+                event.kind == POINTER_MOVE_KIND
+                or event.kind == DRAG_BEGIN_KIND
+                or event.kind == DRAG_UPDATE_KIND
+                or event.kind == POINTER_UP_KIND
+                or event.kind == POINTER_CANCEL_KIND
+                or event.kind == DROP_KIND
+                or event.kind == CLICK_KIND
+            ):
+                self.dismissed_popup_pointer_id = -1
+                return True
+            if event.kind != POINTER_DOWN_KIND:
+                return False
         if not self.popups.is_open():
             return False
         var canvas = self._canvas_bounds(view)
@@ -669,6 +725,36 @@ struct InteractionShowcaseState(Component):
                         ".",
                     )
                 return True
+        if event.kind == POINTER_DOWN_KIND:
+            self.dismissed_popup_pointer_id = -1
+            var local = Point(
+                event.position.x - canvas.x,
+                event.position.y - canvas.y,
+            )
+            var top_index = self.popups.depth() - 1
+            var entry = self.popups.entries[top_index]
+            if entry.bounds.contains(local) or entry.anchor.contains(local):
+                # Keep the pointer stream in the scene-owned popup layer. The
+                # eventual click event performs activation after release.
+                return True
+            if self.popups.dismiss_if_outside(local):
+                self.dismissed_popup_pointer_id = event.pointer_id
+                self.status = "Dismissed popup outside its bounds."
+                return True
+            # Modal layers consume outside presses even though they cannot be
+            # dismissed by them.
+            return True
+        if (
+            event.kind == POINTER_MOVE_KIND
+            or event.kind == POINTER_UP_KIND
+            or event.kind == POINTER_CANCEL_KIND
+            or event.kind == DRAG_BEGIN_KIND
+            or event.kind == DRAG_UPDATE_KIND
+            or event.kind == DROP_KIND
+        ):
+            # Popup geometry is scene-owned. Consume the rest of a pointer
+            # stream even when the pointer is over the underlying canvas.
+            return True
         if event.kind == CLICK_KIND:
             var local = Point(
                 event.position.x - canvas.x,
@@ -692,6 +778,7 @@ struct InteractionShowcaseState(Component):
             if self.popups.dismiss_if_outside(local):
                 self.status = "Dismissed popup outside its bounds."
                 return True
+            return True
         return False
 
     def build(self, bounds: Rect) -> ColumnView:
@@ -875,10 +962,15 @@ struct InteractionShowcaseState(Component):
         return root^
 
     def update(mut self, event: Event, view: ColumnView) -> Bool:
+        if self._handle_popup_input(event, view):
+            return True
+
         if self._handle_pointer(event, view):
             return True
 
         if event.kind == SCROLL_KIND:
+            if self.popups.is_open():
+                return True
             var canvas = self._canvas_bounds(view)
             if canvas.contains(event.position):
                 if self.scrollbar.scroll_by(event.scroll_delta.y):
@@ -888,9 +980,6 @@ struct InteractionShowcaseState(Component):
                         ".",
                     )
                     return True
-
-        if self._handle_popup_input(event, view):
-            return True
 
         if event.kind == KEY_DOWN_KIND and not self.popups.is_open():
             if event.target == INTERACTION_SHOWCASE_CANVAS_ID:

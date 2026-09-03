@@ -4,8 +4,14 @@ import {
   accessibilityAttributes,
   MOXI_AX_ROLE_MAP,
   MOXI_HOST_POINTER_DOWN,
+  MOXI_HOST_POINTER_UP,
+  MOXI_HOST_SCROLL,
   MOXI_HOST_TEXT_INPUT,
   MOXI_HOST_WINDOW_RESIZED,
+  MOXI_MOD_COMMAND,
+  MOXI_MOD_CONTROL,
+  MOXI_MOD_OPTION,
+  MOXI_MOD_SHIFT,
 } from "../native/hosts/moxi_web_host.mjs";
 
 class FakeSurface {
@@ -13,6 +19,8 @@ class FakeSurface {
     this.listeners = new Map();
     this.width = 0;
     this.height = 0;
+    this.captures = [];
+    this.releases = [];
   }
 
   addEventListener(type, handler) {
@@ -27,6 +35,14 @@ class FakeSurface {
     return {left: 10, top: 20, width: 320, height: 180};
   }
 
+  setPointerCapture(pointerId) {
+    this.captures.push(pointerId);
+  }
+
+  releasePointerCapture(pointerId) {
+    this.releases.push(pointerId);
+  }
+
   emit(type, event) {
     const handler = this.listeners.get(type);
     if (handler) handler(event);
@@ -37,16 +53,50 @@ const surface = new FakeSurface();
 const events = [];
 const resizes = [];
 const text = [];
+const scrolls = [];
+let wheelPrevented = false;
 const host = new MoxiWebHost(surface, {
   event: (...value) => events.push(value),
   resize: (...value) => resizes.push(value),
   text: (...value) => text.push(value),
+  scroll: (...value) => scrolls.push(value),
 });
 
 assert.equal(host.start(), true);
 assert.equal(host.start(), false);
-surface.emit("pointerdown", {clientX: 14, clientY: 27, pointerId: 3, buttons: 1});
-assert.deepEqual(events[0], [MOXI_HOST_POINTER_DOWN, 3, 4, 7, 1, 0]);
+surface.emit("pointerdown", {
+  clientX: 14,
+  clientY: 27,
+  pointerId: 3,
+  buttons: 1,
+  shiftKey: true,
+  metaKey: true,
+  ctrlKey: true,
+  altKey: true,
+});
+assert.deepEqual(events[0], [
+  MOXI_HOST_POINTER_DOWN,
+  3,
+  4,
+  7,
+  1,
+  MOXI_MOD_SHIFT | MOXI_MOD_COMMAND | MOXI_MOD_CONTROL | MOXI_MOD_OPTION,
+]);
+assert.deepEqual(surface.captures, [3]);
+surface.emit("pointerup", {clientX: 14, clientY: 27, pointerId: 3, buttons: 0});
+assert.deepEqual(events[1], [MOXI_HOST_POINTER_UP, 3, 4, 7, 0, 0]);
+assert.deepEqual(surface.releases, [3]);
+surface.emit("wheel", {
+  clientX: 18,
+  clientY: 32,
+  deltaX: 4,
+  deltaY: 12,
+  shiftKey: true,
+  cancelable: true,
+  preventDefault: () => { wheelPrevented = true; },
+});
+assert.equal(wheelPrevented, true);
+assert.deepEqual(scrolls[0], [4, 12, 8, 12, MOXI_MOD_SHIFT]);
 host.resize(320, 180, 2);
 assert.equal(resizes.at(-1)[0], 320);
 assert.equal(resizes.at(-1)[2], 2);

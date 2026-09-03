@@ -40,8 +40,9 @@ def run_loop[Painter: FractalCanvasPainter](
         window.pump()
         var changed = app.tick(1.0 / 60.0)
         var event = window.poll_event()
-        if event.kind != NONE_KIND:
+        while event.kind != NONE_KIND:
             changed = app.dispatch(event) or changed
+            event = window.poll_event()
         if app.component.advance_render():
             changed = True
         if changed:

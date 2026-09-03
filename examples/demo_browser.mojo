@@ -110,8 +110,9 @@ def run_demo(automated: Bool = False) raises:
         var changed = app.tick(1.0 / 60.0)
         if automated:
             changed = walkthrough.tick(app, 1.0 / 60.0) or changed
-        if event.kind != NONE_KIND:
+        while event.kind != NONE_KIND:
             changed = app.dispatch_with_clipboard(event, clipboard) or changed
+            event = window.poll_event()
         changed = sync_live_script(app, live_watcher, live_script) or changed
 
         if changed:

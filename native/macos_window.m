@@ -9,6 +9,7 @@
 @property(nonatomic, strong) NSTextField *nativeTextEditor;
 @property(nonatomic, strong) NSString *nativeTextEditorValue;
 @property(nonatomic, assign) BOOL synchronizingNativeTextEditor;
+@property(nonatomic, strong) NSTrackingArea *moxiTrackingArea;
 - (void)hideNativeTextEditor;
 - (void)showNativeTextEditorForIndex:(int)index;
 - (void)finishMoxiFrame;
@@ -26,6 +27,7 @@
 #define MOXI_MAX_CUSTOM_RECTS 64
 #define MOXI_MAX_CUSTOM_TEXT 256
 #define MOXI_EVENT_QUEUE_CAPACITY 64
+#define MOXI_POINTER_DRAG_THRESHOLD 4.0f
 
 #define MOXI_EVENT_NONE 0
 #define MOXI_EVENT_POINTER_DOWN 1
@@ -841,6 +843,7 @@ static void moxi_queue_accessibility_click(int id) {
             moxi_event_y = NSMidY(frame);
             moxi_last_click_x = moxi_event_x;
             moxi_last_click_y = moxi_event_y;
+            moxi_event_modifiers = 0;
             moxi_queue_event(MOXI_EVENT_CLICK);
             return;
         }
@@ -1414,8 +1417,23 @@ int moxi_clipboard_codepoint_at(int target) {
 @end
 
 @implementation MoxiWindowDelegate
+- (void)windowDidResignKey:(NSNotification *)notification {
+    (void)notification;
+    /* AppKit can switch applications without delivering mouseUp. End the
+     * current stream and clear hover so the next window cannot inherit a
+     * pressed control or a stale highlight. */
+    moxi_event_modifiers = 0;
+    moxi_queue_event(MOXI_EVENT_POINTER_CANCEL);
+    moxi_mouse_is_down = NO;
+    moxi_mouse_dragging = NO;
+    moxi_click_pending = NO;
+}
+
 - (void)windowWillClose:(NSNotification *)notification {
     moxi_window_opened = NO;
+    moxi_mouse_is_down = NO;
+    moxi_mouse_dragging = NO;
+    moxi_click_pending = NO;
     [NSApp stop:nil];
 }
 @end
@@ -1427,6 +1445,22 @@ int moxi_clipboard_codepoint_at(int target) {
 
 - (BOOL)acceptsFirstResponder {
     return YES;
+}
+
+- (void)updateTrackingAreas {
+    [super updateTrackingAreas];
+    if (self.moxiTrackingArea != nil) {
+        [self removeTrackingArea:self.moxiTrackingArea];
+    }
+    NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited |
+                                    NSTrackingActiveInKeyWindow |
+                                    NSTrackingInVisibleRect;
+    self.moxiTrackingArea = [[NSTrackingArea alloc]
+        initWithRect:NSZeroRect
+             options:options
+               owner:self
+            userInfo:nil];
+    [self addTrackingArea:self.moxiTrackingArea];
 }
 
 - (BOOL)isAccessibilityElement {
@@ -2603,6 +2637,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 
 - (void)mouseDown:(NSEvent *)event {
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+    moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_last_click_x = point.x;
     moxi_last_click_y = point.y;
     moxi_click_pending = YES;
@@ -2616,7 +2651,11 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)mouseUp:(NSEvent *)event {
+    if (!moxi_mouse_is_down) {
+        return;
+    }
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+    moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_event_x = point.x;
     moxi_event_y = point.y;
     if (moxi_mouse_dragging) {
@@ -2633,9 +2672,18 @@ double moxi_window_benchmark_custom_paint(int iterations) {
         return;
     }
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+    moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_event_x = point.x;
     moxi_event_y = point.y;
     if (!moxi_mouse_dragging) {
+        CGFloat delta_x = point.x - moxi_last_pointer_x;
+        CGFloat delta_y = point.y - moxi_last_pointer_y;
+        if (
+            delta_x * delta_x + delta_y * delta_y
+            < MOXI_POINTER_DRAG_THRESHOLD * MOXI_POINTER_DRAG_THRESHOLD
+        ) {
+            return;
+        }
         moxi_mouse_dragging = YES;
         moxi_queue_event(MOXI_EVENT_DRAG_BEGIN);
     }
@@ -2645,15 +2693,27 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)mouseExited:(NSEvent *)event {
-    if (moxi_mouse_is_down) {
-        moxi_queue_event(MOXI_EVENT_POINTER_CANCEL);
-        moxi_mouse_is_down = NO;
-        moxi_mouse_dragging = NO;
-    }
+    NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+    moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
+    moxi_event_x = point.x;
+    moxi_event_y = point.y;
+    moxi_click_pending = NO;
+    moxi_queue_event(MOXI_EVENT_POINTER_CANCEL);
+    moxi_mouse_is_down = NO;
+    moxi_mouse_dragging = NO;
+}
+
+- (void)mouseEntered:(NSEvent *)event {
+    NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+    moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
+    moxi_event_x = point.x;
+    moxi_event_y = point.y;
+    moxi_queue_event(MOXI_EVENT_POINTER_MOVE);
 }
 
 - (void)mouseMoved:(NSEvent *)event {
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+    moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_event_x = point.x;
     moxi_event_y = point.y;
     moxi_queue_event(MOXI_EVENT_POINTER_MOVE);
@@ -2661,10 +2721,11 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 
 - (void)scrollWheel:(NSEvent *)event {
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+    moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_enqueue_event(
         MOXI_EVENT_SCROLL,
         0,
-        moxi_interpreting_modifiers,
+        moxi_event_modifiers,
         -1,
         nil,
         -1,
@@ -2942,6 +3003,9 @@ void moxi_window_open(
         moxi_accessibility_reset_storage();
         moxi_reset_event_queue();
         moxi_click_pending = NO;
+        moxi_mouse_is_down = NO;
+        moxi_mouse_dragging = NO;
+        moxi_event_modifiers = 0;
         moxi_last_canvas_width = width;
         moxi_last_canvas_height = height;
         [moxi_window setContentView:moxi_canvas];

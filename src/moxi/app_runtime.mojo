@@ -49,8 +49,20 @@ from .runtime import ColumnRuntime
 from .reactivity import ActionMessage, ActionQueue
 from .execution import LocalizedExecution
 from .layout import ROW_AXIS
+from .scrollbar import (
+    SCROLLBAR_HIT_THUMB,
+    SCROLLBAR_HIT_TRACK,
+    SCROLLBAR_HORIZONTAL,
+    SCROLLBAR_VERTICAL,
+    ScrollbarState,
+)
 from .tasks import TaskHandle, TaskScheduler
-from .view import ColumnView, TEXT_INPUT_VIEW_KIND
+from .view import (
+    CONTAINER_KIND,
+    ColumnView,
+    ROOT_SCROLL_ID,
+    TEXT_INPUT_VIEW_KIND,
+)
 from .window import WindowBackend
 
 
@@ -66,6 +78,10 @@ struct App[ComponentType: Component & Deinitable]:
     var tasks: TaskScheduler
     var scroll_ids: List[Int]
     var scroll_values: List[Float32]
+    var scrollbar_pointer_id: Int
+    var scrollbar_target_id: Int
+    var scrollbar_grab_offset: Float32
+    var scrollbar_dragging: Bool
     var local_execution: LocalizedExecution
 
     def __init__(out self, component: Self.ComponentType, bounds: Rect):
@@ -80,6 +96,10 @@ struct App[ComponentType: Component & Deinitable]:
         self.tasks = TaskScheduler()
         self.scroll_ids = List[Int]()
         self.scroll_values = List[Float32]()
+        self.scrollbar_pointer_id = -1
+        self.scrollbar_target_id = -1
+        self.scrollbar_grab_offset = 0.0
+        self.scrollbar_dragging = False
         self.local_execution = LocalizedExecution()
         _ = self.local_execution.add_scope(0)
         _ = self.local_execution.add_dependency(0, 0)
@@ -194,38 +214,177 @@ struct App[ComponentType: Component & Deinitable]:
         var focus_changed = False
         var pointer_changed = False
         var rebuilt = False
+        var component_dispatched = False
+        var updated = False
+        var scrollbar_handled = False
+        var pointer_intercepted = (
+            event.kind == CLICK_KIND
+            or event.kind == POINTER_DOWN_KIND
+            or event.kind == POINTER_MOVE_KIND
+            or event.kind == POINTER_UP_KIND
+            or event.kind == POINTER_CANCEL_KIND
+            or event.kind == DRAG_BEGIN_KIND
+            or event.kind == DRAG_UPDATE_KIND
+            or event.kind == DROP_KIND
+        ) and self.component.intercepts_pointer(event)
+
+        if event.kind == POINTER_DOWN_KIND and not pointer_intercepted:
+            var scrollbar_target = self.scrollbar_target_at(event.position)
+            if scrollbar_target != -1:
+                var scrollbar = self.scrollbar_state_for(scrollbar_target)
+                var track = self.scrollbar_track_for(scrollbar_target)
+                var hit = scrollbar.hit_test(track, event.position)
+                if hit == SCROLLBAR_HIT_THUMB:
+                    var geometry = scrollbar.geometry(track)
+                    self.scrollbar_pointer_id = event.pointer_id
+                    self.scrollbar_target_id = scrollbar_target
+                    self.scrollbar_dragging = True
+                    if scrollbar.orientation == SCROLLBAR_VERTICAL:
+                        self.scrollbar_grab_offset = (
+                            event.position.y - geometry.thumb.y
+                        )
+                    else:
+                        self.scrollbar_grab_offset = (
+                            event.position.x - geometry.thumb.x
+                        )
+                    scrollbar_handled = True
+                elif hit == SCROLLBAR_HIT_TRACK:
+                    self.scrollbar_pointer_id = event.pointer_id
+                    self.scrollbar_target_id = scrollbar_target
+                    self.scrollbar_grab_offset = 0.0
+                    self.scrollbar_dragging = False
+                    if scrollbar.handle_track_click(track, event.position):
+                        self.remember_scroll(
+                            scrollbar_target,
+                            scrollbar.offset,
+                        )
+                        self.view.set_scroll_offset(
+                            scrollbar_target,
+                            scrollbar.offset,
+                        )
+                        self.view.layout()
+                        self.runtime.reconcile(self.view)
+                        pointer_changed = True
+                    scrollbar_handled = True
+                if scrollbar_handled:
+                    pointer_changed = True
+                    pointer_changed = self.runtime.set_hover(-1) or pointer_changed
+        elif (
+            self.scrollbar_pointer_id >= 0
+            and event.pointer_id == self.scrollbar_pointer_id
+            and (
+                event.kind == POINTER_MOVE_KIND
+                or event.kind == POINTER_UP_KIND
+                or event.kind == POINTER_CANCEL_KIND
+                or event.kind == DRAG_BEGIN_KIND
+                or event.kind == DRAG_UPDATE_KIND
+                or event.kind == DROP_KIND
+            )
+        ):
+            scrollbar_handled = True
+            var scrollbar_target = self.scrollbar_target_id
+            if event.kind == DRAG_BEGIN_KIND:
+                pointer_changed = True
+            elif (
+                event.kind == POINTER_MOVE_KIND
+                or event.kind == DRAG_UPDATE_KIND
+            ):
+                if self.scrollbar_dragging:
+                    var scrollbar = self.scrollbar_state_for(scrollbar_target)
+                    var track = self.scrollbar_track_for(scrollbar_target)
+                    var next = scrollbar.offset_for_thumb_position(
+                        track,
+                        event.position,
+                        self.scrollbar_grab_offset,
+                    )
+                    var current = self.view.scroll_offset_for(scrollbar_target)
+                    if next != current:
+                        self.remember_scroll(scrollbar_target, next)
+                        self.view.set_scroll_offset(scrollbar_target, next)
+                        self.view.layout()
+                        self.runtime.reconcile(self.view)
+                        pointer_changed = True
+                pointer_changed = self.runtime.set_hover(-1) or pointer_changed
+            elif (
+                event.kind == POINTER_UP_KIND
+                or event.kind == POINTER_CANCEL_KIND
+                or event.kind == DROP_KIND
+            ):
+                self.scrollbar_pointer_id = -1
+                self.scrollbar_target_id = -1
+                self.scrollbar_grab_offset = 0.0
+                self.scrollbar_dragging = False
+                pointer_changed = True
+
         if event.kind == CLICK_KIND or event.kind == POINTER_DOWN_KIND:
-            var target = self.runtime.hit_test(event.position)
+            var target = (
+                -1
+                if scrollbar_handled
+                else self.runtime.hit_test(event.position)
+            )
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
-            if target != -1:
-                var previous_focus = self.runtime.focus_id()
+            var previous_focus = self.runtime.focus_id()
+            if (
+                not pointer_intercepted
+                and (event.kind == POINTER_DOWN_KIND or target != -1)
+            ):
                 focus_changed = self.runtime.set_focus(target)
                 if focus_changed and previous_focus != -1:
                     if self.end_composition(previous_focus):
                         self.rebuild()
                         rebuilt = True
             if event.kind == POINTER_DOWN_KIND:
-                pointer_changed = self.runtime.press(target)
+                pointer_changed = self.runtime.press(target) or pointer_changed
+                if pointer_intercepted:
+                    pointer_changed = self.runtime.set_hover(-1) or pointer_changed
         elif event.kind == POINTER_MOVE_KIND:
             var hover_target = self.runtime.hit_test(event.position)
+            if self.scrollbar_target_at(event.position) != -1:
+                # Painted scrollbars sit above the widget stream. Do not let
+                # a control behind the track light up while the pointer is
+                # over the affordance.
+                hover_target = -1
             var captured_target = self.runtime.pressed_view_id()
-            var target = captured_target if captured_target != -1 else hover_target
+            var target = (
+                -1
+                if scrollbar_handled
+                else (captured_target if captured_target != -1 else hover_target)
+            )
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
-            pointer_changed = self.runtime.set_hover(hover_target)
+            if not scrollbar_handled and not pointer_intercepted:
+                pointer_changed = self.runtime.set_hover(hover_target) or pointer_changed
         elif event.kind == POINTER_UP_KIND:
             var hover_target = self.runtime.hit_test(event.position)
+            if self.scrollbar_target_at(event.position) != -1:
+                # Releasing over an overlay scrollbar is outside the pressed
+                # control, so the click must be cancelled rather than sent
+                # through the painted track.
+                hover_target = -1
             var captured_target = self.runtime.pressed_view_id()
-            var target = captured_target if captured_target != -1 else hover_target
+            var target = (
+                -1
+                if scrollbar_handled
+                else (captured_target if captured_target != -1 else hover_target)
+            )
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
-            pointer_changed = self.runtime.set_hover(hover_target)
+            if not scrollbar_handled and not pointer_intercepted:
+                pointer_changed = self.runtime.set_hover(hover_target) or pointer_changed
             var activated = False
-            if captured_target != -1 and hover_target != captured_target:
+            if pointer_intercepted:
+                # A scene popup is not present in the retained hit-test tree;
+                # the underlying target can therefore differ between press
+                # and release. Let the popup inspect a synthetic click while
+                # suppressing the underlying control's activation.
+                _ = self.runtime.cancel_press()
+                routed.kind = CLICK_KIND
+                pointer_changed = True
+            elif captured_target != -1 and hover_target != captured_target:
                 # Pointer capture keeps the release routed to the original
                 # control, but leaving its bounds cancels activation.
-                self.runtime.cancel_press()
+                _ = self.runtime.cancel_press()
                 pointer_changed = True
             else:
                 activated = self.runtime.release(target)
@@ -236,35 +395,51 @@ struct App[ComponentType: Component & Deinitable]:
             var target = self.runtime.pressed_view_id()
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
-            self.runtime.cancel_press()
+            pointer_changed = self.runtime.set_hover(-1) or pointer_changed
+            pointer_changed = self.runtime.cancel_press() or pointer_changed
         elif event.kind == DRAG_BEGIN_KIND:
-            var target = self.runtime.hit_test(event.position)
+            # Preserve pointer capture across the transition from a native
+            # mouse drag to the backend-neutral drag stream. A drag can begin
+            # outside the original control while still belonging to it.
+            var target = self.runtime.pressed_view_id()
+            if target == -1 and not scrollbar_handled:
+                target = self.runtime.hit_test(event.position)
+            if scrollbar_handled:
+                target = -1
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
-            pointer_changed = self.runtime.press(target)
+            if self.runtime.pressed_view_id() == -1:
+                pointer_changed = self.runtime.press(target) or pointer_changed
         elif event.kind == DRAG_UPDATE_KIND:
             var captured_target = self.runtime.pressed_view_id()
+            var hover_target = self.runtime.hit_test(event.position)
+            if self.scrollbar_target_at(event.position) != -1:
+                hover_target = -1
             var target = captured_target
-            if target == -1:
+            if target == -1 and not scrollbar_handled:
                 target = self.runtime.hit_test(event.position)
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
-            pointer_changed = self.runtime.set_hover(
-                self.runtime.hit_test(event.position)
-            )
+            if not scrollbar_handled and not pointer_intercepted:
+                pointer_changed = self.runtime.set_hover(hover_target) or pointer_changed
         elif event.kind == DROP_KIND:
             var captured_target = self.runtime.pressed_view_id()
             var target = captured_target
-            if target == -1:
+            if target == -1 and not scrollbar_handled:
                 target = self.runtime.hit_test(event.position)
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
-            self.runtime.cancel_press()
+            pointer_changed = self.runtime.cancel_press() or pointer_changed
         elif event.kind == SCROLL_KIND:
             var target = self.runtime.scroll_target(event.position)
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
-            if target != -1:
+            # Embedded canvases get first refusal. Moving the outer portal
+            # before a child sees its wheel event can make one gesture affect
+            # two viewports and invalidate the child's pointer coordinates.
+            component_dispatched = True
+            updated = self.component.update(routed, self.view)
+            if not updated and target != -1:
                 var current = self.scroll_offset_for(target)
                 var delta = event.scroll_delta.y
                 if (
@@ -319,8 +494,14 @@ struct App[ComponentType: Component & Deinitable]:
             routed.set_target(target)
             routed.set_action(self.runtime.action_for(target))
 
-        var updated = self.component.update(routed, self.view)
+        if not component_dispatched:
+            updated = self.component.update(routed, self.view)
         if updated:
+            if self.component.intercepts_pointer(routed):
+                pointer_changed = self.runtime.set_hover(-1) or pointer_changed
+            var reset_id = self.component.scroll_reset_target(routed)
+            if reset_id != -1:
+                self.reset_scroll(reset_id)
             self.rebuild()
         var changed = focus_changed or pointer_changed or rebuilt or updated
         if changed and not rebuilt and not updated:
@@ -421,6 +602,17 @@ struct App[ComponentType: Component & Deinitable]:
         self.view = self.component.build(self.root_bounds)
         self.apply_scroll_offsets()
         self.runtime.reconcile(self.view)
+        if (
+            self.scrollbar_pointer_id >= 0
+            and self.view.scroll_max_offset(self.scrollbar_target_id) <= 0.0
+        ):
+            # A rebuild can remove or shrink the portal whose thumb owns the
+            # pointer. Do not let a later mouse-up get swallowed by a dead
+            # capture and leave the next gesture in the wrong state.
+            self.scrollbar_pointer_id = -1
+            self.scrollbar_target_id = -1
+            self.scrollbar_grab_offset = 0.0
+            self.scrollbar_dragging = False
         _ = self.local_execution.take_dirty(0)
         self.pending.invalidate(INVALIDATE_ALL, self.root_bounds)
 
@@ -431,6 +623,63 @@ struct App[ComponentType: Component & Deinitable]:
                 return self.scroll_values[index]
         return self.view.scroll_offset_for(id)
 
+    def scrollbar_track_for(self, id: Int) -> Rect:
+        """Return the paint-space track used by one retained scrollbar."""
+        var bounds = self.root_bounds
+        if id != ROOT_SCROLL_ID:
+            bounds = self.view.bounds_for(id)
+        var axis = self.view.scroll_axis_for(id)
+        if axis == ROW_AXIS:
+            return Rect(
+                bounds.x + 4.0,
+                bounds.y + bounds.height - 12.0,
+                bounds.width - 8.0,
+                8.0,
+            )
+        return Rect(
+            bounds.x + bounds.width - 12.0,
+            bounds.y + 4.0,
+            8.0,
+            bounds.height - 8.0,
+        )
+
+    def scrollbar_state_for(self, id: Int) -> ScrollbarState:
+        """Build the portable geometry state for one painted scrollbar."""
+        var axis = self.view.scroll_axis_for(id)
+        var orientation = (
+            SCROLLBAR_HORIZONTAL if axis == ROW_AXIS else SCROLLBAR_VERTICAL
+        )
+        var bounds = self.root_bounds
+        if id != ROOT_SCROLL_ID:
+            bounds = self.view.bounds_for(id)
+        var viewport = bounds.width if axis == ROW_AXIS else bounds.height
+        var maximum = self.view.scroll_max_offset(id)
+        var state = ScrollbarState(orientation, 18.0)
+        state.set_metrics(viewport + maximum, viewport)
+        _ = state.set_offset(self.view.scroll_offset_for(id))
+        return state
+
+    def scrollbar_target_at(self, position: Point) -> Int:
+        """Return the topmost painted scrollbar under a pointer position."""
+        var result = -1
+        for index in range(self.view.child_count()):
+            var node = self.view.child(index)
+            if node.kind != CONTAINER_KIND:
+                continue
+            if self.view.scroll_max_offset(node.id) <= 0.0:
+                continue
+            if (
+                self.view.point_is_visible(node, position)
+                and self.scrollbar_track_for(node.id).contains(position)
+            ):
+                result = node.id
+        if (
+            self.view.scroll_max_offset(ROOT_SCROLL_ID) > 0.0
+            and self.scrollbar_track_for(ROOT_SCROLL_ID).contains(position)
+        ):
+            result = ROOT_SCROLL_ID
+        return result
+
     def remember_scroll(mut self, id: Int, offset: Float32):
         """Record an offset so a later component rebuild preserves it."""
         for index in range(len(self.scroll_ids)):
@@ -439,6 +688,13 @@ struct App[ComponentType: Component & Deinitable]:
                 return
         self.scroll_ids.append(id)
         self.scroll_values.append(offset)
+
+    def reset_scroll(mut self, id: Int):
+        """Reset an app-retained scroll offset before a component rebuild."""
+        for index in range(len(self.scroll_ids)):
+            if self.scroll_ids[index] == id:
+                self.scroll_values[index] = 0.0
+        self.view.set_scroll_offset(id, 0.0)
 
     def apply_scroll_offsets(mut self):
         """Reapply offsets retained independently of declarative component state."""
@@ -497,7 +753,11 @@ struct App[ComponentType: Component & Deinitable]:
         while window.is_open():
             window.pump()
             var event = window.poll_event()
-            if event.kind != NONE_KIND and self.dispatch(event):
+            var changed = False
+            while event.kind != NONE_KIND:
+                changed = self.dispatch(event) or changed
+                event = window.poll_event()
+            if changed:
                 self.render(renderer)
 
     def run_with_clipboard[
@@ -515,10 +775,11 @@ struct App[ComponentType: Component & Deinitable]:
         while window.is_open():
             window.pump()
             var event = window.poll_event()
-            if (
-                event.kind != NONE_KIND
-                and self.dispatch_with_clipboard(event, clipboard)
-            ):
+            var changed = False
+            while event.kind != NONE_KIND:
+                changed = self.dispatch_with_clipboard(event, clipboard) or changed
+                event = window.poll_event()
+            if changed:
                 self.render(renderer)
 
     def hit_test(self, position: Point) -> Int:

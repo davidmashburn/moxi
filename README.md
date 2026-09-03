@@ -172,7 +172,8 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
   supplies native shaping/bidi on macOS. Overflow scrolling is bounded and
   persistent. `VirtualRecycler` provides fixed estimates plus measured
   variable-height item recycling; static track/thumb painting is part of the
-  retained path, while interactive scrollbar input remains follow-up work.
+  retained path, with pointer-driven thumb dragging and track paging handled by
+  the shared App event path.
   The animation API is
   frame-stepped; it does not provide a hidden platform scheduler.
 - The macOS adapter translates pointer down/move/up, key, committed-text,
@@ -266,6 +267,13 @@ transcript and recording directions are in
 `pixi run demo-record` produces the reproducible 30-second single-window
 capture from the same normal host; it needs no agent or manual UI interaction.
 The generated `dist/` files and native object file are local build artifacts.
+
+## Demo video
+
+Watch or download the [30-second Moxi Playground walkthrough](docs/moxi-capability-bus-walkthrough-30s.mov).
+It shows the normal live demo window while the capability bus drives the
+counter, collection interaction, plot, and Metal examples. Recreate the same
+capture locally with `pixi run demo-record`.
 
 `pixi run ios-build` requires Xcode and produces a signed arm64 simulator app
 at `output/ios-host-sim/MoxiHost.app`. `pixi run android-build` requires the

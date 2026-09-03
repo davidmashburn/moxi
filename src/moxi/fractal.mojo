@@ -1132,7 +1132,12 @@ struct FractalState(Component):
         if event.kind == DRAG_BEGIN_KIND:
             return self.dragging
 
-        if event.kind == POINTER_UP_KIND or event.kind == DROP_KIND or event.kind == POINTER_CANCEL_KIND:
+        if (
+            event.kind == POINTER_UP_KIND
+            or event.kind == DROP_KIND
+            or event.kind == POINTER_CANCEL_KIND
+            or event.kind == CLICK_KIND
+        ):
             var changed = self.dragging
             self.drag_target = FRACTAL_TARGET_NONE
             self.dragging = False

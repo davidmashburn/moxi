@@ -8,6 +8,7 @@ export const MOXI_HOST_TEXT_INPUT = 3;
 export const MOXI_HOST_WINDOW_RESIZED = 4;
 export const MOXI_HOST_POINTER_UP = 5;
 export const MOXI_HOST_POINTER_MOVE = 6;
+export const MOXI_HOST_SCROLL = 11;
 export const MOXI_HOST_COMPOSITION_UPDATE = 8;
 export const MOXI_HOST_COMPOSITION_END = 9;
 export const MOXI_HOST_TOUCH_BEGIN = 16;
@@ -20,6 +21,11 @@ export const MOXI_HOST_ACTION_DECREMENT = 4;
 export const MOXI_HOST_ACTION_SELECT = 8;
 export const MOXI_HOST_ACTION_EXPAND = 16;
 export const MOXI_HOST_ACTION_COLLAPSE = 32;
+
+export const MOXI_MOD_SHIFT = 1;
+export const MOXI_MOD_COMMAND = 2;
+export const MOXI_MOD_CONTROL = 4;
+export const MOXI_MOD_OPTION = 8;
 
 /* The numeric roles mirror src/moxi/accessibility.mojo. A null role is
  * intentional: ARIA has no portable role for a presentational label, so the
@@ -116,6 +122,15 @@ export function accessibilityAttributes(node = {}) {
 
 const noop = () => {};
 
+function modifierMask(event) {
+  let modifiers = 0;
+  if (event.shiftKey) modifiers |= MOXI_MOD_SHIFT;
+  if (event.metaKey) modifiers |= MOXI_MOD_COMMAND;
+  if (event.ctrlKey) modifiers |= MOXI_MOD_CONTROL;
+  if (event.altKey) modifiers |= MOXI_MOD_OPTION;
+  return modifiers;
+}
+
 export class MoxiWebHost {
   constructor(target, callbacks = {}, options = {}) {
     if (!target || typeof target.addEventListener !== "function") {
@@ -129,6 +144,7 @@ export class MoxiWebHost {
       key: callbacks.key || noop,
       text: callbacks.text || noop,
       composition: callbacks.composition || noop,
+      scroll: callbacks.scroll || noop,
       resize: callbacks.resize || noop,
       frame: callbacks.frame || noop,
       accessibilityAction: callbacks.accessibilityAction || noop,
@@ -143,6 +159,8 @@ export class MoxiWebHost {
     this.accessibilitySnapshot = [];
     this.accessibilityRoot = null;
     this.accessibilityElements = new Map();
+    this.capturedPointers = new Set();
+    this.scrollEnabled = typeof callbacks.scroll === "function";
   }
 
   _listen(type, handler, options) {
@@ -159,19 +177,62 @@ export class MoxiWebHost {
 
   _pointer(kind, event) {
     const point = this._point(event);
-    this.callbacks.event(
-      kind,
-      event.pointerId || 0,
-      point.x,
-      point.y,
-      event.buttons || 0,
-      event.shiftKey ? 1 : 0,
-    );
+    const pointerId = event.pointerId ?? 0;
+    const terminal = kind === MOXI_HOST_POINTER_UP || kind === MOXI_HOST_POINTER_CANCEL;
+    if (kind === MOXI_HOST_POINTER_DOWN) this._capturePointer(pointerId);
+    try {
+      this.callbacks.event(
+        kind,
+        pointerId,
+        point.x,
+        point.y,
+        event.buttons || 0,
+        modifierMask(event),
+      );
+    } finally {
+      if (terminal) this._releasePointer(pointerId);
+    }
   }
 
   _touch(kind, touch) {
     const point = this._point(touch);
     this.callbacks.event(kind, touch.identifier || 0, point.x, point.y, 1, 0);
+  }
+
+  _capturePointer(pointerId) {
+    if (typeof this.target.setPointerCapture !== "function") return;
+    try {
+      this.target.setPointerCapture(pointerId);
+      this.capturedPointers.add(pointerId);
+    } catch (_) {
+      /* Pointer capture is optional for EventTarget-like test/worker hosts. */
+    }
+  }
+
+  _releasePointer(pointerId) {
+    if (!this.capturedPointers.has(pointerId)) return;
+    this.capturedPointers.delete(pointerId);
+    if (typeof this.target.releasePointerCapture !== "function") return;
+    try {
+      this.target.releasePointerCapture(pointerId);
+    } catch (_) {
+      /* The browser may release capture before the terminal event arrives. */
+    }
+  }
+
+  _scroll(event) {
+    if (!this.scrollEnabled) return;
+    if (event.cancelable && typeof event.preventDefault === "function") {
+      event.preventDefault();
+    }
+    const point = this._point(event);
+    this.callbacks.scroll(
+      Number(event.deltaX || 0),
+      Number(event.deltaY || 0),
+      point.x,
+      point.y,
+      modifierMask(event),
+    );
   }
 
   _scheduleFrame() {
@@ -321,7 +382,8 @@ export class MoxiWebHost {
     this._listen("pointermove", event => this._pointer(MOXI_HOST_POINTER_MOVE, event));
     this._listen("pointerup", event => this._pointer(MOXI_HOST_POINTER_UP, event));
     this._listen("pointercancel", event => this._pointer(MOXI_HOST_POINTER_CANCEL, event));
-    this._listen("keydown", event => this.callbacks.key(event.keyCode || event.which || 0, event.shiftKey ? 1 : 0));
+    this._listen("wheel", event => this._scroll(event), {passive: false});
+    this._listen("keydown", event => this.callbacks.key(event.keyCode || event.which || 0, modifierMask(event)));
     this._listen("compositionstart", event => this.composition(MOXI_HOST_COMPOSITION_UPDATE, event.data || "", 0, 0));
     this._listen("compositionupdate", event => this.composition(MOXI_HOST_COMPOSITION_UPDATE, event.data || "", 0, 0));
     this._listen("compositionend", event => this.composition(MOXI_HOST_COMPOSITION_END, event.data || "", 0, 0));
@@ -363,6 +425,7 @@ export class MoxiWebHost {
       }
       this.frameHandle = null;
     }
+    for (const pointerId of this.capturedPointers) this._releasePointer(pointerId);
     this._clearAccessibilityDOM();
     return true;
   }

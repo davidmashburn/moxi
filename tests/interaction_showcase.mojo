@@ -3,8 +3,12 @@
 from moxi import (
     ACTION_PRESS,
     ActionEvent,
+    App,
     ClickEvent,
     COLUMN_SORT_DESCENDING,
+    DRAG_BEGIN_KIND,
+    DRAG_UPDATE_KIND,
+    DROP_KIND,
     Event,
     INTERACTION_SHOWCASE_CANVAS_ID,
     INTERACTION_SHOWCASE_DIALOG_ID,
@@ -66,6 +70,12 @@ def main():
 
     test_check(component.update(action(INTERACTION_SHOWCASE_DIALOG_ID), view))
     test_check(component.popups.traps_focus())
+    var dialog_offset = component.scrollbar.offset
+    test_check(component.update(Event(ScrollEvent(
+        Point(canvas.x + 40.0, canvas.y + 70.0),
+        Point(0.0, 32.0),
+    )), view))
+    test_check(component.scrollbar.offset == dialog_offset)
     test_check(component.update(Event(KeyEvent(KEY_ESCAPE)), view))
     test_check(component.popups.depth() == 0)
 
@@ -100,6 +110,44 @@ def main():
     ))
     thumb_up.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
     test_check(component.update(thumb_up, view))
+    test_check(component.scrollbar_pointer_id == -1)
+
+    component.reset()
+    view = component.build(Rect(0.0, 0.0, 760.0, 680.0))
+    canvas = view.bounds_for(INTERACTION_SHOWCASE_CANVAS_ID)
+    var native_thumb_down = Event(PointerEvent(
+        POINTER_DOWN_KIND,
+        Point(track_x + 5.0, canvas.y + 90.0),
+        7,
+        1,
+    ))
+    native_thumb_down.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
+    test_check(component.update(native_thumb_down, view))
+    var native_thumb_begin = Event(PointerEvent(
+        DRAG_BEGIN_KIND,
+        Point(track_x + 5.0, canvas.y + 90.0),
+        7,
+        1,
+    ))
+    native_thumb_begin.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
+    test_check(component.update(native_thumb_begin, view))
+    var native_thumb_move = Event(PointerEvent(
+        DRAG_UPDATE_KIND,
+        Point(track_x + 5.0, canvas.y + 150.0),
+        7,
+        1,
+    ))
+    native_thumb_move.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
+    test_check(component.update(native_thumb_move, view))
+    test_check(component.scrollbar.offset > 0.0)
+    var native_thumb_drop = Event(PointerEvent(
+        DROP_KIND,
+        Point(track_x + 5.0, canvas.y + 150.0),
+        7,
+        0,
+    ))
+    native_thumb_drop.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
+    test_check(component.update(native_thumb_drop, view))
     test_check(component.scrollbar_pointer_id == -1)
 
     component.reset()
@@ -175,5 +223,72 @@ def main():
     up.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
     test_check(component.update(up, view))
     test_check(component.collection.key_at(2) == 107)
+
+    component.reset()
+    view = component.build(Rect(0.0, 0.0, 760.0, 680.0))
+    canvas = view.bounds_for(INTERACTION_SHOWCASE_CANVAS_ID)
+    var native_down = Event(PointerEvent(
+        POINTER_DOWN_KIND,
+        Point(canvas.x + 30.0, canvas.y + 90.0),
+        8,
+        1,
+    ))
+    native_down.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
+    test_check(component.update(native_down, view))
+    var native_begin = Event(PointerEvent(
+        DRAG_BEGIN_KIND,
+        Point(canvas.x + 30.0, canvas.y + 90.0),
+        8,
+        1,
+    ))
+    native_begin.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
+    test_check(component.update(native_begin, view))
+    var native_move = Event(PointerEvent(
+        DRAG_UPDATE_KIND,
+        Point(canvas.x + 30.0, canvas.y + 122.0),
+        8,
+        1,
+    ))
+    native_move.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
+    test_check(component.update(native_move, view))
+    test_check(component.reorder.is_dragging())
+    var native_drop = Event(PointerEvent(
+        DROP_KIND,
+        Point(canvas.x + 30.0, canvas.y + 122.0),
+        8,
+        0,
+    ))
+    native_drop.set_target(INTERACTION_SHOWCASE_CANVAS_ID)
+    test_check(component.update(native_drop, view))
+    test_check(component.collection.key_at(2) == 107)
     test_check(component.scene(canvas).count() > 20)
+
+    # An open scene popup owns the pointer stream: clicking its modal outside
+    # area must not move focus to the underlying canvas or leave it pressed.
+    var popup_app = App[InteractionShowcaseState](
+        InteractionShowcaseState(),
+        Rect(0.0, 0.0, 760.0, 680.0),
+    )
+    var focus_before_popup = popup_app.focus_id()
+    test_check(popup_app.dispatch(action(INTERACTION_SHOWCASE_DIALOG_ID)))
+    var popup_canvas = popup_app.view.bounds_for(INTERACTION_SHOWCASE_CANVAS_ID)
+    var outside_popup = Point(popup_canvas.x + 20.0, popup_canvas.y + 20.0)
+    test_check(popup_app.dispatch(Event(PointerEvent(
+        POINTER_DOWN_KIND,
+        outside_popup,
+        12,
+        1,
+    ))))
+    test_check(popup_app.focus_id() == focus_before_popup)
+    test_check(popup_app.dispatch(Event(PointerEvent(
+        POINTER_UP_KIND,
+        outside_popup,
+        12,
+        0,
+    ))))
+    test_check(popup_app.focus_id() == focus_before_popup)
+    test_check(popup_app.pressed_id() == -1)
+    test_check(popup_app.component.popups.is_open())
+    test_check(popup_app.dispatch(Event(KeyEvent(KEY_ESCAPE))))
+    test_check(not popup_app.component.popups.is_open())
     print("Moxi interaction-showcase test passed")

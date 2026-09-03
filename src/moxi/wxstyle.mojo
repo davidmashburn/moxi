@@ -53,6 +53,10 @@ from .event import (
     DRAG_BEGIN_KIND,
     DRAG_UPDATE_KIND,
     DROP_KIND,
+    POINTER_CANCEL_KIND,
+    POINTER_DOWN_KIND,
+    POINTER_MOVE_KIND,
+    POINTER_UP_KIND,
 )
 from .geometry import Rect
 from .layout import ALIGN_STRETCH, JUSTIFY_START
@@ -541,6 +545,9 @@ struct WxStyleState(Component):
             return self.counter.route(event, view)
 
         if event.target == WX_SLIDER_ID:
+            var slider_bounds = self.slider_track_bounds(
+                view.bounds_for(WX_SLIDER_ID)
+            )
             if event.kind == ACTION_KIND:
                 if event.action_id == ACTION_INCREMENT:
                     return self.slider.nudge(1)
@@ -549,10 +556,20 @@ struct WxStyleState(Component):
                 return False
             if event.kind == KEY_DOWN_KIND:
                 return self.slider.handle_key(event.key)
-            if event.kind == CLICK_KIND:
+            if (
+                event.kind == CLICK_KIND
+                or event.kind == DRAG_BEGIN_KIND
+                or event.kind == DRAG_UPDATE_KIND
+                or event.kind == DROP_KIND
+                or (event.kind == POINTER_MOVE_KIND and event.buttons != 0)
+            ):
+                # Native mouse drags arrive as the backend-neutral drag
+                # lifecycle after the initial pointer-down. Treat the track
+                # as a continuous input surface so dragging the thumb updates
+                # the same state as a click on the track.
                 return self.slider.set_from_position(
                     event.position,
-                    view.bounds_for(WX_SLIDER_ID),
+                    slider_bounds,
                 )
             return False
 
@@ -620,11 +637,16 @@ struct WxStyleState(Component):
             return False
 
         if event.target == WX_CANVAS_ID:
-            if event.kind == DRAG_BEGIN_KIND:
+            if event.kind == POINTER_DOWN_KIND or event.kind == DRAG_BEGIN_KIND:
                 return self.canvas.begin(event.position)
-            if event.kind == DRAG_UPDATE_KIND:
+            if event.kind == POINTER_MOVE_KIND or event.kind == DRAG_UPDATE_KIND:
                 return self.canvas.update(event.position)
-            if event.kind == DROP_KIND:
+            if (
+                event.kind == POINTER_UP_KIND
+                or event.kind == POINTER_CANCEL_KIND
+                or event.kind == DROP_KIND
+                or event.kind == CLICK_KIND
+            ):
                 return self.canvas.end(event.position)
             return False
 
@@ -714,6 +736,23 @@ struct WxStyleState(Component):
             _ = self.approve_agent_reset()
             return True
         return False
+
+    def slider_track_bounds(self, bounds: Rect) -> Rect:
+        """Match the native slider's visible track, excluding its label."""
+        var label_width = bounds.width * 0.25
+        if label_width > 80.0:
+            label_width = 80.0
+        if label_width < 0.0:
+            label_width = 0.0
+        var track_width = bounds.width - label_width - 12.0
+        if track_width < 0.0:
+            track_width = 0.0
+        return Rect(
+            bounds.x + label_width + 12.0,
+            bounds.y,
+            track_width,
+            bounds.height,
+        )
 
     def is_activation(self, event: Event) -> Bool:
         return event.kind == CLICK_KIND or (
