@@ -84,7 +84,10 @@ def main() raises:
 
     var renderer = TestRenderer()
     form.render(renderer)
-    test_check(renderer.count() == 7)
+    # The form paints its surface, panel, title, hint, input, status, and
+    # submit control. The explicit surface/panel boundaries account for eight
+    # retained commands in the current renderer contract.
+    test_check(renderer.count() == 8)
 
     var scene = Scene()
     scene.append_rect(1, Rect(0.0, 0.0, 8.0, 8.0), Color(1.0, 0.0, 0.0, 1.0))
