@@ -50,4 +50,5 @@ else
 fi
 
 node tests/web_host.mjs
+bash scripts/browser_check.sh
 echo "Moxi host checks passed"

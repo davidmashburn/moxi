@@ -9,6 +9,7 @@ git diff --cached --check
 bash -n scripts/record_demo.sh
 bash -n scripts/api_status_check.sh
 bash -n scripts/visual_check.sh
+bash -n scripts/browser_check.sh
 bash scripts/api_status_check.sh
 bash scripts/demo_catalog_check.sh
 bash scripts/visual_check.sh

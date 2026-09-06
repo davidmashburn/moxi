@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-moxi-ready="false">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,8 +16,8 @@
   </head>
   <body>
     <main>
-      <canvas id="moxi-surface" tabindex="0" aria-label="Moxi Web host demo"></canvas>
-      <p id="status">Starting the Moxi Web host…</p>
+      <canvas id="moxi-surface" tabindex="0" aria-label="Moxi Web host demo" data-moxi-surface="moxi-surface"></canvas>
+      <p id="status" data-moxi-status="starting">Starting the Moxi Web host…</p>
       <p>Click or touch the surface. The same scalar host contract drives pointer,
         keyboard, resize, animation-frame, and teardown callbacks.</p>
     </main>
@@ -29,6 +29,17 @@
       const context = canvas.getContext("2d");
       let frames = 0;
       let lastEvent = "ready";
+
+      function publishState() {
+        window.__MOXI_HOST_STATE__ = Object.freeze({
+          ready: document.documentElement.dataset.moxiReady === "true",
+          frames,
+          lastEvent,
+          width: canvas.width,
+          height: canvas.height,
+          status: status.textContent,
+        });
+      }
 
       function draw() {
         const scale = window.devicePixelRatio || 1;
@@ -58,21 +69,31 @@
         event(kind, pointerId, x, y) {
           lastEvent = `event ${kind} / pointer ${pointerId} @ ${Math.round(x)},${Math.round(y)}`;
           status.textContent = `Moxi Web host • ${lastEvent}`;
+          status.dataset.moxiStatus = "event";
+          publishState();
         },
         key(key) {
           lastEvent = `key ${key}`;
           status.textContent = `Moxi Web host • ${lastEvent}`;
+          status.dataset.moxiStatus = "key";
+          publishState();
         },
         resize(width, height, scale) {
           status.textContent = `Moxi Web host • ${Math.round(width)} × ${Math.round(height)} @ ${scale.toFixed(1)}x • frame ${frames}`;
           draw();
+          publishState();
         },
         frame() {
           frames += 1;
           draw();
+          publishState();
         },
       });
       host.start();
+      document.documentElement.dataset.moxiReady = "true";
+      status.dataset.moxiStatus = "ready";
+      window.__MOXI_HOST_READY__ = true;
+      publishState();
       window.addEventListener("beforeunload", () => host.stop(), { once: true });
       canvas.focus();
     </script>
