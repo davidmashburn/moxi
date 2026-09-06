@@ -270,10 +270,13 @@ The generated `dist/` files and native object file are local build artifacts.
 
 ## Demo video
 
-Watch or download the [30-second Moxi Playground walkthrough](docs/moxi-capability-bus-walkthrough-30s.mov).
-It shows the normal live demo window while the capability bus drives the
-counter, collection interaction, plot, and Metal examples. Recreate the same
-capture locally with `pixi run demo-record`.
+[![10-second Moxi Playground walkthrough](docs/moxi-capability-bus-walkthrough-10s.gif)](docs/moxi-capability-bus-walkthrough-10s.mp4)
+
+The inline GIF is an accelerated 10-second teaser of the normal live demo
+window, with the capability bus driving the counter, plot, Metal, and
+collection examples. For the full-speed version, watch or download the
+[30-second walkthrough](docs/moxi-capability-bus-walkthrough-30s.mov). Recreate
+the source capture locally with `pixi run demo-record`.
 
 `pixi run ios-build` requires Xcode and produces a signed arm64 simulator app
 at `output/ios-host-sim/MoxiHost.app`. `pixi run android-build` requires the

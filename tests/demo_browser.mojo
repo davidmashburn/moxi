@@ -24,6 +24,7 @@ from moxi import (
     DEMO_LIVE_SCRIPT_ID_OFFSET,
     DEMO_THEME_SHOWCASE_ID,
     DEMO_THEME_SHOWCASE_ID_OFFSET,
+    DEMO_THEME_SHOWCASE_SLOT_ID,
     DEMO_PAGE_QUICKSTART_ID,
     DEMO_PLOT_ID,
     DEMO_PLOT_GALLERY_ID,
@@ -56,6 +57,7 @@ from moxi import (
     KEY_ESCAPE,
     KeyEvent,
     MOD_SHIFT,
+    PANEL_KIND,
     PointerEvent,
     POINTER_DOWN_KIND,
     POINTER_MOVE_KIND,
@@ -606,6 +608,19 @@ def main() raises:
         )
     )
     test_check(app.component.theme_showcase.component.theme_mode == 1)
+    var theme_frame = app.paint()
+    var theme_surface_found = False
+    for index in range(theme_frame.count()):
+        var command = theme_frame.command(index)
+        if (
+            command.kind == PANEL_KIND
+            and command.id == DEMO_THEME_SHOWCASE_SLOT_ID
+        ):
+            theme_surface_found = True
+            test_check(command.style.fill.red > 0.9)
+            test_check(command.style.fill.green > 0.9)
+            test_check(command.style.fill.blue > 0.9)
+    test_check(theme_surface_found)
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID)))
     test_check(app.component.selected_id == DEMO_COUNTER_ID)
     test_check(app.component.tab == 0)

@@ -138,6 +138,7 @@ struct Widget(ImplicitlyCopyable):
     var checked: Bool
     var progress: Float32
     var style: Style
+    var component_surface: Bool
     var focusable: Bool
     var enabled: Bool
     var cursor: Int
@@ -177,6 +178,7 @@ struct Widget(ImplicitlyCopyable):
         self.checked = False
         self.progress = 0.0
         self.style = default_label_style()
+        self.component_surface = False
         self.focusable = False
         self.enabled = True
         self.cursor = 0
@@ -217,6 +219,7 @@ struct Widget(ImplicitlyCopyable):
         self.checked = node.checked
         self.progress = node.progress
         self.style = node.style
+        self.component_surface = node.component_surface
         self.focusable = node.focusable
         self.enabled = node.enabled
         self.cursor = node.cursor
@@ -263,6 +266,7 @@ struct Widget(ImplicitlyCopyable):
             or self.checked != node.checked
             or self.progress != node.progress
             or not styles_equal(self.style, node.style)
+            or self.component_surface != node.component_surface
             or self.focusable != node.focusable
             or self.enabled != node.enabled
             or self.cursor != node.cursor
@@ -301,6 +305,7 @@ struct Widget(ImplicitlyCopyable):
         self.checked = node.checked
         self.progress = node.progress
         self.style = node.style
+        self.component_surface = node.component_surface
         self.focusable = node.focusable
         self.enabled = node.enabled
         self.cursor = node.cursor
@@ -892,6 +897,7 @@ struct ColumnRuntime:
         )
         surface.set_changed(self.command_changed(surface))
         commands.append(surface)
+        var panel_slot = 0
         if self.has_panel:
             var panel = PaintCommand(
                 PANEL_KIND,
@@ -903,6 +909,7 @@ struct ColumnRuntime:
             )
             panel.set_changed(self.command_changed(panel))
             commands.append(panel)
+            panel_slot = 1
         var label_slot = 0
         var button_slot = 0
         var text_input_slot = 0
@@ -912,7 +919,54 @@ struct ColumnRuntime:
         var scrollbar_slot = 0
         for index in range(self.widget_count()):
             var widget = self.widget(index)
-            if widget.kind == SPACER_KIND or widget.kind == CONTAINER_KIND:
+            if widget.kind == CONTAINER_KIND:
+                if widget.component_surface:
+                    var component_panel = PaintCommand(
+                        PANEL_KIND,
+                        widget.id,
+                        panel_slot,
+                        "",
+                        widget.bounds,
+                        widget.style,
+                    )
+                    var clip = self.root_bounds
+                    var clip_enabled = self.clip_to_bounds or self._root_is_scrollable()
+                    var parent_id = widget.parent_id
+                    var clip_hops = 0
+                    while parent_id != -1:
+                        var parent_found = False
+                        var next_parent = -1
+                        for parent_index in range(self.widget_count()):
+                            var parent = self.widget(parent_index)
+                            if parent.id == parent_id:
+                                parent_found = True
+                                next_parent = parent.parent_id
+                                if parent.clip_children or self._container_is_scrollable(parent):
+                                    if clip_enabled:
+                                        clip = clip.intersection(parent.bounds)
+                                    else:
+                                        clip = parent.bounds
+                                        clip_enabled = True
+                                break
+                        if not parent_found:
+                            break
+                        parent_id = next_parent
+                        clip_hops += 1
+                        if clip_hops > self.widget_count():
+                            break
+                    if clip_enabled:
+                        component_panel.set_clip(clip)
+                    var previous_index = self.previous_command_index(component_panel)
+                    var changed = self.command_changed(component_panel)
+                    if previous_index != -1 and previous_index != commands.count():
+                        changed = True
+                    if previous_index != -1 and changed:
+                        commands.mark_dirty(self.previous_commands[previous_index].bounds)
+                    component_panel.set_changed(changed)
+                    commands.append(component_panel)
+                    panel_slot += 1
+                continue
+            if widget.kind == SPACER_KIND:
                 continue
             var slot = label_slot
             if widget.kind == BUTTON_KIND:

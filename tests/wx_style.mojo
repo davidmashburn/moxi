@@ -134,7 +134,7 @@ def main() raises:
     var renderer = TestRenderer()
     app.render(renderer)
     test_check(app.view.child_count() == 45)
-    test_check(renderer.count() == 42)
+    test_check(renderer.count() == 43)
     var scrollbar_count = 0
     for index in range(renderer.count()):
         if renderer.command(index).kind == SCROLLBAR_KIND:

@@ -9,6 +9,7 @@ from moxi import (
     ComposedState,
     COUNTER_INCREMENT_ACTION,
     Event,
+    PANEL_KIND,
     Point,
     Rect,
 )
@@ -36,7 +37,9 @@ def main():
     test_check(app.component.counter.component.count == 1)
     test_check(app.view.child(4).text == "Increment")
     var commands = app.paint()
-    test_check(commands.command(5).action_id == COUNTER_INCREMENT_ACTION)
+    test_check(commands.command(3).kind == PANEL_KIND)
+    test_check(commands.command(3).id == COMPOSED_COUNTER_SLOT_ID)
+    test_check(commands.command(6).action_id == COUNTER_INCREMENT_ACTION)
     test_check(app.runtime.widget_count() == 5)
 
     var local = app.component.counter.project_view(app.view)

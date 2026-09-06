@@ -117,6 +117,7 @@ struct ViewNode(ImplicitlyCopyable):
     var progress: Float32
     var bounds: Rect
     var style: Style
+    var component_surface: Bool
     var focusable: Bool
     var enabled: Bool
     var cursor: Int
@@ -194,6 +195,7 @@ struct ViewNode(ImplicitlyCopyable):
         self.progress = 0.0
         self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
         self.style = style
+        self.component_surface = False
         self.focusable = (
             kind == BUTTON_KIND
             or kind == TEXT_INPUT_VIEW_KIND
@@ -256,6 +258,7 @@ struct ViewNode(ImplicitlyCopyable):
         self.progress = 0.0
         self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
         self.style = style
+        self.component_surface = False
         self.focusable = (
             kind == BUTTON_KIND
             or kind == TEXT_INPUT_VIEW_KIND
@@ -319,6 +322,7 @@ struct ViewNode(ImplicitlyCopyable):
         self.progress = 0.0
         self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
         self.style = style
+        self.component_surface = False
         self.focusable = (
             kind == BUTTON_KIND
             or kind == TEXT_INPUT_VIEW_KIND
@@ -383,6 +387,7 @@ struct ViewNode(ImplicitlyCopyable):
         self.progress = 0.0
         self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
         self.style = style
+        self.component_surface = False
         self.focusable = (
             kind == BUTTON_KIND
             or kind == TEXT_INPUT_VIEW_KIND
@@ -771,6 +776,11 @@ struct ColumnView:
         if height <= 0.0:
             height = child.intrinsic_size().height
         var slot = ViewNode(CONTAINER_KIND, slot_id, "", height)
+        # A component owns the surface it was built with. Preserve that
+        # decoration on the embedding slot so theme changes are visible when
+        # the component is mounted inside another view.
+        slot.style = child.surface_style
+        slot.component_surface = True
         slot.container_axis = child.axis
         slot.container_padding = child.layout_spec.padding
         slot.container_spacing = child.layout_spec.spacing
