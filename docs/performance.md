@@ -9,32 +9,37 @@ portable guarantee.
 ## Run the suite
 
 ```sh
-pixi run benchmark
+pixi run benchmark-quick
 ```
 
-The harness runs the retained layout/reconcile/paint path, the interactive
-fractal component/canvas path, the shared collection interaction scenario, the
-shared plotting scenario, statistical/linked plotting, large-data plotting,
-the Metal plot render packet, and the synchronized offscreen Metal scene. Each
-workload runs three times by default.
-Use one run for a quick local check or choose another count:
+The quick profile runs the typed localized-subtree workload, retained
+layout/reconcile/paint, and the portable plot scene once by default. It is the
+fast iteration gate. The complete matrix is explicit:
 
 ```sh
-MOXI_BENCHMARK_RUNS=1 pixi run benchmark
-MOXI_BENCHMARK_RUNS=10 pixi run benchmark
+pixi run benchmark-full
 ```
 
-Each Mojo benchmark prints deterministic counters such as scene commands,
-vertices, rasterized pixels, and a checksum. `/usr/bin/time -p` prints `real`,
-`user`, and `sys` for the host process around each run. The process timing
-includes runtime startup and, for the portable cases, compilation/loading;
-the Metal binary is compiled once before its measured runs.
+The full profile adds statistical/linked and large-data plots, the collection
+interaction scenario, indexed plot queries, the Metal plot packet, the
+interactive fractal component/canvas path, and the synchronized offscreen
+Metal scene. `MOXI_BENCHMARK_RUNS` selects the number of repetitions for either
+profile (`1` is a useful smoke run; `3` is the default for full).
+
+Both profiles write a structured JSON report under `dist/benchmark-results/`
+(`quick.json` or `full.json`), or to `MOXI_BENCHMARK_OUTPUT`. Each report has a
+schema version, profile, requested run count, command, exit status, wall-clock
+seconds, and deterministic metric lines per case. Compare counters and
+checksums first; `/usr/bin/time -p` values include process startup and, for
+portable cases, compilation/loading. The Metal binaries are compiled once
+before their measured runs.
 
 ## Workloads and budgets
 
 | Workload | What it exercises | Stable signals |
 | --- | --- | --- |
 | Retained pipeline | layout, identity reconciliation, paint, scene conversion, fixed/variable-extent range math | passes, child count, paint commands, checksum, operations/frame |
+| Typed localized execution | one `TypedSubtreeExecutor[ComponentType]`, scoped invalidation, retained reconciliation, and paint accounting | passes, initial/final builds, invalidations, dependency visits, dirty tokens, reconciled nodes, paint commands, total work |
 | Interactive fractal | line-fractal expansion, one Mojo-to-native endpoint batch, GPU-instanced line expansion, CPU encoding, GPU completion, and synchronized frame time | terminal lines, expansion time, neutral paint time, Metal line segments/vertices/submissions, line-upload time, CPU encode/wait/frame time, GPU time/availability, checksum |
 | Portable plot | plot scales, axes, labels, line/scatter/bar scene emission, software rasterization | commands/frame, rasterized pixels/frame, checksum |
 | Metal plot packet | ordered plot batches, viewport LOD, one native transfer per batch, GPU line/instance expansion, complete chrome composition | source/emitted points, line segments, instances, packet bytes, ordered batches, GPU submissions, vertices, CPU/GPU/frame time, checksum |
@@ -167,6 +172,9 @@ When changing a hot path, add or update a deterministic counter, run the same
 scenario before and after, and record the reason for the change in the commit
 message. Do not optimize the plot or demo by changing its data shape: the
 shared scenario is also a component and documentation contract.
+
+See [benchmarking.md](benchmarking.md) for the profile/report contract and
+the expected output locations.
 
 ## Current limits
 

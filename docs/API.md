@@ -18,6 +18,15 @@ metadata.
 | `TestWindow` / `TestRenderer` | Deterministic headless integration adapters. |
 | `LiveScriptState` | Ordinary component shell for a development-reloadable canvas module. |
 
+`TypedSubtreeExecutor[ComponentType]` is the localized lifecycle for a
+component-owned surface. It retains one typed component/view/runtime, maps a
+single `StateScope` dependency, and rebuilds only after a matching
+invalidation. `ExecutionWorkCounters` reports invalidations, dependency
+visits, dirty tokens consumed, component builds, reconciled nodes, paint
+commands, and a stable aggregate work value. `LocalizedExecution` remains the
+lower-level topology/counter primitive when an application owns the lifecycle
+itself.
+
 Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and
 text editing.
@@ -126,6 +135,10 @@ adapter diagnostics.
 `Scene`, `SceneCommand`, and `SceneRenderer` are the richer drawing boundary.
 `SoftwareSceneRenderer` is a deterministic headless rasterizer for basic
 shapes, gradients, lines, path bounds, clipping, layers, and transforms.
+Its `ppm()` method exports the exact RGB surface as a dependency-free lossless
+image for the checked-in corpus at
+[`tests/goldens/manifest.json`](../tests/goldens/manifest.json); run
+`pixi run visual-check` to compare it byte-for-byte.
 `MacOSMetalRenderer` batches geometry through Metal and
 `SvgSceneRenderer` serializes the same scene for browser-compatible SVG. Metal
 uses embedded printable-ASCII geometry for its fast path and CoreText texture
@@ -219,8 +232,8 @@ the complete visible approval flow.
 | Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh) |
 | Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo), [`src/moxi/host_contract.mojo`](../src/moxi/host_contract.mojo), [`native/hosts/`](../native/hosts/) |
 | Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`src/moxi/harfbuzz.mojo`](../src/moxi/harfbuzz.mojo), [`native/macos_text.m`](../native/macos_text.m), [`native/harfbuzz_text.cpp`](../native/harfbuzz_text.cpp) |
-| Reactivity and tasks | [`src/moxi/reactivity.mojo`](../src/moxi/reactivity.mojo), [`src/moxi/tasks.mojo`](../src/moxi/tasks.mojo) |
+| Reactivity and tasks | [`src/moxi/reactivity.mojo`](../src/moxi/reactivity.mojo), [`src/moxi/tasks.mojo`](../src/moxi/tasks.mojo), [`src/moxi/execution.mojo`](../src/moxi/execution.mojo) |
 | Capabilities and conversation | [`src/moxi/capability.mojo`](../src/moxi/capability.mojo), [`src/moxi/conversation.mojo`](../src/moxi/conversation.mojo) |
 | Demo browser | [`docs/demo-browser.md`](demo-browser.md), [`src/moxi/demo_browser.mojo`](../src/moxi/demo_browser.mojo), [`examples/demo_browser.mojo`](../examples/demo_browser.mojo) |
 | Native adapter | [`src/moxi/macos.mojo`](../src/moxi/macos.mojo), [`native/macos_window.m`](../native/macos_window.m) |
-| Contract tests | [`tests/`](../tests/) |
+| Contract tests | [`tests/`](../tests/), [`tests/goldens/`](../tests/goldens/), [`scripts/visual_check.sh`](../scripts/visual_check.sh), [`scripts/browser_check.sh`](../scripts/browser_check.sh) |

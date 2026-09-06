@@ -49,7 +49,7 @@ Linebender stack, Parley, and AccessKit.
 | Widgets | Label, button, text inputs, checkbox, progress, slider, switch, radio, image, multiline, combo, list, table, tree, menu, dialog, tabs, canvas, separator, containers, typed slots, and small state models. macOS collection presenters draw selection, headers/grids, disclosure, menu, dialog, tab, and canvas affordances from shared semantics; focused single-line text inputs use an AppKit field editor, while editable collection ownership remains open. | Broader and deeper widget layer, including platform-integrated controls and view composition. |
 | Async | Deterministic frame-stepped scheduler with completion/cancel/fail results, bounded queues, and explicit task lifetime. External I/O/thread execution belongs to an adapter. | `task` views and reactive integration support asynchronous work in the broader framework. |
 | Agent integration | In-process capability descriptors, schema checks, approvals, leases, typed handlers, replay, bounded queues, and conversation state. | No equivalent authorization/LLM capability bus; that is outside Xilem's stated UI scope. |
-| Testing | Headless behavior tests, semantic snapshots, software-scene pixel/checksum checks, native compile checks, package-consumer checks, property-style edge cases, benchmark harness, and source-controlled visual references. | Masonry widget harness, interaction tests, render snapshots, and widget-tree snapshots. |
+| Testing | Headless behavior tests, semantic snapshots, software-scene pixel/checksum checks, source-controlled lossless PPM goldens with reviewable diffs, deterministic browser-host lifecycle checks, native compile checks, package-consumer checks, property-style edge cases, and structured quick/full benchmark reports. | Masonry widget harness, interaction tests, render snapshots, and widget-tree snapshots. |
 | Plotting | First-class typed stable-key table, executable versioned spec, field encodings, core/statistical recipes, categorical/temporal scales, independent facets, deterministic transforms, pan/zoom/brush/lasso/select/keyboard runtime, linked selection, line/scatter LOD, ordered `PlotRenderPacket` dense-mark path, PlotView, software/Metal/SVG scene output. | No direct plotting-library equivalent in the core comparison. |
 | Maturity | Focused 0.5 package with hardened post-0.5 Metal/resource, shaping, variable-recycling, host-shim, and plotting slices; packaged non-macOS hosts remain unavailable. | Broader published project, but still explicitly alpha and subject to breaking changes. |
 
@@ -92,9 +92,9 @@ repeatability harness, not a comparative Xilem/Masonry performance result.
   native text/path GPU work, and non-macOS hosts remain open.
 - Native AppKit state is singleton-oriented; the portable multi-window model is not a native multi-window manager.
 - The native queue/draw arrays retain fixed implementation ceilings, even though core queues are configurable and overflow is observable.
-- Localized execution now has scope/dependency invalidation accounting, but no
-  typed subtree builder or view-sequence diff comparable to Xilem's broader
-  model.
+- Localized execution now has a typed subtree executor with scope/dependency
+  invalidation and work counters; a richer view-sequence diff comparable to
+  Xilem's broader model remains open.
 - Narrower ecosystem, fewer backend implementations, and less external validation.
 
 Xilem is not production-stable either: its own documentation calls the current
@@ -125,7 +125,8 @@ against the deliberately focused 0.5 release boundary.
 
 1. Add baseline/flex-style measurement and richer constraint negotiation while preserving deterministic existing layouts.
 2. Deepen list/table/tree/menu/dialog/tabs/canvas rendering and editing instead of using label/panel fallbacks.
-3. Replace root-only localized accounting with typed subtree execution and a stronger view-sequence abstraction.
+3. Strengthen the typed subtree executor with a view-sequence diff and broader
+   parent/child scheduling semantics.
 4. Add native multi-window ownership, touch/gesture translation, and platform drag/drop adapters for macOS, iOS, Android, and Web.
 5. Add external async transport/executor adapters with cancellation and deadlines while keeping the core scheduler deterministic.
 6. Build the browser runtime and native mobile hosts behind the existing target contracts.
@@ -159,7 +160,7 @@ boundary as follows:
 | Components and reactivity | Complete for the focused catalog | descriptors, state models, action queues, memos/lenses/scopes, tasks |
 | Accessibility and native actions | Deeper macOS slice plus host bridges; live package/device work remains | explicit semantic state/ranges, AppKit AX hierarchy/notifications/hit testing, AppKit text-field editor, Web ARIA mapper/overlay, iOS virtual elements, Android virtual node provider/action bridge |
 | Hardening | Complete for 0.5 plus repeatable post-0.5 benchmarks | configurable core queues, property checks, analytics/plot/Metal benchmarks, package/release checks; native/cross-platform ceilings remain |
-| Documentation and visual QA | Complete for source-controlled artifacts | comparison/API/architecture/performance/visual docs, plot/SVG references; native screenshot still requires a local macOS capture |
+| Documentation and visual QA | Complete for source-controlled artifacts | comparison/API/architecture/performance/visual/benchmark docs, plot/SVG references, lossless software golden corpus, and browser-host lifecycle evidence; native screenshot still requires a local macOS capture |
 | Plotting foundation | Implemented as an experimental first library | `PlotDataTable`, statistical recipes, zero-copy views, `PlotSpec`, `PlotRuntime`, lasso/linking, facet resolution, LOD, accessibility, software/Metal/SVG output |
 
 ## Executed plan
@@ -171,7 +172,7 @@ boundary as follows:
 5. **Components and reactivity — complete for 0.5.** Add the catalog, styles, state machines, semantic actions, task scheduler, queue bounds, and native presentation.
 6. **Accessibility and platform coverage — macOS slice complete.** Add catalog roles/actions, native AX action dispatch, WindowConfig plumbing, and honest unavailable backend descriptors.
 7. **Hardening and release — complete for 0.5.** Keep capacities observable, run property-style checks, refresh benchmarks, package-consumer checks, generated API docs, and visual references; the release gate now runs all of them.
-8. **Post-0.5 slices — in progress.** Hardened Metal resources, CoreText/portable shaped runs, Unicode text textures, curve/concave/arc/compound path tessellation, synchronized CPU/GPU timing, GPU-instanced dense fractal lines, asynchronous visible canvas pacing, richer semantic AX state, deeper macOS collection presenters, AppKit single-line field ownership, variable-height recycling, localized accounting, Web/iOS/Android accessibility host shims, and the plotting foundation are now in tree; production portable shaping, generic GPU text/image/path tessellation, editable collection ownership, live mobile/browser package targets, and native screenshot automation remain.
+8. **Post-0.5 slices — in progress.** Hardened Metal resources, CoreText/portable shaped runs, Unicode text textures, curve/concave/arc/compound path tessellation, synchronized CPU/GPU timing, GPU-instanced dense fractal lines, asynchronous visible canvas pacing, richer semantic AX state, deeper macOS collection presenters, AppKit single-line field ownership, variable-height recycling, typed localized subtree execution, source-controlled visual goldens, structured benchmark profiles, Web/iOS/Android accessibility host shims, and the plotting foundation are now in tree; production portable shaping, generic GPU text/image/path tessellation, editable collection ownership, live mobile/browser package targets, stronger view-sequence diffing, and native screenshot automation remain.
 
 The current validation entry point is:
 

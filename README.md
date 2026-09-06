@@ -103,6 +103,13 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - An optional ordered `PlotRenderPacket` fast path for dense line, marker,
   bar, and rectangle marks, with software parity and instanced Metal
   expansion.
+- A source-controlled software visual corpus with exact lossless PPM goldens,
+  checksums, and reviewable actual/expected/diff artifacts on failure.
+- A typed localized-subtree executor with scope/dependency invalidation and
+  observable build, reconciliation, paint, and dependency work counters.
+- A deterministic browser-host lifecycle harness that serves the Web demo,
+  replays normalized input, verifies Canvas sizing and ARIA publication, and
+  always tears down its server/host.
 - Shared platform host bridges for iOS, Android, and Web that normalize
   touch/pointer/key/text/resize input and provide deterministic software/SVG
   fallbacks. SDK-backed host artifacts now include an arm64 iOS simulator app,
@@ -243,6 +250,10 @@ pixi run plot-large-benchmark
 pixi run plot-metal-benchmark
 pixi run metal-benchmark
 pixi run fractal-benchmark
+pixi run benchmark-quick
+pixi run benchmark-full
+pixi run visual-check
+pixi run browser-check
 pixi run harfbuzz-demo
 pixi run benchmark
 pixi run package-consumer
@@ -306,9 +317,12 @@ For the public-surface inventory, see [docs/API.md](docs/API.md). The
 accessibility/native-widget contract is documented in
 [docs/accessibility.md](docs/accessibility.md). For the visual acceptance
 surface and source-controlled reference, see [docs/visual.md](docs/visual.md).
-`pixi run check` generates compiler API
-metadata at `dist/moxi-api.json`; `pixi run benchmark` runs the local layout
-comparison harness.
+`pixi run check` generates compiler API metadata at `dist/moxi-api.json`, runs
+the software visual corpus, and runs the host lifecycle checks. `pixi run
+benchmark-quick` is the portable smoke profile; `pixi run benchmark-full`
+adds the complete plot, collection, fractal, and Metal matrix. Both profiles
+write structured JSON under `dist/benchmark-results/`; see
+[docs/benchmarking.md](docs/benchmarking.md).
 
 `pixi run counter-demo` opens the interactive counter. Click `Increment` to
 regenerate the composed view and repaint the updated count; resize the window
@@ -380,6 +394,15 @@ packetized dense-mark path and complete plot composition.
 the visible Metal window; run the resulting binary locally when a GUI session
 is available.
 
+`pixi run visual-check` regenerates the deterministic software frames and
+compares them byte-for-byte with `tests/goldens/manifest.json`. Set
+`MOXI_UPDATE_GOLDENS=1` when an intentional renderer change updates the
+checked-in PPM corpus. On mismatch, actual/expected/diff PPM artifacts are
+written under `dist/visual-artifacts/` for CI review. `pixi run browser-check`
+exercises the served `native/web/host_demo.html` lifecycle and host-side ARIA
+mapping without requiring a browser package runtime; the page itself exposes
+readiness and Canvas state markers for a real browser smoke check.
+
 ## Components
 
 Components own state and produce lightweight views. `CounterState` is the
@@ -411,6 +434,14 @@ stable action ids through `set_action()`/`set_action_id()`; `App` attaches the
 matching action to routed events so handlers can survive view-id changes.
 `App.dispatch()` adds the current focus or hit-test target to each event before
 it reaches the component.
+
+For a component-owned surface that should update without rebuilding its parent,
+use `TypedSubtreeExecutor[ComponentType]`. It wires one `StateScope` and
+dependency edge to a retained runtime, exposes `invalidate()` and
+`rebuild_if_dirty()`, and reports `ExecutionWorkCounters` for builds,
+dependency visits, reconciled nodes, and paint commands. The repeatable
+workload is `pixi run benchmark-quick` (included in the structured benchmark
+report).
 
 `CheckboxControl`, `SliderControl`, `SwitchControl`, `RadioControl`, and the
 catalog descriptors extend the same pattern for stateful controls. The
@@ -616,7 +647,7 @@ deterministic layout and identity reconciliation, native macOS rendering,
 keyboard/text/IME input, accessibility, headless testing, and explicit
 animation/invalidation primitives. Post-0.5 slices now add a hardened batched
 Metal scene path, CoreText shaped runs, stable-key recycling, localized
-execution accounting, target host bridges, and the first Plot library. The
+typed-subtree execution, target host bridges, and the first Plot library. The
 plot foundation now has typed data, executable statistical transforms,
 composable marks, independent facet scales, lasso/linked selection, a
 view/runtime boundary, and bounded large-data geometry. iOS, Android, and Web

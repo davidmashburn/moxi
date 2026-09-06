@@ -50,6 +50,11 @@ determinate progress, and stateful controls are visible together:
   with persistent scroll state and fixed/variable-extent visible-range math.
 - A deterministic software scene surface covering basic shapes, gradients,
   clipping, opacity layers, and transforms.
+- A source-controlled software golden corpus covering theme states, mixed
+  text/fallback metadata, nested clipping/scrolling, accessibility focus, and
+  the plot gallery. `pixi run visual-check` renders the corpus through
+  `SoftwareSceneRenderer.ppm()` and compares the PPM pixels and checksums
+  exactly; intentional changes use `MOXI_UPDATE_GOLDENS=1`.
 - Backend, text-layout, rich-text, conversation, and capability status.
 - The blocked `Agent reset` request followed by the trusted `Approve reset`
   action.
@@ -79,10 +84,20 @@ The plotting API and its current renderer/host limits are described in
   window; launch the resulting binary on macOS to inspect Retina-aware
   CAMetalLayer presentation.
 
+The Web host has a separate lifecycle gate:
+`pixi run browser-check` serves `native/web/host_demo.html` and its module on a
+fresh ephemeral port, verifies the readiness marker and Canvas metadata,
+replays pointer/wheel input through `MoxiWebHost`, checks the generated ARIA
+attributes, and tears down both host and server. The served page publishes
+`window.__MOXI_HOST_READY__` and `window.__MOXI_HOST_STATE__` for a real-browser
+smoke check; this harness does not claim that a Mojo Web package runtime ships.
+
 This SVG is a deterministic design reference, not a fabricated runtime
 screenshot. Native screenshots should be captured on macOS after launching the
 demo, because AppKit font metrics, window chrome, scale factor, and accessibility
 behavior are platform output. The headless counterpart is covered by
 `tests/wx_style.mojo`, `tests/wx_advanced.mojo`,
-`tests/scene_renderer.mojo`, and `tests/package_consumer.mojo`. The SVGs are
-checked as well-formed XML by `pixi run check`.
+`tests/scene_renderer.mojo`, `tests/golden_render.mojo`, and
+`tests/package_consumer.mojo`. The SVGs are checked as well-formed XML by
+`pixi run check`. On a mismatch, `visual_check.sh` writes actual, expected,
+and diff PPM artifacts under `dist/visual-artifacts/` for CI review.

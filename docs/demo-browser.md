@@ -18,6 +18,13 @@ Playground window bounds, records a 30-second region capture, validates the
 resulting H.264/60fps MOV, and cleans up its own process. Pass an output path as
 the first argument or set `MOXI_RECORD_SECONDS` to override the defaults.
 
+For a non-GUI host gate, run `pixi run browser-check`. It starts a local
+ephemeral-port server for `native/web/host_demo.html`, verifies the explicit
+readiness and Canvas markers, replays normalized pointer/wheel input through
+`MoxiWebHost`, checks the optional ARIA layer, and always tears down the server
+and host. A real browser can inspect the same page's
+`window.__MOXI_HOST_READY__` and `window.__MOXI_HOST_STATE__` markers.
+
 The window is organized like this:
 
 - the left playground rail groups runnable examples by domain, shows a short
