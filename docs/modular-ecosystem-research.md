@@ -16,6 +16,24 @@ The main opportunity is not to copy another toolkit. It is to make Moxi a
 particularly good teaching and experimentation layer over Mojo’s compute and
 graphics capabilities.
 
+## Reconciliation with the audited implementation
+
+The recommendations at the end of this research are evidence inputs, not a
+second roadmap. Checked against `main` at `bd3722c`, their status is:
+
+| Recommendation | Status in code | Planning treatment |
+| --- | --- | --- |
+| First-class themes and component overrides | Implemented: semantic tokens, four presets, recipes, theme showcase, tests, and component theme preservation | Protect with a public support classification and deterministic visual baselines. |
+| Progressive source-connected walkthroughs | Substantially implemented in the Playground, component source panes, editable component, and capability walkthrough | Move reusable scenario metadata out of browser-specific constants. |
+| Backend-neutral scene with incremental adapters | Implemented for software, SVG, AppKit, and a substantial Metal slice | Build a shared parity corpus before adding Cairo, wgpu, or more GPU breadth. |
+| GPU-backed visualization | Implemented through the interactive fractal and dense plot packet paths | Treat these as canonical Mojo compute-to-visual scenarios and benchmark them repeatably. |
+| Property and fuzz coverage | Deterministic property-style edge tests exist; mutation fuzzing and shrinking do not | Add replayable properties first, then pilot `mozz` when failures can become checked-in minimal cases. |
+| Stable Mojo 1.x public surfaces | Not resolved: stable 0.5 and post-0.5 experimental names share a very large root export surface | Make API classification and compatibility policy the first planning gate. |
+
+The active decisions and acceptance checks live in
+[PROJECT-PLANNING.md](../PROJECT-PLANNING.md). This research remains the source
+record for ecosystem context.
+
 ## Agentic engineering
 
 ### Primary references
@@ -156,7 +174,10 @@ to a minimal failing case.
   Mojo libraries. Moxi should integrate with this ecosystem where useful rather
   than reimplement every adjacent capability.
 
-## Recommended Moxi directions
+## Original research recommendations
+
+These are retained as the conclusions of the research pass. Their current
+implementation status and active planning treatment are mapped above.
 
 1. Make themes first-class context: semantic tokens, a base theme, and explicit
    per-component overrides. The recent embedded-surface fix is part of this
@@ -173,4 +194,3 @@ to a minimal failing case.
    capability-bus dispatch, and recording reproducibility.
 6. Stabilize the public `Component`, `Theme`, paint, and capability-bus APIs as
    Mojo 1.x-compatible surfaces while marking experimental backends clearly.
-
