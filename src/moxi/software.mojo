@@ -587,5 +587,31 @@ struct SoftwareSceneRenderer(SceneRenderer):
             result += Int(_clamp_unit(color.alpha) * 255.0) * 11
         return result
 
+    def ppm(self) -> String:
+        """Return the exact RGB surface as a deterministic ASCII PPM image.
+
+        PPM is intentionally used at this boundary because it is lossless,
+        dependency-free, and easy for CI to archive or convert to PNG. The
+        renderer's configured background should normally be opaque; when it is
+        not, the RGB channels still preserve the software oracle's clamped
+        surface values while the checksum continues to include alpha.
+        """
+        var result = String("P3\n", self.width, " ", self.height, "\n255\n")
+        for y in range(self.height):
+            for x in range(self.width):
+                var color = self.pixels[y * self.width + x]
+                result += String(
+                    Int(_clamp_unit(color.red) * 255.0),
+                    " ",
+                    Int(_clamp_unit(color.green) * 255.0),
+                    " ",
+                    Int(_clamp_unit(color.blue) * 255.0),
+                )
+                if x + 1 == self.width:
+                    result += "\n"
+                else:
+                    result += " "
+        return result
+
     def supports_incremental(self) -> Bool:
         return False

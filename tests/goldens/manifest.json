@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "renderer": "software-v1",
+  "entries": [
+    {
+      "name": "theme-dark",
+      "scenario": "theme",
+      "state": "dark",
+      "width": 240,
+      "height": 160,
+      "checksum": 119968364,
+      "image": "tests/goldens/images/theme-dark.ppm"
+    },
+    {
+      "name": "theme-light",
+      "scenario": "theme",
+      "state": "light",
+      "width": 240,
+      "height": 160,
+      "checksum": 212454688,
+      "image": "tests/goldens/images/theme-light.ppm"
+    },
+    {
+      "name": "theme-emerald",
+      "scenario": "theme",
+      "state": "emerald",
+      "width": 240,
+      "height": 160,
+      "checksum": 117390320,
+      "image": "tests/goldens/images/theme-emerald.ppm"
+    },
+    {
+      "name": "text-mixed-fallback",
+      "scenario": "text",
+      "state": "mixed-fallback",
+      "width": 256,
+      "height": 96,
+      "checksum": 76455936,
+      "image": "tests/goldens/images/text-mixed-fallback.ppm"
+    },
+    {
+      "name": "nested-clipping-scrolling",
+      "scenario": "collection",
+      "state": "nested-clipping-scrolling",
+      "width": 240,
+      "height": 128,
+      "checksum": 103645584,
+      "image": "tests/goldens/images/nested-clipping-scrolling.ppm"
+    },
+    {
+      "name": "accessibility-focused-control",
+      "scenario": "form",
+      "state": "focused-control",
+      "width": 240,
+      "height": 128,
+      "checksum": 97207920,
+      "image": "tests/goldens/images/accessibility-focused-control.ppm"
+    },
+    {
+      "name": "plot-gallery",
+      "scenario": "plot",
+      "state": "baseline",
+      "width": 320,
+      "height": 200,
+      "checksum": 204811930,
+      "image": "tests/goldens/images/plot-gallery.ppm"
+    }
+  ]
+}
