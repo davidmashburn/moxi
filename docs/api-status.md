@@ -578,6 +578,17 @@ Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --wri
 | `AndroidBackend` | `moxi.targets` | host-adapter | platform and native-host adapters |
 | `IOSBackend` | `moxi.targets` | host-adapter | platform and native-host adapters |
 | `WebBackend` | `moxi.targets` | host-adapter | platform and native-host adapters |
+| `SCENARIO_NONE` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `SCENARIO_FORM` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `SCENARIO_THEME` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `SCENARIO_COLLECTION` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `SCENARIO_TEXT` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `SCENARIO_PLOT` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `SCENARIO_CAPABILITY` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `SCENARIO_FRACTAL` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `ScenarioDescriptor` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `ScenarioRegistry` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_scenarios` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `InteractionScenario` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `make_interaction_foundation_scenario` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `make_plot_data_fixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |

@@ -12,6 +12,192 @@ from .scrollbar import SCROLLBAR_VERTICAL, ScrollbarState
 from .style import Color
 
 
+comptime SCENARIO_NONE = 0
+comptime SCENARIO_FORM = 1
+comptime SCENARIO_THEME = 2
+comptime SCENARIO_COLLECTION = 3
+comptime SCENARIO_TEXT = 4
+comptime SCENARIO_PLOT = 5
+comptime SCENARIO_CAPABILITY = 6
+comptime SCENARIO_FRACTAL = 7
+
+
+struct ScenarioDescriptor(ImplicitlyCopyable):
+    """Stable metadata for one canonical demo/test/benchmark scenario."""
+
+    var id: Int
+    var name: String
+    var fixture: String
+    var source: String
+    var task: String
+    var default_width: Float32
+    var default_height: Float32
+    var stateful: Bool
+    var semantic_hint: String
+    var counter_hint: String
+
+    def __init__(
+        out self,
+        id: Int,
+        name: String,
+        fixture: String,
+        source: String,
+        task: String,
+        default_width: Float32,
+        default_height: Float32,
+        stateful: Bool,
+        semantic_hint: String,
+        counter_hint: String,
+    ):
+        self.id = id
+        self.name = name
+        self.fixture = fixture
+        self.source = source
+        self.task = task
+        self.default_width = default_width
+        self.default_height = default_height
+        self.stateful = stateful
+        self.semantic_hint = semantic_hint
+        self.counter_hint = counter_hint
+
+    def command(self) -> String:
+        """Return the checked-in Pixi task for this scenario."""
+        return String("pixi run ", self.task)
+
+
+struct ScenarioRegistry:
+    """Static scenario inventory shared by demos, tests, and benchmarks."""
+
+    var entries: List[ScenarioDescriptor]
+
+    def __init__(out self):
+        self.entries = List[ScenarioDescriptor](capacity=7)
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_FORM,
+            "Form and component slot",
+            "form",
+            "examples/form.mojo",
+            "form-demo",
+            520.0,
+            320.0,
+            True,
+            "text input, submit, cancel, clipboard, and IME",
+            "focus transitions and action dispatch",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_THEME,
+            "Theme control states",
+            "theme",
+            "examples/theme_showcase.mojo",
+            "theme-showcase-demo",
+            680.0,
+            520.0,
+            True,
+            "theme presets, recipes, and control states",
+            "theme selection and retained component state",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_COLLECTION,
+            "Stable-key collection",
+            "collection",
+            "examples/interaction_showcase.mojo",
+            "interaction-showcase-demo",
+            980.0,
+            720.0,
+            True,
+            "list/table/tree, popup, scrollbar, and reorder semantics",
+            "active slots, selected keys, and reorder commands",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_TEXT,
+            "Mixed text",
+            "text",
+            "examples/coretext.mojo",
+            "text-demo",
+            640.0,
+            360.0,
+            False,
+            "Unicode shaping, bidi, fallback reporting, and text bounds",
+            "glyph runs, fallback flags, and measured lines",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_PLOT,
+            "Plot gallery",
+            "plot",
+            "examples/plot_gallery.mojo",
+            "plot-gallery",
+            760.0,
+            520.0,
+            True,
+            "typed data, axes, facets, selections, and canvas output",
+            "scene commands, packet batches, and checksum",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_CAPABILITY,
+            "Capability walkthrough",
+            "capability",
+            "examples/capability_bus.mojo",
+            "capability-bus-demo",
+            720.0,
+            560.0,
+            True,
+            "manifest, approval, replay, and semantic action status",
+            "handler results, approvals, and queue state",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_FRACTAL,
+            "Interactive fractal canvas",
+            "fractal",
+            "examples/interactive_fractal.mojo",
+            "interactive-fractal-demo",
+            920.0,
+            620.0,
+            True,
+            "editable generator geometry and a component-owned canvas",
+            "expanded segments, commands, vertices, and frame timing",
+        ))
+
+    def count(self) -> Int:
+        return len(self.entries)
+
+    def entry(self, index: Int) -> ScenarioDescriptor:
+        return self.entries[index]
+
+    def index_for_id(self, id: Int) -> Int:
+        for index in range(len(self.entries)):
+            if self.entries[index].id == id:
+                return index
+        return -1
+
+    def index_for_fixture(self, fixture: String) -> Int:
+        for index in range(len(self.entries)):
+            if self.entries[index].fixture == fixture:
+                return index
+        return -1
+
+    def is_valid(self) -> Bool:
+        for index in range(len(self.entries)):
+            var current = self.entries[index]
+            if current.id <= SCENARIO_NONE or current.name.count_codepoints() == 0:
+                return False
+            if current.fixture.count_codepoints() == 0 or current.source.count_codepoints() == 0:
+                return False
+            if current.task.count_codepoints() == 0:
+                return False
+            if current.default_width <= 0.0 or current.default_height <= 0.0:
+                return False
+            if self.index_for_id(current.id) != index:
+                return False
+            if self.index_for_fixture(current.fixture) != index:
+                return False
+        return True
+
+
+def canonical_scenarios() -> ScenarioRegistry:
+    """Return the repository's canonical scenario inventory."""
+    return ScenarioRegistry()
+
+
 struct InteractionScenario:
     """Shared collection/scroll/popup workload for tests and benchmarks."""
 

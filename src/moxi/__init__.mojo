@@ -605,6 +605,17 @@ from .native_widgets import (
 )
 from .targets import AndroidBackend, IOSBackend, WebBackend
 from .scenarios import (
+    SCENARIO_NONE,
+    SCENARIO_FORM,
+    SCENARIO_THEME,
+    SCENARIO_COLLECTION,
+    SCENARIO_TEXT,
+    SCENARIO_PLOT,
+    SCENARIO_CAPABILITY,
+    SCENARIO_FRACTAL,
+    ScenarioDescriptor,
+    ScenarioRegistry,
+    canonical_scenarios,
     InteractionScenario,
     make_interaction_foundation_scenario,
     make_plot_data_fixture,

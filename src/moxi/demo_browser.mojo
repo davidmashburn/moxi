@@ -74,6 +74,7 @@ from .showcase import (
     ShowcaseState,
 )
 from .scene import Scene
+from .scenarios import SCENARIO_NONE, canonical_scenarios
 
 
 # Public page and category kinds make the catalog inspectable by tests and by
@@ -773,6 +774,18 @@ struct DemoCatalog:
 
     def entry(self, index: Int) -> DemoEntry:
         return self.entries[index]
+
+    def scenario_id_for(self, index: Int) -> Int:
+        """Return the canonical scenario id backing a catalog entry."""
+        if index < 0 or index >= len(self.entries):
+            return SCENARIO_NONE
+        var item = self.entries[index]
+        var registry = canonical_scenarios()
+        for scenario_index in range(registry.count()):
+            var scenario = registry.entry(scenario_index)
+            if scenario.source == item.source and scenario.task == item.task:
+                return scenario.id
+        return SCENARIO_NONE
 
     def index_for_id(self, id: Int) -> Int:
         for index in range(len(self.entries)):

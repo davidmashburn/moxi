@@ -70,6 +70,7 @@ tests=(
   tests/scroll_app.mojo
   tests/windowing.mojo
   tests/conversation.mojo
+  tests/scenarios.mojo
 )
 
 for test_file in "${tests[@]}"; do
