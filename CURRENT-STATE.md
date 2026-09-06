@@ -1,6 +1,6 @@
 # Moxi current-state audit
 
-Audited September 6, 2026 against `main` at `bd3722c`. This document is based
+Audited September 6, 2026 against `main` at `b813e53`. This document is based
 on source, tests, build scripts, and local validation. README, changelog, and
 older roadmap claims were treated as hypotheses until the implementation
 confirmed them.
@@ -12,59 +12,84 @@ native macOS host, software and Metal scene paths, a capable plotting stack,
 accessibility bridges, a capability bus, a demo browser, and extensive contract
 tests. The breadth is ahead of its support story.
 
-The next risk is therefore not missing features. It is that a roughly
-900-line package boundary re-exports hundreds of names while important
-behaviors remain explicitly experimental, root rebuilds remain global, and
-visual/performance evidence is not stored in a form CI can compare. The next
-milestone should turn the existing breadth into a smaller, measurable contract.
+Gate 1 has now landed its first measurable slices: the package export surface
+has a generated support inventory, seven canonical scenario descriptors are
+checked in, software-renderer PPM goldens and a browser-host lifecycle harness
+run through the validation path, typed localized execution exposes work
+counters, and quick/full benchmark profiles emit structured JSON. The next
+risk is not missing features; it is making those slices compose into a smaller
+supportable contract. The package boundary still re-exports hundreds of names,
+`App` still has a root-wide fallback, benchmark reports are local artifacts
+without reviewed baselines, and linked Mojo runtimes remain unavailable on
+non-macOS targets.
 
 ## Validation performed
 
 | Check | Result | What it proves |
 | --- | --- | --- |
-| `git fetch origin main project-planning --prune` | local branches were already current with their remotes; local planning contains one additional research commit | the audit used the latest repository state available on both branches |
-| `pixi run test` | pass, 65 Mojo test programs | portable unit and integration contracts compile and execute together |
-| `pixi run check` | pass, including strict native compilation, generated API docs, Android APK, iOS simulator app, Web host, HarfBuzz, and live reload | the full repository validation path succeeds on the audited macOS host with its installed SDKs |
-| `MOXI_BENCHMARK_RUNS=1 pixi run benchmark` | pass across the aggregate retained UI, interaction, plot, fractal, and Metal workloads | every workload included by the aggregate harness is runnable on the audited host and emits stable counters/checksums |
-| source/build inspection | 253 tracked files, 179 tracked Mojo files, 67 Mojo test files | the aggregate test runner intentionally covers 65 programs; `live_reload.mojo` and `package_consumer.mojo` are exercised by their dedicated scripts |
+| repository audit and sequential commits | `main` is audited at `b813e53`; `project-planning` retains the modular-ecosystem research plus this progress ledger | the code and plan were reconciled against the latest local implementation rather than trusting older prose |
+| `pixi run test` | pass, 66 Mojo test programs | portable unit and integration contracts compile and execute together |
+| `pixi run check` | pass, including API inventory, seven software goldens, strict native compilation, generated API docs, Android APK, iOS simulator app, Web host, browser lifecycle, HarfBuzz, and live reload | the full repository validation path succeeds on the audited macOS host with its installed SDKs |
+| `MOXI_BENCHMARK_RUNS=1 pixi run benchmark-quick` / `benchmark-full` | pass for 3 / 10 cases with structured JSON reports | portable smoke and complete matrices are runnable on the audited host and emit deterministic counters/checksums plus per-run status/timing |
+| `pixi run visual-check` / `pixi run browser-check` | pass for 7 PPM images / the host lifecycle JSON contract | software pixels are compared exactly; the Web page and host publish readiness, Canvas, input, ARIA, and teardown evidence |
+| source/build inspection | 270 tracked files, 182 tracked Mojo files, 69 Mojo test files | the aggregate test runner intentionally covers 66 programs; `live_reload.mojo` and `package_consumer.mojo` are exercised by dedicated scripts |
+
+## Gate 1 implementation ledger
+
+The ordered implementation pass is recorded here so the plan does not imply
+that a partial vertical slice is a complete product claim.
+
+| Workstream | Status at `b813e53` | Evidence | Remaining boundary |
+| --- | --- | --- | --- |
+| Public API inventory | Implemented | `docs/api-status.md`, `scripts/api_status_check.sh`, 855 classified exports | focused import paths, compatibility policy, and stable/provisional package enforcement |
+| Canonical scenarios | Implemented as registry metadata | `src/moxi/scenarios.mojo`, demo catalog mapping, registry contract test, golden consumers | wire every scenario's fixture into its demo, behavior test, golden, and benchmark without duplicate definitions |
+| Software visual regression | Implemented for software oracle | seven lossless PPM images, manifest, exact checker, reviewable actual/expected/diff artifacts | native screenshot parity and threshold/mask policy for platform-dependent output |
+| Browser host lifecycle | Implemented as deterministic host gate | `scripts/browser_check.sh`, `tests/web_browser_harness.mjs`, readiness/Canvas/ARIA markers | linked Mojo Web runtime and real-browser/device automation in CI |
+| Typed localized execution | Implemented as one typed subtree slice | `TypedSubtreeExecutor`, `ExecutionWorkCounters`, `tests/execution.mojo`, localized benchmark | parent/child scheduling, keyed view diff, insertion/removal/reorder, and explicit root fallback counters |
+| Structured benchmarks | Implemented as local quick/full protocol | `scripts/benchmark.sh`, `docs/benchmarking.md`, ignored JSON reports | environment-stamped reviewed baselines, variance/median comparison, and a 1/10/100-child matrix |
+| Documentation vocabulary | Reconciled on `main` | README/API/visual/performance/demo/comparison docs and generated API status | keep status snapshots synchronized as the public surface changes |
 
 The quick benchmark run is a smoke check, not a baseline. It includes compiler
-or process startup for several workloads and does not write structured results.
+or process startup for several workloads; its structured report is intentionally
+written to ignored local output until a reviewed environment-specific baseline
+policy exists.
 
 ## Capability matrix
 
 | Area | Implementation truth | Confidence | Evidence in `main` | Planning consequence |
 | --- | --- | --- | --- | --- |
-| Package and public API | The package is versioned `0.5.1`, but `src/moxi/__init__.mojo` is about 900 lines and imports from 74 module groups. Stable 0.5 names and post-0.5 experiments share one flat boundary. | High | `pixi.toml`, `shelf.toml`, `src/moxi/__init__.mojo`, package-consumer check | Define stable, provisional, and internal lanes before adding more public names. |
+| Package and public API | The package is versioned `0.5.1`, `src/moxi/__init__.mojo` is about 900 lines and imports from 74 module groups, and all 855 current exports now have generated support-lane rows. Stable 0.5 names and post-0.5 experiments still share one flat boundary. | High | `pixi.toml`, `shelf.toml`, `src/moxi/__init__.mojo`, `docs/api-status.md`, package-consumer check | Turn the inventory into focused import paths and compatibility/deprecation enforcement before adding more public names. |
 | Component ownership | `Component.build(bounds)` returns a value tree and `update(event, view)` owns mutation. `ComponentSlot` provides typed child ownership with integer id namespacing. | High | `src/moxi/component.mojo`, component/composed tests | Preserve value ownership, but replace manual id arithmetic with a first-class keyed subtree boundary. |
-| Execution and reconciliation | `(id, kind)` reconciliation reuses retained nodes and reports changes. `LocalizedExecution` records scope dependencies, but `App.rebuild()` still calls the root component builder, reconciles the complete tree, and invalidates all bounds. | High | `src/moxi/runtime.mojo`, `src/moxi/execution.mojo`, `src/moxi/app_runtime.mojo` | True localized typed subtree execution is the primary runtime milestone. |
+| Execution and reconciliation | `(id, kind)` reconciliation reuses retained nodes and reports changes. `TypedSubtreeExecutor` now owns one typed component/view/runtime and performs scoped invalidation, rebuild, paint, accessibility, and work accounting. `App.rebuild()` still calls the root component builder, reconciles the complete tree, and invalidates all bounds. | High | `src/moxi/runtime.mojo`, `src/moxi/execution.mojo`, `src/moxi/app_runtime.mojo`, `tests/execution.mojo` | Strengthen the slice into parent/child scheduling and a keyed view-sequence diff; retain root rebuild as an observable fallback. |
 | Layout and interaction | Column/row, stack, grid, split, portal, constraints, clipping, automatic overflow, draggable/pageable scrollbars, stable-key variable-height recycling, focus, pointer, keyboard, IME, clipboard, popup, reorder, and accessibility actions are implemented and tested. | High | `src/moxi/view.mojo`, `layout_primitives.mojo`, `scrollbar.mojo`, `popup.mojo`, `reorder.mojo`, interaction tests | Treat this as an existing contract to protect, not a roadmap item. Do not broaden layout until regression scenarios are shared. |
-| Themes and recipes | Semantic tokens, dark/light/zinc/emerald presets, recipes, an interactive theme showcase, and contract tests exist. Theme inheritance was fixed in the audited commit. | High | `tokens.mojo`, `recipes.mojo`, `theme_showcase.mojo`, theme tests | The old token/recipe proposal is complete. The remaining work is visual baselines and API support classification. |
-| Rendering | Paint commands feed an inspectable scene IR. Software rendering is deterministic; AppKit is the main native UI renderer; Metal supports a substantial geometry/text/image/path slice and dense plot packets. Unsupported work is counted or falls back. | High for contracts; medium for parity | `paint.mojo`, `scene.mojo`, `software.mojo`, `macos.mojo`, `metal.mojo`, native sources and renderer tests | Keep software as the oracle. Add corpus-driven parity and golden checks before extending GPU breadth. |
+| Themes and recipes | Semantic tokens, dark/light/zinc/emerald presets, recipes, an interactive theme showcase, and contract tests exist. Theme inheritance was fixed in the audited commit, and theme states are represented in the software golden corpus. | High | `tokens.mojo`, `recipes.mojo`, `theme_showcase.mojo`, theme tests, `tests/goldens/` | The old token/recipe proposal is complete. Remaining work is native/platform visual parity and continued API support classification. |
+| Rendering | Paint commands feed an inspectable scene IR. Software rendering is deterministic and now has seven exact PPM goldens; AppKit is the main native UI renderer; Metal supports a substantial geometry/text/image/path slice and dense plot packets. Unsupported work is counted or falls back. | High for contracts; medium for parity | `paint.mojo`, `scene.mojo`, `software.mojo`, `macos.mojo`, `metal.mojo`, `tests/goldens/`, native sources and renderer tests | Keep software as the oracle. Extend GPU breadth only after replaying the corpus and documenting platform-dependent tolerances. |
 | Native capacity | AppKit storage is process-global and statically capped at 128 entries per draw/accessibility kind; custom draw and Metal resources have other explicit ceilings. Overflow is generally observable. | High | `native/macos_window.m`, `native/macos_metal.m` | Multi-window/native scaling cannot be called supported until ownership and capacity become instance-scoped or explicitly bounded by contract. |
 | Text | Portable shaping is deterministic and deliberately approximate. CoreText supplies real macOS shaping/fallback; optional HarfBuzz uses one host-selected font but does not provide a production fallback collection or full paragraph bidi policy. | High | `text_boundary.mojo`, `text_shaping.mojo`, `coretext.mojo`, `harfbuzz.mojo`, text tests | Build a conformance corpus and host policy before promising portable text fidelity. |
 | Accessibility | Portable semantics, validation, native macOS AX, Web ARIA, and iOS/Android virtual-node sources exist. Device/screen-reader automation and live Mojo publication on non-macOS targets do not. | High | `accessibility.mojo`, `native_widgets.mojo`, native host sources, accessibility tests | Keep “semantic bridge” separate from “verified platform support.” |
-| Platforms | macOS Apple Silicon is the only package target. iOS simulator, Android APK, and browser host artifacts are buildable when SDKs are present, but they do not host a linked Mojo application runtime. CI is macOS-only and some host checks skip when SDKs are absent. | High | `pixi.toml`, `.github/workflows/ci.yml`, `scripts/host_check.sh`, `native/` | The next platform gate is one real shared scenario with readiness, teardown, and accessibility—not more adapter types. |
+| Platforms | macOS Apple Silicon is the only package target. iOS simulator, Android APK, and browser host artifacts are buildable when SDKs are present, but they do not host a linked Mojo application runtime. The Web host now has an ephemeral-server lifecycle harness with readiness, Canvas, input, ARIA, and teardown assertions. CI is macOS-only and some host checks skip when SDKs are absent. | High | `pixi.toml`, `.github/workflows/ci.yml`, `scripts/host_check.sh`, `scripts/browser_check.sh`, `tests/web_browser_harness.mjs`, `native/` | The next platform gate is one linked Mojo runtime on a real target with the same scenario and accessibility evidence—not more adapter types. |
 | Plotting | Typed columnar data, stable keys, versioned JSON spec parsing, transforms, statistical recipes, facets, interaction, selection/linking, LOD, accessibility/CSV, software/SVG, and a Metal packet path are implemented. Several advanced mark families and exports remain absent. | High | `plot_*.mojo`, `plotting.mojo`, plot tests/benchmarks | Harden the implemented 2D subset as a provisional package; do not chase polar, geographic, 3D, or new marks yet. |
 | Capability bus | In-process descriptors, schemas, policy, approvals, replay, typed handlers, leases, queue bounds, and walkthrough automation exist. Transport, persistence, deadlines/cancellation, and external execution remain outside the core. | High | `capability.mojo`, `conversation.mojo`, capability tests/walkthrough | Keep it optional and transport-neutral. Stabilize the authorization contract before adding an agent runtime. |
-| Scenarios and demos | Real demos mount in one browser and source panels show component code. Shared scenarios exist, but they are split among feature modules; `scenarios.mojo` currently centralizes only interaction and plot fixtures. | High | demo browser, `scenarios.mojo`, form/wx/showcase modules | Introduce a scenario registry consumed by demos, tests, goldens, and benchmarks. |
-| Tests and visual QA | Contract coverage is broad and the software renderer exposes deterministic checksums. There is no checked-in golden raster corpus, thresholded diff tool, or CI artifact review flow. SVG illustrations are documentation references, not full visual regression tests. | High | `scripts/test.sh`, renderer tests, `docs/*.svg` | Visual regression is still open even though the old Storybook-style showcase proposal is largely complete. |
-| Benchmarks | The harness repeats useful workloads and emits deterministic counters plus host timings. Results are console text; there is no committed machine-readable baseline, environment manifest, variance report, or automated regression threshold. | High | `scripts/benchmark.sh`, `benchmarks/`, `docs/performance.md` | Add structured quick/full outputs before making comparative performance claims. |
+| Scenarios and demos | Real demos mount in one browser and source panels show component code. `scenarios.mojo` now centralizes seven stable descriptors and the demo browser/golden registry tests consume the inventory; feature fixtures and benchmark workloads are not yet all generated from those descriptors. | High | demo browser, `scenarios.mojo`, `tests/scenarios.mojo`, `tests/golden_render.mojo`, form/wx/showcase modules | Make each descriptor the single fixture source for its behavior test, golden, and benchmark, then enforce that mapping in the catalog check. |
+| Tests and visual QA | Contract coverage is broad, the software renderer exposes deterministic checksums, and seven lossless PPM goldens run through `scripts/visual_check.sh` with reviewable mismatch artifacts. SVG illustrations remain documentation references, and native screenshot parity is not automated. | High | `scripts/test.sh`, `scripts/visual_check.sh`, `tests/goldens/`, renderer tests, `docs/*.svg` | Add native threshold/mask policy and real screenshot capture only after platform ownership and font policy are explicit. |
+| Benchmarks | Quick/full profiles preserve the existing workloads and emit structured JSON with commands, status, wall time, and deterministic metric lines. Reports are ignored local artifacts; there is no committed machine-readable baseline, environment manifest, variance report, or automated regression threshold. | High | `scripts/benchmark.sh`, `benchmarks/`, `docs/benchmarking.md`, `docs/performance.md` | Add environment-stamped reviewed baselines and the 1/10/100-child localized workload before making comparative performance claims. |
 
 ## What the prior planning got wrong or outgrew
 
 - The September 1 theme and recipe plan described work that now exists on
   `main`; keeping it as an active plan obscured the real gap.
 - The all-states/Storybook direction partially landed as the theme showcase and
-  richer demo browser, but screenshot diffing did not. Those must be recorded
-  as separate outcomes.
+  richer demo browser. Software screenshot diffing now exists as a checked-in
+  PPM corpus; native screenshot capture and platform-dependent diffing remain a
+  separate outcome.
 - The old post-0.5 roadmap mixed completed Metal, virtualization, plotting,
   scrolling, and host-artifact slices with future work. Status prose had grown
   longer than the remaining decisions.
 - “Cross-platform” was sometimes used for portable contracts, buildable native
   shells, and live Mojo targets. These are materially different support levels.
-- Localized execution was described as present, but the code currently exposes
-  dependency accounting around a root-wide rebuild.
+- Localized execution was described as present before there was a typed owner;
+  the code now proves one typed subtree slice, while ordinary `App` invalidation
+  still exposes dependency accounting around a root-wide rebuild.
 
 The obsolete proposal files have been removed from this branch. Their
 implemented outcomes and remaining visual-testing gap are represented here and
@@ -75,15 +100,17 @@ in the active plan.
 ### P0: support-boundary risks
 
 1. **Public-surface ambiguity.** Hundreds of re-exported names make accidental
-   compatibility promises likely.
-2. **Root-wide work.** Component invalidation does not yet bound builder,
-   reconciliation, layout, or paint work to a typed subtree.
-3. **No comparable visual signal.** Renderer and theme changes can pass broad
-   behavioral tests without a reviewable image diff.
-4. **No durable performance baseline.** Useful counters exist, but results
-   cannot be compared automatically across commits.
+   compatibility promises likely even with the generated inventory.
+2. **Root-wide work.** The typed executor bounds one subtree, but normal
+   `App` invalidation still rebuilds the root and lacks a keyed view-sequence
+   diff.
+3. **Native visual parity.** The software oracle now has exact goldens, but
+   platform fonts, GPU output, and native screenshots still have no automated
+   parity lane.
+4. **No durable performance baseline.** Structured reports and counters exist,
+   but no reviewed environment-stamped baseline or regression threshold exists.
 5. **Documentation classification drift.** Stable, experimental, host-only, and
-   planned behavior must use one vocabulary.
+   planned behavior must use one vocabulary as exports and host claims change.
 
 ### P1: quality and platform risks
 

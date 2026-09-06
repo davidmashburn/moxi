@@ -64,6 +64,27 @@ The differentiator is the combination of:
 This is the next milestone. All six workstreams are required; new widget or
 plot-family work is out of scope.
 
+### Gate 1 progress at `main` `b813e53`
+
+The ordered implementation pass has delivered the first vertical slices. The
+status below is deliberately narrower than “Gate 1 complete”: it records what
+is proven in source and validation, and leaves the unfinished acceptance work
+visible for the next pass.
+
+| Ordered slice | Status | Evidence | Still open |
+| --- | --- | --- | --- |
+| 1. Public API audit | Complete | `e418b29`, generated `docs/api-status.md`, 855 export classifications, `api-status-check` | focused import paths, compatibility/deprecation policy, and package-lane enforcement |
+| 2. Canonical scenario registry | Registry complete; consumer wiring partial | `0991f29`, seven descriptors, demo mapping, registry test, golden registry assertions | make each descriptor the fixture source for its behavior test, golden, and benchmark |
+| 3. Software goldens and browser lifecycle | Software/host gates complete | `62a9caa` and `9c25379`, seven exact PPM goldens, manifest/checker, ephemeral server/host harness with Canvas/ARIA/input/teardown evidence | native screenshot parity, real-browser/device automation, and linked Mojo Web runtime |
+| 4. Typed localized execution | One-subtree slice complete | `676cbd4` and `b813e53`, `TypedSubtreeExecutor`, `ExecutionWorkCounters`, localized test and benchmark; explicit paint return type passes precompile | parent scheduling, keyed view diff, insertion/removal/reorder, and root-fallback accounting |
+| 5. Structured benchmark profiles | Local protocol complete | `4df99c8` and `850f610`, `benchmark-quick`/`benchmark-full`, 3/10-case smoke reports under `dist/benchmark-results/` | environment-stamped reviewed baselines, variance/median comparison, and 1/10/100-child matrix |
+| 6. Documentation reconciliation | Main docs complete; plan update in progress | `87e79bf`, README/API/visual/performance/demo/comparison docs plus generated API status | keep both branches synchronized as follow-on slices land |
+
+`pixi run check` passes at this revision, including all 66 Mojo test programs,
+native/Android/iOS host builds, the software corpus, Web lifecycle harness,
+HarfBuzz, and live reload. This is evidence for the completed slices, not a
+claim that the remaining Gate 1 exit criteria are satisfied.
+
 ### 1. Classify and narrow the public API
 
 Implementation targets:
@@ -212,12 +233,14 @@ should list support status; the changelog should describe shipped deltas.
 ## Gate 1 exit criteria
 
 - The stable/provisional public surfaces are mechanically classified.
-- Six or more canonical scenarios drive their real examples and tests; visual
-  and benchmark consumers exist where relevant.
+- Six or more canonical scenarios are registered, with real demo and contract
+  consumers; every fixture must still be made the single source for its golden
+  and benchmark where relevant.
 - At least one typed component subtree updates without a root rebuild, with a
   safe and observable root fallback.
 - Deterministic software goldens run in CI and produce reviewable diffs.
-- Benchmarks emit structured, environment-stamped records.
+- Benchmarks emit structured records; environment-stamped reviewed baselines
+  and regression comparison remain required for exit.
 - `pixi run release-check` passes and the support vocabulary is consistent
   across current docs.
 
