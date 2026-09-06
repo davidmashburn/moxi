@@ -3,3 +3,4 @@ dist/
 output/
 native/*.o
 .env
+.DS_Store
