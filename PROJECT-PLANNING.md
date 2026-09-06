@@ -64,7 +64,7 @@ The differentiator is the combination of:
 This is the next milestone. All six workstreams are required; new widget or
 plot-family work is out of scope.
 
-### Gate 1 progress at `main` `b813e53`
+### Gate 1 progress at `main` `c9b0442`
 
 The ordered implementation pass has delivered the first vertical slices. The
 status below is deliberately narrower than “Gate 1 complete”: it records what
@@ -80,10 +80,12 @@ visible for the next pass.
 | 5. Structured benchmark profiles | Local protocol complete | `4df99c8` and `850f610`, `benchmark-quick`/`benchmark-full`, 3/10-case smoke reports under `dist/benchmark-results/` | environment-stamped reviewed baselines, variance/median comparison, and 1/10/100-child matrix |
 | 6. Documentation reconciliation | Main docs complete; plan update in progress | `87e79bf`, README/API/visual/performance/demo/comparison docs plus generated API status | keep both branches synchronized as follow-on slices land |
 
-`pixi run check` passes at this revision, including all 66 Mojo test programs,
-native/Android/iOS host builds, the software corpus, Web lifecycle harness,
-HarfBuzz, and live reload. This is evidence for the completed slices, not a
-claim that the remaining Gate 1 exit criteria are satisfied.
+`pixi run check` and `MOXI_BENCHMARK_RUNS=1 pixi run release-check` pass at this
+revision, including all 66 Mojo test programs, native/Android/iOS host builds,
+package publication/consumer, the software corpus, Web lifecycle harness,
+HarfBuzz, live reload, and the complete 10-case benchmark matrix. This is
+evidence for the completed slices, not a claim that the remaining Gate 1 exit
+criteria are satisfied.
 
 ### 1. Classify and narrow the public API
 

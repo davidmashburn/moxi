@@ -1,6 +1,6 @@
 # Moxi current-state audit
 
-Audited September 6, 2026 against `main` at `b813e53`. This document is based
+Audited September 6, 2026 against `main` at `c9b0442`. This document is based
 on source, tests, build scripts, and local validation. README, changelog, and
 older roadmap claims were treated as hypotheses until the implementation
 confirmed them.
@@ -30,6 +30,7 @@ non-macOS targets.
 | repository audit and sequential commits | `main` is audited at `b813e53`; `project-planning` retains the modular-ecosystem research plus this progress ledger | the code and plan were reconciled against the latest local implementation rather than trusting older prose |
 | `pixi run test` | pass, 66 Mojo test programs | portable unit and integration contracts compile and execute together |
 | `pixi run check` | pass, including API inventory, seven software goldens, strict native compilation, generated API docs, Android APK, iOS simulator app, Web host, browser lifecycle, HarfBuzz, and live reload | the full repository validation path succeeds on the audited macOS host with its installed SDKs |
+| `MOXI_BENCHMARK_RUNS=1 pixi run release-check` | pass, including package publication/consumer, release-only native builds, and the complete 10-case benchmark matrix | the distributable package and release wrapper work on the audited host; benchmark output remains diagnostic rather than a reviewed baseline |
 | `MOXI_BENCHMARK_RUNS=1 pixi run benchmark-quick` / `benchmark-full` | pass for 3 / 10 cases with structured JSON reports | portable smoke and complete matrices are runnable on the audited host and emit deterministic counters/checksums plus per-run status/timing |
 | `pixi run visual-check` / `pixi run browser-check` | pass for 7 PPM images / the host lifecycle JSON contract | software pixels are compared exactly; the Web page and host publish readiness, Canvas, input, ARIA, and teardown evidence |
 | source/build inspection | 270 tracked files, 182 tracked Mojo files, 69 Mojo test files | the aggregate test runner intentionally covers 66 programs; `live_reload.mojo` and `package_consumer.mojo` are exercised by dedicated scripts |
@@ -39,7 +40,7 @@ non-macOS targets.
 The ordered implementation pass is recorded here so the plan does not imply
 that a partial vertical slice is a complete product claim.
 
-| Workstream | Status at `b813e53` | Evidence | Remaining boundary |
+| Workstream | Status at `c9b0442` | Evidence | Remaining boundary |
 | --- | --- | --- | --- |
 | Public API inventory | Implemented | `docs/api-status.md`, `scripts/api_status_check.sh`, 855 classified exports | focused import paths, compatibility policy, and stable/provisional package enforcement |
 | Canonical scenarios | Implemented as registry metadata | `src/moxi/scenarios.mojo`, demo catalog mapping, registry contract test, golden consumers | wire every scenario's fixture into its demo, behavior test, golden, and benchmark without duplicate definitions |
