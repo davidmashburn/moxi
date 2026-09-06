@@ -6,6 +6,7 @@ from .accessibility import AccessibilitySnapshot
 from .component import Component
 from .event import Event
 from .geometry import Rect
+from .paint import PaintCommands
 from .reactivity import StateScope
 from .runtime import ColumnRuntime
 from .view import ColumnView
@@ -263,7 +264,7 @@ struct TypedSubtreeExecutor[ComponentType: Component & Deinitable]:
         _ = self.invalidate()
         return self.rebuild_if_dirty()
 
-    def paint(mut self):
+    def paint(mut self) -> PaintCommands:
         """Return the current retained paint stream and account for it."""
         var commands = self.runtime.paint()
         self.execution.record_paint(commands.count())
