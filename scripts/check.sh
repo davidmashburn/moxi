@@ -7,6 +7,8 @@ cd "$repo_dir"
 git diff --check
 git diff --cached --check
 bash -n scripts/record_demo.sh
+bash -n scripts/api_status_check.sh
+bash scripts/api_status_check.sh
 bash scripts/demo_catalog_check.sh
 pixi run demo-walkthrough-build
 bash scripts/test.sh

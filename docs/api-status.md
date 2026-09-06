@@ -1,0 +1,854 @@
+# Moxi API status
+
+Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --write` after changing the public re-export list. The support lane is a compatibility statement, not a claim that every host implements every backend feature.
+
+- `stable-core`: compatibility-oriented value, component, layout, event, paint, and runtime contracts.
+- `provisional`: useful support APIs that may still change before a 1.0 stability promise.
+- `host-adapter`: platform, export, and native-host seams whose availability is backend-dependent.
+- `demo/support`: examples, recipes, scenarios, and validation helpers; not package compatibility promises.
+- `experimental`: optional integrations and capability/GPU/text slices still under active design.
+
+| Export | Module | Support lane | Ownership |
+| --- | --- | --- | --- |
+| `AccessibilitySnapshot` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_BUTTON` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_CHECKBOX` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_CONTAINER` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_LABEL` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_NONE` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_SPACER` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_TEXT_INPUT` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_PROGRESS_INDICATOR` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_SLIDER` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_SWITCH` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_RADIO` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_IMAGE` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_TEXT_AREA` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_COMBO_BOX` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_LIST` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_TABLE` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_TREE` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_MENU` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_DIALOG` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_TAB_GROUP` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_CANVAS` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ROLE_SEPARATOR` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `Semantics` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ACTION_NONE` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ACTION_PRESS` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ACTION_INCREMENT` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ACTION_DECREMENT` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ACTION_SELECT` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ACTION_EXPAND` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `ACTION_COLLAPSE` | `moxi.accessibility` | stable-core | portable semantics and actions |
+| `Point` | `moxi.geometry` | stable-core | portable geometry values |
+| `Rect` | `moxi.geometry` | stable-core | portable geometry values |
+| `Size` | `moxi.geometry` | stable-core | portable geometry values |
+| `Transform` | `moxi.geometry` | stable-core | portable geometry values |
+| `BACKEND_GPU` | `moxi.backend` | stable-core | backend capability profiles |
+| `BACKEND_HEADLESS` | `moxi.backend` | stable-core | backend capability profiles |
+| `BACKEND_LINUX` | `moxi.backend` | stable-core | backend capability profiles |
+| `BACKEND_MACOS_APPKIT` | `moxi.backend` | stable-core | backend capability profiles |
+| `BACKEND_WINDOWS` | `moxi.backend` | stable-core | backend capability profiles |
+| `BACKEND_IOS` | `moxi.backend` | stable-core | backend capability profiles |
+| `BACKEND_ANDROID` | `moxi.backend` | stable-core | backend capability profiles |
+| `BACKEND_WEB` | `moxi.backend` | stable-core | backend capability profiles |
+| `BackendCapabilities` | `moxi.backend` | stable-core | backend capability profiles |
+| `backend_capabilities` | `moxi.backend` | stable-core | backend capability profiles |
+| `CLICK_KIND` | `moxi.event` | stable-core | normalized input events |
+| `COMPOSITION_END_KIND` | `moxi.event` | stable-core | normalized input events |
+| `COMPOSITION_UPDATE_KIND` | `moxi.event` | stable-core | normalized input events |
+| `FRAME_TICK_KIND` | `moxi.event` | stable-core | normalized input events |
+| `KEY_BACKSPACE` | `moxi.event` | stable-core | normalized input events |
+| `KEY_A` | `moxi.event` | stable-core | normalized input events |
+| `KEY_C` | `moxi.event` | stable-core | normalized input events |
+| `KEY_DELETE` | `moxi.event` | stable-core | normalized input events |
+| `KEY_DOWN` | `moxi.event` | stable-core | normalized input events |
+| `KEY_END` | `moxi.event` | stable-core | normalized input events |
+| `KEY_ENTER` | `moxi.event` | stable-core | normalized input events |
+| `KEY_ESCAPE` | `moxi.event` | stable-core | normalized input events |
+| `KEY_HOME` | `moxi.event` | stable-core | normalized input events |
+| `KEY_LEFT` | `moxi.event` | stable-core | normalized input events |
+| `KEY_RIGHT` | `moxi.event` | stable-core | normalized input events |
+| `KEY_SPACE` | `moxi.event` | stable-core | normalized input events |
+| `KEY_TAB` | `moxi.event` | stable-core | normalized input events |
+| `KEY_V` | `moxi.event` | stable-core | normalized input events |
+| `KEY_X` | `moxi.event` | stable-core | normalized input events |
+| `KEY_UP` | `moxi.event` | stable-core | normalized input events |
+| `POINTER_MOVE_KIND` | `moxi.event` | stable-core | normalized input events |
+| `POINTER_UP_KIND` | `moxi.event` | stable-core | normalized input events |
+| `SCROLL_KIND` | `moxi.event` | stable-core | normalized input events |
+| `DRAG_BEGIN_KIND` | `moxi.event` | stable-core | normalized input events |
+| `DRAG_UPDATE_KIND` | `moxi.event` | stable-core | normalized input events |
+| `DROP_KIND` | `moxi.event` | stable-core | normalized input events |
+| `TASK_RESULT_KIND` | `moxi.event` | stable-core | normalized input events |
+| `TOUCH_BEGIN_KIND` | `moxi.event` | stable-core | normalized input events |
+| `TOUCH_UPDATE_KIND` | `moxi.event` | stable-core | normalized input events |
+| `TOUCH_END_KIND` | `moxi.event` | stable-core | normalized input events |
+| `POINTER_CANCEL_KIND` | `moxi.event` | stable-core | normalized input events |
+| `ACTION_KIND` | `moxi.event` | stable-core | normalized input events |
+| `KEY_DOWN_KIND` | `moxi.event` | stable-core | normalized input events |
+| `MOD_COMMAND` | `moxi.event` | stable-core | normalized input events |
+| `MOD_CONTROL` | `moxi.event` | stable-core | normalized input events |
+| `MOD_OPTION` | `moxi.event` | stable-core | normalized input events |
+| `MOD_SHIFT` | `moxi.event` | stable-core | normalized input events |
+| `NONE_KIND` | `moxi.event` | stable-core | normalized input events |
+| `NO_ACTION` | `moxi.event` | stable-core | normalized input events |
+| `POINTER_DOWN_KIND` | `moxi.event` | stable-core | normalized input events |
+| `TEXT_INPUT_KIND` | `moxi.event` | stable-core | normalized input events |
+| `WINDOW_RESIZED_KIND` | `moxi.event` | stable-core | normalized input events |
+| `ClickEvent` | `moxi.event` | stable-core | normalized input events |
+| `CompositionEvent` | `moxi.event` | stable-core | normalized input events |
+| `Event` | `moxi.event` | stable-core | normalized input events |
+| `FrameEvent` | `moxi.event` | stable-core | normalized input events |
+| `KeyEvent` | `moxi.event` | stable-core | normalized input events |
+| `PointerEvent` | `moxi.event` | stable-core | normalized input events |
+| `TouchEvent` | `moxi.event` | stable-core | normalized input events |
+| `ResizeEvent` | `moxi.event` | stable-core | normalized input events |
+| `ScrollEvent` | `moxi.event` | stable-core | normalized input events |
+| `TaskEvent` | `moxi.event` | stable-core | normalized input events |
+| `DragEvent` | `moxi.event` | stable-core | normalized input events |
+| `ActionEvent` | `moxi.event` | stable-core | normalized input events |
+| `SemanticActionEvent` | `moxi.event` | stable-core | normalized input events |
+| `TextInputEvent` | `moxi.event` | stable-core | normalized input events |
+| `Component` | `moxi.component` | stable-core | value-owned component contracts |
+| `ComponentSlot` | `moxi.component` | stable-core | value-owned component contracts |
+| `ClipboardBackend` | `moxi.clipboard` | stable-core | host-neutral clipboard or window contracts |
+| `MemoryClipboard` | `moxi.clipboard` | stable-core | host-neutral clipboard or window contracts |
+| `CALLER_AGENT` | `moxi.capability` | experimental | experimental or optional integration |
+| `CALLER_SYSTEM` | `moxi.capability` | experimental | experimental or optional integration |
+| `CALLER_UI` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_BUSY` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_DISABLED` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_EXECUTOR_REQUIRED` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_HANDLER_MISMATCH` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_HANDLER_NOT_REGISTERED` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_INVALID` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_NOT_FOUND` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_OK` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_QUEUE_FULL` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_REQUIRES_APPROVAL` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_SCHEMA_INVALID` | `moxi.capability` | experimental | experimental or optional integration |
+| `CAPABILITY_UNAVAILABLE` | `moxi.capability` | experimental | experimental or optional integration |
+| `CapabilityBus` | `moxi.capability` | experimental | experimental or optional integration |
+| `CapabilityApproval` | `moxi.capability` | experimental | experimental or optional integration |
+| `CapabilityDescriptor` | `moxi.capability` | experimental | experimental or optional integration |
+| `CapabilityHandler` | `moxi.capability` | experimental | experimental or optional integration |
+| `CapabilityInvocation` | `moxi.capability` | experimental | experimental or optional integration |
+| `CapabilityResult` | `moxi.capability` | experimental | experimental or optional integration |
+| `SIDE_EFFECT_DESTRUCTIVE` | `moxi.capability` | experimental | experimental or optional integration |
+| `SIDE_EFFECT_LOCAL` | `moxi.capability` | experimental | experimental or optional integration |
+| `SIDE_EFFECT_NETWORK` | `moxi.capability` | experimental | experimental or optional integration |
+| `SIDE_EFFECT_NONE` | `moxi.capability` | experimental | experimental or optional integration |
+| `ChatMessage` | `moxi.conversation` | experimental | experimental or optional integration |
+| `ConversationContext` | `moxi.conversation` | experimental | experimental or optional integration |
+| `CAPABILITY_WALKTHROUGH_STEP_COUNT` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_TITLE_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_STEP_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_BODY_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_PROGRESS_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_PREVIOUS_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_NEXT_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_RESTART_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_AGENT_RESET_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_APPROVE_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_STATUS_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_BUS_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CAPABILITY_WALKTHROUGH_HINT_ID` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CapabilityWalkthroughHandler` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `CapabilityWalkthroughState` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `capability_walkthrough_step_count` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |
+| `ButtonControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `CheckboxControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `ImageControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `LabelControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `MultilineTextControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `ComboBoxControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `ListControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `TableControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `TreeControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `MenuControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `DialogControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `TabsControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `CanvasControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `SeparatorControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `ProgressControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `RadioControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `SliderControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `SwitchControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `TextInputControl` | `moxi.controls` | provisional | stateful UI support primitives |
+| `TextInputState` | `moxi.controls` | provisional | stateful UI support primitives |
+| `SliderState` | `moxi.controls` | provisional | stateful UI support primitives |
+| `ToggleState` | `moxi.controls` | provisional | stateful UI support primitives |
+| `RadioGroupState` | `moxi.controls` | provisional | stateful UI support primitives |
+| `MultilineTextState` | `moxi.controls` | provisional | stateful UI support primitives |
+| `CanvasState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `ComboBoxState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `DialogState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `ListState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `MenuState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `SelectionState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `TableState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `TabsState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `TreeState` | `moxi.control_state` | provisional | stateful UI support primitives |
+| `COLLECTION_NONE` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `COLLECTION_SINGLE` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `COLLECTION_MULTIPLE` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `COLUMN_SORT_NONE` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `COLUMN_SORT_ASCENDING` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `COLUMN_SORT_DESCENDING` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `CollectionColumn` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `CollectionSelection` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `ReorderResult` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `TreeCollectionState` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `TreeNodeRecord` | `moxi.collection_state` | provisional | stateful UI support primitives |
+| `SCROLLBAR_VERTICAL` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_HORIZONTAL` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_HIT_NONE` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_HIT_THUMB` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_HIT_TRACK` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_NO_COMMAND` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_STEP_BACKWARD` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_STEP_FORWARD` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_PAGE_BACKWARD` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_PAGE_FORWARD` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_HOME` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `SCROLLBAR_END` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `ScrollbarGeometry` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `ScrollbarState` | `moxi.scrollbar` | provisional | stateful UI support primitives |
+| `POPUP_NONE` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_COMBO` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_MENU` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_CONTEXT_MENU` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_DIALOG` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_PLACE_BELOW` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_PLACE_ABOVE` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_PLACE_RIGHT` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_PLACE_LEFT` | `moxi.popup` | provisional | stateful UI support primitives |
+| `POPUP_NO_ACTION` | `moxi.popup` | provisional | stateful UI support primitives |
+| `PopupEntry` | `moxi.popup` | provisional | stateful UI support primitives |
+| `PopupLayerState` | `moxi.popup` | provisional | stateful UI support primitives |
+| `place_popup` | `moxi.popup` | provisional | stateful UI support primitives |
+| `REORDER_IDLE` | `moxi.reorder` | provisional | stateful UI support primitives |
+| `REORDER_ARMED` | `moxi.reorder` | provisional | stateful UI support primitives |
+| `REORDER_DRAGGING` | `moxi.reorder` | provisional | stateful UI support primitives |
+| `REORDER_CANCELLED` | `moxi.reorder` | provisional | stateful UI support primitives |
+| `REORDER_DROPPED` | `moxi.reorder` | provisional | stateful UI support primitives |
+| `REORDER_NO_INDEX` | `moxi.reorder` | provisional | stateful UI support primitives |
+| `ReorderInteraction` | `moxi.reorder` | provisional | stateful UI support primitives |
+| `INTERACTION_SHOWCASE_CANVAS_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_SELECT_NEXT_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_MOVE_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_SCROLL_BACK_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_SCROLL_FORWARD_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_TREE_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_MENU_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_DIALOG_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_SORT_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `INTERACTION_SHOWCASE_RESET_ID` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `InteractionShowcaseState` | `moxi.interaction_showcase` | demo/support | examples, recipes, or validation support |
+| `COUNTER_INCREMENT_ACTION` | `moxi.app` | demo/support | examples, recipes, or validation support |
+| `CounterState` | `moxi.app` | demo/support | examples, recipes, or validation support |
+| `AlignmentState` | `moxi.alignment` | demo/support | examples, recipes, or validation support |
+| `App` | `moxi.app_runtime` | stable-core | retained reconciliation and lifecycle |
+| `FormState` | `moxi.form` | demo/support | examples, recipes, or validation support |
+| `ThemeShowcaseState` | `moxi.theme_showcase` | demo/support | examples, recipes, or validation support |
+| `COMPOSED_COUNTER_ID_OFFSET` | `moxi.composed` | demo/support | examples, recipes, or validation support |
+| `COMPOSED_COUNTER_SLOT_ID` | `moxi.composed` | demo/support | examples, recipes, or validation support |
+| `COMPOSED_TITLE_ID` | `moxi.composed` | demo/support | examples, recipes, or validation support |
+| `ComposedState` | `moxi.composed` | demo/support | examples, recipes, or validation support |
+| `NestedState` | `moxi.nested` | demo/support | examples, recipes, or validation support |
+| `NEXT_BUTTON_ID` | `moxi.row` | demo/support | examples, recipes, or validation support |
+| `PREVIOUS_BUTTON_ID` | `moxi.row` | demo/support | examples, recipes, or validation support |
+| `RowState` | `moxi.row` | demo/support | examples, recipes, or validation support |
+| `WX_ACTIONS_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_AGENT_RESET_BUTTON_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_AGENT_RESET_ACTION` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_APPROVE_RESET_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_APPROVE_RESET_ACTION` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_APPROVAL_STATUS_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_ADVANCED_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_SLIDER_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_SWITCH_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_RADIO_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_IMAGE_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_MULTILINE_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_COMBO_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_LIST_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_TABLE_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_TREE_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_MENU_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_DIALOG_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_TABS_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_CANVAS_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_SEPARATOR_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_BACKEND_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_BODY_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_CANCEL_BUTTON_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_CAPABILITIES_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_CAPABILITY_STATUS_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_COMPONENT_SLOT_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_COUNTER_ID_OFFSET` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_CONTEXT_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_HEADER_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_HELP_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_LAYOUT_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_NAME_FIELD_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_NAME_LABEL_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_OK_BUTTON_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_PANEL_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_PROGRESS_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_RICH_TEXT_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_REMEMBER_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_RESET_BUTTON_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_SPACER_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_STATUS_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_SUBTITLE_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_SUBMIT_ACTION` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_CANCEL_ACTION` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_REMEMBER_ACTION` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_RESET_ACTION` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WX_TITLE_ID` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WxStyleState` | `moxi.wxstyle` | demo/support | examples, recipes, or validation support |
+| `WRAPPED_BODY_ID` | `moxi.wrapped` | demo/support | examples, recipes, or validation support |
+| `WRAPPED_TITLE_ID` | `moxi.wrapped` | demo/support | examples, recipes, or validation support |
+| `WrappedTextState` | `moxi.wrapped` | demo/support | examples, recipes, or validation support |
+| `ALIGN_CENTER` | `moxi.layout` | stable-core | layout and virtualization math |
+| `ALIGN_END` | `moxi.layout` | stable-core | layout and virtualization math |
+| `ALIGN_START` | `moxi.layout` | stable-core | layout and virtualization math |
+| `ALIGN_STRETCH` | `moxi.layout` | stable-core | layout and virtualization math |
+| `COLUMN_AXIS` | `moxi.layout` | stable-core | layout and virtualization math |
+| `JUSTIFY_CENTER` | `moxi.layout` | stable-core | layout and virtualization math |
+| `JUSTIFY_END` | `moxi.layout` | stable-core | layout and virtualization math |
+| `JUSTIFY_SPACE_BETWEEN` | `moxi.layout` | stable-core | layout and virtualization math |
+| `JUSTIFY_START` | `moxi.layout` | stable-core | layout and virtualization math |
+| `ROW_AXIS` | `moxi.layout` | stable-core | layout and virtualization math |
+| `ColumnLayout` | `moxi.layout` | stable-core | layout and virtualization math |
+| `RowLayout` | `moxi.layout` | stable-core | layout and virtualization math |
+| `LAYOUT_GRID` | `moxi.layout` | stable-core | layout and virtualization math |
+| `LAYOUT_LINEAR` | `moxi.layout` | stable-core | layout and virtualization math |
+| `LAYOUT_PORTAL` | `moxi.layout` | stable-core | layout and virtualization math |
+| `LAYOUT_SPLIT` | `moxi.layout` | stable-core | layout and virtualization math |
+| `LAYOUT_STACK` | `moxi.layout` | stable-core | layout and virtualization math |
+| `GridCell` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `ScrollState` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `VirtualRange` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `VirtualListState` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `VirtualRecycleItem` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `VirtualRecycler` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `clamp_fraction` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `grid_cell` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `split_extent` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `variable_visible_range` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `visible_range` | `moxi.layout_primitives` | stable-core | layout and virtualization math |
+| `TextMeasurement` | `moxi.measure` | stable-core | portable styling, measurement, or text boundaries |
+| `measure_text` | `moxi.measure` | stable-core | portable styling, measurement, or text boundaries |
+| `measure_text_wrapped` | `moxi.measure` | stable-core | portable styling, measurement, or text boundaries |
+| `TEXT_DIRECTION_LTR` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `TEXT_DIRECTION_RTL` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `TEXT_DIRECTION_AUTO` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `TEXT_LAYOUT_ESTIMATE` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `TEXT_LAYOUT_NATIVE` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `TEXT_LAYOUT_PORTABLE` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `RichText` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `TextLayoutRequest` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `TextLayoutResult` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `TextSpan` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `layout_rich_text` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `layout_text` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
+| `SHAPER_NATIVE` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `SHAPER_PORTABLE_ESTIMATE` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `SCRIPT_ARABIC_HEBREW` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `SCRIPT_CJK` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `SCRIPT_COMMON` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `SCRIPT_CYRILLIC` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `SCRIPT_DEVANAGARI` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `SCRIPT_EMOJI` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `SCRIPT_LATIN` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `PortableTextShaper` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `ShapedGlyph` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `ShapedRun` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `ShapedText` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `TextShaper` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `fallback_font_id` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `script_id` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `shape_text` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `clamp_text_boundary` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `codepoint_at` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `is_combining_mark` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `is_emoji_modifier` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `is_extend` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `is_regional_indicator` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `is_variation_selector` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `next_text_boundary` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `previous_text_boundary` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
+| `ActionMessage` | `moxi.reactivity` | provisional | stateful UI support primitives |
+| `ActionQueue` | `moxi.reactivity` | provisional | stateful UI support primitives |
+| `MemoKey` | `moxi.reactivity` | provisional | stateful UI support primitives |
+| `StateScope` | `moxi.reactivity` | provisional | stateful UI support primitives |
+| `StateVersion` | `moxi.reactivity` | provisional | stateful UI support primitives |
+| `StringLens` | `moxi.reactivity` | provisional | stateful UI support primitives |
+| `StringMemo` | `moxi.reactivity` | provisional | stateful UI support primitives |
+| `TASK_CANCELLED` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `TASK_COMPLETED` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `TASK_FAILED` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `TASK_PENDING` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `TaskHandle` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `TaskRecord` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `TaskResult` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `TaskScheduler` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `RESOURCE_DATA` | `moxi.resources` | provisional | stateful UI support primitives |
+| `RESOURCE_FONT` | `moxi.resources` | provisional | stateful UI support primitives |
+| `RESOURCE_IMAGE` | `moxi.resources` | provisional | stateful UI support primitives |
+| `RESOURCE_NONE` | `moxi.resources` | provisional | stateful UI support primitives |
+| `ImageResource` | `moxi.resources` | provisional | stateful UI support primitives |
+| `FontResource` | `moxi.resources` | provisional | stateful UI support primitives |
+| `ResourceHandle` | `moxi.resources` | provisional | stateful UI support primitives |
+| `ResourceResolver` | `moxi.resources` | provisional | stateful UI support primitives |
+| `ResourceStore` | `moxi.resources` | provisional | stateful UI support primitives |
+| `SCENE_CLIP` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_IMAGE` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_LINE` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_POP_CLIP` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_POP_LAYER` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_PUSH_LAYER` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_RECT` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_ROUNDED_RECT` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_TEXT` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_PATH` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_LINEAR_GRADIENT` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_TRANSFORM` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SCENE_RESET_TRANSFORM` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `Scene` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SceneCommand` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SceneRenderer` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `SceneRecorder` | `moxi.scene` | stable-core | portable paint/scene rendering |
+| `FRACTAL_CANVAS_HEIGHT` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_CANVAS_ID` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_CANVAS_WIDTH` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_SCROLL_ID` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_DEPTH_UP_ID` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_GUIDES_ID` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_GROUP_CLASSIC` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_GROUP_EXPERIMENT` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_MAX_DEPTH` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_MAX_RENDERED_SEGMENTS` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_PRESET_BUTTON_BASE` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FRACTAL_PRESET_COUNT` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FractalCanvasPainter` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FractalGeometry` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FractalSegment` | `moxi.fractal` | experimental | experimental or optional integration |
+| `FractalState` | `moxi.fractal` | experimental | experimental or optional integration |
+| `fractal_preset_group` | `moxi.fractal` | experimental | experimental or optional integration |
+| `fractal_preset_geometry` | `moxi.fractal` | experimental | experimental or optional integration |
+| `fractal_preset_name` | `moxi.fractal` | experimental | experimental or optional integration |
+| `SoftwareSceneRenderer` | `moxi.software` | stable-core | portable paint/scene rendering |
+| `INVALIDATE_ACCESSIBILITY` | `moxi.invalidation` | provisional | stateful UI support primitives |
+| `INVALIDATE_ALL` | `moxi.invalidation` | provisional | stateful UI support primitives |
+| `INVALIDATE_CONTENT` | `moxi.invalidation` | provisional | stateful UI support primitives |
+| `INVALIDATE_LAYOUT` | `moxi.invalidation` | provisional | stateful UI support primitives |
+| `INVALIDATE_NONE` | `moxi.invalidation` | provisional | stateful UI support primitives |
+| `INVALIDATE_STRUCTURE` | `moxi.invalidation` | provisional | stateful UI support primitives |
+| `Invalidation` | `moxi.invalidation` | provisional | stateful UI support primitives |
+| `EASE_IN` | `moxi.animation` | provisional | stateful UI support primitives |
+| `EASE_IN_OUT` | `moxi.animation` | provisional | stateful UI support primitives |
+| `EASE_LINEAR` | `moxi.animation` | provisional | stateful UI support primitives |
+| `EASE_OUT` | `moxi.animation` | provisional | stateful UI support primitives |
+| `Animation` | `moxi.animation` | provisional | stateful UI support primitives |
+| `eased_progress` | `moxi.animation` | provisional | stateful UI support primitives |
+| `PANEL_KIND` | `moxi.paint` | stable-core | portable paint/scene rendering |
+| `SURFACE_KIND` | `moxi.paint` | stable-core | portable paint/scene rendering |
+| `PaintCommand` | `moxi.paint` | stable-core | portable paint/scene rendering |
+| `PaintCommands` | `moxi.paint` | stable-core | portable paint/scene rendering |
+| `Renderer` | `moxi.paint` | stable-core | portable paint/scene rendering |
+| `scene_from_paint` | `moxi.paint` | stable-core | portable paint/scene rendering |
+| `ColumnRuntime` | `moxi.runtime` | stable-core | retained reconciliation and lifecycle |
+| `CounterRuntime` | `moxi.runtime` | stable-core | retained reconciliation and lifecycle |
+| `Runtime` | `moxi.runtime` | stable-core | retained reconciliation and lifecycle |
+| `Widget` | `moxi.runtime` | stable-core | retained reconciliation and lifecycle |
+| `Color` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `Panel` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `Style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `Theme` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_button_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_checkbox_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_label_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_panel_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_progress_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_surface_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_text_input_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_image_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_multiline_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_radio_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_slider_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `default_switch_style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
+| `ColorTokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `RadiusTokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `SpacingTokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `ThemeTokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `TypographyTokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `dark_tokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `light_tokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `zinc_tokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `emerald_tokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `theme_from_tokens` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `dark_theme` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `light_theme` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `zinc_theme` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `emerald_theme` | `moxi.tokens` | demo/support | examples, recipes, or validation support |
+| `primary_button` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
+| `secondary_button` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
+| `destructive_button` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
+| `outline_button` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
+| `ghost_button` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
+| `badge` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
+| `card_panel` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
+| `BUTTON_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `CHECKBOX_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `LABEL_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `SLIDER_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `SWITCH_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `RADIO_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `IMAGE_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `MULTILINE_TEXT_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `COMBO_BOX_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `LIST_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `TABLE_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `TREE_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `MENU_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `DIALOG_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `TABS_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `CANVAS_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `SEPARATOR_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `SCROLLBAR_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `ROOT_SCROLL_ID` | `moxi.view` | stable-core | experimental or optional integration |
+| `PROGRESS_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `SPACER_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `Button` | `moxi.view` | stable-core | experimental or optional integration |
+| `ColumnView` | `moxi.view` | stable-core | experimental or optional integration |
+| `CONTAINER_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `CounterView` | `moxi.view` | stable-core | experimental or optional integration |
+| `Label` | `moxi.view` | stable-core | experimental or optional integration |
+| `TEXT_INPUT_VIEW_KIND` | `moxi.view` | stable-core | experimental or optional integration |
+| `ViewNode` | `moxi.view` | stable-core | experimental or optional integration |
+| `make_row` | `moxi.view` | stable-core | experimental or optional integration |
+| `TestRenderer` | `moxi.testing` | demo/support | examples, recipes, or validation support |
+| `TestWindow` | `moxi.testing` | demo/support | examples, recipes, or validation support |
+| `test_check` | `moxi.testing` | demo/support | examples, recipes, or validation support |
+| `WindowBackend` | `moxi.window` | stable-core | host-neutral clipboard or window contracts |
+| `WindowConfig` | `moxi.window` | stable-core | host-neutral clipboard or window contracts |
+| `WindowId` | `moxi.windowing` | provisional | stateful UI support primitives |
+| `WindowManager` | `moxi.windowing` | provisional | stateful UI support primitives |
+| `WindowState` | `moxi.windowing` | provisional | stateful UI support primitives |
+| `PlatformSurface` | `moxi.platform` | host-adapter | platform and native-host adapters |
+| `PlatformTarget` | `moxi.platform` | host-adapter | platform and native-host adapters |
+| `SurfaceConfig` | `moxi.platform` | host-adapter | platform and native-host adapters |
+| `ContractBackend` | `moxi.platform_adapters` | host-adapter | platform and native-host adapters |
+| `PlatformAdapter` | `moxi.platform_adapters` | host-adapter | platform and native-host adapters |
+| `android_backend` | `moxi.platform_adapters` | host-adapter | platform and native-host adapters |
+| `headless_backend` | `moxi.platform_adapters` | host-adapter | platform and native-host adapters |
+| `ios_backend` | `moxi.platform_adapters` | host-adapter | platform and native-host adapters |
+| `web_backend` | `moxi.platform_adapters` | host-adapter | platform and native-host adapters |
+| `HOST_NATIVE` | `moxi.host_contract` | host-adapter | platform and native-host adapters |
+| `HOST_PORTABLE_BRIDGE` | `moxi.host_contract` | host-adapter | platform and native-host adapters |
+| `HostContract` | `moxi.host_contract` | host-adapter | platform and native-host adapters |
+| `host_contract` | `moxi.host_contract` | host-adapter | platform and native-host adapters |
+| `NativeWidgetDescriptor` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NativeWidgetRegistry` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_LABEL` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_BUTTON` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_TEXT_INPUT` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_CHECKBOX` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_SLIDER` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_SWITCH` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_RADIO` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_IMAGE` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_TEXT_AREA` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_COMBO_BOX` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_LIST` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_TABLE` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_TREE` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_MENU` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_DIALOG` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_TABS` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_SEPARATOR` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_CANVAS` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `NATIVE_WIDGET_CUSTOM` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `native_widget_kind` | `moxi.native_widgets` | host-adapter | platform and native-host adapters |
+| `AndroidBackend` | `moxi.targets` | host-adapter | platform and native-host adapters |
+| `IOSBackend` | `moxi.targets` | host-adapter | platform and native-host adapters |
+| `WebBackend` | `moxi.targets` | host-adapter | platform and native-host adapters |
+| `InteractionScenario` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `make_interaction_foundation_scenario` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `make_plot_data_fixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `make_plot_scenario` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `FRAME_BUDGET_60_HZ_MS` | `moxi.performance` | provisional | stateful UI support primitives |
+| `FRAME_BUDGET_120_HZ_MS` | `moxi.performance` | provisional | stateful UI support primitives |
+| `PerformanceCounters` | `moxi.performance` | provisional | stateful UI support primitives |
+| `PerformanceReport` | `moxi.performance` | provisional | stateful UI support primitives |
+| `DependencyEdge` | `moxi.execution` | provisional | stateful UI support primitives |
+| `LocalizedExecution` | `moxi.execution` | provisional | stateful UI support primitives |
+| `PLOT_AREA` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_BAR` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_BAND` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_BUBBLE` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_COLUMN` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_DOT` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_ERROR_BAR` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_LINE` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_RECT` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_RULE` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_SCATTER` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_STEP` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_TICK` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_TEXT` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_INTERVAL` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_HISTOGRAM` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_DENSITY` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_ECDF` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_BOX` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_HEATMAP` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_HEXBIN` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_REGRESSION` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_BAND` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_CATEGORICAL` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_DIVERGING` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_LINEAR` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_LOG` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_ORDINAL` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_POINT` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_POWER` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_SQRT` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_QUANTILE` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_QUANTIZE` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_SEQUENTIAL` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_SYMLOG` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_TEMPORAL` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `SCALE_THRESHOLD` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `Plot` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PlotHit` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PlotPoint` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PlotScale` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `PlotSeries` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
+| `COLUMN_BOOL` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `COLUMN_DURATION` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `COLUMN_CATEGORY` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `COLUMN_FLOAT64` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `COLUMN_FLOAT32` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `COLUMN_INT64` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `COLUMN_STRING` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `COLUMN_TIMESTAMP` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `PlotColumn` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `PlotDataSnapshot` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `PlotDataTable` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `PlotDataView` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `column_kind_name` | `moxi.plot_data` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_ANGLE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_COLOR` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_COLUMN` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_DETAIL` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_FACET` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_FILL` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_HREF` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_KEY` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_OPACITY` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_ORDER` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_RADIUS` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_ROW` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_SHAPE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_SIZE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_STROKE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_TEXT` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_TOOLTIP` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_X` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_X2` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_Y` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `CHANNEL_Y2` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `COMPOSITION_FACET` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `COMPOSITION_HORIZONTAL` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `COMPOSITION_LAYER` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `COMPOSITION_VERTICAL` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `INTERACTION_BRUSH` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `INTERACTION_CLICK_SELECT` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `INTERACTION_HOVER` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `INTERACTION_KEYBOARD` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `INTERACTION_LASSO` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `INTERACTION_PAN_ZOOM` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_SPEC_VERSION` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_FILTER_BETWEEN` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_FILTER_GREATER` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_BIN` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_CALCULATE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_AGGREGATE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_GROUP` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_IMPUTE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_LIMIT` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_ROLLING_MEAN` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_SAMPLE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_SORT` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_STACK` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_HISTOGRAM` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_DENSITY` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_ECDF` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_BOX` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_HEATMAP` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_HEXBIN` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TRANSFORM_REGRESSION` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TYPE_BOOL` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TYPE_NOMINAL` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TYPE_ORDINAL` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TYPE_QUANTITATIVE` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `TYPE_TEMPORAL` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PlotAnnotation` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PlotEncoding` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PlotLayer` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PlotInteraction` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PlotScaleSpec` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PlotSpec` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PlotTransform` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `channel_name` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `composition_name` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `data_type_name` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `interaction_name` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `plot_from_spec` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `plot_mark_name` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `plot_spec_from_json` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `scale_kind_name` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `transform_name` | `moxi.plot_spec` | provisional | typed plotting data, specification, or runtime |
+| `PlotRuntime` | `moxi.plot_runtime` | provisional | typed plotting data, specification, or runtime |
+| `PlotControl` | `moxi.plot_view` | provisional | typed plotting data, specification, or runtime |
+| `PlotView` | `moxi.plot_view` | provisional | typed plotting data, specification, or runtime |
+| `PlotSelection` | `moxi.plot_selection` | provisional | typed plotting data, specification, or runtime |
+| `selection_from_keys` | `moxi.plot_selection` | provisional | typed plotting data, specification, or runtime |
+| `PlotLink` | `moxi.plot_link` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_RENDER_LINES` | `moxi.plot_render` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_RENDER_INSTANCES` | `moxi.plot_render` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_RENDER_LINE_STRIDE` | `moxi.plot_render` | provisional | typed plotting data, specification, or runtime |
+| `PLOT_RENDER_INSTANCE_STRIDE` | `moxi.plot_render` | provisional | typed plotting data, specification, or runtime |
+| `PlotRenderBatch` | `moxi.plot_render` | provisional | typed plotting data, specification, or runtime |
+| `PlotRenderLine` | `moxi.plot_render` | provisional | typed plotting data, specification, or runtime |
+| `PlotRenderInstance` | `moxi.plot_render` | provisional | typed plotting data, specification, or runtime |
+| `PlotRenderPacket` | `moxi.plot_render` | provisional | typed plotting data, specification, or runtime |
+| `VirtualItemBuilder` | `moxi.virtual_view` | provisional | stateful UI support primitives |
+| `VirtualizedList` | `moxi.virtual_view` | provisional | stateful UI support primitives |
+| `SvgSceneRenderer` | `moxi.svg` | host-adapter | platform and native-host adapters |
+| `MacOSTextShaper` | `moxi.coretext` | experimental | experimental or optional integration |
+| `HarfBuzzTextShaper` | `moxi.harfbuzz` | experimental | experimental or optional integration |
+| `MacOSMetalCanvasPainter` | `moxi.metal` | experimental | experimental or optional integration |
+| `MacOSMetalRenderer` | `moxi.metal` | experimental | experimental or optional integration |
+| `MacOSMetalWindow` | `moxi.metal` | experimental | experimental or optional integration |
+| `LIVE_SCRIPT_CANVAS_ID` | `moxi.live_script` | demo/support | examples, recipes, or validation support |
+| `LIVE_SCRIPT_DETAIL_ID` | `moxi.live_script` | demo/support | examples, recipes, or validation support |
+| `LIVE_SCRIPT_STATUS_ID` | `moxi.live_script` | demo/support | examples, recipes, or validation support |
+| `LIVE_SCRIPT_TITLE_ID` | `moxi.live_script` | demo/support | examples, recipes, or validation support |
+| `LiveScriptState` | `moxi.live_script` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_ANIMATION` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_CORETEXT` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_HARFBUZZ` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_HELLO_COMPONENT` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_HELLO_WINDOW` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_METAL_SCENE` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_METAL_WINDOW` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT_GALLERY` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT_SVG` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_CANVAS_ID` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_RESET_ID` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT_TOOLBAR_ID` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT_RESET_VIEW_ID` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT_CLEAR_SELECTION_ID` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT_TOGGLE_MARKS_ID` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT_STREAM_ID` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `SHOWCASE_PLOT_STATUS_ID` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `ShowcaseState` | `moxi.showcase` | demo/support | examples, recipes, or validation support |
+| `DEMO_CATEGORY_ALL` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CATEGORY_START` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CATEGORY_COMPONENTS` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CATEGORY_LAYOUT` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CATEGORY_PLOTTING` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CATEGORY_RENDERING` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CATEGORY_TEXT` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_STATIC` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_COUNTER` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_FORM` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_NESTED` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_COMPOSED` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_WX_STYLE` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_INTERACTION` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_ROW` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_ALIGNMENT` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_WRAPPED` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_SHOWCASE` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_FRACTAL` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_LIVE_SCRIPT` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_THEME_SHOWCASE` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_CAPABILITY_WALKTHROUGH` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_HELLO_WINDOW_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_HELLO_COMPONENT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_COUNTER_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_FORM_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_NESTED_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_COMPOSED_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_WX_STYLE_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_INTERACTION_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_ROW_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_ALIGNMENT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_WRAPPED_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_ANIMATION_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PLOT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PLOT_GALLERY_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PLOT_SVG_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_FRACTAL_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_METAL_SCENE_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_METAL_WINDOW_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CORETEXT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_HARFBUZZ_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_LIVE_SCRIPT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_THEME_SHOWCASE_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CAPABILITY_WALKTHROUGH_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_TAB_OVERVIEW` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_TAB_SOURCE` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_TAB_DEMO` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_SEARCH_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CLEAR_SEARCH_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_ENTRY_VIEW_BASE` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CATEGORY_BUTTON_BASE` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_COUNTER_ID_OFFSET` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_WX_STYLE_ID_OFFSET` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_INTERACTION_SLOT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_INTERACTION_ID_OFFSET` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_SHOWCASE_SLOT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_FRACTAL_SLOT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_SHOWCASE_ID_OFFSET` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_FRACTAL_ID_OFFSET` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_LIVE_SCRIPT_SLOT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_LIVE_SCRIPT_ID_OFFSET` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_THEME_SHOWCASE_SLOT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_THEME_SHOWCASE_ID_OFFSET` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CAPABILITY_WALKTHROUGH_SLOT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_HEADER_KICKER_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_PAGE_QUICKSTART_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_TAB_OVERVIEW_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_TAB_SOURCE_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_TAB_DEMO_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_RUN_BUTTON_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_RESET_BUTTON_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_NAV_PORTAL_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_NAV_TREE_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_CONTENT_PORTAL_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_SOURCE_TEXT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_EMPTY_CLEAR_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_STORY_SPLIT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_STORY_CODE_TEXT_ID` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DemoEntry` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DemoCatalog` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DemoBrowserState` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `demo_category_name` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `demo_category_short_name` | `moxi.demo_browser` | demo/support | examples, recipes, or validation support |
+| `DEMO_WALKTHROUGH_EVENT` | `moxi.demo_walkthrough` | demo/support | examples, recipes, or validation support |
+| `DEMO_WALKTHROUGH_APPROVAL` | `moxi.demo_walkthrough` | demo/support | examples, recipes, or validation support |
+| `DemoWalkthroughAction` | `moxi.demo_walkthrough` | demo/support | examples, recipes, or validation support |
+| `DemoWalkthroughHandler` | `moxi.demo_walkthrough` | demo/support | examples, recipes, or validation support |
+| `DemoWalkthroughDriver` | `moxi.demo_walkthrough` | demo/support | examples, recipes, or validation support |
+| `moxi_version` | `moxi.__init__` | stable-core | package version boundary |
