@@ -598,7 +598,9 @@ Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --wri
 | `PerformanceCounters` | `moxi.performance` | provisional | stateful UI support primitives |
 | `PerformanceReport` | `moxi.performance` | provisional | stateful UI support primitives |
 | `DependencyEdge` | `moxi.execution` | provisional | stateful UI support primitives |
+| `ExecutionWorkCounters` | `moxi.execution` | provisional | stateful UI support primitives |
 | `LocalizedExecution` | `moxi.execution` | provisional | stateful UI support primitives |
+| `TypedSubtreeExecutor` | `moxi.execution` | provisional | stateful UI support primitives |
 | `PLOT_AREA` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
 | `PLOT_BAR` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |
 | `PLOT_BAND` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |

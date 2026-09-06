@@ -627,7 +627,12 @@ from .performance import (
     PerformanceCounters,
     PerformanceReport,
 )
-from .execution import DependencyEdge, LocalizedExecution
+from .execution import (
+    DependencyEdge,
+    ExecutionWorkCounters,
+    LocalizedExecution,
+    TypedSubtreeExecutor,
+)
 from .plotting import (
     PLOT_AREA,
     PLOT_BAR,
