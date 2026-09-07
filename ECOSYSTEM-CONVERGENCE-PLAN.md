@@ -65,10 +65,14 @@ the compiler exactly to Moxi's nightly, and Moxi pins the full Git SHA. Core
 canvas tests, package precompilation, and a real `from canvas import ...`
 consumer probe pass in Moxi's installed environment. The first bounded
 Moxi-owned `CanvasSceneRenderer` slice, focused tests, canonical plot export,
-and package-consumer wiring then landed on `main` at `88af901`. No Python
-extension was claimed: the value-boundary architecture is documented, but its
-clean-wheel import probe remains open. E2 is now in progress rather than
-unstarted; E1/E4 remain gated on portable packaging and Python ABI decisions.
+and package-consumer wiring then landed on `main` at `88af901`. The E2
+follow-on closes the local renderer/package acceptance work: stable adapter
+status codes, shared parity fixtures, reviewed checksums, release measurements,
+and a workspace publish set containing both `canvas_mojo` and `moxi`, landed
+at `2eeb802`. No
+Python extension was claimed: the value-boundary architecture is documented,
+but its clean-wheel import probe remains open. E1/E4 remain gated on portable
+packaging and Python ABI decisions.
 
 Existing Gate 2 and Gate 3 commitments in `PROJECT-PLANNING.md` also remain in
 force. This plan expands the supported-2D-plotting direction in Gate 4; it does
@@ -261,11 +265,12 @@ finish before distributable Python artifacts.
 
 ### Gate E2: canvas renderer vertical slice
 
-**Status:** in progress. The exact-SHA compatibility fork removes the
-compiler/package blocker for Moxi's current macOS nightly, and the first
-bounded adapter slice landed on `main` at `88af901`. This status is limited to
-the pinned nightly/compiler pair; it is not a stable upstream compatibility
-claim.
+**Status:** complete for the local nightly/package gate. The exact-SHA
+compatibility fork removes the compiler/package blocker for Moxi's current
+macOS nightly, and the first bounded adapter slice landed on `main` at
+`88af901`. The follow-on is implemented and validated at `2eeb802`. This
+status is limited to the pinned nightly/compiler pair; it is not
+a stable upstream compatibility claim or a public-channel upload.
 
 **Purpose:** prove that Moxi Scene can drive canvas without weakening either
 contract.
@@ -281,19 +286,22 @@ contract.
 - add `tests/canvas_renderer.mojo` and `tests/canvas_scene_parity.mojo`;
 - add `examples/canvas_scene.mojo` using the canonical plot scene; and
 - wire the exact Canvas source dependency into package build/host lanes and
-  the installed package-consumer smoke.
+  the installed package-consumer smoke;
+- expose stable `CANVAS_RENDER_*` input-error codes plus count/code/message
+  accessors for unbalanced scopes and invalid geometry;
+- make one descriptor table build primitive, dark/light theme, and plot
+  overlap scenes for software, Canvas, and SVG parity;
+- check reviewed software/Canvas checksums in
+  `tests/canvas_scene_checksums.tsv` and report compile/render, RSS, PNG, and
+  fallback measurements through `pixi run canvas-benchmark`; and
+- add `packages/canvas_mojo/pixi.toml` to the workspace publish set so Moxi's
+  package declares `canvas_mojo` as a normal run dependency.
 
-**Remaining before E2 closes:**
+**External release action remaining after E2:**
 
-- map backend failures into a stable Moxi renderer error contract;
-- add shared scenario descriptors that drive software, canvas, and SVG rather
-  than reconstructing equivalent scenes in separate tests;
-- add theme-state and plot-overlap parity cases;
-- record reviewed canvas checksums and release-grade compile, memory, file-size,
-  and render-time measurements; and
-- publish or otherwise distribute the exact Canvas runtime artifact so a Moxi
-  package can declare it as a normal run dependency instead of requiring the
-  package-consumer harness to install the companion artifact explicitly.
+- upload the two workspace artifacts to the chosen public channel. The local
+  indexed-channel consumer already exercises the same dependency resolution;
+  credentials/channel ownership are intentionally outside this code change.
 
 **Shared scenarios:**
 
@@ -305,18 +313,24 @@ contract.
 
 **Current evidence:**
 
-- command ordering and declared bounds agree exactly in the focused software,
-  canvas, and SVG structural test;
+- `pixi run check` passes with 70 Mojo tests, generated API status, software
+  visual goldens, native text/scene/screenshot gates, host checks, and the
+  Canvas benchmark checksum gate;
+- command ordering and declared bounds agree exactly in the shared primitive,
+  theme, and plot fixture cases across software, Canvas, and SVG;
 - unsupported commands report fallback explicitly;
+- malformed scope/geometry input reports stable non-fatal renderer errors;
 - no renderer-specific object enters `SceneCommand`;
-- the exact pinned compiler passes the full Moxi check and the package consumer
-  imports/render-tests the installed Moxi plus Canvas artifacts; and
-- a local smoke measurement records 1.75 s wall time, 234 MiB peak resident
-  memory, checksum `853855300`, a 1.41 MiB Canvas artifact, and a 2.02 MiB
-  Moxi precompile for the 640x420 canonical plot scene.
+- `pixi run package-consumer` publishes both packages to a temporary indexed
+  channel, resolves Moxi's ordinary `canvas_mojo` run dependency in a clean
+  environment, and imports/render-tests the installed package; and
+- the current 640x420 canonical plot measurement is 1.72 s wall time,
+  249,036,800 bytes peak RSS, a 28,974-byte PNG, checksum `853855300`, a
+  1,477,415-byte Canvas archive, and a 2,131,578-byte Moxi archive.
 
-The reviewed-checksum, shared-scenario, failure-contract, and public runtime
-package requirements above remain acceptance work rather than completed claims.
+The nightly-only fork, explicit text/image/path fallbacks, and true offscreen
+layer/text/path/resource semantics remain E3 work; they are not silently
+promoted to complete renderer parity.
 
 **Estimate:** 1-2 engineering weeks after E0/E1.
 

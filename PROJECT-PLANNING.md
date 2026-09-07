@@ -80,11 +80,13 @@ support boundaries visible for the next pass.
 | 5. Structured benchmark profiles | Protocol, localized matrix, reviewed macOS baseline, same-environment comparison, dispersion policy, CI evidence, and a portable deterministic contract are complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, `2a1a112`, `26aa56`, `64f27a2`, `363cae2`, `7137c48`, and `43e7cb0`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, policy-checked 30-run baseline, median/p95/MAD comparator, and cross-host quick contract | compatible reviewed full-profile baselines beyond macOS arm64 |
 | 6. Documentation reconciliation | Main docs and planning ledger are current through the ordered implementation and release pass | `87e79bf`, `d6c008c`, `e428303`, `8100623`, `332eb07`, `b74d4eb`, `7295e2e`, `64f27a2`, `363cae2`, `721e50a`, `06231a5`, `707ff64`, `7137c48`, `43e7cb0`, `7e12d3c`, `9606b24`, `15648d9`, `7b9d8bd`, and this update; README/API/text/performance/benchmark/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
 
-The current-head repository gate passed at `88af901`: 70 Mojo tests,
+The current-head repository gate passed at `2eeb802`: 70 Mojo tests,
 API/demo/scenario/visual checks, native text and scene replay, native
 screenshot tolerance evidence, host checks, package-consumer checks, and build
 validation; the canvas vertical slice also passes its focused pixel/parity
-tests and canonical export. The release/package gate remains evidenced at
+tests, shared primitive/theme/plot fixtures, stable input-error checks,
+canonical export, checksum manifest, benchmark task, and indexed-channel
+package consumer. The release/package gate remains evidenced at
 `7137c48`; the follow-on changes dependency fanout lookup and adds
 interaction/state preservation assertions without changing the public API or
 intended scheduling semantics. The clean full profile produced 30 samples
@@ -354,9 +356,10 @@ rewrite:
 6. Final Gate 1 documentation reconciliation and release decision (landed in
    the current handoff); ecosystem convergence E0 is documented on local
    `main` at `9fcd3b5`, with the exact canvas compatibility result and dataviz
-   inventory recorded; E2 is now in progress from the resolved
-   nightly/toolchain pair at `88af901`, while E1/E4 remain gated on portable
-   packaging and Python ABI decisions.
+   inventory recorded; E2's local nightly/package gate is complete at
+   `2eeb802` from the resolved toolchain pair, while E1/E4 remain gated on
+   portable packaging and Python ABI decisions. Uploading the two package
+   artifacts to a chosen public channel remains an external release action.
 
 This order makes each later slice consume infrastructure already reviewed by
 the previous one and keeps the first milestone independently shippable.
