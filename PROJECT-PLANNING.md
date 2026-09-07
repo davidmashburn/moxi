@@ -64,7 +64,7 @@ The differentiator is the combination of:
 This is the next milestone. All six workstreams are required; new widget or
 plot-family work is out of scope.
 
-### Gate 1 progress at `main` `332eb07`
+### Gate 1 progress at `main` `83030c3`
 
 The ordered implementation pass has delivered the first vertical slices. The
 status below is deliberately narrower than “Gate 1 complete”: it records what
@@ -74,26 +74,23 @@ visible for the next pass.
 | Ordered slice | Status | Evidence | Still open |
 | --- | --- | --- | --- |
 | 1. Public API audit | Complete | `e418b29`, generated `docs/api-status.md`, 873 export classifications, `api-status-check` | focused import paths, compatibility/deprecation policy, and package-lane enforcement |
-| 2. Canonical scenario registry | Registry, consumer inventory, and fixture helpers/defaults complete across all seven families; full behavior tables remain partial | `0991f29`, `90f2aef`, `4ef1171`, `5f9c44b`, and `332eb07`, seven descriptors, demo mapping, scenario checker, registry test, golden/benchmark metadata, descriptor-owned size/seed/text/mode/preset helpers | make theme controls, capability steps, and feature-specific fixture records descriptor-driven rather than helper-driven |
+| 2. Canonical scenario registry | Registry, consumer inventory, and descriptor-driven fixture records complete across all seven families; feature interaction state remains module-local | `0991f29`, `90f2aef`, `4ef1171`, `5f9c44b`, `332eb07`, and `a50900b`, seven descriptors, demo mapping, scenario checker, registry test, golden/benchmark metadata, and theme/capability/fractal records | make expected semantic/counter/checksum metadata descriptor-owned and enforce every behavior fixture through the catalog check |
 | 3. Software goldens and browser lifecycle | Software/host gates complete | `62a9caa` and `9c25379`, seven exact PPM goldens, manifest/checker, ephemeral server/host harness with Canvas/ARIA/input/teardown evidence | native screenshot parity, real-browser/device automation, and linked Mojo Web runtime |
-| 4. Typed localized execution | One-subtree slice complete | `676cbd4` and `b813e53`, `TypedSubtreeExecutor`, `ExecutionWorkCounters`, localized test and benchmark; explicit paint return type passes precompile | parent scheduling, keyed view diff, insertion/removal/reorder, and root-fallback accounting |
+| 4. Typed localized execution | Keyed parent/child scheduling slice complete; normal `App` remains an explicit root-fallback path | `676cbd4`, `b813e53`, and `83030c3`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, retained parent composition, keyed insertion/removal/reorder counters, `App.execution_work_counters()`, and execution/composed tests | splice keyed child views into `App` event dispatch, replace linear topology scans with bounded indexes, and preserve focus/IME/scroll/popup state through a local update |
 | 5. Structured benchmark profiles | Protocol, localized matrix, reviewed macOS baseline, and same-environment comparison complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, `2a1a112`, and `26aa56c`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, 30-run `benchmarks/results/macos-arm64-full.json`, and `benchmark-compare` | dispersion reporting, CI wiring, and compatible baselines beyond macOS arm64 |
 | 6. Documentation reconciliation | Main docs and planning ledger current | `87e79bf`, `d6c008c`, `e428303`, `8100623`, and this update; README/API/visual/performance/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
 
-`pixi run check` and `MOXI_BENCHMARK_RUNS=1 pixi run release-check` pass at
-`main` `332eb07`, including all 66 Mojo test programs, native/Android/iOS host
-builds, package publication/consumer, the software corpus, Web lifecycle
-harness, HarfBuzz, live reload, and the complete 10-case benchmark matrix. A
-clean `MOXI_BENCHMARK_RUNS=3 pixi run benchmark-full` report also passes
-`pixi run benchmark-compare` against the reviewed macOS arm64 baseline after
-the fixture refactor. The release wrapper was run on the implementation commit
-`5f9c44b`; `332eb07` contains only the generated API/docs snapshot after that
-validation. This is evidence for the completed slices, not a claim that the
-remaining Gate 1 exit criteria are satisfied.
+The full repository gate passed before the current scheduling slice at
+`332eb07`; the keyed-execution milestone has additionally passed `pixi run
+build`, the full 66-program test loop through its execution/composed cases, and
+the scenario/API/visual checks. A clean release/benchmark rerun is still a
+required final Gate 1 check after the remaining slices land. This is evidence
+for the completed slices, not a claim that the remaining Gate 1 exit criteria
+are satisfied.
 
 ### 1. Classify and narrow the public API
 
-Implementation targets:
+Implementation targets (the first keyed scheduling slice is now landed):
 
 - add `docs/api-status.md` on `main` with one generated row per name exported
   by `src/moxi/__init__.mojo`;
@@ -137,10 +134,11 @@ and expected counter/checksum metadata. It must not own windows or renderers.
 
 Acceptance: changing a canonical fixture in one place updates every consumer;
 the demo catalog check also verifies that registered scenarios have tests and
-documented commands. The current implementation makes collection/plot defaults,
-text probes, theme golden modes, capability walkthrough defaults, and the
-fractal preset/depth matrix flow through registry-owned helpers; full behavior
-tables remain a follow-on refinement.
+documented commands. The current implementation makes collection/plot
+defaults, text probes, theme mode records, capability walkthrough steps, and
+the fractal preset/depth records flow through registry-owned fixture tables.
+Expected semantic, counter, and checksum metadata remains a follow-on
+refinement.
 
 ### 3. Deliver one true localized-execution vertical slice
 
@@ -152,8 +150,8 @@ Implementation targets:
 
 - add a stable keyed subtree/slot descriptor in `component.mojo` that owns a
   typed child builder and local state without public id-offset arithmetic;
-- let `App` rebuild a dirty child description, splice it into the parent view,
-  reconcile that region, and accumulate its bounds in `Invalidation`;
+- let a keyed parent scheduler rebuild a dirty child description, compose its
+  retained view, and account for structural changes;
 - preserve root-wide rebuild as an explicit fallback for structure or bounds
   dependencies that cannot yet be localized;
 - make `LocalizedExecution` topology lookup bounded by key/index structures
@@ -164,10 +162,11 @@ Implementation targets:
 Acceptance checks:
 
 - updating one child runs one child builder and does not run an unrelated
-  sibling builder;
+  sibling builder (landed in `tests/execution.mojo`);
 - focus, IME composition, scroll offsets, popup capture, accessibility ids,
   and stable retained state survive the local update;
-- insertion/removal/reorder has an explicit tested fallback or localized path;
+- insertion/removal/reorder has an explicit tested localized path, while
+  root-wide fallback is counted (landed in `tests/execution.mojo`);
 - a 1/10/100-child benchmark demonstrates bounded work using counters, with
   no wall-clock claim required; and
 - all existing 66 test programs continue to pass.
