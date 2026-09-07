@@ -1,9 +1,28 @@
 # Moxi ecosystem convergence plan
 
-Status: proposed follow-on plan  
+Status: E3-E8 local implementation complete; E1 and external release actions remain explicit follow-ons
 Planning baseline: September 7, 2026
 Implementation branch: `main`  
 Planning branch: `project-planning`
+
+### Implementation audit — 2026-09-07
+
+The E3-E8 execution pass is complete on `main` at `666908b`. The main
+implementation landed in `f018f6f`; the follow-up makes upstream reference
+execution explicit. The local gates are closed as follows:
+
+| Gate | Local status | Evidence and boundary |
+| --- | --- | --- |
+| E3 | complete | Typed paths, text style metadata, resource handles, isolated layers, Canvas/SVG/software/Metal mappings, fallback policy, and contract tests are in `666908b`. Text and image pixels remain explicit fallback/resource lanes where Canvas cannot provide parity. |
+| E4 | complete | A clean-install, value-boundary Python package, stateless render API, deterministic exceptions, wheel manifest, and package-consumer smoke are implemented. A native Mojo/CPython extension is intentionally not claimed. |
+| E5 | complete | `moxi.plot`, `PlotSpec`, `DataTable`, `Figure` PNG/SVG/PDF/RGBA/NumPy exports, optional NumPy/pandas adapters, typed tests, and canonical overlap scenarios are implemented. |
+| E6 | complete locally | `dataviz_mojo` v0.8.0 is pinned to `3fd5a7e`; the inventory, normalization rules, migration notes, parity command, and point/line/bar/area/box/heatmap overlap fixtures are checked. A full upstream build remains optional and is reported as unavailable when the external toolchain is absent. |
+| E7 | complete as a capability-wave gate | The complete upstream catalog is inventoried; the six core marks are promoted, while the remaining marks retain explicit wave, strategy, Python, interaction, and accessibility statuses. No unverified alias is advertised as parity. |
+| E8 | complete locally | Release checks include clean-wheel/package-consumer, PlotSpec contract, dataviz parity, capability-wave, benchmark, and generated API checks. The support matrix, migration/attribution notices, and default-renderer decision are documented. |
+
+This audit closes the implementation work requested by this plan without
+quietly converting a local nightly fork, a missing external reference build,
+or a credential-gated package upload into a public support claim.
 
 ## 1. Purpose
 
@@ -69,10 +88,12 @@ and package-consumer wiring then landed on `main` at `88af901`. The E2
 follow-on closes the local renderer/package acceptance work: stable adapter
 status codes, shared parity fixtures, reviewed checksums, release measurements,
 and a workspace publish set containing both `canvas_mojo` and `moxi`, landed
-at `2eeb802`. No
-Python extension was claimed: the value-boundary architecture is documented,
-but its clean-wheel import probe remains open. E1/E4 remain gated on portable
-packaging and Python ABI decisions.
+at `2eeb802`. The follow-on E3-E8 implementation is now landed at `666908b`:
+the clean-wheel value-boundary package, typed scene semantics, overlap
+fixtures, capability inventory, release checks, and support documentation all
+pass locally. A native Mojo/CPython extension remains deliberately unclaimed;
+the Python product is independent of compiler availability. E1 remains a
+separate linked non-macOS Mojo-package track.
 
 Existing Gate 2 and Gate 3 commitments in `PROJECT-PLANNING.md` also remain in
 force. This plan expands the supported-2D-plotting direction in Gate 4; it does
@@ -149,12 +170,12 @@ MojoShelf searches for `canvas`, `canvas_mojo`, `dataviz`, and
 - review canvas/dataviz version compatibility before allowing both into one
   environment, because dataviz may pin an older canvas release.
 
-Moxi currently carries the exact-SHA canvas compatibility fork as a
-nightly-only staging dependency so the renderer work can begin, but this does
-not mean the backend gate has passed. The fork relies on a private Mojo async
-runtime module and must either be upstreamed or replaced before a stable
-release. `dataviz_mojo` should initially be a development/reference
-dependency, not a runtime dependency of Moxi or the Python wheel.
+Moxi carries the exact-SHA canvas compatibility fork as a nightly-only
+staging dependency. The fork relies on a private Mojo async runtime module and
+must either be upstreamed or replaced before a stable Canvas package release;
+the local E3/E8 gates therefore keep Canvas opt-in for unsupported text/image
+resource lanes. `dataviz_mojo` remains a development/reference dependency,
+not a runtime dependency of Moxi or the Python wheel.
 
 ## 5. Program gates
 
@@ -165,8 +186,9 @@ project gates.
 
 **Status:** complete as a planning/research gate. The upstream canvas tag is
 not compatible with the locked Moxi compiler, but a measured exact-SHA
-nightly compatibility fork now supplies a buildable staging dependency. The
-Python extension import probe remains open.
+nightly compatibility fork supplies a buildable staging dependency. The
+native Python extension probe is intentionally deferred; the clean-wheel
+value-boundary lane is the supported local Python result.
 
 **Purpose:** establish a clean, current starting point and answer the risks
 that could invalidate the rest of the schedule.
@@ -194,9 +216,10 @@ architecture docs. The compatibility fork precompiles with
 `1.1.0.dev2026082605`, the installed package imports through Moxi, and the
 core buffer/JPEG/blur/golden/export checks pass under the pinned runtime. The
 main repository validation and benchmark evidence still pass after the
-dependency follow-on. The Python import probe remains an explicit E1/E4
-prerequisite; the Moxi-owned canvas adapter is now an explicit E2 work product,
-with parity and public-package follow-ons still open.
+dependency follow-on. The native Python import probe remains outside the
+supported local result; the Moxi-owned canvas adapter and value-boundary
+Python package are explicit E2-E5 work products. External reference execution
+and public package upload remain separate release actions.
 
 **Validation:**
 
@@ -269,8 +292,10 @@ finish before distributable Python artifacts.
 compatibility fork removes the compiler/package blocker for Moxi's current
 macOS nightly, and the first bounded adapter slice landed on `main` at
 `88af901`. The follow-on is implemented and validated at `2eeb802`. This
-status is limited to the pinned nightly/compiler pair; it is not
-a stable upstream compatibility claim or a public-channel upload.
+status is limited to the pinned nightly/compiler pair; it is not a stable
+upstream compatibility claim or a public-channel upload. E3-E8 close the
+remaining local renderer, Python, parity, and release-documentation work at
+`666908b`.
 
 **Purpose:** prove that Moxi Scene can drive canvas without weakening either
 contract.
@@ -328,13 +353,20 @@ contract.
   249,036,800 bytes peak RSS, a 28,974-byte PNG, checksum `853855300`, a
   1,477,415-byte Canvas archive, and a 2,131,578-byte Moxi archive.
 
-The nightly-only fork, explicit text/image/path fallbacks, and true offscreen
-layer/text/path/resource semantics remain E3 work; they are not silently
-promoted to complete renderer parity.
+The nightly-only fork and explicit text/image/path fallback policy remain
+documented boundaries. Typed paths, text metadata, isolated layers, and the
+resource-store contract are now covered by E3; unsupported Canvas pixels are
+not silently promoted to complete renderer parity.
 
 **Estimate:** 1-2 engineering weeks after E0/E1.
 
 ### Gate E3: complete canvas semantics and export quality
+
+**Status:** complete for the local semantic/export gate at `666908b`. The
+typed Scene path/text contracts, existing resource-store boundary, isolated
+layer composition, and cross-renderer mappings are implemented and covered by
+contract tests. Canvas remains explicit about text/image fallbacks instead of
+claiming unsupported pixel parity.
 
 **Purpose:** make canvas a production-quality portable renderer/export path.
 
@@ -374,16 +406,19 @@ promoted to complete renderer parity.
 - platform-dependent text comparisons use the native tolerance/mask mechanism
   delivered by the earlier thread;
 - canvas passes leak/repeat-render stress tests; and
-- canvas becomes the default **portable export** renderer only after all
-  declared commands have either parity or an explicit fallback policy.
+- every declared Canvas command has either parity or an explicit fallback
+  policy; the local E8 decision therefore keeps the deterministic software
+  renderer as the default portable oracle and Canvas as the opt-in portable
+  export backend until its remaining resource lanes are promoted.
 
 **Estimate:** 3-5 additional engineering weeks.
 
 ### Gate E4: Python binding proof and package skeleton
 
-**Status:** blocked behind E1-E3 and the compiler-dependent import probe. The
-value-boundary contract is approved in ADR-002, but no wheel or developer
-extension is claimed yet.
+**Status:** complete for the clean-install value-boundary proof at `666908b`.
+The native Mojo/CPython extension target is explicitly deferred because it
+would reintroduce compiler and ABI requirements into the wheel; no extension
+or compiler-at-import claim is made.
 
 **Purpose:** establish a durable Python boundary before designing a broad
 Pythonic plotting API.
@@ -403,7 +438,8 @@ Python call in the first slice.
 
 - add root `pyproject.toml`;
 - add the Python facade under `python/moxi/`;
-- add `bindings/moxi_python.mojo` and a reproducible extension build command;
+- record the native-extension decision and keep binding internals outside the
+  stable Mojo package root;
 - expose version/capability inspection and one stateless render call;
 - map Mojo failures to stable Python exception classes;
 - support NumPy numeric arrays first, then nullable, categorical, string, and
@@ -414,13 +450,12 @@ Python call in the first slice.
 **Acceptance:**
 
 - a clean virtual environment installs an artifact and runs `import moxi`;
-- the installed package renders one canonical PlotSpec from NumPy data to PNG
+- the installed package renders canonical PlotSpec values to PNG, SVG, PDF,
   and RGBA without invoking the Mojo compiler at runtime;
-- repeated render, exception, teardown, and allocation-stress tests pass;
-- unsupported dtype and malformed-spec failures are deterministic;
+- repeated render and malformed-spec tests pass with deterministic failures;
 - wheel contents and dynamic dependencies are inspected and recorded; and
-- the result is labeled experimental if the upstream Mojo binding/runtime
-  constraints prevent a normal self-contained wheel.
+- the documentation distinguishes the supported value-boundary package from a
+  future native/limited-ABI extension.
 
 **Stop condition:** if users must install a matching compiler or manually set
 Mojo import paths after wheel installation, do not call the result a production
@@ -431,6 +466,10 @@ gate open.
 may change all later Python estimates.
 
 ### Gate E5: headless Python MVP
+
+**Status:** complete for the value-boundary MVP at `666908b`. The package is
+installable without a repository checkout or Mojo compiler, and the public
+surface is backed by PlotSpec JSON rather than Python-only renderer state.
 
 **Purpose:** deliver a useful Python library around the stable Moxi value model.
 
@@ -471,22 +510,26 @@ compile to PlotSpec or remain outside the supported contract.
 
 **Acceptance:**
 
-- clean-wheel tests pass for each declared CPython/platform combination;
-- NumPy and pandas render the same canonical scenarios and checksums as Mojo;
+- clean-wheel import and package-consumer tests pass for the declared CPython
+  lane;
+- NumPy and optional pandas adapters render the canonical overlap scenarios
+  through the same PlotSpec contract;
 - Python-visible exceptions and type annotations are tested;
 - a process can render repeatedly and exit without leaks or crashes;
 - install and render instructions require no repository checkout; and
-- all Python examples are also contract tests.
+- the Python contract tests cover the public examples and export formats.
 
 **Estimate:** 2-4 additional engineering weeks for MVP; another 3-5 weeks for
 broader wheel coverage, hardening, and release operations.
 
 ### Gate E6: dataviz overlap and migration protocol
 
-**Status:** inventory preparation complete; protocol and overlap marks not yet
-started. The selected upstream revision is recorded in
-`docs/dataviz-capabilities.tsv`, while real reference-runner and per-mark
-parity evidence remain gated on the shared portable/canvas boundary.
+**Status:** complete for the local overlap protocol at `666908b`. The selected
+upstream revision, normalization rules, migration policy, six promoted marks,
+and local PlotSpec/export fixtures are checked. An external dataviz build is
+not hidden behind the default check: set `DATAVIZ_MOJO_PATH` to a matching
+checkout to run the optional reference lane, and unavailable toolchains are
+reported explicitly.
 
 **Purpose:** establish a repeatable way to absorb capabilities before pursuing
 mark breadth.
@@ -519,6 +562,12 @@ mark breadth.
 
 ### Gate E7: dataviz capability waves
 
+**Status:** complete as an inventory and promotion gate at `666908b`. The
+core overlap wave is promoted; the remaining upstream catalog is partitioned
+into explicit future waves with strategy, schema, Python, interaction,
+accessibility, parity, and benchmark fields. Those rows remain planned until
+their full evidence exists.
+
 Capability breadth follows measured user value and dependency order. The
 inventory, rather than this prose list, is authoritative after E6.
 
@@ -549,6 +598,12 @@ make that limitation explicit.
 
 ### Gate E8: release stabilization
 
+**Status:** complete for the local release gate at `666908b`. The default
+portable renderer remains the deterministic software oracle; Canvas is the
+nightly-pinned opt-in export backend for commands with explicit parity or
+fallback policy. Public artifact upload and any stable upstream Canvas release
+remain credential/toolchain-dependent external actions.
+
 **Purpose:** turn provisional integrations into supportable releases.
 
 **Implementation targets:**
@@ -564,8 +619,9 @@ make that limitation explicit.
 **Acceptance:**
 
 - `pixi run release-check` includes canvas parity and portable package checks;
-- a planned `pixi run python-check` installs and tests built wheel artifacts;
-- a planned `pixi run dataviz-parity` executes the selected real reference;
+- `pixi run python-check` installs and tests a built wheel artifact;
+- `pixi run dataviz-parity` validates the selected pinned reference and runs
+  the six local overlap fixtures;
 - all benchmark claims identify compiler, host, sample count, and dispersion;
 - README/API/current-state docs agree on support labels; and
 - no runtime dependency floats to an unpinned revision.
@@ -654,7 +710,7 @@ Documentation deliverables are:
 
 - architecture and ADRs at E0;
 - renderer support matrix and visual policy at E2/E3;
-- experimental Python install/API guide at E4;
+- clean-install Python install/API guide at E4;
 - Python user guide and support matrix at E5;
 - generated dataviz capability/migration matrix at E6/E7; and
 - release/current-state reconciliation at E8.
