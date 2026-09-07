@@ -53,6 +53,7 @@ tests=(
   tests/text_layout.mojo
   tests/text_shaping.mojo
   tests/text_boundary.mojo
+  tests/text_conformance.mojo
   tests/resources_scene.mojo
   tests/reactivity_tasks.mojo
   tests/input_routing.mojo

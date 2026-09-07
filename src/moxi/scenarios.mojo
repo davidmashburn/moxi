@@ -10,6 +10,7 @@ from .popup import POPUP_COMBO, POPUP_PLACE_BELOW, PopupLayerState
 from .reorder import ReorderInteraction
 from .scrollbar import SCROLLBAR_VERTICAL, ScrollbarState
 from .style import Color
+from .text_layout import TEXT_DIRECTION_AUTO, TEXT_DIRECTION_LTR, TEXT_DIRECTION_RTL
 
 
 comptime SCENARIO_NONE = 0
@@ -132,6 +133,36 @@ struct FractalBenchmarkFixture(ImplicitlyCopyable):
     def __init__(out self, preset_id: Int, depth: Int):
         self.preset_id = preset_id
         self.depth = depth
+
+
+struct TextCorpusFixture(ImplicitlyCopyable):
+    """One shared text case for portable and native conformance checks."""
+
+    var id: String
+    var text: String
+    var direction: Int
+    var max_width: Float32
+    var expect_bidi: Bool
+    var expect_fallback: Bool
+    var expect_wrapping: Bool
+
+    def __init__(
+        out self,
+        id: String,
+        text: String,
+        direction: Int,
+        max_width: Float32,
+        expect_bidi: Bool,
+        expect_fallback: Bool,
+        expect_wrapping: Bool,
+    ):
+        self.id = id
+        self.text = text
+        self.direction = direction
+        self.max_width = max_width
+        self.expect_bidi = expect_bidi
+        self.expect_fallback = expect_fallback
+        self.expect_wrapping = expect_wrapping
 
 
 struct ScenarioRegistry:
@@ -488,6 +519,57 @@ def canonical_text_auto_rtl_fixture() -> String:
 def canonical_text_mixed_bidi_fixture() -> String:
     """Return the mixed-direction shaping sample."""
     return "abc אבג"
+
+
+def canonical_text_corpus() -> List[TextCorpusFixture]:
+    """Return the shared shaping/editing corpus in deterministic order."""
+    var result = List[TextCorpusFixture](capacity=5)
+    result.append(TextCorpusFixture(
+        "combining",
+        canonical_text_combining_fixture(),
+        TEXT_DIRECTION_LTR,
+        0.0,
+        False,
+        True,
+        False,
+    ))
+    result.append(TextCorpusFixture(
+        "rtl",
+        canonical_text_rtl_fixture(),
+        TEXT_DIRECTION_RTL,
+        0.0,
+        True,
+        True,
+        False,
+    ))
+    result.append(TextCorpusFixture(
+        "auto-rtl",
+        canonical_text_auto_rtl_fixture(),
+        TEXT_DIRECTION_AUTO,
+        0.0,
+        True,
+        True,
+        False,
+    ))
+    result.append(TextCorpusFixture(
+        "mixed-bidi",
+        canonical_text_mixed_bidi_fixture(),
+        TEXT_DIRECTION_LTR,
+        0.0,
+        True,
+        True,
+        False,
+    ))
+    result.append(TextCorpusFixture(
+        "fallback-wrap",
+        canonical_text_fallback_fixture(),
+        TEXT_DIRECTION_LTR,
+        120.0,
+        True,
+        True,
+        True,
+    ))
+    return result^
 
 
 def canonical_capability_title() -> String:

@@ -592,6 +592,7 @@ Generated from `src/moxi/__init__.mojo` and `docs/api-lanes.tsv`. Run `pixi run 
 | `ThemeModeFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `ScenarioStep` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `FractalBenchmarkFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `TextCorpusFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_scenarios` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_form_title` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_form_hint` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
@@ -609,6 +610,7 @@ Generated from `src/moxi/__init__.mojo` and `docs/api-lanes.tsv`. Run `pixi run 
 | `canonical_text_rtl_fixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_text_auto_rtl_fixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_text_mixed_bidi_fixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_text_corpus` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_capability_title` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_capability_initial_status` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_capability_hint` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |

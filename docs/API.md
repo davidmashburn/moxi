@@ -98,6 +98,9 @@ The layout constants are `ALIGN_*`, `JUSTIFY_*`, `COLUMN_AXIS`, and
 `measure_text` and `measure_text_wrapped` are deterministic estimates;
 `TextLayoutRequest`, `TextLayoutResult`, `RichText`, and `TextSpan` make the
 native-shaping/rich-text fallback explicit.
+The shared `canonical_text_corpus()` drives portable/native conformance for
+grapheme-safe editing, mixed bidi, fallback, and wrapping; see
+[text-policy.md](text-policy.md) for the exact parity boundary.
 
 ## Events and editing
 
@@ -165,6 +168,9 @@ supported, and compound/self-intersecting paths use a bounded even-odd
 scanline tessellator. Malformed or overlarge paths and unsupported resources
 retain explicit fallback behavior. The software renderer remains a bounds
 oracle for paths, so pixel parity for complex path geometry is a later slice.
+`pixi run native-scene-parity` replays a compact scene through both renderers
+and checks structural counters/fallbacks; native pixels remain a documented
+masked/tolerance lane rather than an exact checksum promise.
 
 ## Plotting
 
@@ -248,7 +254,7 @@ the complete visible approval flow.
 | Plotting | [`docs/plotting.md`](plotting.md), [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/plot_selection.mojo`](../src/moxi/plot_selection.mojo), [`src/moxi/plot_link.mojo`](../src/moxi/plot_link.mojo), [`src/moxi/plot_view.mojo`](../src/moxi/plot_view.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
 | Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`docs/benchmarking.md`](benchmarking.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh), [`scripts/benchmark_compare.py`](../scripts/benchmark_compare.py), [`benchmarks/result-schema.json`](../benchmarks/result-schema.json), [`benchmarks/results/`](../benchmarks/results/) |
 | Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo), [`src/moxi/host_contract.mojo`](../src/moxi/host_contract.mojo), [`native/hosts/`](../native/hosts/) |
-| Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`src/moxi/harfbuzz.mojo`](../src/moxi/harfbuzz.mojo), [`native/macos_text.m`](../native/macos_text.m), [`native/harfbuzz_text.cpp`](../native/harfbuzz_text.cpp) |
+| Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`src/moxi/harfbuzz.mojo`](../src/moxi/harfbuzz.mojo), [`native/macos_text.m`](../native/macos_text.m), [`native/harfbuzz_text.cpp`](../native/harfbuzz_text.cpp), [`docs/text-policy.md`](text-policy.md) |
 | Reactivity and tasks | [`src/moxi/reactivity.mojo`](../src/moxi/reactivity.mojo), [`src/moxi/tasks.mojo`](../src/moxi/tasks.mojo), [`src/moxi/execution.mojo`](../src/moxi/execution.mojo) |
 | Capabilities and conversation | [`src/moxi/capability.mojo`](../src/moxi/capability.mojo), [`src/moxi/conversation.mojo`](../src/moxi/conversation.mojo) |
 | Demo browser | [`docs/demo-browser.md`](demo-browser.md), [`src/moxi/demo_browser.mojo`](../src/moxi/demo_browser.mojo), [`examples/demo_browser.mojo`](../examples/demo_browser.mojo) |

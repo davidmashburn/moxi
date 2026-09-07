@@ -91,6 +91,9 @@ separately below and are not being presented as a 0.5 compatibility promise.
   window demo.
 - A shaped-run contract carrying glyph ids, source clusters, fallback-face
   metadata, and a native CoreText adapter on macOS.
+- A shared text conformance corpus plus native scene replay gate; structural
+  parity is exact while platform-dependent glyph pixels remain a documented
+  tolerance lane.
 - A stable-key `VirtualRecycler`/`VirtualizedList` that builds only the
   visible/overscan window, reuses slots, clamps scrolling, and supports
   ensure-visible behavior.
@@ -489,8 +492,9 @@ The shared 10,000-row workload is available from
 scenario descriptors and their demo, test, benchmark, and golden consumers;
 its deterministic `fixture_size` and `fixture_seed` fields also supply the
 default collection and plot data used by those consumers. The same module owns
-the mixed-text probes, theme-golden modes, capability walkthrough defaults, and
-fractal preset matrix used by their tests, goldens, demos, and benchmarks. `pixi run
+the shared text conformance corpus, theme-mode records, capability walkthrough
+steps, and fractal preset records used by their tests, goldens, demos, and
+benchmarks. `pixi run
 scenario-check` verifies that the paths, Pixi tasks, golden labels, and fixture
 metadata still agree.
 
@@ -537,7 +541,10 @@ when linked with `scripts/harfbuzz_check.sh`; custom fallback chains remain
 host policy.
 `MacOSRenderer.backend_capabilities()` reports AppKit text support, while
 `MacOSMetalRenderer.backend_capabilities()` reports the initialized Metal
-scene capabilities.
+scene capabilities. The portable/native corpus and replay rules are documented
+in [docs/text-policy.md](docs/text-policy.md); native scene checks compare
+structure and fallback counters exactly while leaving raster pixels to a future
+masked/tolerance lane.
 
 `VirtualListState` and `visible_range()` provide range math; `VirtualRecycler`
 and `VirtualizedList[Builder]` add stable-key recycling, overscan, bounded
