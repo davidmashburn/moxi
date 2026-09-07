@@ -13,6 +13,31 @@ trait Component(ImplicitlyCopyable):
         """Build the current declarative view tree."""
         ...
 
+    def supports_localized_execution(self) -> Bool:
+        """Return whether this component owns a keyed local execution lane."""
+        return False
+
+    def localized_view(mut self, bounds: Rect) -> ColumnView:
+        """Compose a current view from retained local child views."""
+        return self.build(bounds)
+
+    def localized_dispatch(mut self, event: Event, view: ColumnView) -> Int:
+        """Dispatch a routed event to a local child.
+
+        Return ``0`` when the component does not own the target, ``1`` when
+        the target was handled without a rebuild, or ``2`` when a local child
+        changed and the parent should be recomposed.
+        """
+        return 0
+
+    def localized_last_child_nodes(self) -> Int:
+        """Return the child-node count from the most recent local rebuild."""
+        return 0
+
+    def localized_last_child_commands(self) -> Int:
+        """Return the child-command count from the most recent local rebuild."""
+        return 0
+
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         """Handle an event and report whether the view needs rebuilding."""
         return False

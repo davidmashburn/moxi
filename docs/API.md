@@ -40,9 +40,12 @@ retains multiple typed children by `KeyedSubtreeDescriptor.key`; child
 invalidation rebuilds only the matching child, while `reorder()` preserves
 the retained child state and `build_parent()` composes the cached child views.
 `LocalizedExecution` remains the lower-level topology/counter primitive when
-an application owns the lifecycle itself. The normal `App` path still reports
-root-wide rebuilds as fallback events until parent view splicing is wired into
-the application event loop.
+an application owns the lifecycle itself. Components that opt into the
+localized hooks (`supports_localized_execution()`, `localized_view()`, and
+`localized_dispatch()`) are dispatched through that keyed lane by `App`; the
+parent is recomposed around the updated child and
+`ExecutionWorkCounters.root_fallbacks` stays at zero for child-local updates.
+Components using only `build()`/`update()` retain the root-wide fallback path.
 
 Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and

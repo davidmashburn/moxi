@@ -455,10 +455,14 @@ more than one typed child, give each child a `KeyedSubtreeDescriptor` and
 retain it in `KeyedSubtreeExecutor[Child]`. The keyed executor preserves child
 state across reorder, counts insertion/removal/move work, and rebuilds only
 invalidated children; `build_parent()` composes their retained views without
-rerunning child builders. `App` exposes root-wide rebuilds as explicit
-`ExecutionWorkCounters.root_fallbacks` while parent splicing is adopted by the
-event loop. The repeatable workload is `pixi run benchmark-quick`, which
-includes a 1/10/100-child matrix in its structured report.
+rerunning child builders. `App` dispatches components that opt into the
+localized hooks through the same keyed parent/child lane, recomposing the
+parent around the updated child while preserving runtime identity and
+reporting zero root fallbacks for that local update. Components that only
+implement `build()`/`update()` retain the explicit
+`ExecutionWorkCounters.root_fallbacks` path. The repeatable workload is
+`pixi run benchmark-quick`, which includes a 1/10/100-child matrix in its
+structured report.
 
 `CheckboxControl`, `SliderControl`, `SwitchControl`, `RadioControl`, and the
 catalog descriptors extend the same pattern for stateful controls. The

@@ -82,6 +82,7 @@ struct App[ComponentType: Component & Deinitable]:
     var scrollbar_target_id: Int
     var scrollbar_grab_offset: Float32
     var scrollbar_dragging: Bool
+    var localized_enabled: Bool
     var local_execution: LocalizedExecution
 
     def __init__(out self, component: Self.ComponentType, bounds: Rect):
@@ -100,6 +101,11 @@ struct App[ComponentType: Component & Deinitable]:
         self.scrollbar_target_id = -1
         self.scrollbar_grab_offset = 0.0
         self.scrollbar_dragging = False
+        self.localized_enabled = self.component.supports_localized_execution()
+        if self.localized_enabled:
+            self.view = self.component.localized_view(bounds)
+            self.runtime = ColumnRuntime()
+            self.runtime.reconcile(self.view)
         self.local_execution = LocalizedExecution()
         _ = self.local_execution.add_scope(0)
         _ = self.local_execution.add_dependency(0, 0)
@@ -177,6 +183,9 @@ struct App[ComponentType: Component & Deinitable]:
     def dispatch_action(mut self, message: ActionMessage) -> Bool:
         """Deliver a typed action without inventing a pointer target."""
         var event = Event(ActionEvent(message.id, message.payload))
+        var localized_result = self.try_localized(event)
+        if localized_result != 0:
+            return localized_result == 2
         var updated = self.component.update(event, self.view)
         if updated:
             self.rebuild()
@@ -441,8 +450,12 @@ struct App[ComponentType: Component & Deinitable]:
             # Embedded canvases get first refusal. Moving the outer portal
             # before a child sees its wheel event can make one gesture affect
             # two viewports and invalidate the child's pointer coordinates.
-            component_dispatched = True
-            updated = self.component.update(routed, self.view)
+            var localized_result = self.try_localized(routed)
+            if localized_result != 0:
+                rebuilt = localized_result == 2
+            else:
+                component_dispatched = True
+                updated = self.component.update(routed, self.view)
             if not updated and target != -1:
                 var current = self.scroll_offset_for(target)
                 var delta = event.scroll_delta.y
@@ -499,7 +512,11 @@ struct App[ComponentType: Component & Deinitable]:
             routed.set_action(self.runtime.action_for(target))
 
         if not component_dispatched:
-            updated = self.component.update(routed, self.view)
+            var localized_result = self.try_localized(routed)
+            if localized_result != 0:
+                rebuilt = localized_result == 2
+            else:
+                updated = self.component.update(routed, self.view)
         if updated:
             if self.component.intercepts_pointer(routed):
                 pointer_changed = self.runtime.set_hover(-1) or pointer_changed
@@ -519,7 +536,23 @@ struct App[ComponentType: Component & Deinitable]:
         var event = Event(CompositionEvent())
         event.set_target(target)
         event.set_action(self.runtime.action_for(target))
+        var localized_result = self.try_localized(event)
+        if localized_result != 0:
+            return localized_result == 2
         return self.component.update(event, self.view)
+
+    def try_localized(mut self, event: Event) -> Int:
+        """Dispatch through a component-owned keyed lane when available."""
+        if not self.localized_enabled:
+            return 0
+        var result = self.component.localized_dispatch(event, self.view)
+        if result == 2:
+            self.rebuild_localized()
+            self.local_execution.record_build(
+                self.component.localized_last_child_nodes(),
+                self.component.localized_last_child_commands(),
+            )
+        return result
 
     def can_move_focus_direction(self, key: Int) -> Bool:
         """Return whether an arrow key may perform semantic focus navigation."""
@@ -619,6 +652,22 @@ struct App[ComponentType: Component & Deinitable]:
             self.scrollbar_grab_offset = 0.0
             self.scrollbar_dragging = False
         _ = self.local_execution.take_dirty(0)
+        self.pending.invalidate(INVALIDATE_ALL, self.root_bounds)
+
+    def rebuild_localized(mut self):
+        """Recompose the parent around retained keyed child views."""
+        self.view = self.component.localized_view(self.root_bounds)
+        self.apply_scroll_offsets()
+        self.runtime.reconcile(self.view)
+        if (
+            self.scrollbar_pointer_id >= 0
+            and self.view.scroll_max_offset(self.scrollbar_target_id) <= 0.0
+        ):
+            self.scrollbar_pointer_id = -1
+            self.scrollbar_target_id = -1
+            self.scrollbar_grab_offset = 0.0
+            self.scrollbar_dragging = False
+        self.local_execution.record_parent_build()
         self.pending.invalidate(INVALIDATE_ALL, self.root_bounds)
 
     def scroll_offset_for(self, id: Int) -> Float32:
