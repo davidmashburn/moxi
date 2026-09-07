@@ -2,6 +2,14 @@
 
 ## Unreleased — post-0.5 experimental slices
 
+- Added the portable headless plotting lane for `osx-arm64` and `linux-64`, a
+  locked Linux CI smoke, and a credential-gated `release-preflight` that
+  validates package publication targets without uploading.
+- Added the inventoried dataviz catalog to the shared Mojo/Python PlotSpec
+  boundary: 40 canonical catalog names, static export geometry, row-anchor
+  hit testing, accessibility summaries, parity fixtures, and repeated
+  benchmarks. Specialized nested layouts remain explicitly separate from the
+  static compatibility lane.
 - Added a generated API surface snapshot and explicit compatibility/deprecation
   manifest. Removing a public root export now requires a reviewed
   `deprecated`/`moved`/`removed` entry with replacement and release metadata;
