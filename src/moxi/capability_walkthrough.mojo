@@ -28,6 +28,7 @@ from .style import (
 from .scenarios import (
     canonical_capability_hint,
     canonical_capability_initial_status,
+    canonical_capability_steps,
     canonical_capability_title,
 )
 from .view import ColumnView
@@ -149,46 +150,16 @@ struct CapabilityWalkthroughState(Component):
         _ = self.bus.register_handler(self.reset_handler)
 
     def step_title(self) -> String:
-        if self.step == 0:
-            return "1 · Define the Component boundary"
-        if self.step == 1:
-            return "2 · Build the view tree"
-        if self.step == 2:
-            return "3 · Route events through update"
-        if self.step == 3:
-            return "4 · Register a capability descriptor"
-        if self.step == 4:
-            return "5 · Authorize the UI mutation"
-        if self.step == 5:
-            return "6 · Reuse the envelope for agents"
-        if self.step == 6:
-            return "7 · Require trusted approval"
-        if self.step == 7:
-            return "8 · Execute through a typed handler"
-        if self.step == 8:
-            return "9 · Keep replay and queue behavior bounded"
-        return "10 · Verify the contract and ship"
+        var steps = canonical_capability_steps()
+        if self.step < 0 or self.step >= len(steps):
+            return "Unknown walkthrough step"
+        return steps[self.step].title
 
     def step_body(self) -> String:
-        if self.step == 0:
-            return "A Moxi component owns value state and returns a lightweight view. The native window and renderer remain host concerns."
-        if self.step == 1:
-            return "Implement build(bounds) -> ColumnView. Add labels, controls, or a canvas, configure layout, and return the completed tree."
-        if self.step == 2:
-            return "App routes a click or key event to update. The component changes its own state, then App rebuilds and reconciles the view."
-        if self.step == 3:
-            return "CapabilityDescriptor makes the action inspectable: stable name, side-effect class, approval policy, concurrency, and input schema."
-        if self.step == 4:
-            return "The UI creates a CapabilityInvocation and sends it through authorize. Only after policy accepts it does application code apply the mutation."
-        if self.step == 5:
-            return "An agent uses the same request envelope with caller, idempotency, and reasoning metadata. It does not receive a mutable reference to component state."
-        if self.step == 6:
-            return "Destructive or network work cannot use a caller-supplied Boolean as approval. The bus issues a token bound to this exact request."
-        if self.step == 7:
-            return "Register a CapabilityHandler and call invoke_handler when the application wants a typed executor. Executor-less invoke calls are rejected."
-        if self.step == 8:
-            return "The bus preserves a bounded FIFO and recent idempotent completions. Queue pressure, replay, and exclusive leases stay observable."
-        return "Tests cover descriptors, schemas, approval, leases, handlers, replay, and queue limits. Run pixi run check before recording the final walkthrough."
+        var steps = canonical_capability_steps()
+        if self.step < 0 or self.step >= len(steps):
+            return "Unknown walkthrough step"
+        return steps[self.step].body
 
     def next_request_id(mut self, prefix: String) -> String:
         self.request_sequence += 1
@@ -505,4 +476,4 @@ struct CapabilityWalkthroughState(Component):
 
 def capability_walkthrough_step_count() -> Int:
     """Return the number of scripted scenes used by the walkthrough."""
-    return CAPABILITY_WALKTHROUGH_STEP_COUNT
+    return len(canonical_capability_steps())

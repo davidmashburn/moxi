@@ -18,8 +18,7 @@ from moxi import (
     Rect,
     Color,
     SCENARIO_FRACTAL,
-    canonical_fractal_depths,
-    canonical_fractal_preset_ids,
+    canonical_fractal_cases,
     canonical_scenarios,
     fractal_preset_geometry,
     fractal_preset_name,
@@ -200,12 +199,11 @@ def main() raises:
         return
     var registry = canonical_scenarios()
     var descriptor = registry.entry(registry.index_for_id(SCENARIO_FRACTAL))
-    var preset_ids = canonical_fractal_preset_ids()
-    var depths = canonical_fractal_depths()
-    if len(preset_ids) != descriptor.fixture_size or len(depths) != descriptor.fixture_size:
+    var cases = canonical_fractal_cases()
+    if len(cases) != descriptor.fixture_size:
         print("Moxi fractal benchmark fixture metadata mismatch")
         metal_painter.shutdown()
         return
     for index in range(descriptor.fixture_size):
-        run_case(preset_ids[index], depths[index], metal_painter)
+        run_case(cases[index].preset_id, cases[index].depth, metal_painter)
     metal_painter.shutdown()

@@ -83,6 +83,57 @@ struct ScenarioDescriptor(ImplicitlyCopyable):
         return String("pixi run ", self.task)
 
 
+struct ThemeModeFixture(ImplicitlyCopyable):
+    """One palette state used by the theme showcase and visual corpus."""
+
+    var mode: Int
+    var name: String
+    var button_label: String
+    var action_id: Int
+    var status_message: String
+    var golden: Bool
+
+    def __init__(
+        out self,
+        mode: Int,
+        name: String,
+        button_label: String,
+        action_id: Int,
+        status_message: String,
+        golden: Bool,
+    ):
+        self.mode = mode
+        self.name = name
+        self.button_label = button_label
+        self.action_id = action_id
+        self.status_message = status_message
+        self.golden = golden
+
+
+struct ScenarioStep(ImplicitlyCopyable):
+    """One deterministic step in a canonical walkthrough fixture."""
+
+    var ordinal: Int
+    var title: String
+    var body: String
+
+    def __init__(out self, ordinal: Int, title: String, body: String):
+        self.ordinal = ordinal
+        self.title = title
+        self.body = body
+
+
+struct FractalBenchmarkFixture(ImplicitlyCopyable):
+    """One preset/depth pair in the canonical fractal workload."""
+
+    var preset_id: Int
+    var depth: Int
+
+    def __init__(out self, preset_id: Int, depth: Int):
+        self.preset_id = preset_id
+        self.depth = depth
+
+
 struct ScenarioRegistry:
     """Static scenario inventory shared by demos, tests, and benchmarks."""
 
@@ -116,7 +167,7 @@ struct ScenarioRegistry:
             "tests/tokens_recipes.mojo",
             "",
             "theme-dark,theme-light,theme-emerald",
-            3,
+            4,
             202,
             680.0,
             520.0,
@@ -282,13 +333,126 @@ def canonical_theme_selector_label() -> String:
 
 def canonical_theme_golden_mode(index: Int) -> Int:
     """Return the theme mode for one checked-in software golden."""
-    if index == 0:
-        return 0
-    if index == 1:
-        return 1
-    if index == 2:
-        return 3
+    var modes = canonical_theme_modes()
+    var golden_index = 0
+    for mode_index in range(len(modes)):
+        if modes[mode_index].golden:
+            if golden_index == index:
+                return modes[mode_index].mode
+            golden_index += 1
     return -1
+
+
+def canonical_theme_modes() -> List[ThemeModeFixture]:
+    """Return the complete deterministic palette state table."""
+    var result = List[ThemeModeFixture](capacity=4)
+    result.append(ThemeModeFixture(
+        0,
+        "Dark",
+        "Dark Slate",
+        1,
+        "Switched to Dark Slate palette.",
+        True,
+    ))
+    result.append(ThemeModeFixture(
+        1,
+        "Light",
+        "Clean Light",
+        2,
+        "Switched to Clean Light palette.",
+        True,
+    ))
+    result.append(ThemeModeFixture(
+        2,
+        "Zinc",
+        "Neutral Zinc",
+        3,
+        "Switched to Neutral Zinc palette.",
+        False,
+    ))
+    result.append(ThemeModeFixture(
+        3,
+        "Emerald",
+        "Emerald Teal",
+        4,
+        "Switched to Emerald Teal palette.",
+        True,
+    ))
+    return result^
+
+
+def canonical_theme_mode_name(mode: Int) -> String:
+    """Return the display name for one canonical palette mode."""
+    var modes = canonical_theme_modes()
+    for index in range(len(modes)):
+        if modes[index].mode == mode:
+            return modes[index].name
+    return "Unknown"
+
+
+def canonical_theme_status(mode: Int) -> String:
+    """Return the status copy for one canonical palette mode."""
+    var modes = canonical_theme_modes()
+    for index in range(len(modes)):
+        if modes[index].mode == mode:
+            return modes[index].status_message
+    return "Unknown theme palette."
+
+
+def canonical_capability_steps() -> List[ScenarioStep]:
+    """Return the complete deterministic capability walkthrough table."""
+    var result = List[ScenarioStep](capacity=10)
+    result.append(ScenarioStep(
+        1,
+        "1 · Define the Component boundary",
+        "A Moxi component owns value state and returns a lightweight view. The native window and renderer remain host concerns.",
+    ))
+    result.append(ScenarioStep(
+        2,
+        "2 · Build the view tree",
+        "Implement build(bounds) -> ColumnView. Add labels, controls, or a canvas, configure layout, and return the completed tree.",
+    ))
+    result.append(ScenarioStep(
+        3,
+        "3 · Route events through update",
+        "App routes a click or key event to update. The component changes its own state, then App rebuilds and reconciles the view.",
+    ))
+    result.append(ScenarioStep(
+        4,
+        "4 · Register a capability descriptor",
+        "CapabilityDescriptor makes the action inspectable: stable name, side-effect class, approval policy, concurrency, and input schema.",
+    ))
+    result.append(ScenarioStep(
+        5,
+        "5 · Authorize the UI mutation",
+        "The UI creates a CapabilityInvocation and sends it through authorize. Only after policy accepts it does application code apply the mutation.",
+    ))
+    result.append(ScenarioStep(
+        6,
+        "6 · Reuse the envelope for agents",
+        "An agent uses the same request envelope with caller, idempotency, and reasoning metadata. It does not receive a mutable reference to component state.",
+    ))
+    result.append(ScenarioStep(
+        7,
+        "7 · Require trusted approval",
+        "Destructive or network work cannot use a caller-supplied Boolean as approval. The bus issues a token bound to this exact request.",
+    ))
+    result.append(ScenarioStep(
+        8,
+        "8 · Execute through a typed handler",
+        "Register a CapabilityHandler and call invoke_handler when the application wants a typed executor. Executor-less invoke calls are rejected.",
+    ))
+    result.append(ScenarioStep(
+        9,
+        "9 · Keep replay and queue behavior bounded",
+        "The bus preserves a bounded FIFO and recent idempotent completions. Queue pressure, replay, and exclusive leases stay observable.",
+    ))
+    result.append(ScenarioStep(
+        10,
+        "10 · Verify the contract and ship",
+        "Tests cover descriptors, schemas, approval, leases, handlers, replay, and queue limits. Run pixi run check before recording the final walkthrough.",
+    ))
+    return result^
 
 
 def canonical_text_coretext_fixture() -> String:
@@ -341,27 +505,33 @@ def canonical_capability_hint() -> String:
     return "The buttons below are normal Component events. Their mutations cross the same CapabilityBus boundary used by an agent adapter."
 
 
+def canonical_fractal_cases() -> List[FractalBenchmarkFixture]:
+    """Return the canonical fractal preset/depth workload table."""
+    var result = List[FractalBenchmarkFixture](capacity=6)
+    result.append(FractalBenchmarkFixture(0, 5))
+    result.append(FractalBenchmarkFixture(4, 4))
+    result.append(FractalBenchmarkFixture(10, 5))
+    result.append(FractalBenchmarkFixture(19, 4))
+    result.append(FractalBenchmarkFixture(25, 4))
+    result.append(FractalBenchmarkFixture(12, 4))
+    return result^
+
+
 def canonical_fractal_preset_ids() -> List[Int]:
     """Return the deterministic preset order for the fractal benchmark."""
     var result = List[Int](capacity=6)
-    result.append(0)
-    result.append(4)
-    result.append(10)
-    result.append(19)
-    result.append(25)
-    result.append(12)
+    var cases = canonical_fractal_cases()
+    for index in range(len(cases)):
+        result.append(cases[index].preset_id)
     return result^
 
 
 def canonical_fractal_depths() -> List[Int]:
     """Return the deterministic depth order for the fractal benchmark."""
     var result = List[Int](capacity=6)
-    result.append(5)
-    result.append(4)
-    result.append(5)
-    result.append(4)
-    result.append(4)
-    result.append(4)
+    var cases = canonical_fractal_cases()
+    for index in range(len(cases)):
+        result.append(cases[index].depth)
     return result^
 
 

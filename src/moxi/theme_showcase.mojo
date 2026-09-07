@@ -30,7 +30,13 @@ from .tokens import (
     theme_from_tokens,
     zinc_tokens,
 )
-from .scenarios import canonical_theme_selector_label, canonical_theme_title
+from .scenarios import (
+    canonical_theme_modes,
+    canonical_theme_mode_name,
+    canonical_theme_selector_label,
+    canonical_theme_status,
+    canonical_theme_title,
+)
 from .view import ColumnView
 
 comptime THEME_DARK = 0
@@ -96,23 +102,18 @@ struct ThemeShowcaseState(Component):
         # Header Row: Title & Badges
         _ = view.add_row(1000, 0.0, 36.0, 0.0, sp.space_sm)
         view.add_label_to(1000, 1001, canonical_theme_title(), 36.0)
-        var mode_name = "Theme: Dark"
-        if self.theme_mode == THEME_LIGHT:
-            mode_name = "Theme: Light"
-        elif self.theme_mode == THEME_ZINC:
-            mode_name = "Theme: Zinc"
-        elif self.theme_mode == THEME_EMERALD:
-            mode_name = "Theme: Emerald"
+        var mode_name = String("Theme: ", canonical_theme_mode_name(self.theme_mode))
         var theme_badge = badge(1002, mode_name, 24.0, True, tokens)
         view.add_to(1000, theme_badge)
 
         # Theme Switcher Toolbar Row
         _ = view.add_row(1100, 0.0, 34.0, 0.0, sp.space_sm)
         view.add_label_to(1100, 1101, canonical_theme_selector_label(), 34.0)
-        var b_dark = secondary_button(BTN_THEME_DARK, "Dark Slate", 32.0, ACTION_SET_DARK, tokens)
-        var b_light = secondary_button(BTN_THEME_LIGHT, "Clean Light", 32.0, ACTION_SET_LIGHT, tokens)
-        var b_zinc = secondary_button(BTN_THEME_ZINC, "Neutral Zinc", 32.0, ACTION_SET_ZINC, tokens)
-        var b_emerald = secondary_button(BTN_THEME_EMERALD, "Emerald Teal", 32.0, ACTION_SET_EMERALD, tokens)
+        var modes = canonical_theme_modes()
+        var b_dark = secondary_button(BTN_THEME_DARK, modes[0].button_label, 32.0, modes[0].action_id, tokens)
+        var b_light = secondary_button(BTN_THEME_LIGHT, modes[1].button_label, 32.0, modes[1].action_id, tokens)
+        var b_zinc = secondary_button(BTN_THEME_ZINC, modes[2].button_label, 32.0, modes[2].action_id, tokens)
+        var b_emerald = secondary_button(BTN_THEME_EMERALD, modes[3].button_label, 32.0, modes[3].action_id, tokens)
         view.add_to(1100, b_dark)
         view.add_to(1100, b_light)
         view.add_to(1100, b_zinc)
@@ -239,19 +240,19 @@ struct ThemeShowcaseState(Component):
         # overlap with that generic action.
         if target == BTN_THEME_DARK or (target == -1 and action_id == ACTION_SET_DARK):
             self.theme_mode = THEME_DARK
-            self.status_message = "Switched to Dark Slate palette."
+            self.status_message = canonical_theme_status(THEME_DARK)
             return True
         elif target == BTN_THEME_LIGHT or (target == -1 and action_id == ACTION_SET_LIGHT):
             self.theme_mode = THEME_LIGHT
-            self.status_message = "Switched to Clean Light palette."
+            self.status_message = canonical_theme_status(THEME_LIGHT)
             return True
         elif target == BTN_THEME_ZINC or (target == -1 and action_id == ACTION_SET_ZINC):
             self.theme_mode = THEME_ZINC
-            self.status_message = "Switched to Neutral Zinc palette."
+            self.status_message = canonical_theme_status(THEME_ZINC)
             return True
         elif target == BTN_THEME_EMERALD or (target == -1 and action_id == ACTION_SET_EMERALD):
             self.theme_mode = THEME_EMERALD
-            self.status_message = "Switched to Emerald Teal palette."
+            self.status_message = canonical_theme_status(THEME_EMERALD)
             return True
         elif target == 3102:
             self.checkbox_checked = not self.checkbox_checked
