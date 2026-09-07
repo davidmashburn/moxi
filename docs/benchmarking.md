@@ -54,14 +54,22 @@ and architecture. Every case records its command, profile/run parameters, and
 each run's exit status, wall-clock seconds, and deterministic metric lines
 (rows, commands, work counters, checksums, and similar workload evidence).
 Wall-clock values are diagnostic; compare deterministic counters and checksums
-first, and compare timings only between compatible environment records.
+first, and compare timings only between compatible environment records. The
+comparator reports `median`, interpolated `p95`, and median absolute deviation
+(`MAD`) for every case so a noisy sample is visible instead of being hidden by
+a single average.
 
 Reviewed release references live under
 [`benchmarks/results/`](../benchmarks/results/). They are refreshed only from a
 clean tree with the pinned compiler and repeated full profile; local/CI samples
 remain in ignored `dist/benchmark-results/` output. The baseline policy treats
 counter/checksum changes as contract review and wall-clock values as
-same-environment diagnostics.
+same-environment diagnostics. The checked-in
+[`benchmark-policy.json`](../benchmarks/benchmark-policy.json) is the host
+matrix: it registers the reviewed macOS arm64 reference and records Linux and
+Windows entries as planned. Run `pixi run benchmark-policy-check` when changing
+the policy or a reviewed report. An unregistered host, compiler build, or
+profile is rejected rather than compared as if it were macOS.
 
 Compare a compatible full-profile candidate with the reviewed macOS baseline:
 
@@ -71,7 +79,13 @@ pixi run benchmark-compare
 ```
 
 The comparison requires matching profile, run shape, Mojo version, OS, and
-architecture; it checks deterministic metric/checksum signatures exactly and
-flags median wall-time regressions above 20% by default. Use
-`--max-regression-percent` to set a review-specific diagnostic limit and
-`--allow-dirty` only for exploratory comparisons.
+architecture; it requires at least three samples per case, checks deterministic
+metric/checksum signatures exactly, and flags median regressions above 20% or
+p95 regressions above 30% by default. Use `--max-regression-percent` and
+`--max-p95-regression-percent` for review-specific diagnostic limits, and
+`--allow-dirty` only for exploratory comparisons. A planned host needs its own
+clean, repeated baseline before wall-clock comparison is enabled.
+
+CI runs the quick profile three times and uploads `quick.json` as reviewable
+evidence. That artifact is a smoke signal for deterministic work and sample
+dispersion; it is not promoted to a cross-host release baseline automatically.

@@ -38,9 +38,13 @@ compilation/loading. The Metal binaries are compiled once before their
 measured runs.
 
 Use `pixi run benchmark-compare` to compare a full-profile candidate with the
-reviewed macOS arm64 baseline. It enforces compatible environment metadata and
-exact deterministic signatures before applying the documented timing diagnostic
-limit; it does not turn noisy wall-clock samples into a cross-machine claim.
+reviewed macOS arm64 baseline. It enforces the registered host matrix in
+[`benchmarks/benchmark-policy.json`](../benchmarks/benchmark-policy.json),
+requires at least three samples per case, and checks exact deterministic
+signatures before applying median and p95 timing limits. The report includes
+median absolute deviation (MAD) for dispersion review; it does not turn noisy
+wall-clock samples into a cross-machine claim. Run
+`pixi run benchmark-policy-check` to validate all checked-in references.
 
 ## Workloads and budgets
 
@@ -207,7 +211,10 @@ construction, while subsequent queries exercise the retained grid; pan still
 invalidates screen-space geometry because packets currently store pixel
 coordinates. The Metal plot packet currently uses independent segment
 expansion; continuous line joins/caps, filled-area tessellation, GPU text, and
-text-heavy plot labels remain separate work. The iOS and Android hosts now contain SDK-facing lifecycle,
+text-heavy plot labels remain separate work. The benchmark policy currently has
+one reviewed macOS arm64 host; Linux and Windows entries are intentionally
+planned until their compiler/runtime baselines can be collected and reviewed.
+The iOS and Android hosts now contain SDK-facing lifecycle,
 input, and accessibility source slices, and the Web Canvas demo runs in a
 real browser; these are host validation artifacts rather than Mojo package
 targets. Full device/browser runtime integration and platform performance

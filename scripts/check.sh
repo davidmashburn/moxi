@@ -13,6 +13,8 @@ bash -n scripts/browser_check.sh
 bash -n scripts/benchmark.sh
 bash -n scripts/scenario_check.sh
 python3 -m json.tool benchmarks/result-schema.json >/dev/null
+python3 -m json.tool benchmarks/benchmark-policy.json >/dev/null
+pixi run benchmark-policy-check
 bash scripts/api_status_check.sh
 bash scripts/demo_catalog_check.sh
 bash scripts/scenario_check.sh

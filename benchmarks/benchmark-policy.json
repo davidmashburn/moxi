@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/davidmashburn/moxi/benchmarks/benchmark-policy.json",
+  "schema_version": 1,
+  "comparison": {
+    "minimum_runs": 3,
+    "max_median_regression_percent": 20,
+    "max_p95_regression_percent": 30
+  },
+  "environment_match_fields": [
+    "mojo_version",
+    "os",
+    "architecture"
+  ],
+  "baselines": [
+    {
+      "id": "macos-arm64-full",
+      "profile": "full",
+      "path": "benchmarks/results/macos-arm64-full.json",
+      "os": "Darwin",
+      "architecture": "arm64",
+      "mojo_version": "Mojo 1.1.0.dev2026082605 (dd957314)",
+      "status": "reviewed"
+    },
+    {
+      "id": "linux-x86_64-full",
+      "profile": "full",
+      "path": null,
+      "os": "Linux",
+      "architecture": "x86_64",
+      "mojo_version": null,
+      "status": "planned"
+    },
+    {
+      "id": "windows-x86_64-full",
+      "profile": "full",
+      "path": null,
+      "os": "Windows",
+      "architecture": "x86_64",
+      "mojo_version": null,
+      "status": "planned"
+    }
+  ]
+}

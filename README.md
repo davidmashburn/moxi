@@ -328,7 +328,7 @@ benchmark-quick` is the portable smoke profile; `pixi run benchmark-full`
 adds the complete plot, collection, fractal, and Metal matrix. Both profiles
 write structured JSON under `dist/benchmark-results/`; see
 [docs/benchmarking.md](docs/benchmarking.md). Reviewed release references and
-the clean-tree refresh command live under
+the host/dispersion policy plus clean-tree refresh command live under
 [`benchmarks/results/`](benchmarks/results/).
 
 `pixi run counter-demo` opens the interactive counter. Click `Increment` to

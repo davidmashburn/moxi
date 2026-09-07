@@ -19,6 +19,17 @@ jobs:
         run: pixi install --locked
       - name: Run core and native validation
         run: pixi run check
+      - name: Run repeated quick benchmark smoke
+        env:
+          MOXI_BENCHMARK_RUNS: "3"
+        run: pixi run benchmark-quick
+      - name: Upload quick benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-quick-${{ github.run_id }}
+          path: dist/benchmark-results/quick.json
+          if-no-files-found: error
 
   package-consumer:
     runs-on: macos-14
