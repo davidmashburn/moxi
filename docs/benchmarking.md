@@ -22,7 +22,9 @@ that the corresponding demo/test/golden metadata has not drifted. Each
 descriptor also owns a deterministic `fixture_size`/`fixture_seed` pair; the
 collection and plot factories derive their default workload from those values,
 so changing a canonical fixture updates the demo/test/benchmark defaults
-together.
+together. Text probes, theme golden modes, and the fractal preset/depth matrix
+are likewise exported from the registry module rather than repeated in each
+consumer.
 
 The localized workload also runs a 1/10/100-child matrix. Each case sends 1,000
 targeted updates through a typed subtree and records initial/final builds,

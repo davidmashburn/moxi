@@ -476,7 +476,9 @@ The shared 10,000-row workload is available from
 `canonical_scenarios()` is the source-controlled registry for the seven
 scenario descriptors and their demo, test, benchmark, and golden consumers;
 its deterministic `fixture_size` and `fixture_seed` fields also supply the
-default collection and plot data used by those consumers. `pixi run
+default collection and plot data used by those consumers. The same module owns
+the mixed-text probes, theme-golden modes, capability walkthrough defaults, and
+fractal preset matrix used by their tests, goldens, demos, and benchmarks. `pixi run
 scenario-check` verifies that the paths, Pixi tasks, golden labels, and fixture
 metadata still agree.
 
