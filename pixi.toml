@@ -102,6 +102,7 @@ release-check = "bash scripts/release_check.sh"
 
 [dependencies]
 mojo = ">=1.1.0.dev2026082605,<2"
+canvas_mojo = { git = "https://github.com/davidmashburn/canvas_mojo.git", rev = "323154f9399f4ecfa6d5d2fb0fc7d87883fe3c1e" }
 
 [package]
 name = "moxi"
