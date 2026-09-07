@@ -5,7 +5,14 @@
 - repository URL;
 - tag and commit;
 - checkout availability;
-- whether the upstream test/benchmark command was attempted;
+- the upstream-run status, command, return code, and bounded output tails;
 - the normalized Moxi overlap fixture results.
 
-The protocol tolerates a missing local Mojo toolchain for the external checkout by recording `reference_unavailable`; it never upgrades that result to parity. A release can therefore ship the local overlap lane while retaining an honest external-build status.
+The default command is `pixi run test` and runs only when
+`DATAVIZ_MOJO_PATH` points to an exact-pinned checkout. Set
+`DATAVIZ_REFERENCE_COMMAND="pixi run example"` to render the upstream
+example gallery, and adjust `DATAVIZ_REFERENCE_TIMEOUT` when needed. The
+protocol tolerates a missing local Mojo toolchain by recording an unavailable
+or failed external run; it never upgrades that result to parity. A release
+can therefore ship the local overlap lane while retaining an honest
+external-build status.

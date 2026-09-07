@@ -6,10 +6,10 @@ from __future__ import annotations
 import csv
 import json
 import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Any, Dict, List
 
 REPO = "https://github.com/randyzwitch/dataviz_mojo.git"
@@ -33,6 +33,45 @@ def reference_status() -> Dict[str, Any]:
         return {"status": "unavailable", "reason": str(exc), "expected": REVISION}
     remote = result.stdout.split()[0] if result.returncode == 0 and result.stdout.split() else ""
     return {"status": "available" if remote == REVISION else "mismatch", "remote": remote, "expected": REVISION}
+
+
+def run_upstream_reference(reference: Dict[str, Any]) -> Dict[str, Any]:
+    """Run a real upstream command only when an exact local checkout is supplied.
+
+    The default command exercises the upstream test suite without modifying its
+    checkout. Set DATAVIZ_REFERENCE_COMMAND to an explicit render/example
+    command when generating the upstream gallery artifacts.
+    """
+    path = reference.get("path")
+    if reference.get("status") != "available" or not path:
+        return {
+            "status": "not-run",
+            "reason": "set DATAVIZ_MOJO_PATH to an exact pinned checkout",
+        }
+    command_text = os.environ.get("DATAVIZ_REFERENCE_COMMAND", "pixi run test")
+    try:
+        command = shlex.split(command_text)
+    except ValueError as exc:
+        return {"status": "failed", "command": command_text, "reason": str(exc)}
+    if not command:
+        return {"status": "not-run", "reason": "DATAVIZ_REFERENCE_COMMAND is empty"}
+    try:
+        result = subprocess.run(
+            command,
+            cwd=path,
+            capture_output=True,
+            text=True,
+            timeout=int(os.environ.get("DATAVIZ_REFERENCE_TIMEOUT", "180")),
+        )
+    except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
+        return {"status": "failed", "command": command, "reason": str(exc)}
+    return {
+        "status": "passed" if result.returncode == 0 else "failed",
+        "command": command,
+        "returncode": result.returncode,
+        "stdout_tail": result.stdout[-1000:],
+        "stderr_tail": result.stderr[-1000:],
+    }
 
 
 def run_local_overlap(repo_dir: Path) -> List[Dict[str, Any]]:
@@ -72,8 +111,10 @@ def check_inventory(repo_dir: Path) -> None:
 def main() -> int:
     repo_dir = Path(__file__).resolve().parents[1]
     check_inventory(repo_dir)
+    reference = {"repository": REPO, "tag": TAG, "revision": REVISION, **reference_status()}
     manifest = {
-        "reference": {"repository": REPO, "tag": TAG, "revision": REVISION, **reference_status()},
+        "reference": reference,
+        "upstream_run": run_upstream_reference(reference),
         "overlap": run_local_overlap(repo_dir),
         "normalization": {
             "structural": "SVG element/attribute topology and PlotSpec JSON fields",
@@ -81,7 +122,7 @@ def main() -> int:
         },
     }
     print(json.dumps(manifest, indent=2, sort_keys=True))
-    if manifest["reference"]["status"] == "mismatch":
+    if manifest["reference"]["status"] == "mismatch" or manifest["upstream_run"]["status"] == "failed":
         return 2
     return 0
 
