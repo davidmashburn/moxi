@@ -4,7 +4,7 @@
   "requested_runs": 3,
   "warmup_runs": 0,
   "environment": {
-    "git_revision": "64f27a25327a57272999037e26851d99eacb8ad2",
+    "git_revision": "7137c4883f4304619f77215425cb792d57bb0d63",
     "git_dirty": false,
     "mojo_version": "Mojo 1.1.0.dev2026082605 (dd957314)",
     "os": "Darwin",
@@ -23,7 +23,7 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 5.66,
+          "wall_seconds": 1.86,
           "metric_lines": [
             "Moxi localized benchmark passes:  1000",
             "Moxi localized benchmark count:  1000",
@@ -64,7 +64,7 @@
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 2.24,
+          "wall_seconds": 1.83,
           "metric_lines": [
             "Moxi localized benchmark passes:  1000",
             "Moxi localized benchmark count:  1000",
@@ -105,7 +105,7 @@
         {
           "run": 3,
           "status": 0,
-          "wall_seconds": 1.86,
+          "wall_seconds": 1.76,
           "metric_lines": [
             "Moxi localized benchmark passes:  1000",
             "Moxi localized benchmark count:  1000",
@@ -157,7 +157,7 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 10.39,
+          "wall_seconds": 2.69,
           "metric_lines": [
             "Moxi retained pipeline benchmark passes:  100",
             "Moxi paint benchmark commands:  42",
@@ -172,7 +172,7 @@
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 2.7,
+          "wall_seconds": 2.67,
           "metric_lines": [
             "Moxi retained pipeline benchmark passes:  100",
             "Moxi paint benchmark commands:  42",
@@ -187,7 +187,7 @@
         {
           "run": 3,
           "status": 0,
-          "wall_seconds": 2.47,
+          "wall_seconds": 2.53,
           "metric_lines": [
             "Moxi retained pipeline benchmark passes:  100",
             "Moxi paint benchmark commands:  42",
@@ -213,7 +213,7 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 6.52,
+          "wall_seconds": 1.78,
           "metric_lines": [
             "Moxi plot benchmark passes:  100",
             "Moxi plot benchmark commands/frame:  65",
@@ -224,7 +224,7 @@
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 1.47,
+          "wall_seconds": 1.44,
           "metric_lines": [
             "Moxi plot benchmark passes:  100",
             "Moxi plot benchmark commands/frame:  65",
@@ -235,7 +235,7 @@
         {
           "run": 3,
           "status": 0,
-          "wall_seconds": 1.46,
+          "wall_seconds": 1.38,
           "metric_lines": [
             "Moxi plot benchmark passes:  100",
             "Moxi plot benchmark commands/frame:  65",
@@ -257,7 +257,7 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 7.95,
+          "wall_seconds": 2.08,
           "metric_lines": [
             "Moxi analytics benchmark rows:  48",
             "Moxi analytics passes:  20",
@@ -273,7 +273,7 @@
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 1.8,
+          "wall_seconds": 1.91,
           "metric_lines": [
             "Moxi analytics benchmark rows:  48",
             "Moxi analytics passes:  20",
@@ -289,7 +289,7 @@
         {
           "run": 3,
           "status": 0,
-          "wall_seconds": 1.81,
+          "wall_seconds": 1.87,
           "metric_lines": [
             "Moxi analytics benchmark rows:  48",
             "Moxi analytics passes:  20",
@@ -316,7 +316,7 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 1.06,
+          "wall_seconds": 1.21,
           "metric_lines": [
             "Moxi large-plot line rows: 10000",
             "Moxi large-plot line commands:  1998",
@@ -329,7 +329,7 @@
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 1.08,
+          "wall_seconds": 1.27,
           "metric_lines": [
             "Moxi large-plot line rows: 10000",
             "Moxi large-plot line commands:  1998",
@@ -342,7 +342,7 @@
         {
           "run": 3,
           "status": 0,
-          "wall_seconds": 1.13,
+          "wall_seconds": 1.24,
           "metric_lines": [
             "Moxi large-plot line rows: 10000",
             "Moxi large-plot line commands:  1998",
@@ -366,7 +366,7 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 2.72,
+          "wall_seconds": 0.92,
           "metric_lines": [
             "Moxi interaction benchmark rows:  10000",
             "Moxi interaction benchmark passes:  100",
@@ -378,7 +378,7 @@
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 0.93,
+          "wall_seconds": 0.9,
           "metric_lines": [
             "Moxi interaction benchmark rows:  10000",
             "Moxi interaction benchmark passes:  100",
@@ -390,7 +390,7 @@
         {
           "run": 3,
           "status": 0,
-          "wall_seconds": 0.82,
+          "wall_seconds": 0.9,
           "metric_lines": [
             "Moxi interaction benchmark rows:  10000",
             "Moxi interaction benchmark passes:  100",
@@ -413,35 +413,35 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 0.59,
+          "wall_seconds": 0.53,
           "metric_lines": [
             "Moxi interaction rows:  100000",
-            "hot queries/count/ms:  120 / 47 / 0.928",
+            "hot queries/count/ms:  120 / 47 / 1.266",
             "index rebuilds/hot candidates/brush candidates:  1 / 270 / 7550",
             "packet rebuilds first/second:  1 / 1",
-            "brush ms/selected:  0.443 / 5930",
+            "brush ms/selected:  0.514 / 5930",
             "Moxi interaction rows:  1000000",
-            "hot queries/count/ms:  120 / 47 / 13.996",
+            "hot queries/count/ms:  120 / 47 / 16.599",
             "index rebuilds/hot candidates/brush candidates:  1 / 2700 / 75500",
             "packet rebuilds first/second:  1 / 1",
-            "brush ms/selected:  4.629 / 59300"
+            "brush ms/selected:  6.56 / 59300"
           ]
         },
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 0.18,
+          "wall_seconds": 0.19,
           "metric_lines": [
             "Moxi interaction rows:  100000",
-            "hot queries/count/ms:  120 / 47 / 1.406",
+            "hot queries/count/ms:  120 / 47 / 1.522",
             "index rebuilds/hot candidates/brush candidates:  1 / 270 / 7550",
             "packet rebuilds first/second:  1 / 1",
-            "brush ms/selected:  0.409 / 5930",
+            "brush ms/selected:  0.754 / 5930",
             "Moxi interaction rows:  1000000",
-            "hot queries/count/ms:  120 / 47 / 14.977",
+            "hot queries/count/ms:  120 / 47 / 16.746",
             "index rebuilds/hot candidates/brush candidates:  1 / 2700 / 75500",
             "packet rebuilds first/second:  1 / 1",
-            "brush ms/selected:  5.238 / 59300"
+            "brush ms/selected:  4.88 / 59300"
           ]
         },
         {
@@ -450,15 +450,15 @@
           "wall_seconds": 0.18,
           "metric_lines": [
             "Moxi interaction rows:  100000",
-            "hot queries/count/ms:  120 / 47 / 1.183",
+            "hot queries/count/ms:  120 / 47 / 1.034",
             "index rebuilds/hot candidates/brush candidates:  1 / 270 / 7550",
             "packet rebuilds first/second:  1 / 1",
-            "brush ms/selected:  0.501 / 5930",
+            "brush ms/selected:  0.406 / 5930",
             "Moxi interaction rows:  1000000",
-            "hot queries/count/ms:  120 / 47 / 14.36",
+            "hot queries/count/ms:  120 / 47 / 15.295",
             "index rebuilds/hot candidates/brush candidates:  1 / 2700 / 75500",
             "packet rebuilds first/second:  1 / 1",
-            "brush ms/selected:  5.059 / 59300"
+            "brush ms/selected:  5.197 / 59300"
           ]
         }
       ]
@@ -475,40 +475,40 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 0.29,
+          "wall_seconds": 0.3,
           "metric_lines": [
             "line segments:  11",
             "fallback required:  False",
             "passes:  25",
             "GPU line segments/frame:  11",
             "vertices/frame:  6684",
-            "checksum:  82316340"
+            "checksum:  1496087545"
           ]
         },
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 0.09,
+          "wall_seconds": 0.07,
           "metric_lines": [
             "line segments:  11",
             "fallback required:  False",
             "passes:  25",
             "GPU line segments/frame:  11",
             "vertices/frame:  6684",
-            "checksum:  82316340"
+            "checksum:  1496087545"
           ]
         },
         {
           "run": 3,
           "status": 0,
-          "wall_seconds": 0.06,
+          "wall_seconds": 0.07,
           "metric_lines": [
             "line segments:  11",
             "fallback required:  False",
             "passes:  25",
             "GPU line segments/frame:  11",
             "vertices/frame:  6684",
-            "checksum:  82316340"
+            "checksum:  1496087545"
           ]
         }
       ]
@@ -525,27 +525,27 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 0.37,
+          "wall_seconds": 0.66,
           "metric_lines": [
-            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.028  expansion_lines_sec= 17714285.714285713  paint_ms/ 25 = 0.011  paint_lines_sec= 1138636363.6363637  metal_wall_total_ms= 15.766  metal_wall_ms/frame= 0.63064  metal_line_geometry_ms/frame= 0.000834465  metal_cpu_encode_ms/frame= 0.036878586  metal_cpu_wait_ms/frame= 0.5860138  metal_gpu_ms/frame= 0.25373334  metal_frame_ms/frame= 0.62851906  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
-            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.036  expansion_lines_sec= 113777777.77777779  paint_ms/ 25 = 0.1  paint_lines_sec= 1026250000.0  metal_wall_total_ms= 17.048  metal_wall_ms/frame= 0.68192  metal_line_geometry_ms/frame= 0.0034093857  metal_cpu_encode_ms/frame= 0.032439232  metal_cpu_wait_ms/frame= 0.64224714  metal_gpu_ms/frame= 0.29026166  metal_frame_ms/frame= 0.6800795  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
-            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.159  expansion_lines_sec= 105704402.51572327  paint_ms/ 25 = 0.5  paint_lines_sec= 840750000.0  metal_wall_total_ms= 18.954  metal_wall_ms/frame= 0.7581600000000001  metal_line_geometry_ms/frame= 0.011253357  metal_cpu_encode_ms/frame= 0.032601356  metal_cpu_wait_ms/frame= 0.71897507  metal_gpu_ms/frame= 0.38009998  metal_frame_ms/frame= 0.75670713  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
-            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.022  expansion_lines_sec= 186181818.1818182  paint_ms/ 25 = 0.108  paint_lines_sec= 950231481.4814814  metal_wall_total_ms= 11.654  metal_wall_ms/frame= 0.46616  metal_line_geometry_ms/frame= 0.002527237  metal_cpu_encode_ms/frame= 0.025482178  metal_cpu_wait_ms/frame= 0.43338776  metal_gpu_ms/frame= 0.153725  metal_frame_ms/frame= 0.46440125  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
-            "Switchback  depth  4 : lines= 729  expansion_ms= 0.011  expansion_lines_sec= 66272727.27272727  paint_ms/ 25 = 0.022  paint_lines_sec= 839772727.2727274  metal_wall_total_ms= 13.02  metal_wall_ms/frame= 0.5207999999999999  metal_line_geometry_ms/frame= 0.000910759  metal_cpu_encode_ms/frame= 0.025157928  metal_cpu_wait_ms/frame= 0.48856258  metal_gpu_ms/frame= 0.17785  metal_frame_ms/frame= 0.5186415  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
-            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.05  expansion_lines_sec= 200000000.0  paint_ms/ 25 = 0.288  paint_lines_sec= 869010416.6666667  metal_wall_total_ms= 15.013  metal_wall_ms/frame= 0.6005199999999999  metal_line_geometry_ms/frame= 0.0059223175  metal_cpu_encode_ms/frame= 0.02790451  metal_cpu_wait_ms/frame= 0.56598663  metal_gpu_ms/frame= 0.28892833  metal_frame_ms/frame= 0.59878826  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
+            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.028  expansion_lines_sec= 17714285.714285713  paint_ms/ 25 = 0.013  paint_lines_sec= 963461538.4615386  metal_wall_total_ms= 28.344  metal_wall_ms/frame= 1.13376  metal_line_geometry_ms/frame= 0.0012922287  metal_cpu_encode_ms/frame= 0.06140709  metal_cpu_wait_ms/frame= 1.0504818  metal_gpu_ms/frame= 0.5523767  metal_frame_ms/frame= 1.1297655  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
+            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.044  expansion_lines_sec= 93090909.0909091  paint_ms/ 25 = 0.1  paint_lines_sec= 1026250000.0  metal_wall_total_ms= 17.914  metal_wall_ms/frame= 0.7165600000000001  metal_line_geometry_ms/frame= 0.003876686  metal_cpu_encode_ms/frame= 0.03844261  metal_cpu_wait_ms/frame= 0.6694126  metal_gpu_ms/frame= 0.32318002  metal_frame_ms/frame= 0.71468824  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
+            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.169  expansion_lines_sec= 99449704.14201182  paint_ms/ 25 = 0.407  paint_lines_sec= 1032862407.8624079  metal_wall_total_ms= 21.592  metal_wall_ms/frame= 0.86368  metal_line_geometry_ms/frame= 0.009512901  metal_cpu_encode_ms/frame= 0.032362938  metal_cpu_wait_ms/frame= 0.8234262  metal_gpu_ms/frame= 0.48879164  metal_frame_ms/frame= 0.86171633  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
+            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.022  expansion_lines_sec= 186181818.1818182  paint_ms/ 25 = 0.108  paint_lines_sec= 950231481.4814814  metal_wall_total_ms= 16.145  metal_wall_ms/frame= 0.6457999999999999  metal_line_geometry_ms/frame= 0.002913475  metal_cpu_encode_ms/frame= 0.02820015  metal_cpu_wait_ms/frame= 0.6083298  metal_gpu_ms/frame= 0.287125  metal_frame_ms/frame= 0.6438208  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
+            "Switchback  depth  4 : lines= 729  expansion_ms= 0.007  expansion_lines_sec= 104142857.14285713  paint_ms/ 25 = 0.018  paint_lines_sec= 1026388888.888889  metal_wall_total_ms= 14.543  metal_wall_ms/frame= 0.58172  metal_line_geometry_ms/frame= 0.0008869171  metal_cpu_encode_ms/frame= 0.027160645  metal_cpu_wait_ms/frame= 0.5454445  metal_gpu_ms/frame= 0.22995667  metal_frame_ms/frame= 0.5800438  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
+            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.043  expansion_lines_sec= 232558139.53488374  paint_ms/ 25 = 0.243  paint_lines_sec= 1029938271.6049383  metal_wall_total_ms= 18.825  metal_wall_ms/frame= 0.753  metal_line_geometry_ms/frame= 0.006532669  metal_cpu_encode_ms/frame= 0.029187202  metal_cpu_wait_ms/frame= 0.7161569  metal_gpu_ms/frame= 0.36284  metal_frame_ms/frame= 0.75102323  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
           ]
         },
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 0.15,
+          "wall_seconds": 0.17,
           "metric_lines": [
-            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.025  expansion_lines_sec= 19840000.0  paint_ms/ 25 = 0.011  paint_lines_sec= 1138636363.6363637  metal_wall_total_ms= 17.217  metal_wall_ms/frame= 0.68868  metal_line_geometry_ms/frame= 0.0007915497  metal_cpu_encode_ms/frame= 0.037722588  metal_cpu_wait_ms/frame= 0.64290047  metal_gpu_ms/frame= 0.30373502  metal_frame_ms/frame= 0.68671227  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
-            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.037  expansion_lines_sec= 110702702.7027027  paint_ms/ 25 = 0.101  paint_lines_sec= 1016089108.910891  metal_wall_total_ms= 19.14  metal_wall_ms/frame= 0.7656000000000001  metal_line_geometry_ms/frame= 0.0029325485  metal_cpu_encode_ms/frame= 0.021333694  metal_cpu_wait_ms/frame= 0.7384538  metal_gpu_ms/frame= 0.37108502  metal_frame_ms/frame= 0.7639932  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
-            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.148  expansion_lines_sec= 113560810.81081082  paint_ms/ 25 = 0.443  paint_lines_sec= 948927765.2370203  metal_wall_total_ms= 19.131  metal_wall_ms/frame= 0.76524  metal_line_geometry_ms/frame= 0.010633469  metal_cpu_encode_ms/frame= 0.030274391  metal_cpu_wait_ms/frame= 0.7282162  metal_gpu_ms/frame= 0.39029998  metal_frame_ms/frame= 0.7635689  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
-            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.024  expansion_lines_sec= 170666666.66666666  paint_ms/ 25 = 0.118  paint_lines_sec= 869703389.8305085  metal_wall_total_ms= 11.296  metal_wall_ms/frame= 0.45183999999999996  metal_line_geometry_ms/frame= 0.0028896332  metal_cpu_encode_ms/frame= 0.024914741  metal_cpu_wait_ms/frame= 0.42016983  metal_gpu_ms/frame= 0.16653165  metal_frame_ms/frame= 0.4503727  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
-            "Switchback  depth  4 : lines= 729  expansion_ms= 0.009  expansion_lines_sec= 81000000.0  paint_ms/ 25 = 0.022  paint_lines_sec= 839772727.2727274  metal_wall_total_ms= 13.29  metal_wall_ms/frame= 0.5316  metal_line_geometry_ms/frame= 0.00076293945  metal_cpu_encode_ms/frame= 0.022511482  metal_cpu_wait_ms/frame= 0.50231457  metal_gpu_ms/frame= 0.17736  metal_frame_ms/frame= 0.5299139  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
-            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.049  expansion_lines_sec= 204081632.6530612  paint_ms/ 25 = 0.291  paint_lines_sec= 860051546.3917526  metal_wall_total_ms= 16.013  metal_wall_ms/frame= 0.6405200000000001  metal_line_geometry_ms/frame= 0.0076532364  metal_cpu_encode_ms/frame= 0.030441284  metal_cpu_wait_ms/frame= 0.6024456  metal_gpu_ms/frame= 0.30753666  metal_frame_ms/frame= 0.6387663  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
+            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.026  expansion_lines_sec= 19076923.076923076  paint_ms/ 25 = 0.012  paint_lines_sec= 1043750000.0  metal_wall_total_ms= 24.225  metal_wall_ms/frame= 0.9690000000000001  metal_line_geometry_ms/frame= 0.0009965897  metal_cpu_encode_ms/frame= 0.048832893  metal_cpu_wait_ms/frame= 0.90838915  metal_gpu_ms/frame= 0.41175002  metal_frame_ms/frame= 0.96590996  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
+            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.037  expansion_lines_sec= 110702702.7027027  paint_ms/ 25 = 0.1  paint_lines_sec= 1026250000.0  metal_wall_total_ms= 15.007  metal_wall_ms/frame= 0.60028  metal_line_geometry_ms/frame= 0.002989769  metal_cpu_encode_ms/frame= 0.026011467  metal_cpu_wait_ms/frame= 0.56736946  metal_gpu_ms/frame= 0.27020165  metal_frame_ms/frame= 0.598402  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
+            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.141  expansion_lines_sec= 119198581.5602837  paint_ms/ 25 = 0.406  paint_lines_sec= 1035406403.9408866  metal_wall_total_ms= 27.306  metal_wall_ms/frame= 1.09224  metal_line_geometry_ms/frame= 0.014224052  metal_cpu_encode_ms/frame= 0.055952072  metal_cpu_wait_ms/frame= 1.0260248  metal_gpu_ms/frame= 0.57218  metal_frame_ms/frame= 1.0891819  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
+            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.022  expansion_lines_sec= 186181818.1818182  paint_ms/ 25 = 0.1  paint_lines_sec= 1026250000.0  metal_wall_total_ms= 16.048  metal_wall_ms/frame= 0.6419199999999999  metal_line_geometry_ms/frame= 0.0025463104  metal_cpu_encode_ms/frame= 0.029511452  metal_cpu_wait_ms/frame= 0.6046486  metal_gpu_ms/frame= 0.2587  metal_frame_ms/frame= 0.63994885  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
+            "Switchback  depth  4 : lines= 729  expansion_ms= 0.008  expansion_lines_sec= 91125000.0  paint_ms/ 25 = 0.019  paint_lines_sec= 972368421.0526316  metal_wall_total_ms= 9.271  metal_wall_ms/frame= 0.37084000000000006  metal_line_geometry_ms/frame= 0.00052928925  metal_cpu_encode_ms/frame= 0.025010109  metal_cpu_wait_ms/frame= 0.33917904  metal_gpu_ms/frame= 0.07624667  metal_frame_ms/frame= 0.36933422  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
+            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.136  expansion_lines_sec= 73529411.76470588  paint_ms/ 25 = 0.541  paint_lines_sec= 462615526.8022181  metal_wall_total_ms= 20.424  metal_wall_ms/frame= 0.81696  metal_line_geometry_ms/frame= 0.005440712  metal_cpu_encode_ms/frame= 0.041799545  metal_cpu_wait_ms/frame= 0.76330185  metal_gpu_ms/frame= 0.38933003  metal_frame_ms/frame= 0.81490034  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
           ]
         },
         {
@@ -553,12 +553,12 @@
           "status": 0,
           "wall_seconds": 0.15,
           "metric_lines": [
-            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.026  expansion_lines_sec= 19076923.076923076  paint_ms/ 25 = 0.012  paint_lines_sec= 1043750000.0  metal_wall_total_ms= 17.957  metal_wall_ms/frame= 0.71828  metal_line_geometry_ms/frame= 0.0008058548  metal_cpu_encode_ms/frame= 0.035367012  metal_cpu_wait_ms/frame= 0.6756448  metal_gpu_ms/frame= 0.29415  metal_frame_ms/frame= 0.71653837  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
-            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.037  expansion_lines_sec= 110702702.7027027  paint_ms/ 25 = 0.093  paint_lines_sec= 1103494623.655914  metal_wall_total_ms= 14.597  metal_wall_ms/frame= 0.58388  metal_line_geometry_ms/frame= 0.0042057037  metal_cpu_encode_ms/frame= 0.023517609  metal_cpu_wait_ms/frame= 0.55397034  metal_gpu_ms/frame= 0.25166833  metal_frame_ms/frame= 0.58220387  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
-            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.13  expansion_lines_sec= 129284615.38461538  paint_ms/ 25 = 0.383  paint_lines_sec= 1097584856.3968668  metal_wall_total_ms= 17.941  metal_wall_ms/frame= 0.71764  metal_line_geometry_ms/frame= 0.00972271  metal_cpu_encode_ms/frame= 0.03566742  metal_cpu_wait_ms/frame= 0.67254066  metal_gpu_ms/frame= 0.37870997  metal_frame_ms/frame= 0.71590895  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
-            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.023  expansion_lines_sec= 178086956.52173913  paint_ms/ 25 = 0.108  paint_lines_sec= 950231481.4814814  metal_wall_total_ms= 13.696  metal_wall_ms/frame= 0.54784  metal_line_geometry_ms/frame= 0.0026750565  metal_cpu_encode_ms/frame= 0.022668839  metal_cpu_wait_ms/frame= 0.5190706  metal_gpu_ms/frame= 0.230215  metal_frame_ms/frame= 0.5462599  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
-            "Switchback  depth  4 : lines= 729  expansion_ms= 0.008  expansion_lines_sec= 91125000.0  paint_ms/ 25 = 0.02  paint_lines_sec= 923750000.0  metal_wall_total_ms= 11.785  metal_wall_ms/frame= 0.4714  metal_line_geometry_ms/frame= 0.00067710876  metal_cpu_encode_ms/frame= 0.023050308  metal_cpu_wait_ms/frame= 0.4414034  metal_gpu_ms/frame= 0.17755666  metal_frame_ms/frame= 0.46931267  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
-            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.046  expansion_lines_sec= 217391304.3478261  paint_ms/ 25 = 0.263  paint_lines_sec= 951615969.581749  metal_wall_total_ms= 16.194  metal_wall_ms/frame= 0.64776  metal_line_geometry_ms/frame= 0.005235672  metal_cpu_encode_ms/frame= 0.025134087  metal_cpu_wait_ms/frame= 0.6169987  metal_gpu_ms/frame= 0.23881501  metal_frame_ms/frame= 0.64641  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
+            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.03  expansion_lines_sec= 16533333.333333334  paint_ms/ 25 = 0.013  paint_lines_sec= 963461538.4615386  metal_wall_total_ms= 14.436  metal_wall_ms/frame= 0.57744  metal_line_geometry_ms/frame= 0.00079631805  metal_cpu_encode_ms/frame= 0.06628513  metal_cpu_wait_ms/frame= 0.49631596  metal_gpu_ms/frame= 0.16485332  metal_frame_ms/frame= 0.5753231  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
+            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.035  expansion_lines_sec= 117028571.42857142  paint_ms/ 25 = 0.1  paint_lines_sec= 1026250000.0  metal_wall_total_ms= 14.024  metal_wall_ms/frame= 0.56096  metal_line_geometry_ms/frame= 0.0032663345  metal_cpu_encode_ms/frame= 0.025715828  metal_cpu_wait_ms/frame= 0.52562714  metal_gpu_ms/frame= 0.18050833  metal_frame_ms/frame= 0.5573511  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
+            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.135  expansion_lines_sec= 124496296.29629628  paint_ms/ 25 = 0.38  paint_lines_sec= 1106250000.0  metal_wall_total_ms= 16.95  metal_wall_ms/frame= 0.6779999999999999  metal_line_geometry_ms/frame= 0.011706352  metal_cpu_encode_ms/frame= 0.03864765  metal_cpu_wait_ms/frame= 0.6311226  metal_gpu_ms/frame= 0.28955334  metal_frame_ms/frame= 0.6760311  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
+            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.02  expansion_lines_sec= 204800000.0  paint_ms/ 25 = 0.1  paint_lines_sec= 1026250000.0  metal_wall_total_ms= 14.77  metal_wall_ms/frame= 0.5908  metal_line_geometry_ms/frame= 0.0027656555  metal_cpu_encode_ms/frame= 0.027756691  metal_cpu_wait_ms/frame= 0.55267334  metal_gpu_ms/frame= 0.20839167  metal_frame_ms/frame= 0.58900356  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
+            "Switchback  depth  4 : lines= 729  expansion_ms= 0.008  expansion_lines_sec= 91125000.0  paint_ms/ 25 = 0.018  paint_lines_sec= 1026388888.888889  metal_wall_total_ms= 13.598  metal_wall_ms/frame= 0.5439200000000001  metal_line_geometry_ms/frame= 0.0007247925  metal_cpu_encode_ms/frame= 0.025200844  metal_cpu_wait_ms/frame= 0.50995827  metal_gpu_ms/frame= 0.16916001  metal_frame_ms/frame= 0.54183006  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
+            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.042  expansion_lines_sec= 238095238.0952381  paint_ms/ 25 = 0.248  paint_lines_sec= 1009173387.0967742  metal_wall_total_ms= 13.227  metal_wall_ms/frame= 0.52908  metal_line_geometry_ms/frame= 0.0044870377  metal_cpu_encode_ms/frame= 0.028409958  metal_cpu_wait_ms/frame= 0.492692  metal_gpu_ms/frame= 0.15098666  metal_frame_ms/frame= 0.52711487  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
           ]
         }
       ]
@@ -575,14 +575,14 @@
         {
           "run": 1,
           "status": 0,
-          "wall_seconds": 0.49,
+          "wall_seconds": 0.54,
           "metric_lines": [
             "Moxi Metal benchmark passes:  100",
             "Moxi Metal benchmark scene commands:  83",
             "Moxi Metal benchmark vertices/frame:  1371",
             "Moxi Metal benchmark text commands/frame:  2",
             "Moxi Metal benchmark fallback commands:  0",
-            "Moxi Metal benchmark checksum:  125423974",
+            "Moxi Metal benchmark checksum:  1257749532",
             "Moxi Metal growth commands:  45000",
             "Moxi Metal growth vertices:  270000"
           ]
@@ -590,14 +590,14 @@
         {
           "run": 2,
           "status": 0,
-          "wall_seconds": 0.22,
+          "wall_seconds": 0.24,
           "metric_lines": [
             "Moxi Metal benchmark passes:  100",
             "Moxi Metal benchmark scene commands:  83",
             "Moxi Metal benchmark vertices/frame:  1371",
             "Moxi Metal benchmark text commands/frame:  2",
             "Moxi Metal benchmark fallback commands:  0",
-            "Moxi Metal benchmark checksum:  125423974",
+            "Moxi Metal benchmark checksum:  1257749532",
             "Moxi Metal growth commands:  45000",
             "Moxi Metal growth vertices:  270000"
           ]
@@ -605,14 +605,14 @@
         {
           "run": 3,
           "status": 0,
-          "wall_seconds": 0.2,
+          "wall_seconds": 0.23,
           "metric_lines": [
             "Moxi Metal benchmark passes:  100",
             "Moxi Metal benchmark scene commands:  83",
             "Moxi Metal benchmark vertices/frame:  1371",
             "Moxi Metal benchmark text commands/frame:  2",
             "Moxi Metal benchmark fallback commands:  0",
-            "Moxi Metal benchmark checksum:  125423974",
+            "Moxi Metal benchmark checksum:  1257749532",
             "Moxi Metal growth commands:  45000",
             "Moxi Metal growth vertices:  270000"
           ]
