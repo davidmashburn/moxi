@@ -98,6 +98,94 @@ struct DependencyEdge(ImplicitlyCopyable):
         self.scope_id = scope_id
 
 
+struct IntIndexEntry(ImplicitlyCopyable):
+    """One stable integer key and its current dense position."""
+
+    var key: Int
+    var value: Int
+
+    def __init__(out self, key: Int, value: Int):
+        self.key = key
+        self.value = value
+
+
+struct IntIndex:
+    """Deterministic sorted index for stable non-negative integer identities.
+
+    The topology containers keep their dense storage in ordinary lists because
+    order and ownership are observable. This companion index keeps identity
+    lookup bounded by binary search while allowing positions to be rebuilt
+    after insertion, removal, or reorder. It deliberately has no hash-table
+    seed or host-dependent behavior.
+    """
+
+    var entries: List[IntIndexEntry]
+
+    def __init__(out self):
+        self.entries = List[IntIndexEntry]()
+
+    def _position(self, key: Int) -> Int:
+        if key < 0:
+            return -1
+        var low = 0
+        var high = len(self.entries)
+        while low < high:
+            var middle = (low + high) // 2
+            if self.entries[middle].key < key:
+                low = middle + 1
+            else:
+                high = middle
+        return low if low < len(self.entries) and self.entries[low].key == key else -1
+
+    def find(self, key: Int) -> Int:
+        var position = self._position(key)
+        if position == -1:
+            return -1
+        return self.entries[position].value
+
+    def set(mut self, key: Int, value: Int) -> Bool:
+        if key < 0 or value < 0:
+            return False
+        var position = self._position(key)
+        if position != -1:
+            self.entries[position].value = value
+            return True
+        var low = 0
+        var high = len(self.entries)
+        while low < high:
+            var middle = (low + high) // 2
+            if self.entries[middle].key < key:
+                low = middle + 1
+            else:
+                high = middle
+        var next = List[IntIndexEntry](capacity=len(self.entries) + 1)
+        for index in range(len(self.entries) + 1):
+            if index == low:
+                next.append(IntIndexEntry(key, value))
+            else:
+                var source = index if index < low else index - 1
+                next.append(self.entries[source])
+        self.entries = next^
+        return True
+
+    def remove(mut self, key: Int) -> Bool:
+        var position = self._position(key)
+        if position == -1:
+            return False
+        var next = List[IntIndexEntry](capacity=len(self.entries) - 1)
+        for index in range(len(self.entries)):
+            if index != position:
+                next.append(self.entries[index])
+        self.entries = next^
+        return True
+
+    def clear(mut self):
+        self.entries = List[IntIndexEntry]()
+
+    def count(self) -> Int:
+        return len(self.entries)
+
+
 struct LocalizedExecution:
     """Track dirty components without rebuilding unrelated scopes.
 
@@ -107,15 +195,19 @@ struct LocalizedExecution:
     """
 
     var scopes: List[StateScope]
+    var scope_lookup: IntIndex
     var dependencies: List[DependencyEdge]
     var dirty_components: List[Int]
+    var dirty_lookup: IntIndex
     var build_counts: List[Int]
     var counters: ExecutionWorkCounters
 
     def __init__(out self):
         self.scopes = List[StateScope]()
+        self.scope_lookup = IntIndex()
         self.dependencies = List[DependencyEdge]()
         self.dirty_components = List[Int]()
+        self.dirty_lookup = IntIndex()
         self.build_counts = List[Int]()
         self.counters = ExecutionWorkCounters()
 
@@ -125,6 +217,7 @@ struct LocalizedExecution:
         if parent_id != -1 and self.scope_index(parent_id) == -1:
             return False
         self.scopes.append(StateScope(id, parent_id))
+        _ = self.scope_lookup.set(id, len(self.scopes) - 1)
         return True
 
     def add_dependency(mut self, component_id: Int, scope_id: Int) -> Bool:
@@ -138,21 +231,19 @@ struct LocalizedExecution:
         return True
 
     def scope_index(self, id: Int) -> Int:
-        for index in range(len(self.scopes)):
-            if self.scopes[index].id == id:
-                return index
-        return -1
+        return self.scope_lookup.find(id)
 
     def component_is_dirty(self, id: Int) -> Bool:
-        for index in range(len(self.dirty_components)):
-            if self.dirty_components[index] == id:
-                return True
-        return False
+        return self.dirty_lookup.find(id) != -1
 
     def _mark_dirty(mut self, component_id: Int):
         if self.component_is_dirty(component_id):
             return
         self.dirty_components.append(component_id)
+        _ = self.dirty_lookup.set(
+            component_id,
+            len(self.dirty_components) - 1,
+        )
         self.counters.dirty_marks += 1
         while len(self.build_counts) <= component_id:
             self.build_counts.append(0)
@@ -186,18 +277,17 @@ struct LocalizedExecution:
 
     def take_dirty(mut self, component_id: Int) -> Bool:
         """Consume one component invalidation and return whether it was dirty."""
-        var found = -1
-        for index in range(len(self.dirty_components)):
-            if self.dirty_components[index] == component_id:
-                found = index
-                break
+        var found = self.dirty_lookup.find(component_id)
         if found == -1:
             return False
-        var remaining = List[Int]()
+        var remaining = List[Int](capacity=len(self.dirty_components) - 1)
         for index in range(len(self.dirty_components)):
             if index != found:
                 remaining.append(self.dirty_components[index])
         self.dirty_components = remaining^
+        self.dirty_lookup.clear()
+        for index in range(len(self.dirty_components)):
+            _ = self.dirty_lookup.set(self.dirty_components[index], index)
         while len(self.build_counts) <= component_id:
             self.build_counts.append(0)
         self.build_counts[component_id] += 1
@@ -269,30 +359,42 @@ struct KeyedSubtreeSchedule:
 
     var parent_scope_id: Int
     var descriptors: List[KeyedSubtreeDescriptor]
+    var descriptor_lookup: IntIndex
     var order: List[Int]
+    var order_lookup: IntIndex
     var dirty_keys: List[Int]
+    var dirty_lookup: IntIndex
     var parent_fallback_pending: Bool
     var counters: ExecutionWorkCounters
 
     def __init__(out self, parent_scope_id: Int = 0):
         self.parent_scope_id = parent_scope_id
         self.descriptors = List[KeyedSubtreeDescriptor]()
+        self.descriptor_lookup = IntIndex()
         self.order = List[Int]()
+        self.order_lookup = IntIndex()
         self.dirty_keys = List[Int]()
+        self.dirty_lookup = IntIndex()
         self.parent_fallback_pending = False
         self.counters = ExecutionWorkCounters()
 
     def descriptor_index(self, key: Int) -> Int:
-        for index in range(len(self.descriptors)):
-            if self.descriptors[index].key == key:
-                return index
-        return -1
+        return self.descriptor_lookup.find(key)
 
     def order_index(self, key: Int) -> Int:
+        return self.order_lookup.find(key)
+
+    def _reindex_descriptors(mut self):
+        for index in range(len(self.descriptors)):
+            _ = self.descriptor_lookup.set(
+                self.descriptors[index].key,
+                index,
+            )
+
+    def _reindex_order(mut self):
+        self.order_lookup.clear()
         for index in range(len(self.order)):
-            if self.order[index] == key:
-                return index
-        return -1
+            _ = self.order_lookup.set(self.order[index], index)
 
     def descriptor(self, key: Int) -> KeyedSubtreeDescriptor:
         var index = self.descriptor_index(key)
@@ -319,7 +421,12 @@ struct KeyedSubtreeSchedule:
         ):
             return False
         self.descriptors.append(descriptor)
+        _ = self.descriptor_lookup.set(
+            descriptor.key,
+            len(self.descriptors) - 1,
+        )
         self.order.append(descriptor.key)
+        _ = self.order_lookup.set(descriptor.key, len(self.order) - 1)
         self.counters.record_keyed_insertion()
         return True
 
@@ -330,6 +437,10 @@ struct KeyedSubtreeSchedule:
             return False
         _ = self.descriptors.pop(descriptor_index)
         _ = self.order.pop(order_index)
+        _ = self.descriptor_lookup.remove(key)
+        _ = self.order_lookup.remove(key)
+        self._reindex_descriptors()
+        self._reindex_order()
         self.remove_dirty(key)
         self.counters.record_keyed_removal()
         return True
@@ -348,6 +459,7 @@ struct KeyedSubtreeSchedule:
             if next_order[index] != self.order[index]:
                 moved += 1
         self.order = next_order.copy()
+        self._reindex_order()
         for _ in range(moved):
             self.counters.record_keyed_move()
         return True
@@ -355,10 +467,10 @@ struct KeyedSubtreeSchedule:
     def invalidate_child(mut self, key: Int) -> Bool:
         if self.descriptor_index(key) == -1:
             return False
-        for index in range(len(self.dirty_keys)):
-            if self.dirty_keys[index] == key:
-                return True
+        if self.dirty_lookup.find(key) != -1:
+            return True
         self.dirty_keys.append(key)
+        _ = self.dirty_lookup.set(key, len(self.dirty_keys) - 1)
         return True
 
     def invalidate_parent(mut self) -> Bool:
@@ -380,23 +492,24 @@ struct KeyedSubtreeSchedule:
         return True
 
     def is_dirty(self, key: Int) -> Bool:
-        for index in range(len(self.dirty_keys)):
-            if self.dirty_keys[index] == key:
-                return True
-        return False
+        return self.dirty_lookup.find(key) != -1
 
     def take_dirty(mut self, key: Int) -> Bool:
+        var found = self.dirty_lookup.find(key)
+        if found == -1:
+            return False
+        var remaining = List[Int](capacity=len(self.dirty_keys) - 1)
         for index in range(len(self.dirty_keys)):
-            if self.dirty_keys[index] == key:
-                _ = self.dirty_keys.pop(index)
-                return True
-        return False
+            if index != found:
+                remaining.append(self.dirty_keys[index])
+        self.dirty_keys = remaining^
+        self.dirty_lookup.clear()
+        for index in range(len(self.dirty_keys)):
+            _ = self.dirty_lookup.set(self.dirty_keys[index], index)
+        return True
 
     def remove_dirty(mut self, key: Int):
-        for index in range(len(self.dirty_keys)):
-            if self.dirty_keys[index] == key:
-                _ = self.dirty_keys.pop(index)
-                return
+        _ = self.take_dirty(key)
 
     def dirty_count(self) -> Int:
         return len(self.dirty_keys)
@@ -437,16 +550,22 @@ struct KeyedSubtreeExecutor[Child: Component & Deinitable]:
 
     var schedule: KeyedSubtreeSchedule
     var children: List[KeyedChildExecutor[Self.Child]]
+    var child_lookup: IntIndex
 
     def __init__(out self, parent_scope_id: Int = 0):
         self.schedule = KeyedSubtreeSchedule(parent_scope_id)
         self.children = List[KeyedChildExecutor[Self.Child]]()
+        self.child_lookup = IntIndex()
 
     def child_index(self, key: Int) -> Int:
+        return self.child_lookup.find(key)
+
+    def _reindex_children(mut self):
         for index in range(len(self.children)):
-            if self.children[index].descriptor.key == key:
-                return index
-        return -1
+            _ = self.child_lookup.set(
+                self.children[index].descriptor.key,
+                index,
+            )
 
     def insert(
         mut self,
@@ -459,6 +578,7 @@ struct KeyedSubtreeExecutor[Child: Component & Deinitable]:
         if not self.schedule.register(descriptor):
             return False
         self.children.append(KeyedChildExecutor[Self.Child](descriptor, component, bounds))
+        _ = self.child_lookup.set(descriptor.key, len(self.children) - 1)
         var child_index = len(self.children) - 1
         var child_counters = self.children[child_index].executor.work_counters()
         self.schedule.record_child_build(
@@ -472,6 +592,8 @@ struct KeyedSubtreeExecutor[Child: Component & Deinitable]:
         if index == -1 or not self.schedule.remove(key):
             return False
         _ = self.children.pop(index)
+        _ = self.child_lookup.remove(key)
+        self._reindex_children()
         return True
 
     def reorder(mut self, next_order: List[Int]) -> Bool:
