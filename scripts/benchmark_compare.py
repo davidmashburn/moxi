@@ -112,6 +112,34 @@ def load_policy(path: Path) -> dict:
             raise SystemExit(f"{path}: {entry_id}: reviewed baseline needs a path")
         if entry.get("status") == "planned" and entry.get("path") is not None:
             raise SystemExit(f"{path}: {entry_id}: planned baseline path must be null")
+    contracts = policy.get("deterministic_contracts", [])
+    if not isinstance(contracts, list):
+        raise SystemExit(f"{path}: deterministic_contracts must be an array")
+    contract_ids: set[str] = set()
+    contract_profiles: set[str] = set()
+    for entry in contracts:
+        if not isinstance(entry, dict):
+            raise SystemExit(f"{path}: every deterministic contract must be an object")
+        entry_id = entry.get("id")
+        profile = entry.get("profile")
+        if not isinstance(entry_id, str) or not entry_id or entry_id in contract_ids:
+            raise SystemExit(
+                f"{path}: deterministic contract ids must be unique non-empty strings"
+            )
+        if profile not in {"quick", "full"} or profile in contract_profiles:
+            raise SystemExit(
+                f"{path}: deterministic contract profiles must be unique quick/full values"
+            )
+        if entry.get("status") not in {"reviewed", "planned"}:
+            raise SystemExit(f"{path}: {entry_id}: status must be reviewed or planned")
+        if entry.get("status") == "reviewed" and not isinstance(
+            entry.get("path"), str
+        ):
+            raise SystemExit(f"{path}: {entry_id}: reviewed contract needs a path")
+        if entry.get("status") == "planned" and entry.get("path") is not None:
+            raise SystemExit(f"{path}: {entry_id}: planned contract path must be null")
+        contract_ids.add(entry_id)
+        contract_profiles.add(profile)
     return policy
 
 

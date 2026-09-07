@@ -14,6 +14,7 @@ bash -n scripts/benchmark.sh
 bash -n scripts/scenario_check.sh
 bash -n scripts/native_screenshot_check.sh
 python3 -m json.tool benchmarks/result-schema.json >/dev/null
+python3 -m json.tool benchmarks/contract-schema.json >/dev/null
 python3 -m json.tool benchmarks/benchmark-policy.json >/dev/null
 python3 -m json.tool tests/native-screenshot-policy.json >/dev/null
 pixi run benchmark-policy-check

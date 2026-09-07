@@ -71,6 +71,22 @@ Windows entries as planned. Run `pixi run benchmark-policy-check` when changing
 the policy or a reviewed report. An unregistered host, compiler build, or
 profile is rejected rather than compared as if it were macOS.
 
+Portable work has a separate host-independent contract at
+[`portable-quick-contract.json`](../benchmarks/results/portable-quick-contract.json).
+It compares the exact structural metric lines and checksums for the quick
+profile while deliberately omitting compiler, OS, architecture, and timing.
+Run it on any supported host after producing a candidate report:
+
+```sh
+MOXI_BENCHMARK_RUNS=3 pixi run benchmark-quick
+pixi run benchmark-contract-check -- --candidate dist/benchmark-results/quick.json
+```
+
+This is a cross-host deterministic gate, not a wall-clock claim. Keep using a
+reviewed host baseline for full-profile timing; planned Linux and Windows full
+entries are intentionally still blocked until clean host-specific references
+exist.
+
 Compare a compatible full-profile candidate with the reviewed macOS baseline:
 
 ```sh
@@ -88,4 +104,5 @@ clean, repeated baseline before wall-clock comparison is enabled.
 
 CI runs the quick profile three times and uploads `quick.json` as reviewable
 evidence. That artifact is a smoke signal for deterministic work and sample
-dispersion; it is not promoted to a cross-host release baseline automatically.
+dispersion. The portable contract is the cross-host release signal; the
+uploaded timing samples remain diagnostic.

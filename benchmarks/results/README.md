@@ -24,6 +24,23 @@ when the workload change is intentional. Wall-clock samples (including their
 median, p95, and MAD) are useful for same-environment diagnostics; they are not
 portable promises.
 
+The portable quick profile also has a host-independent deterministic contract
+at [`portable-quick-contract.json`](portable-quick-contract.json). It records
+the exact structural metric lines and checksums for the three portable cases,
+without compiler, OS, architecture, or timing fields. Any host can validate a
+candidate after running the quick profile:
+
+```sh
+MOXI_BENCHMARK_RUNS=3 pixi run benchmark-quick
+pixi run benchmark-contract-check -- --candidate dist/benchmark-results/quick.json
+```
+
+This is the cross-host gate for portable work. The full profile remains split:
+use the deterministic contract when one is registered for that profile, and
+use a reviewed host entry for wall-clock comparisons. A Linux or Windows full
+baseline still needs its own clean repeated run before timing comparison is
+enabled.
+
 To add another host, collect a clean full-profile report with the pinned Mojo
 compiler, add a `reviewed` entry with exact `os`, `architecture`, and
 `mojo_version` fields to the policy, and have the deterministic signatures and

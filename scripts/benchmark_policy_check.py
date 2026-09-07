@@ -7,6 +7,7 @@ import argparse
 from pathlib import Path
 
 from benchmark_compare import load_policy, load_report
+from benchmark_contract_check import load_contract
 
 
 def main() -> int:
@@ -66,6 +67,20 @@ def main() -> int:
         if host_key in seen_hosts:
             failures.append(f"{entry_id}: duplicate reviewed host/profile registration")
         seen_hosts.add(host_key)
+
+    contracts = policy.get("deterministic_contracts", [])
+    for entry in contracts:
+        if entry.get("status") != "reviewed":
+            continue
+        contract_id = entry["id"]
+        path = repo / entry["path"]
+        try:
+            contract = load_contract(path)
+        except SystemExit as error:
+            failures.append(str(error))
+            continue
+        if contract["profile"] != entry.get("profile"):
+            failures.append(f"{contract_id}: profile does not match registered policy")
 
     if reviewed == 0:
         failures.append("benchmark policy has no reviewed baselines")

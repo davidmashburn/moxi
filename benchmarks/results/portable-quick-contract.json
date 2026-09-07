@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "profile": "quick",
+  "source_report_schema_version": 2,
+  "cases": [
+    {
+      "name": "typed localized execution",
+      "signature": {
+        "metric_lines": [
+          "Moxi localized benchmark count:  1000",
+          "Moxi localized benchmark dependency visits:  1000",
+          "Moxi localized benchmark dirty consumed:  1000",
+          "Moxi localized benchmark final builds:  1001",
+          "Moxi localized benchmark initial builds:  1",
+          "Moxi localized benchmark invalidations:  1000",
+          "Moxi localized benchmark paint commands:  6006",
+          "Moxi localized benchmark passes:  1000",
+          "Moxi localized benchmark reconciled nodes:  3003",
+          "Moxi localized benchmark total work:  14010",
+          "Moxi localized matrix children/passes:  1 / 1000",
+          "Moxi localized matrix children/passes:  10 / 1000",
+          "Moxi localized matrix children/passes:  100 / 1000",
+          "Moxi localized matrix dependency visits:  1000",
+          "Moxi localized matrix final builds:  1001",
+          "Moxi localized matrix initial builds:  1",
+          "Moxi localized matrix invalidations:  1000",
+          "Moxi localized matrix paint commands:  101101",
+          "Moxi localized matrix paint commands:  11011",
+          "Moxi localized matrix paint commands:  2002",
+          "Moxi localized matrix reconciled nodes:  1001",
+          "Moxi localized matrix reconciled nodes:  10010",
+          "Moxi localized matrix reconciled nodes:  100100",
+          "Moxi localized matrix total work:  206202",
+          "Moxi localized matrix total work:  26022",
+          "Moxi localized matrix total work:  8004"
+        ],
+        "checksums": []
+      }
+    },
+    {
+      "name": "retained layout/paint/scene",
+      "signature": {
+        "metric_lines": [
+          "Moxi benchmark average operations/frame:  176.0",
+          "Moxi benchmark rasterized pixels/frame:  179558",
+          "Moxi paint benchmark commands:  42",
+          "Moxi retained pipeline benchmark passes:  100",
+          "Moxi scene benchmark checksum:  334525300",
+          "Moxi variable virtual benchmark visible:  107 .. 130",
+          "Moxi variable virtual retained slots:  24",
+          "Moxi virtual benchmark visible:  48 .. 69"
+        ],
+        "checksums": [
+          "334525300"
+        ]
+      }
+    },
+    {
+      "name": "portable plot scene",
+      "signature": {
+        "metric_lines": [
+          "Moxi plot benchmark checksum:  852464264",
+          "Moxi plot benchmark commands/frame:  65",
+          "Moxi plot benchmark passes:  100",
+          "Moxi plot benchmark rasterized pixels/frame:  276317"
+        ],
+        "checksums": [
+          "852464264"
+        ]
+      }
+    }
+  ]
+}

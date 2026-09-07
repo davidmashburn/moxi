@@ -40,5 +40,13 @@
       "mojo_version": null,
       "status": "planned"
     }
+  ],
+  "deterministic_contracts": [
+    {
+      "id": "portable-quick",
+      "profile": "quick",
+      "path": "benchmarks/results/portable-quick-contract.json",
+      "status": "reviewed"
+    }
   ]
 }
