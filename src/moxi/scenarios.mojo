@@ -33,6 +33,11 @@ struct ScenarioDescriptor(ImplicitlyCopyable):
     var test_source: String
     var benchmark_source: String
     var golden_names: String
+    # The deterministic size/seed pair is the fixture contract. Consumers
+    # should derive their default workload from these values rather than
+    # repeating scenario data literals in tests, demos, or benchmarks.
+    var fixture_size: Int
+    var fixture_seed: Int
     var default_width: Float32
     var default_height: Float32
     var stateful: Bool
@@ -49,6 +54,8 @@ struct ScenarioDescriptor(ImplicitlyCopyable):
         test_source: String,
         benchmark_source: String,
         golden_names: String,
+        fixture_size: Int,
+        fixture_seed: Int,
         default_width: Float32,
         default_height: Float32,
         stateful: Bool,
@@ -63,6 +70,8 @@ struct ScenarioDescriptor(ImplicitlyCopyable):
         self.test_source = test_source
         self.benchmark_source = benchmark_source
         self.golden_names = golden_names
+        self.fixture_size = fixture_size
+        self.fixture_seed = fixture_seed
         self.default_width = default_width
         self.default_height = default_height
         self.stateful = stateful
@@ -90,6 +99,8 @@ struct ScenarioRegistry:
             "tests/form.mojo",
             "",
             "accessibility-focused-control",
+            1,
+            101,
             520.0,
             320.0,
             True,
@@ -105,6 +116,8 @@ struct ScenarioRegistry:
             "tests/tokens_recipes.mojo",
             "",
             "theme-dark,theme-light,theme-emerald",
+            3,
+            202,
             680.0,
             520.0,
             True,
@@ -120,6 +133,8 @@ struct ScenarioRegistry:
             "tests/interaction_foundation.mojo",
             "benchmarks/interaction_foundation.mojo",
             "nested-clipping-scrolling",
+            10000,
+            1000,
             980.0,
             720.0,
             True,
@@ -135,6 +150,8 @@ struct ScenarioRegistry:
             "tests/text_shaping.mojo",
             "",
             "text-mixed-fallback",
+            1,
+            404,
             640.0,
             360.0,
             False,
@@ -150,6 +167,8 @@ struct ScenarioRegistry:
             "tests/plotting.mojo",
             "benchmarks/plotting.mojo",
             "plot-gallery",
+            48,
+            1700000000,
             760.0,
             520.0,
             True,
@@ -165,6 +184,8 @@ struct ScenarioRegistry:
             "tests/capability.mojo",
             "",
             "",
+            1,
+            606,
             720.0,
             560.0,
             True,
@@ -180,6 +201,8 @@ struct ScenarioRegistry:
             "tests/fractal.mojo",
             "benchmarks/interactive_fractal.mojo",
             "",
+            6,
+            707,
             920.0,
             620.0,
             True,
@@ -213,6 +236,8 @@ struct ScenarioRegistry:
             if current.fixture.count_codepoints() == 0 or current.source.count_codepoints() == 0:
                 return False
             if current.task.count_codepoints() == 0:
+                return False
+            if current.fixture_size <= 0 or current.fixture_seed < 0:
                 return False
             if current.test_source.count_codepoints() == 0:
                 return False
@@ -248,16 +273,22 @@ struct InteractionScenario:
 
 
 def make_interaction_foundation_scenario(
-    item_count: Int = 10000,
+    item_count: Int = -1,
 ) -> InteractionScenario:
     """Build the canonical stable-key collection interaction workload."""
     var result = InteractionScenario()
-    var count = item_count if item_count > 0 else 0
+    var registry = canonical_scenarios()
+    var descriptor = registry.entry(registry.index_for_id(SCENARIO_COLLECTION))
+    var requested_count = item_count
+    if requested_count < 0:
+        requested_count = descriptor.fixture_size
+    var count = requested_count if requested_count > 0 else 0
     var keys = List[Int](capacity=count)
+    var key_seed = descriptor.fixture_seed
     for index in range(count):
         # Deliberately avoid index identity so reconciliation tests exercise
         # stable keys rather than accidentally relying on positions.
-        keys.append(1000 + index * 3)
+        keys.append(key_seed + index * 3)
     _ = result.collection.set_keys(keys)
     _ = result.reorder.set_item_count(result.collection.item_count())
 
@@ -308,20 +339,27 @@ def make_plot_scenario(bounds: Rect) -> Plot:
     return plot^
 
 
-def make_plot_data_fixture() -> PlotDataTable:
+def make_plot_data_fixture(row_count: Int = -1) -> PlotDataTable:
     """Build the shared telemetry/statistics fixture for demos and benchmarks."""
+    var registry = canonical_scenarios()
+    var descriptor = registry.entry(registry.index_for_id(SCENARIO_PLOT))
+    var requested_count = row_count
+    if requested_count < 0:
+        requested_count = descriptor.fixture_size
+    var count = requested_count if requested_count > 0 else 0
+    var timestamp_seed = descriptor.fixture_seed
     var data = PlotDataTable()
     _ = data.add_timestamp_column("time")
     _ = data.add_float_column("value")
     _ = data.add_float_column("size")
     _ = data.add_category_column("series")
     _ = data.add_category_column("region")
-    for index in range(48):
+    for index in range(count):
         var x = Float32(index % 12)
         var value = 1.0 + Float32((index * 7) % 17) * 0.35
         _ = data.append(x, value)
         _ = data.set_int_field(
-            "time", index, Int64(1700000000 + index * 3600)
+            "time", index, Int64(timestamp_seed + index * 3600)
         )
         _ = data.set_float_field("value", index, value)
         _ = data.set_float_field("size", index, 4.0 + Float32(index % 5) * 1.5)

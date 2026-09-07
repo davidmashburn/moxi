@@ -11,6 +11,8 @@ from moxi import (
     KEY_ENTER,
     KEY_ESCAPE,
     MOD_COMMAND,
+    SCENARIO_COLLECTION,
+    canonical_scenarios,
     make_interaction_foundation_scenario,
     Point,
     POPUP_COMBO,
@@ -38,13 +40,15 @@ def main():
     test_check(column.width == 80.0)
     test_check(column.set_sort(COLUMN_SORT_ASCENDING))
 
+    var registry = canonical_scenarios()
+    var descriptor = registry.entry(registry.index_for_id(SCENARIO_COLLECTION))
     var shared = make_interaction_foundation_scenario()
-    test_check(shared.collection.item_count() == 10000)
-    test_check(shared.collection.key_at(1) == 1003)
+    test_check(shared.collection.item_count() == descriptor.fixture_size)
+    test_check(shared.collection.key_at(1) == descriptor.fixture_seed + 3)
     test_check(shared.tree.selection.item_count() == 3)
     test_check(shared.scrollbar.can_scroll())
     test_check(shared.popups.top_kind() == POPUP_COMBO)
-    test_check(shared.reorder.item_count == 10000)
+    test_check(shared.reorder.item_count == descriptor.fixture_size)
 
     var selection = CollectionSelection(5, True)
     test_check(selection.item_count() == 5)

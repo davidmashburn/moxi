@@ -13,14 +13,15 @@ from moxi import (
 def main():
     var registry = canonical_scenarios()
     var descriptor = registry.entry(registry.index_for_fixture("collection"))
-    var scenario = make_interaction_foundation_scenario(10000)
-    var recycler = VirtualRecycler(10000, 24.0, 2, True)
+    var item_count = descriptor.fixture_size
+    var scenario = make_interaction_foundation_scenario()
+    var recycler = VirtualRecycler(item_count, 24.0, 2, True)
     var passes = 100
     var geometry = scenario.scrollbar.geometry(Rect(0.0, 0.0, 12.0, 320.0))
     _ = scenario.reorder.set_threshold(4.0)
     var moved = 0
     for pass_index in range(passes):
-        var index = pass_index % 10000
+        var index = pass_index % item_count
         _ = scenario.collection.select_index(index)
         _ = scenario.collection.handle_key(KEY_DOWN)
         var source_index = pass_index % 1000

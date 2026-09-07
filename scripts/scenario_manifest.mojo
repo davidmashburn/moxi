@@ -22,4 +22,8 @@ def main():
             scenario.benchmark_source,
             "|",
             scenario.golden_names,
+            "|",
+            scenario.fixture_size,
+            "|",
+            scenario.fixture_seed,
         )

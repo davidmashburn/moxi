@@ -36,9 +36,20 @@ for line in Path(os.environ["MOXI_SCENARIO_OUTPUT"]).read_text(
     if not line.startswith("SCENARIO|"):
         continue
     fields = [field.strip() for field in line.split("|")]
-    if len(fields) != 8:
+    if len(fields) != 10:
         raise SystemExit(f"invalid scenario record: {line!r}")
-    _, scenario_id, fixture, source, task, test_source, benchmark_source, golden_names = fields
+    (
+        _,
+        scenario_id,
+        fixture,
+        source,
+        task,
+        test_source,
+        benchmark_source,
+        golden_names,
+        fixture_size,
+        fixture_seed,
+    ) = fields
     records.append(
         {
             "id": int(scenario_id),
@@ -48,6 +59,8 @@ for line in Path(os.environ["MOXI_SCENARIO_OUTPUT"]).read_text(
             "test": test_source,
             "benchmark": benchmark_source,
             "goldens": [name for name in golden_names.split(",") if name],
+            "fixture_size": int(fixture_size),
+            "fixture_seed": int(fixture_seed),
         }
     )
 
@@ -57,8 +70,14 @@ if len({record["id"] for record in records}) != len(records):
     raise SystemExit("canonical scenario ids are not unique")
 if len({record["fixture"] for record in records}) != len(records):
     raise SystemExit("canonical scenario fixtures are not unique")
+if len({record["fixture_seed"] for record in records}) != len(records):
+    raise SystemExit("canonical scenario fixture seeds are not unique")
 
 for record in records:
+    if record["fixture_size"] <= 0 or record["fixture_seed"] < 0:
+        raise SystemExit(
+            f"{record['fixture']}: fixture size/seed must be positive/non-negative"
+        )
     for key in ("source", "test"):
         path = repo / record[key]
         if not path.is_file():
