@@ -26,13 +26,16 @@ interactive fractal component/canvas path, and the synchronized offscreen
 Metal scene. `MOXI_BENCHMARK_RUNS` selects the number of repetitions for either
 profile (`1` is a useful smoke run; `3` is the default for full).
 
-Both profiles write a structured JSON report under `dist/benchmark-results/`
+Both profiles write a structured JSON report, defined by
+[`benchmarks/result-schema.json`](../benchmarks/result-schema.json), under `dist/benchmark-results/`
 (`quick.json` or `full.json`), or to `MOXI_BENCHMARK_OUTPUT`. Each report has a
-schema version, profile, requested run count, command, exit status, wall-clock
-seconds, and deterministic metric lines per case. Compare counters and
-checksums first; `/usr/bin/time -p` values include process startup and, for
-portable cases, compilation/loading. The Metal binaries are compiled once
-before their measured runs.
+schema version, profile, requested/warmup run counts, git revision and dirty
+state, Mojo/compiler version, OS/architecture, command, exit status,
+wall-clock seconds, and deterministic metric lines per case. Compare counters
+and checksums first; compare timings only when the environment records match.
+`/usr/bin/time -p` values include process startup and, for portable cases,
+compilation/loading. The Metal binaries are compiled once before their
+measured runs.
 
 ## Workloads and budgets
 

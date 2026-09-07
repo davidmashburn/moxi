@@ -22,6 +22,15 @@ if ! [[ "$benchmark_runs" =~ ^[1-9][0-9]*$ ]]; then
   exit 2
 fi
 
+benchmark_git_revision="$(git rev-parse HEAD)"
+benchmark_git_dirty=0
+if [[ -n "$(git status --porcelain)" ]]; then
+  benchmark_git_dirty=1
+fi
+benchmark_mojo_version="$(pixi run mojo --version | tail -n 1)"
+benchmark_os="$(uname -s)"
+benchmark_architecture="$(uname -m)"
+
 benchmark_dir="${MOXI_BENCHMARK_DIR:-$repo_dir/dist/benchmark-results}"
 mkdir -p "$benchmark_dir/raw"
 records_path="$benchmark_dir/records.tsv"
@@ -93,6 +102,12 @@ fi
 MOXI_BENCHMARK_RECORDS="$records_path" \
 MOXI_BENCHMARK_PROFILE="$benchmark_profile" \
 MOXI_BENCHMARK_RUNS="$benchmark_runs" \
+MOXI_BENCHMARK_WARMUP_RUNS="0" \
+MOXI_BENCHMARK_GIT_REVISION="$benchmark_git_revision" \
+MOXI_BENCHMARK_GIT_DIRTY="$benchmark_git_dirty" \
+MOXI_BENCHMARK_MOJO_VERSION="$benchmark_mojo_version" \
+MOXI_BENCHMARK_OS="$benchmark_os" \
+MOXI_BENCHMARK_ARCHITECTURE="$benchmark_architecture" \
 MOXI_BENCHMARK_OUTPUT="${MOXI_BENCHMARK_OUTPUT:-$benchmark_dir/${benchmark_profile}.json}" \
 python3 - <<'PY'
 import json
@@ -105,6 +120,7 @@ records_path = Path(os.environ["MOXI_BENCHMARK_RECORDS"])
 output_path = Path(os.environ["MOXI_BENCHMARK_OUTPUT"])
 profile = os.environ["MOXI_BENCHMARK_PROFILE"]
 runs = int(os.environ["MOXI_BENCHMARK_RUNS"])
+warmups = int(os.environ["MOXI_BENCHMARK_WARMUP_RUNS"])
 
 metric_pattern = re.compile(
     r"(checksum|commands|rows|passes|work|build|invalidat|dependency|"
@@ -126,7 +142,16 @@ for row in records_path.read_text(encoding="utf-8").splitlines():
     ]
     case = by_name.setdefault(
         name,
-        {"name": name, "command": command, "runs": []},
+        {
+            "name": name,
+            "command": command,
+            "parameters": {
+                "profile": profile,
+                "requested_runs": runs,
+                "warmup_runs": warmups,
+            },
+            "runs": [],
+        },
     )
     case["runs"].append(
         {
@@ -140,9 +165,17 @@ for case in by_name.values():
     cases.append(case)
 
 result = {
-    "schema_version": 1,
+    "schema_version": 2,
     "profile": profile,
     "requested_runs": runs,
+    "warmup_runs": warmups,
+    "environment": {
+        "git_revision": os.environ["MOXI_BENCHMARK_GIT_REVISION"],
+        "git_dirty": os.environ["MOXI_BENCHMARK_GIT_DIRTY"] == "1",
+        "mojo_version": os.environ["MOXI_BENCHMARK_MOJO_VERSION"],
+        "os": os.environ["MOXI_BENCHMARK_OS"],
+        "architecture": os.environ["MOXI_BENCHMARK_ARCHITECTURE"],
+    },
     "cases": cases,
 }
 output_path.parent.mkdir(parents=True, exist_ok=True)
