@@ -1,24 +1,26 @@
 # Moxi ecosystem convergence plan
 
-Status: E3-E8 local implementation complete; E1 and external release actions remain explicit follow-ons
+Status: E3-E8 local implementation complete; the recipe-wave continuation is landed; E1 and external release actions remain explicit follow-ons
 Planning baseline: September 7, 2026
 Implementation branch: `main`  
 Planning branch: `project-planning`
 
 ### Implementation audit — 2026-09-07
 
-The E3-E8 execution pass is complete on `main` at `666908b`. The main
-implementation landed in `f018f6f`; the follow-up makes upstream reference
-execution explicit. The local gates are closed as follows:
+The E3-E8 execution pass plus the recipe-wave continuation is complete on
+`main` at `ff9f3f8`. The main implementation landed in `f018f6f`; the
+follow-up makes upstream reference execution explicit; the continuation adds
+shared Python recipe geometry, exports, fixtures, and benchmark evidence. The
+local gates are closed as follows:
 
 | Gate | Local status | Evidence and boundary |
 | --- | --- | --- |
 | E3 | complete | Typed paths, text style metadata, resource handles, isolated layers, Canvas/SVG/software/Metal mappings, fallback policy, and contract tests are in `666908b`. Text and image pixels remain explicit fallback/resource lanes where Canvas cannot provide parity. |
 | E4 | complete | A clean-install, value-boundary Python package, stateless render API, deterministic exceptions, wheel manifest, and package-consumer smoke are implemented. A native Mojo/CPython extension is intentionally not claimed. |
-| E5 | complete | `moxi.plot`, `PlotSpec`, `DataTable`, `Figure` PNG/SVG/PDF/RGBA/NumPy exports, optional NumPy/pandas adapters, typed tests, and canonical overlap scenarios are implemented. |
-| E6 | complete locally | `dataviz_mojo` v0.8.0 is pinned to `3fd5a7e`; the inventory, normalization rules, migration notes, parity command, and point/line/bar/area/box/heatmap overlap fixtures are checked. A full upstream build remains optional and is reported as unavailable when the external toolchain is absent. |
-| E7 | complete as a capability-wave gate | The complete upstream catalog is inventoried; the six core marks are promoted, while the remaining marks retain explicit wave, strategy, Python, interaction, and accessibility statuses. No unverified alias is advertised as parity. |
-| E8 | complete locally | Release checks include clean-wheel/package-consumer, PlotSpec contract, dataviz parity, capability-wave, benchmark, and generated API checks. The support matrix, migration/attribution notices, and default-renderer decision are documented. |
+| E5 | complete | `moxi.plot`, `PlotSpec`, `DataTable`, `Figure` PNG/SVG/PDF/RGBA/NumPy exports, optional NumPy/pandas adapters, typed tests, and canonical overlap scenarios are implemented. The recipe-wave continuation adds executable histogram, density, ECDF, regression, hexbin, and error-bar geometry across the Python exports at `ff9f3f8`. |
+| E6 | complete locally | `dataviz_mojo` v0.8.0 is pinned to `3fd5a7e`; the inventory, normalization rules, migration notes, parity command, point/line/bar/area/box/heatmap overlap fixtures, and recipe-wave fixtures are checked. A full upstream build remains optional and is reported as unavailable when the external toolchain is absent. |
+| E7 | complete as a capability-wave gate | The complete upstream catalog is inventoried; the six core marks and the upstream histogram row are promoted. Density, ECDF, regression, hexbin, and error bars have Moxi-native Python recipe evidence without being mislabeled as upstream parity; the remaining marks retain explicit wave, strategy, Python, interaction, and accessibility statuses. No unverified alias is advertised as parity. |
+| E8 | complete locally | Release checks include clean-wheel/package-consumer, PlotSpec contract, dataviz overlap plus recipe-wave parity, capability-wave, three-run Python recipe benchmarks, and generated API checks. The support matrix, migration/attribution notices, and default-renderer decision are documented. |
 
 This audit closes the implementation work requested by this plan without
 quietly converting a local nightly fork, a missing external reference build,
@@ -467,9 +469,10 @@ may change all later Python estimates.
 
 ### Gate E5: headless Python MVP
 
-**Status:** complete for the value-boundary MVP at `666908b`. The package is
-installable without a repository checkout or Mojo compiler, and the public
-surface is backed by PlotSpec JSON rather than Python-only renderer state.
+**Status:** complete for the value-boundary MVP at `666908b`, with the
+recipe-wave continuation landed at `ff9f3f8`. The package is installable
+without a repository checkout or Mojo compiler, and the public surface is
+backed by PlotSpec JSON rather than Python-only renderer state.
 
 **Purpose:** deliver a useful Python library around the stable Moxi value model.
 
@@ -524,12 +527,13 @@ broader wheel coverage, hardening, and release operations.
 
 ### Gate E6: dataviz overlap and migration protocol
 
-**Status:** complete for the local overlap protocol at `666908b`. The selected
-upstream revision, normalization rules, migration policy, six promoted marks,
-and local PlotSpec/export fixtures are checked. An external dataviz build is
-not hidden behind the default check: set `DATAVIZ_MOJO_PATH` to a matching
-checkout to run the optional reference lane, and unavailable toolchains are
-reported explicitly.
+**Status:** complete for the local overlap protocol at `666908b`, extended by
+the recipe-wave fixtures at `ff9f3f8`. The selected upstream revision,
+normalization rules, migration policy, six promoted marks, and local
+PlotSpec/export fixtures are checked. An external dataviz build is not hidden
+behind the default check: set `DATAVIZ_MOJO_PATH` to a matching checkout to
+run the optional reference lane, and unavailable toolchains are reported
+explicitly.
 
 **Purpose:** establish a repeatable way to absorb capabilities before pursuing
 mark breadth.
@@ -562,11 +566,14 @@ mark breadth.
 
 ### Gate E7: dataviz capability waves
 
-**Status:** complete as an inventory and promotion gate at `666908b`. The
-core overlap wave is promoted; the remaining upstream catalog is partitioned
-into explicit future waves with strategy, schema, Python, interaction,
-accessibility, parity, and benchmark fields. Those rows remain planned until
-their full evidence exists.
+**Status:** complete as an inventory and promotion gate at `ff9f3f8`. The
+core overlap wave and upstream histogram row are promoted; the Python recipe
+wave has executable value-boundary geometry and export evidence for histogram,
+density, ECDF, regression, hexbin, and error bars. The remaining upstream
+catalog is partitioned into explicit future waves with strategy, schema,
+Python, interaction, accessibility, parity, and benchmark fields. Those rows
+remain planned until their full evidence exists; grouped/stacked layout marks
+are not promoted by the recipe work.
 
 Capability breadth follows measured user value and dependency order. The
 inventory, rather than this prose list, is authoritative after E6.
@@ -598,7 +605,7 @@ make that limitation explicit.
 
 ### Gate E8: release stabilization
 
-**Status:** complete for the local release gate at `666908b`. The default
+**Status:** complete for the local release gate at `ff9f3f8`. The default
 portable renderer remains the deterministic software oracle; Canvas is the
 nightly-pinned opt-in export backend for commands with explicit parity or
 fallback policy. Public artifact upload and any stable upstream Canvas release
@@ -621,7 +628,7 @@ remain credential/toolchain-dependent external actions.
 - `pixi run release-check` includes canvas parity and portable package checks;
 - `pixi run python-check` installs and tests a built wheel artifact;
 - `pixi run dataviz-parity` validates the selected pinned reference and runs
-  the six local overlap fixtures;
+  the six local overlap fixtures plus the recipe-wave fixtures;
 - all benchmark claims identify compiler, host, sample count, and dispersion;
 - README/API/current-state docs agree on support labels; and
 - no runtime dependency floats to an unpinned revision.
