@@ -1,7 +1,7 @@
 # Moxi ecosystem convergence plan
 
 Status: proposed follow-on plan  
-Planning baseline: September 6, 2026  
+Planning baseline: September 7, 2026
 Implementation branch: `main`  
 Planning branch: `project-planning`
 
@@ -24,22 +24,28 @@ release evidence. They must not be implemented as three unrelated adapters.
 
 ThreadBridge was used to read T3 thread
 `f66d9699-3bd8-4505-8163-15ce7e0038a8`, "Deep-Dive Project Planning",
-directly. At the planning cutoff, that thread had:
+directly. At the final handoff, that thread had:
 
 - completed the original five Gate 1 slices;
 - landed generated API compatibility/deprecation enforcement at `721e50a`;
 - landed keyed child dispatch integration into `App` at `06231a5`;
-- started native screenshot capture, tolerance, mask, and evidence work; and
-- queued cross-host benchmark policy/baseline work after native screenshots.
+- landed native screenshot capture, tolerance, mask, and evidence at
+  `707ff64`;
+- landed the host-independent quick benchmark contract at `7137c48`; and
+- refreshed the reviewed macOS arm64 full baseline at `43e7cb0` after the
+  native renderer correction.
 
 This plan does **not** own or duplicate those files or outcomes. In particular,
-it must not modify the active thread's native screenshot implementation,
-benchmark-host policy, API compatibility snapshot, or keyed `App` integration
-until that thread has finished and published its handoff state.
+it must not modify the implementation thread's native screenshot
+implementation, benchmark-host policy, API compatibility snapshot, or keyed
+`App` integration as part of the ecosystem convergence work. Those boundaries
+are complete for the current handoff and remain the source of truth.
 
-The first action in this plan is therefore a read-only rebaseline. No
-implementation gate may start from the commit hashes above without confirming
-the final state of both branches and the active thread's completion record.
+The read-only rebaseline is complete: `main` is at `7e12d3c` and the planning
+branch retains the research and Gate 1 evidence. Ecosystem work may now start
+from these facts, while visible AppKit screenshot review, broader localized
+state-preservation coverage, linked non-macOS runtimes, and additional
+full-profile host baselines remain explicit follow-on boundaries.
 
 Existing Gate 2 and Gate 3 commitments in `PROJECT-PLANNING.md` also remain in
 force. This plan expands the supported-2D-plotting direction in Gate 4; it does

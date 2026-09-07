@@ -19,7 +19,7 @@ graphics capabilities.
 ## Reconciliation with the audited implementation
 
 The recommendations at the end of this research are evidence inputs, not a
-second roadmap. Checked against `main` at `bd3722c`, their status is:
+second roadmap. Reconciled against `main` at `7e12d3c`, their status is:
 
 | Recommendation | Status in code | Planning treatment |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ second roadmap. Checked against `main` at `bd3722c`, their status is:
 | Backend-neutral scene with incremental adapters | Implemented for software, SVG, AppKit, and a substantial Metal slice | Build a shared parity corpus before adding Cairo, wgpu, or more GPU breadth. |
 | GPU-backed visualization | Implemented through the interactive fractal and dense plot packet paths | Treat these as canonical Mojo compute-to-visual scenarios and benchmark them repeatably. |
 | Property and fuzz coverage | Deterministic property-style edge tests exist; mutation fuzzing and shrinking do not | Add replayable properties first, then pilot `mozz` when failures can become checked-in minimal cases. |
-| Stable Mojo 1.x public surfaces | Not resolved: stable 0.5 and post-0.5 experimental names share a very large root export surface | Make API classification and compatibility policy the first planning gate. |
+| Stable Mojo 1.x public surfaces | Generated support lanes and compatibility/deprecation enforcement now cover the large root export surface; stable and experimental names still share that root boundary | Keep the manifest reviewable and decide which provisional lanes become package promises before the next breadth wave. |
 
 The active decisions and acceptance checks live in
 [PROJECT-PLANNING.md](../PROJECT-PLANNING.md). This research remains the source

@@ -6,13 +6,14 @@ branch.
 
 The current planning baseline is:
 
-- implementation: `main` at `bd3722c` (`feat: preserve component themes and
-  document walkthrough`), audited September 6, 2026;
-- research: `project-planning` at `823b6a9`, including the Modular/Mojo
-  ecosystem review captured September 6, 2026; and
-- validation: the 65-program Mojo test suite passes, and the quick benchmark
-  harness completes all retained, interaction, plotting, fractal, and Metal
-  workloads on the audited implementation.
+- implementation: `main` at `7e12d3c` (`docs: record contract and parity
+  hardening`), audited September 7, 2026;
+- research: [`docs/modular-ecosystem-research.md`](docs/modular-ecosystem-research.md),
+  the Modular/Mojo ecosystem review captured September 6 and reconciled
+  against the September 7 implementation; and
+- validation: the 68-program Mojo test suite passes; release validation covers
+  API/scenario/software/native/browser gates, a 30-run full benchmark, the
+  reviewed macOS baseline, and the host-independent quick contract.
 
 ## Planning record
 
@@ -41,6 +42,7 @@ The current planning baseline is:
 6. Completed proposals are removed or folded into the current-state record so
    the branch remains a decision tool rather than a history of stale TODOs.
 
-The immediate recommendation is to stop adding breadth until the public API,
-localized execution path, shared scenarios, and visual/performance regression
-signals form a credible support boundary.
+The immediate recommendation is to preserve the landed Gate 1 boundary while
+sequencing the remaining support work: broader localized state preservation,
+visible native screenshot review, and additional full-profile host baselines.
+New widget or plot-family breadth should wait for those contracts.

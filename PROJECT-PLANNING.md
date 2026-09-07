@@ -61,49 +61,44 @@ The differentiator is the combination of:
 
 ## Gate 1: contract hardening
 
-This is the next milestone. All six workstreams are required; new widget or
-plot-family work is out of scope.
+This was the next milestone. All six workstreams have now been exercised in
+the ordered pass; new widget or plot-family work remains out of scope until
+the follow-on boundaries below are deliberately accepted.
 
-### Gate 1 progress at `main` `363cae2`
+### Gate 1 progress at `main` `7e12d3c` (September 7, 2026)
 
-The ordered implementation pass has delivered the first vertical slices. The
-status below is deliberately narrower than “Gate 1 complete”: it records what
-is proven in source and validation, and leaves the unfinished acceptance work
-visible for the next pass.
+The ordered implementation pass has delivered the Gate 1 slices. The status
+below records what is proven in source and validation and leaves the remaining
+support boundaries visible for the next pass.
 
 | Ordered slice | Status | Evidence | Still open |
 | --- | --- | --- | --- |
-| 1. Public API audit | Inventory and focused import lanes complete | `e418b29`, `7295e2e`, generated `docs/api-status.md`, 887 export classifications, `docs/api-lanes.tsv`, `api-status-check`, `tests/api_lanes.mojo` | compatibility/deprecation policy and package-lane enforcement for future moves |
+| 1. Public API audit | Inventory, focused import lanes, and compatibility/deprecation enforcement complete | `e418b29`, `7295e2e`, `721e50a`, generated `docs/api-status.md`, 887 export classifications, `docs/api-lanes.tsv`, `docs/api-compatibility.tsv`, `api-status-check`, `tests/api_lanes.mojo` | review each future move against the manifest and decide which provisional lanes become package promises |
 | 2. Canonical scenario registry | Registry, consumer inventory, and descriptor-driven fixture records complete across all seven families; feature interaction state remains module-local | `0991f29`, `90f2aef`, `4ef1171`, `5f9c44b`, `332eb07`, and `a50900b`, seven descriptors, demo mapping, scenario checker, registry test, golden/benchmark metadata, and theme/capability/fractal records | make expected semantic/counter/checksum metadata descriptor-owned and enforce every behavior fixture through the catalog check |
-| 3. Software goldens and browser lifecycle | Software/host gates complete; native text/scene structural replay added | `62a9caa`, `9c25379`, and `b74d4eb`, seven exact PPM goldens, shared text corpus, CoreText replay, Metal scene replay, and browser lifecycle evidence | native screenshot parity, real-browser/device automation, and linked Mojo Web runtime |
-| 4. Typed localized execution | Keyed parent/child scheduling slice complete; normal `App` remains an explicit root-fallback path | `676cbd4`, `b813e53`, and `83030c3`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, retained parent composition, keyed insertion/removal/reorder counters, `App.execution_work_counters()`, and execution/composed tests | splice keyed child views into `App` event dispatch, replace linear topology scans with bounded indexes, and preserve focus/IME/scroll/popup state through a local update |
-| 5. Structured benchmark profiles | Protocol, localized matrix, reviewed macOS baseline, same-environment comparison, dispersion policy, and CI evidence complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, `2a1a112`, `26aa56`, `64f27a2`, and `363cae2`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, policy-checked 30-run baseline, median/p95/MAD comparator, and repeated CI quick artifact | compatible reviewed baselines beyond macOS arm64 |
-| 6. Documentation reconciliation | Main docs and planning ledger current through the ordered pass | `87e79bf`, `d6c008c`, `e428303`, `8100623`, `332eb07`, `b74d4eb`, `7295e2e`, `64f27a2`, `363cae2`, and this update; README/API/text/performance/benchmark/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
+| 3. Software goldens and browser lifecycle | Software/host gates complete; native text/scene replay and an offscreen screenshot tolerance lane are exercised | `62a9caa`, `9c25379`, `b74d4eb`, and `707ff64`, seven exact PPM goldens, shared text corpus, CoreText replay, Metal scene replay, browser lifecycle evidence, native PPM capture, and a checked-in tolerance/mask report | visible AppKit screenshot review, real device/browser automation, and a linked Mojo Web runtime |
+| 4. Typed localized execution | Keyed parent/child scheduling is integrated into the opted-in `App` path; non-opted-in components retain an explicit root fallback | `676cbd4`, `b813e53`, `83030c3`, and `06231a5`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, retained parent composition, keyed insertion/removal/reorder counters, `App.execution_work_counters()`, and execution/composed integration tests | bounded topology indexes and broader focus/IME/scroll/popup preservation scenarios |
+| 5. Structured benchmark profiles | Protocol, localized matrix, reviewed macOS baseline, same-environment comparison, dispersion policy, CI evidence, and a portable deterministic contract are complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, `2a1a112`, `26aa56`, `64f27a2`, `363cae2`, `7137c48`, and `43e7cb0`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, policy-checked 30-run baseline, median/p95/MAD comparator, and cross-host quick contract | compatible reviewed full-profile baselines beyond macOS arm64 |
+| 6. Documentation reconciliation | Main docs and planning ledger are current through the ordered implementation and release pass | `87e79bf`, `d6c008c`, `e428303`, `8100623`, `332eb07`, `b74d4eb`, `7295e2e`, `64f27a2`, `363cae2`, `721e50a`, `06231a5`, `707ff64`, `7137c48`, `43e7cb0`, `7e12d3c`, and this update; README/API/text/performance/benchmark/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
 
-The full repository gate passed at `363cae2`: 68 Mojo tests, API/demo/scenario/
-visual checks, native text and scene replay, host checks, and build validation.
-The clean full profile produced 30 samples across 10 cases; the reviewed
-baseline and comparator now report dispersion and enforce the registered host
-matrix. A release/package rerun remains a final Gate 1 check. This is evidence
-for the completed slices, not a claim that native screenshots or additional
-host baselines are complete.
+The full repository and release gates passed at the implementation head: 68
+Mojo tests, API/demo/scenario/visual checks, native text and scene replay,
+native screenshot tolerance evidence, host checks, package-consumer checks,
+and build validation. The clean full profile produced 30 samples across 10
+cases; the reviewed macOS baseline was refreshed after the native geometry fix,
+and the comparator now reports dispersion while enforcing the registered host
+matrix. The portable quick contract also passes on the candidate report. This
+is evidence for the completed slices, not a claim that visible AppKit capture,
+linked non-macOS runtimes, or additional full-profile host baselines are
+complete.
 
 ### 1. Classify and narrow the public API
 
 The first pass landed the inventory, lane file, focused imports, and API check
-at `7295e2e`; compatibility/deprecation policy remains the boundary for a
-future release.
-
-- add `docs/api-status.md` on `main` with one generated row per name exported
-  by `src/moxi/__init__.mojo`;
-- group exports into stable core, provisional plotting, experimental renderer,
-  host adapter, demo/support, and internal lanes;
-- add a source-controlled allowlist checked by `scripts/check.sh` so a new
-  re-export requires an explicit support classification;
-- introduce focused import paths for plotting, experimental Metal, demo
-  browser, and host adapters (landed); and
-- retain compatibility shims for one minor release when moving a documented
-  name, with deprecations recorded in `CHANGELOG.md`.
+at `7295e2e`; `721e50a` now makes compatibility/deprecation decisions
+mechanical for future releases. The generated status, support-lane allowlist,
+focused import paths, and compatibility manifest are all checked by the
+release gate. Future API work must retain the one-minor-release shim policy
+for documented moves and record deprecations in `CHANGELOG.md`.
 
 Acceptance:
 
@@ -116,8 +111,8 @@ Acceptance:
 
 ### 2. Make scenarios first-class infrastructure
 
-Turn `src/moxi/scenarios.mojo` into the registry rather than another showcase
-module. Register, without duplicating feature state:
+`src/moxi/scenarios.mojo` is now the registry rather than another showcase
+module. It registers, without duplicating feature state:
 
 | Scenario | Required consumers | Contract it proves |
 | --- | --- | --- |
@@ -148,29 +143,24 @@ Extend the current accounting types into a typed subtree contract. Start with
 the composed counter/form scenario rather than redesigning the entire view
 model.
 
-The keyed scheduler and counter contract landed at `83030c3`; the normal
-`App` path intentionally remains a root-fallback boundary while the following
-integration work stays planned.
+The keyed scheduler and counter contract landed at `83030c3`, and `06231a5`
+integrates the typed keyed child path into `App` for components that opt in.
+The normal `build()`/`update()` path intentionally remains an observable root
+fallback for components that cannot yet provide localized hooks.
 
-Implementation targets:
-
-- add a stable keyed subtree/slot descriptor in `component.mojo` that owns a
-  typed child builder and local state without public id-offset arithmetic;
-- let a keyed parent scheduler rebuild a dirty child description, compose its
-  retained view, and account for structural changes;
-- preserve root-wide rebuild as an explicit fallback for structure or bounds
-  dependencies that cannot yet be localized;
-- make `LocalizedExecution` topology lookup bounded by key/index structures
-  rather than repeated linear scans before applying it to large trees; and
-- add deterministic counters for builders run, nodes reconciled, nodes laid
-  out, commands repainted, and fallback-to-root events.
+The stable keyed descriptor, typed child builder, parent composition, explicit
+root fallback, and deterministic work counters are landed in the composed
+`App` slice. The remaining implementation target is to make
+`LocalizedExecution` topology lookup bounded by key/index structures rather
+than repeated linear scans before applying it to large trees.
 
 Acceptance checks:
 
 - updating one child runs one child builder and does not run an unrelated
   sibling builder (landed in `tests/execution.mojo`);
-- focus, IME composition, scroll offsets, popup capture, accessibility ids,
-  and stable retained state survive the local update;
+- focus and stable retained state survive the composed local update; explicit
+  IME composition, scroll offsets, popup capture, and accessibility-id
+  preservation remain regression scenarios for the next slice;
 - insertion/removal/reorder has an explicit tested localized path, while
   root-wide fallback is counted (landed in `tests/execution.mojo`);
 - a 1/10/100-child benchmark demonstrates bounded work using counters, with
@@ -180,62 +170,52 @@ Acceptance checks:
 ### 4. Add deterministic visual regression
 
 Use the software renderer first. Native screenshots remain a separate parity
-lane; the current pass adds structural text/scene replay without claiming
-pixel-identical native output.
+lane; `707ff64` now captures the offscreen Metal scene and applies an explicit
+threshold/mask policy without claiming pixel-identical native output.
 
 The software corpus and browser lifecycle landed at `62a9caa`/`9c25379`; the
-shared text corpus plus CoreText/Metal structural replay landed at `b74d4eb`.
-Implementation targets that remain are:
+shared text corpus plus CoreText/Metal structural replay landed at `b74d4eb`;
+and the software manifest/export/checker plus offscreen native screenshot
+capture, comparison, and CI artifact upload landed at `707ff64`. The remaining
+targets are:
 
-- add `tests/goldens/manifest.json` mapping scenario/state, dimensions,
-  renderer version, expected checksum, and image path;
-- add a deterministic image export to `SoftwareSceneRenderer` (a simple
-  lossless format is sufficient) and `scripts/visual_check.sh`;
-- check exact output for the software oracle; use thresholded and masked diffs
-  only for explicitly native reference captures;
-- cover every theme control state, the mixed-text fallback corpus, nested
-  clipping/scrolling, accessibility focus, and the core plot gallery; and
-- upload actual/expected/diff images as CI artifacts on failure; and
-- extend the existing Web host check with one deterministic browser harness:
-  start a local server on an allocated port, wait for a scenario-ready marker,
-  replay input against `native/web/host_demo.html`, capture Canvas and ARIA
-  state, and always tear down the browser and server.
+- extend the native capture corpus beyond the compact scene to representative
+  visible AppKit states and document the font/scale-specific masks;
+- keep exact output for the software oracle and use the checked-in thresholded
+  and masked policy only for explicitly native reference captures;
+- add real device/browser automation and a linked Mojo Web runtime before
+  calling those targets supported; and
+- retain actual/expected/diff images and native reports as reviewable CI
+  artifacts whenever a visual contract changes.
 
-Acceptance: a one-pixel intentional change produces a locally inspectable diff;
+Acceptance: a one-pixel intentional software change produces a locally
+inspectable diff; native captures report masked pixels and channel budgets;
 baseline updates require an explicit command and change review; no demo-only
-render path exists for a golden; the browser host check has deterministic
+render path exists for a golden; and the browser host check has deterministic
 readiness and teardown rather than depending on a developer-owned session.
 
 ### 5. Make performance results comparable
 
-Preserve the current workloads and counters, then add a result protocol.
+Preserve the current workloads and counters, then keep the result protocol
+reviewable. The schema, quick/full commands, reviewed macOS baseline,
+same-host comparator, dispersion policy, and portable quick contract are
+landed. The remaining target is a clean full-profile baseline for each
+additional host/compiler combination before enabling its wall-clock lane.
 
-Implementation targets:
-
-- add `benchmarks/result-schema.json` and make each benchmark optionally emit
-  one JSON record containing git revision, dirty flag, Mojo/compiler version,
-  OS/architecture, workload parameters, warmup/run counts, deterministic
-  counters/checksum, and timing samples;
-- provide `pixi run benchmark-quick` for correctness/counter regressions and
-  `pixi run benchmark-full` for repeated local/release measurements;
-- commit reviewed release baselines under `benchmarks/results/`, not every CI
-  sample;
-- compare medians and dispersion only within compatible environments, with a
-  checked-in host policy and explicit p95/MAD reporting; and
-- add a 10k-node retained scenario and the localized 1/10/100-child workload
-  missing from the current small retained benchmark.
-
-Acceptance: CI detects checksum/work inflation separately from noisy time and
-uploads repeated quick-profile evidence; release notes can link to a
-machine-readable baseline; and the documentation does not promote a single
-workstation timing to a universal claim. Additional hosts remain planned until
-their compiler/runtime baselines are collected and reviewed.
+Acceptance: CI detects checksum/work inflation separately from noisy time,
+validates the portable quick contract on any host, and uploads repeated
+quick-profile evidence; release notes can link to a machine-readable baseline;
+and the documentation does not promote a single workstation timing to a
+universal claim. Additional full-profile hosts remain planned until their
+compiler/runtime baselines are collected and reviewed.
 
 ### 6. Establish one documentation vocabulary
 
-Update `README.md`, `ARCHITECTURE.md`, `docs/API.md`, `docs/performance.md`,
-`docs/accessibility.md`, `docs/demo-browser.md`, and `docs/xilem-comparison.md`
-on `main` from the generated support matrix and scenario manifest.
+The vocabulary pass updated `README.md`, `ARCHITECTURE.md`, `docs/API.md`,
+`docs/performance.md`, `docs/accessibility.md`, `docs/demo-browser.md`, and
+`docs/xilem-comparison.md` on `main` from the generated support matrix and
+scenario manifest. Future edits must preserve the same generated-status
+workflow.
 
 Required conventions:
 
@@ -340,15 +320,18 @@ rewrite:
 
 ## Recommended implementation sequence
 
-1. Public export inventory and documentation vocabulary (landed).
-2. Scenario registry and manifest, starting with theme states and composed
-  components.
-3. Software golden export/checker, consuming those scenarios (landed).
-4. Localized composed-child execution with work counters and root fallback
-   (keyed scheduling slice landed; `App` integration remains open).
-5. Structured quick/full benchmark output, including localized workloads
-   (dispersion policy and CI evidence now landed).
-6. Final Gate 1 documentation reconciliation and release decision.
+1. Public export inventory, focused lanes, compatibility enforcement, and
+   documentation vocabulary (landed).
+2. Scenario registry and descriptor-owned fixtures (landed; expected metadata
+   ownership remains a follow-on refinement).
+3. Software golden export/checker plus native screenshot evidence (landed).
+4. Localized composed-child execution with work counters and an opt-in `App`
+   parent/child path (landed; broader state-preservation coverage remains).
+5. Structured quick/full benchmark output, reviewed macOS baseline, and the
+   portable deterministic contract (landed; other full hosts remain planned).
+6. Final Gate 1 documentation reconciliation and release decision (landed in
+   the current handoff); begin Gate 2 only from the explicit remaining
+   boundaries above.
 
 This order makes each later slice consume infrastructure already reviewed by
 the previous one and keeps the first milestone independently shippable.
