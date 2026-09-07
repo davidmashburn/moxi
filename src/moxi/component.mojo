@@ -43,6 +43,40 @@ trait Component(ImplicitlyCopyable):
         return False
 
 
+struct KeyedSubtreeDescriptor(ImplicitlyCopyable):
+    """Stable identity and namespace for one typed child subtree.
+
+    A parent owns the descriptor rather than deriving ids at each build site.
+    ``slot_id`` is the parent-tree container, ``id_offset`` is the private
+    namespace applied while embedding the child's local ids, and the scope /
+    component ids connect the descriptor to localized execution accounting.
+    """
+
+    var key: Int
+    var slot_id: Int
+    var scope_id: Int
+    var component_id: Int
+    var id_offset: Int
+
+    def __init__(
+        out self,
+        key: Int,
+        slot_id: Int,
+        scope_id: Int,
+        component_id: Int,
+        id_offset: Int,
+    ):
+        self.key = key
+        self.slot_id = slot_id
+        self.scope_id = scope_id
+        self.component_id = component_id
+        self.id_offset = id_offset
+
+    def local_id(self, id: Int) -> Int:
+        """Return the parent-tree id for a child-local node id."""
+        return id + self.id_offset
+
+
 struct ComponentSlot[Child: Component & Deinitable](ImplicitlyCopyable):
     """Own one typed child component embedded in a parent's view tree.
 
@@ -52,6 +86,7 @@ struct ComponentSlot[Child: Component & Deinitable](ImplicitlyCopyable):
     """
 
     var component: Self.Child
+    var key: Int
     var slot_id: Int
     var id_offset: Int
 
@@ -62,8 +97,33 @@ struct ComponentSlot[Child: Component & Deinitable](ImplicitlyCopyable):
         id_offset: Int,
     ):
         self.component = component
+        self.key = -1
         self.slot_id = slot_id
         self.id_offset = id_offset
+
+    def __init__(
+        out self,
+        component: Self.Child,
+        descriptor: KeyedSubtreeDescriptor,
+    ):
+        self.component = component
+        self.key = descriptor.key
+        self.slot_id = descriptor.slot_id
+        self.id_offset = descriptor.id_offset
+
+    def descriptor(self, scope_id: Int = -1, component_id: Int = -1) -> KeyedSubtreeDescriptor:
+        """Return this slot's stable identity and execution namespace."""
+        return KeyedSubtreeDescriptor(
+            self.key,
+            self.slot_id,
+            scope_id,
+            component_id,
+            self.id_offset,
+        )
+
+    def namespaced_id(self, id: Int) -> Int:
+        """Return a child-local id in this slot's parent namespace."""
+        return id + self.id_offset
 
     def build(self, bounds: Rect) -> ColumnView:
         """Build the child view for the slot's current bounds."""

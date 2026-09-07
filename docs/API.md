@@ -11,6 +11,7 @@ metadata.
 | --- | --- |
 | `Component` | Value-based `build(bounds)` and `update(event, view)` contract. |
 | `ComponentSlot[Child]` | Typed child ownership, namespaced ids, and local event routing. |
+| `KeyedSubtreeDescriptor` | Stable child key, parent slot, execution scope, and private id namespace. |
 | `App[ComponentType]` | Mount, dispatch, resize, tick, paint, render, and clipboard-aware loops. |
 | `WindowBackend` / `WindowConfig` | Backend-neutral window and event-pump boundary. |
 | `WindowManager` / `WindowId` | Bounded portable multi-window ownership model. |
@@ -23,9 +24,15 @@ component-owned surface. It retains one typed component/view/runtime, maps a
 single `StateScope` dependency, and rebuilds only after a matching
 invalidation. `ExecutionWorkCounters` reports invalidations, dependency
 visits, dirty tokens consumed, component builds, reconciled nodes, paint
-commands, and a stable aggregate work value. `LocalizedExecution` remains the
-lower-level topology/counter primitive when an application owns the lifecycle
-itself.
+commands, keyed insertions/removals/moves, parent composition, explicit root
+fallbacks, and a stable aggregate work value. `KeyedSubtreeExecutor[Child]`
+retains multiple typed children by `KeyedSubtreeDescriptor.key`; child
+invalidation rebuilds only the matching child, while `reorder()` preserves
+the retained child state and `build_parent()` composes the cached child views.
+`LocalizedExecution` remains the lower-level topology/counter primitive when
+an application owns the lifecycle itself. The normal `App` path still reports
+root-wide rebuilds as fallback events until parent view splicing is wired into
+the application event loop.
 
 Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and

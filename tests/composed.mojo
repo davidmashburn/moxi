@@ -24,6 +24,8 @@ def main():
     test_check(app.view.child(1).id == COMPOSED_COUNTER_SLOT_ID)
     test_check(app.view.child(2).id == COMPOSED_COUNTER_ID_OFFSET + 1)
     test_check(app.view.child(4).id == COMPOSED_COUNTER_ID_OFFSET + 3)
+    test_check(app.component.counter.key == 1)
+    test_check(app.component.counter.namespaced_id(3) == COMPOSED_COUNTER_ID_OFFSET + 3)
     test_check(app.action_id(COMPOSED_COUNTER_ID_OFFSET + 3) == COUNTER_INCREMENT_ACTION)
 
     var button = app.view.child(4).bounds

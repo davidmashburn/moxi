@@ -113,6 +113,7 @@ Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --wri
 | `TextInputEvent` | `moxi.event` | stable-core | normalized input events |
 | `Component` | `moxi.component` | stable-core | value-owned component contracts |
 | `ComponentSlot` | `moxi.component` | stable-core | value-owned component contracts |
+| `KeyedSubtreeDescriptor` | `moxi.component` | stable-core | value-owned component contracts |
 | `ClipboardBackend` | `moxi.clipboard` | stable-core | host-neutral clipboard or window contracts |
 | `MemoryClipboard` | `moxi.clipboard` | stable-core | host-neutral clipboard or window contracts |
 | `CALLER_AGENT` | `moxi.capability` | experimental | experimental or optional integration |
@@ -588,12 +589,18 @@ Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --wri
 | `SCENARIO_FRACTAL` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `ScenarioDescriptor` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `ScenarioRegistry` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `ThemeModeFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `ScenarioStep` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `FractalBenchmarkFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_scenarios` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_form_title` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_form_hint` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_form_submit_label` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_theme_title` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_theme_selector_label` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_theme_modes` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_theme_mode_name` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_theme_status` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_theme_golden_mode` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_text_coretext_fixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_text_fallback_fixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
@@ -605,6 +612,8 @@ Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --wri
 | `canonical_capability_title` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_capability_initial_status` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_capability_hint` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_capability_steps` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_fractal_cases` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_fractal_preset_ids` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_fractal_depths` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `InteractionScenario` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
@@ -617,6 +626,9 @@ Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --wri
 | `PerformanceReport` | `moxi.performance` | provisional | stateful UI support primitives |
 | `DependencyEdge` | `moxi.execution` | provisional | stateful UI support primitives |
 | `ExecutionWorkCounters` | `moxi.execution` | provisional | stateful UI support primitives |
+| `KeyedSubtreeSchedule` | `moxi.execution` | provisional | stateful UI support primitives |
+| `KeyedChildExecutor` | `moxi.execution` | provisional | stateful UI support primitives |
+| `KeyedSubtreeExecutor` | `moxi.execution` | provisional | stateful UI support primitives |
 | `LocalizedExecution` | `moxi.execution` | provisional | stateful UI support primitives |
 | `TypedSubtreeExecutor` | `moxi.execution` | provisional | stateful UI support primitives |
 | `PLOT_AREA` | `moxi.plotting` | provisional | typed plotting data, specification, or runtime |

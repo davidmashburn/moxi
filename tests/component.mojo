@@ -36,6 +36,7 @@ def main():
     test_check(app.update(ClickEvent(Point(72.0, 130.0))))
     test_check(app.component.count == 1)
     test_check(app.execution_build_count(0) == 2)
+    test_check(app.execution_work_counters().root_fallbacks == 1)
     test_check(app.view.child(1).text == "Count: 1")
     test_check(app.resize(Rect(0.0, 0.0, 480.0, 240.0)))
     test_check(app.execution_build_count(0) == 3)

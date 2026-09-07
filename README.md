@@ -443,9 +443,15 @@ For a component-owned surface that should update without rebuilding its parent,
 use `TypedSubtreeExecutor[ComponentType]`. It wires one `StateScope` and
 dependency edge to a retained runtime, exposes `invalidate()` and
 `rebuild_if_dirty()`, and reports `ExecutionWorkCounters` for builds,
-dependency visits, reconciled nodes, and paint commands. The repeatable
-workload is `pixi run benchmark-quick`, which includes a 1/10/100-child matrix
-in its structured report.
+dependency visits, reconciled nodes, and paint commands. When a parent owns
+more than one typed child, give each child a `KeyedSubtreeDescriptor` and
+retain it in `KeyedSubtreeExecutor[Child]`. The keyed executor preserves child
+state across reorder, counts insertion/removal/move work, and rebuilds only
+invalidated children; `build_parent()` composes their retained views without
+rerunning child builders. `App` exposes root-wide rebuilds as explicit
+`ExecutionWorkCounters.root_fallbacks` while parent splicing is adopted by the
+event loop. The repeatable workload is `pixi run benchmark-quick`, which
+includes a 1/10/100-child matrix in its structured report.
 
 `CheckboxControl`, `SliderControl`, `SwitchControl`, `RadioControl`, and the
 catalog descriptors extend the same pattern for stateful controls. The

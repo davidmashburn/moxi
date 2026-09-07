@@ -47,7 +47,7 @@ from .geometry import Point, Rect
 from .paint import PaintCommands, Renderer
 from .runtime import ColumnRuntime
 from .reactivity import ActionMessage, ActionQueue
-from .execution import LocalizedExecution
+from .execution import ExecutionWorkCounters, LocalizedExecution
 from .layout import ROW_AXIS
 from .scrollbar import (
     SCROLLBAR_HIT_THUMB,
@@ -169,6 +169,10 @@ struct App[ComponentType: Component & Deinitable]:
 
     def execution_build_count(self, component_id: Int) -> Int:
         return self.local_execution.build_count(component_id)
+
+    def execution_work_counters(self) -> ExecutionWorkCounters:
+        """Return root lifecycle work, including explicit fallback events."""
+        return self.local_execution.work_counters()
 
     def dispatch_action(mut self, message: ActionMessage) -> Bool:
         """Deliver a typed action without inventing a pointer target."""
@@ -598,6 +602,7 @@ struct App[ComponentType: Component & Deinitable]:
 
     def rebuild(mut self):
         """Rebuild the declarative view and reconcile retained children."""
+        self.local_execution.record_root_fallback()
         _ = self.local_execution.invalidate_scope(0)
         self.view = self.component.build(self.root_bounds)
         self.apply_scroll_offsets()

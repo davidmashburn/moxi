@@ -1,7 +1,7 @@
 """Shared typed component-slot scenario used by the demo and tests."""
 
 from .app import COUNTER_INCREMENT_ACTION, CounterState
-from .component import Component, ComponentSlot
+from .component import Component, ComponentSlot, KeyedSubtreeDescriptor
 from .event import Event
 from .geometry import Rect
 from .layout import ALIGN_START
@@ -22,8 +22,13 @@ struct ComposedState(Component):
     def __init__(out self):
         self.counter = ComponentSlot(
             CounterState(),
-            COMPOSED_COUNTER_SLOT_ID,
-            COMPOSED_COUNTER_ID_OFFSET,
+            KeyedSubtreeDescriptor(
+                1,
+                COMPOSED_COUNTER_SLOT_ID,
+                1,
+                1,
+                COMPOSED_COUNTER_ID_OFFSET,
+            ),
         )
 
     def build(self, bounds: Rect) -> ColumnView:
@@ -56,10 +61,10 @@ struct ComposedState(Component):
             -1,
             COMPOSED_COUNTER_SLOT_ID,
             child_view,
-            COMPOSED_COUNTER_ID_OFFSET,
+            self.counter.id_offset,
         )
         root.set_action(
-            COMPOSED_COUNTER_ID_OFFSET + 3,
+            self.counter.namespaced_id(3),
             COUNTER_INCREMENT_ACTION,
         )
         root.layout()

@@ -750,6 +750,26 @@ struct ColumnView:
         """Append a declarative child before running layout."""
         self.children.append(child)
 
+    def clone(self) -> Self:
+        """Copy a view declaration for retained parent composition."""
+        var result = ColumnView(
+            self.layout_spec.bounds,
+            self.layout_spec.padding,
+            self.layout_spec.spacing,
+        )
+        result.children = self.children.copy()
+        result.surface_style = self.surface_style
+        result.panel = self.panel
+        result.has_panel = self.has_panel
+        result.axis = self.axis
+        result.row_layout = self.row_layout
+        result.main_alignment = self.main_alignment
+        result.cross_alignment = self.cross_alignment
+        result.clip_to_bounds = self.clip_to_bounds
+        result.root_scroll_offset = self.root_scroll_offset
+        result.theme = self.theme
+        return result^
+
     def add_to(mut self, parent_id: Int, child: ViewNode):
         """Append a child to a previously declared container node."""
         var nested = child

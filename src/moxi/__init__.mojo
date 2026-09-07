@@ -104,7 +104,7 @@ from .event import (
     SemanticActionEvent,
     TextInputEvent,
 )
-from .component import Component, ComponentSlot
+from .component import Component, ComponentSlot, KeyedSubtreeDescriptor
 from .clipboard import ClipboardBackend, MemoryClipboard
 from .capability import (
     CALLER_AGENT,
@@ -656,6 +656,9 @@ from .performance import (
 from .execution import (
     DependencyEdge,
     ExecutionWorkCounters,
+    KeyedSubtreeSchedule,
+    KeyedChildExecutor,
+    KeyedSubtreeExecutor,
     LocalizedExecution,
     TypedSubtreeExecutor,
 )
