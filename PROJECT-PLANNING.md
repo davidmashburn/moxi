@@ -64,7 +64,7 @@ The differentiator is the combination of:
 This is the next milestone. All six workstreams are required; new widget or
 plot-family work is out of scope.
 
-### Gate 1 progress at `main` `83030c3`
+### Gate 1 progress at `main` `363cae2`
 
 The ordered implementation pass has delivered the first vertical slices. The
 status below is deliberately narrower than “Gate 1 complete”: it records what
@@ -73,24 +73,26 @@ visible for the next pass.
 
 | Ordered slice | Status | Evidence | Still open |
 | --- | --- | --- | --- |
-| 1. Public API audit | Complete | `e418b29`, generated `docs/api-status.md`, 873 export classifications, `api-status-check` | focused import paths, compatibility/deprecation policy, and package-lane enforcement |
+| 1. Public API audit | Inventory and focused import lanes complete | `e418b29`, `7295e2e`, generated `docs/api-status.md`, 887 export classifications, `docs/api-lanes.tsv`, `api-status-check`, `tests/api_lanes.mojo` | compatibility/deprecation policy and package-lane enforcement for future moves |
 | 2. Canonical scenario registry | Registry, consumer inventory, and descriptor-driven fixture records complete across all seven families; feature interaction state remains module-local | `0991f29`, `90f2aef`, `4ef1171`, `5f9c44b`, `332eb07`, and `a50900b`, seven descriptors, demo mapping, scenario checker, registry test, golden/benchmark metadata, and theme/capability/fractal records | make expected semantic/counter/checksum metadata descriptor-owned and enforce every behavior fixture through the catalog check |
-| 3. Software goldens and browser lifecycle | Software/host gates complete | `62a9caa` and `9c25379`, seven exact PPM goldens, manifest/checker, ephemeral server/host harness with Canvas/ARIA/input/teardown evidence | native screenshot parity, real-browser/device automation, and linked Mojo Web runtime |
+| 3. Software goldens and browser lifecycle | Software/host gates complete; native text/scene structural replay added | `62a9caa`, `9c25379`, and `b74d4eb`, seven exact PPM goldens, shared text corpus, CoreText replay, Metal scene replay, and browser lifecycle evidence | native screenshot parity, real-browser/device automation, and linked Mojo Web runtime |
 | 4. Typed localized execution | Keyed parent/child scheduling slice complete; normal `App` remains an explicit root-fallback path | `676cbd4`, `b813e53`, and `83030c3`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, retained parent composition, keyed insertion/removal/reorder counters, `App.execution_work_counters()`, and execution/composed tests | splice keyed child views into `App` event dispatch, replace linear topology scans with bounded indexes, and preserve focus/IME/scroll/popup state through a local update |
-| 5. Structured benchmark profiles | Protocol, localized matrix, reviewed macOS baseline, and same-environment comparison complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, `2a1a112`, and `26aa56c`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, 30-run `benchmarks/results/macos-arm64-full.json`, and `benchmark-compare` | dispersion reporting, CI wiring, and compatible baselines beyond macOS arm64 |
-| 6. Documentation reconciliation | Main docs and planning ledger current | `87e79bf`, `d6c008c`, `e428303`, `8100623`, and this update; README/API/visual/performance/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
+| 5. Structured benchmark profiles | Protocol, localized matrix, reviewed macOS baseline, same-environment comparison, dispersion policy, and CI evidence complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, `2a1a112`, `26aa56`, `64f27a2`, and `363cae2`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, policy-checked 30-run baseline, median/p95/MAD comparator, and repeated CI quick artifact | compatible reviewed baselines beyond macOS arm64 |
+| 6. Documentation reconciliation | Main docs and planning ledger current through the ordered pass | `87e79bf`, `d6c008c`, `e428303`, `8100623`, `332eb07`, `b74d4eb`, `7295e2e`, `64f27a2`, `363cae2`, and this update; README/API/text/performance/benchmark/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
 
-The full repository gate passed before the current scheduling slice at
-`332eb07`; the keyed-execution milestone has additionally passed `pixi run
-build`, the full 66-program test loop through its execution/composed cases, and
-the scenario/API/visual checks. A clean release/benchmark rerun is still a
-required final Gate 1 check after the remaining slices land. This is evidence
-for the completed slices, not a claim that the remaining Gate 1 exit criteria
-are satisfied.
+The full repository gate passed at `363cae2`: 68 Mojo tests, API/demo/scenario/
+visual checks, native text and scene replay, host checks, and build validation.
+The clean full profile produced 30 samples across 10 cases; the reviewed
+baseline and comparator now report dispersion and enforce the registered host
+matrix. A release/package rerun remains a final Gate 1 check. This is evidence
+for the completed slices, not a claim that native screenshots or additional
+host baselines are complete.
 
 ### 1. Classify and narrow the public API
 
-Implementation targets (the first keyed scheduling slice is now landed):
+The first pass landed the inventory, lane file, focused imports, and API check
+at `7295e2e`; compatibility/deprecation policy remains the boundary for a
+future release.
 
 - add `docs/api-status.md` on `main` with one generated row per name exported
   by `src/moxi/__init__.mojo`;
@@ -99,14 +101,14 @@ Implementation targets (the first keyed scheduling slice is now landed):
 - add a source-controlled allowlist checked by `scripts/check.sh` so a new
   re-export requires an explicit support classification;
 - introduce focused import paths for plotting, experimental Metal, demo
-  browser, and host adapters; and
+  browser, and host adapters (landed); and
 - retain compatibility shims for one minor release when moving a documented
   name, with deprecations recorded in `CHANGELOG.md`.
 
 Acceptance:
 
 - every exported name has an owner module and support lane;
-- package-consumer tests cover only the stable lane plus explicit provisional
+- package-consumer tests cover the stable lane plus explicit focused provisional
   opt-ins;
 - adding an unclassified export fails validation; and
 - README/API docs no longer call an experimental backend part of the 0.5
@@ -146,6 +148,10 @@ Extend the current accounting types into a typed subtree contract. Start with
 the composed counter/form scenario rather than redesigning the entire view
 model.
 
+The keyed scheduler and counter contract landed at `83030c3`; the normal
+`App` path intentionally remains a root-fallback boundary while the following
+integration work stays planned.
+
 Implementation targets:
 
 - add a stable keyed subtree/slot descriptor in `component.mojo` that owns a
@@ -169,14 +175,17 @@ Acceptance checks:
   root-wide fallback is counted (landed in `tests/execution.mojo`);
 - a 1/10/100-child benchmark demonstrates bounded work using counters, with
   no wall-clock claim required; and
-- all existing 66 test programs continue to pass.
+- all existing 68 test programs continue to pass.
 
 ### 4. Add deterministic visual regression
 
-Use the software renderer first. Native screenshots are a separate parity
-lane, not the initial oracle.
+Use the software renderer first. Native screenshots remain a separate parity
+lane; the current pass adds structural text/scene replay without claiming
+pixel-identical native output.
 
-Implementation targets:
+The software corpus and browser lifecycle landed at `62a9caa`/`9c25379`; the
+shared text corpus plus CoreText/Metal structural replay landed at `b74d4eb`.
+Implementation targets that remain are:
 
 - add `tests/goldens/manifest.json` mapping scenario/state, dimensions,
   renderer version, expected checksum, and image path;
@@ -211,13 +220,16 @@ Implementation targets:
   `pixi run benchmark-full` for repeated local/release measurements;
 - commit reviewed release baselines under `benchmarks/results/`, not every CI
   sample;
-- compare medians and dispersion only within compatible environments; and
+- compare medians and dispersion only within compatible environments, with a
+  checked-in host policy and explicit p95/MAD reporting; and
 - add a 10k-node retained scenario and the localized 1/10/100-child workload
   missing from the current small retained benchmark.
 
-Acceptance: CI detects checksum/work inflation separately from noisy time;
-release notes can link to a machine-readable baseline; the documentation does
-not promote a single workstation timing to a universal claim.
+Acceptance: CI detects checksum/work inflation separately from noisy time and
+uploads repeated quick-profile evidence; release notes can link to a
+machine-readable baseline; and the documentation does not promote a single
+workstation timing to a universal claim. Additional hosts remain planned until
+their compiler/runtime baselines are collected and reviewed.
 
 ### 6. Establish one documentation vocabulary
 
@@ -248,8 +260,9 @@ should list support status; the changelog should describe shipped deltas.
   safe and observable root fallback.
 - Deterministic software goldens run in CI and produce reviewable diffs.
 - Benchmarks emit structured records, at least one environment-stamped reviewed
-  baseline, and a same-environment regression comparison; dispersion reporting,
-  CI wiring, and compatible baselines beyond macOS arm64 remain follow-on work.
+  baseline, a same-environment regression comparison with dispersion reporting,
+  and repeated CI evidence; compatible baselines beyond macOS arm64 remain
+  follow-on work.
 - `pixi run release-check` passes and the support vocabulary is consistent
   across current docs.
 
@@ -257,10 +270,11 @@ should list support status; the changelog should describe shipped deltas.
 
 ### Gate 2: text and native-macOS quality
 
-- Build a shared text corpus covering grapheme boundaries, mixed bidi,
-  fallback fonts, wrapping, selection, replacement ranges, and IME.
+- Extend the shared text corpus with richer fallback/font collections and
+  paragraph cases.
 - Define host-selected font collections and fallback policy around the
-  HarfBuzz adapter; compare shaped runs to CoreText for the supported corpus.
+  HarfBuzz adapter; the current CoreText comparison is structural rather than
+  glyph-id/pixel exact.
 - Move AppKit queues/draw/accessibility storage from process-global fixed arrays
   toward instance-owned storage, or document and test a hard bounded profile.
 - Prove native multi-window ownership, deep collection editing, menu/dialog
@@ -326,12 +340,14 @@ rewrite:
 
 ## Recommended implementation sequence
 
-1. Public export inventory and documentation vocabulary.
+1. Public export inventory and documentation vocabulary (landed).
 2. Scenario registry and manifest, starting with theme states and composed
-   components.
-3. Software golden export/checker, consuming those scenarios.
-4. Localized composed-child execution with work counters and root fallback.
-5. Structured quick/full benchmark output, including localized workloads.
+  components.
+3. Software golden export/checker, consuming those scenarios (landed).
+4. Localized composed-child execution with work counters and root fallback
+   (keyed scheduling slice landed; `App` integration remains open).
+5. Structured quick/full benchmark output, including localized workloads
+   (dispersion policy and CI evidence now landed).
 6. Final Gate 1 documentation reconciliation and release decision.
 
 This order makes each later slice consume infrastructure already reviewed by
