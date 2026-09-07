@@ -64,7 +64,7 @@ The differentiator is the combination of:
 This is the next milestone. All six workstreams are required; new widget or
 plot-family work is out of scope.
 
-### Gate 1 progress at `main` `90f2aef`
+### Gate 1 progress at `main` `2a1a112`
 
 The ordered implementation pass has delivered the first vertical slices. The
 status below is deliberately narrower than “Gate 1 complete”: it records what
@@ -77,8 +77,8 @@ visible for the next pass.
 | 2. Canonical scenario registry | Registry and consumer inventory complete; fixture wiring partial | `0991f29` and `90f2aef`, seven descriptors, demo mapping, scenario checker, registry test, golden/benchmark metadata | make each descriptor the fixture/data source for its behavior test, golden, and benchmark |
 | 3. Software goldens and browser lifecycle | Software/host gates complete | `62a9caa` and `9c25379`, seven exact PPM goldens, manifest/checker, ephemeral server/host harness with Canvas/ARIA/input/teardown evidence | native screenshot parity, real-browser/device automation, and linked Mojo Web runtime |
 | 4. Typed localized execution | One-subtree slice complete | `676cbd4` and `b813e53`, `TypedSubtreeExecutor`, `ExecutionWorkCounters`, localized test and benchmark; explicit paint return type passes precompile | parent scheduling, keyed view diff, insertion/removal/reorder, and root-fallback accounting |
-| 5. Structured benchmark profiles | Local protocol complete | `4df99c8` and `850f610`, `benchmark-quick`/`benchmark-full`, 3/10-case smoke reports under `dist/benchmark-results/` | environment-stamped reviewed baselines, variance/median comparison, and 1/10/100-child matrix |
-| 6. Documentation reconciliation | Main docs complete; plan update in progress | `87e79bf`, README/API/visual/performance/demo/comparison docs plus generated API status | keep both branches synchronized as follow-on slices land |
+| 5. Structured benchmark profiles | Protocol, localized matrix, and one reviewed macOS baseline complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, and `2a1a112`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, and 30-run `benchmarks/results/macos-arm64-full.json` | automated same-environment comparison/variance policy and compatible baselines beyond macOS arm64 |
+| 6. Documentation reconciliation | Main docs and planning ledger current | `87e79bf`, `d6c008c`, README/API/visual/performance/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
 
 `pixi run check` and `MOXI_BENCHMARK_RUNS=1 pixi run release-check` pass at this
 revision, including all 66 Mojo test programs, native/Android/iOS host builds,
@@ -241,8 +241,9 @@ should list support status; the changelog should describe shipped deltas.
 - At least one typed component subtree updates without a root rebuild, with a
   safe and observable root fallback.
 - Deterministic software goldens run in CI and produce reviewable diffs.
-- Benchmarks emit structured records; environment-stamped reviewed baselines
-  and regression comparison remain required for exit.
+- Benchmarks emit structured records and at least one environment-stamped
+  reviewed baseline; automated same-environment regression comparison remains
+  required for exit.
 - `pixi run release-check` passes and the support vocabulary is consistent
   across current docs.
 
