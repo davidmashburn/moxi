@@ -109,6 +109,11 @@ separately below and are not being presented as a 0.5 compatibility promise.
   transforms, independent facet scales, lasso/linked selection, line/scatter
   level-of-detail reduction, accessibility summary, deterministic software
   output, and Web-compatible SVG serialization.
+- A row-oriented static catalog lane for the inventoried `dataviz_mojo`
+  marks. Python uses `PlotSpec.add_catalog_mark`; Mojo uses canonical `PLOT_*`
+  constants. Every catalog name has shared validation, exports, row anchors,
+  and parity/benchmark fixtures; richer nested layouts remain explicitly
+  distinguishable from upstream pixel parity.
 - An optional ordered `PlotRenderPacket` fast path for dense line, marker,
   bar, and rectangle marks, with software parity and instanced Metal
   expansion.
@@ -324,9 +329,12 @@ pixi publish --target-dir output/moxi
 ```
 
 The workspace publish produces both the compiled `moxi` Mojo package and its
-nightly-compatible `canvas_mojo` runtime dependency. The native AppKit demo
-remains a repository-level example and is not bundled into either library
-artifact.
+nightly-compatible `canvas_mojo` runtime dependency. The workspace resolves
+`osx-arm64` and `linux-64`; `pixi run headless-check` is the portable Linux
+package lane, while the native AppKit demo remains a repository-level example
+and is not bundled into either library artifact. Use
+`pixi run release-preflight` with an explicit remote channel and Pixi auth file
+before uploading public artifacts.
 
 For the public-surface inventory, see [docs/API.md](docs/API.md). The
 accessibility/native-widget contract is documented in

@@ -200,6 +200,24 @@ text marks, and active lasso states remain on the full Scene path until their
 packet representations exist. Software packet rendering is the
 deterministic visual oracle for the Metal packet path.
 
+### Dataviz catalog lane
+
+The inventoried `dataviz_mojo` marks are available through the same versioned
+PlotSpec boundary instead of a second fluent plot object. Python callers can
+use `PlotSpec.add_catalog_mark(mark, label, x_field, y_field, ...)`; `x2_field`
+and `y2_field` carry interval or extent data, while `size_field`,
+`color_field`, and `text_field` are ordinary channel bindings. Mojo callers
+use the corresponding `PLOT_*` constants with `PlotSpec.add_catalog_mark`.
+
+The current catalog lane is intentionally row-oriented and static. Every
+canonical mark name has validation, a deterministic scene/export path,
+row-anchor hit testing, accessibility/tabular identity through the existing
+plot model, and a shared parity/benchmark fixture. The inventory marks these
+rows `compatible-static`, `implemented-static`, and `implemented-anchor`.
+Rich nested-array layouts such as true Sankey flow routing, hierarchy packing,
+or polar sectors are not silently claimed as upstream pixel parity; they are
+the next per-mark geometry promotion behind the already-stable contract.
+
 ## Target matrix
 
 `IOSBackend`, `AndroidBackend`, and `WebBackend` share lifecycle, resize,

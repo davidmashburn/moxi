@@ -118,6 +118,39 @@ def run_local_recipe_wave(repo_dir: Path) -> List[Dict[str, Any]]:
     return results
 
 
+def run_local_catalog(repo_dir: Path) -> List[Dict[str, Any]]:
+    """Exercise every catalog mark through the shared Python value boundary."""
+    sys.path.insert(0, str(repo_dir / "python"))
+    import moxi
+    from moxi.scenarios import catalog_scenarios
+
+    results: List[Dict[str, Any]] = []
+    for name, data, spec in catalog_scenarios():
+        figure = moxi.plot(data, spec, width=160, height=120)
+        geometry = figure._raw_geometry(spec.layers[0])
+        svg = figure.to_svg()
+        results.append({
+            "mark": name,
+            "spec_version": spec.version,
+            "valid": spec.validate(),
+            "geometry": {
+                "points": len(geometry.points),
+                "rects": len(geometry.rects),
+                "errors": len(geometry.errors),
+            },
+            "svg_bytes": len(svg),
+            "png_bytes": len(figure.to_png()),
+            "rgba_bytes": len(figure.to_rgba()),
+        })
+        if (
+            not spec.validate()
+            or f'data-mark="{name}"'.encode("utf-8") not in svg
+            or not (geometry.points or geometry.rects or geometry.errors)
+        ):
+            raise SystemExit(f"local catalog failed for {name}")
+    return results
+
+
 def check_inventory(repo_dir: Path) -> None:
     rows = list(csv.DictReader((repo_dir / "docs" / "dataviz-capabilities.tsv").open(), delimiter="\t"))
     by_mark = {row["upstream_mark"]: row for row in rows}
@@ -140,6 +173,7 @@ def main() -> int:
         "upstream_run": run_upstream_reference(reference),
         "overlap": run_local_overlap(repo_dir),
         "recipe_wave": run_local_recipe_wave(repo_dir),
+        "catalog_static": run_local_catalog(repo_dir),
         "normalization": {
             "structural": "SVG element/attribute topology and PlotSpec JSON fields",
             "raster": "RGBA byte length and stable checksum lane; native font pixels are not compared byte-for-byte",

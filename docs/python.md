@@ -23,6 +23,24 @@ figure = moxi.plot({"value": [1, 2, 2, 3, 5, 8]}, recipe)
 png = figure.to_png()
 ```
 
+The inventoried `dataviz_mojo` catalog is available through the same
+row-oriented contract:
+
+```python
+catalog = moxi.PlotSpec("Schedule")
+catalog.add_catalog_mark(
+    "gantt", "tasks", "start", "duration", x2_field="end"
+)
+figure = moxi.plot({"start": [0, 1], "duration": [2, 3], "end": [2, 4]}, catalog)
+figure.hit_test(120, 80)       # stable mark/layer/row anchor, or None
+figure.accessibility()         # chart plus tabular mark summaries
+```
+
+Every catalog name has validation, static export geometry, row anchors, and a
+shared parity/benchmark scenario. The richer upstream nested-array layouts are
+not hidden behind look-alike aliases; they remain per-mark geometry promotion
+work behind this stable schema.
+
 The Python package and the Mojo package share the versioned `PlotSpec` JSON contract. `moxi.render(spec_json, named_columns, width, height, format)` is the low-level boundary for services that want bytes without retaining a `Figure`.
 
 Current Python exports are deterministic reference implementations for PNG, SVG, PDF, and raw RGBA, plus NumPy conversion. Core marks and the recipe wave (histogram, density, ECDF, regression, hexbin, and error bars) use executable transforms rather than raw-point placeholders. Mapping-like column data and row sequences are supported directly. pandas and NumPy are optional adapters; they are not import-time dependencies.

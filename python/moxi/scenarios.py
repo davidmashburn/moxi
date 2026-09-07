@@ -1,6 +1,6 @@
 """Canonical Python overlap scenarios used by parity and release checks."""
 
-from .spec import PlotSpec
+from .spec import CATALOG_MARKS, PlotSpec
 
 
 def overlap_scenarios():
@@ -43,3 +43,25 @@ def recipe_scenarios():
         spec = PlotSpec(name)
         builder(spec)
         yield name, data, spec
+
+
+def catalog_scenarios():
+    """One deterministic value-boundary fixture for every absorbed catalog mark."""
+    data = {
+        "x": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
+        "y": [1.0, 3.0, 2.0, 5.0, 4.0, 6.0, 3.0, 2.0],
+        "x2": [0.65, 1.65, 2.65, 3.65, 4.65, 5.65, 6.65, 7.65],
+        "y2": [0.4, 1.2, 1.0, 2.2, 1.5, 3.0, 1.8, 1.1],
+        "group": ["a", "a", "b", "b", "a", "a", "b", "b"],
+    }
+    for mark in CATALOG_MARKS:
+        spec = PlotSpec(mark)
+        spec.add_catalog_mark(
+            mark,
+            mark,
+            "x",
+            "y",
+            x2_field="x2",
+            y2_field="y2",
+        )
+        yield mark, data, spec

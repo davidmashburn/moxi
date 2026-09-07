@@ -170,6 +170,55 @@ class Figure:
     def capabilities(self) -> BackendCapabilities:
         return BackendCapabilities(backend=self.backend)
 
+    def hit_test(self, x: float, y: float, tolerance: float = 8.0) -> Optional[Dict[str, Any]]:
+        """Return the nearest visible mark anchor within ``tolerance`` pixels."""
+        limit = max(0.0, float(tolerance))
+        best_distance = limit * limit
+        result: Optional[Dict[str, Any]] = None
+        for layer in self.spec.layers:
+            geometry = self._screen_geometry(layer)
+            anchors = geometry.points
+            for row_index, (px, py) in enumerate(anchors):
+                distance = (px - float(x)) ** 2 + (py - float(y)) ** 2
+                if distance <= best_distance:
+                    best_distance = distance
+                    result = {
+                        "layer": layer.id,
+                        "mark": layer.mark,
+                        "row_index": row_index,
+                        "x": px,
+                        "y": py,
+                    }
+            for row_index, (left, top, right, bottom, _) in enumerate(geometry.rects):
+                if left <= x <= right and top <= y <= bottom:
+                    return {
+                        "layer": layer.id,
+                        "mark": layer.mark,
+                        "row_index": row_index,
+                        "x": (left + right) / 2.0,
+                        "y": (top + bottom) / 2.0,
+                    }
+        return result
+
+    def accessibility(self) -> List[Dict[str, Any]]:
+        """Return a stable tabular summary for headless accessibility clients."""
+        rows: List[Dict[str, Any]] = [{
+            "role": "chart",
+            "label": self.spec.title or "Moxi plot",
+            "layer_count": len(self.spec.layers),
+        }]
+        for layer in self.spec.layers:
+            rows.append({
+                "role": "mark",
+                "layer": layer.id,
+                "mark": layer.mark,
+                "label": layer.label or layer.mark,
+                "x_field": layer.x,
+                "y_field": layer.y,
+                "row_count": self.data.row_count,
+            })
+        return rows
+
     def _layout(self) -> Tuple[float, float, float, float, float, float, float, float]:
         return 54.0, 18.0, max(1.0, self.width - 72.0), max(1.0, self.height - 48.0), 0.0, 1.0, 0.0, 1.0
 
@@ -365,6 +414,82 @@ class Figure:
         all_y = [value for _, lower, upper in errors for value in (lower, upper)]
         return _Geometry("errors", _domain([x for _, x, _ in rows]), _domain(all_y), points=centers, errors=errors)
 
+    def _catalog_geometry(self, layer: Any) -> _Geometry:
+        """Produce deterministic row-oriented geometry for catalog marks.
+
+        The upstream catalog contains convenience APIs with nested arrays and
+        domain-specific layout objects.  Moxi absorbs those capabilities at
+        the PlotSpec boundary first: every mark has a stable name, field
+        validation, scene output, hit-test anchors, accessibility rows, and a
+        portable static geometry path.  Optional x2/y2 fields preserve the
+        interval information needed by bars, spans, candles, and ranges while
+        leaving nested layout algorithms free to evolve behind the same
+        contract.
+        """
+        x_values = _numeric_or_categories(self.data.column(layer.x))
+        y_values = _numeric_or_categories(self.data.column(layer.y))
+        count = min(len(x_values), len(y_values))
+        if count == 0:
+            return _Geometry("points", (0.0, 1.0), (0.0, 1.0))
+        mark = layer.mark
+        x2_values = _numeric_or_categories(self.data.columns[layer.x2]) if layer.x2 and layer.x2 in self.data.columns else []
+        y2_values = _numeric_or_categories(self.data.columns[layer.y2]) if layer.y2 and layer.y2 in self.data.columns else []
+
+        bar_marks = {
+            "grouped_bar", "stacked_bar", "waterfall", "candlestick", "bullet",
+            "gantt", "span_chart", "population_pyramid", "calendar_heatmap",
+            "marimekko", "funnel", "sunburst", "treemap",
+        }
+        if mark in bar_marks:
+            x_domain_values = list(x_values)
+            y_domain_values = list(y_values)
+            if x2_values:
+                x_domain_values.extend(x2_values[:count])
+            if y2_values:
+                y_domain_values.extend(y2_values[:count])
+            y_domain_values.append(0.0)
+            step = (max(x_domain_values) - min(x_domain_values)) / max(1.0, float(count))
+            width = max(step * 0.72, 0.2)
+            rects = []
+            for index in range(count):
+                left = x_values[index] - width / 2.0
+                right = x_values[index] + width / 2.0
+                if index < len(x2_values):
+                    left, right = sorted((x_values[index], x2_values[index]))
+                bottom = 0.0
+                top = y_values[index]
+                if index < len(y2_values):
+                    bottom, top = sorted((y_values[index], y2_values[index]))
+                rects.append((left, bottom, right, top, 1.0))
+            return _Geometry("bars", _domain(x_domain_values), _domain(y_domain_values), rects=rects)
+
+        if mark == "lollipop":
+            endpoints = [(x_values[index], 0.0, y_values[index]) for index in range(count)]
+            return _Geometry("errors", _domain(x_values), _domain([0.0] + y_values), points=list(zip(x_values[:count], y_values[:count])), errors=endpoints)
+
+        if mark in {"pie", "donut", "nightingale", "polar", "polar_bar", "radialbar", "gauge", "radar"}:
+            points = []
+            total = sum(abs(value) for value in y_values[:count]) or 1.0
+            for index in range(count):
+                angle = -math.pi / 2.0 + (2.0 * math.pi * (index + 0.5) / max(1.0, float(count)))
+                radius = abs(y_values[index]) / total if mark in {"pie", "donut"} else abs(y_values[index])
+                points.append((math.cos(angle) * radius, math.sin(angle) * radius))
+            extent = max(1.0, max((abs(value) for point in points for value in point), default=1.0))
+            return _Geometry("points", (-extent, extent), (-extent, extent), points=points)
+
+        line_marks = {
+            "violin", "ridgeline", "parallel", "contour", "contourf",
+            "tricontour", "corrplot", "bump", "arc_diagram", "graph",
+            "sankey", "tree", "chord", "streamgraph",
+        }
+        if mark in line_marks:
+            return _Geometry("line", _domain(x_values), _domain(y_values), points=list(zip(x_values[:count], y_values[:count])))
+
+        # Beeswarm, effect-scatter, punchcard, barbs, and any future catalog
+        # mark with no interval metadata retain one stable hit-test anchor per
+        # row.  SVG/RGBA/PDF all render these anchors as visible markers.
+        return _Geometry("points", _domain(x_values), _domain(y_values), points=list(zip(x_values[:count], y_values[:count])))
+
     def _raw_geometry(self, layer: Any) -> _Geometry:
         transform = self._transform_for_layer(layer)
         if transform is not None:
@@ -382,6 +507,16 @@ class Figure:
                 return self._heatmap_geometry(transform, layer.mark)
         if layer.mark == "error_bar":
             return self._error_geometry(layer)
+        if layer.mark in {
+            "grouped_bar", "stacked_bar", "pie", "donut", "lollipop", "waterfall",
+            "candlestick", "bullet", "gantt", "span_chart", "beeswarm", "violin",
+            "ridgeline", "nightingale", "polar", "polar_bar", "radialbar", "gauge",
+            "radar", "population_pyramid", "parallel", "contour", "contourf",
+            "tricontour", "corrplot", "calendar_heatmap", "punchcard", "marimekko",
+            "funnel", "bump", "effect_scatter", "arc_diagram", "graph", "sankey",
+            "sunburst", "tree", "treemap", "barbs", "chord", "streamgraph",
+        }:
+            return self._catalog_geometry(layer)
         x_values = _numeric_or_categories(self.data.column(layer.x))
         y_values = _numeric_or_categories(self.data.column(layer.y))
         points = list(zip(x_values, y_values))
@@ -430,7 +565,7 @@ class Figure:
                 parts.append(f'<path d="{path}" fill="{color}" stroke="none" data-mark="area"/>')
             elif geometry.kind == "errors":
                 for x, lower, upper in geometry.errors:
-                    parts.append(f'<line x1="{x:g}" y1="{lower:g}" x2="{x:g}" y2="{upper:g}" stroke="{color}" stroke-width="{layer.line_width:g}" data-mark="error_bar"/>')
+                    parts.append(f'<line x1="{x:g}" y1="{lower:g}" x2="{x:g}" y2="{upper:g}" stroke="{color}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
                     parts.append(f'<line x1="{x-4:g}" y1="{lower:g}" x2="{x+4:g}" y2="{lower:g}" stroke="{color}" stroke-width="{layer.line_width:g}"/>')
                     parts.append(f'<line x1="{x-4:g}" y1="{upper:g}" x2="{x+4:g}" y2="{upper:g}" stroke="{color}" stroke-width="{layer.line_width:g}"/>')
             elif geometry.kind == "box" and geometry.boxes:

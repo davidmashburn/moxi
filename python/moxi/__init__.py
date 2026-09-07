@@ -6,12 +6,13 @@ portable reference renderer for notebooks, scripts, and export pipelines.
 """
 
 from .figure import Figure, BackendCapabilities, plot, render
-from .spec import PlotSpec, PLOT_MARKS, PLOT_SPEC_VERSION
+from .spec import CATALOG_MARKS, PlotSpec, PLOT_MARKS, PLOT_SPEC_VERSION
 
 __version__ = "0.5.1"
 
 __all__ = [
     "BackendCapabilities",
+    "CATALOG_MARKS",
     "Figure",
     "PLOT_MARKS",
     "PLOT_SPEC_VERSION",

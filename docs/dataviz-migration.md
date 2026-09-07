@@ -8,8 +8,8 @@ Moxi absorbs the reusable contract and recipe capabilities, not the upstream pac
 - `line`, `point/scatter`, `bar`, `area`, `box`, and `heatmap` are the initial overlap set.
 - The Python reference renderer proves the clean-install API and deterministic export path.
 - The recipe wave now has executable Python transforms and export evidence for histogram, density, ECDF, hexbin, regression, and error bars; the matching Mojo PlotSpec transforms remain the cross-language source of truth.
-- Histogram is promoted in the upstream inventory; the other recipe names are Moxi-native capabilities and are not mislabeled as `dataviz_mojo` parity.
+- The inventoried catalog is now available through `PlotSpec.add_catalog_mark` and canonical Mojo `PLOT_*` values. Its row-oriented static lane covers every inventory row with exports, row anchors, accessibility summaries, and benchmark/parity fixtures; the inventory deliberately labels these rows `compatible-static` rather than claiming rich nested-layout parity.
 
-For a mark to move from planned to implemented, add a canonical fixture, specify its field mapping and validation rules, emit the shared Scene contract, exercise the Canvas/SVG/software lanes, and record accessibility and interaction behavior. Visual comparisons classify structural geometry separately from font/platform pixels.
+For a mark to move from the static lane to a specialized implementation, add a canonical fixture, specify its field mapping and validation rules, emit the shared Scene contract, exercise the Canvas/SVG/software lanes, and record accessibility and interaction behavior. Visual comparisons classify structural geometry separately from font/platform pixels.
 
-Use `pixi run dataviz-parity` to validate the pinned inventory and run the six overlap fixtures. Set `DATAVIZ_MOJO_PATH` to a local checkout when doing a full upstream reference run; the check never vendors or imports upstream source into Moxi.
+Use `pixi run dataviz-parity` to validate the pinned inventory, run the six overlap fixtures, the recipe wave, and every static catalog scenario. Set `DATAVIZ_MOJO_PATH` to a local checkout when doing a full upstream reference run; the check never vendors or imports upstream source into Moxi.

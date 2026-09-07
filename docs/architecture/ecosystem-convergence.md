@@ -113,8 +113,15 @@ Each capability must acquire, in order:
 4. Python exposure through the same `PlotSpec`; and
 5. a reference scenario and benchmark.
 
-Static upstream output without those contracts is reference evidence, not an
-absorbed Moxi feature.
+The catalog promotion now has a row-oriented static lane. `PlotSpec` accepts
+canonical names for every inventoried mark, Python exposes
+`PlotSpec.add_catalog_mark`, Mojo preserves the corresponding numeric mark
+identity through JSON, and `catalog_scenarios()` drives SVG/PNG/RGBA/PDF,
+row-anchor hit testing, and repeated Python benchmarks for every mark. The
+inventory labels this lane `compatible-static`/`implemented-static` and
+`implemented-anchor` so it is not confused with the richer nested-array
+layout algorithms in the reference library. Static upstream output without
+those contracts is still reference evidence, not an absorbed Moxi feature.
 
 ## Current evidence
 
@@ -131,5 +138,9 @@ absorbed Moxi feature.
 - `pixi run native-screenshot-check` remains the offscreen Metal tolerance
   gate; the visible AppKit lane has a fresh human-reviewed capture through
   `MOXI_RECORD_SECONDS=1 pixi run demo-record`.
-- linked Mojo runtimes for Linux, iOS, Android, and Web remain unverified;
-  their current artifacts are host shells or deterministic fallback paths.
+- the portable Plot API now has a dedicated source-precompile and software
+  renderer smoke in `tests/portable_plot.mojo`; the GitHub Actions Linux lane
+  runs `pixi install --locked` and `pixi run headless-check`.
+- `BACKEND_LINUX` still reports native-host unavailability: the Linux claim is
+  limited to the portable headless package until a native host adapter is
+  implemented and measured.

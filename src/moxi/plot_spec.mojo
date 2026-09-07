@@ -28,6 +28,48 @@ from .plotting import (
     PLOT_HEXBIN,
     PLOT_REGRESSION,
     PLOT_TEXT,
+    PLOT_GROUPED_BAR,
+    PLOT_STACKED_BAR,
+    PLOT_PIE,
+    PLOT_DONUT,
+    PLOT_LOLLIPOP,
+    PLOT_WATERFALL,
+    PLOT_CANDLESTICK,
+    PLOT_BULLET,
+    PLOT_GANTT,
+    PLOT_SPAN_CHART,
+    PLOT_BEESWARM,
+    PLOT_VIOLIN,
+    PLOT_RIDGELINE,
+    PLOT_NIGHTINGALE,
+    PLOT_POLAR,
+    PLOT_POLAR_BAR,
+    PLOT_RADIALBAR,
+    PLOT_GAUGE,
+    PLOT_RADAR,
+    PLOT_POPULATION_PYRAMID,
+    PLOT_PARALLEL,
+    PLOT_CONTOUR,
+    PLOT_CONTOURF,
+    PLOT_TRICONTOUR,
+    PLOT_CORRPLOT,
+    PLOT_CALENDAR_HEATMAP,
+    PLOT_PUNCHCARD,
+    PLOT_MARIMEKKO,
+    PLOT_FUNNEL,
+    PLOT_BUMP,
+    PLOT_EFFECT_SCATTER,
+    PLOT_ARC_DIAGRAM,
+    PLOT_GRAPH,
+    PLOT_SANKEY,
+    PLOT_SUNBURST,
+    PLOT_TREE,
+    PLOT_TREEMAP,
+    PLOT_BARBS,
+    PLOT_CHORD,
+    PLOT_STREAMGRAPH,
+    PLOT_CATALOG_FIRST,
+    PLOT_CATALOG_LAST,
     SCALE_BAND,
     SCALE_CATEGORICAL,
     SCALE_DIVERGING,
@@ -278,7 +320,7 @@ def _valid_data_type(data_type: Int) -> Bool:
 
 
 def _valid_mark(mark: Int) -> Bool:
-    return mark >= PLOT_LINE and mark <= PLOT_REGRESSION
+    return mark >= PLOT_LINE and mark <= PLOT_CATALOG_LAST
 
 
 def _valid_scale(kind: Int) -> Bool:
@@ -697,6 +739,86 @@ def _mark_from_name(name: String) -> Int:
         return PLOT_HEXBIN
     if name == "regression":
         return PLOT_REGRESSION
+    if name == "grouped_bar":
+        return PLOT_GROUPED_BAR
+    if name == "stacked_bar":
+        return PLOT_STACKED_BAR
+    if name == "pie":
+        return PLOT_PIE
+    if name == "donut":
+        return PLOT_DONUT
+    if name == "lollipop":
+        return PLOT_LOLLIPOP
+    if name == "waterfall":
+        return PLOT_WATERFALL
+    if name == "candlestick":
+        return PLOT_CANDLESTICK
+    if name == "bullet":
+        return PLOT_BULLET
+    if name == "gantt":
+        return PLOT_GANTT
+    if name == "span_chart":
+        return PLOT_SPAN_CHART
+    if name == "beeswarm":
+        return PLOT_BEESWARM
+    if name == "violin":
+        return PLOT_VIOLIN
+    if name == "ridgeline":
+        return PLOT_RIDGELINE
+    if name == "nightingale":
+        return PLOT_NIGHTINGALE
+    if name == "polar":
+        return PLOT_POLAR
+    if name == "polar_bar":
+        return PLOT_POLAR_BAR
+    if name == "radialbar":
+        return PLOT_RADIALBAR
+    if name == "gauge":
+        return PLOT_GAUGE
+    if name == "radar":
+        return PLOT_RADAR
+    if name == "population_pyramid":
+        return PLOT_POPULATION_PYRAMID
+    if name == "parallel":
+        return PLOT_PARALLEL
+    if name == "contour":
+        return PLOT_CONTOUR
+    if name == "contourf":
+        return PLOT_CONTOURF
+    if name == "tricontour":
+        return PLOT_TRICONTOUR
+    if name == "corrplot":
+        return PLOT_CORRPLOT
+    if name == "calendar_heatmap":
+        return PLOT_CALENDAR_HEATMAP
+    if name == "punchcard":
+        return PLOT_PUNCHCARD
+    if name == "marimekko":
+        return PLOT_MARIMEKKO
+    if name == "funnel":
+        return PLOT_FUNNEL
+    if name == "bump":
+        return PLOT_BUMP
+    if name == "effect_scatter":
+        return PLOT_EFFECT_SCATTER
+    if name == "arc_diagram":
+        return PLOT_ARC_DIAGRAM
+    if name == "graph":
+        return PLOT_GRAPH
+    if name == "sankey":
+        return PLOT_SANKEY
+    if name == "sunburst":
+        return PLOT_SUNBURST
+    if name == "tree":
+        return PLOT_TREE
+    if name == "treemap":
+        return PLOT_TREEMAP
+    if name == "barbs":
+        return PLOT_BARBS
+    if name == "chord":
+        return PLOT_CHORD
+    if name == "streamgraph":
+        return PLOT_STREAMGRAPH
     return 0
 
 
@@ -907,6 +1029,86 @@ def plot_mark_name(mark: Int) -> String:
         return "hexbin"
     if mark == PLOT_REGRESSION:
         return "regression"
+    if mark == PLOT_GROUPED_BAR:
+        return "grouped_bar"
+    if mark == PLOT_STACKED_BAR:
+        return "stacked_bar"
+    if mark == PLOT_PIE:
+        return "pie"
+    if mark == PLOT_DONUT:
+        return "donut"
+    if mark == PLOT_LOLLIPOP:
+        return "lollipop"
+    if mark == PLOT_WATERFALL:
+        return "waterfall"
+    if mark == PLOT_CANDLESTICK:
+        return "candlestick"
+    if mark == PLOT_BULLET:
+        return "bullet"
+    if mark == PLOT_GANTT:
+        return "gantt"
+    if mark == PLOT_SPAN_CHART:
+        return "span_chart"
+    if mark == PLOT_BEESWARM:
+        return "beeswarm"
+    if mark == PLOT_VIOLIN:
+        return "violin"
+    if mark == PLOT_RIDGELINE:
+        return "ridgeline"
+    if mark == PLOT_NIGHTINGALE:
+        return "nightingale"
+    if mark == PLOT_POLAR:
+        return "polar"
+    if mark == PLOT_POLAR_BAR:
+        return "polar_bar"
+    if mark == PLOT_RADIALBAR:
+        return "radialbar"
+    if mark == PLOT_GAUGE:
+        return "gauge"
+    if mark == PLOT_RADAR:
+        return "radar"
+    if mark == PLOT_POPULATION_PYRAMID:
+        return "population_pyramid"
+    if mark == PLOT_PARALLEL:
+        return "parallel"
+    if mark == PLOT_CONTOUR:
+        return "contour"
+    if mark == PLOT_CONTOURF:
+        return "contourf"
+    if mark == PLOT_TRICONTOUR:
+        return "tricontour"
+    if mark == PLOT_CORRPLOT:
+        return "corrplot"
+    if mark == PLOT_CALENDAR_HEATMAP:
+        return "calendar_heatmap"
+    if mark == PLOT_PUNCHCARD:
+        return "punchcard"
+    if mark == PLOT_MARIMEKKO:
+        return "marimekko"
+    if mark == PLOT_FUNNEL:
+        return "funnel"
+    if mark == PLOT_BUMP:
+        return "bump"
+    if mark == PLOT_EFFECT_SCATTER:
+        return "effect_scatter"
+    if mark == PLOT_ARC_DIAGRAM:
+        return "arc_diagram"
+    if mark == PLOT_GRAPH:
+        return "graph"
+    if mark == PLOT_SANKEY:
+        return "sankey"
+    if mark == PLOT_SUNBURST:
+        return "sunburst"
+    if mark == PLOT_TREE:
+        return "tree"
+    if mark == PLOT_TREEMAP:
+        return "treemap"
+    if mark == PLOT_BARBS:
+        return "barbs"
+    if mark == PLOT_CHORD:
+        return "chord"
+    if mark == PLOT_STREAMGRAPH:
+        return "streamgraph"
     return "line"
 
 
@@ -1052,6 +1254,19 @@ struct PlotSpec:
         )
         return id
 
+    def add_catalog_mark(
+        mut self,
+        mark: Int,
+        label: String,
+        x_field: String = "x",
+        y_field: String = "y",
+        color: Color = Color(0.25, 0.75, 1.0, 1.0),
+    ) -> Int:
+        """Add a named dataviz catalog mark through the shared row boundary."""
+        if mark < PLOT_CATALOG_FIRST or mark > PLOT_CATALOG_LAST:
+            self.valid = False
+        return self.add_layer(mark, label, x_field, y_field, color)
+
     def add_line(
         mut self,
         label: String,
@@ -1132,6 +1347,24 @@ struct PlotSpec:
         color: Color = Color(0.40, 0.85, 0.55, 1.0),
     ) -> Int:
         return self.add_layer(PLOT_BAR, label, x_field, y_field, color)
+
+    def add_grouped_bar(
+        mut self,
+        label: String,
+        x_field: String = "x",
+        y_field: String = "y",
+        color: Color = Color(0.40, 0.85, 0.55, 1.0),
+    ) -> Int:
+        return self.add_catalog_mark(PLOT_GROUPED_BAR, label, x_field, y_field, color)
+
+    def add_stacked_bar(
+        mut self,
+        label: String,
+        x_field: String = "x",
+        y_field: String = "y",
+        color: Color = Color(0.40, 0.85, 0.55, 1.0),
+    ) -> Int:
+        return self.add_catalog_mark(PLOT_STACKED_BAR, label, x_field, y_field, color)
 
     def add_dot(
         mut self,

@@ -3,7 +3,7 @@ import json
 import pytest
 
 import moxi
-from moxi.scenarios import overlap_scenarios, recipe_scenarios
+from moxi.scenarios import catalog_scenarios, overlap_scenarios, recipe_scenarios
 
 
 DATA = {"x": [0.0, 1.0, 2.0, 3.0], "y": [1.0, 3.0, 2.0, 4.0], "group": ["a", "a", "b", "b"]}
@@ -113,3 +113,25 @@ def test_recipe_builders_preserve_mojo_transform_shape():
         ("regression", 11, 1),
     ]
     assert spec.as_dict()["layers"][-1]["y2"] == "y2"
+
+
+@pytest.mark.parametrize("name,data,spec", list(catalog_scenarios()))
+def test_catalog_marks_have_shared_schema_and_static_exports(name, data, spec):
+    assert name in moxi.CATALOG_MARKS
+    assert spec.validate(), name
+    figure = moxi.plot(data, spec, width=160, height=120)
+    geometry = figure._raw_geometry(spec.layers[0])
+    assert geometry.points or geometry.rects or geometry.errors, name
+    screen = figure._screen_geometry(spec.layers[0])
+    if screen.points:
+        anchor = screen.points[0]
+    else:
+        left, top, right, bottom, _ = screen.rects[0]
+        anchor = ((left + right) / 2.0, (top + bottom) / 2.0)
+    assert figure.hit_test(*anchor)["mark"] == name
+    assert figure.accessibility()[1]["mark"] == name
+    svg = figure.to_svg().decode("utf-8")
+    assert f'data-mark="{name}"' in svg, name
+    assert len(figure.to_png()) > 100, name
+    assert len(figure.to_pdf()) > 300, name
+    assert len(figure.to_rgba()) == 160 * 120 * 4, name

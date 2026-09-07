@@ -40,6 +40,53 @@ comptime PLOT_HEATMAP = 20
 comptime PLOT_HEXBIN = 21
 comptime PLOT_REGRESSION = 22
 
+# The catalog lane uses the same row-oriented Plot/PlotSpec value boundary as
+# the core marks.  These constants intentionally keep catalog names distinct
+# so a consumer can round-trip a mark without pretending that a generic point
+# is an upstream-specific implementation.
+comptime PLOT_GROUPED_BAR = 23
+comptime PLOT_STACKED_BAR = 24
+comptime PLOT_PIE = 25
+comptime PLOT_DONUT = 26
+comptime PLOT_LOLLIPOP = 27
+comptime PLOT_WATERFALL = 28
+comptime PLOT_CANDLESTICK = 29
+comptime PLOT_BULLET = 30
+comptime PLOT_GANTT = 31
+comptime PLOT_SPAN_CHART = 32
+comptime PLOT_BEESWARM = 33
+comptime PLOT_VIOLIN = 34
+comptime PLOT_RIDGELINE = 35
+comptime PLOT_NIGHTINGALE = 36
+comptime PLOT_POLAR = 37
+comptime PLOT_POLAR_BAR = 38
+comptime PLOT_RADIALBAR = 39
+comptime PLOT_GAUGE = 40
+comptime PLOT_RADAR = 41
+comptime PLOT_POPULATION_PYRAMID = 42
+comptime PLOT_PARALLEL = 43
+comptime PLOT_CONTOUR = 44
+comptime PLOT_CONTOURF = 45
+comptime PLOT_TRICONTOUR = 46
+comptime PLOT_CORRPLOT = 47
+comptime PLOT_CALENDAR_HEATMAP = 48
+comptime PLOT_PUNCHCARD = 49
+comptime PLOT_MARIMEKKO = 50
+comptime PLOT_FUNNEL = 51
+comptime PLOT_BUMP = 52
+comptime PLOT_EFFECT_SCATTER = 53
+comptime PLOT_ARC_DIAGRAM = 54
+comptime PLOT_GRAPH = 55
+comptime PLOT_SANKEY = 56
+comptime PLOT_SUNBURST = 57
+comptime PLOT_TREE = 58
+comptime PLOT_TREEMAP = 59
+comptime PLOT_BARBS = 60
+comptime PLOT_CHORD = 61
+comptime PLOT_STREAMGRAPH = 62
+comptime PLOT_CATALOG_FIRST = PLOT_GROUPED_BAR
+comptime PLOT_CATALOG_LAST = PLOT_STREAMGRAPH
+
 comptime SCALE_LINEAR = 1
 comptime SCALE_LOG = 2
 comptime SCALE_POWER = 3
@@ -1383,6 +1430,10 @@ struct Plot:
             if not self.series[series_index].visible or series_count == 0:
                 continue
             var kind = self.series[series_index].kind
+            if kind >= PLOT_CATALOG_FIRST and kind <= PLOT_CATALOG_LAST:
+                # Catalog marks use the complete Scene path until their
+                # specialized dense-packet expansions are proven.
+                continue
             if kind == PLOT_AREA or kind == PLOT_BAND or kind == PLOT_TEXT:
                 continue
             if kind == PLOT_BAR or kind == PLOT_COLUMN or kind == PLOT_HISTOGRAM:
@@ -1419,6 +1470,9 @@ struct Plot:
                 continue
 
             var kind = self.series[series_index].kind
+            if kind >= PLOT_CATALOG_FIRST and kind <= PLOT_CATALOG_LAST:
+                packet.fallback_required = True
+                continue
             if (
                 kind == PLOT_AREA
                 or kind == PLOT_BAND
@@ -2116,6 +2170,28 @@ struct Plot:
                         var tick_command = scene.commands[len(scene.commands) - 1]
                         tick_command.set_opacity(point_opacity)
                         scene.commands[len(scene.commands) - 1] = tick_command
+                    elif (
+                        self.series[series_index].kind >= PLOT_CATALOG_FIRST
+                        and self.series[series_index].kind <= PLOT_CATALOG_LAST
+                    ):
+                        # The catalog lane is deliberately conservative at
+                        # the retained Mojo layer: every mark has a real,
+                        # interactive point anchor now, while specialized
+                        # geometry remains a per-mark promotion step.
+                        scene.append_rounded_rect(
+                            2400 + self.series[series_index].id * 100 + point_index,
+                            Rect(
+                                point.x - point_size * 0.5,
+                                point.y - point_size * 0.5,
+                                point_size,
+                                point_size,
+                            ),
+                            point_color,
+                            point_size * 0.5,
+                        )
+                        var catalog_command = scene.commands[len(scene.commands) - 1]
+                        catalog_command.set_opacity(point_opacity)
+                        scene.commands[len(scene.commands) - 1] = catalog_command
                     if (
                         (
                             self.series[series_index].kind == PLOT_LINE

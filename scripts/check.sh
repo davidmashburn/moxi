@@ -16,6 +16,8 @@ bash -n scripts/scenario_check.sh
 bash -n scripts/native_screenshot_check.sh
 bash -n scripts/python_check.sh
 bash -n scripts/python_package_consumer.sh
+bash -n scripts/headless_check.sh
+bash -n scripts/public_release_preflight.sh
 python3 -m json.tool benchmarks/result-schema.json >/dev/null
 python3 -m json.tool benchmarks/contract-schema.json >/dev/null
 python3 -m json.tool benchmarks/benchmark-policy.json >/dev/null
@@ -26,6 +28,7 @@ bash scripts/demo_catalog_check.sh
 bash scripts/scenario_check.sh
 bash scripts/visual_check.sh
 bash scripts/python_check.sh
+bash scripts/headless_check.sh
 python3 scripts/dataviz_parity.py
 python3 scripts/plot_spec_contract_check.py
 python3 scripts/capability_wave_check.py

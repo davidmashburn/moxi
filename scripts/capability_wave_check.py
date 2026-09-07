@@ -14,6 +14,7 @@ REQUIRED = {
 }
 CORE = {"point/scatter", "line", "bar", "area", "box", "heatmap"}
 RECIPE_WAVE = {"histogram"}
+CATALOG_STRATEGY = "absorb-static-catalog"
 
 
 def main() -> int:
@@ -35,6 +36,22 @@ def main() -> int:
         row = rows_by_mark.get(mark)
         if row is None or row["python_status"] != "implemented" or row["parity_fixture"] != "recipe-wave" or row["benchmark"] != "python-benchmark":
             raise SystemExit(f"recipe-wave row is not complete: {mark}")
+    catalog_rows = [row for row in rows if row["strategy"] == CATALOG_STRATEGY]
+    if not catalog_rows:
+        raise SystemExit("catalog wave is empty")
+    for row in catalog_rows:
+        required = {
+            "schema_status": "compatible-static",
+            "scene_status": "implemented-static",
+            "interaction_status": "implemented-anchor",
+            "accessibility_status": "implemented-row",
+            "python_status": "implemented",
+            "parity_fixture": "catalog-static",
+            "benchmark": "python-catalog",
+        }
+        for field, expected in required.items():
+            if row[field] != expected:
+                raise SystemExit(f"catalog evidence is incomplete for {row['upstream_mark']}: {field}")
     strategies = Counter(row["strategy"] for row in rows)
     print("Moxi capability waves:", len(rows), "marks", dict(sorted(strategies.items())))
     return 0

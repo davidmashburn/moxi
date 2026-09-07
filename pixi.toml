@@ -2,7 +2,7 @@
 authors = ["David Mashburn <david.n.mashburn@gmail.com>"]
 channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
 name = "moxi"
-platforms = ["osx-arm64"]
+platforms = ["osx-arm64", "linux-64"]
 preview = ["pixi-build"]
 version = "0.5.1"
 
@@ -77,6 +77,7 @@ python-benchmark = "python3 scripts/python_benchmark.py"
 dataviz-parity = "python3 scripts/dataviz_parity.py"
 plot-spec-contract = "python3 scripts/plot_spec_contract_check.py"
 capability-wave-check = "python3 scripts/capability_wave_check.py"
+headless-check = "bash scripts/headless_check.sh"
 plot-interaction-benchmark-build = { cmd = "mojo build -I src -Xlinker native/benchmark_clock.o benchmarks/plotting_interaction.mojo -o dist/moxi-plot-interaction-benchmark", depends-on = ["fractal-benchmark-clock"] }
 plot-interaction-benchmark = { cmd = "./dist/moxi-plot-interaction-benchmark", depends-on = ["plot-interaction-benchmark-build"] }
 plot-svg = "mojo run -I src examples/plot_svg.mojo"
@@ -107,6 +108,7 @@ browser-check = "bash scripts/browser_check.sh"
 ios-build = "bash scripts/ios_build.sh"
 android-build = "bash scripts/android_build.sh"
 release-check = "bash scripts/release_check.sh"
+release-preflight = "bash scripts/public_release_preflight.sh"
 
 [dependencies]
 mojo = ">=1.1.0.dev2026082605,<2"

@@ -7,7 +7,8 @@
 - checkout availability;
 - the upstream-run status, command, return code, and bounded output tails;
 - the normalized Moxi overlap fixture results; and
-- the normalized Moxi recipe-wave fixture results.
+- the normalized Moxi recipe-wave fixture results; and
+- the normalized static catalog fixture results for every inventoried mark.
 
 The default command is `pixi run test` and runs only when
 `DATAVIZ_MOJO_PATH` points to an exact-pinned checkout. Set

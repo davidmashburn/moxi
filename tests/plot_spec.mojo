@@ -4,6 +4,8 @@ from moxi import (
     CHANNEL_COLOR,
     CHANNEL_X,
     PLOT_LINE,
+    PLOT_GAUGE,
+    PLOT_SANKEY,
     PlotDataTable,
     PlotSpec,
     Rect,
@@ -14,6 +16,7 @@ from moxi import (
     plot_mark_name,
     test_check,
 )
+from moxi.style import Color
 
 
 def main():
@@ -82,6 +85,18 @@ def main():
     var derived_decoded = plot_spec_from_json(derived.to_json())
     test_check(derived_decoded.is_valid())
     test_check(derived_decoded.transform_count() == 6)
+    var catalog = PlotSpec("Catalog")
+    _ = catalog.add_catalog_mark(PLOT_GAUGE, "gauge", "x", "y", Color(0.3, 0.7, 1.0, 1.0))
+    _ = catalog.add_layer(PLOT_SANKEY, "sankey", "x", "y", Color(1.0, 0.5, 0.3, 1.0))
+    test_check(catalog.validate())
+    var catalog_json = catalog.to_json()
+    test_check(catalog_json.count_codepoints() > 100)
+    var catalog_decoded = plot_spec_from_json(catalog_json)
+    test_check(catalog_decoded.is_valid())
+    test_check(plot_mark_name(catalog_decoded.layer(0).mark) == "gauge")
+    test_check(plot_mark_name(catalog_decoded.layer(1).mark) == "sankey")
+    var catalog_plot = plot_from_spec(catalog, data, Rect(0.0, 0.0, 320.0, 240.0))
+    test_check(catalog_plot.build_scene().count() > 0)
     var invalid = plot_spec_from_json("{\"version\":99,\"layers\":[]}")
     test_check(not invalid.is_valid())
     print("Moxi plot-spec test passed")

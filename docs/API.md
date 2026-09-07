@@ -159,8 +159,11 @@ mobile/browser targets. `IOSBackend`, `AndroidBackend`, and `WebBackend`
 normalize host input and expose deterministic software fallbacks;
 `WebBackend.svg_frame()` is the browser-compatible export path. Native host
 shims and local demo artifacts are provided under `native/hosts/`,
-`native/ios/`, `native/android/`, and `native/web/`; the Mojo package targets
-remain unavailable because the published package is still `osx-arm64`.
+`native/ios/`, `native/android/`, and `native/web/`. The workspace now resolves
+the portable package for `osx-arm64` and `linux-64`; `pixi run headless-check`
+is the Linux package/plot smoke lane. Native Linux, iOS, Android, and Web host
+adapters remain unavailable, and public package availability still depends on
+the release-channel preflight and upload step.
 `MacOSWindow` adds
 native queue depth, dropped-event, and draw-command-overflow counters for
 adapter diagnostics.

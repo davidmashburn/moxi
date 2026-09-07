@@ -10,8 +10,8 @@
 | Python package | stable MVP / recipe wave | `pixi run python-check`, `tests/python` | no Mojo compiler at import time; NumPy/pandas optional |
 | Moxi recipe wave | implemented value-boundary transforms | `tests/python`, `pixi run python-benchmark` | histogram, density, ECDF, regression, hexbin, and error bars; native interaction/accessibility promotion remains explicit |
 | dataviz_mojo overlap | core six plus histogram recipe | `pixi run dataviz-parity`, `tests/python/test_python_api.py` | PlotSpec and core mark recipes are absorbed; reference-only waves stay explicit |
-| dataviz_mojo full mark catalog | planned by wave | `docs/dataviz-capabilities.tsv` | no silent aliases; each promoted mark needs schema, scene, parity, and accessibility evidence |
+| dataviz_mojo full mark catalog | static catalog lane | `pixi run dataviz-parity`, `tests/python`, `docs/dataviz-capabilities.tsv` | all catalog names share PlotSpec, static scene/export, row anchors, and benchmark evidence; nested upstream layouts remain a separate promotion lane |
 
 ## Version support
 
-The Python package supports CPython 3.9+ and the current Mojo nightly pinned in `pixi.toml`. The Python lane is intentionally independent of the Mojo compiler runtime. Mojo package consumers resolve the pinned Canvas fork through Pixi; public-channel upload still requires release credentials.
+The Python package supports CPython 3.9+ and the current Mojo nightly pinned in `pixi.toml`. The Python lane is intentionally independent of the Mojo compiler runtime. The Mojo workspace resolves `osx-arm64` and `linux-64`; `pixi run headless-check` is the portable package lane, while native Linux host support remains unavailable. Mojo package consumers resolve the pinned Canvas fork through Pixi; public-channel upload still requires a chosen channel and release credentials. `pixi run release-preflight` checks both target packages without uploading.

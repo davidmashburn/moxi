@@ -5,6 +5,21 @@ on:
   pull_request:
 
 jobs:
+  headless-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Install Pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: latest
+          cache: true
+      - name: Install locked environment
+        run: pixi install --locked
+      - name: Run portable headless package lane
+        run: pixi run headless-check
+
   validate:
     runs-on: macos-14
     steps:

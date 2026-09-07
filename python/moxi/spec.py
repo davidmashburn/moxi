@@ -35,7 +35,49 @@ PLOT_MARKS = (
     "heatmap",
     "hexbin",
     "regression",
+    "grouped_bar",
+    "stacked_bar",
+    "pie",
+    "donut",
+    "lollipop",
+    "waterfall",
+    "candlestick",
+    "bullet",
+    "gantt",
+    "span_chart",
+    "beeswarm",
+    "violin",
+    "ridgeline",
+    "nightingale",
+    "polar",
+    "polar_bar",
+    "radialbar",
+    "gauge",
+    "radar",
+    "population_pyramid",
+    "parallel",
+    "contour",
+    "contourf",
+    "tricontour",
+    "corrplot",
+    "calendar_heatmap",
+    "punchcard",
+    "marimekko",
+    "funnel",
+    "bump",
+    "effect_scatter",
+    "arc_diagram",
+    "graph",
+    "sankey",
+    "sunburst",
+    "tree",
+    "treemap",
+    "barbs",
+    "chord",
+    "streamgraph",
 )
+
+CATALOG_MARKS = PLOT_MARKS[22:]
 
 
 def _color(value: Iterable[float]) -> List[float]:
@@ -195,6 +237,56 @@ class PlotSpec:
         color: Iterable[float] = (0.25, 0.75, 1.0, 1.0),
     ) -> int:
         return self._add_layer(mark, label, x_field, y_field, color)
+
+    def add_catalog_mark(
+        self,
+        mark: str,
+        label: str = "",
+        x_field: str = "x",
+        y_field: str = "y",
+        color: Iterable[float] = (0.25, 0.75, 1.0, 1.0),
+        *,
+        x2_field: str = "",
+        y2_field: str = "",
+        size_field: str = "",
+        color_field: str = "",
+        text_field: str = "",
+    ) -> int:
+        """Add one dataviz catalog mark through the shared PlotSpec schema.
+
+        Catalog marks intentionally use ordinary row-oriented columns.  This
+        makes every mark available to both Python and Mojo immediately while
+        allowing richer nested layouts to be added without changing the
+        serialized boundary.  ``x2_field``/``y2_field`` provide intervals,
+        spans, and rectangle extents; the other optional fields map directly
+        to declarative channels.
+        """
+        if mark not in CATALOG_MARKS:
+            raise ValueError(f"unknown catalog mark: {mark}")
+        layer_id = self._add_layer(mark, label, x_field, y_field, color)
+        layer = self.layers[-1]
+        layer.x2 = str(x2_field)
+        layer.y2 = str(y2_field)
+        layer.size_field = str(size_field)
+        layer.color_field = str(color_field)
+        layer.text_field = str(text_field)
+        channels = {
+            "x2": x2_field,
+            "y2": y2_field,
+            "size": size_field,
+            "color": color_field,
+            "text": text_field,
+        }
+        for channel, field_name in channels.items():
+            if field_name:
+                self.encode(layer_id, channel, str(field_name))
+        return layer_id
+
+    def add_grouped_bar(self, label: str = "", x_field: str = "x", y_field: str = "y", color: Iterable[float] = (0.40, 0.85, 0.55, 1.0)) -> int:
+        return self.add_catalog_mark("grouped_bar", label, x_field, y_field, color)
+
+    def add_stacked_bar(self, label: str = "", x_field: str = "x", y_field: str = "y", color: Iterable[float] = (0.40, 0.85, 0.55, 1.0)) -> int:
+        return self.add_catalog_mark("stacked_bar", label, x_field, y_field, color)
 
     def add_line(self, label: str = "", x_field: str = "x", y_field: str = "y", color: Iterable[float] = (0.25, 0.75, 1.0, 1.0)) -> int:
         return self._add_layer("line", label, x_field, y_field, color)
