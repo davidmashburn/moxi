@@ -6,6 +6,15 @@
   manifest. Removing a public root export now requires a reviewed
   `deprecated`/`moved`/`removed` entry with replacement and release metadata;
   deprecated aliases remain exported until their intentional removal.
+- Added opt-in keyed child dispatch to `App`: localized components now rebuild
+  the changed child, recompose its parent, preserve retained focus, and record
+  explicit root-fallback counters for components that do not opt in.
+- Added a native offscreen Metal screenshot tolerance/mask policy with
+  reviewable PPM/JSON evidence, and fixed sequential geometry-buffer offsets so
+  earlier draws cannot be overwritten before GPU execution.
+- Added a host-independent deterministic quick-benchmark contract, kept full
+  profile timing comparisons host-specific, and refreshed the reviewed macOS
+  arm64 baseline after the native renderer correction.
 - Moved the interactive fractal canvas onto the macOS Metal geometry path. The
   regular AppKit host still owns controls, input, and accessibility, while an
   embedded `CAMetalLayer` handles the dense canvas; the fallback remains
