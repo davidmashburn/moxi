@@ -1,0 +1,623 @@
+{
+  "schema_version": 2,
+  "profile": "full",
+  "requested_runs": 3,
+  "warmup_runs": 0,
+  "environment": {
+    "git_revision": "d957adff779d5e7601f1be7612da8e22a60c43bb",
+    "git_dirty": false,
+    "mojo_version": "Mojo 1.1.0.dev2026082605 (dd957314)",
+    "os": "Darwin",
+    "architecture": "arm64"
+  },
+  "cases": [
+    {
+      "name": "typed localized execution",
+      "command": "pixi run mojo run -I src benchmarks/localized_execution.mojo",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 1.42,
+          "metric_lines": [
+            "Moxi localized benchmark passes:  1000",
+            "Moxi localized benchmark count:  1000",
+            "Moxi localized benchmark initial builds:  1",
+            "Moxi localized benchmark final builds:  1001",
+            "Moxi localized benchmark invalidations:  1000",
+            "Moxi localized benchmark dependency visits:  1000",
+            "Moxi localized benchmark dirty consumed:  1000",
+            "Moxi localized benchmark reconciled nodes:  3003",
+            "Moxi localized benchmark paint commands:  6006",
+            "Moxi localized benchmark total work:  14010",
+            "Moxi localized matrix children/passes:  1 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  1001",
+            "Moxi localized matrix paint commands:  2002",
+            "Moxi localized matrix total work:  8004",
+            "Moxi localized matrix children/passes:  10 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  10010",
+            "Moxi localized matrix paint commands:  11011",
+            "Moxi localized matrix total work:  26022",
+            "Moxi localized matrix children/passes:  100 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  100100",
+            "Moxi localized matrix paint commands:  101101",
+            "Moxi localized matrix total work:  206202"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 1.42,
+          "metric_lines": [
+            "Moxi localized benchmark passes:  1000",
+            "Moxi localized benchmark count:  1000",
+            "Moxi localized benchmark initial builds:  1",
+            "Moxi localized benchmark final builds:  1001",
+            "Moxi localized benchmark invalidations:  1000",
+            "Moxi localized benchmark dependency visits:  1000",
+            "Moxi localized benchmark dirty consumed:  1000",
+            "Moxi localized benchmark reconciled nodes:  3003",
+            "Moxi localized benchmark paint commands:  6006",
+            "Moxi localized benchmark total work:  14010",
+            "Moxi localized matrix children/passes:  1 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  1001",
+            "Moxi localized matrix paint commands:  2002",
+            "Moxi localized matrix total work:  8004",
+            "Moxi localized matrix children/passes:  10 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  10010",
+            "Moxi localized matrix paint commands:  11011",
+            "Moxi localized matrix total work:  26022",
+            "Moxi localized matrix children/passes:  100 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  100100",
+            "Moxi localized matrix paint commands:  101101",
+            "Moxi localized matrix total work:  206202"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 1.41,
+          "metric_lines": [
+            "Moxi localized benchmark passes:  1000",
+            "Moxi localized benchmark count:  1000",
+            "Moxi localized benchmark initial builds:  1",
+            "Moxi localized benchmark final builds:  1001",
+            "Moxi localized benchmark invalidations:  1000",
+            "Moxi localized benchmark dependency visits:  1000",
+            "Moxi localized benchmark dirty consumed:  1000",
+            "Moxi localized benchmark reconciled nodes:  3003",
+            "Moxi localized benchmark paint commands:  6006",
+            "Moxi localized benchmark total work:  14010",
+            "Moxi localized matrix children/passes:  1 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  1001",
+            "Moxi localized matrix paint commands:  2002",
+            "Moxi localized matrix total work:  8004",
+            "Moxi localized matrix children/passes:  10 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  10010",
+            "Moxi localized matrix paint commands:  11011",
+            "Moxi localized matrix total work:  26022",
+            "Moxi localized matrix children/passes:  100 / 1000",
+            "Moxi localized matrix initial builds:  1",
+            "Moxi localized matrix final builds:  1001",
+            "Moxi localized matrix invalidations:  1000",
+            "Moxi localized matrix dependency visits:  1000",
+            "Moxi localized matrix reconciled nodes:  100100",
+            "Moxi localized matrix paint commands:  101101",
+            "Moxi localized matrix total work:  206202"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "retained layout/paint/scene",
+      "command": "pixi run mojo run -I src benchmarks/layout.mojo",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 1.84,
+          "metric_lines": [
+            "Moxi retained pipeline benchmark passes:  100",
+            "Moxi paint benchmark commands:  42",
+            "Moxi scene benchmark checksum:  334525300",
+            "Moxi virtual benchmark visible:  48 .. 69",
+            "Moxi variable virtual benchmark visible:  107 .. 130",
+            "Moxi variable virtual retained slots:  24",
+            "Moxi benchmark average operations/frame:  176.0",
+            "Moxi benchmark rasterized pixels/frame:  179558"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 1.81,
+          "metric_lines": [
+            "Moxi retained pipeline benchmark passes:  100",
+            "Moxi paint benchmark commands:  42",
+            "Moxi scene benchmark checksum:  334525300",
+            "Moxi virtual benchmark visible:  48 .. 69",
+            "Moxi variable virtual benchmark visible:  107 .. 130",
+            "Moxi variable virtual retained slots:  24",
+            "Moxi benchmark average operations/frame:  176.0",
+            "Moxi benchmark rasterized pixels/frame:  179558"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 1.81,
+          "metric_lines": [
+            "Moxi retained pipeline benchmark passes:  100",
+            "Moxi paint benchmark commands:  42",
+            "Moxi scene benchmark checksum:  334525300",
+            "Moxi virtual benchmark visible:  48 .. 69",
+            "Moxi variable virtual benchmark visible:  107 .. 130",
+            "Moxi variable virtual retained slots:  24",
+            "Moxi benchmark average operations/frame:  176.0",
+            "Moxi benchmark rasterized pixels/frame:  179558"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "portable plot scene",
+      "command": "pixi run mojo run -I src benchmarks/plotting.mojo",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 1.04,
+          "metric_lines": [
+            "Moxi plot benchmark passes:  100",
+            "Moxi plot benchmark commands/frame:  65",
+            "Moxi plot benchmark rasterized pixels/frame:  276317",
+            "Moxi plot benchmark checksum:  852464264"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 1.05,
+          "metric_lines": [
+            "Moxi plot benchmark passes:  100",
+            "Moxi plot benchmark commands/frame:  65",
+            "Moxi plot benchmark rasterized pixels/frame:  276317",
+            "Moxi plot benchmark checksum:  852464264"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 1.05,
+          "metric_lines": [
+            "Moxi plot benchmark passes:  100",
+            "Moxi plot benchmark commands/frame:  65",
+            "Moxi plot benchmark rasterized pixels/frame:  276317",
+            "Moxi plot benchmark checksum:  852464264"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "statistical and linked plot scene",
+      "command": "pixi run mojo run -I src benchmarks/plotting_analytics.mojo",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 3.4,
+          "metric_lines": [
+            "Moxi analytics benchmark rows:  48",
+            "Moxi analytics passes:  20",
+            "Moxi analytics histogram rows/commands:  16 / 56",
+            "Moxi analytics box rows/commands:  2 / 50",
+            "Moxi analytics heatmap rows/commands:  192 / 232",
+            "Moxi analytics regression rows/commands:  64 / 103",
+            "Moxi analytics linked selected:  16",
+            "Moxi analytics average operations/frame:  220.5",
+            "Moxi analytics checksum:  724631115"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 1.4,
+          "metric_lines": [
+            "Moxi analytics benchmark rows:  48",
+            "Moxi analytics passes:  20",
+            "Moxi analytics histogram rows/commands:  16 / 56",
+            "Moxi analytics box rows/commands:  2 / 50",
+            "Moxi analytics heatmap rows/commands:  192 / 232",
+            "Moxi analytics regression rows/commands:  64 / 103",
+            "Moxi analytics linked selected:  16",
+            "Moxi analytics average operations/frame:  220.5",
+            "Moxi analytics checksum:  724631115"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 1.38,
+          "metric_lines": [
+            "Moxi analytics benchmark rows:  48",
+            "Moxi analytics passes:  20",
+            "Moxi analytics histogram rows/commands:  16 / 56",
+            "Moxi analytics box rows/commands:  2 / 50",
+            "Moxi analytics heatmap rows/commands:  192 / 232",
+            "Moxi analytics regression rows/commands:  64 / 103",
+            "Moxi analytics linked selected:  16",
+            "Moxi analytics average operations/frame:  220.5",
+            "Moxi analytics checksum:  724631115"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "large plot scene generation",
+      "command": "pixi run mojo run -I src benchmarks/plotting_large.mojo",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 0.89,
+          "metric_lines": [
+            "Moxi large-plot line rows: 10000",
+            "Moxi large-plot line commands:  1998",
+            "Moxi large-plot line packet segments/batches/bytes:  1959 / 1 / 78360",
+            "Moxi large-plot scatter rows: 100000",
+            "Moxi large-plot scatter commands:  20039",
+            "Moxi large-plot average operations/frame:  77037.0"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 0.9,
+          "metric_lines": [
+            "Moxi large-plot line rows: 10000",
+            "Moxi large-plot line commands:  1998",
+            "Moxi large-plot line packet segments/batches/bytes:  1959 / 1 / 78360",
+            "Moxi large-plot scatter rows: 100000",
+            "Moxi large-plot scatter commands:  20039",
+            "Moxi large-plot average operations/frame:  77037.0"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 0.89,
+          "metric_lines": [
+            "Moxi large-plot line rows: 10000",
+            "Moxi large-plot line commands:  1998",
+            "Moxi large-plot line packet segments/batches/bytes:  1959 / 1 / 78360",
+            "Moxi large-plot scatter rows: 100000",
+            "Moxi large-plot scatter commands:  20039",
+            "Moxi large-plot average operations/frame:  77037.0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "collection interaction foundation",
+      "command": "pixi run mojo run -I src benchmarks/interaction_foundation.mojo",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 0.66,
+          "metric_lines": [
+            "Moxi interaction benchmark rows:  10000",
+            "Moxi interaction benchmark passes:  100",
+            "Moxi interaction benchmark active slots:  18",
+            "Moxi interaction benchmark selected keys:  1",
+            "Moxi interaction benchmark reorder commands:  100"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 0.66,
+          "metric_lines": [
+            "Moxi interaction benchmark rows:  10000",
+            "Moxi interaction benchmark passes:  100",
+            "Moxi interaction benchmark active slots:  18",
+            "Moxi interaction benchmark selected keys:  1",
+            "Moxi interaction benchmark reorder commands:  100"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 0.67,
+          "metric_lines": [
+            "Moxi interaction benchmark rows:  10000",
+            "Moxi interaction benchmark passes:  100",
+            "Moxi interaction benchmark active slots:  18",
+            "Moxi interaction benchmark selected keys:  1",
+            "Moxi interaction benchmark reorder commands:  100"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "indexed plot interactions",
+      "command": "./dist/moxi-plot-interaction-benchmark",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 0.48,
+          "metric_lines": [
+            "Moxi interaction rows:  100000",
+            "hot queries/count/ms:  120 / 47 / 1.76",
+            "index rebuilds/hot candidates/brush candidates:  1 / 270 / 7550",
+            "packet rebuilds first/second:  1 / 1",
+            "brush ms/selected:  0.791 / 5930",
+            "Moxi interaction rows:  1000000",
+            "hot queries/count/ms:  120 / 47 / 9.42",
+            "index rebuilds/hot candidates/brush candidates:  1 / 2700 / 75500",
+            "packet rebuilds first/second:  1 / 1",
+            "brush ms/selected:  3.91 / 59300"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 0.13,
+          "metric_lines": [
+            "Moxi interaction rows:  100000",
+            "hot queries/count/ms:  120 / 47 / 0.851",
+            "index rebuilds/hot candidates/brush candidates:  1 / 270 / 7550",
+            "packet rebuilds first/second:  1 / 1",
+            "brush ms/selected:  0.415 / 5930",
+            "Moxi interaction rows:  1000000",
+            "hot queries/count/ms:  120 / 47 / 11.854",
+            "index rebuilds/hot candidates/brush candidates:  1 / 2700 / 75500",
+            "packet rebuilds first/second:  1 / 1",
+            "brush ms/selected:  3.831 / 59300"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 0.12,
+          "metric_lines": [
+            "Moxi interaction rows:  100000",
+            "hot queries/count/ms:  120 / 47 / 0.923",
+            "index rebuilds/hot candidates/brush candidates:  1 / 270 / 7550",
+            "packet rebuilds first/second:  1 / 1",
+            "brush ms/selected:  0.476 / 5930",
+            "Moxi interaction rows:  1000000",
+            "hot queries/count/ms:  120 / 47 / 9.667",
+            "index rebuilds/hot candidates/brush candidates:  1 / 2700 / 75500",
+            "packet rebuilds first/second:  1 / 1",
+            "brush ms/selected:  4.223 / 59300"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Metal plot render packet",
+      "command": "./dist/moxi-plot-metal-benchmark",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 0.3,
+          "metric_lines": [
+            "line segments:  11",
+            "fallback required:  False",
+            "passes:  25",
+            "GPU line segments/frame:  11",
+            "vertices/frame:  6684",
+            "checksum:  82316340"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 0.05,
+          "metric_lines": [
+            "line segments:  11",
+            "fallback required:  False",
+            "passes:  25",
+            "GPU line segments/frame:  11",
+            "vertices/frame:  6684",
+            "checksum:  82316340"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 0.04,
+          "metric_lines": [
+            "line segments:  11",
+            "fallback required:  False",
+            "passes:  25",
+            "GPU line segments/frame:  11",
+            "vertices/frame:  6684",
+            "checksum:  82316340"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "interactive fractal component and canvas commands",
+      "command": "./dist/moxi-fractal-benchmark",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 0.41,
+          "metric_lines": [
+            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.032  expansion_lines_sec= 15500000.0  paint_ms/ 25 = 0.014  paint_lines_sec= 894642857.1428571  metal_wall_total_ms= 13.868  metal_wall_ms/frame= 0.55472  metal_line_geometry_ms/frame= 0.0008249283  metal_cpu_encode_ms/frame= 0.039577484  metal_cpu_wait_ms/frame= 0.50695896  metal_gpu_ms/frame= 0.12703167  metal_frame_ms/frame= 0.5529165  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
+            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.04  expansion_lines_sec= 102400000.0  paint_ms/ 25 = 0.108  paint_lines_sec= 950231481.4814814  metal_wall_total_ms= 16.224  metal_wall_ms/frame= 0.64896  metal_line_geometry_ms/frame= 0.0031423569  metal_cpu_encode_ms/frame= 0.02532959  metal_cpu_wait_ms/frame= 0.61552525  metal_gpu_ms/frame= 0.2831883  metal_frame_ms/frame= 0.64712524  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
+            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.159  expansion_lines_sec= 105704402.51572327  paint_ms/ 25 = 0.455  paint_lines_sec= 923901098.9010988  metal_wall_total_ms= 25.284  metal_wall_ms/frame= 1.01136  metal_line_geometry_ms/frame= 0.012097359  metal_cpu_encode_ms/frame= 0.03595829  metal_cpu_wait_ms/frame= 0.9662342  metal_gpu_ms/frame= 0.64936334  metal_frame_ms/frame= 1.0093546  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
+            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.02  expansion_lines_sec= 204800000.0  paint_ms/ 25 = 0.099  paint_lines_sec= 1036616161.6161616  metal_wall_total_ms= 11.573  metal_wall_ms/frame= 0.46292  metal_line_geometry_ms/frame= 0.0016832352  metal_cpu_encode_ms/frame= 0.017523766  metal_cpu_wait_ms/frame= 0.4405594  metal_gpu_ms/frame= 0.17920834  metal_frame_ms/frame= 0.4618454  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
+            "Switchback  depth  4 : lines= 729  expansion_ms= 0.006  expansion_lines_sec= 121500000.0  paint_ms/ 25 = 0.02  paint_lines_sec= 923750000.0  metal_wall_total_ms= 10.476  metal_wall_ms/frame= 0.41904  metal_line_geometry_ms/frame= 0.0006055832  metal_cpu_encode_ms/frame= 0.018253326  metal_cpu_wait_ms/frame= 0.39535046  metal_gpu_ms/frame= 0.13906999  metal_frame_ms/frame= 0.4176426  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
+            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.045  expansion_lines_sec= 222222222.22222224  paint_ms/ 25 = 0.263  paint_lines_sec= 951615969.581749  metal_wall_total_ms= 19.121  metal_wall_ms/frame= 0.76484  metal_line_geometry_ms/frame= 0.004839897  metal_cpu_encode_ms/frame= 0.02304554  metal_cpu_wait_ms/frame= 0.7357932  metal_gpu_ms/frame= 0.41988498  metal_frame_ms/frame= 0.76351637  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 0.13,
+          "metric_lines": [
+            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.026  expansion_lines_sec= 19076923.076923076  paint_ms/ 25 = 0.011  paint_lines_sec= 1138636363.6363637  metal_wall_total_ms= 12.801  metal_wall_ms/frame= 0.51204  metal_line_geometry_ms/frame= 0.00048160553  metal_cpu_encode_ms/frame= 0.03157139  metal_cpu_wait_ms/frame= 0.47336102  metal_gpu_ms/frame= 0.12661833  metal_frame_ms/frame= 0.51041126  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
+            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.029  expansion_lines_sec= 141241379.31034482  paint_ms/ 25 = 0.094  paint_lines_sec= 1091755319.1489363  metal_wall_total_ms= 11.907  metal_wall_ms/frame= 0.47628  metal_line_geometry_ms/frame= 0.0022935867  metal_cpu_encode_ms/frame= 0.017533302  metal_cpu_wait_ms/frame= 0.45391083  metal_gpu_ms/frame= 0.20643833  metal_frame_ms/frame= 0.47515392  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
+            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.136  expansion_lines_sec= 123580882.35294117  paint_ms/ 25 = 0.425  paint_lines_sec= 989117647.0588236  metal_wall_total_ms= 21.676  metal_wall_ms/frame= 0.8670399999999999  metal_line_geometry_ms/frame= 0.009489059  metal_cpu_encode_ms/frame= 0.026316643  metal_cpu_wait_ms/frame= 0.83511823  metal_gpu_ms/frame= 0.5581167  metal_frame_ms/frame= 0.86530215  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
+            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.021  expansion_lines_sec= 195047619.04761904  paint_ms/ 25 = 0.151  paint_lines_sec= 679635761.589404  metal_wall_total_ms= 14.919  metal_wall_ms/frame= 0.5967600000000001  metal_line_geometry_ms/frame= 0.0025987625  metal_cpu_encode_ms/frame= 0.032730103  metal_cpu_wait_ms/frame= 0.55473804  metal_gpu_ms/frame= 0.2782  metal_frame_ms/frame= 0.59461594  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
+            "Switchback  depth  4 : lines= 729  expansion_ms= 0.009  expansion_lines_sec= 81000000.0  paint_ms/ 25 = 0.026  paint_lines_sec= 710576923.0769231  metal_wall_total_ms= 9.587  metal_wall_ms/frame= 0.38348  metal_line_geometry_ms/frame= 0.0005865097  metal_cpu_encode_ms/frame= 0.019555092  metal_cpu_wait_ms/frame= 0.3581524  metal_gpu_ms/frame= 0.1177  metal_frame_ms/frame= 0.38215637  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
+            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.046  expansion_lines_sec= 217391304.3478261  paint_ms/ 25 = 0.288  paint_lines_sec= 869010416.6666667  metal_wall_total_ms= 15.22  metal_wall_ms/frame= 0.6088  metal_line_geometry_ms/frame= 0.0044822693  metal_cpu_encode_ms/frame= 0.023965836  metal_cpu_wait_ms/frame= 0.5796766  metal_gpu_ms/frame= 0.35724998  metal_frame_ms/frame= 0.60768604  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 0.13,
+          "metric_lines": [
+            "Koch Curve  depth  5 : lines= 496  expansion_ms= 0.027  expansion_lines_sec= 18370370.37037037  paint_ms/ 25 = 0.01  paint_lines_sec= 1252500000.0  metal_wall_total_ms= 13.216  metal_wall_ms/frame= 0.52864  metal_line_geometry_ms/frame= 0.0005722046  metal_cpu_encode_ms/frame= 0.030679703  metal_cpu_wait_ms/frame= 0.49102783  metal_gpu_ms/frame= 0.12888667  metal_frame_ms/frame= 0.5270195  gpu_timing= True  metal_line_segments= 496  metal_vertices= 4800  metal_submissions= 27  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 12525  circles= 275  checksum= 14664325",
+            "Minkowski Sausage  depth  4 : lines= 4096  expansion_ms= 0.033  expansion_lines_sec= 124121212.12121211  paint_ms/ 25 = 0.093  paint_lines_sec= 1103494623.655914  metal_wall_total_ms= 14.666  metal_wall_ms/frame= 0.58664  metal_line_geometry_ms/frame= 0.0023555756  metal_cpu_encode_ms/frame= 0.018324852  metal_cpu_wait_ms/frame= 0.5628681  metal_gpu_ms/frame= 0.265835  metal_frame_ms/frame= 0.58537006  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 129144100",
+            "Gosper Seed  depth  5 : lines= 16807  expansion_ms= 0.16  expansion_lines_sec= 105043750.0  paint_ms/ 25 = 0.406  paint_lines_sec= 1035406403.9408866  metal_wall_total_ms= 19.332  metal_wall_ms/frame= 0.7732800000000001  metal_line_geometry_ms/frame= 0.008249283  metal_cpu_encode_ms/frame= 0.024766922  metal_cpu_wait_ms/frame= 0.74286944  metal_gpu_ms/frame= 0.47938168  metal_frame_ms/frame= 0.7719612  gpu_timing= True  metal_line_segments= 16807  metal_vertices= 102954  metal_submissions= 33  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 420375  circles= 350  checksum= 515976875",
+            "Metro Weave  depth  4 : lines= 4096  expansion_ms= 0.021  expansion_lines_sec= 195047619.04761904  paint_ms/ 25 = 0.108  paint_lines_sec= 950231481.4814814  metal_wall_total_ms= 14.391  metal_wall_ms/frame= 0.57564  metal_line_geometry_ms/frame= 0.0020933151  metal_cpu_encode_ms/frame= 0.019769669  metal_cpu_wait_ms/frame= 0.54991245  metal_gpu_ms/frame= 0.28396666  metal_frame_ms/frame= 0.57407856  gpu_timing= True  metal_line_segments= 4096  metal_vertices= 26784  metal_submissions= 35  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 102625  circles= 375  checksum= 126683500",
+            "Switchback  depth  4 : lines= 729  expansion_ms= 0.006  expansion_lines_sec= 121500000.0  paint_ms/ 25 = 0.021  paint_lines_sec= 879761904.7619047  metal_wall_total_ms= 10.339  metal_wall_ms/frame= 0.41356000000000004  metal_line_geometry_ms/frame= 0.0005245209  metal_cpu_encode_ms/frame= 0.01961708  metal_cpu_wait_ms/frame= 0.38868904  metal_gpu_ms/frame= 0.12375167  metal_frame_ms/frame= 0.41236877  gpu_timing= True  metal_line_segments= 729  metal_vertices= 6678  metal_submissions= 37  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 18475  circles= 400  checksum= 24091100",
+            "Peano Serpent  depth  4 : lines= 10000  expansion_ms= 0.046  expansion_lines_sec= 217391304.3478261  paint_ms/ 25 = 0.288  paint_lines_sec= 869010416.6666667  metal_wall_total_ms= 18.277  metal_wall_ms/frame= 0.7310800000000001  metal_line_geometry_ms/frame= 0.004878044  metal_cpu_encode_ms/frame= 0.025439262  metal_cpu_wait_ms/frame= 0.6992578  metal_gpu_ms/frame= 0.42085168  metal_frame_ms/frame= 0.7295465  gpu_timing= True  metal_line_segments= 10000  metal_vertices= 62400  metal_submissions= 39  metal_completed_frames= 25  metal_in_flight= 0  metal_overflows= 0  rects= 50  lines= 250275  circles= 425  checksum= 265789875"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "offscreen Metal scene",
+      "command": "./dist/moxi-metal-benchmark",
+      "parameters": {
+        "profile": "full",
+        "requested_runs": 3,
+        "warmup_runs": 0
+      },
+      "runs": [
+        {
+          "run": 1,
+          "status": 0,
+          "wall_seconds": 0.42,
+          "metric_lines": [
+            "Moxi Metal benchmark passes:  100",
+            "Moxi Metal benchmark scene commands:  83",
+            "Moxi Metal benchmark vertices/frame:  1371",
+            "Moxi Metal benchmark text commands/frame:  2",
+            "Moxi Metal benchmark fallback commands:  0",
+            "Moxi Metal benchmark checksum:  125423974",
+            "Moxi Metal growth commands:  45000",
+            "Moxi Metal growth vertices:  270000"
+          ]
+        },
+        {
+          "run": 2,
+          "status": 0,
+          "wall_seconds": 0.18,
+          "metric_lines": [
+            "Moxi Metal benchmark passes:  100",
+            "Moxi Metal benchmark scene commands:  83",
+            "Moxi Metal benchmark vertices/frame:  1371",
+            "Moxi Metal benchmark text commands/frame:  2",
+            "Moxi Metal benchmark fallback commands:  0",
+            "Moxi Metal benchmark checksum:  125423974",
+            "Moxi Metal growth commands:  45000",
+            "Moxi Metal growth vertices:  270000"
+          ]
+        },
+        {
+          "run": 3,
+          "status": 0,
+          "wall_seconds": 0.18,
+          "metric_lines": [
+            "Moxi Metal benchmark passes:  100",
+            "Moxi Metal benchmark scene commands:  83",
+            "Moxi Metal benchmark vertices/frame:  1371",
+            "Moxi Metal benchmark text commands/frame:  2",
+            "Moxi Metal benchmark fallback commands:  0",
+            "Moxi Metal benchmark checksum:  125423974",
+            "Moxi Metal growth commands:  45000",
+            "Moxi Metal growth vertices:  270000"
+          ]
+        }
+      ]
+    }
+  ]
+}
