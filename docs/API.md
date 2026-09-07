@@ -168,7 +168,12 @@ adapter diagnostics.
 `Scene`, `SceneCommand`, and `SceneRenderer` are the richer drawing boundary.
 `SoftwareSceneRenderer` is a deterministic headless rasterizer for basic
 shapes, gradients, lines, path bounds, clipping, layers, and transforms.
-Its `ppm()` method exports the exact RGB surface as a dependency-free lossless
+`CanvasSceneRenderer` is the provisional `canvas_mojo` raster/export adapter
+for the same scene boundary. It supports the portable geometry subset,
+rectangular clipping, transforms, opacity, raw RGBA, PNG, and BMP export;
+text, images, and string paths report explicit fallbacks until their neutral
+resource contracts are complete. `SoftwareSceneRenderer.ppm()` exports the
+exact RGB surface as a dependency-free lossless
 image for the checked-in corpus at
 [`tests/goldens/manifest.json`](../tests/goldens/manifest.json); run
 `pixi run visual-check` to compare it byte-for-byte.

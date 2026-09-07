@@ -4,6 +4,7 @@ from moxi import test_check
 from moxi import (
     App,
     BACKEND_MACOS_APPKIT,
+    CanvasSceneRenderer,
     CheckboxControl,
     Color,
     CapabilityBus,
@@ -97,4 +98,7 @@ def main() raises:
     var software = SoftwareSceneRenderer(12, 12)
     software.render_scene(scene)
     test_check(software.pixel(2, 2).red > 0.5)
+    var canvas = CanvasSceneRenderer(12, 12)
+    canvas.render_scene(scene)
+    test_check(canvas.pixel(2, 2).red > 0.5)
     print("Moxi package consumer passed")

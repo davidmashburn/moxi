@@ -17,6 +17,11 @@ if [[ -z "$archive" ]]; then
     echo "package build did not produce a moxi .conda archive" >&2
     exit 1
 fi
+canvas_archive="$(find "$repo_dir/.pixi/bld/canvas_mojo" -type f -name 'canvas_mojo-*.conda' -print -quit 2>/dev/null || true)"
+if [[ -z "$canvas_archive" ]]; then
+    echo "package build did not retain the canvas_mojo source dependency archive" >&2
+    exit 1
+fi
 
 pixi init \
     --format pixi \
@@ -27,6 +32,8 @@ pixi init \
 
 PIXI_NO_CONFIG=1 PIXI_CACHE_DIR="$cache_dir" \
     pixi add --manifest-path "$consumer_dir/pixi.toml" "$archive"
+PIXI_NO_CONFIG=1 PIXI_CACHE_DIR="$cache_dir" \
+    pixi add --manifest-path "$consumer_dir/pixi.toml" "$canvas_archive"
 PIXI_NO_CONFIG=1 PIXI_CACHE_DIR="$cache_dir" \
     pixi run --manifest-path "$consumer_dir/pixi.toml" \
     mojo run "$repo_dir/tests/package_consumer.mojo"

@@ -444,6 +444,7 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `fractal_preset_geometry` | `moxi.fractal` | experimental | experimental or optional integration |
 | `fractal_preset_name` | `moxi.fractal` | experimental | experimental or optional integration |
 | `SoftwareSceneRenderer` | `moxi.software` | stable-core | portable paint/scene rendering |
+| `CanvasSceneRenderer` | `moxi.canvas_renderer` | host-adapter | portable canvas raster and export adapter |
 | `INVALIDATE_ACCESSIBILITY` | `moxi.invalidation` | provisional | stateful UI support primitives |
 | `INVALIDATE_ALL` | `moxi.invalidation` | provisional | stateful UI support primitives |
 | `INVALIDATE_CONTENT` | `moxi.invalidation` | provisional | stateful UI support primitives |

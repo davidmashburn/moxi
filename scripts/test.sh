@@ -67,6 +67,8 @@ tests=(
   tests/widget_catalog.mojo
   tests/accessibility_contract.mojo
   tests/scene_renderer.mojo
+  tests/canvas_renderer.mojo
+  tests/canvas_scene_parity.mojo
   tests/property_contracts.mojo
   tests/action_dispatch.mojo
   tests/scroll_app.mojo

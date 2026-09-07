@@ -14,7 +14,7 @@ compatibility facts have been measured rather than assumed.
 | Product model | `PlotDataTable`, `PlotSpec`, `PlotRuntime`, stable row keys, selections, semantics, accessibility, and LOD policy | a foreign fluent plot object model |
 | Scene | ordered `Scene`/`SceneCommand` values and `SceneRenderer` lifecycle | canvas-specific structs or native handles |
 | Correctness renderer | deterministic software scene output and exact visual goldens | platform font pixels |
-| Export/backends | SVG, AppKit, Metal, and future canvas adapters | one backend as the scene contract |
+| Export/backends | SVG, AppKit, Metal, and the canvas adapter | one backend as the scene contract |
 | Python | serialized specs and typed value/buffer inputs | borrowed Mojo object layout, windows, callbacks, or event-loop ownership |
 | Upstream dataviz | reference output, algorithm provenance, and capability inventory | wholesale source or fluent API compatibility |
 
@@ -42,11 +42,12 @@ Mojo compiler or manual import-path setup, the package remains experimental.
 
 ## Canvas boundary
 
-`canvas_mojo` is a candidate implementation of `SceneRenderer`, not a
-replacement for `Scene`. The initial adapter slice is limited to rectangles,
-rounded rectangles, lines, linear gradients, transforms, rectangular clips,
-opacity, and raw/PNG export. Text, typed paths, images, and offscreen layers
-need explicit follow-on contracts.
+`canvas_mojo` is an implementation dependency for `CanvasSceneRenderer`, not a
+replacement for `Scene`. The current adapter slice covers rectangles, rounded
+rectangles, lines, linear gradients, transforms, rectangular clips, opacity,
+raw RGBA, PNG, and BMP export. Text, typed paths, images, and true offscreen
+layers need explicit follow-on contracts; string-path commands are reported as
+fallbacks rather than being rasterized from an untyped string.
 
 The exact compatibility experiment used upstream `canvas_mojo` revision
 `27401fe83c76488fe3b3ab2dcd12ad09333bba51` (`v0.21.0`, MIT). Its own Pixi
@@ -67,12 +68,25 @@ nightly API seam: it maps `parallelism_level` to public `std.runtime` and
 JPEG, blur, golden, and package-export tests pass under Moxi's runtime, and
 the package precompiles and imports through Moxi's installed environment.
 
-Moxi now pins that exact fork revision in `pixi.toml`. This makes `canvas` a
-reproducible nightly dependency, but does not yet make it a `SceneRenderer`:
-the adapter and rendering-path integration remain separate work. The fork is
-nightly-only and relies on a private runtime module, so the follow-up is an
-upstream PR or a public async-runtime replacement, after which the pin should
-move back to an upstream revision. A floating checkout remains disallowed.
+Moxi pins that exact fork revision in `pixi.toml` and exposes the bounded
+`CanvasSceneRenderer` adapter from the package root. Focused tests cover pixel
+probes, clipping, transforms, deterministic repeat rendering, raw RGBA, PNG,
+BMP, and structural comparison with the software and SVG renderers. The
+canonical plot scene is also exportable with `pixi run canvas-scene`. This is
+an E2 vertical slice, not complete renderer parity: the fork is nightly-only,
+text/images/paths remain explicit fallbacks, and compile/memory/render
+release measurements plus shared reviewed visual checksums remain follow-on
+evidence.
+The package-consumer check builds and installs the Moxi archive alongside the
+exact source-built `canvas_mojo` artifact; a standalone Moxi archive is not yet
+advertised as self-contained because the fork has no public runtime package.
+One local smoke measurement for the 640x420 canonical plot scene was 1.75 s
+wall time, 234 MiB maximum resident set, checksum `853855300`, a 1.41 MiB
+Canvas package artifact, and a 2.02 MiB Moxi precompile. These are directional
+nightly measurements, not release benchmarks.
+The fork relies on a private runtime module, so the follow-up is an upstream
+PR or a public async-runtime replacement, after which the pin should move back
+to an upstream revision. A floating checkout remains disallowed.
 
 ## Dataviz convergence
 
@@ -97,6 +111,9 @@ absorbed Moxi feature.
 
 - `pixi run check` passes on the current Moxi `main` worktree, including the
   exact pinned canvas package installation.
+- `tests/canvas_renderer.mojo` and `tests/canvas_scene_parity.mojo` pass under
+  the exact pinned compiler; `pixi run canvas-scene` renders the canonical plot
+  scene and reports explicit fallback counts.
 - `pixi run benchmark-compare` passes all ten full-profile cases against the
   reviewed macOS arm64 baseline.
 - `pixi run native-screenshot-check` remains the offscreen Metal tolerance

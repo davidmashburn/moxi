@@ -468,6 +468,7 @@ from .fractal import (
     fractal_preset_name,
 )
 from .software import SoftwareSceneRenderer
+from .canvas_renderer import CanvasSceneRenderer
 from .invalidation import (
     INVALIDATE_ACCESSIBILITY,
     INVALIDATE_ALL,

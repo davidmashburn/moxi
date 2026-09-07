@@ -11,6 +11,7 @@ view	stable-core	portable view declarations and composition
 paint	stable-core	portable paint/scene rendering
 scene	stable-core	portable paint/scene rendering
 software	stable-core	portable paint/scene rendering
+canvas_renderer	host-adapter	portable canvas raster and export adapter
 runtime	stable-core	retained reconciliation and lifecycle
 app_runtime	stable-core	retained reconciliation and lifecycle
 style	stable-core	portable styling, measurement, or text boundaries
