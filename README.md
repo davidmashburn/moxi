@@ -4,6 +4,11 @@ Moxi (pronounced “mox-ee”) is an experimental native UI library for Mojo bas
 name is a portmanteau of Mojo+Xilem and also plays off the meanings of "mojo" / "moxie." It's also a nod to the `xi` lineage behind
 Xilem. Notably, Xilem is based on SwiftUI, another major Chris Lattner project.
 
+The ecosystem convergence boundary is recorded in
+[`docs/architecture/ecosystem-convergence.md`](docs/architecture/ecosystem-convergence.md).
+It covers the experimental Python value boundary, the planned `canvas_mojo`
+adapter, and the contract-driven `dataviz_mojo` capability inventory.
+
 The `0.5.1` release surface provides a small interactive view
 tree:
 declarative children are laid out into retained bounds, reconciled into an
