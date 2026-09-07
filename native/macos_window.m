@@ -1232,6 +1232,9 @@ int moxi_clipboard_codepoint_at(int target) {
 }
 
 @implementation MoxiAccessibilityElement
+static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
+    @"AXChildrenInNavigationOrder";
+
 - (NSArray *)accessibilityChildren {
     return self.moxiChildren == nil ? @[] : self.moxiChildren;
 }
@@ -1271,7 +1274,7 @@ int moxi_clipboard_codepoint_at(int target) {
 
 - (id)accessibilityAttributeValue:(NSAccessibilityAttributeName)attribute {
     if ([attribute isEqualToString:NSAccessibilityChildrenAttribute] ||
-        [attribute isEqualToString:NSAccessibilityChildrenInNavigationOrderAttribute]) {
+        [attribute isEqualToString:MoxiAccessibilityChildrenInNavigationOrderAttribute]) {
         return [self accessibilityChildren];
     }
     if ([attribute isEqualToString:NSAccessibilityVisibleChildrenAttribute]) {
