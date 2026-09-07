@@ -16,11 +16,14 @@ from moxi import (
     COUNTER_INCREMENT_ACTION,
     Event,
     FormState,
-    INTERACTION_SHOWCASE_DIALOG_ID,
+    INTERACTION_SHOWCASE_MENU_ID,
     InteractionShowcaseState,
     KeyedSubtreeDescriptor,
     PANEL_KIND,
     Point,
+    POINTER_DOWN_KIND,
+    POINTER_UP_KIND,
+    PointerEvent,
     Rect,
     ROOT_SCROLL_ID,
     ScrollEvent,
@@ -175,6 +178,22 @@ def main():
     test_check(
         preserved_app.focus_id() == PRESERVATION_FORM_ID_OFFSET + 2
     )
+    var input_id = PRESERVATION_FORM_ID_OFFSET + 2
+    var input_point = Point(input_bounds.x + 2.0, input_bounds.y + 2.0)
+    var accessibility_before = preserved_app.accessibility()
+    test_check(accessibility_before.is_valid())
+    test_check(accessibility_before.node_for_id(input_id).id == input_id)
+    test_check(accessibility_before.node_for_id(input_id).parent_id != -1)
+
+    # Pointer capture and semantic identity must survive a local child
+    # recomposition; the release must still terminate the original stream.
+    test_check(preserved_app.dispatch(Event(PointerEvent(
+        POINTER_DOWN_KIND,
+        input_point,
+        9,
+        1,
+    ))))
+    test_check(preserved_app.pressed_id() == input_id)
     test_check(preserved_app.dispatch(Event(CompositionEvent("かな", 1, 2))))
     test_check(
         preserved_app.component.form.component.input.composition == "かな"
@@ -182,20 +201,38 @@ def main():
     test_check(
         preserved_app.focus_id() == PRESERVATION_FORM_ID_OFFSET + 2
     )
+    test_check(preserved_app.pressed_id() == input_id)
     test_check(
         preserved_app.view.scroll_offset_for(ROOT_SCROLL_ID) == preserved_scroll
     )
-    var dialog = Event(ActionEvent(INTERACTION_SHOWCASE_DIALOG_ID))
-    dialog.set_target(
-        PRESERVATION_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_DIALOG_ID
+    var accessibility_after = preserved_app.accessibility()
+    test_check(accessibility_after.is_valid())
+    test_check(accessibility_after.node_for_id(input_id).id == input_id)
+    test_check(accessibility_after.node_for_id(input_id).focused)
+    test_check(preserved_app.dispatch(Event(PointerEvent(
+        POINTER_UP_KIND,
+        input_point,
+        9,
+        0,
+    ))))
+    test_check(preserved_app.pressed_id() == -1)
+
+    # The interaction child owns a nested menu stack. A recomposition of its
+    # sibling must preserve both popup layers, not only the top-level entry.
+    var menu = Event(ActionEvent(INTERACTION_SHOWCASE_MENU_ID))
+    menu.set_target(
+        PRESERVATION_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_MENU_ID
     )
-    test_check(preserved_app.dispatch(dialog))
-    test_check(preserved_app.component.interaction.component.popups.depth() == 1)
+    test_check(preserved_app.dispatch(menu))
+    test_check(preserved_app.component.interaction.component.popups.depth() == 2)
     test_check(preserved_app.dispatch(Event(CompositionEvent("名前", 0, 2))))
     test_check(
         preserved_app.component.form.component.input.composition == "名前"
     )
-    test_check(preserved_app.component.interaction.component.popups.depth() == 1)
+    test_check(preserved_app.component.interaction.component.popups.depth() == 2)
+    test_check(
+        preserved_app.component.interaction.component.popups.top_id() == 101
+    )
     test_check(
         preserved_app.view.scroll_offset_for(ROOT_SCROLL_ID) == preserved_scroll
     )

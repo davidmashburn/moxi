@@ -98,6 +98,85 @@ struct DependencyEdge(ImplicitlyCopyable):
         self.scope_id = scope_id
 
 
+struct DependencyBucket(ImplicitlyCopyable):
+    """A contiguous fanout range for one state scope."""
+
+    var scope_id: Int
+    var start: Int
+    var count: Int
+
+    def __init__(out self, scope_id: Int, start: Int = 0, count: Int = 0):
+        self.scope_id = scope_id
+        self.start = start
+        self.count = count
+
+
+struct DependencyFanoutIndex:
+    """Deterministic scope-to-component fanout without edge-wide scans.
+
+    ``LocalizedExecution.dependencies`` remains the source of truth and keeps
+    insertion order for diagnostics. This derived index groups component ids
+    by scope so invalidation visits only the fanout of the invalidated scope
+    and its descendants. Rebuilding the compact index when topology changes is
+    intentionally simple; invalidation is the hot path and dependency
+    registration is comparatively rare.
+    """
+
+    var buckets: List[DependencyBucket]
+    var bucket_lookup: IntIndex
+    var components: List[Int]
+
+    def __init__(out self):
+        self.buckets = List[DependencyBucket]()
+        self.bucket_lookup = IntIndex()
+        self.components = List[Int]()
+
+    def clear(mut self):
+        self.buckets = List[DependencyBucket]()
+        self.bucket_lookup.clear()
+        self.components = List[Int]()
+
+    def rebuild(mut self, dependencies: List[DependencyEdge]):
+        """Regroup the current dependency topology deterministically."""
+        self.clear()
+        for index in range(len(dependencies)):
+            var scope_id = dependencies[index].scope_id
+            if self.bucket_lookup.find(scope_id) == -1:
+                self.buckets.append(DependencyBucket(scope_id))
+                _ = self.bucket_lookup.set(
+                    scope_id,
+                    len(self.buckets) - 1,
+                )
+
+        # Build each bucket as one contiguous range. The dependency list stays
+        # in caller insertion order within a scope, which keeps diagnostics and
+        # dirty-mark ordering stable.
+        for bucket_index in range(len(self.buckets)):
+            var bucket = self.buckets[bucket_index]
+            bucket.start = len(self.components)
+            bucket.count = 0
+            for dependency_index in range(len(dependencies)):
+                var edge = dependencies[dependency_index]
+                if edge.scope_id == bucket.scope_id:
+                    self.components.append(edge.component_id)
+                    bucket.count += 1
+            self.buckets[bucket_index] = bucket
+
+    def bucket_index(self, scope_id: Int) -> Int:
+        return self.bucket_lookup.find(scope_id)
+
+    def bucket(self, scope_id: Int) -> DependencyBucket:
+        var index = self.bucket_index(scope_id)
+        if index == -1:
+            return DependencyBucket(-1)
+        return self.buckets[index]
+
+    def component(self, index: Int) -> Int:
+        if index < 0 or index >= len(self.components):
+            return -1
+        return self.components[index]
+
+
 struct IntIndexEntry(ImplicitlyCopyable):
     """One stable integer key and its current dense position."""
 
@@ -197,6 +276,7 @@ struct LocalizedExecution:
     var scopes: List[StateScope]
     var scope_lookup: IntIndex
     var dependencies: List[DependencyEdge]
+    var dependency_fanout: DependencyFanoutIndex
     var dirty_components: List[Int]
     var dirty_lookup: IntIndex
     var build_counts: List[Int]
@@ -206,6 +286,7 @@ struct LocalizedExecution:
         self.scopes = List[StateScope]()
         self.scope_lookup = IntIndex()
         self.dependencies = List[DependencyEdge]()
+        self.dependency_fanout = DependencyFanoutIndex()
         self.dirty_components = List[Int]()
         self.dirty_lookup = IntIndex()
         self.build_counts = List[Int]()
@@ -228,6 +309,7 @@ struct LocalizedExecution:
             if edge.component_id == component_id and edge.scope_id == scope_id:
                 return False
         self.dependencies.append(DependencyEdge(component_id, scope_id))
+        self.dependency_fanout.rebuild(self.dependencies)
         return True
 
     def scope_index(self, id: Int) -> Int:
@@ -268,11 +350,18 @@ struct LocalizedExecution:
             return False
         self.counters.invalidation_count += 1
         self.scopes[index].invalidate()
-        for dependency_index in range(len(self.dependencies)):
-            var edge = self.dependencies[dependency_index]
-            self.counters.dependency_visits += 1
-            if self._depends_on_scope(edge.scope_id, scope_id):
-                self._mark_dirty(edge.component_id)
+        # Walk the scope tree, then consume only the indexed fanout for each
+        # matching scope. This avoids visiting unrelated dependency edges.
+        for scope_index in range(len(self.scopes)):
+            var candidate = self.scopes[scope_index]
+            if not self._depends_on_scope(candidate.id, scope_id):
+                continue
+            var fanout = self.dependency_fanout.bucket(candidate.id)
+            for offset in range(fanout.count):
+                self.counters.dependency_visits += 1
+                self._mark_dirty(
+                    self.dependency_fanout.component(fanout.start + offset)
+                )
         return True
 
     def take_dirty(mut self, component_id: Int) -> Bool:
