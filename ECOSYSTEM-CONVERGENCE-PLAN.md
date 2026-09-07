@@ -41,7 +41,7 @@ implementation, benchmark-host policy, API compatibility snapshot, or keyed
 `App` integration as part of the ecosystem convergence work. Those boundaries
 are complete for the current handoff and remain the source of truth.
 
-The read-only rebaseline is complete: local `main` is at `9fcd3b5`, with the
+The read-only rebaseline is complete: local `main` is at `0da2c8c`, with the
 runtime follow-on at `2987c39`, and the planning branch retains the research
 and Gate 1 evidence. The latest implementation slices cover IME/focus, root
 scroll, sibling popup, accessibility identity, pointer capture, and deeper
@@ -55,13 +55,19 @@ follow-on boundaries.
 The E0 feasibility work is now measured rather than assumed. The exact-pinned
 `canvas_mojo` v0.21.0 revision
 (`27401fe83c76488fe3b3ab2dcd12ad09333bba51`) runs its own Mojo 1.0.0 smoke,
-but the same source does not compile in Moxi's Mojo 1.1.0.dev2026082605
+but the same source did not compile in Moxi's Mojo 1.1.0.dev2026082605
 environment because of `std.runtime.asyncrt`, `InlineArray`, and decorator
-syntax incompatibilities. The dependency was removed instead of leaving a
-broken lock. No Python extension was claimed: the value-boundary architecture
-is documented, but its compiler-dependent import probe remains open. E1/E2
-therefore stay gated on a compatible canvas/toolchain combination or an
-upstream-compatible patch.
+syntax incompatibilities. That compatibility work is now carried by the
+short-lived fork branch
+`davidmashburn/canvas_mojo@moxi/mojo-nightly` at
+`323154f9399f4ecfa6d5d2fb0fc7d87883fe3c1e`. The fork's package build pins
+the compiler exactly to Moxi's nightly, and Moxi pins the full Git SHA. Core
+canvas tests, package precompilation, and a real `from canvas import ...`
+consumer probe pass in Moxi's installed environment. No Python extension was
+claimed: the value-boundary architecture is documented, but its clean-wheel
+import probe remains open. E2 is now unblocked at the toolchain boundary, but
+the renderer vertical slice is still unimplemented; E1/E4 remain gated on
+portable packaging and Python ABI decisions.
 
 Existing Gate 2 and Gate 3 commitments in `PROJECT-PLANNING.md` also remain in
 force. This plan expands the supported-2D-plotting direction in Gate 4; it does
@@ -138,9 +144,12 @@ MojoShelf searches for `canvas`, `canvas_mojo`, `dataviz`, and
 - review canvas/dataviz version compatibility before allowing both into one
   environment, because dataviz may pin an older canvas release.
 
-`canvas_mojo` may become a Moxi runtime dependency after its backend gate
-passes. `dataviz_mojo` should initially be a development/reference dependency,
-not a runtime dependency of Moxi or the Python wheel.
+Moxi currently carries the exact-SHA canvas compatibility fork as a
+nightly-only staging dependency so the renderer work can begin, but this does
+not mean the backend gate has passed. The fork relies on a private Mojo async
+runtime module and must either be upstreamed or replaced before a stable
+release. `dataviz_mojo` should initially be a development/reference
+dependency, not a runtime dependency of Moxi or the Python wheel.
 
 ## 5. Program gates
 
@@ -149,10 +158,10 @@ project gates.
 
 ### Gate E0: handoff, rebaseline, and feasibility decisions
 
-**Status:** complete as a planning/research gate, with two explicit feasibility
-blocks carried forward: the selected canvas source is not compatible with the
-locked Moxi compiler, and the Python extension import probe has not been
-promoted without a buildable renderer/toolchain boundary.
+**Status:** complete as a planning/research gate. The upstream canvas tag is
+not compatible with the locked Moxi compiler, but a measured exact-SHA
+nightly compatibility fork now supplies a buildable staging dependency. The
+Python extension import probe remains open.
 
 **Purpose:** establish a clean, current starting point and answer the risks
 that could invalidate the rest of the schedule.
@@ -173,13 +182,15 @@ that could invalidate the rest of the schedule.
 - generate `docs/dataviz-capabilities.tsv` from the selected upstream revision.
 
 **Measured E0 outcome:** the convergence architecture and four ADRs landed on
-local `main` at `9fcd3b5`, and `docs/dataviz-capabilities.tsv` inventories the
-selected dataviz revision. The exact canvas experiment is recorded above and
-in the architecture docs. The main repository validation and benchmark
-evidence still pass after the runtime follow-on. The Python import probe and a
-Moxi-owned canvas adapter were not promoted because the selected upstream
-source is not compatible with the locked Moxi compiler; those are explicit E1/
-E2 prerequisites, not silent omissions.
+local `main` at `9fcd3b5`; the current exact-SHA canvas staging pin is at
+`0da2c8c`, and `docs/dataviz-capabilities.tsv` inventories the selected
+dataviz revision. The exact canvas experiment is recorded above and in the
+architecture docs. The compatibility fork precompiles with
+`1.1.0.dev2026082605`, the installed package imports through Moxi, and the
+core buffer/JPEG/blur/golden/export checks pass under the pinned runtime. The
+main repository validation and benchmark evidence still pass after the
+dependency follow-on. The Python import probe and a Moxi-owned canvas adapter
+remain explicit E1/E2 prerequisites, not silent omissions.
 
 **Validation:**
 
@@ -248,9 +259,11 @@ finish before distributable Python artifacts.
 
 ### Gate E2: canvas renderer vertical slice
 
-**Status:** blocked pending a compatible canvas/toolchain combination or an
-upstream-compatible patch. The exact-pinned smoke experiment is recorded in
-E0; no speculative adapter or broken dependency was added to `main`.
+**Status:** ready to start, not started. The exact-SHA compatibility fork
+removes the compiler/package blocker for Moxi's current macOS nightly, while
+the adapter and renderer parity work below remain outstanding. This status is
+limited to the pinned nightly/compiler pair; it is not a stable upstream
+compatibility claim.
 
 **Purpose:** prove that Moxi Scene can drive canvas without weakening either
 contract.
