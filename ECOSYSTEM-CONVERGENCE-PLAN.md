@@ -41,15 +41,27 @@ implementation, benchmark-host policy, API compatibility snapshot, or keyed
 `App` integration as part of the ecosystem convergence work. Those boundaries
 are complete for the current handoff and remain the source of truth.
 
-The read-only rebaseline is complete: `main` is at `7b9d8bd` and the planning
-branch retains the research and Gate 1 evidence. The latest follow-on slices
-cover IME/focus, root scroll, and sibling popup preservation through local
-recomposition, then add deterministic indexed lookup for localized and keyed
-topology identities. Ecosystem work may now start from these facts, while
-dependency-edge fanout indexing, accessibility/pointer-capture and deeper
-localized-state coverage, visible AppKit screenshot review, linked non-macOS
-runtimes, and additional full-profile host baselines remain explicit
+The read-only rebaseline is complete: local `main` is at `9fcd3b5`, with the
+runtime follow-on at `2987c39`, and the planning branch retains the research
+and Gate 1 evidence. The latest implementation slices cover IME/focus, root
+scroll, sibling popup, accessibility identity, pointer capture, and deeper
+nested-state preservation through local recomposition, then add deterministic
+indexed lookup for localized, keyed-topology, and dependency-edge fanout
+identities. A genuine visible AppKit capture has also been exercised and
+manually reviewed. Ecosystem work may now start from these facts; linked
+non-macOS runtimes and additional full-profile host baselines remain explicit
 follow-on boundaries.
+
+The E0 feasibility work is now measured rather than assumed. The exact-pinned
+`canvas_mojo` v0.21.0 revision
+(`27401fe83c76488fe3b3ab2dcd12ad09333bba51`) runs its own Mojo 1.0.0 smoke,
+but the same source does not compile in Moxi's Mojo 1.1.0.dev2026082605
+environment because of `std.runtime.asyncrt`, `InlineArray`, and decorator
+syntax incompatibilities. The dependency was removed instead of leaving a
+broken lock. No Python extension was claimed: the value-boundary architecture
+is documented, but its compiler-dependent import probe remains open. E1/E2
+therefore stay gated on a compatible canvas/toolchain combination or an
+upstream-compatible patch.
 
 Existing Gate 2 and Gate 3 commitments in `PROJECT-PLANNING.md` also remain in
 force. This plan expands the supported-2D-plotting direction in Gate 4; it does
@@ -137,6 +149,11 @@ project gates.
 
 ### Gate E0: handoff, rebaseline, and feasibility decisions
 
+**Status:** complete as a planning/research gate, with two explicit feasibility
+blocks carried forward: the selected canvas source is not compatible with the
+locked Moxi compiler, and the Python extension import probe has not been
+promoted without a buildable renderer/toolchain boundary.
+
 **Purpose:** establish a clean, current starting point and answer the risks
 that could invalidate the rest of the schedule.
 
@@ -154,6 +171,15 @@ that could invalidate the rest of the schedule.
 - build a minimal Mojo extension importable from one clean CPython virtual
   environment, including an external Mojo package import path; and
 - generate `docs/dataviz-capabilities.tsv` from the selected upstream revision.
+
+**Measured E0 outcome:** the convergence architecture and four ADRs landed on
+local `main` at `9fcd3b5`, and `docs/dataviz-capabilities.tsv` inventories the
+selected dataviz revision. The exact canvas experiment is recorded above and
+in the architecture docs. The main repository validation and benchmark
+evidence still pass after the runtime follow-on. The Python import probe and a
+Moxi-owned canvas adapter were not promoted because the selected upstream
+source is not compatible with the locked Moxi compiler; those are explicit E1/
+E2 prerequisites, not silent omissions.
 
 **Validation:**
 
@@ -177,6 +203,11 @@ that could invalidate the rest of the schedule.
 **Estimate:** 1-2 engineering weeks.
 
 ### Gate E1: portable headless package boundary
+
+**Status:** not started. The existing Moxi portable contracts remain intact, but
+the dedicated headless package lane and linked non-macOS Mojo runtime have not
+been established. Start after the E0 toolchain decision; do not advertise Linux
+or wheel support from host-artifact builds alone.
 
 **Purpose:** separate portable plotting/rendering code from macOS host code so
 canvas and Python are not accidentally tied to AppKit or Metal.
@@ -216,6 +247,10 @@ canvas and Python are not accidentally tied to AppKit or Metal.
 finish before distributable Python artifacts.
 
 ### Gate E2: canvas renderer vertical slice
+
+**Status:** blocked pending a compatible canvas/toolchain combination or an
+upstream-compatible patch. The exact-pinned smoke experiment is recorded in
+E0; no speculative adapter or broken dependency was added to `main`.
 
 **Purpose:** prove that Moxi Scene can drive canvas without weakening either
 contract.
@@ -298,6 +333,10 @@ contract.
 **Estimate:** 3-5 additional engineering weeks.
 
 ### Gate E4: Python binding proof and package skeleton
+
+**Status:** blocked behind E1-E3 and the compiler-dependent import probe. The
+value-boundary contract is approved in ADR-002, but no wheel or developer
+extension is claimed yet.
 
 **Purpose:** establish a durable Python boundary before designing a broad
 Pythonic plotting API.
@@ -396,6 +435,11 @@ compile to PlotSpec or remain outside the supported contract.
 broader wheel coverage, hardening, and release operations.
 
 ### Gate E6: dataviz overlap and migration protocol
+
+**Status:** inventory preparation complete; protocol and overlap marks not yet
+started. The selected upstream revision is recorded in
+`docs/dataviz-capabilities.tsv`, while real reference-runner and per-mark
+parity evidence remain gated on the shared portable/canvas boundary.
 
 **Purpose:** establish a repeatable way to absorb capabilities before pursuing
 mark breadth.
