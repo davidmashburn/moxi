@@ -2,6 +2,7 @@
 
 from moxi import (
     TextInputState,
+    canonical_text_combining_fixture,
     clamp_text_boundary,
     next_text_boundary,
     previous_text_boundary,
@@ -10,7 +11,7 @@ from moxi.testing import test_check
 
 
 def main():
-    var text = "A e\u0301 🙂"
+    var text = canonical_text_combining_fixture()
     test_check(text.count_codepoints() == 6)
     test_check(next_text_boundary(text, 2) == 4)
     test_check(previous_text_boundary(text, 4) == 2)

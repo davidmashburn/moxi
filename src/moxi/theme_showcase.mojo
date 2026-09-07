@@ -30,6 +30,7 @@ from .tokens import (
     theme_from_tokens,
     zinc_tokens,
 )
+from .scenarios import canonical_theme_selector_label, canonical_theme_title
 from .view import ColumnView
 
 comptime THEME_DARK = 0
@@ -94,7 +95,7 @@ struct ThemeShowcaseState(Component):
 
         # Header Row: Title & Badges
         _ = view.add_row(1000, 0.0, 36.0, 0.0, sp.space_sm)
-        view.add_label_to(1000, 1001, "Moxi Design Tokens & Recipes", 36.0)
+        view.add_label_to(1000, 1001, canonical_theme_title(), 36.0)
         var mode_name = "Theme: Dark"
         if self.theme_mode == THEME_LIGHT:
             mode_name = "Theme: Light"
@@ -107,7 +108,7 @@ struct ThemeShowcaseState(Component):
 
         # Theme Switcher Toolbar Row
         _ = view.add_row(1100, 0.0, 34.0, 0.0, sp.space_sm)
-        view.add_label_to(1100, 1101, "Select Palette:", 34.0)
+        view.add_label_to(1100, 1101, canonical_theme_selector_label(), 34.0)
         var b_dark = secondary_button(BTN_THEME_DARK, "Dark Slate", 32.0, ACTION_SET_DARK, tokens)
         var b_light = secondary_button(BTN_THEME_LIGHT, "Clean Light", 32.0, ACTION_SET_LIGHT, tokens)
         var b_zinc = secondary_button(BTN_THEME_ZINC, "Neutral Zinc", 32.0, ACTION_SET_ZINC, tokens)

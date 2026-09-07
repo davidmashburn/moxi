@@ -7,6 +7,10 @@ from moxi import (
     TEXT_DIRECTION_AUTO,
     TEXT_LAYOUT_PORTABLE,
     TextLayoutRequest,
+    canonical_text_auto_rtl_fixture,
+    canonical_text_combining_fixture,
+    canonical_text_mixed_bidi_fixture,
+    canonical_text_rtl_fixture,
     default_label_style,
     fallback_font_id,
     script_id,
@@ -18,7 +22,7 @@ from moxi import (
 
 def main():
     var style = default_label_style()
-    var shaped = shape_text("A e\u0301 🙂", style)
+    var shaped = shape_text(canonical_text_combining_fixture(), style)
     test_check(shaped.glyph_count() == 6)
     test_check(shaped.measurement.line_count == 1)
     test_check(shaped.used_fallback_font)
@@ -29,19 +33,24 @@ def main():
     test_check(fallback_font_id(0x1F642) == 2)
     test_check(fallback_font_id(0x4E00) == 1)
 
-    var rtl = shape_text("אבג", style, 0.0, 2)
+    var rtl = shape_text(canonical_text_rtl_fixture(), style, 0.0, 2)
     test_check(rtl.bidi_applied)
     test_check(rtl.glyph(0).cluster == 2)
     test_check(rtl.run_count() == 1)
     test_check(rtl.run(0).direction == 2)
     test_check(rtl.run(0).script == SCRIPT_ARABIC_HEBREW)
 
-    var auto_rtl = shape_text("...אבג", style, 0.0, TEXT_DIRECTION_AUTO)
+    var auto_rtl = shape_text(
+        canonical_text_auto_rtl_fixture(),
+        style,
+        0.0,
+        TEXT_DIRECTION_AUTO,
+    )
     test_check(auto_rtl.direction == 2)
     test_check(script_id(0x05D0) == SCRIPT_ARABIC_HEBREW)
     test_check(auto_rtl.bidi_applied)
 
-    var mixed = shape_text("abc אבג", style)
+    var mixed = shape_text(canonical_text_mixed_bidi_fixture(), style)
     test_check(mixed.bidi_applied)
     test_check(mixed.glyph(0).cluster == 0)
     test_check(mixed.glyph(4).cluster == 6)

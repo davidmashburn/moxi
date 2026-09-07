@@ -25,6 +25,11 @@ from .style import (
     default_panel_style,
     default_surface_style,
 )
+from .scenarios import (
+    canonical_capability_hint,
+    canonical_capability_initial_status,
+    canonical_capability_title,
+)
 from .view import ColumnView
 
 
@@ -137,7 +142,7 @@ struct CapabilityWalkthroughState(Component):
         self.step = 0
         self.request_sequence = 0
         self.pending_agent_reset_request_id = ""
-        self.status = "Ready. Use Next to authorize the first step."
+        self.status = canonical_capability_initial_status()
         _ = self.bus.register_handler(self.next_handler)
         _ = self.bus.register_handler(self.previous_handler)
         _ = self.bus.register_handler(self.restart_handler)
@@ -336,7 +341,7 @@ struct CapabilityWalkthroughState(Component):
             -1,
             LabelControl(
                 CAPABILITY_WALKTHROUGH_TITLE_ID,
-                "Moxi · Capability Bus Walkthrough",
+                canonical_capability_title(),
                 38.0,
                 _label_style(30.0, Color(0.93, 0.96, 1.0, 1.0)),
             ).node(),
@@ -468,7 +473,7 @@ struct CapabilityWalkthroughState(Component):
         )
         var hint = LabelControl(
             CAPABILITY_WALKTHROUGH_HINT_ID,
-            "The buttons below are normal Component events. Their mutations cross the same CapabilityBus boundary used by an agent adapter.",
+            canonical_capability_hint(),
             0.0,
             _label_style(14.0, Color(0.48, 0.57, 0.70, 1.0)),
         ).node()

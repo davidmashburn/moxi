@@ -12,6 +12,9 @@ from moxi import (
     SliderControl,
     ThemeShowcaseState,
     Transform,
+    canonical_theme_golden_mode,
+    canonical_text_fallback_caption,
+    canonical_text_fallback_fixture,
     canonical_scenarios,
     make_plot_scenario,
     scene_from_paint,
@@ -74,13 +77,13 @@ def text_fallback_frame(scenario: String) raises:
     )
     scene.append_text(
         2,
-        "Latin · Ελληνικά · שלום · हिन्दी · 🙂",
+        canonical_text_fallback_fixture(),
         Rect(16.0, 18.0, 224.0, 24.0),
         Color(0.92, 0.95, 1.0, 1.0),
     )
     scene.append_text(
         3,
-        "fallback and bidi probe",
+        canonical_text_fallback_caption(),
         Rect(16.0, 52.0, 224.0, 20.0),
         Color(0.48, 0.82, 0.72, 1.0),
     )
@@ -196,9 +199,9 @@ def main() raises:
     var collection_scenario = registry.entry(registry.index_for_fixture("collection")).fixture
     var text_scenario = registry.entry(registry.index_for_fixture("text")).fixture
     var plot_scenario = registry.entry(registry.index_for_fixture("plot")).fixture
-    theme_frame("theme-dark", theme_scenario, 0)
-    theme_frame("theme-light", theme_scenario, 1)
-    theme_frame("theme-emerald", theme_scenario, 3)
+    theme_frame("theme-dark", theme_scenario, canonical_theme_golden_mode(0))
+    theme_frame("theme-light", theme_scenario, canonical_theme_golden_mode(1))
+    theme_frame("theme-emerald", theme_scenario, canonical_theme_golden_mode(2))
     text_fallback_frame(text_scenario)
     nested_clip_frame(collection_scenario)
     accessibility_focus_frame(form_scenario)

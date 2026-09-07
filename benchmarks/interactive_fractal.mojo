@@ -17,6 +17,10 @@ from moxi import (
     Point,
     Rect,
     Color,
+    SCENARIO_FRACTAL,
+    canonical_fractal_depths,
+    canonical_fractal_preset_ids,
+    canonical_scenarios,
     fractal_preset_geometry,
     fractal_preset_name,
 )
@@ -25,7 +29,6 @@ from moxi import (
 comptime BENCHMARK_ITERATIONS: Int = 25
 comptime BENCHMARK_CANVAS_X: Float32 = 0.0
 comptime BENCHMARK_CANVAS_Y: Float32 = 0.0
-comptime BENCHMARK_PRESET_COUNT: Int = 6
 
 
 struct BenchmarkPainter(FractalCanvasPainter):
@@ -83,36 +86,6 @@ struct BenchmarkPainter(FractalCanvasPainter):
         self.checksum += Int(center.x) + Int(center.y) + Int(radius)
         self.checksum += Int(fill.alpha * 255.0)
         self.checksum += Int(stroke.alpha * 255.0) + Int(stroke_width)
-
-
-def preset_id_for_benchmark(index: Int) -> Int:
-    if index == 0:
-        return 0
-    if index == 1:
-        return 4
-    if index == 2:
-        return 10
-    if index == 3:
-        return 19
-    if index == 4:
-        return 25
-    return 12
-
-
-def benchmark_depth(index: Int) -> Int:
-    # These are the same low-growth rows used by the Xilem benchmark, while
-    # keeping every Moxi case below FRACTAL_MAX_RENDERED_SEGMENTS.
-    if index == 0:
-        return 5
-    if index == 1:
-        return 4
-    if index == 2:
-        return 5
-    if index == 3:
-        return 4
-    if index == 4:
-        return 4
-    return 4
 
 
 def run_case(
@@ -225,7 +198,14 @@ def main() raises:
     if not metal_painter.is_ready():
         print("Moxi Metal fractal benchmark skipped: device unavailable")
         return
-    for index in range(BENCHMARK_PRESET_COUNT):
-        var preset_id = preset_id_for_benchmark(index)
-        run_case(preset_id, benchmark_depth(index), metal_painter)
+    var registry = canonical_scenarios()
+    var descriptor = registry.entry(registry.index_for_id(SCENARIO_FRACTAL))
+    var preset_ids = canonical_fractal_preset_ids()
+    var depths = canonical_fractal_depths()
+    if len(preset_ids) != descriptor.fixture_size or len(depths) != descriptor.fixture_size:
+        print("Moxi fractal benchmark fixture metadata mismatch")
+        metal_painter.shutdown()
+        return
+    for index in range(descriptor.fixture_size):
+        run_case(preset_ids[index], depths[index], metal_painter)
     metal_painter.shutdown()

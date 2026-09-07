@@ -11,6 +11,8 @@ from moxi import (
     DemoCatalog,
     ScenarioRegistry,
     canonical_scenarios,
+    canonical_fractal_depths,
+    canonical_fractal_preset_ids,
     test_check,
 )
 
@@ -34,6 +36,9 @@ def main():
     test_check(registry.entry(2).fixture_seed == 1000)
     test_check(registry.entry(4).fixture_size == 48)
     test_check(registry.entry(4).fixture_seed == 1700000000)
+    test_check(registry.entry(5).fixture_size == 10)
+    test_check(len(canonical_fractal_preset_ids()) == registry.entry(6).fixture_size)
+    test_check(len(canonical_fractal_depths()) == registry.entry(6).fixture_size)
     test_check(registry.entry(4).golden_names == "plot-gallery")
     test_check(registry.entry(5).golden_names.count_codepoints() == 0)
     test_check(registry.entry(2).semantic_hint.count_codepoints() > 20)

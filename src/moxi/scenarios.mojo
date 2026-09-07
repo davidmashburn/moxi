@@ -184,7 +184,7 @@ struct ScenarioRegistry:
             "tests/capability.mojo",
             "",
             "",
-            1,
+            10,
             606,
             720.0,
             560.0,
@@ -253,6 +253,116 @@ struct ScenarioRegistry:
 def canonical_scenarios() -> ScenarioRegistry:
     """Return the repository's canonical scenario inventory."""
     return ScenarioRegistry()
+
+
+def canonical_form_title() -> String:
+    """Return the title used by the canonical form fixture."""
+    return "Moxi Form"
+
+
+def canonical_form_hint() -> String:
+    """Return the editing hint used by the canonical form fixture."""
+    return "Type a name, then submit"
+
+
+def canonical_form_submit_label() -> String:
+    """Return the action label used by the canonical form fixture."""
+    return "Submit"
+
+
+def canonical_theme_title() -> String:
+    """Return the title used by the canonical theme fixture."""
+    return "Moxi Design Tokens & Recipes"
+
+
+def canonical_theme_selector_label() -> String:
+    """Return the palette selector label used by the theme fixture."""
+    return "Select Palette:"
+
+
+def canonical_theme_golden_mode(index: Int) -> Int:
+    """Return the theme mode for one checked-in software golden."""
+    if index == 0:
+        return 0
+    if index == 1:
+        return 1
+    if index == 2:
+        return 3
+    return -1
+
+
+def canonical_text_coretext_fixture() -> String:
+    """Return the mixed-script string used by the CoreText smoke demo."""
+    return "Moxi • שלום • 🙂"
+
+
+def canonical_text_fallback_fixture() -> String:
+    """Return the mixed-script string used by the software fallback golden."""
+    return "Latin · Ελληνικά · שלום · हिन्दी · 🙂"
+
+
+def canonical_text_fallback_caption() -> String:
+    """Return the caption paired with the fallback golden fixture."""
+    return "fallback and bidi probe"
+
+
+def canonical_text_combining_fixture() -> String:
+    """Return the combining-mark sample used by shaping and boundary tests."""
+    return "A e\u0301 🙂"
+
+
+def canonical_text_rtl_fixture() -> String:
+    """Return the explicit right-to-left shaping sample."""
+    return "אבג"
+
+
+def canonical_text_auto_rtl_fixture() -> String:
+    """Return the auto-direction right-to-left shaping sample."""
+    return "...אבג"
+
+
+def canonical_text_mixed_bidi_fixture() -> String:
+    """Return the mixed-direction shaping sample."""
+    return "abc אבג"
+
+
+def canonical_capability_title() -> String:
+    """Return the title used by the capability walkthrough fixture."""
+    return "Moxi · Capability Bus Walkthrough"
+
+
+def canonical_capability_initial_status() -> String:
+    """Return the initial status used by the capability walkthrough."""
+    return "Ready. Use Next to authorize the first step."
+
+
+def canonical_capability_hint() -> String:
+    """Return the explanatory hint used by the capability walkthrough."""
+    return "The buttons below are normal Component events. Their mutations cross the same CapabilityBus boundary used by an agent adapter."
+
+
+def canonical_fractal_preset_ids() -> List[Int]:
+    """Return the deterministic preset order for the fractal benchmark."""
+    var result = List[Int](capacity=6)
+    result.append(0)
+    result.append(4)
+    result.append(10)
+    result.append(19)
+    result.append(25)
+    result.append(12)
+    return result^
+
+
+def canonical_fractal_depths() -> List[Int]:
+    """Return the deterministic depth order for the fractal benchmark."""
+    var result = List[Int](capacity=6)
+    result.append(5)
+    result.append(4)
+    result.append(5)
+    result.append(4)
+    result.append(4)
+    result.append(4)
+    return result^
 
 
 struct InteractionScenario:

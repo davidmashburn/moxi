@@ -22,6 +22,11 @@ from .style import (
     default_panel_style,
     default_surface_style,
 )
+from .scenarios import (
+    canonical_form_hint,
+    canonical_form_submit_label,
+    canonical_form_title,
+)
 from .view import ColumnView
 
 
@@ -56,9 +61,9 @@ struct FormState(Component):
             Rect(bounds.x + 20.0, bounds.y + 20.0, panel_width, panel_height),
             default_panel_style(),
         )
-        var title = LabelControl(1, "Moxi Form", 28.0)
+        var title = LabelControl(1, canonical_form_title(), 28.0)
         column.add(title.node())
-        var hint = LabelControl(5, "Type a name, then submit", 24.0)
+        var hint = LabelControl(5, canonical_form_hint(), 24.0)
         column.add(hint.node())
         var input = TextInputControl(
             NAME_FIELD_ID,
@@ -81,7 +86,11 @@ struct FormState(Component):
             28.0,
         )
         column.add(status.node())
-        var submit = ButtonControl(SUBMIT_BUTTON_ID, "Submit", 40.0)
+        var submit = ButtonControl(
+            SUBMIT_BUTTON_ID,
+            canonical_form_submit_label(),
+            40.0,
+        )
         column.add(submit.node())
         column.layout()
         return column^
