@@ -106,4 +106,42 @@ def main():
     test_check(parent.child_count() == 4)
     test_check(keyed.work_counters().parent_builds == 1)
     test_check(keyed.work_counters().root_fallbacks > 0)
+
+    # Stable-key indexes must remain correct when registration order differs
+    # from key order and when a middle child is removed.
+    var indexed = KeyedSubtreeExecutor[CounterState](60)
+    var high_descriptor = KeyedSubtreeDescriptor(30, 301, 61, 3, 3000)
+    var low_descriptor = KeyedSubtreeDescriptor(10, 302, 62, 4, 4000)
+    var middle_descriptor = KeyedSubtreeDescriptor(20, 303, 63, 5, 5000)
+    test_check(
+        indexed.insert(
+            high_descriptor,
+            CounterState(),
+            Rect(0.0, 0.0, 120.0, 60.0),
+        )
+    )
+    test_check(
+        indexed.insert(
+            low_descriptor,
+            CounterState(),
+            Rect(0.0, 0.0, 120.0, 60.0),
+        )
+    )
+    test_check(
+        indexed.insert(
+            middle_descriptor,
+            CounterState(),
+            Rect(0.0, 0.0, 120.0, 60.0),
+        )
+    )
+    test_check(indexed.schedule.descriptor_index(10) == 1)
+    test_check(indexed.schedule.descriptor_index(20) == 2)
+    test_check(indexed.schedule.order_index(30) == 0)
+    test_check(indexed.schedule.order_index(10) == 1)
+    test_check(indexed.invalidate_child(30))
+    test_check(indexed.invalidate_child(10))
+    test_check(indexed.rebuild_dirty() == 2)
+    test_check(indexed.remove(10))
+    test_check(indexed.child_build_count(20) == 1)
+    test_check(indexed.schedule.descriptor(20).slot_id == 303)
     print("Moxi keyed-subtree scheduling test passed")
