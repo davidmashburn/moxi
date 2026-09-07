@@ -65,7 +65,7 @@ This was the next milestone. All six workstreams have now been exercised in
 the ordered pass; new widget or plot-family work remains out of scope until
 the follow-on boundaries below are deliberately accepted.
 
-### Gate 1 progress at `main` `9606b24` (September 7, 2026)
+### Gate 1 progress at `main` `7b9d8bd` (September 7, 2026)
 
 The ordered implementation pass has delivered the Gate 1 slices. The status
 below records what is proven in source and validation and leaves the remaining
@@ -76,22 +76,22 @@ support boundaries visible for the next pass.
 | 1. Public API audit | Inventory, focused import lanes, and compatibility/deprecation enforcement complete | `e418b29`, `7295e2e`, `721e50a`, generated `docs/api-status.md`, 887 export classifications, `docs/api-lanes.tsv`, `docs/api-compatibility.tsv`, `api-status-check`, `tests/api_lanes.mojo` | review each future move against the manifest and decide which provisional lanes become package promises |
 | 2. Canonical scenario registry | Registry, consumer inventory, and descriptor-driven fixture records complete across all seven families; feature interaction state remains module-local | `0991f29`, `90f2aef`, `4ef1171`, `5f9c44b`, `332eb07`, and `a50900b`, seven descriptors, demo mapping, scenario checker, registry test, golden/benchmark metadata, and theme/capability/fractal records | make expected semantic/counter/checksum metadata descriptor-owned and enforce every behavior fixture through the catalog check |
 | 3. Software goldens and browser lifecycle | Software/host gates complete; native text/scene replay and an offscreen screenshot tolerance lane are exercised | `62a9caa`, `9c25379`, `b74d4eb`, and `707ff64`, seven exact PPM goldens, shared text corpus, CoreText replay, Metal scene replay, browser lifecycle evidence, native PPM capture, and a checked-in tolerance/mask report | visible AppKit screenshot review, real device/browser automation, and a linked Mojo Web runtime |
-| 4. Typed localized execution | Keyed parent/child scheduling is integrated into the opted-in `App` path; a two-child preservation harness covers IME/focus, root scroll, and sibling popup state; non-opted-in components retain an explicit root fallback | `676cbd4`, `b813e53`, `83030c3`, `06231a5`, and `9606b24`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, retained parent composition, keyed insertion/removal/reorder counters, `App.execution_work_counters()`, and execution/composed integration tests | bounded topology indexes plus accessibility-id/pointer-capture and deeper nested-state preservation scenarios |
+| 4. Typed localized execution | Keyed parent/child scheduling is integrated into the opted-in `App` path; deterministic indexes now cover scope, dirty-component, descriptor, order, dirty-child, and child lookup; an out-of-order registration contract covers middle insertion/removal; a two-child preservation harness covers IME/focus, root scroll, and sibling popup state; non-opted-in components retain an explicit root fallback | `676cbd4`, `b813e53`, `83030c3`, `06231a5`, `9606b24`, `15648d9`, and `7b9d8bd`, `IntIndex`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, retained parent composition, keyed insertion/removal/reorder counters, `App.execution_work_counters()`, and execution/composed integration tests | dependency-edge fanout indexing plus accessibility-id/pointer-capture and deeper nested-state preservation scenarios |
 | 5. Structured benchmark profiles | Protocol, localized matrix, reviewed macOS baseline, same-environment comparison, dispersion policy, CI evidence, and a portable deterministic contract are complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, `2a1a112`, `26aa56`, `64f27a2`, `363cae2`, `7137c48`, and `43e7cb0`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, policy-checked 30-run baseline, median/p95/MAD comparator, and cross-host quick contract | compatible reviewed full-profile baselines beyond macOS arm64 |
-| 6. Documentation reconciliation | Main docs and planning ledger are current through the ordered implementation and release pass | `87e79bf`, `d6c008c`, `e428303`, `8100623`, `332eb07`, `b74d4eb`, `7295e2e`, `64f27a2`, `363cae2`, `721e50a`, `06231a5`, `707ff64`, `7137c48`, `43e7cb0`, `7e12d3c`, `9606b24`, and this update; README/API/text/performance/benchmark/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
+| 6. Documentation reconciliation | Main docs and planning ledger are current through the ordered implementation and release pass | `87e79bf`, `d6c008c`, `e428303`, `8100623`, `332eb07`, `b74d4eb`, `7295e2e`, `64f27a2`, `363cae2`, `721e50a`, `06231a5`, `707ff64`, `7137c48`, `43e7cb0`, `7e12d3c`, `9606b24`, `15648d9`, `7b9d8bd`, and this update; README/API/text/performance/benchmark/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
 
-The current-head repository gate passed at `9606b24`: 68 Mojo tests,
+The current-head repository gate passed at `7b9d8bd`: 68 Mojo tests,
 API/demo/scenario/visual checks, native text and scene replay, native
 screenshot tolerance evidence, host checks, package-consumer checks, and build
 validation. The release/package gate remains evidenced at `7137c48`; this
-follow-on changes only contract coverage and does not alter runtime or API
-behavior. The clean full profile produced 30 samples across 10 cases; the
-reviewed macOS baseline was refreshed after the native geometry fix, and the
-comparator now reports dispersion while enforcing the registered host matrix.
-The portable quick contract also passes on the candidate report. This is
-evidence for the completed slices, not a claim that visible AppKit capture,
-linked non-macOS runtimes, or additional full-profile host baselines are
-complete.
+follow-on changes localized lookup behavior but does not alter the public API
+or observable scheduling semantics. The clean full profile produced 30 samples
+across 10 cases; the reviewed macOS baseline was refreshed after the native
+geometry fix, and the comparator now reports dispersion while enforcing the
+registered host matrix. The portable quick contract also passes on the
+candidate report. This is evidence for the completed slices, not a claim that
+visible AppKit capture, linked non-macOS runtimes, or additional full-profile
+host baselines are complete.
 
 ### 1. Classify and narrow the public API
 
@@ -154,9 +154,12 @@ The stable keyed descriptor, typed child builder, parent composition, explicit
 root fallback, and deterministic work counters are landed in the composed
 `App` slice. `9606b24` adds a two-child preservation contract covering
 marked-text/focus, root scroll offset, and a sibling modal popup across local
-recomposition. The remaining implementation target is to make
-`LocalizedExecution` topology lookup bounded by key/index structures rather
-than repeated linear scans before applying it to large trees.
+recomposition. `15648d9` adds a deterministic sorted integer index for scope,
+dirty-component, descriptor, order, dirty-child, and child lookup while
+retaining dense lists as the source of truth; `7b9d8bd` adds the out-of-order
+registration/removal contract. Dependency-edge fanout still
+uses a linear scan, and the remaining state-preservation target is deeper
+accessibility-id, pointer-capture, and nested-state coverage.
 
 Acceptance checks:
 
@@ -166,6 +169,10 @@ Acceptance checks:
   the composed local update (landed in `tests/composed.mojo` at `9606b24`);
   accessibility ids, popup pointer capture, and deeper nested state remain
   follow-on scenarios;
+- stable topology identities use deterministic indexed lookup for the localized
+  scope/dirty and keyed child paths (landed in `src/moxi/execution.mojo` at
+  `15648d9`, with out-of-order coverage at `7b9d8bd`); dependency-edge fanout
+  remains a separate scale boundary;
 - insertion/removal/reorder has an explicit tested localized path, while
   root-wide fallback is counted (landed in `tests/execution.mojo`);
 - a 1/10/100-child benchmark demonstrates bounded work using counters, with
@@ -332,8 +339,10 @@ rewrite:
 3. Software golden export/checker plus native screenshot evidence (landed).
 4. Localized composed-child execution with work counters and an opt-in `App`
    parent/child path (landed; IME/focus, root scroll, and sibling popup
-   preservation are covered at `9606b24`; accessibility/pointer capture and
-   bounded topology remain).
+   preservation are covered at `9606b24`; deterministic topology indexes are
+   covered at `15648d9` with the out-of-order contract at `7b9d8bd`;
+   accessibility/pointer capture, deeper nested state, and dependency-edge
+   fanout remain).
 5. Structured quick/full benchmark output, reviewed macOS baseline, and the
    portable deterministic contract (landed; other full hosts remain planned).
 6. Final Gate 1 documentation reconciliation and release decision (landed in

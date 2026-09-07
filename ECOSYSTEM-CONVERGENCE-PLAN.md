@@ -41,11 +41,12 @@ implementation, benchmark-host policy, API compatibility snapshot, or keyed
 `App` integration as part of the ecosystem convergence work. Those boundaries
 are complete for the current handoff and remain the source of truth.
 
-The read-only rebaseline is complete: `main` is at `9606b24` and the planning
-branch retains the research and Gate 1 evidence. The latest follow-on slice
-adds regression coverage for IME/focus, root scroll, and sibling popup state
-through local recomposition. Ecosystem work may now start from these facts,
-while bounded topology indexes, accessibility/pointer-capture and deeper
+The read-only rebaseline is complete: `main` is at `7b9d8bd` and the planning
+branch retains the research and Gate 1 evidence. The latest follow-on slices
+cover IME/focus, root scroll, and sibling popup preservation through local
+recomposition, then add deterministic indexed lookup for localized and keyed
+topology identities. Ecosystem work may now start from these facts, while
+dependency-edge fanout indexing, accessibility/pointer-capture and deeper
 localized-state coverage, visible AppKit screenshot review, linked non-macOS
 runtimes, and additional full-profile host baselines remain explicit
 follow-on boundaries.

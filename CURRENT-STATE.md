@@ -1,6 +1,6 @@
 # Moxi current-state audit
 
-Audited September 7, 2026 against `main` at `9606b24`. This document is based
+Audited September 7, 2026 against `main` at `7b9d8bd`. This document is based
 on source, tests, build scripts, and local validation. README, changelog, and
 older roadmap claims were treated as hypotheses until the implementation
 confirmed them.
@@ -19,8 +19,9 @@ in, software-renderer PPM goldens and a browser-host lifecycle harness run
 through validation, typed localized execution is integrated into the opted-in
 `App` parent/child path, and a two-child preservation harness covers
 marked-text/focus, root scroll, and sibling popup state through local
-recomposition. Shared text and native/software structural parity contracts are
-exercised, offscreen Metal screenshot tolerance evidence is
+recomposition. Deterministic indexes cover the localized scope, dirty, and
+keyed-child topology lookups. Shared text and native/software structural parity
+contracts are exercised, offscreen Metal screenshot tolerance evidence is
 archived, and quick/full benchmark profiles emit structured JSON. One reviewed
 macOS arm64 full-profile baseline is policy-checked; the comparator reports
 median/p95/MAD dispersion, and a host-independent quick contract validates
@@ -38,9 +39,9 @@ targets.
 
 | Check | Result | What it proves |
 | --- | --- | --- |
-| repository audit and sequential commits | `main` is audited at `9606b24`; `project-planning` retains the Modular/Mojo ecosystem research plus this progress ledger | the code and plan were reconciled against the latest local implementation rather than trusting older prose |
+| repository audit and sequential commits | `main` is audited at `7b9d8bd`; `project-planning` retains the Modular/Mojo ecosystem research plus this progress ledger | the code and plan were reconciled against the latest local implementation rather than trusting older prose |
 | `pixi run test` | pass, 68 Mojo test programs, including keyed scheduling, composed-child, text corpus, and parity contracts | portable unit and integration contracts compile and execute together |
-| `pixi run check` | pass at `9606b24`, including API/demo/scenario/visual, 68 tests, native text/scene replay, native screenshot tolerance, host, build, and release-support checks | the full repository validation path covers the completed ordered slices and the new preservation contract |
+| `pixi run check` | pass at `7b9d8bd`, including API/demo/scenario/visual, 68 tests, native text/scene replay, native screenshot tolerance, host, build, and release-support checks | the full repository validation path covers the completed ordered slices, preservation contract, indexed topology implementation, and out-of-order index contract |
 | `pixi run release-check` | pass at `7137c48`; package consumer, 68-test/native/host gate, and clean 30-run full benchmark all completed | the distributable package and release wrapper validate the completed ordered slices |
 | clean full-profile baseline | 30 runs across 10 cases, `git_dirty: false`, refreshed at `43e7cb0` from the corrected implementation report | deterministic counters/checksums, dispersion samples, and the measured environment are durable for future same-environment review |
 | `MOXI_BENCHMARK_RUNS=3 pixi run benchmark-full` | pass for 10 cases with a clean schema-v2 report after the fixture/parity slices | the complete matrix is repeatable from a clean tree and emits deterministic counters/checksums plus per-run status/timing and environment metadata |
@@ -55,15 +56,15 @@ targets.
 The ordered implementation pass is recorded here so the plan does not imply
 that a partial vertical slice is a complete product claim.
 
-| Workstream | Status at `9606b24` | Evidence | Remaining boundary |
+| Workstream | Status at `7b9d8bd` | Evidence | Remaining boundary |
 | --- | --- | --- | --- |
 | Public API inventory | Implemented with focused import lanes and compatibility/deprecation enforcement | `docs/api-status.md`, `docs/api-lanes.tsv`, `docs/api-compatibility.tsv`, `scripts/api_status_check.sh`, `tests/api_lanes.mojo`, 887 classified exports, `721e50a` | review future moves and decide which provisional lanes become package promises |
 | Canonical scenarios | Registry, consumer inventory, and descriptor-driven fixture records implemented across all seven families | `src/moxi/scenarios.mojo`, `scripts/scenario_check.sh`, `4ef1171`, `5f9c44b`, `a50900b`, `332eb07`, demo catalog mapping, registry contract test, golden/benchmark metadata | make expected semantic/counter/checksum metadata descriptor-driven and enforce every behavior fixture in the catalog check |
 | Software visual regression | Implemented for software oracle; native structural replay and offscreen screenshot tolerance are exercised | seven lossless PPM images, manifest, exact checker, shared text corpus, CoreText replay, Metal scene replay, `707ff64` native PPM/policy/report, reviewable actual/expected/diff artifacts | extend native evidence to visible AppKit states and retain explicit font/scale masks |
 | Browser host lifecycle | Implemented as deterministic host gate | `scripts/browser_check.sh`, `tests/web_browser_harness.mjs`, readiness/Canvas/ARIA markers | linked Mojo Web runtime and real-browser/device automation in CI |
-| Typed localized execution | Implemented as a keyed parent/child scheduling slice integrated into the opted-in `App` path; a two-child harness preserves marked-text/focus, root scroll, and sibling popup state; non-opted-in components remain root-wide | `TypedSubtreeExecutor`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, `src/moxi/app_runtime.mojo`, `tests/execution.mojo`, `tests/composed.mojo`, localized benchmark, `06231a5`, `9606b24` | bounded topology indexes plus accessibility-id/pointer-capture and deeper nested local-state preservation |
+| Typed localized execution | Implemented as a keyed parent/child scheduling slice integrated into the opted-in `App` path; deterministic indexes cover localized scope/dirty and keyed descriptor/order/dirty/child lookups; an out-of-order registration/removal contract covers middle positions; a two-child harness preserves marked-text/focus, root scroll, and sibling popup state; non-opted-in components remain root-wide | `IntIndex`, `TypedSubtreeExecutor`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, `src/moxi/app_runtime.mojo`, `src/moxi/execution.mojo`, `tests/execution.mojo`, `tests/composed.mojo`, localized benchmark, `06231a5`, `9606b24`, `15648d9`, `7b9d8bd` | dependency-edge fanout indexing plus accessibility-id/pointer-capture and deeper nested local-state preservation |
 | Structured benchmarks | Protocol, localized matrix, one reviewed macOS baseline, same-environment comparison, dispersion policy, CI evidence, and a host-independent quick contract implemented | `scripts/benchmark.sh`, `scripts/benchmark_compare.py`, `scripts/benchmark_contract_check.py`, `scripts/benchmark_policy_check.py`, schemas/policy, `benchmarks/results/macos-arm64-full.json`, `portable-quick-contract.json`, `docs/benchmarking.md`, localized 1/10/100 matrix, `7137c48`, `43e7cb0` | collect and review compatible full-profile baselines beyond macOS arm64 |
-| Documentation vocabulary | Reconciled on `main` through `9606b24` | README/API/text/benchmark/performance/visual/demo/comparison docs, changelog, generated API status, and this status ledger | keep status snapshots synchronized as the public surface changes |
+| Documentation vocabulary | Reconciled on `main` through `7b9d8bd` | README/API/text/benchmark/performance/visual/demo/comparison docs, changelog, generated API status, and this status ledger | keep status snapshots synchronized as the public surface changes |
 
 The quick benchmark run is a smoke check, not a baseline. It includes compiler
 or process startup for several workloads; its repeated structured report is
@@ -76,7 +77,7 @@ evidence. The policy-registered full baseline remains host/compiler specific.
 | --- | --- | --- | --- | --- |
 | Package and public API | The package is versioned `0.5.1`, `src/moxi/__init__.mojo` is about 900 lines and imports from 74 module groups, and all 887 current exports have generated support-lane rows plus a compatibility/deprecation manifest. Focused plotting, host, and experimental import paths are available, while stable 0.5 names and post-0.5 experiments still share the root boundary. | High | `pixi.toml`, `shelf.toml`, `src/moxi/__init__.mojo`, `docs/api-status.md`, `docs/api-lanes.tsv`, `docs/api-compatibility.tsv`, `tests/api_lanes.mojo`, package-consumer check | Review each future move against the manifest and decide which provisional lanes become package promises. |
 | Component ownership | `Component.build(bounds)` returns a value tree and `update(event, view)` owns mutation. `ComponentSlot` and `KeyedSubtreeDescriptor` provide typed child ownership with stable keys and private id namespaces. | High | `src/moxi/component.mojo`, `src/moxi/composed.mojo`, component/composed tests | Integrate the keyed descriptor with parent event dispatch without leaking id arithmetic. |
-| Execution and reconciliation | `(id, kind)` reconciliation reuses retained nodes and reports changes. `TypedSubtreeExecutor` owns one typed component/view/runtime; `KeyedSubtreeExecutor` retains several typed children by key, composes cached views, and counts structural work. Opted-in `App` components dispatch to a keyed child, recompose the parent, and preserve focus; the two-child harness also covers marked text, root scroll, and sibling popup state. Components without localized hooks still record an explicit root fallback. | High | `src/moxi/runtime.mojo`, `src/moxi/execution.mojo`, `src/moxi/app_runtime.mojo`, `src/moxi/composed.mojo`, `tests/execution.mojo`, `tests/composed.mojo`, `06231a5`, `9606b24` | Replace repeated topology scans with bounded indexes and extend coverage to accessibility ids, popup pointer capture, and deeper nested state. |
+| Execution and reconciliation | `(id, kind)` reconciliation reuses retained nodes and reports changes. `TypedSubtreeExecutor` owns one typed component/view/runtime; `KeyedSubtreeExecutor` retains several typed children by key, composes cached views, and counts structural work. Opted-in `App` components dispatch to a keyed child, recompose the parent, and preserve focus; deterministic indexes now cover localized scope/dirty and keyed descriptor/order/dirty/child lookup. The two-child harness also covers marked text, root scroll, and sibling popup state, and the out-of-order contract covers middle insertion/removal. Components without localized hooks still record an explicit root fallback. | High | `src/moxi/runtime.mojo`, `src/moxi/execution.mojo`, `src/moxi/app_runtime.mojo`, `src/moxi/composed.mojo`, `tests/execution.mojo`, `tests/composed.mojo`, `06231a5`, `9606b24`, `15648d9`, `7b9d8bd` | Index dependency-edge fanout and extend coverage to accessibility ids, popup pointer capture, and deeper nested state. |
 | Layout and interaction | Column/row, stack, grid, split, portal, constraints, clipping, automatic overflow, draggable/pageable scrollbars, stable-key variable-height recycling, focus, pointer, keyboard, IME, clipboard, popup, reorder, and accessibility actions are implemented and tested. | High | `src/moxi/view.mojo`, `layout_primitives.mojo`, `scrollbar.mojo`, `popup.mojo`, `reorder.mojo`, interaction tests | Treat this as an existing contract to protect, not a roadmap item. Do not broaden layout until regression scenarios are shared. |
 | Themes and recipes | Semantic tokens, dark/light/zinc/emerald presets, recipes, an interactive theme showcase, and contract tests exist. Theme inheritance was fixed in the audited commit, and theme states are represented in the software golden corpus. | High | `tokens.mojo`, `recipes.mojo`, `theme_showcase.mojo`, theme tests, `tests/goldens/` | The old token/recipe proposal is complete. Remaining work is native/platform visual parity and continued API support classification. |
 | Rendering | Paint commands feed an inspectable scene IR. Software rendering is deterministic and now has seven exact PPM goldens; AppKit is the main native UI renderer; Metal supports a substantial geometry/text/image/path slice and dense plot packets. Native scene replay and an offscreen screenshot tolerance check now compare the same compact scene; pixels remain platform-dependent. | High for contracts; medium for parity | `paint.mojo`, `scene.mojo`, `software.mojo`, `macos.mojo`, `metal.mojo`, `tests/goldens/`, `tests/native_scene_parity.mojo`, `tests/native_screenshot_policy.json`, native sources and renderer tests | Extend evidence to visible AppKit states and keep font/scale masks explicit; do not imply pixel-identical native output. |
@@ -122,9 +123,10 @@ in the active plan.
    compatibility manifest now make changes reviewable rather than implicit.
 2. **Root-wide work.** The typed executor and opted-in `App` lane bound one
    subtree, and the two-child preservation harness now covers IME/focus, root
-   scroll, and sibling popup state. Ordinary components still rebuild the root
-   and topology lookup lacks bounded key/index structures; accessibility-id,
-   pointer-capture, and deeper nested-state coverage remain open.
+   scroll, and sibling popup state. Stable scope/dirty/keyed-child lookups are
+   indexed, but ordinary components still rebuild the root and dependency-edge
+   fanout remains linear; accessibility-id, pointer-capture, and deeper
+   nested-state coverage remain open.
 3. **Native visual parity.** The software oracle has exact goldens and the
    offscreen Metal path has a tolerance/mask report, but visible AppKit output,
    platform fonts, and device/browser automation remain host review lanes.
