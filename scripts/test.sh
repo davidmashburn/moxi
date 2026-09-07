@@ -40,6 +40,7 @@ tests=(
   tests/performance.mojo
   tests/virtualization.mojo
   tests/execution.mojo
+  tests/api_lanes.mojo
   tests/plotting.mojo
   tests/plot_render.mojo
   tests/plot_data.mojo

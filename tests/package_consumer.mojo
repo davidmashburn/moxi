@@ -31,10 +31,13 @@ from moxi import (
     measure_text_wrapped,
     moxi_version,
 )
+from moxi.plot_api import Plot as FocusedPlot
 
 
 def main() raises:
     test_check(moxi_version() == "0.5.1")
+    var focused_plot = FocusedPlot(Rect(0.0, 0.0, 80.0, 60.0))
+    test_check(focused_plot.series_count() == 0)
 
     var editing = TextInputState("package")
     test_check(editing.select_all())

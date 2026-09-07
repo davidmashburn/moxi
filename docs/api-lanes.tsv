@@ -1,0 +1,80 @@
+# module<TAB>support lane<TAB>owner
+__init__	stable-core	package version boundary
+accessibility	stable-core	portable semantics and actions
+backend	stable-core	backend capability profiles
+component	stable-core	value-owned component contracts
+event	stable-core	normalized input events
+geometry	stable-core	portable geometry values
+layout	stable-core	layout and virtualization math
+layout_primitives	stable-core	layout and virtualization math
+view	stable-core	portable view declarations and composition
+paint	stable-core	portable paint/scene rendering
+scene	stable-core	portable paint/scene rendering
+software	stable-core	portable paint/scene rendering
+runtime	stable-core	retained reconciliation and lifecycle
+app_runtime	stable-core	retained reconciliation and lifecycle
+style	stable-core	portable styling, measurement, or text boundaries
+measure	stable-core	portable styling, measurement, or text boundaries
+text_boundary	stable-core	portable styling, measurement, or text boundaries
+clipboard	stable-core	host-neutral clipboard or window contracts
+window	stable-core	host-neutral clipboard or window contracts
+controls	provisional	stateful UI support primitives
+control_state	provisional	stateful UI support primitives
+collection_state	provisional	stateful UI support primitives
+scrollbar	provisional	stateful UI support primitives
+popup	provisional	stateful UI support primitives
+reorder	provisional	stateful UI support primitives
+animation	provisional	stateful UI support primitives
+invalidation	provisional	stateful UI support primitives
+reactivity	provisional	stateful UI support primitives
+tasks	provisional	stateful UI support primitives
+resources	provisional	stateful UI support primitives
+performance	provisional	stateful UI support primitives
+execution	provisional	stateful UI support primitives
+virtual_view	provisional	stateful UI support primitives
+windowing	provisional	stateful UI support primitives
+text_layout	provisional	portable text layout and editing
+text_shaping	provisional	portable text layout and editing
+plotting	provisional	typed plotting data, specification, or runtime
+plot_data	provisional	typed plotting data, specification, or runtime
+plot_spec	provisional	typed plotting data, specification, or runtime
+plot_runtime	provisional	typed plotting data, specification, or runtime
+plot_view	provisional	typed plotting data, specification, or runtime
+plot_selection	provisional	typed plotting data, specification, or runtime
+plot_link	provisional	typed plotting data, specification, or runtime
+plot_render	provisional	typed plotting data, specification, or runtime
+platform	host-adapter	platform and native-host adapters
+platform_adapters	host-adapter	platform and native-host adapters
+host_contract	host-adapter	platform and native-host adapters
+targets	host-adapter	platform and native-host adapters
+native_widgets	host-adapter	platform and native-host adapters
+macos	host-adapter	platform and native-host adapters
+svg	host-adapter	platform and native-host adapters
+app	demo/support	examples, recipes, or validation support
+alignment	demo/support	examples, recipes, or validation support
+composed	demo/support	examples, recipes, or validation support
+form	demo/support	examples, recipes, or validation support
+nested	demo/support	examples, recipes, or validation support
+row	demo/support	examples, recipes, or validation support
+wxstyle	demo/support	examples, recipes, or validation support
+wrapped	demo/support	examples, recipes, or validation support
+testing	demo/support	examples, recipes, or validation support
+tokens	demo/support	examples, recipes, or validation support
+recipes	demo/support	examples, recipes, or validation support
+showcase	demo/support	examples, recipes, or validation support
+demo_browser	demo/support	examples, recipes, or validation support
+demo_walkthrough	demo/support	examples, recipes, or validation support
+interaction_showcase	demo/support	examples, recipes, or validation support
+theme_showcase	demo/support	examples, recipes, or validation support
+capability_walkthrough	demo/support	examples, recipes, or validation support
+live_script	demo/support	examples, recipes, or validation support
+scenarios	demo/support	examples, recipes, or validation support
+capability	experimental	experimental or optional integration
+conversation	experimental	experimental or optional integration
+coretext	experimental	experimental or optional integration
+fractal	experimental	experimental or optional integration
+harfbuzz	experimental	experimental or optional integration
+metal	experimental	experimental or optional integration
+plot_api	provisional	focused plotting import path
+host_api	host-adapter	focused host/adapter import path
+experimental_api	experimental	focused optional integration path

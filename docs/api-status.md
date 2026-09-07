@@ -1,6 +1,6 @@
 # Moxi API status
 
-Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --write` after changing the public re-export list. The support lane is a compatibility statement, not a claim that every host implements every backend feature.
+Generated from `src/moxi/__init__.mojo` and `docs/api-lanes.tsv`. Run `pixi run api-status-check -- --write` after changing the public re-export list or a support lane. Unknown public modules fail the check. The support lane is a compatibility statement, not a claim that every host implements every backend feature.
 
 - `stable-core`: compatibility-oriented value, component, layout, event, paint, and runtime contracts.
 - `provisional`: useful support APIs that may still change before a 1.0 stability promise.
@@ -345,35 +345,35 @@ Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --wri
 | `TextMeasurement` | `moxi.measure` | stable-core | portable styling, measurement, or text boundaries |
 | `measure_text` | `moxi.measure` | stable-core | portable styling, measurement, or text boundaries |
 | `measure_text_wrapped` | `moxi.measure` | stable-core | portable styling, measurement, or text boundaries |
-| `TEXT_DIRECTION_LTR` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `TEXT_DIRECTION_RTL` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `TEXT_DIRECTION_AUTO` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `TEXT_LAYOUT_ESTIMATE` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `TEXT_LAYOUT_NATIVE` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `TEXT_LAYOUT_PORTABLE` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `RichText` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `TextLayoutRequest` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `TextLayoutResult` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `TextSpan` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `layout_rich_text` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `layout_text` | `moxi.text_layout` | provisional | portable styling, measurement, or text boundaries |
-| `SHAPER_NATIVE` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `SHAPER_PORTABLE_ESTIMATE` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `SCRIPT_ARABIC_HEBREW` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `SCRIPT_CJK` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `SCRIPT_COMMON` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `SCRIPT_CYRILLIC` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `SCRIPT_DEVANAGARI` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `SCRIPT_EMOJI` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `SCRIPT_LATIN` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `PortableTextShaper` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `ShapedGlyph` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `ShapedRun` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `ShapedText` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `TextShaper` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `fallback_font_id` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `script_id` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
-| `shape_text` | `moxi.text_shaping` | provisional | portable styling, measurement, or text boundaries |
+| `TEXT_DIRECTION_LTR` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `TEXT_DIRECTION_RTL` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `TEXT_DIRECTION_AUTO` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `TEXT_LAYOUT_ESTIMATE` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `TEXT_LAYOUT_NATIVE` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `TEXT_LAYOUT_PORTABLE` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `RichText` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `TextLayoutRequest` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `TextLayoutResult` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `TextSpan` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `layout_rich_text` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `layout_text` | `moxi.text_layout` | provisional | portable text layout and editing |
+| `SHAPER_NATIVE` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `SHAPER_PORTABLE_ESTIMATE` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `SCRIPT_ARABIC_HEBREW` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `SCRIPT_CJK` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `SCRIPT_COMMON` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `SCRIPT_CYRILLIC` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `SCRIPT_DEVANAGARI` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `SCRIPT_EMOJI` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `SCRIPT_LATIN` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `PortableTextShaper` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `ShapedGlyph` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `ShapedRun` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `ShapedText` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `TextShaper` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `fallback_font_id` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `script_id` | `moxi.text_shaping` | provisional | portable text layout and editing |
+| `shape_text` | `moxi.text_shaping` | provisional | portable text layout and editing |
 | `clamp_text_boundary` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
 | `codepoint_at` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
 | `is_combining_mark` | `moxi.text_boundary` | stable-core | portable styling, measurement, or text boundaries |
@@ -504,35 +504,35 @@ Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --wri
 | `ghost_button` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
 | `badge` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
 | `card_panel` | `moxi.recipes` | demo/support | examples, recipes, or validation support |
-| `BUTTON_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `CHECKBOX_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `LABEL_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `SLIDER_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `SWITCH_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `RADIO_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `IMAGE_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `MULTILINE_TEXT_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `COMBO_BOX_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `LIST_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `TABLE_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `TREE_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `MENU_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `DIALOG_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `TABS_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `CANVAS_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `SEPARATOR_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `SCROLLBAR_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `ROOT_SCROLL_ID` | `moxi.view` | stable-core | experimental or optional integration |
-| `PROGRESS_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `SPACER_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `Button` | `moxi.view` | stable-core | experimental or optional integration |
-| `ColumnView` | `moxi.view` | stable-core | experimental or optional integration |
-| `CONTAINER_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `CounterView` | `moxi.view` | stable-core | experimental or optional integration |
-| `Label` | `moxi.view` | stable-core | experimental or optional integration |
-| `TEXT_INPUT_VIEW_KIND` | `moxi.view` | stable-core | experimental or optional integration |
-| `ViewNode` | `moxi.view` | stable-core | experimental or optional integration |
-| `make_row` | `moxi.view` | stable-core | experimental or optional integration |
+| `BUTTON_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `CHECKBOX_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `LABEL_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `SLIDER_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `SWITCH_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `RADIO_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `IMAGE_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `MULTILINE_TEXT_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `COMBO_BOX_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `LIST_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `TABLE_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `TREE_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `MENU_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `DIALOG_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `TABS_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `CANVAS_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `SEPARATOR_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `SCROLLBAR_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `ROOT_SCROLL_ID` | `moxi.view` | stable-core | portable view declarations and composition |
+| `PROGRESS_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `SPACER_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `Button` | `moxi.view` | stable-core | portable view declarations and composition |
+| `ColumnView` | `moxi.view` | stable-core | portable view declarations and composition |
+| `CONTAINER_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `CounterView` | `moxi.view` | stable-core | portable view declarations and composition |
+| `Label` | `moxi.view` | stable-core | portable view declarations and composition |
+| `TEXT_INPUT_VIEW_KIND` | `moxi.view` | stable-core | portable view declarations and composition |
+| `ViewNode` | `moxi.view` | stable-core | portable view declarations and composition |
+| `make_row` | `moxi.view` | stable-core | portable view declarations and composition |
 | `TestRenderer` | `moxi.testing` | demo/support | examples, recipes, or validation support |
 | `TestWindow` | `moxi.testing` | demo/support | examples, recipes, or validation support |
 | `test_check` | `moxi.testing` | demo/support | examples, recipes, or validation support |

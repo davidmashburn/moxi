@@ -465,6 +465,12 @@ a registered typed executor; plain `invoke()` rejects executor-less work.
 Exclusive authorizations return a lease token that must be supplied to
 `complete()`.
 
+The compatibility root remains broad for existing 0.5 callers. New code can
+use `moxi.plot_api`, `moxi.host_api`, or `moxi.experimental_api` as focused
+import paths, and `docs/api-lanes.tsv` records the support lane for every
+public module. The API check rejects an unclassified re-export instead of
+silently treating it as experimental.
+
 ### Experimental collection interaction foundation
 
 The post-0.5 interaction slice adds renderer-independent contracts for features

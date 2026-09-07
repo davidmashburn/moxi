@@ -6,6 +6,7 @@ cd "$repo_dir"
 
 init_file="src/moxi/__init__.mojo"
 status_file="docs/api-status.md"
+lane_file="docs/api-lanes.tsv"
 write_file=false
 if [ "${1:-}" = "--write" ]; then
   write_file=true
@@ -14,42 +15,30 @@ elif [ "${1:-}" != "" ]; then
   exit 2
 fi
 
+if [ ! -f "$lane_file" ]; then
+  echo "$lane_file is missing; every public module needs an explicit support lane" >&2
+  exit 1
+fi
+
 tmp_file="$(mktemp "${TMPDIR:-/tmp}/moxi-api-status.XXXXXX")"
 trap 'rm -f "$tmp_file"' EXIT
 
-awk '
+awk -v lane_file="$lane_file" '
 function lane(module) {
-  if (module == "__init__") return "stable-core"
-  if (module ~ /^(accessibility|backend|component|event|geometry|layout|layout_primitives|paint|scene|software|runtime|app_runtime|style|measure|text_boundary|clipboard|window|view)$/) return "stable-core"
-  if (module ~ /^(controls|control_state|collection_state|scrollbar|popup|reorder|animation|invalidation|reactivity|tasks|resources|performance|execution|virtual_view|windowing|text_layout|text_shaping|plotting|plot_data|plot_spec|plot_runtime|plot_view|plot_selection|plot_link|plot_render)$/) return "provisional"
-  if (module ~ /^(platform|platform_adapters|host_contract|targets|native_widgets|macos|svg)$/) return "host-adapter"
-  if (module ~ /^(app|alignment|composed|form|nested|row|wxstyle|wrapped|testing|tokens|recipes|showcase|demo_browser|demo_walkthrough|interaction_showcase|theme_showcase|capability_walkthrough|live_script|scenarios)$/) return "demo/support"
-  if (module ~ /^(capability|conversation|coretext|fractal|harfbuzz|metal)$/) return "experimental"
-  return "experimental"
+  if (!(module in module_lane)) {
+    print "Unclassified public module: " module > "/dev/stderr"
+    classification_error = 1
+    return "internal"
+  }
+  return module_lane[module]
 }
 
 function known_module(module) {
-  return module == "__init__" || lane(module) != "experimental" || module ~ /^(capability|conversation|coretext|fractal|harfbuzz|metal)$/
+  return module in module_lane
 }
 
 function ownership(module) {
-  if (module == "__init__") return "package version boundary"
-  if (module == "accessibility") return "portable semantics and actions"
-  if (module == "backend") return "backend capability profiles"
-  if (module == "component") return "value-owned component contracts"
-  if (module == "event") return "normalized input events"
-  if (module == "geometry") return "portable geometry values"
-  if (module == "layout" || module == "layout_primitives") return "layout and virtualization math"
-  if (module == "paint" || module == "scene" || module == "software") return "portable paint/scene rendering"
-  if (module == "runtime" || module == "app_runtime") return "retained reconciliation and lifecycle"
-  if (module == "style" || module == "measure" || module == "text_boundary" || module == "text_layout" || module == "text_shaping") return "portable styling, measurement, or text boundaries"
-  if (module == "clipboard" || module == "window") return "host-neutral clipboard or window contracts"
-  if (module ~ /^plot/) return "typed plotting data, specification, or runtime"
-  if (module ~ /^(controls|control_state|collection_state|scrollbar|popup|reorder|animation|invalidation|reactivity|tasks|resources|performance|execution|virtual_view|windowing)$/) return "stateful UI support primitives"
-  if (module ~ /^(platform|platform_adapters|host_contract|targets|native_widgets|macos|svg)$/) return "platform and native-host adapters"
-  if (module ~ /^(app|alignment|composed|form|nested|row|wxstyle|wrapped|testing|tokens|recipes|showcase|demo_browser|demo_walkthrough|interaction_showcase|theme_showcase|capability_walkthrough|live_script|scenarios)$/) return "examples, recipes, or validation support"
-  if (module ~ /^(capability|conversation|coretext|fractal|harfbuzz|metal)$/) return "experimental or optional integration"
-  return "experimental or optional integration"
+  return module_owner[module]
 }
 
 function emit_name(module, name) {
@@ -72,9 +61,26 @@ function parse_payload(payload,   parts, count, i, name) {
 }
 
 BEGIN {
+  while ((getline record < lane_file) > 0) {
+    if (record ~ /^#/ || record == "") continue
+    count = split(record, lane_fields, "\t")
+    if (count != 3 || lane_fields[1] == "" || lane_fields[2] == "" || lane_fields[3] == "") {
+      print "Malformed API lane row: " record > "/dev/stderr"
+      classification_error = 1
+      continue
+    }
+    if (lane_fields[1] in module_lane) {
+      print "Duplicate API lane row: " lane_fields[1] > "/dev/stderr"
+      classification_error = 1
+      continue
+    }
+    module_lane[lane_fields[1]] = lane_fields[2]
+    module_owner[lane_fields[1]] = lane_fields[3]
+  }
+  close(lane_file)
   print "# Moxi API status"
   print ""
-  print "Generated from `src/moxi/__init__.mojo`. Run `pixi run api-status-check -- --write` after changing the public re-export list. The support lane is a compatibility statement, not a claim that every host implements every backend feature."
+  print "Generated from `src/moxi/__init__.mojo` and `docs/api-lanes.tsv`. Run `pixi run api-status-check -- --write` after changing the public re-export list or a support lane. Unknown public modules fail the check. The support lane is a compatibility statement, not a claim that every host implements every backend feature."
   print ""
   print "- `stable-core`: compatibility-oriented value, component, layout, event, paint, and runtime contracts."
   print "- `provisional`: useful support APIs that may still change before a 1.0 stability promise."

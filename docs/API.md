@@ -47,6 +47,16 @@ opt-in editable page uses `MacOSFileWatcher` and `MacOSLiveScript` to rebuild
 an exported `moxi_live_frame` module in place; standalone Pixi tasks remain
 separate companion entrypoints. The core `App` remains process-neutral.
 
+## Focused import paths
+
+The compatibility root remains available for existing 0.5 callers, while new
+code can opt into smaller support surfaces: `moxi.plot_api` for provisional
+plot data/spec/runtime types, `moxi.host_api` for portable and macOS host
+adapters, and `moxi.experimental_api` for capability, text-engine, fractal, and
+Metal integrations. The checked-in `docs/api-lanes.tsv` policy makes every
+re-exported module explicit; adding a new public module without a lane fails
+`pixi run api-status-check`.
+
 ## View and layout
 
 `ColumnView` owns an ordered flat tree of `ViewNode` values. Use
