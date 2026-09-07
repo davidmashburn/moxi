@@ -444,6 +444,11 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `fractal_preset_geometry` | `moxi.fractal` | experimental | experimental or optional integration |
 | `fractal_preset_name` | `moxi.fractal` | experimental | experimental or optional integration |
 | `SoftwareSceneRenderer` | `moxi.software` | stable-core | portable paint/scene rendering |
+| `CANVAS_RENDER_OK` | `moxi.canvas_renderer` | host-adapter | portable canvas raster and export adapter |
+| `CANVAS_RENDER_UNBALANCED_CLIP` | `moxi.canvas_renderer` | host-adapter | portable canvas raster and export adapter |
+| `CANVAS_RENDER_UNBALANCED_LAYER` | `moxi.canvas_renderer` | host-adapter | portable canvas raster and export adapter |
+| `CANVAS_RENDER_INVALID_BOUNDS` | `moxi.canvas_renderer` | host-adapter | portable canvas raster and export adapter |
+| `CANVAS_RENDER_INVALID_STROKE` | `moxi.canvas_renderer` | host-adapter | portable canvas raster and export adapter |
 | `CanvasSceneRenderer` | `moxi.canvas_renderer` | host-adapter | portable canvas raster and export adapter |
 | `INVALIDATE_ACCESSIBILITY` | `moxi.invalidation` | provisional | stateful UI support primitives |
 | `INVALIDATE_ALL` | `moxi.invalidation` | provisional | stateful UI support primitives |
@@ -594,7 +599,15 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `ScenarioStep` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `FractalBenchmarkFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `TextCorpusFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `CanvasSceneFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `CANVAS_SCENE_PRIMITIVES` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `CANVAS_SCENE_THEME_DARK` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `CANVAS_SCENE_THEME_LIGHT` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `CANVAS_SCENE_PLOT` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_scenarios` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_canvas_scene_fixtures` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_canvas_scene_fixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `make_canvas_scene` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_form_title` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_form_hint` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `canonical_form_submit_label` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |

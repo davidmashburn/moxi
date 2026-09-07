@@ -1,0 +1,7 @@
+# fixture	width	height	commands	fallbacks	software_checksum	canvas_checksum
+portable-primitives	40	30	10	1	4260825	4055929
+theme-dark	96	64	7	1	26255080	26209374
+theme-light	96	64	7	1	25434784	25720861
+plot-gallery	640	420	65	15	852464264	853855300
+# The focused adapter smoke also covers the export-only 32x24 probe.
+renderer-smoke	32	24	12	3	-	2447821

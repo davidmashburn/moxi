@@ -468,7 +468,14 @@ from .fractal import (
     fractal_preset_name,
 )
 from .software import SoftwareSceneRenderer
-from .canvas_renderer import CanvasSceneRenderer
+from .canvas_renderer import (
+    CANVAS_RENDER_OK,
+    CANVAS_RENDER_UNBALANCED_CLIP,
+    CANVAS_RENDER_UNBALANCED_LAYER,
+    CANVAS_RENDER_INVALID_BOUNDS,
+    CANVAS_RENDER_INVALID_STROKE,
+    CanvasSceneRenderer,
+)
 from .invalidation import (
     INVALIDATE_ACCESSIBILITY,
     INVALIDATE_ALL,
@@ -620,7 +627,15 @@ from .scenarios import (
     ScenarioStep,
     FractalBenchmarkFixture,
     TextCorpusFixture,
+    CanvasSceneFixture,
+    CANVAS_SCENE_PRIMITIVES,
+    CANVAS_SCENE_THEME_DARK,
+    CANVAS_SCENE_THEME_LIGHT,
+    CANVAS_SCENE_PLOT,
     canonical_scenarios,
+    canonical_canvas_scene_fixtures,
+    canonical_canvas_scene_fixture,
+    make_canvas_scene,
     canonical_form_title,
     canonical_form_hint,
     canonical_form_submit_label,

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-package_dir="$(mktemp -d "${TMPDIR:-/tmp}/moxi-package.XXXXXX")"
+package_dir="$(mktemp -d "${TMPDIR:-/tmp}/moxi-package-channel.XXXXXX")"
 consumer_dir="$(mktemp -d "${TMPDIR:-/tmp}/moxi-consumer.XXXXXX")"
 cache_dir="$(mktemp -d "${TMPDIR:-/tmp}/moxi-pixi-cache.XXXXXX")"
 
@@ -11,29 +11,28 @@ cleanup() {
 }
 trap cleanup EXIT
 
-pixi publish --clean --path "$repo_dir/pixi.toml" --target-dir "$package_dir"
+pixi publish --clean --target-channel "$package_dir"
 archive="$(find "$package_dir" -type f -name 'moxi-*.conda' -print -quit)"
 if [[ -z "$archive" ]]; then
     echo "package build did not produce a moxi .conda archive" >&2
     exit 1
 fi
-canvas_archive="$(find "$repo_dir/.pixi/bld/canvas_mojo" -type f -name 'canvas_mojo-*.conda' -print -quit 2>/dev/null || true)"
+canvas_archive="$(find "$package_dir" -type f -name 'canvas_mojo-*.conda' -print -quit)"
 if [[ -z "$canvas_archive" ]]; then
-    echo "package build did not retain the canvas_mojo source dependency archive" >&2
+    echo "workspace publish did not produce the canvas_mojo runtime archive" >&2
     exit 1
 fi
 
 pixi init \
     --format pixi \
     --platform osx-arm64 \
+    --channel "file://$package_dir" \
     --channel https://conda.modular.com/max-nightly \
     --channel conda-forge \
     "$consumer_dir"
 
 PIXI_NO_CONFIG=1 PIXI_CACHE_DIR="$cache_dir" \
-    pixi add --manifest-path "$consumer_dir/pixi.toml" "$archive"
-PIXI_NO_CONFIG=1 PIXI_CACHE_DIR="$cache_dir" \
-    pixi add --manifest-path "$consumer_dir/pixi.toml" "$canvas_archive"
+    pixi add --manifest-path "$consumer_dir/pixi.toml" "moxi==0.5.1"
 PIXI_NO_CONFIG=1 PIXI_CACHE_DIR="$cache_dir" \
     pixi run --manifest-path "$consumer_dir/pixi.toml" \
     mojo run "$repo_dir/tests/package_consumer.mojo"

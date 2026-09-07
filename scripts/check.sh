@@ -11,6 +11,7 @@ bash -n scripts/api_status_check.sh
 bash -n scripts/visual_check.sh
 bash -n scripts/browser_check.sh
 bash -n scripts/benchmark.sh
+bash -n scripts/canvas_benchmark.sh
 bash -n scripts/scenario_check.sh
 bash -n scripts/native_screenshot_check.sh
 python3 -m json.tool benchmarks/result-schema.json >/dev/null
@@ -24,6 +25,7 @@ bash scripts/scenario_check.sh
 bash scripts/visual_check.sh
 pixi run demo-walkthrough-build
 bash scripts/test.sh
+bash scripts/canvas_benchmark.sh
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c native/macos_window.m -o native/macos_window.o
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \

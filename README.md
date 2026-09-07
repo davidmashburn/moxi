@@ -6,8 +6,9 @@ Xilem. Notably, Xilem is based on SwiftUI, another major Chris Lattner project.
 
 The ecosystem convergence boundary is recorded in
 [`docs/architecture/ecosystem-convergence.md`](docs/architecture/ecosystem-convergence.md).
-It covers the experimental Python value boundary, the planned `canvas_mojo`
-adapter, and the contract-driven `dataviz_mojo` capability inventory.
+It covers the experimental Python value boundary, the nightly-pinned
+`canvas_mojo` adapter, and the contract-driven `dataviz_mojo` capability
+inventory.
 
 The `0.5.1` release surface provides a small interactive view
 tree:
@@ -315,12 +316,13 @@ the visual acceptance surfaces.
 To build the distributable Pixi package:
 
 ```sh
-pixi publish --path pixi.toml --target-dir output/moxi
+pixi publish --target-dir output/moxi
 ```
 
-The resulting conda package contains the compiled `moxi` Mojo package. The
-native AppKit demo remains a repository-level example and is not bundled into
-the library artifact.
+The workspace publish produces both the compiled `moxi` Mojo package and its
+nightly-compatible `canvas_mojo` runtime dependency. The native AppKit demo
+remains a repository-level example and is not bundled into either library
+artifact.
 
 For the public-surface inventory, see [docs/API.md](docs/API.md). The
 accessibility/native-widget contract is documented in

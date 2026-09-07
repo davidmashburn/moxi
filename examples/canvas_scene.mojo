@@ -1,14 +1,21 @@
 """Export the canonical Moxi plot scene through canvas_mojo."""
 
-from moxi import CanvasSceneRenderer, Rect, make_plot_scenario
+from moxi import (
+    CanvasSceneRenderer,
+    CANVAS_SCENE_PLOT,
+    canonical_canvas_scene_fixture,
+    make_canvas_scene,
+)
 
 
 def main() raises:
-    var bounds = Rect(0.0, 0.0, 640.0, 420.0)
-    var plot = make_plot_scenario(bounds)
-    plot.set_title("Canvas scene export")
-    var scene = plot.build_scene()
-    var renderer = CanvasSceneRenderer(640, 420)
+    var fixture = canonical_canvas_scene_fixture(CANVAS_SCENE_PLOT)
+    var scene = make_canvas_scene(fixture.id)
+    var renderer = CanvasSceneRenderer(
+        fixture.width,
+        fixture.height,
+        fixture.background,
+    )
     renderer.render_scene(scene)
     renderer.write_png("/tmp/moxi-canvas-scene.png")
     print("Moxi canvas scene commands: ", renderer.command_count)

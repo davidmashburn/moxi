@@ -48,6 +48,13 @@ from .scene import (
 from .style import Color
 
 
+comptime CANVAS_RENDER_OK = 0
+comptime CANVAS_RENDER_UNBALANCED_CLIP = 1
+comptime CANVAS_RENDER_UNBALANCED_LAYER = 2
+comptime CANVAS_RENDER_INVALID_BOUNDS = 3
+comptime CANVAS_RENDER_INVALID_STROKE = 4
+
+
 def _clamp_unit(value: Float32) -> Float32:
     if value < 0.0:
         return 0.0
@@ -122,6 +129,10 @@ struct CanvasSceneRenderer(SceneRenderer):
     var frame_count: Int
     var command_count: Int
     var fallback_count: Int
+    var render_error_count: Int
+    var last_error_code: Int
+    var last_error_message: String
+    var clip_depth: Int
 
     def __init__(
         out self,
@@ -142,6 +153,10 @@ struct CanvasSceneRenderer(SceneRenderer):
         self.frame_count = 0
         self.command_count = 0
         self.fallback_count = 0
+        self.render_error_count = 0
+        self.last_error_code = CANVAS_RENDER_OK
+        self.last_error_message = ""
+        self.clip_depth = 0
 
     def backend_capabilities(self) -> BackendCapabilities:
         return BackendCapabilities(
@@ -171,6 +186,34 @@ struct CanvasSceneRenderer(SceneRenderer):
         self.opacity_stack = List[Float32]()
         self.command_count = 0
         self.fallback_count = 0
+        self.render_error_count = 0
+        self.last_error_code = CANVAS_RENDER_OK
+        self.last_error_message = ""
+        self.clip_depth = 0
+
+    def _record_error(mut self, code: Int, message: String):
+        self.render_error_count += 1
+        self.last_error_code = code
+        self.last_error_message = message
+
+    def has_error(self) -> Bool:
+        """Return whether the current frame violated the adapter contract."""
+        return self.render_error_count > 0
+
+    def error_count(self) -> Int:
+        """Return the number of non-fatal input errors in the current frame."""
+        return self.render_error_count
+
+    def error_code(self) -> Int:
+        """Return the stable code for the most recent input error."""
+        return self.last_error_code
+
+    def error_message(self) -> String:
+        """Return the stable diagnostic for the most recent input error."""
+        return self.last_error_message
+
+    def _valid_bounds(self, bounds: Rect) -> Bool:
+        return bounds.width > 0.0 and bounds.height > 0.0
 
     def draw_scene_command(mut self, command: SceneCommand) raises:
         self.command_count += 1
@@ -181,85 +224,128 @@ struct CanvasSceneRenderer(SceneRenderer):
         elif command.kind == SCENE_POP_LAYER:
             if len(self.opacity_stack) > 0:
                 self.opacity = self.opacity_stack.pop()
+            else:
+                self._record_error(
+                    CANVAS_RENDER_UNBALANCED_LAYER,
+                    "pop_layer without a matching push_layer",
+                )
         elif command.kind == SCENE_TRANSFORM:
             self.canvas.transform(_matrix(command.transform))
         elif command.kind == SCENE_RESET_TRANSFORM:
             self.canvas.reset_transform()
         elif command.kind == SCENE_CLIP:
-            var clip = _clip_bounds(command.bounds)
-            self.canvas.push_clip(clip[0], clip[1], clip[2], clip[3])
-        elif command.kind == SCENE_POP_CLIP:
-            self.canvas.pop_clip()
-        elif command.kind == SCENE_RECT:
-            fill_rect(
-                self.canvas,
-                Float64(command.bounds.x),
-                Float64(command.bounds.y),
-                Float64(command.bounds.width),
-                Float64(command.bounds.height),
-                _canvas_color(command.fill, self.opacity * command.opacity),
-            )
-        elif command.kind == SCENE_ROUNDED_RECT:
-            var fill_path = _rounded_path(command.bounds, command.corner_radius)
-            fill_path_aa(
-                self.canvas,
-                fill_path,
-                _canvas_color(command.fill, self.opacity * command.opacity),
-                FillRule.EVEN_ODD,
-            )
-            if command.stroke_width > 0.0 and command.stroke.alpha > 0.0:
-                var stroke_path = _rounded_path(
-                    command.bounds,
-                    command.corner_radius,
+            if not self._valid_bounds(command.bounds):
+                self._record_error(
+                    CANVAS_RENDER_INVALID_BOUNDS,
+                    "clip bounds must have positive width and height",
                 )
-                stroke_path_aa(
+            else:
+                var clip = _clip_bounds(command.bounds)
+                self.canvas.push_clip(clip[0], clip[1], clip[2], clip[3])
+                self.clip_depth += 1
+        elif command.kind == SCENE_POP_CLIP:
+            if self.clip_depth > 0:
+                self.canvas.pop_clip()
+                self.clip_depth -= 1
+            else:
+                self._record_error(
+                    CANVAS_RENDER_UNBALANCED_CLIP,
+                    "pop_clip without a matching push_clip",
+                )
+        elif command.kind == SCENE_RECT:
+            if not self._valid_bounds(command.bounds):
+                self._record_error(
+                    CANVAS_RENDER_INVALID_BOUNDS,
+                    "rect bounds must have positive width and height",
+                )
+            else:
+                fill_rect(
                     self.canvas,
-                    stroke_path,
-                    _canvas_color(
-                        command.stroke,
-                        self.opacity * command.opacity,
-                    ),
+                    Float64(command.bounds.x),
+                    Float64(command.bounds.y),
+                    Float64(command.bounds.width),
+                    Float64(command.bounds.height),
+                    _canvas_color(command.fill, self.opacity * command.opacity),
+                )
+        elif command.kind == SCENE_ROUNDED_RECT:
+            if not self._valid_bounds(command.bounds):
+                self._record_error(
+                    CANVAS_RENDER_INVALID_BOUNDS,
+                    "rounded rectangle bounds must have positive width and height",
+                )
+            else:
+                var fill_path = _rounded_path(command.bounds, command.corner_radius)
+                fill_path_aa(
+                    self.canvas,
+                    fill_path,
+                    _canvas_color(command.fill, self.opacity * command.opacity),
+                    FillRule.EVEN_ODD,
+                )
+                if command.stroke_width > 0.0 and command.stroke.alpha > 0.0:
+                    var stroke_path = _rounded_path(
+                        command.bounds,
+                        command.corner_radius,
+                    )
+                    stroke_path_aa(
+                        self.canvas,
+                        stroke_path,
+                        _canvas_color(
+                            command.stroke,
+                            self.opacity * command.opacity,
+                        ),
+                        Float64(command.stroke_width),
+                    )
+        elif command.kind == SCENE_LINE:
+            if command.stroke_width <= 0.0:
+                self._record_error(
+                    CANVAS_RENDER_INVALID_STROKE,
+                    "line stroke width must be positive",
+                )
+            else:
+                draw_line_aa(
+                    self.canvas,
+                    Float64(command.point_start.x),
+                    Float64(command.point_start.y),
+                    Float64(command.point_end.x),
+                    Float64(command.point_end.y),
+                    _canvas_color(command.stroke, self.opacity * command.opacity),
                     Float64(command.stroke_width),
                 )
-        elif command.kind == SCENE_LINE:
-            draw_line_aa(
-                self.canvas,
-                Float64(command.point_start.x),
-                Float64(command.point_start.y),
-                Float64(command.point_end.x),
-                Float64(command.point_end.y),
-                _canvas_color(command.stroke, self.opacity * command.opacity),
-                Float64(command.stroke_width),
-            )
         elif command.kind == SCENE_LINEAR_GRADIENT:
-            var gradient = LinearGradient(
-                Float64(command.gradient_start.x),
-                Float64(command.gradient_start.y),
-                Float64(command.gradient_end.x),
-                Float64(command.gradient_end.y),
-            )
-            gradient.add_stop(
-                0.0,
-                _canvas_color(
-                    command.gradient_start_color,
-                    self.opacity * command.opacity,
-                ),
-            )
-            gradient.add_stop(
-                1.0,
-                _canvas_color(
-                    command.gradient_end_color,
-                    self.opacity * command.opacity,
-                ),
-            )
-            fill_rect_gradient(
-                self.canvas,
-                Float64(command.bounds.x),
-                Float64(command.bounds.y),
-                Float64(command.bounds.width),
-                Float64(command.bounds.height),
-                gradient,
-            )
+            if not self._valid_bounds(command.bounds):
+                self._record_error(
+                    CANVAS_RENDER_INVALID_BOUNDS,
+                    "gradient bounds must have positive width and height",
+                )
+            else:
+                var gradient = LinearGradient(
+                    Float64(command.gradient_start.x),
+                    Float64(command.gradient_start.y),
+                    Float64(command.gradient_end.x),
+                    Float64(command.gradient_end.y),
+                )
+                gradient.add_stop(
+                    0.0,
+                    _canvas_color(
+                        command.gradient_start_color,
+                        self.opacity * command.opacity,
+                    ),
+                )
+                gradient.add_stop(
+                    1.0,
+                    _canvas_color(
+                        command.gradient_end_color,
+                        self.opacity * command.opacity,
+                    ),
+                )
+                fill_rect_gradient(
+                    self.canvas,
+                    Float64(command.bounds.x),
+                    Float64(command.bounds.y),
+                    Float64(command.bounds.width),
+                    Float64(command.bounds.height),
+                    gradient,
+                )
         elif (
             command.kind == SCENE_TEXT
             or command.kind == SCENE_IMAGE
@@ -268,6 +354,16 @@ struct CanvasSceneRenderer(SceneRenderer):
             self.fallback_count += 1
 
     def end_scene(mut self) raises:
+        if self.clip_depth > 0:
+            self._record_error(
+                CANVAS_RENDER_UNBALANCED_CLIP,
+                "scene ended with an unterminated clip",
+            )
+        if len(self.opacity_stack) > 0:
+            self._record_error(
+                CANVAS_RENDER_UNBALANCED_LAYER,
+                "scene ended with an unterminated layer",
+            )
         self.frame_count += 1
 
     def pixel(self, x: Int, y: Int) -> Color:

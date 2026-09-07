@@ -3,12 +3,13 @@
 from std.collections import List
 
 from .collection_state import CollectionSelection, TreeCollectionState
-from .geometry import Rect
+from .geometry import Point, Rect, Transform
 from .plot_data import PlotDataTable
 from .plotting import PLOT_LINE, PLOT_SCATTER, Plot
 from .popup import POPUP_COMBO, POPUP_PLACE_BELOW, PopupLayerState
 from .reorder import ReorderInteraction
 from .scrollbar import SCROLLBAR_VERTICAL, ScrollbarState
+from .scene import Scene
 from .style import Color
 from .text_layout import TEXT_DIRECTION_AUTO, TEXT_DIRECTION_LTR, TEXT_DIRECTION_RTL
 
@@ -21,6 +22,11 @@ comptime SCENARIO_TEXT = 4
 comptime SCENARIO_PLOT = 5
 comptime SCENARIO_CAPABILITY = 6
 comptime SCENARIO_FRACTAL = 7
+
+comptime CANVAS_SCENE_PRIMITIVES = 0
+comptime CANVAS_SCENE_THEME_DARK = 1
+comptime CANVAS_SCENE_THEME_LIGHT = 2
+comptime CANVAS_SCENE_PLOT = 3
 
 
 struct ScenarioDescriptor(ImplicitlyCopyable):
@@ -163,6 +169,36 @@ struct TextCorpusFixture(ImplicitlyCopyable):
         self.expect_bidi = expect_bidi
         self.expect_fallback = expect_fallback
         self.expect_wrapping = expect_wrapping
+
+
+struct CanvasSceneFixture(ImplicitlyCopyable):
+    """Shared Canvas parity metadata for one deterministic scene fixture."""
+
+    var id: Int
+    var name: String
+    var width: Int
+    var height: Int
+    var background: Color
+    var expected_commands: Int
+    var expected_fallbacks: Int
+
+    def __init__(
+        out self,
+        id: Int,
+        name: String,
+        width: Int,
+        height: Int,
+        background: Color,
+        expected_commands: Int,
+        expected_fallbacks: Int,
+    ):
+        self.id = id
+        self.name = name
+        self.width = width
+        self.height = height
+        self.background = background
+        self.expected_commands = expected_commands
+        self.expected_fallbacks = expected_fallbacks
 
 
 struct ScenarioRegistry:
@@ -335,6 +371,166 @@ struct ScenarioRegistry:
 def canonical_scenarios() -> ScenarioRegistry:
     """Return the repository's canonical scenario inventory."""
     return ScenarioRegistry()
+
+
+def canonical_canvas_scene_fixtures() -> List[CanvasSceneFixture]:
+    """Return the shared software/Canvas/SVG parity fixture table."""
+    var result = List[CanvasSceneFixture](capacity=4)
+    result.append(CanvasSceneFixture(
+        CANVAS_SCENE_PRIMITIVES,
+        "portable-primitives",
+        40,
+        30,
+        Color(0.0, 0.0, 0.0, 0.0),
+        10,
+        1,
+    ))
+    result.append(CanvasSceneFixture(
+        CANVAS_SCENE_THEME_DARK,
+        "theme-dark",
+        96,
+        64,
+        Color(0.035, 0.045, 0.075, 1.0),
+        7,
+        1,
+    ))
+    result.append(CanvasSceneFixture(
+        CANVAS_SCENE_THEME_LIGHT,
+        "theme-light",
+        96,
+        64,
+        Color(0.96, 0.965, 0.98, 1.0),
+        7,
+        1,
+    ))
+    result.append(CanvasSceneFixture(
+        CANVAS_SCENE_PLOT,
+        "plot-gallery",
+        640,
+        420,
+        Color(0.0, 0.0, 0.0, 0.0),
+        65,
+        15,
+    ))
+    return result^
+
+
+def canonical_canvas_scene_fixture(id: Int) -> CanvasSceneFixture:
+    """Return one shared Canvas parity fixture by stable identifier."""
+    var fixtures = canonical_canvas_scene_fixtures()
+    for index in range(len(fixtures)):
+        if fixtures[index].id == id:
+            return fixtures[index]
+    return fixtures[0]
+
+
+def _append_canvas_primitive_scene(mut scene: Scene):
+    scene.append_rect(
+        1,
+        Rect(0.0, 0.0, 40.0, 30.0),
+        Color(0.08, 0.08, 0.12, 1.0),
+    )
+    scene.push_clip(2, Rect(3.0, 3.0, 24.0, 18.0))
+    scene.append_rounded_rect(
+        3,
+        Rect(4.0, 4.0, 18.0, 12.0),
+        Color(0.2, 0.4, 0.9, 1.0),
+        3.0,
+    )
+    scene.append_line(
+        4,
+        Point(4.0, 18.0),
+        Point(24.0, 5.0),
+        Color(1.0, 0.8, 0.2, 1.0),
+        2.0,
+    )
+    scene.pop_clip()
+    scene.append_linear_gradient(
+        5,
+        Rect(2.0, 23.0, 34.0, 5.0),
+        Point(2.0, 23.0),
+        Point(36.0, 23.0),
+        Color(0.1, 0.1, 0.1, 1.0),
+        Color(0.8, 0.8, 0.8, 1.0),
+    )
+    scene.append_transform(6, Transform().translated(29.0, 4.0))
+    scene.append_rect(
+        7,
+        Rect(0.0, 0.0, 7.0, 7.0),
+        Color(0.2, 0.9, 0.3, 0.9),
+    )
+    scene.reset_transform()
+    scene.append_text(
+        8,
+        "unsupported text",
+        Rect(1.0, 1.0, 10.0, 3.0),
+        Color(1.0, 1.0, 1.0, 1.0),
+    )
+
+
+def _append_canvas_theme_scene(mut scene: Scene, light: Bool):
+    var panel = Color(0.11, 0.14, 0.22, 1.0)
+    var accent = Color(0.30, 0.70, 1.0, 1.0)
+    var line = Color(1.0, 0.65, 0.25, 1.0)
+    if light:
+        panel = Color(0.18, 0.25, 0.42, 1.0)
+        accent = Color(0.05, 0.35, 0.78, 1.0)
+        line = Color(0.72, 0.25, 0.08, 1.0)
+    scene.append_rect(20, Rect(0.0, 0.0, 96.0, 64.0), panel)
+    scene.push_layer(21, Rect(8.0, 8.0, 80.0, 48.0), 0.82)
+    scene.append_rounded_rect(
+        22,
+        Rect(8.0, 8.0, 80.0, 48.0),
+        accent,
+        8.0,
+    )
+    scene.append_line(
+        23,
+        Point(16.0, 46.0),
+        Point(80.0, 20.0),
+        line,
+        2.0,
+    )
+    scene.append_linear_gradient(
+        24,
+        Rect(16.0, 16.0, 48.0, 8.0),
+        Point(16.0, 16.0),
+        Point(64.0, 16.0),
+        Color(1.0, 1.0, 1.0, 0.15),
+        Color(1.0, 1.0, 1.0, 0.65),
+    )
+    scene.pop_layer()
+    scene.append_text(
+        25,
+        "theme state",
+        Rect(16.0, 28.0, 48.0, 8.0),
+        Color(1.0, 1.0, 1.0, 1.0),
+    )
+
+
+def make_canvas_scene(fixture_id: Int = CANVAS_SCENE_PRIMITIVES) -> Scene:
+    """Build one canonical scene shared by parity tests and export demos."""
+    if fixture_id == CANVAS_SCENE_PLOT:
+        var plot_fixture = canonical_canvas_scene_fixture(CANVAS_SCENE_PLOT)
+        var plot = make_plot_scenario(
+            Rect(
+                0.0,
+                0.0,
+                Float32(plot_fixture.width),
+                Float32(plot_fixture.height),
+            )
+        )
+        plot.set_title("Canvas scene export")
+        return plot.build_scene()
+
+    var scene = Scene()
+    if fixture_id == CANVAS_SCENE_THEME_DARK:
+        _append_canvas_theme_scene(scene, False)
+    elif fixture_id == CANVAS_SCENE_THEME_LIGHT:
+        _append_canvas_theme_scene(scene, True)
+    else:
+        _append_canvas_primitive_scene(scene)
+    return scene^
 
 
 def canonical_form_title() -> String:

@@ -1,6 +1,9 @@
 """Contract test for the portable canvas SceneRenderer adapter."""
 
 from moxi import (
+    CANVAS_RENDER_INVALID_BOUNDS,
+    CANVAS_RENDER_UNBALANCED_CLIP,
+    CANVAS_RENDER_UNBALANCED_LAYER,
     CanvasSceneRenderer,
     Color,
     Point,
@@ -83,6 +86,7 @@ def main() raises:
     test_check(renderer.frame_count == 1)
     test_check(renderer.command_count == scene.count())
     test_check(renderer.fallback_count == 3)
+    test_check(renderer.error_count() == 0)
     test_check(renderer.checksum() > 0)
 
     # The red rectangle is clipped to (2, 2)-(8, 8).
@@ -106,4 +110,28 @@ def main() raises:
     renderer.render_scene(scene)
     test_check(renderer.frame_count == 2)
     test_check(renderer.checksum() == first_checksum)
+
+    var bad_clip = Scene()
+    bad_clip.pop_clip(20)
+    renderer.render_scene(bad_clip)
+    test_check(renderer.has_error())
+    test_check(renderer.error_count() == 1)
+    test_check(renderer.error_code() == CANVAS_RENDER_UNBALANCED_CLIP)
+    test_check(renderer.error_message().count_codepoints() > 0)
+
+    var bad_bounds = Scene()
+    bad_bounds.append_rect(
+        21,
+        Rect(0.0, 0.0, 0.0, 4.0),
+        Color(1.0, 0.0, 0.0, 1.0),
+    )
+    renderer.render_scene(bad_bounds)
+    test_check(renderer.error_code() == CANVAS_RENDER_INVALID_BOUNDS)
+
+    var bad_layer = Scene()
+    bad_layer.push_layer(22, Rect(0.0, 0.0, 4.0, 4.0), 0.5)
+    renderer.render_scene(bad_layer)
+    test_check(renderer.error_code() == CANVAS_RENDER_UNBALANCED_LAYER)
+
+    print("Moxi canvas-renderer checksum: ", first_checksum)
     print("Moxi canvas-renderer test passed")

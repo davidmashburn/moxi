@@ -172,8 +172,13 @@ shapes, gradients, lines, path bounds, clipping, layers, and transforms.
 for the same scene boundary. It supports the portable geometry subset,
 rectangular clipping, transforms, opacity, raw RGBA, PNG, and BMP export;
 text, images, and string paths report explicit fallbacks until their neutral
-resource contracts are complete. `SoftwareSceneRenderer.ppm()` exports the
-exact RGB surface as a dependency-free lossless
+resource contracts are complete. Malformed scene input is reported through
+`error_count()`, `error_code()`, and `error_message()` using the stable
+`CANVAS_RENDER_*` codes; export I/O remains an ordinary Mojo `raises` boundary.
+`canonical_canvas_scene_fixtures()` and `make_canvas_scene()` supply the
+shared primitive, theme, and plot-overlap fixtures used by all three
+portable renderers. `SoftwareSceneRenderer.ppm()` exports the exact RGB
+surface as a dependency-free lossless
 image for the checked-in corpus at
 [`tests/goldens/manifest.json`](../tests/goldens/manifest.json); run
 `pixi run visual-check` to compare it byte-for-byte.

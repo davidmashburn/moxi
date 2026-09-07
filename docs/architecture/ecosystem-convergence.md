@@ -71,19 +71,26 @@ the package precompiles and imports through Moxi's installed environment.
 Moxi pins that exact fork revision in `pixi.toml` and exposes the bounded
 `CanvasSceneRenderer` adapter from the package root. Focused tests cover pixel
 probes, clipping, transforms, deterministic repeat rendering, raw RGBA, PNG,
-BMP, and structural comparison with the software and SVG renderers. The
-canonical plot scene is also exportable with `pixi run canvas-scene`. This is
-an E2 vertical slice, not complete renderer parity: the fork is nightly-only,
-text/images/paths remain explicit fallbacks, and compile/memory/render
-release measurements plus shared reviewed visual checksums remain follow-on
-evidence.
-The package-consumer check builds and installs the Moxi archive alongside the
-exact source-built `canvas_mojo` artifact; a standalone Moxi archive is not yet
-advertised as self-contained because the fork has no public runtime package.
-One local smoke measurement for the 640x420 canonical plot scene was 1.75 s
-wall time, 234 MiB maximum resident set, checksum `853855300`, a 1.41 MiB
-Canvas package artifact, and a 2.02 MiB Moxi precompile. These are directional
-nightly measurements, not release benchmarks.
+BMP, stable input-error reporting, and structural comparison with the
+software and SVG renderers. `canonical_canvas_scene_fixtures()` and
+`make_canvas_scene()` now drive the compact primitive, dark/light theme, and
+plot line/point-overlap cases from one descriptor table; the reviewed values
+are checked in at [`tests/canvas_scene_checksums.tsv`](../../tests/canvas_scene_checksums.tsv).
+The canonical plot scene is also exportable with `pixi run canvas-scene`, and
+`pixi run canvas-benchmark` checks its reviewed checksum while reporting wall
+time, peak RSS, PNG size, command count, and fallback count. This is an E2
+vertical slice, not complete renderer parity: the fork is nightly-only and
+text/images/paths remain explicit fallbacks.
+
+The workspace now publishes `canvas_mojo` and `moxi` together. The local
+indexed-channel package-consumer test resolves the normal `canvas_mojo` run
+dependency from that publish set and imports the installed Moxi package; the
+remaining release action is uploading both artifacts to the chosen public
+channel. One current macOS arm64 smoke measurement for the 640x420 canonical
+plot scene is 1.72 s wall time, 249,036,800 bytes peak RSS, a 28,974-byte PNG,
+checksum `853855300`, a 1,477,415-byte Canvas archive, and a 2,131,578-byte
+Moxi archive. These are nightly measurements, not cross-platform release
+limits.
 The fork relies on a private runtime module, so the follow-up is an upstream
 PR or a public async-runtime replacement, after which the pin should move back
 to an upstream revision. A floating checkout remains disallowed.
