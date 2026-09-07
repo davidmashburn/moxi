@@ -64,7 +64,7 @@ The differentiator is the combination of:
 This is the next milestone. All six workstreams are required; new widget or
 plot-family work is out of scope.
 
-### Gate 1 progress at `main` `c9b0442`
+### Gate 1 progress at `main` `90f2aef`
 
 The ordered implementation pass has delivered the first vertical slices. The
 status below is deliberately narrower than “Gate 1 complete”: it records what
@@ -74,7 +74,7 @@ visible for the next pass.
 | Ordered slice | Status | Evidence | Still open |
 | --- | --- | --- | --- |
 | 1. Public API audit | Complete | `e418b29`, generated `docs/api-status.md`, 855 export classifications, `api-status-check` | focused import paths, compatibility/deprecation policy, and package-lane enforcement |
-| 2. Canonical scenario registry | Registry complete; consumer wiring partial | `0991f29`, seven descriptors, demo mapping, registry test, golden registry assertions | make each descriptor the fixture source for its behavior test, golden, and benchmark |
+| 2. Canonical scenario registry | Registry and consumer inventory complete; fixture wiring partial | `0991f29` and `90f2aef`, seven descriptors, demo mapping, scenario checker, registry test, golden/benchmark metadata | make each descriptor the fixture/data source for its behavior test, golden, and benchmark |
 | 3. Software goldens and browser lifecycle | Software/host gates complete | `62a9caa` and `9c25379`, seven exact PPM goldens, manifest/checker, ephemeral server/host harness with Canvas/ARIA/input/teardown evidence | native screenshot parity, real-browser/device automation, and linked Mojo Web runtime |
 | 4. Typed localized execution | One-subtree slice complete | `676cbd4` and `b813e53`, `TypedSubtreeExecutor`, `ExecutionWorkCounters`, localized test and benchmark; explicit paint return type passes precompile | parent scheduling, keyed view diff, insertion/removal/reorder, and root-fallback accounting |
 | 5. Structured benchmark profiles | Local protocol complete | `4df99c8` and `850f610`, `benchmark-quick`/`benchmark-full`, 3/10-case smoke reports under `dist/benchmark-results/` | environment-stamped reviewed baselines, variance/median comparison, and 1/10/100-child matrix |
@@ -163,7 +163,7 @@ Acceptance checks:
 - insertion/removal/reorder has an explicit tested fallback or localized path;
 - a 1/10/100-child benchmark demonstrates bounded work using counters, with
   no wall-clock claim required; and
-- all existing 65 test programs continue to pass.
+- all existing 66 test programs continue to pass.
 
 ### 4. Add deterministic visual regression
 
