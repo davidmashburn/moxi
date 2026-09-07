@@ -39,7 +39,7 @@ before their measured runs.
 | Workload | What it exercises | Stable signals |
 | --- | --- | --- |
 | Retained pipeline | layout, identity reconciliation, paint, scene conversion, fixed/variable-extent range math | passes, child count, paint commands, checksum, operations/frame |
-| Typed localized execution | one `TypedSubtreeExecutor[ComponentType]`, scoped invalidation, retained reconciliation, and paint accounting | passes, initial/final builds, invalidations, dependency visits, dirty tokens, reconciled nodes, paint commands, total work |
+| Typed localized execution | one `TypedSubtreeExecutor[ComponentType]`, scoped invalidation, retained reconciliation, paint accounting, and a 1/10/100-child matrix | passes, child count, initial/final builds, invalidations, dependency visits, dirty tokens, reconciled nodes, paint commands, total work |
 | Interactive fractal | line-fractal expansion, one Mojo-to-native endpoint batch, GPU-instanced line expansion, CPU encoding, GPU completion, and synchronized frame time | terminal lines, expansion time, neutral paint time, Metal line segments/vertices/submissions, line-upload time, CPU encode/wait/frame time, GPU time/availability, checksum |
 | Portable plot | plot scales, axes, labels, line/scatter/bar scene emission, software rasterization | commands/frame, rasterized pixels/frame, checksum |
 | Metal plot packet | ordered plot batches, viewport LOD, one native transfer per batch, GPU line/instance expansion, complete chrome composition | source/emitted points, line segments, instances, packet bytes, ordered batches, GPU submissions, vertices, CPU/GPU/frame time, checksum |

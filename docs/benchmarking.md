@@ -20,6 +20,12 @@ The localized and plot workloads identify themselves through
 registry; it verifies that benchmark sources remain mapped to real files and
 that the corresponding demo/test/golden metadata has not drifted.
 
+The localized workload also runs a 1/10/100-child matrix. Each case sends 1,000
+targeted updates through a typed subtree and records initial/final builds,
+invalidations, dependency visits, reconciled nodes, paint commands, and total
+work. These counters make subtree-size changes reviewable without treating a
+single workstation's wall-clock time as a portability claim.
+
 The complete matrix is available explicitly:
 
 ```sh

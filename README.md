@@ -442,8 +442,8 @@ use `TypedSubtreeExecutor[ComponentType]`. It wires one `StateScope` and
 dependency edge to a retained runtime, exposes `invalidate()` and
 `rebuild_if_dirty()`, and reports `ExecutionWorkCounters` for builds,
 dependency visits, reconciled nodes, and paint commands. The repeatable
-workload is `pixi run benchmark-quick` (included in the structured benchmark
-report).
+workload is `pixi run benchmark-quick`, which includes a 1/10/100-child matrix
+in its structured report.
 
 `CheckboxControl`, `SliderControl`, `SwitchControl`, `RadioControl`, and the
 catalog descriptors extend the same pattern for stateful controls. The
