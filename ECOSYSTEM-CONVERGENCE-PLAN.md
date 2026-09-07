@@ -8,7 +8,7 @@ Planning branch: `project-planning`
 ### Implementation audit — 2026-09-07
 
 The E1-E8 execution pass plus the recipe-wave and static-catalog continuations
-are complete on `main` at `6707a8d`. The main implementation landed in
+are complete on `main` at `6262caf`. The main implementation landed in
 `f018f6f`; follow-ups made upstream reference execution explicit, added shared
 Python recipe geometry, and then added the portable headless lane plus the
 row-oriented catalog contract. The local gates are closed as follows:
@@ -249,7 +249,7 @@ and public package upload remain separate release actions.
 
 ### Gate E1: portable headless package boundary
 
-**Status:** complete for the portable package lane at `6707a8d`. Pixi resolves
+**Status:** complete for the portable package lane at `6262caf`. Pixi resolves
 `osx-arm64` and `linux-64`, the portable Plot API has a source-precompile and
 software-renderer smoke, and GitHub Actions has a locked Linux headless job.
 This does not claim a native Linux window/Metal host: `BACKEND_LINUX` remains
@@ -291,9 +291,10 @@ canvas and Python are not accidentally tied to AppKit or Metal.
 
 **Evidence:** `tests/portable_plot.mojo`, `scripts/headless_check.sh`, the
 `headless-linux` workflow job, `pixi lock --check`, and the local
-`pixi run headless-check`/`pixi run check` results. The remaining proof that
-depends on external infrastructure is the actual Linux-host CI execution;
-the repository now has the reproducible lane for it.
+`pixi run headless-check`/`pixi run check` results. GitHub Actions run
+`34157817093` passed `headless-linux` on Linux x86-64, the full macOS
+validation, and the dependent artifact-level `package-consumer` job. The
+cache-service annotations on that run did not affect any validation result.
 
 **Estimate:** 1-3 engineering weeks. This can partially overlap E0, but must
 finish before distributable Python artifacts.
@@ -576,7 +577,7 @@ mark breadth.
 
 ### Gate E7: dataviz capability waves
 
-**Status:** complete for the static catalog lane at `6707a8d`. The core
+**Status:** complete for the static catalog lane at `6262caf`. The core
 overlap wave and recipe wave have executable value-boundary evidence, and all
 40 canonical catalog names now round-trip through the shared Python/Mojo
 PlotSpec boundary. The 38 catalog inventory rows have explicit
@@ -623,7 +624,7 @@ public API make that limitation explicit; the current inventory does so.
 
 ### Gate E8: release stabilization
 
-**Status:** complete for the local release gate at `6707a8d`. The default
+**Status:** complete for the local release gate at `6262caf`. The default
 portable renderer remains the deterministic software oracle; Canvas is the
 nightly-pinned opt-in export backend for commands with explicit parity or
 fallback policy. Public artifact upload and any stable upstream Canvas release
