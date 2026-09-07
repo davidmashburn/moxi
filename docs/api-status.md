@@ -1,6 +1,6 @@
 # Moxi API status
 
-Generated from `src/moxi/__init__.mojo` and `docs/api-lanes.tsv`. Run `pixi run api-status-check -- --write` after changing the public re-export list or a support lane. Unknown public modules fail the check. The support lane is a compatibility statement, not a claim that every host implements every backend feature.
+Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibility snapshots. Run `pixi run api-status-check -- --write` after changing the public re-export list or a support lane. Unknown public modules fail the check. The support lane is a compatibility statement, not a claim that every host implements every backend feature.
 
 - `stable-core`: compatibility-oriented value, component, layout, event, paint, and runtime contracts.
 - `provisional`: useful support APIs that may still change before a 1.0 stability promise.

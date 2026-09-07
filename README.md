@@ -321,6 +321,10 @@ For the public-surface inventory, see [docs/API.md](docs/API.md). The
 accessibility/native-widget contract is documented in
 [docs/accessibility.md](docs/accessibility.md). For the visual acceptance
 surface and source-controlled reference, see [docs/visual.md](docs/visual.md).
+Public export changes are checked against the generated
+[API surface snapshot](docs/api-surface.tsv) and explicit
+[compatibility manifest](docs/api-compatibility.tsv); focused/provisional
+imports do not silently change the root compatibility promise.
 `pixi run check` generates compiler API metadata at `dist/moxi-api.json`, checks
 the canonical scenario consumer inventory, runs the software visual corpus, and
 runs the host lifecycle checks. `pixi run

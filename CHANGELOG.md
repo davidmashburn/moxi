@@ -2,6 +2,10 @@
 
 ## Unreleased — post-0.5 experimental slices
 
+- Added a generated API surface snapshot and explicit compatibility/deprecation
+  manifest. Removing a public root export now requires a reviewed
+  `deprecated`/`moved`/`removed` entry with replacement and release metadata;
+  deprecated aliases remain exported until their intentional removal.
 - Moved the interactive fractal canvas onto the macOS Metal geometry path. The
   regular AppKit host still owns controls, input, and accessibility, while an
   embedded `CAMetalLayer` handles the dense canvas; the fallback remains

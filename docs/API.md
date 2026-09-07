@@ -1,5 +1,15 @@
 # Moxi API inventory: 0.5 baseline and post-0.5 slices
 
+The generated export inventory is mechanically checked against
+[`api-surface.tsv`](api-surface.tsv). A removed root export must first appear in
+[`api-compatibility.tsv`](api-compatibility.tsv) as a `deprecated`, `moved`, or
+`removed` entry with its introduction and removal release; deprecated/moved
+names remain exported until the removal release is intentionally recorded.
+Run `pixi run api-status-check -- --write` after an intentional public-surface
+change, review all three generated/manifest diffs, and commit the compatibility
+decision with the API change. This is a compatibility guard, not a promise that
+host-adapter or experimental lanes are stable.
+
 This is the short, navigable inventory of the public package surface. The
 source files and Mojo compiler remain the normative API definition; the
 release gate also emits `dist/moxi-api.json` with compiler-generated API
