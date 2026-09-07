@@ -3,16 +3,112 @@
 from moxi import test_check
 from moxi import (
     App,
+    ActionEvent,
     CLICK_KIND,
+    ClickEvent,
+    ColumnView,
+    Component,
+    ComponentSlot,
+    CompositionEvent,
     COMPOSED_COUNTER_ID_OFFSET,
     COMPOSED_COUNTER_SLOT_ID,
     ComposedState,
     COUNTER_INCREMENT_ACTION,
     Event,
+    FormState,
+    INTERACTION_SHOWCASE_DIALOG_ID,
+    InteractionShowcaseState,
+    KeyedSubtreeDescriptor,
     PANEL_KIND,
     Point,
     Rect,
+    ROOT_SCROLL_ID,
+    ScrollEvent,
 )
+
+
+comptime PRESERVATION_FORM_SLOT_ID = 30
+comptime PRESERVATION_FORM_ID_OFFSET = 1000
+comptime PRESERVATION_INTERACTION_SLOT_ID = 40
+comptime PRESERVATION_INTERACTION_ID_OFFSET = 2000
+
+
+struct LocalizedPreservationHost(Component):
+    """Exercise localized recomposition with independent retained children."""
+
+    var form: ComponentSlot[FormState]
+    var interaction: ComponentSlot[InteractionShowcaseState]
+
+    def __init__(out self):
+        self.form = ComponentSlot(
+            FormState(),
+            KeyedSubtreeDescriptor(
+                1,
+                PRESERVATION_FORM_SLOT_ID,
+                1,
+                1,
+                PRESERVATION_FORM_ID_OFFSET,
+            ),
+        )
+        self.interaction = ComponentSlot(
+            InteractionShowcaseState(),
+            KeyedSubtreeDescriptor(
+                2,
+                PRESERVATION_INTERACTION_SLOT_ID,
+                2,
+                2,
+                PRESERVATION_INTERACTION_ID_OFFSET,
+            ),
+        )
+
+    def _compose(self, bounds: Rect) -> ColumnView:
+        var root = ColumnView(bounds, 8.0, 6.0)
+        root.add_label(1, "Localized state host", 24.0)
+        var child_width = bounds.width - 16.0
+        if child_width < 0.0:
+            child_width = 0.0
+        var form = self.form.build(
+            Rect(bounds.x, bounds.y, child_width, 180.0)
+        )
+        var interaction = self.interaction.build(
+            Rect(bounds.x, bounds.y, child_width, 280.0)
+        )
+        root.add_component_view_to(
+            -1,
+            PRESERVATION_FORM_SLOT_ID,
+            form,
+            PRESERVATION_FORM_ID_OFFSET,
+            180.0,
+        )
+        root.add_component_view_to(
+            -1,
+            PRESERVATION_INTERACTION_SLOT_ID,
+            interaction,
+            PRESERVATION_INTERACTION_ID_OFFSET,
+            280.0,
+        )
+        root.add_label(2, "Localized tail", 40.0)
+        root.layout()
+        return root^
+
+    def supports_localized_execution(self) -> Bool:
+        return True
+
+    def localized_view(mut self, bounds: Rect) -> ColumnView:
+        return self._compose(bounds)
+
+    def localized_dispatch(mut self, event: Event, view: ColumnView) -> Int:
+        if self.form.contains(event.target, view):
+            return 2 if self.form.route(event, view) else 1
+        if self.interaction.contains(event.target, view):
+            return 2 if self.interaction.route(event, view) else 1
+        return 0
+
+    def build(self, bounds: Rect) -> ColumnView:
+        return self._compose(bounds)
+
+    def update(mut self, event: Event, view: ColumnView) -> Bool:
+        return False
 
 
 def main():
@@ -52,4 +148,59 @@ def main():
     var local = app.component.counter.project_view(app.view)
     test_check(local.child(2).id == 3)
     test_check(local.child(2).text == "Increment")
+
+    # A localized recomposition must not discard state owned by sibling
+    # children or by the App/runtime around them. This host intentionally
+    # overflows its root so the scroll offset exercises App-owned retention,
+    # while the interaction child keeps a live popup stack.
+    var preserved_app = App[LocalizedPreservationHost](
+        LocalizedPreservationHost(),
+        Rect(0.0, 0.0, 520.0, 160.0),
+    )
+    test_check(preserved_app.view.scroll_max_offset(ROOT_SCROLL_ID) > 0.0)
+    test_check(preserved_app.dispatch(Event(ScrollEvent(
+        Point(8.0, 8.0),
+        Point(0.0, 64.0),
+    ))))
+    var preserved_scroll = preserved_app.view.scroll_offset_for(ROOT_SCROLL_ID)
+    test_check(preserved_scroll > 0.0)
+
+    var input_bounds = preserved_app.view.bounds_for(
+        PRESERVATION_FORM_ID_OFFSET + 2
+    )
+    _ = preserved_app.dispatch(Event(ClickEvent(Point(
+        input_bounds.x + 2.0,
+        input_bounds.y + 2.0,
+    ))))
+    test_check(
+        preserved_app.focus_id() == PRESERVATION_FORM_ID_OFFSET + 2
+    )
+    test_check(preserved_app.dispatch(Event(CompositionEvent("かな", 1, 2))))
+    test_check(
+        preserved_app.component.form.component.input.composition == "かな"
+    )
+    test_check(
+        preserved_app.focus_id() == PRESERVATION_FORM_ID_OFFSET + 2
+    )
+    test_check(
+        preserved_app.view.scroll_offset_for(ROOT_SCROLL_ID) == preserved_scroll
+    )
+    var dialog = Event(ActionEvent(INTERACTION_SHOWCASE_DIALOG_ID))
+    dialog.set_target(
+        PRESERVATION_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_DIALOG_ID
+    )
+    test_check(preserved_app.dispatch(dialog))
+    test_check(preserved_app.component.interaction.component.popups.depth() == 1)
+    test_check(preserved_app.dispatch(Event(CompositionEvent("名前", 0, 2))))
+    test_check(
+        preserved_app.component.form.component.input.composition == "名前"
+    )
+    test_check(preserved_app.component.interaction.component.popups.depth() == 1)
+    test_check(
+        preserved_app.view.scroll_offset_for(ROOT_SCROLL_ID) == preserved_scroll
+    )
+    var preserved_work = preserved_app.execution_work_counters()
+    test_check(preserved_work.root_fallbacks == 0)
+    test_check(preserved_work.parent_builds >= 2)
+
     print("Moxi composed-component test passed")
