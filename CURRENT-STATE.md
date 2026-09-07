@@ -1,6 +1,6 @@
 # Moxi current-state audit
 
-Audited September 6, 2026 against `main` at `26aa56c`. This document is based
+Audited September 6, 2026 against `main` at `977089a`. This document is based
 on source, tests, build scripts, and local validation. README, changelog, and
 older roadmap claims were treated as hypotheses until the implementation
 confirmed them.
@@ -18,23 +18,24 @@ checked in, software-renderer PPM goldens and a browser-host lifecycle harness
 run through the validation path, typed localized execution exposes work
 counters, and quick/full benchmark profiles emit structured JSON. One reviewed
 macOS arm64 full-profile baseline and a same-environment comparison command are
-now checked in. The next risk is not missing features; it is making those slices
-compose into a smaller supportable contract. The package boundary still
-re-exports hundreds of names, `App` still has a root-wide fallback, benchmark
-comparison has no compatible baseline beyond macOS arm64, and linked Mojo
-runtimes remain unavailable on non-macOS targets.
+now checked in. Collection and plot fixture defaults now derive their size and
+seed from the canonical registry. The next risk is not missing features; it is
+making those slices compose into a smaller supportable contract. The package
+boundary still re-exports hundreds of names, `App` still has a root-wide
+fallback, benchmark comparison has no compatible baseline beyond macOS arm64,
+and linked Mojo runtimes remain unavailable on non-macOS targets.
 
 ## Validation performed
 
 | Check | Result | What it proves |
 | --- | --- | --- |
-| repository audit and sequential commits | `main` is audited at `26aa56c`; `project-planning` retains the modular-ecosystem research plus this progress ledger | the code and plan were reconciled against the latest local implementation rather than trusting older prose |
+| repository audit and sequential commits | `main` is audited at `977089a`; `project-planning` retains the modular-ecosystem research plus this progress ledger | the code and plan were reconciled against the latest local implementation rather than trusting older prose |
 | `pixi run test` | pass, 66 Mojo test programs | portable unit and integration contracts compile and execute together |
 | `pixi run check` | pass, including API inventory, seven software goldens, strict native compilation, generated API docs, Android APK, iOS simulator app, Web host, browser lifecycle, HarfBuzz, and live reload | the full repository validation path succeeds on the audited macOS host with its installed SDKs |
 | `MOXI_BENCHMARK_RUNS=1 pixi run release-check` | pass, including package publication/consumer, release-only native builds, and the complete 10-case benchmark matrix | the distributable package and release wrapper work on the audited host; benchmark output remains diagnostic rather than a reviewed baseline |
 | clean full-profile baseline | 30 runs across 10 cases, `git_dirty: false`, checked in at `benchmarks/results/macos-arm64-full.json` | deterministic counters/checksums and the measured environment are durable for future same-environment review |
-| `MOXI_BENCHMARK_RUNS=3 pixi run benchmark-full` | pass for 10 cases with a clean schema-v2 report | the complete matrix is repeatable from a clean tree and emits deterministic counters/checksums plus per-run status/timing and environment metadata |
-| `pixi run benchmark-compare` | pass for 10 cases against the reviewed macOS arm64 baseline | compatible environment metadata and deterministic signatures match; median wall-time regression stays within the documented diagnostic threshold |
+| `MOXI_BENCHMARK_RUNS=3 pixi run benchmark-full` | pass for 10 cases with a clean schema-v2 report after the fixture refactor | the complete matrix is repeatable from a clean tree and emits deterministic counters/checksums plus per-run status/timing and environment metadata |
+| `pixi run benchmark-compare` | pass for 10 cases against the reviewed macOS arm64 baseline after a repeat run | compatible environment metadata and deterministic signatures match; the initial timing-only outlier was cleared by the repeat sample and the final medians stay within the documented diagnostic threshold |
 | `pixi run visual-check` / `pixi run browser-check` | pass for 7 PPM images / the host lifecycle JSON contract | software pixels are compared exactly; the Web page and host publish readiness, Canvas, input, ARIA, and teardown evidence |
 | source/build inspection | 276 tracked files, 183 tracked Mojo files, 69 Mojo test files | the aggregate test runner intentionally covers 66 programs; `live_reload.mojo`, `package_consumer.mojo`, and the scenario manifest are exercised by dedicated scripts |
 
@@ -43,10 +44,10 @@ runtimes remain unavailable on non-macOS targets.
 The ordered implementation pass is recorded here so the plan does not imply
 that a partial vertical slice is a complete product claim.
 
-| Workstream | Status at `26aa56c` | Evidence | Remaining boundary |
+| Workstream | Status at `977089a` | Evidence | Remaining boundary |
 | --- | --- | --- | --- |
 | Public API inventory | Implemented | `docs/api-status.md`, `scripts/api_status_check.sh`, 855 classified exports | focused import paths, compatibility policy, and stable/provisional package enforcement |
-| Canonical scenarios | Registry and consumer inventory implemented | `src/moxi/scenarios.mojo`, `scripts/scenario_check.sh`, demo catalog mapping, registry contract test, golden/benchmark metadata | make each descriptor's fixture/data the implementation source, not only the consumer mapping |
+| Canonical scenarios | Registry, consumer inventory, and collection/plot fixture defaults implemented | `src/moxi/scenarios.mojo`, `scripts/scenario_check.sh`, `4ef1171`, demo catalog mapping, registry contract test, golden/benchmark metadata | make form/theme/text/capability/fractal fixture data flow from descriptor-owned factories, not only metadata |
 | Software visual regression | Implemented for software oracle | seven lossless PPM images, manifest, exact checker, reviewable actual/expected/diff artifacts | native screenshot parity and threshold/mask policy for platform-dependent output |
 | Browser host lifecycle | Implemented as deterministic host gate | `scripts/browser_check.sh`, `tests/web_browser_harness.mjs`, readiness/Canvas/ARIA markers | linked Mojo Web runtime and real-browser/device automation in CI |
 | Typed localized execution | Implemented as one typed subtree slice | `TypedSubtreeExecutor`, `ExecutionWorkCounters`, `tests/execution.mojo`, localized benchmark | parent/child scheduling, keyed view diff, insertion/removal/reorder, and explicit root fallback counters |
@@ -74,7 +75,7 @@ policy exists.
 | Platforms | macOS Apple Silicon is the only package target. iOS simulator, Android APK, and browser host artifacts are buildable when SDKs are present, but they do not host a linked Mojo application runtime. The Web host now has an ephemeral-server lifecycle harness with readiness, Canvas, input, ARIA, and teardown assertions. CI is macOS-only and some host checks skip when SDKs are absent. | High | `pixi.toml`, `.github/workflows/ci.yml`, `scripts/host_check.sh`, `scripts/browser_check.sh`, `tests/web_browser_harness.mjs`, `native/` | The next platform gate is one linked Mojo runtime on a real target with the same scenario and accessibility evidence—not more adapter types. |
 | Plotting | Typed columnar data, stable keys, versioned JSON spec parsing, transforms, statistical recipes, facets, interaction, selection/linking, LOD, accessibility/CSV, software/SVG, and a Metal packet path are implemented. Several advanced mark families and exports remain absent. | High | `plot_*.mojo`, `plotting.mojo`, plot tests/benchmarks | Harden the implemented 2D subset as a provisional package; do not chase polar, geographic, 3D, or new marks yet. |
 | Capability bus | In-process descriptors, schemas, policy, approvals, replay, typed handlers, leases, queue bounds, and walkthrough automation exist. Transport, persistence, deadlines/cancellation, and external execution remain outside the core. | High | `capability.mojo`, `conversation.mojo`, capability tests/walkthrough | Keep it optional and transport-neutral. Stabilize the authorization contract before adding an agent runtime. |
-| Scenarios and demos | Real demos mount in one browser and source panels show component code. `scenarios.mojo` now centralizes seven stable descriptors and the demo browser/golden registry tests consume the inventory; feature fixtures and benchmark workloads are not yet all generated from those descriptors. | High | demo browser, `scenarios.mojo`, `tests/scenarios.mojo`, `tests/golden_render.mojo`, form/wx/showcase modules | Make each descriptor the single fixture source for its behavior test, golden, and benchmark, then enforce that mapping in the catalog check. |
+| Scenarios and demos | Real demos mount in one browser and source panels show component code. `scenarios.mojo` centralizes seven stable descriptors; the demo browser/golden registry tests consume the inventory, and collection/plot factories now derive default size/seed from it. Other feature fixtures and benchmark workloads are not yet all generated from those descriptors. | High | demo browser, `scenarios.mojo`, `tests/scenarios.mojo`, `tests/golden_render.mojo`, form/wx/showcase modules, `4ef1171` | Make each descriptor the single fixture source for its behavior test, golden, and benchmark, then enforce that mapping in the catalog check. |
 | Tests and visual QA | Contract coverage is broad, the software renderer exposes deterministic checksums, and seven lossless PPM goldens run through `scripts/visual_check.sh` with reviewable mismatch artifacts. SVG illustrations remain documentation references, and native screenshot parity is not automated. | High | `scripts/test.sh`, `scripts/visual_check.sh`, `tests/goldens/`, renderer tests, `docs/*.svg` | Add native threshold/mask policy and real screenshot capture only after platform ownership and font policy are explicit. |
 | Benchmarks | Quick/full profiles preserve the existing workloads and emit structured JSON with commands, status, wall time, deterministic metric lines, and environment metadata. A reviewed macOS arm64 full-profile baseline is committed, and compatible candidates can be checked with the comparator; local/CI samples remain ignored. | High | `scripts/benchmark.sh`, `scripts/benchmark_compare.py`, `benchmarks/result-schema.json`, `benchmarks/results/`, `docs/benchmarking.md`, `docs/performance.md` | Add dispersion reporting, CI wiring, and compatible baselines beyond macOS arm64 before making cross-environment comparative performance claims. |
 
