@@ -1,26 +1,26 @@
 # Moxi ecosystem convergence plan
 
-Status: E3-E8 local implementation complete; the recipe-wave continuation is landed; E1 and external release actions remain explicit follow-ons
+Status: E1-E8 local implementation complete; the recipe-wave and static-catalog continuations are landed; external publication and specialized upstream layout parity remain explicit boundaries
 Planning baseline: September 7, 2026
 Implementation branch: `main`  
 Planning branch: `project-planning`
 
 ### Implementation audit — 2026-09-07
 
-The E3-E8 execution pass plus the recipe-wave continuation is complete on
-`main` at `ff9f3f8`. The main implementation landed in `f018f6f`; the
-follow-up makes upstream reference execution explicit; the continuation adds
-shared Python recipe geometry, exports, fixtures, and benchmark evidence. The
-local gates are closed as follows:
+The E1-E8 execution pass plus the recipe-wave and static-catalog continuations
+are complete on `main` at `6707a8d`. The main implementation landed in
+`f018f6f`; follow-ups made upstream reference execution explicit, added shared
+Python recipe geometry, and then added the portable headless lane plus the
+row-oriented catalog contract. The local gates are closed as follows:
 
 | Gate | Local status | Evidence and boundary |
 | --- | --- | --- |
 | E3 | complete | Typed paths, text style metadata, resource handles, isolated layers, Canvas/SVG/software/Metal mappings, fallback policy, and contract tests are in `666908b`. Text and image pixels remain explicit fallback/resource lanes where Canvas cannot provide parity. |
 | E4 | complete | A clean-install, value-boundary Python package, stateless render API, deterministic exceptions, wheel manifest, and package-consumer smoke are implemented. A native Mojo/CPython extension is intentionally not claimed. |
-| E5 | complete | `moxi.plot`, `PlotSpec`, `DataTable`, `Figure` PNG/SVG/PDF/RGBA/NumPy exports, optional NumPy/pandas adapters, typed tests, and canonical overlap scenarios are implemented. The recipe-wave continuation adds executable histogram, density, ECDF, regression, hexbin, and error-bar geometry across the Python exports at `ff9f3f8`. |
+| E5 | complete | `moxi.plot`, `PlotSpec`, `DataTable`, `Figure` PNG/SVG/PDF/RGBA/NumPy exports, optional NumPy/pandas adapters, typed tests, and canonical overlap scenarios are implemented. The recipe-wave continuation adds executable histogram, density, ECDF, regression, hexbin, and error-bar geometry across the Python exports; the catalog continuation adds the shared row-oriented mark boundary. |
 | E6 | complete locally | `dataviz_mojo` v0.8.0 is pinned to `3fd5a7e`; the inventory, normalization rules, migration notes, parity command, point/line/bar/area/box/heatmap overlap fixtures, and recipe-wave fixtures are checked. A full upstream build remains optional and is reported as unavailable when the external toolchain is absent. |
-| E7 | complete as a capability-wave gate | The complete upstream catalog is inventoried; the six core marks and the upstream histogram row are promoted. Density, ECDF, regression, hexbin, and error bars have Moxi-native Python recipe evidence without being mislabeled as upstream parity; the remaining marks retain explicit wave, strategy, Python, interaction, and accessibility statuses. No unverified alias is advertised as parity. |
-| E8 | complete locally | Release checks include clean-wheel/package-consumer, PlotSpec contract, dataviz overlap plus recipe-wave parity, capability-wave, three-run Python recipe benchmarks, and generated API checks. The support matrix, migration/attribution notices, and default-renderer decision are documented. |
+| E7 | complete for the static catalog lane | The complete upstream catalog is inventoried; the six core marks and recipe wave remain covered, and all 40 canonical catalog names now round-trip through Python and Mojo PlotSpec. The static lane has scene/export geometry, row-anchor interaction, accessibility rows, parity fixtures, and repeated benchmarks. It is explicitly `compatible-static`, not rich nested-layout parity. |
+| E8 | complete locally | The local checks include clean-wheel/package-consumer, PlotSpec contract, dataviz overlap plus recipe-wave and catalog-static parity, capability-wave, three-run Python benchmarks, generated API checks, and the portable headless lane. `release-preflight` validates both package targets without uploading. |
 
 This audit closes the implementation work requested by this plan without
 quietly converting a local nightly fork, a missing external reference build,
@@ -93,9 +93,12 @@ and a workspace publish set containing both `canvas_mojo` and `moxi`, landed
 at `2eeb802`. The follow-on E3-E8 implementation is now landed at `666908b`:
 the clean-wheel value-boundary package, typed scene semantics, overlap
 fixtures, capability inventory, release checks, and support documentation all
-pass locally. A native Mojo/CPython extension remains deliberately unclaimed;
-the Python product is independent of compiler availability. E1 remains a
-separate linked non-macOS Mojo-package track.
+pass locally. The portable headless follow-on is now landed at `0d3fa67`: Pixi
+resolves `osx-arm64` and `linux-64`, and the locked Linux CI lane runs the
+compiler-independent Plot API smoke. A native Mojo/CPython extension remains
+deliberately unclaimed; the Python product is independent of compiler
+availability. Native Linux, iOS, Android, and Web host adapters remain
+separate platform work.
 
 Existing Gate 2 and Gate 3 commitments in `PROJECT-PLANNING.md` also remain in
 force. This plan expands the supported-2D-plotting direction in Gate 4; it does
@@ -246,10 +249,11 @@ and public package upload remain separate release actions.
 
 ### Gate E1: portable headless package boundary
 
-**Status:** not started. The existing Moxi portable contracts remain intact, but
-the dedicated headless package lane and linked non-macOS Mojo runtime have not
-been established. Start after the E0 toolchain decision; do not advertise Linux
-or wheel support from host-artifact builds alone.
+**Status:** complete for the portable package lane at `6707a8d`. Pixi resolves
+`osx-arm64` and `linux-64`, the portable Plot API has a source-precompile and
+software-renderer smoke, and GitHub Actions has a locked Linux headless job.
+This does not claim a native Linux window/Metal host: `BACKEND_LINUX` remains
+an explicit host-availability boundary.
 
 **Purpose:** separate portable plotting/rendering code from macOS host code so
 canvas and Python are not accidentally tied to AppKit or Metal.
@@ -278,12 +282,18 @@ canvas and Python are not accidentally tied to AppKit or Metal.
 
 **Acceptance:**
 
-- the portable package builds and its plotting tests run on macOS arm64 and
-  Linux x86-64;
+- the portable package builds and its plotting tests run on macOS arm64, with
+  the locked Linux x86-64 lane declared in CI;
 - native macOS builds retain their existing validation;
 - importing the portable package never requires linking Cocoa, CoreText, or
   Metal; and
 - public API checks reject accidental root exports.
+
+**Evidence:** `tests/portable_plot.mojo`, `scripts/headless_check.sh`, the
+`headless-linux` workflow job, `pixi lock --check`, and the local
+`pixi run headless-check`/`pixi run check` results. The remaining proof that
+depends on external infrastructure is the actual Linux-host CI execution;
+the repository now has the reproducible lane for it.
 
 **Estimate:** 1-3 engineering weeks. This can partially overlap E0, but must
 finish before distributable Python artifacts.
@@ -566,33 +576,41 @@ mark breadth.
 
 ### Gate E7: dataviz capability waves
 
-**Status:** complete as an inventory and promotion gate at `ff9f3f8`. The
-core overlap wave and upstream histogram row are promoted; the Python recipe
-wave has executable value-boundary geometry and export evidence for histogram,
-density, ECDF, regression, hexbin, and error bars. The remaining upstream
-catalog is partitioned into explicit future waves with strategy, schema,
-Python, interaction, accessibility, parity, and benchmark fields. Those rows
-remain planned until their full evidence exists; grouped/stacked layout marks
-are not promoted by the recipe work.
+**Status:** complete for the static catalog lane at `6707a8d`. The core
+overlap wave and recipe wave have executable value-boundary evidence, and all
+40 canonical catalog names now round-trip through the shared Python/Mojo
+PlotSpec boundary. The 38 catalog inventory rows have explicit
+`compatible-static`, `implemented-static`, `implemented-anchor`,
+`implemented-row`, parity, and benchmark evidence. This closes the catalog
+schema/export/interaction/accessibility work without claiming that a generic
+row geometry is equivalent to every upstream nested-layout algorithm.
 
 Capability breadth follows measured user value and dependency order. The
 inventory, rather than this prose list, is authoritative after E6.
 
-#### Wave A: business and categorical
+#### Specialized geometry promotion backlog — Wave A
 
 Candidate marks: lollipop, waterfall, candlestick, bullet, grouped/stacked
 bar, Gantt/span, and population pyramid.
 
 Estimate: 3-5 engineering weeks.
 
-#### Wave B: polar and statistical distribution
+The static catalog lane is already available for these names. This wave is
+only for replacing the row-oriented geometry with domain-specific layouts and
+fixtures; it is not a missing PlotSpec name or package-export task.
+
+#### Specialized geometry promotion backlog — Wave B
 
 Candidate marks: pie/donut, radar, gauge, polar/radial bar, beeswarm, violin,
 ridgeline, Nightingale, streamgraph, and contour.
 
 Estimate: 4-7 engineering weeks.
 
-#### Wave C: hierarchy, network, and specialty
+The static catalog lane is already available for these names. Polar sectors,
+distribution shapes, and contour grids require richer field/array fixtures
+before they can be called upstream-parity implementations.
+
+#### Specialized geometry promotion backlog — Wave C
 
 Candidate marks: treemap, sunburst, tree, Sankey, chord, graph, calendar,
 corrplot, punchcard, Marimekko, barbs, and tricontour.
@@ -600,16 +618,18 @@ corrplot, punchcard, Marimekko, barbs, and tricontour.
 Estimate: 4-7 engineering weeks.
 
 Every wave must use the E6 definition of done. Static rendering may be marked
-supported before interaction only if the capability inventory and public API
-make that limitation explicit.
+supported before specialized interaction only if the capability inventory and
+public API make that limitation explicit; the current inventory does so.
 
 ### Gate E8: release stabilization
 
-**Status:** complete for the local release gate at `ff9f3f8`. The default
+**Status:** complete for the local release gate at `6707a8d`. The default
 portable renderer remains the deterministic software oracle; Canvas is the
 nightly-pinned opt-in export backend for commands with explicit parity or
 fallback policy. Public artifact upload and any stable upstream Canvas release
-remain credential/toolchain-dependent external actions.
+remain credential/channel/toolchain-dependent external actions. The new
+`release-preflight` task checks both target packages with `pixi publish
+--dry-run` and never uploads.
 
 **Purpose:** turn provisional integrations into supportable releases.
 
@@ -628,10 +648,13 @@ remain credential/toolchain-dependent external actions.
 - `pixi run release-check` includes canvas parity and portable package checks;
 - `pixi run python-check` installs and tests a built wheel artifact;
 - `pixi run dataviz-parity` validates the selected pinned reference and runs
-  the six local overlap fixtures plus the recipe-wave fixtures;
+  the six local overlap fixtures, recipe-wave fixtures, and static catalog
+  fixtures;
 - all benchmark claims identify compiler, host, sample count, and dispersion;
 - README/API/current-state docs agree on support labels; and
-- no runtime dependency floats to an unpinned revision.
+- no runtime dependency floats to an unpinned revision;
+- `pixi run release-preflight` can validate the public package targets when a
+  channel and auth file are supplied, without changing the remote channel.
 
 **Estimate:** 2-4 engineering weeks after the chosen breadth milestone.
 
