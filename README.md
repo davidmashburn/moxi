@@ -475,8 +475,10 @@ The shared 10,000-row workload is available from
 `pixi run interaction-benchmark`.
 `canonical_scenarios()` is the source-controlled registry for the seven
 scenario descriptors and their demo, test, benchmark, and golden consumers;
-`pixi run scenario-check` verifies that those paths, Pixi tasks, and golden
-labels still agree.
+its deterministic `fixture_size` and `fixture_seed` fields also supply the
+default collection and plot data used by those consumers. `pixi run
+scenario-check` verifies that the paths, Pixi tasks, golden labels, and fixture
+metadata still agree.
 
 `ColumnView` keeps explicit preferred sizes as the default. Call
 `set_intrinsic_width()` or `set_intrinsic_height()` on a node to opt into the

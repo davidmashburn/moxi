@@ -18,7 +18,11 @@ integer) when comparing runs.
 The localized and plot workloads identify themselves through
 `canonical_scenarios()`. Run `pixi run scenario-check` when changing the
 registry; it verifies that benchmark sources remain mapped to real files and
-that the corresponding demo/test/golden metadata has not drifted.
+that the corresponding demo/test/golden metadata has not drifted. Each
+descriptor also owns a deterministic `fixture_size`/`fixture_seed` pair; the
+collection and plot factories derive their default workload from those values,
+so changing a canonical fixture updates the demo/test/benchmark defaults
+together.
 
 The localized workload also runs a 1/10/100-child matrix. Each case sends 1,000
 targeted updates through a typed subtree and records initial/final builds,
