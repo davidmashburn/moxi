@@ -19,7 +19,7 @@ graphics capabilities.
 ## Reconciliation with the audited implementation
 
 The recommendations at the end of this research are evidence inputs, not a
-second roadmap. Reconciled against `main` at `7e12d3c`, their status is:
+second roadmap. Reconciled against `main` at `9606b24`, their status is:
 
 | Recommendation | Status in code | Planning treatment |
 | --- | --- | --- |

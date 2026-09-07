@@ -41,11 +41,14 @@ implementation, benchmark-host policy, API compatibility snapshot, or keyed
 `App` integration as part of the ecosystem convergence work. Those boundaries
 are complete for the current handoff and remain the source of truth.
 
-The read-only rebaseline is complete: `main` is at `7e12d3c` and the planning
-branch retains the research and Gate 1 evidence. Ecosystem work may now start
-from these facts, while visible AppKit screenshot review, broader localized
-state-preservation coverage, linked non-macOS runtimes, and additional
-full-profile host baselines remain explicit follow-on boundaries.
+The read-only rebaseline is complete: `main` is at `9606b24` and the planning
+branch retains the research and Gate 1 evidence. The latest follow-on slice
+adds regression coverage for IME/focus, root scroll, and sibling popup state
+through local recomposition. Ecosystem work may now start from these facts,
+while bounded topology indexes, accessibility/pointer-capture and deeper
+localized-state coverage, visible AppKit screenshot review, linked non-macOS
+runtimes, and additional full-profile host baselines remain explicit
+follow-on boundaries.
 
 Existing Gate 2 and Gate 3 commitments in `PROJECT-PLANNING.md` also remain in
 force. This plan expands the supported-2D-plotting direction in Gate 4; it does
