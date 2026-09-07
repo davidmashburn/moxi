@@ -1,6 +1,6 @@
 # Moxi current-state audit
 
-Audited September 7, 2026 against local `main` at `9fcd3b5` (implementation
+Audited September 7, 2026 against local `main` at `88af901` (runtime
 follow-on at `2987c39`). This document is based
 on source, tests, build scripts, and local validation. README, changelog, and
 older roadmap claims were treated as hypotheses until the implementation
@@ -35,17 +35,18 @@ re-exports hundreds of names, non-opted-in components retain a counted
 root-wide fallback, compatible full-profile baselines beyond macOS arm64 are
 not yet reviewed, and linked Mojo runtimes remain unavailable on non-macOS
 targets. The ecosystem convergence boundary, Python value-layer decision,
-dataviz capability inventory, and exact-pinned canvas feasibility result are
-now recorded in the main-branch architecture docs; the canvas adapter and
-Python extension remain gated by the compiler compatibility result.
+dataviz capability inventory, exact-pinned canvas feasibility result, and the
+first bounded Canvas SceneRenderer slice are now recorded in the main-branch
+architecture docs; Python extension packaging and complete canvas parity
+remain gated follow-ons.
 
 ## Validation performed
 
 | Check | Result | What it proves |
 | --- | --- | --- |
-| repository audit and sequential commits | local `main` is at `9fcd3b5`, with implementation follow-on `2987c39`; `project-planning` retains the Modular/Mojo ecosystem research plus this progress ledger | the code and plan were reconciled against the latest local implementation rather than trusting older prose |
-| `pixi run test` | pass, 68 Mojo test programs, including keyed scheduling, composed-child, text corpus, and parity contracts | portable unit and integration contracts compile and execute together |
-| `pixi run check` | pass after `2987c39`, including API/demo/scenario/visual, 68 tests, native text/scene replay, native screenshot tolerance, host, build, and release-support checks | the full repository validation path covers dependency fanout indexing, accessibility/pointer-capture assertions, nested local-state preservation, and the earlier Gate 1 slices |
+| repository audit and sequential commits | local `main` is at `88af901`, with runtime follow-on `2987c39`; `project-planning` retains the Modular/Mojo ecosystem research plus this progress ledger | the code and plan were reconciled against the latest local implementation rather than trusting older prose |
+| `pixi run test` | pass, 70 Mojo test programs, including the canvas renderer and cross-renderer parity contracts | portable unit and integration contracts compile and execute together |
+| `pixi run check` | pass after `88af901`, including API/demo/scenario/visual, 70 tests, native text/scene replay, native screenshot tolerance, host, build, and release-support checks | the full repository validation path covers dependency fanout indexing, accessibility/pointer-capture assertions, nested local-state preservation, and the canvas vertical slice |
 | `pixi run release-check` | pass at `7137c48`; package consumer, 68-test/native/host gate, and clean 30-run full benchmark all completed | the distributable package and release wrapper validate the completed ordered slices |
 | clean full-profile baseline | 30 runs across 10 cases, `git_dirty: false`, refreshed at `43e7cb0` from the corrected implementation report | deterministic counters/checksums, dispersion samples, and the measured environment are durable for future same-environment review |
 | `MOXI_BENCHMARK_RUNS=3 pixi run benchmark-full` | pass for 10 cases with a clean schema-v2 report after the fixture/parity slices | the complete matrix is repeatable from a clean tree and emits deterministic counters/checksums plus per-run status/timing and environment metadata |
@@ -53,7 +54,9 @@ Python extension remain gated by the compiler compatibility result.
 | `MOXI_BENCHMARK_RUNS=3 pixi run benchmark-quick` plus `benchmark-contract-check` | pass for 3 cases and 9 samples, including the host-independent portable contract | repeated quick evidence is available for review without promoting wall-clock values to a cross-host baseline |
 | `pixi run native-screenshot-check` | pass: 10,240 pixels, 2 tolerated line-edge mismatches, checked-in CoreText mask, report under `dist/native-artifacts/` | offscreen Metal capture is compared against the software oracle with explicit channel/mismatch budgets |
 | visible AppKit capture | `MOXI_RECORD_SECONDS=1 pixi run demo-record /tmp/moxi-visible-appkit-current.mov` completed; the resulting Moxi Playground window was manually inspected | genuine native window/title bar/sidebar/focus/live-component evidence exists, but this is a review capture rather than a pixel-parity gate and is intentionally not checked in |
-| exact-pinned `canvas_mojo` feasibility | upstream `v0.21.0` at `27401fe83c76488fe3b3ab2dcd12ad09333bba51` runs its own Mojo 1.0.0 smoke; the same source does not build under Moxi's Mojo 1.1.0.dev2026082605 environment (`std.runtime.asyncrt`, `InlineArray`, and decorator-syntax failures) | the revision and failure are reproducible and the dependency was removed rather than leaving a broken lock; E1/E2 remain gated on a compatible toolchain or upstream patch |
+| exact-pinned `canvas_mojo` feasibility | upstream `v0.21.0` at `27401fe83c76488fe3b3ab2dcd12ad09333bba51` runs its own Mojo 1.0.0 smoke; the compatibility fork at `323154f9399f4ecfa6d5d2fb0fc7d87883fe3c1e` precompiles under Moxi's Mojo 1.1.0.dev2026082605 | the fork's core tests, package build, real import probe, Moxi CanvasSceneRenderer tests, and canonical PNG export pass; public Canvas runtime distribution and complete parity remain open |
+| `pixi run package-consumer` | pass with the Moxi archive plus the exact source-built `canvas_mojo` artifact | the installed package import path works when the nightly Canvas companion artifact is present; a standalone public runtime dependency is still not claimed |
+| `pixi run canvas-scene` smoke | pass: 65 commands, 15 explicit fallbacks, checksum `853855300`, 1.75 s wall time, 234 MiB peak resident memory | the canonical plot Scene reaches Canvas and produces deterministic raster/export evidence; values are directional nightly measurements, not a release baseline |
 | `pixi run visual-check` / `pixi run browser-check` | pass for 7 PPM images / the host lifecycle JSON contract | software pixels are compared exactly; the Web page and host publish readiness, Canvas, input, ARIA, and teardown evidence |
 | source/build inspection | 295 tracked files, 190 tracked Mojo files, 73 Mojo test files | the aggregate test runner covers 68 programs; `golden_render.mojo`, `live_reload.mojo`, `native_scene_parity.mojo`, `native_text_parity.mojo`, and `package_consumer.mojo` are exercised by dedicated scripts |
 
@@ -62,7 +65,7 @@ Python extension remain gated by the compiler compatibility result.
 The ordered implementation pass is recorded here so the plan does not imply
 that a partial vertical slice is a complete product claim.
 
-| Workstream | Status at local `main` `9fcd3b5` | Evidence | Remaining boundary |
+| Workstream | Status at local `main` `88af901` | Evidence | Remaining boundary |
 | --- | --- | --- | --- |
 | Public API inventory | Implemented with focused import lanes and compatibility/deprecation enforcement | `docs/api-status.md`, `docs/api-lanes.tsv`, `docs/api-compatibility.tsv`, `scripts/api_status_check.sh`, `tests/api_lanes.mojo`, 887 classified exports, `721e50a` | review future moves and decide which provisional lanes become package promises |
 | Canonical scenarios | Registry, consumer inventory, and descriptor-driven fixture records implemented across all seven families | `src/moxi/scenarios.mojo`, `scripts/scenario_check.sh`, `4ef1171`, `5f9c44b`, `a50900b`, `332eb07`, demo catalog mapping, registry contract test, golden/benchmark metadata | make expected semantic/counter/checksum metadata descriptor-driven and enforce every behavior fixture in the catalog check |
@@ -70,7 +73,7 @@ that a partial vertical slice is a complete product claim.
 | Browser host lifecycle | Implemented as deterministic host gate | `scripts/browser_check.sh`, `tests/web_browser_harness.mjs`, readiness/Canvas/ARIA markers | linked Mojo Web runtime and real-browser/device automation in CI |
 | Typed localized execution | Implemented as a keyed parent/child scheduling slice integrated into the opted-in `App` path; deterministic indexes now include dependency-edge fanout; accessibility ids, pointer capture, and deeper nested local-state preservation are covered by composed tests; non-opted-in components retain an explicit root-wide fallback | `DependencyFanoutIndex`, `IntIndex`, `TypedSubtreeExecutor`, `KeyedSubtreeDescriptor`, `KeyedSubtreeSchedule`, `KeyedSubtreeExecutor`, `src/moxi/app_runtime.mojo`, `src/moxi/execution.mojo`, `tests/execution.mojo`, `tests/composed.mojo`, `2987c39`, plus the earlier localized/index commits | reduce counted root-wide fallback as more components opt into localized hooks; preserve the source-of-truth dependency list while keeping fanout maintenance correct |
 | Structured benchmarks | Protocol, localized matrix, one reviewed macOS baseline, same-environment comparison, dispersion policy, CI evidence, and a host-independent quick contract implemented | `scripts/benchmark.sh`, `scripts/benchmark_compare.py`, `scripts/benchmark_contract_check.py`, `scripts/benchmark_policy_check.py`, schemas/policy, `benchmarks/results/macos-arm64-full.json`, `portable-quick-contract.json`, `docs/benchmarking.md`, localized 1/10/100 matrix, `7137c48`, `43e7cb0` | collect and review compatible full-profile baselines beyond macOS arm64 |
-| Documentation vocabulary | Reconciled on local `main` through `9fcd3b5` | README/API/text/benchmark/performance/visual/demo/comparison docs, changelog, generated API status, ecosystem convergence architecture/ADR docs, dataviz inventory, and this status ledger | keep both branches synchronized as the public surface and convergence gates change |
+| Documentation vocabulary | Reconciled on local `main` through `88af901` | README/API/text/benchmark/performance/visual/demo/comparison docs, changelog, generated API status, ecosystem convergence architecture/ADR docs, dataviz inventory, canvas adapter docs, and this status ledger | keep both branches synchronized as the public surface and convergence gates change |
 
 The quick benchmark run is a smoke check, not a baseline. It includes compiler
 or process startup for several workloads; its repeated structured report is

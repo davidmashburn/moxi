@@ -80,16 +80,18 @@ support boundaries visible for the next pass.
 | 5. Structured benchmark profiles | Protocol, localized matrix, reviewed macOS baseline, same-environment comparison, dispersion policy, CI evidence, and a portable deterministic contract are complete | `4df99c8`, `850f610`, `75fea05`, `5a0e2ec`, `2a1a112`, `26aa56`, `64f27a2`, `363cae2`, `7137c48`, and `43e7cb0`; schema v2, `benchmark-quick`/`benchmark-full`, 1/10/100-child counters, policy-checked 30-run baseline, median/p95/MAD comparator, and cross-host quick contract | compatible reviewed full-profile baselines beyond macOS arm64 |
 | 6. Documentation reconciliation | Main docs and planning ledger are current through the ordered implementation and release pass | `87e79bf`, `d6c008c`, `e428303`, `8100623`, `332eb07`, `b74d4eb`, `7295e2e`, `64f27a2`, `363cae2`, `721e50a`, `06231a5`, `707ff64`, `7137c48`, `43e7cb0`, `7e12d3c`, `9606b24`, `15648d9`, `7b9d8bd`, and this update; README/API/text/performance/benchmark/demo/comparison docs plus generated API status and status ledger | keep both branches synchronized as follow-on slices land |
 
-The current-head repository gate passed after `2987c39`: 68 Mojo tests,
+The current-head repository gate passed at `88af901`: 70 Mojo tests,
 API/demo/scenario/visual checks, native text and scene replay, native
 screenshot tolerance evidence, host checks, package-consumer checks, and build
-validation. The release/package gate remains evidenced at `7137c48`; the
-follow-on changes dependency fanout lookup and adds interaction/state
-preservation assertions without changing the public API or intended scheduling
-semantics. The clean full profile produced 30 samples across 10 cases; the
-reviewed macOS baseline was refreshed after the native geometry fix, and the
-comparator reports dispersion while enforcing the registered host matrix. The
-portable quick contract also passes on the candidate report. A visible AppKit
+validation; the canvas vertical slice also passes its focused pixel/parity
+tests and canonical export. The release/package gate remains evidenced at
+`7137c48`; the follow-on changes dependency fanout lookup and adds
+interaction/state preservation assertions without changing the public API or
+intended scheduling semantics. The clean full profile produced 30 samples
+across 10 cases; the reviewed macOS baseline was refreshed after the native
+geometry fix, and the comparator reports dispersion while enforcing the
+registered host matrix. The portable quick contract also passes on the
+candidate report. A visible AppKit
 capture was manually reviewed, but this remains evidence for a host review
 lane, not a claim that linked non-macOS runtimes or additional full-profile host
 baselines are complete.
@@ -350,10 +352,11 @@ rewrite:
 5. Structured quick/full benchmark output, reviewed macOS baseline, and the
    portable deterministic contract (landed; other full hosts remain planned).
 6. Final Gate 1 documentation reconciliation and release decision (landed in
-   the current handoff); ecosystem convergence E0 is now documented on local
+   the current handoff); ecosystem convergence E0 is documented on local
    `main` at `9fcd3b5`, with the exact canvas compatibility result and dataviz
-   inventory recorded; begin E1/E2 only after the canvas/toolchain blocker is
-   resolved or explicitly accepted.
+   inventory recorded; E2 is now in progress from the resolved
+   nightly/toolchain pair at `88af901`, while E1/E4 remain gated on portable
+   packaging and Python ABI decisions.
 
 This order makes each later slice consume infrastructure already reviewed by
 the previous one and keeps the first milestone independently shippable.
