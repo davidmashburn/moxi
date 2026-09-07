@@ -288,6 +288,8 @@ struct MacOSMetalRenderer(SceneRenderer):
             var color = _with_opacity(command.fill, self.opacity * command.opacity)
             var stroke = _with_opacity(command.stroke, self.opacity * command.opacity)
             var path = command.path_data
+            if command.has_typed_path:
+                path = command.typed_path.svg_data()
             var result = external_call["moxi_metal_draw_path", Int32](
                 path.as_c_string_slice().ptr(),
                 color.red, color.green, color.blue, color.alpha,

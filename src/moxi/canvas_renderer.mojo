@@ -45,6 +45,14 @@ from .scene import (
     SceneCommand,
     SceneRenderer,
 )
+from .scene_path import (
+    SCENE_PATH_CLOSE,
+    SCENE_PATH_CUBIC_TO,
+    SCENE_PATH_LINE_TO,
+    SCENE_PATH_MOVE_TO,
+    SCENE_PATH_QUAD_TO,
+    ScenePath,
+)
 from .style import Color
 
 
@@ -112,6 +120,36 @@ def _rounded_path(bounds: Rect, radius: Float32) raises -> Path:
     return path^
 
 
+def _canvas_scene_path(scene_path: ScenePath) raises -> Path:
+    """Translate the typed Moxi path into the canvas path value."""
+    var path = Path()
+    for index in range(scene_path.count()):
+        var command = scene_path.command(index)
+        if command.kind == SCENE_PATH_MOVE_TO:
+            path.move_to(Float64(command.point1.x), Float64(command.point1.y))
+        elif command.kind == SCENE_PATH_LINE_TO:
+            path.line_to(Float64(command.point1.x), Float64(command.point1.y))
+        elif command.kind == SCENE_PATH_QUAD_TO:
+            path.quad_curve_to(
+                Float64(command.point1.x),
+                Float64(command.point1.y),
+                Float64(command.point2.x),
+                Float64(command.point2.y),
+            )
+        elif command.kind == SCENE_PATH_CUBIC_TO:
+            path.cubic_curve_to(
+                Float64(command.point1.x),
+                Float64(command.point1.y),
+                Float64(command.point2.x),
+                Float64(command.point2.y),
+                Float64(command.point3.x),
+                Float64(command.point3.y),
+            )
+        elif command.kind == SCENE_PATH_CLOSE:
+            path.close()
+    return path^
+
+
 struct CanvasSceneRenderer(SceneRenderer):
     """Render the supported Moxi scene subset into a ``canvas_mojo`` buffer.
 
@@ -133,6 +171,11 @@ struct CanvasSceneRenderer(SceneRenderer):
     var last_error_code: Int
     var last_error_message: String
     var clip_depth: Int
+    var layer_mode_stack: List[Int]
+    var layer_pixel_stack: List[UInt8]
+    var layer_pixel_offsets: List[Int]
+    var layer_opacity_stack: List[Float32]
+    var layer_transform_stack: List[Matrix2D]
 
     def __init__(
         out self,
@@ -157,6 +200,11 @@ struct CanvasSceneRenderer(SceneRenderer):
         self.last_error_code = CANVAS_RENDER_OK
         self.last_error_message = ""
         self.clip_depth = 0
+        self.layer_mode_stack = List[Int]()
+        self.layer_pixel_stack = List[UInt8]()
+        self.layer_pixel_offsets = List[Int]()
+        self.layer_opacity_stack = List[Float32]()
+        self.layer_transform_stack = List[Matrix2D]()
 
     def backend_capabilities(self) -> BackendCapabilities:
         return BackendCapabilities(
@@ -171,7 +219,7 @@ struct CanvasSceneRenderer(SceneRenderer):
             False,
             True,
             False,
-            "Portable RGBA/PNG raster export for the supported Scene subset; text, images, and string paths remain explicit fallbacks.",
+            "Portable RGBA/PNG raster export with typed paths and isolated layers; text, images, and legacy string paths remain explicit fallbacks.",
         )
 
     def begin_scene(mut self) raises:
@@ -190,6 +238,11 @@ struct CanvasSceneRenderer(SceneRenderer):
         self.last_error_code = CANVAS_RENDER_OK
         self.last_error_message = ""
         self.clip_depth = 0
+        self.layer_mode_stack = List[Int]()
+        self.layer_pixel_stack = List[UInt8]()
+        self.layer_pixel_offsets = List[Int]()
+        self.layer_opacity_stack = List[Float32]()
+        self.layer_transform_stack = List[Matrix2D]()
 
     def _record_error(mut self, code: Int, message: String):
         self.render_error_count += 1
@@ -215,15 +268,79 @@ struct CanvasSceneRenderer(SceneRenderer):
     def _valid_bounds(self, bounds: Rect) -> Bool:
         return bounds.width > 0.0 and bounds.height > 0.0
 
+    def _begin_offscreen_layer(mut self, opacity: Float32) raises:
+        """Save the parent RGBA pixels and render into a transparent surface."""
+        self.layer_mode_stack.append(2)
+        self.layer_pixel_offsets.append(len(self.layer_pixel_stack))
+        for byte in self.canvas.pixels:
+            self.layer_pixel_stack.append(byte)
+        self.layer_opacity_stack.append(opacity)
+        self.layer_transform_stack.append(self.canvas.current_transform())
+        self.canvas = Canvas(
+            self.width,
+            self.height,
+            CanvasColor(0, 0, 0, 0),
+        )
+        self.canvas.set_transform(self.layer_transform_stack[len(self.layer_transform_stack) - 1])
+        self.opacity_stack.append(self.opacity)
+        self.opacity = 1.0
+
+    def _remove_layer_pixels(mut self, start: Int):
+        var remaining = List[UInt8](capacity=start)
+        for index in range(start):
+            remaining.append(self.layer_pixel_stack[index])
+        self.layer_pixel_stack = remaining^
+
+    def _composite_offscreen(mut self) raises:
+        var start = self.layer_pixel_offsets[len(self.layer_pixel_offsets) - 1]
+        var transform = self.layer_transform_stack[len(self.layer_transform_stack) - 1]
+        var parent = List[UInt8](capacity=self.width * self.height * 4)
+        for index in range(start, len(self.layer_pixel_stack)):
+            parent.append(self.layer_pixel_stack[index])
+        var opacity = _clamp_unit(self.layer_opacity_stack[len(self.layer_opacity_stack) - 1])
+        for index in range(self.width * self.height):
+            var offset = index * 4
+            var source_alpha = Float32(self.canvas.pixels[offset + 3]) / 255.0 * opacity
+            var destination_alpha = Float32(parent[offset + 3]) / 255.0
+            var output_alpha = source_alpha + destination_alpha * (1.0 - source_alpha)
+            if output_alpha <= 0.0:
+                parent[offset] = 0
+                parent[offset + 1] = 0
+                parent[offset + 2] = 0
+                parent[offset + 3] = 0
+            else:
+                var source_factor = source_alpha / output_alpha
+                var destination_factor = destination_alpha * (1.0 - source_alpha) / output_alpha
+                parent[offset] = UInt8(Float32(self.canvas.pixels[offset]) * source_factor + Float32(parent[offset]) * destination_factor + 0.5)
+                parent[offset + 1] = UInt8(Float32(self.canvas.pixels[offset + 1]) * source_factor + Float32(parent[offset + 1]) * destination_factor + 0.5)
+                parent[offset + 2] = UInt8(Float32(self.canvas.pixels[offset + 2]) * source_factor + Float32(parent[offset + 2]) * destination_factor + 0.5)
+                parent[offset + 3] = UInt8(output_alpha * 255.0 + 0.5)
+        self.canvas = Canvas(self.width, self.height, CanvasColor(0, 0, 0, 0))
+        self.canvas.pixels = parent^
+        self.canvas.set_transform(transform)
+        _ = self.layer_pixel_offsets.pop()
+        _ = self.layer_opacity_stack.pop()
+        _ = self.layer_transform_stack.pop()
+        self._remove_layer_pixels(start)
+        self.opacity = self.opacity_stack.pop()
+
     def draw_scene_command(mut self, command: SceneCommand) raises:
         self.command_count += 1
 
         if command.kind == SCENE_PUSH_LAYER:
-            self.opacity_stack.append(self.opacity)
-            self.opacity *= _clamp_unit(command.opacity)
+            if command.offscreen:
+                self._begin_offscreen_layer(command.opacity)
+            else:
+                self.layer_mode_stack.append(1)
+                self.opacity_stack.append(self.opacity)
+                self.opacity *= _clamp_unit(command.opacity)
         elif command.kind == SCENE_POP_LAYER:
-            if len(self.opacity_stack) > 0:
-                self.opacity = self.opacity_stack.pop()
+            if len(self.layer_mode_stack) > 0:
+                var mode = self.layer_mode_stack.pop()
+                if mode == 2:
+                    self._composite_offscreen()
+                elif len(self.opacity_stack) > 0:
+                    self.opacity = self.opacity_stack.pop()
             else:
                 self._record_error(
                     CANVAS_RENDER_UNBALANCED_LAYER,
@@ -346,6 +463,24 @@ struct CanvasSceneRenderer(SceneRenderer):
                     Float64(command.bounds.height),
                     gradient,
                 )
+        elif command.kind == SCENE_PATH and command.has_typed_path:
+            var path = _canvas_scene_path(command.typed_path)
+            fill_path_aa(
+                self.canvas,
+                path,
+                _canvas_color(command.fill, self.opacity * command.opacity),
+                FillRule.EVEN_ODD,
+            )
+            if command.stroke_width > 0.0 and command.stroke.alpha > 0.0:
+                stroke_path_aa(
+                    self.canvas,
+                    path,
+                    _canvas_color(
+                        command.stroke,
+                        self.opacity * command.opacity,
+                    ),
+                    Float64(command.stroke_width),
+                )
         elif (
             command.kind == SCENE_TEXT
             or command.kind == SCENE_IMAGE
@@ -359,7 +494,7 @@ struct CanvasSceneRenderer(SceneRenderer):
                 CANVAS_RENDER_UNBALANCED_CLIP,
                 "scene ended with an unterminated clip",
             )
-        if len(self.opacity_stack) > 0:
+        if len(self.layer_mode_stack) > 0 or len(self.opacity_stack) > 0:
             self._record_error(
                 CANVAS_RENDER_UNBALANCED_LAYER,
                 "scene ended with an unterminated layer",

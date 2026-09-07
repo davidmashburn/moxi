@@ -1,0 +1,7 @@
+include pyproject.toml
+include docs/python.md
+recursive-include python *.py *.typed
+prune .pixi
+prune .git
+prune dist
+prune output

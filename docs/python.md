@@ -1,0 +1,21 @@
+# Python support
+
+Moxi ships a clean-install Python package under `python/moxi`. It is a value-boundary package: importing it does not start Mojo, load a compiler, or require `canvas_mojo`.
+
+The supported MVP is:
+
+```python
+import moxi
+
+spec = moxi.PlotSpec("Telemetry")
+spec.add_line("CPU", "time", "value")
+figure = moxi.plot({"time": [0, 1, 2], "value": [1, 3, 2]}, spec)
+figure.save("telemetry.svg")
+pixels = figure.to_numpy()       # optional moxi[numpy]
+```
+
+The Python package and the Mojo package share the versioned `PlotSpec` JSON contract. `moxi.render(spec_json, named_columns, width, height, format)` is the low-level boundary for services that want bytes without retaining a `Figure`.
+
+Current Python exports are deterministic reference implementations for PNG, SVG, PDF, and raw RGBA, plus NumPy conversion. Mapping-like column data and row sequences are supported directly. pandas and NumPy are optional adapters; they are not import-time dependencies.
+
+This is the stable value-boundary lane, not a CPython extension. A future native/limited-ABI binding may reuse this contract, but the Python API will not depend on compiler availability. The support policy is documented in [the support matrix](support-matrix.md), and the clean-wheel gate is `pixi run python-check`.

@@ -140,6 +140,25 @@ struct SvgSceneRenderer(SceneRenderer):
                 "\"/> ",
             )
         elif command.kind == SCENE_TEXT:
+            var style = ""
+            if command.has_text_style:
+                style = String(
+                    " font-family=\"",
+                    _svg_escape(command.text_style.family),
+                    "\" font-size=\"",
+                    command.text_style.size,
+                    "\" font-weight=\"",
+                    command.text_style.weight,
+                    "\" font-style=\"",
+                    "italic" if command.text_style.italic else "normal",
+                    "\" text-anchor=\"",
+                    "middle" if command.text_style.align == 2 else ("end" if command.text_style.align == 3 else "start"),
+                    "\" dominant-baseline=\"",
+                    "middle" if command.text_style.baseline == 2 else ("hanging" if command.text_style.baseline == 3 else "alphabetic"),
+                    "\" direction=\"",
+                    "rtl" if command.text_style.direction == 3 else "ltr",
+                    "\"",
+                )
             self.output += String(
                 "<text x=\"",
                 command.bounds.x,
@@ -149,14 +168,19 @@ struct SvgSceneRenderer(SceneRenderer):
                 _svg_color(command.fill),
                 "\" opacity=\"",
                 command.opacity,
-                "\">",
+                "\"",
+                style,
+                ">",
                 _svg_escape(command.text),
                 "</text>",
             )
         elif command.kind == SCENE_PATH:
+            var path_data = command.path_data
+            if command.has_typed_path:
+                path_data = command.typed_path.svg_data()
             self.output += String(
                 "<path d=\"",
-                command.path_data,
+                path_data,
                 "\" fill=\"",
                 _svg_color(command.fill),
                 "\" fill-rule=\"evenodd\" clip-rule=\"evenodd\" stroke=\"",
@@ -207,7 +231,13 @@ struct SvgSceneRenderer(SceneRenderer):
                 self.clip_depth -= 1
         elif command.kind == SCENE_PUSH_LAYER:
             self.layer_depth += 1
-            self.output += String("<g opacity=\"", command.opacity, "\">")
+            if command.offscreen:
+                self.output += String(
+                    "<g opacity=\"",
+                    command.opacity,
+                    "\" style=\"isolation:isolate\">")
+            else:
+                self.output += String("<g opacity=\"", command.opacity, "\">")
         elif command.kind == SCENE_POP_LAYER:
             if self.layer_depth > 0:
                 self.output += "</g>"

@@ -157,6 +157,10 @@ struct SoftwareSceneRenderer(SceneRenderer):
     var clip: Rect
     var opacity: Float32
     var transform: Transform
+    var layer_mode_stack: List[Int]
+    var layer_pixels: List[Color]
+    var layer_pixel_offsets: List[Int]
+    var layer_opacity_stack: List[Float32]
 
     def __init__(
         out self,
@@ -177,6 +181,10 @@ struct SoftwareSceneRenderer(SceneRenderer):
         self.clip = Rect(0.0, 0.0, 0.0, 0.0)
         self.opacity = 1.0
         self.transform = Transform()
+        self.layer_mode_stack = List[Int]()
+        self.layer_pixels = List[Color]()
+        self.layer_pixel_offsets = List[Int]()
+        self.layer_opacity_stack = List[Float32]()
         self.clear()
 
     def clear(mut self):
@@ -203,6 +211,51 @@ struct SoftwareSceneRenderer(SceneRenderer):
         self.clip = Rect(0.0, 0.0, 0.0, 0.0)
         self.opacity = 1.0
         self.transform = Transform()
+        self.layer_mode_stack = List[Int]()
+        self.layer_pixels = List[Color]()
+        self.layer_pixel_offsets = List[Int]()
+        self.layer_opacity_stack = List[Float32]()
+
+    def _begin_offscreen_layer(mut self, opacity: Float32):
+        self.layer_mode_stack.append(2)
+        self.layer_pixel_offsets.append(len(self.layer_pixels))
+        for pixel in self.pixels:
+            self.layer_pixels.append(pixel)
+        self.layer_opacity_stack.append(opacity)
+        for index in range(len(self.pixels)):
+            self.pixels[index] = Color(0.0, 0.0, 0.0, 0.0)
+        self.opacity = 1.0
+
+    def _remove_layer_pixels(mut self, start: Int):
+        var remaining = List[Color](capacity=start)
+        for index in range(start):
+            remaining.append(self.layer_pixels[index])
+        self.layer_pixels = remaining^
+
+    def _composite_offscreen(mut self):
+        var start = self.layer_pixel_offsets[len(self.layer_pixel_offsets) - 1]
+        var opacity = _clamp_unit(self.layer_opacity_stack[len(self.layer_opacity_stack) - 1])
+        for index in range(len(self.pixels)):
+            var source = self.pixels[index]
+            var destination = self.layer_pixels[start + index]
+            var source_alpha = _clamp_unit(source.alpha * opacity)
+            var destination_alpha = _clamp_unit(destination.alpha)
+            var output_alpha = source_alpha + destination_alpha * (1.0 - source_alpha)
+            if output_alpha <= 0.0:
+                self.pixels[index] = Color(0.0, 0.0, 0.0, 0.0)
+            else:
+                var source_factor = source_alpha / output_alpha
+                var destination_factor = destination_alpha * (1.0 - source_alpha) / output_alpha
+                self.pixels[index] = Color(
+                    source.red * source_factor + destination.red * destination_factor,
+                    source.green * source_factor + destination.green * destination_factor,
+                    source.blue * source_factor + destination.blue * destination_factor,
+                    output_alpha,
+                )
+        _ = self.layer_pixel_offsets.pop()
+        _ = self.layer_opacity_stack.pop()
+        self._remove_layer_pixels(start)
+        self.opacity = self.layer_stack.pop() if len(self.layer_stack) > 0 else 1.0
 
     def draw_scene_command(mut self, command: SceneCommand) raises:
         self.command_count += 1
@@ -224,10 +277,25 @@ struct SoftwareSceneRenderer(SceneRenderer):
                 self.clip_stack = List[Rect]()
                 self.has_clip = False
         elif command.kind == SCENE_PUSH_LAYER:
-            self.layer_stack.append(self.opacity)
-            self.opacity *= _clamp_unit(command.opacity)
+            if command.offscreen:
+                self.layer_stack.append(self.opacity)
+                self._begin_offscreen_layer(command.opacity)
+            else:
+                self.layer_mode_stack.append(1)
+                self.layer_stack.append(self.opacity)
+                self.opacity *= _clamp_unit(command.opacity)
         elif command.kind == SCENE_POP_LAYER:
-            if len(self.layer_stack) > 0:
+            if len(self.layer_mode_stack) > 0:
+                var mode = self.layer_mode_stack.pop()
+                if mode == 2:
+                    self._composite_offscreen()
+                elif len(self.layer_stack) > 0:
+                    var restored = List[Float32]()
+                    for index in range(len(self.layer_stack) - 1):
+                        restored.append(self.layer_stack[index])
+                    self.opacity = self.layer_stack[len(self.layer_stack) - 1]
+                    self.layer_stack = restored^
+            elif len(self.layer_stack) > 0:
                 var restored = List[Float32]()
                 for index in range(len(self.layer_stack) - 1):
                     restored.append(self.layer_stack[index])

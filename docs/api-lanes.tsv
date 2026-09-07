@@ -10,6 +10,8 @@ layout_primitives	stable-core	layout and virtualization math
 view	stable-core	portable view declarations and composition
 paint	stable-core	portable paint/scene rendering
 scene	stable-core	portable paint/scene rendering
+scene_path	stable-core	portable paint/scene rendering
+scene_text	stable-core	portable paint/scene rendering
 software	stable-core	portable paint/scene rendering
 canvas_renderer	host-adapter	portable canvas raster and export adapter
 runtime	stable-core	retained reconciliation and lifecycle

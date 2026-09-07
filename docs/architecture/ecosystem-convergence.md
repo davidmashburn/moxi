@@ -35,10 +35,12 @@ validity, categorical, string, and timestamp encodings. A call owns all
 temporary Mojo state in the initial proof; no Mojo object or renderer lifetime
 escapes into Python.
 
-The first Python product is headless export (`PNG`, `SVG`, later `PDF` and
-`RGBA`). Native windows, callbacks, interactive event loops, and notebook
-widgets are separate work. Until a clean wheel installs without a matching
-Mojo compiler or manual import-path setup, the package remains experimental.
+The first Python product is now a clean-install headless package under
+`python/moxi`. It exports `PNG`, `SVG`, `PDF`, raw `RGBA`, and optional NumPy
+arrays without importing Mojo or requiring a compiler at runtime. Native
+windows, callbacks, interactive event loops, and notebook widgets remain
+separate work; the value-boundary API is the supported MVP and a future native
+extension must preserve it.
 
 ## Canvas boundary
 
@@ -71,16 +73,17 @@ the package precompiles and imports through Moxi's installed environment.
 Moxi pins that exact fork revision in `pixi.toml` and exposes the bounded
 `CanvasSceneRenderer` adapter from the package root. Focused tests cover pixel
 probes, clipping, transforms, deterministic repeat rendering, raw RGBA, PNG,
-BMP, stable input-error reporting, and structural comparison with the
-software and SVG renderers. `canonical_canvas_scene_fixtures()` and
+BMP, stable input-error reporting, typed move/line/quad/cubic/close paths,
+explicit text style metadata, isolated offscreen layers, and structural
+comparison with the software and SVG renderers. `canonical_canvas_scene_fixtures()` and
 `make_canvas_scene()` now drive the compact primitive, dark/light theme, and
 plot line/point-overlap cases from one descriptor table; the reviewed values
 are checked in at [`tests/canvas_scene_checksums.tsv`](../../tests/canvas_scene_checksums.tsv).
 The canonical plot scene is also exportable with `pixi run canvas-scene`, and
 `pixi run canvas-benchmark` checks its reviewed checksum while reporting wall
-time, peak RSS, PNG size, command count, and fallback count. This is an E2
-vertical slice, not complete renderer parity: the fork is nightly-only and
-text/images/paths remain explicit fallbacks.
+time, peak RSS, PNG size, command count, and fallback count. The E3 scene
+contract now makes typed paths and isolated layers portable; text and image
+pixels remain explicit backend/resource lanes rather than guessed placeholders.
 
 The workspace now publishes `canvas_mojo` and `moxi` together. The local
 indexed-channel package-consumer test resolves the normal `canvas_mojo` run
@@ -97,10 +100,9 @@ to an upstream revision. A floating checkout remains disallowed.
 
 ## Dataviz convergence
 
-The selected reference is `dataviz_mojo` revision
-`daed1bf9f0b367778109b724c4cd1e035114b476` (`0.8.0`, MIT). It currently
-depends on `canvas_mojo` tag `v0.20.1` and exposes a fluent `Plot` plus more
-than forty convenience marks. Moxi's inventory is in
+The selected reference is `dataviz_mojo` tag `v0.8.0`, revision
+`3fd5a7e7c622d6130c99a290b88c4fee039deab2` (MIT). It exposes a fluent `Plot`
+plus more than forty convenience marks. Moxi's inventory is in
 [`dataviz-capabilities.tsv`](../dataviz-capabilities.tsv).
 
 Each capability must acquire, in order:
@@ -116,8 +118,11 @@ absorbed Moxi feature.
 
 ## Current evidence
 
-- `pixi run check` passes on the current Moxi `main` worktree, including the
-  exact pinned canvas package installation.
+- `pixi run check` includes the clean-wheel Python import, the Mojo/Python
+  PlotSpec contract, the pinned dataviz reference check, and the capability
+  wave inventory.
+- `pixi run python-package-consumer` builds a wheel from a source-only staging
+  tree and imports it in a fresh virtual environment.
 - `tests/canvas_renderer.mojo` and `tests/canvas_scene_parity.mojo` pass under
   the exact pinned compiler; `pixi run canvas-scene` renders the canonical plot
   scene and reports explicit fallback counts.

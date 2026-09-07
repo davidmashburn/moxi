@@ -4,6 +4,8 @@ from std.collections import List
 
 from .geometry import Point, Rect, Transform
 from .resources import RESOURCE_NONE
+from .scene_path import ScenePath
+from .scene_text import SceneTextStyle
 from .style import Color
 
 
@@ -38,6 +40,11 @@ struct SceneCommand(ImplicitlyCopyable):
     var point_start: Point
     var point_end: Point
     var path_data: String
+    var typed_path: ScenePath
+    var has_typed_path: Bool
+    var text_style: SceneTextStyle
+    var has_text_style: Bool
+    var offscreen: Bool
     var gradient_start: Point
     var gradient_end: Point
     var gradient_start_color: Color
@@ -58,6 +65,11 @@ struct SceneCommand(ImplicitlyCopyable):
         self.point_start = Point(0.0, 0.0)
         self.point_end = Point(0.0, 0.0)
         self.path_data = ""
+        self.typed_path = ScenePath()
+        self.has_typed_path = False
+        self.text_style = SceneTextStyle()
+        self.has_text_style = False
+        self.offscreen = False
         self.gradient_start = Point(0.0, 0.0)
         self.gradient_end = Point(0.0, 0.0)
         self.gradient_start_color = fill
@@ -104,6 +116,22 @@ struct SceneCommand(ImplicitlyCopyable):
         rather than allocating without a limit.
         """
         self.path_data = path_data
+        self.has_typed_path = False
+
+    def set_typed_path(mut self, path: ScenePath):
+        """Attach a validated structured path and retain its SVG spelling."""
+        self.typed_path = path
+        self.path_data = path.svg_data()
+        self.has_typed_path = path.is_valid()
+
+    def set_text_style(mut self, style: SceneTextStyle):
+        """Attach portable text layout intent to a text command."""
+        self.text_style = style
+        self.has_text_style = True
+
+    def set_offscreen(mut self, offscreen: Bool):
+        """Select isolated offscreen composition for a layer marker."""
+        self.offscreen = offscreen
 
     def set_gradient(
         mut self,
@@ -213,6 +241,34 @@ struct Scene:
         command.set_stroke(stroke, stroke_width)
         self.commands.append(command)
 
+    def append_typed_path(
+        mut self,
+        id: Int,
+        path: ScenePath,
+        fill: Color,
+        stroke: Color,
+        stroke_width: Float32,
+    ):
+        """Append a structured path shared by all portable renderers."""
+        var command = SceneCommand(SCENE_PATH, id, path.bounds, fill)
+        command.set_typed_path(path)
+        command.set_stroke(stroke, stroke_width)
+        self.commands.append(command)
+
+    def append_text_styled(
+        mut self,
+        id: Int,
+        text: String,
+        bounds: Rect,
+        color: Color,
+        style: SceneTextStyle,
+    ):
+        """Append text with explicit family, metrics, direction, and fallback."""
+        var command = SceneCommand(SCENE_TEXT, id, bounds, color)
+        command.set_text(text)
+        command.set_text_style(style)
+        self.commands.append(command)
+
     def append_linear_gradient(
         mut self,
         id: Int,
@@ -271,7 +327,13 @@ struct Scene:
             )
         )
 
-    def push_layer(mut self, id: Int, bounds: Rect, opacity: Float32 = 1.0):
+    def push_layer(
+        mut self,
+        id: Int,
+        bounds: Rect,
+        opacity: Float32 = 1.0,
+        offscreen: Bool = False,
+    ):
         """Append a compositing layer marker."""
         var command = SceneCommand(
             SCENE_PUSH_LAYER,
@@ -280,6 +342,7 @@ struct Scene:
             Color(0.0, 0.0, 0.0, 0.0),
         )
         command.set_opacity(opacity)
+        command.set_offscreen(offscreen)
         self.commands.append(command)
 
     def pop_layer(mut self, id: Int = 0):

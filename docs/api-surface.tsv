@@ -413,6 +413,23 @@ Scene	moxi.scene	stable-core	portable paint/scene rendering
 SceneCommand	moxi.scene	stable-core	portable paint/scene rendering
 SceneRenderer	moxi.scene	stable-core	portable paint/scene rendering
 SceneRecorder	moxi.scene	stable-core	portable paint/scene rendering
+SCENE_PATH_CLOSE	moxi.scene_path	stable-core	portable paint/scene rendering
+SCENE_PATH_CUBIC_TO	moxi.scene_path	stable-core	portable paint/scene rendering
+SCENE_PATH_LINE_TO	moxi.scene_path	stable-core	portable paint/scene rendering
+SCENE_PATH_MOVE_TO	moxi.scene_path	stable-core	portable paint/scene rendering
+SCENE_PATH_QUAD_TO	moxi.scene_path	stable-core	portable paint/scene rendering
+ScenePath	moxi.scene_path	stable-core	portable paint/scene rendering
+ScenePathCommand	moxi.scene_path	stable-core	portable paint/scene rendering
+TEXT_ALIGN_CENTER	moxi.scene_text	stable-core	portable paint/scene rendering
+TEXT_ALIGN_END	moxi.scene_text	stable-core	portable paint/scene rendering
+TEXT_ALIGN_START	moxi.scene_text	stable-core	portable paint/scene rendering
+TEXT_BASELINE_ALPHABETIC	moxi.scene_text	stable-core	portable paint/scene rendering
+TEXT_BASELINE_HANGING	moxi.scene_text	stable-core	portable paint/scene rendering
+TEXT_BASELINE_MIDDLE	moxi.scene_text	stable-core	portable paint/scene rendering
+SCENE_TEXT_DIRECTION_AUTO	moxi.scene_text	stable-core	portable paint/scene rendering
+SCENE_TEXT_DIRECTION_LTR	moxi.scene_text	stable-core	portable paint/scene rendering
+SCENE_TEXT_DIRECTION_RTL	moxi.scene_text	stable-core	portable paint/scene rendering
+SceneTextStyle	moxi.scene_text	stable-core	portable paint/scene rendering
 FRACTAL_CANVAS_HEIGHT	moxi.fractal	experimental	experimental or optional integration
 FRACTAL_CANVAS_ID	moxi.fractal	experimental	experimental or optional integration
 FRACTAL_CANVAS_WIDTH	moxi.fractal	experimental	experimental or optional integration

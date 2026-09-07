@@ -446,6 +446,27 @@ from .scene import (
     SceneRenderer,
     SceneRecorder,
 )
+from .scene_path import (
+    SCENE_PATH_CLOSE,
+    SCENE_PATH_CUBIC_TO,
+    SCENE_PATH_LINE_TO,
+    SCENE_PATH_MOVE_TO,
+    SCENE_PATH_QUAD_TO,
+    ScenePath,
+    ScenePathCommand,
+)
+from .scene_text import (
+    TEXT_ALIGN_CENTER,
+    TEXT_ALIGN_END,
+    TEXT_ALIGN_START,
+    TEXT_BASELINE_ALPHABETIC,
+    TEXT_BASELINE_HANGING,
+    TEXT_BASELINE_MIDDLE,
+    SCENE_TEXT_DIRECTION_AUTO,
+    SCENE_TEXT_DIRECTION_LTR,
+    SCENE_TEXT_DIRECTION_RTL,
+    SceneTextStyle,
+)
 from .fractal import (
     FRACTAL_CANVAS_HEIGHT,
     FRACTAL_CANVAS_ID,

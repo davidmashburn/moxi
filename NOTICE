@@ -1,0 +1,3 @@
+Moxi includes ecosystem convergence work informed by the public dataviz_mojo
+project by Randy Zwitch (MIT), referenced at tag v0.8.0 for capability
+inventory and overlap testing. Moxi does not vendor dataviz_mojo source.

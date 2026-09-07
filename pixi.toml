@@ -71,6 +71,12 @@ plot-stress-benchmark = "mojo run -I src benchmarks/plotting_stress.mojo"
 interaction-benchmark = "mojo run -I src benchmarks/interaction_foundation.mojo"
 canvas-scene = "mojo run -I src examples/canvas_scene.mojo"
 canvas-benchmark = "bash scripts/canvas_benchmark.sh"
+python-check = "bash scripts/python_check.sh"
+python-package-consumer = "bash scripts/python_package_consumer.sh"
+python-benchmark = "python3 scripts/python_benchmark.py"
+dataviz-parity = "python3 scripts/dataviz_parity.py"
+plot-spec-contract = "python3 scripts/plot_spec_contract_check.py"
+capability-wave-check = "python3 scripts/capability_wave_check.py"
 plot-interaction-benchmark-build = { cmd = "mojo build -I src -Xlinker native/benchmark_clock.o benchmarks/plotting_interaction.mojo -o dist/moxi-plot-interaction-benchmark", depends-on = ["fractal-benchmark-clock"] }
 plot-interaction-benchmark = { cmd = "./dist/moxi-plot-interaction-benchmark", depends-on = ["plot-interaction-benchmark-build"] }
 plot-svg = "mojo run -I src examples/plot_svg.mojo"

@@ -4,6 +4,10 @@ set -euo pipefail
 bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/check.sh"
 bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/package_consumer.sh"
 bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/benchmark.sh"
+bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/python_check.sh"
+bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/python_package_consumer.sh"
+python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dataviz_parity.py"
+python3 "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/python_benchmark.py"
 mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa \
   examples/wx_style.mojo -o dist/moxi-wx-style-demo
 mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal \

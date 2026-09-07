@@ -6,7 +6,7 @@ Xilem. Notably, Xilem is based on SwiftUI, another major Chris Lattner project.
 
 The ecosystem convergence boundary is recorded in
 [`docs/architecture/ecosystem-convergence.md`](docs/architecture/ecosystem-convergence.md).
-It covers the experimental Python value boundary, the nightly-pinned
+It covers the Python value-boundary package, the nightly-pinned
 `canvas_mojo` adapter, and the contract-driven `dataviz_mojo` capability
 inventory.
 
@@ -267,6 +267,10 @@ pixi run browser-check
 pixi run harfbuzz-demo
 pixi run benchmark
 pixi run package-consumer
+pixi run python-check
+pixi run python-package-consumer
+pixi run dataviz-parity
+pixi run plot-spec-contract
 pixi run check
 pixi run ios-build
 pixi run android-build
