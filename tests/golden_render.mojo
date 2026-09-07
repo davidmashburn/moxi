@@ -45,7 +45,7 @@ def emit(
     print("END ", label)
 
 
-def theme_frame(label: String, mode: Int) raises:
+def theme_frame(label: String, scenario: String, mode: Int) raises:
     var app = App[ThemeShowcaseState](
         ThemeShowcaseState(),
         Rect(0.0, 0.0, 240.0, 160.0),
@@ -58,10 +58,10 @@ def theme_frame(label: String, mode: Int) raises:
         Color(0.04, 0.05, 0.08, 1.0),
     )
     renderer.render_scene(scene_from_paint(app.paint()))
-    emit(label, "theme", renderer)
+    emit(label, scenario, renderer)
 
 
-def text_fallback_frame() raises:
+def text_fallback_frame(scenario: String) raises:
     # Text remains a resource-dependent operation in the software oracle, but
     # the surrounding geometry and command order are still exact. Keeping the
     # mixed-script labels in the scene makes fallback coverage reviewable by a
@@ -91,10 +91,10 @@ def text_fallback_frame() raises:
     )
     renderer.render_scene(scene)
     test_check(scene.count() == 3)
-    emit("text-mixed-fallback", "text", renderer)
+    emit("text-mixed-fallback", scenario, renderer)
 
 
-def nested_clip_frame() raises:
+def nested_clip_frame(scenario: String) raises:
     var scene = Scene()
     scene.append_rect(
         1,
@@ -131,14 +131,14 @@ def nested_clip_frame() raises:
     renderer.render_scene(scene)
     test_check(renderer.pixel(20, 30).blue > 0.1)
     test_check(renderer.pixel(4, 4).blue < 0.1)
-    emit("nested-clipping-scrolling", "collection", renderer)
+    emit("nested-clipping-scrolling", scenario, renderer)
 
 
 def moxi_transform() -> Transform:
     return Transform().translated(-18.0, 8.0)
 
 
-def accessibility_focus_frame() raises:
+def accessibility_focus_frame(scenario: String) raises:
     var view = ColumnView(Rect(0.0, 0.0, 240.0, 128.0), 12.0, 8.0)
     view.add_button(10, "Focused action", 32.0)
     view.add(SliderControl(11, "Volume", 0.5, 0.0, 1.0, 0.1, 28.0).node())
@@ -169,10 +169,10 @@ def accessibility_focus_frame() raises:
         Color(0.04, 0.05, 0.08, 1.0),
     )
     renderer.render_scene(scene)
-    emit("accessibility-focused-control", "form", renderer)
+    emit("accessibility-focused-control", scenario, renderer)
 
 
-def plot_frame() raises:
+def plot_frame(scenario: String) raises:
     var plot = make_plot_scenario(Rect(0.0, 0.0, 320.0, 200.0))
     var renderer = SoftwareSceneRenderer(
         320,
@@ -180,7 +180,7 @@ def plot_frame() raises:
         Color(0.04, 0.05, 0.08, 1.0),
     )
     renderer.render_scene(plot.build_scene())
-    emit("plot-gallery", "plot", renderer)
+    emit("plot-gallery", scenario, renderer)
 
 
 def main() raises:
@@ -191,11 +191,16 @@ def main() raises:
     test_check(registry.index_for_fixture("collection") >= 0)
     test_check(registry.index_for_fixture("plot") >= 0)
 
-    theme_frame("theme-dark", 0)
-    theme_frame("theme-light", 1)
-    theme_frame("theme-emerald", 3)
-    text_fallback_frame()
-    nested_clip_frame()
-    accessibility_focus_frame()
-    plot_frame()
+    var form_scenario = registry.entry(registry.index_for_fixture("form")).fixture
+    var theme_scenario = registry.entry(registry.index_for_fixture("theme")).fixture
+    var collection_scenario = registry.entry(registry.index_for_fixture("collection")).fixture
+    var text_scenario = registry.entry(registry.index_for_fixture("text")).fixture
+    var plot_scenario = registry.entry(registry.index_for_fixture("plot")).fixture
+    theme_frame("theme-dark", theme_scenario, 0)
+    theme_frame("theme-light", theme_scenario, 1)
+    theme_frame("theme-emerald", theme_scenario, 3)
+    text_fallback_frame(text_scenario)
+    nested_clip_frame(collection_scenario)
+    accessibility_focus_frame(form_scenario)
+    plot_frame(plot_scenario)
     print("Moxi software golden render passed")

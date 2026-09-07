@@ -236,4 +236,4 @@ the complete visible approval flow.
 | Capabilities and conversation | [`src/moxi/capability.mojo`](../src/moxi/capability.mojo), [`src/moxi/conversation.mojo`](../src/moxi/conversation.mojo) |
 | Demo browser | [`docs/demo-browser.md`](demo-browser.md), [`src/moxi/demo_browser.mojo`](../src/moxi/demo_browser.mojo), [`examples/demo_browser.mojo`](../examples/demo_browser.mojo) |
 | Native adapter | [`src/moxi/macos.mojo`](../src/moxi/macos.mojo), [`native/macos_window.m`](../native/macos_window.m) |
-| Contract tests | [`tests/`](../tests/), [`tests/goldens/`](../tests/goldens/), [`scripts/visual_check.sh`](../scripts/visual_check.sh), [`scripts/browser_check.sh`](../scripts/browser_check.sh) |
+| Contract tests | [`tests/`](../tests/), [`tests/goldens/`](../tests/goldens/), [`scripts/scenario_check.sh`](../scripts/scenario_check.sh), [`scripts/visual_check.sh`](../scripts/visual_check.sh), [`scripts/browser_check.sh`](../scripts/browser_check.sh) |

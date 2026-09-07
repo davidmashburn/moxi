@@ -11,8 +11,10 @@ bash -n scripts/api_status_check.sh
 bash -n scripts/visual_check.sh
 bash -n scripts/browser_check.sh
 bash -n scripts/benchmark.sh
+bash -n scripts/scenario_check.sh
 bash scripts/api_status_check.sh
 bash scripts/demo_catalog_check.sh
+bash scripts/scenario_check.sh
 bash scripts/visual_check.sh
 pixi run demo-walkthrough-build
 bash scripts/test.sh

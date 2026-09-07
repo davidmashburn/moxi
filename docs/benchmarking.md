@@ -15,6 +15,11 @@ It runs the typed localized-execution, retained layout/paint/scene, and
 portable plot workloads once. Use `MOXI_BENCHMARK_RUNS=3` (or another positive
 integer) when comparing runs.
 
+The localized and plot workloads identify themselves through
+`canonical_scenarios()`. Run `pixi run scenario-check` when changing the
+registry; it verifies that benchmark sources remain mapped to real files and
+that the corresponding demo/test/golden metadata has not drifted.
+
 The complete matrix is available explicitly:
 
 ```sh

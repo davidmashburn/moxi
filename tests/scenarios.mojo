@@ -28,6 +28,10 @@ def main():
     test_check(registry.index_for_id(SCENARIO_FRACTAL) == 6)
     test_check(registry.index_for_fixture("plot") == 4)
     test_check(registry.entry(0).command() == "pixi run form-demo")
+    test_check(registry.entry(0).test_source == "tests/form.mojo")
+    test_check(registry.entry(2).benchmark_source == "benchmarks/interaction_foundation.mojo")
+    test_check(registry.entry(4).golden_names == "plot-gallery")
+    test_check(registry.entry(5).golden_names.count_codepoints() == 0)
     test_check(registry.entry(2).semantic_hint.count_codepoints() > 20)
     test_check(registry.entry(4).counter_hint.count_codepoints() > 20)
 

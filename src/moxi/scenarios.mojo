@@ -30,6 +30,9 @@ struct ScenarioDescriptor(ImplicitlyCopyable):
     var fixture: String
     var source: String
     var task: String
+    var test_source: String
+    var benchmark_source: String
+    var golden_names: String
     var default_width: Float32
     var default_height: Float32
     var stateful: Bool
@@ -43,6 +46,9 @@ struct ScenarioDescriptor(ImplicitlyCopyable):
         fixture: String,
         source: String,
         task: String,
+        test_source: String,
+        benchmark_source: String,
+        golden_names: String,
         default_width: Float32,
         default_height: Float32,
         stateful: Bool,
@@ -54,6 +60,9 @@ struct ScenarioDescriptor(ImplicitlyCopyable):
         self.fixture = fixture
         self.source = source
         self.task = task
+        self.test_source = test_source
+        self.benchmark_source = benchmark_source
+        self.golden_names = golden_names
         self.default_width = default_width
         self.default_height = default_height
         self.stateful = stateful
@@ -78,6 +87,9 @@ struct ScenarioRegistry:
             "form",
             "examples/form.mojo",
             "form-demo",
+            "tests/form.mojo",
+            "",
+            "accessibility-focused-control",
             520.0,
             320.0,
             True,
@@ -90,6 +102,9 @@ struct ScenarioRegistry:
             "theme",
             "examples/theme_showcase.mojo",
             "theme-showcase-demo",
+            "tests/tokens_recipes.mojo",
+            "",
+            "theme-dark,theme-light,theme-emerald",
             680.0,
             520.0,
             True,
@@ -102,6 +117,9 @@ struct ScenarioRegistry:
             "collection",
             "examples/interaction_showcase.mojo",
             "interaction-showcase-demo",
+            "tests/interaction_foundation.mojo",
+            "benchmarks/interaction_foundation.mojo",
+            "nested-clipping-scrolling",
             980.0,
             720.0,
             True,
@@ -114,6 +132,9 @@ struct ScenarioRegistry:
             "text",
             "examples/coretext.mojo",
             "text-demo",
+            "tests/text_shaping.mojo",
+            "",
+            "text-mixed-fallback",
             640.0,
             360.0,
             False,
@@ -125,6 +146,9 @@ struct ScenarioRegistry:
             "Plot gallery",
             "plot",
             "examples/plot_gallery.mojo",
+            "plot-gallery",
+            "tests/plotting.mojo",
+            "benchmarks/plotting.mojo",
             "plot-gallery",
             760.0,
             520.0,
@@ -138,6 +162,9 @@ struct ScenarioRegistry:
             "capability",
             "examples/capability_bus.mojo",
             "capability-bus-demo",
+            "tests/capability.mojo",
+            "",
+            "",
             720.0,
             560.0,
             True,
@@ -150,6 +177,9 @@ struct ScenarioRegistry:
             "fractal",
             "examples/interactive_fractal.mojo",
             "interactive-fractal-demo",
+            "tests/fractal.mojo",
+            "benchmarks/interactive_fractal.mojo",
+            "",
             920.0,
             620.0,
             True,
@@ -183,6 +213,8 @@ struct ScenarioRegistry:
             if current.fixture.count_codepoints() == 0 or current.source.count_codepoints() == 0:
                 return False
             if current.task.count_codepoints() == 0:
+                return False
+            if current.test_source.count_codepoints() == 0:
                 return False
             if current.default_width <= 0.0 or current.default_height <= 0.0:
                 return False

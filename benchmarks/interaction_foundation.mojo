@@ -5,11 +5,14 @@ from moxi import (
     Point,
     Rect,
     VirtualRecycler,
+    canonical_scenarios,
     make_interaction_foundation_scenario,
 )
 
 
 def main():
+    var registry = canonical_scenarios()
+    var descriptor = registry.entry(registry.index_for_fixture("collection"))
     var scenario = make_interaction_foundation_scenario(10000)
     var recycler = VirtualRecycler(10000, 24.0, 2, True)
     var passes = 100
@@ -41,6 +44,7 @@ def main():
             320.0,
             640.0,
         )
+    print("Moxi interaction benchmark scenario: ", descriptor.fixture)
     print("Moxi interaction benchmark rows: ", scenario.collection.item_count())
     print("Moxi interaction benchmark passes: ", passes)
     print("Moxi interaction benchmark active slots: ", recycler.active_count())

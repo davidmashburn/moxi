@@ -1,10 +1,17 @@
 """Repeated plotting workload over the shared showcase scenario."""
 
-from moxi import PerformanceCounters, SoftwareSceneRenderer, make_plot_scenario
+from moxi import (
+    PerformanceCounters,
+    SoftwareSceneRenderer,
+    canonical_scenarios,
+    make_plot_scenario,
+)
 from moxi import Rect
 
 
 def main() raises:
+    var registry = canonical_scenarios()
+    var descriptor = registry.entry(registry.index_for_fixture("plot"))
     var plot = make_plot_scenario(Rect(0.0, 0.0, 640.0, 420.0))
     var packet = plot.build_render_packet()
     var renderer = SoftwareSceneRenderer(640, 420)
@@ -14,6 +21,7 @@ def main() raises:
         var scene = plot.build_scene()
         renderer.render_scene(scene)
         metrics.record_frame(0, 0, scene.count(), scene.count(), renderer.rasterized_pixels)
+    print("Moxi plot benchmark scenario: ", descriptor.fixture)
     print("Moxi plot benchmark passes: ", passes)
     print("Moxi plot benchmark commands/frame: ", metrics.scene_commands // passes)
     print("Moxi plot benchmark rasterized pixels/frame: ", metrics.rasterized_pixels // passes)

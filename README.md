@@ -252,6 +252,7 @@ pixi run metal-benchmark
 pixi run fractal-benchmark
 pixi run benchmark-quick
 pixi run benchmark-full
+pixi run scenario-check
 pixi run visual-check
 pixi run browser-check
 pixi run harfbuzz-demo
@@ -317,8 +318,9 @@ For the public-surface inventory, see [docs/API.md](docs/API.md). The
 accessibility/native-widget contract is documented in
 [docs/accessibility.md](docs/accessibility.md). For the visual acceptance
 surface and source-controlled reference, see [docs/visual.md](docs/visual.md).
-`pixi run check` generates compiler API metadata at `dist/moxi-api.json`, runs
-the software visual corpus, and runs the host lifecycle checks. `pixi run
+`pixi run check` generates compiler API metadata at `dist/moxi-api.json`, checks
+the canonical scenario consumer inventory, runs the software visual corpus, and
+runs the host lifecycle checks. `pixi run
 benchmark-quick` is the portable smoke profile; `pixi run benchmark-full`
 adds the complete plot, collection, fractal, and Metal matrix. Both profiles
 write structured JSON under `dist/benchmark-results/`; see
@@ -469,6 +471,10 @@ primitives, not painted collection widgets or native menu/dialog ownership.
 The shared 10,000-row workload is available from
 `make_interaction_foundation_scenario()` and the repeatable benchmark is
 `pixi run interaction-benchmark`.
+`canonical_scenarios()` is the source-controlled registry for the seven
+scenario descriptors and their demo, test, benchmark, and golden consumers;
+`pixi run scenario-check` verifies that those paths, Pixi tasks, and golden
+labels still agree.
 
 `ColumnView` keeps explicit preferred sizes as the default. Call
 `set_intrinsic_width()` or `set_intrinsic_height()` on a node to opt into the
