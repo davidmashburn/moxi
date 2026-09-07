@@ -12,8 +12,10 @@ bash -n scripts/visual_check.sh
 bash -n scripts/browser_check.sh
 bash -n scripts/benchmark.sh
 bash -n scripts/scenario_check.sh
+bash -n scripts/native_screenshot_check.sh
 python3 -m json.tool benchmarks/result-schema.json >/dev/null
 python3 -m json.tool benchmarks/benchmark-policy.json >/dev/null
+python3 -m json.tool tests/native-screenshot-policy.json >/dev/null
 pixi run benchmark-policy-check
 bash scripts/api_status_check.sh
 bash scripts/demo_catalog_check.sh
@@ -28,7 +30,7 @@ clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c native/macos_text.m -o native/macos_text.o
 pixi run native-text-parity
-pixi run native-scene-parity
+pixi run native-screenshot-check
 mkdir -p dist
 mojo precompile src/moxi -o dist/moxi.mojoc
 mojo doc src/moxi -I src -o dist/moxi-api.json

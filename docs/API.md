@@ -182,8 +182,12 @@ scanline tessellator. Malformed or overlarge paths and unsupported resources
 retain explicit fallback behavior. The software renderer remains a bounds
 oracle for paths, so pixel parity for complex path geometry is a later slice.
 `pixi run native-scene-parity` replays a compact scene through both renderers
-and checks structural counters/fallbacks; native pixels remain a documented
-masked/tolerance lane rather than an exact checksum promise.
+and checks structural counters/fallbacks. `pixi run native-screenshot-check`
+also captures the offscreen Metal texture and applies the checked-in
+[`native-screenshot-policy.json`](../tests/native-screenshot-policy.json)
+against the software oracle, writing a report to `dist/native-artifacts/`;
+native pixels remain a masked/tolerance contract rather than an exact checksum
+promise.
 
 ## Plotting
 

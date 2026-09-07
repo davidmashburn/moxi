@@ -30,6 +30,13 @@ jobs:
           name: benchmark-quick-${{ github.run_id }}
           path: dist/benchmark-results/quick.json
           if-no-files-found: error
+      - name: Upload native screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-screenshot-${{ github.run_id }}
+          path: dist/native-artifacts
+          if-no-files-found: warn
 
   package-consumer:
     runs-on: macos-14

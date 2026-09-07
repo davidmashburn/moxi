@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "fixture": "native-scene",
+  "renderer": "macos-metal",
+  "width": 128,
+  "height": 112,
+  "max_channel_delta": 24,
+  "max_mismatched_pixels": 320,
+  "max_mismatch_ratio": 0.025,
+  "masks": [
+    {
+      "name": "coretext-rasterization",
+      "x": 0,
+      "y": 80,
+      "width": 128,
+      "height": 32,
+      "reason": "CoreText glyph coverage and texture filtering are host/device dependent."
+    }
+  ]
+}

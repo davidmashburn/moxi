@@ -93,9 +93,14 @@ attributes, and tears down both host and server. The served page publishes
 smoke check; this harness does not claim that a Mojo Web package runtime ships.
 
 This SVG is a deterministic design reference, not a fabricated runtime
-screenshot. Native screenshots should be captured on macOS after launching the
-demo, because AppKit font metrics, window chrome, scale factor, and accessibility
-behavior are platform output. The headless counterpart is covered by
+screenshot. The offscreen native scene has a checked-in tolerance/mask policy:
+`pixi run native-screenshot-check` captures Metal pixels, compares them with
+the software oracle, and writes `dist/native-artifacts/native-scene-report.json`
+alongside the PPM capture. The CoreText region is explicitly masked because
+font metrics, texture filtering, scale factor, and GPU color space are
+platform output. Visible AppKit screenshots should still be captured on macOS
+after launching the demo, because window chrome and accessibility behavior are
+also host output. The headless counterpart is covered by
 `tests/wx_style.mojo`, `tests/wx_advanced.mojo`,
 `tests/scene_renderer.mojo`, `tests/golden_render.mojo`, and
 `tests/package_consumer.mojo`. The SVGs are checked as well-formed XML by

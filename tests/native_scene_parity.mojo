@@ -33,13 +33,18 @@ def main() raises:
         Color(0.95, 0.95, 1.0, 1.0),
     )
 
-    var software = SoftwareSceneRenderer(128, 112)
+    var software = SoftwareSceneRenderer(
+        128,
+        112,
+        Color(0.05, 0.07, 0.12, 1.0),
+    )
     software.render_scene(scene)
     test_check(software.command_count == scene.count())
     test_check(software.checksum() > 0)
 
     var metal = MacOSMetalRenderer(128, 112)
     if not metal.is_ready():
+        print("NATIVE_SCREENSHOT_SKIPPED")
         print("Moxi native scene parity skipped: Metal unavailable")
         return
     metal.render_scene(scene)
@@ -53,5 +58,12 @@ def main() raises:
     test_check(metal.rendered_text_glyph_count() > 0)
     test_check(metal.fallback_command_count() == 0)
     test_check(metal.checksum() != 0)
+    test_check(
+        metal.write_ppm("dist/native-artifacts/native-scene.ppm")
+    )
+    print("NATIVE_SCREENSHOT_CAPTURE dist/native-artifacts/native-scene.ppm")
+    print("NATIVE_SCREENSHOT_SOFTWARE_BEGIN")
+    print(software.ppm())
+    print("NATIVE_SCREENSHOT_SOFTWARE_END")
     metal.shutdown()
     print("Moxi native scene parity passed")

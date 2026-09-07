@@ -137,7 +137,8 @@ against the deliberately focused 0.5 release boundary.
 2. Add iOS/Android/Web plus Windows/Linux CI and backend smoke tests as implementations land; current CI is macOS Apple Silicon only.
 3. Run a like-for-like Moxi/Xilem/Masonry benchmark with published hardware, versions, workloads, and results.
 4. Add fuzzing once the Mojo test/tooling path supports it; property-style deterministic checks now cover the critical edge contracts.
-5. Capture native screenshots on macOS and add them to the visual QA record; source-controlled SVG references are present now.
+5. Add a visible AppKit screenshot capture to the visual QA record; the
+   offscreen Metal scene now has a checked-in tolerance/mask policy and report.
 
 ### Agent-specific follow-up
 
@@ -160,7 +161,7 @@ boundary as follows:
 | Components and reactivity | Complete for the focused catalog | descriptors, state models, action queues, memos/lenses/scopes, tasks |
 | Accessibility and native actions | Deeper macOS slice plus host bridges; live package/device work remains | explicit semantic state/ranges, AppKit AX hierarchy/notifications/hit testing, AppKit text-field editor, Web ARIA mapper/overlay, iOS virtual elements, Android virtual node provider/action bridge |
 | Hardening | Complete for 0.5 plus repeatable post-0.5 benchmarks | configurable core queues, property checks, analytics/plot/Metal benchmarks, package/release checks; native/cross-platform ceilings remain |
-| Documentation and visual QA | Complete for source-controlled artifacts | comparison/API/architecture/performance/visual/benchmark docs, plot/SVG references, lossless software golden corpus, and browser-host lifecycle evidence; native screenshot still requires a local macOS capture |
+| Documentation and visual QA | Complete for source-controlled artifacts | comparison/API/architecture/performance/visual/benchmark docs, plot/SVG references, lossless software golden corpus, browser-host lifecycle evidence, and an offscreen native screenshot tolerance report; visible AppKit screenshot capture still requires a local macOS session |
 | Plotting foundation | Implemented as an experimental first library | `PlotDataTable`, statistical recipes, zero-copy views, `PlotSpec`, `PlotRuntime`, lasso/linking, facet resolution, LOD, accessibility, software/Metal/SVG output |
 
 ## Executed plan

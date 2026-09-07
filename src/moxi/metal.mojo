@@ -208,7 +208,12 @@ struct MacOSMetalRenderer(SceneRenderer):
             self.frame_cpu_wait_time_ms = 0.0
             self.last_frame_time_ms = 0.0
             self.frame_gpu_timing_available = False
-            external_call["moxi_metal_begin", NoneType](0.05, 0.07, 0.12, 1.0)
+            external_call["moxi_metal_begin", NoneType](
+                Float32(0.05),
+                Float32(0.07),
+                Float32(0.12),
+                Float32(1.0),
+            )
 
     def draw_scene_command(mut self, command: SceneCommand) raises:
         if not self.initialized:
@@ -563,6 +568,14 @@ struct MacOSMetalRenderer(SceneRenderer):
     def checksum(self) -> Int:
         return Int(external_call["moxi_metal_checksum", Int64]())
 
+    def write_ppm(mut self, path: String) -> Bool:
+        """Write the synchronized offscreen target as a binary RGB PPM."""
+        if not self.initialized:
+            return False
+        var path_copy = path
+        var c_path = path_copy.as_c_string_slice()
+        return external_call["moxi_metal_write_ppm", Int32](c_path.ptr()) != 0
+
     def register_image(self, resource: ImageResource) raises -> Bool:
         """Upload a file-backed image to the Metal resource cache."""
         var source = resource.source
@@ -675,7 +688,12 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
         self.clip_pushed = False
         if not self.initialized:
             return
-        external_call["moxi_metal_begin", NoneType](0.0, 0.0, 0.0, 0.0)
+        external_call["moxi_metal_begin", NoneType](
+            Float32(0.0),
+            Float32(0.0),
+            Float32(0.0),
+            Float32(0.0),
+        )
         var local_clip = Rect(
             clip.x - self.origin.x,
             clip.y - self.origin.y,

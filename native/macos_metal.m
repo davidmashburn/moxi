@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -134,6 +135,7 @@ static NSUInteger moxi_metal_target_width;
 static NSUInteger moxi_metal_target_height;
 static float moxi_metal_scale;
 static int moxi_metal_vertex_count;
+static int moxi_metal_vertex_offset;
 static int moxi_metal_line_count;
 static int moxi_metal_submitted_vertex_count;
 static int moxi_metal_submitted_line_count;
@@ -391,7 +393,10 @@ static void moxi_append_transformed_rect(
 
 static BOOL moxi_metal_reserve_vertices(int additional) {
     if (additional < 0 || moxi_metal_vertex_count < 0) return NO;
-    NSUInteger required = (NSUInteger)moxi_metal_vertex_count + (NSUInteger)additional;
+    NSUInteger required =
+        (NSUInteger)moxi_metal_vertex_offset +
+        (NSUInteger)moxi_metal_vertex_count +
+        (NSUInteger)additional;
     if (required <= moxi_metal_vertex_capacity) return YES;
     if (required > MOXI_METAL_MAX_VERTICES) {
         moxi_metal_overflow_count += 1;
@@ -414,9 +419,12 @@ static BOOL moxi_metal_reserve_vertices(int additional) {
         return NO;
     }
     MoxiMetalVertex *next_vertices = (MoxiMetalVertex *)[next_buffer contents];
-    if (moxi_metal_vertices != NULL && moxi_metal_vertex_count > 0) {
+    NSUInteger used =
+        (NSUInteger)moxi_metal_vertex_offset +
+        (NSUInteger)moxi_metal_vertex_count;
+    if (moxi_metal_vertices != NULL && used > 0) {
         memcpy(next_vertices, moxi_metal_vertices,
-               sizeof(MoxiMetalVertex) * (NSUInteger)moxi_metal_vertex_count);
+               sizeof(MoxiMetalVertex) * used);
     }
     moxi_metal_vertex_buffers[moxi_metal_current_frame_slot] = next_buffer;
     moxi_metal_vertex_storages[moxi_metal_current_frame_slot] = next_vertices;
@@ -551,9 +559,9 @@ static void moxi_append_triangle(
     MoxiMetalVertex third
 ) {
     if (!moxi_metal_reserve_vertices(3)) return;
-    moxi_metal_vertices[moxi_metal_vertex_count++] = first;
-    moxi_metal_vertices[moxi_metal_vertex_count++] = second;
-    moxi_metal_vertices[moxi_metal_vertex_count++] = third;
+    moxi_metal_vertices[moxi_metal_vertex_offset + moxi_metal_vertex_count++] = first;
+    moxi_metal_vertices[moxi_metal_vertex_offset + moxi_metal_vertex_count++] = second;
+    moxi_metal_vertices[moxi_metal_vertex_offset + moxi_metal_vertex_count++] = third;
 }
 
 static float moxi_clamp(float value) {
@@ -2268,9 +2276,12 @@ static void moxi_metal_flush_geometry(void) {
     if (moxi_metal_encoder == nil || moxi_metal_vertex_count <= 0) return;
     [moxi_metal_encoder setRenderPipelineState:moxi_metal_pipeline];
     [moxi_metal_encoder setVertexBuffer:moxi_metal_vertex_buffer offset:0 atIndex:0];
-    [moxi_metal_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:(NSUInteger)moxi_metal_vertex_count];
+    [moxi_metal_encoder drawPrimitives:MTLPrimitiveTypeTriangle
+                           vertexStart:(NSUInteger)moxi_metal_vertex_offset
+                           vertexCount:(NSUInteger)moxi_metal_vertex_count];
     moxi_metal_draw_submission_count += 1;
     moxi_metal_submitted_vertex_count += moxi_metal_vertex_count;
+    moxi_metal_vertex_offset += moxi_metal_vertex_count;
     moxi_metal_vertex_count = 0;
 }
 
@@ -2456,6 +2467,7 @@ int moxi_metal_init(int width, int height) {
     moxi_metal_plot_line_capacity = moxi_metal_plot_line_capacities[0];
     moxi_metal_plot_instance_capacity = moxi_metal_plot_instance_capacities[0];
     moxi_metal_vertex_count = 0;
+    moxi_metal_vertex_offset = 0;
     moxi_metal_line_count = 0;
     moxi_metal_submitted_vertex_count = 0;
     moxi_metal_submitted_line_count = 0;
@@ -2596,6 +2608,7 @@ void moxi_metal_begin(float red, float green, float blue, float alpha) {
     moxi_metal_plot_line_capacity = moxi_metal_plot_line_capacities[next_slot];
     moxi_metal_plot_instance_capacity = moxi_metal_plot_instance_capacities[next_slot];
     moxi_metal_vertex_count = 0;
+    moxi_metal_vertex_offset = 0;
     moxi_metal_line_count = 0;
     moxi_metal_submitted_vertex_count = 0;
     moxi_metal_submitted_line_count = 0;
@@ -3047,6 +3060,46 @@ int64_t moxi_metal_checksum(void) {
     }
     free(bytes);
     return result;
+}
+
+int moxi_metal_write_ppm(const char *path) {
+    if (!moxi_metal_initialized || moxi_metal_texture == nil || path == NULL) {
+        return 0;
+    }
+    moxi_metal_wait_for_idle();
+    NSUInteger byte_count =
+        (NSUInteger)moxi_metal_width * (NSUInteger)moxi_metal_height * 4;
+    uint8_t *bytes = (uint8_t *)malloc(byte_count);
+    if (bytes == NULL) return 0;
+    MTLRegion region = MTLRegionMake2D(
+        0,
+        0,
+        (NSUInteger)moxi_metal_width,
+        (NSUInteger)moxi_metal_height
+    );
+    [moxi_metal_texture getBytes:bytes
+                      bytesPerRow:(NSUInteger)moxi_metal_width * 4
+                       fromRegion:region
+                      mipmapLevel:0];
+    FILE *file = fopen(path, "wb");
+    if (file == NULL) {
+        free(bytes);
+        return 0;
+    }
+    int success = fprintf(
+        file,
+        "P6\n%d %d\n255\n",
+        moxi_metal_width,
+        moxi_metal_height
+    ) >= 0;
+    for (NSUInteger index = 0;
+         success && index < (NSUInteger)moxi_metal_width * (NSUInteger)moxi_metal_height;
+         index++) {
+        success = fwrite(bytes + index * 4, 1, 3, file) == 3;
+    }
+    if (fclose(file) != 0) success = 0;
+    free(bytes);
+    return success;
 }
 
 int moxi_metal_attach_canvas(float x, float y, float width, float height) {

@@ -30,11 +30,14 @@ match between engines.
 `tests/native_scene_parity.mojo` replays a compact scene through both
 `SoftwareSceneRenderer` and `MacOSMetalRenderer`. Command order/count, rendered
 primitive counters, and explicit fallback counters are exact structural
-signals. Native pixel comparison is intentionally a separate masked/tolerance
-lane: CoreText rasterization, GPU color space, device drivers, and scale factor
-can legitimately change pixels. Until a checked-in capture policy exists,
-`SoftwareSceneRenderer` remains the visual oracle and native replay must not be
-described as pixel parity.
+signals. Native pixel comparison is a separate masked/tolerance lane:
+`tests/native-screenshot-policy.json` records the dimensions, channel budget,
+mismatch budget, and the CoreText mask. `pixi run native-screenshot-check`
+captures the offscreen Metal texture, compares it with the software oracle,
+and writes a reviewable report under `dist/native-artifacts/`. CoreText
+rasterization, GPU color space, device drivers, and scale factor can still
+change pixels; the mask makes that variance explicit instead of treating a
+native checksum as exact pixel parity.
 
 Run the checks on a macOS host with the relevant frameworks:
 
@@ -42,4 +45,5 @@ Run the checks on a macOS host with the relevant frameworks:
 pixi run text-conformance
 pixi run native-text-parity
 pixi run native-scene-parity
+pixi run native-screenshot-check
 ```

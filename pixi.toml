@@ -15,6 +15,7 @@ native-text-parity-build = { cmd = "mojo build -I src -Xlinker native/macos_text
 native-text-parity = { cmd = "./dist/moxi-native-text-parity", depends-on = ["native-text-parity-build"] }
 native-scene-parity-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Foundation tests/native_scene_parity.mojo -o dist/moxi-native-scene-parity", depends-on = ["metal-object"] }
 native-scene-parity = { cmd = "./dist/moxi-native-scene-parity", depends-on = ["native-scene-parity-build"] }
+native-screenshot-check = { cmd = "bash scripts/native_screenshot_check.sh", depends-on = ["native-scene-parity-build"] }
 demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
 demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
 live-script-demo-build = { cmd = "mojo build -I src -I examples -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/live_script_demo.mojo -o dist/moxi-live-script-demo", depends-on = ["native-object"] }
