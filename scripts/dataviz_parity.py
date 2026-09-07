@@ -95,6 +95,29 @@ def run_local_overlap(repo_dir: Path) -> List[Dict[str, Any]]:
     return results
 
 
+def run_local_recipe_wave(repo_dir: Path) -> List[Dict[str, Any]]:
+    sys.path.insert(0, str(repo_dir / "python"))
+    import moxi
+    from moxi.scenarios import recipe_scenarios
+
+    results: List[Dict[str, Any]] = []
+    for name, data, spec in recipe_scenarios():
+        figure = moxi.plot(data, spec, width=160, height=120)
+        svg = figure.to_svg()
+        png = figure.to_png()
+        results.append({
+            "mark": name,
+            "spec_version": spec.version,
+            "valid": spec.validate(),
+            "svg_bytes": len(svg),
+            "png_bytes": len(png),
+            "rgba_bytes": len(figure.to_rgba()),
+        })
+        if not spec.validate() or len(svg) <= 0 or len(png) <= 0:
+            raise SystemExit(f"local recipe wave failed for {name}")
+    return results
+
+
 def check_inventory(repo_dir: Path) -> None:
     rows = list(csv.DictReader((repo_dir / "docs" / "dataviz-capabilities.tsv").open(), delimiter="\t"))
     by_mark = {row["upstream_mark"]: row for row in rows}
@@ -116,6 +139,7 @@ def main() -> int:
         "reference": reference,
         "upstream_run": run_upstream_reference(reference),
         "overlap": run_local_overlap(repo_dir),
+        "recipe_wave": run_local_recipe_wave(repo_dir),
         "normalization": {
             "structural": "SVG element/attribute topology and PlotSpec JSON fields",
             "raster": "RGBA byte length and stable checksum lane; native font pixels are not compared byte-for-byte",

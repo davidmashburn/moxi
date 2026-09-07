@@ -7,7 +7,8 @@ Moxi absorbs the reusable contract and recipe capabilities, not the upstream pac
 - `PlotSpec` is the interchange boundary between Mojo, Python, and future native bindings.
 - `line`, `point/scatter`, `bar`, `area`, `box`, and `heatmap` are the initial overlap set.
 - The Python reference renderer proves the clean-install API and deterministic export path.
-- The Mojo PlotSpec already carries histogram, density, ECDF, hexbin, and regression recipes; those remain part of the next capability wave rather than being mislabeled as upstream parity.
+- The recipe wave now has executable Python transforms and export evidence for histogram, density, ECDF, hexbin, regression, and error bars; the matching Mojo PlotSpec transforms remain the cross-language source of truth.
+- Histogram is promoted in the upstream inventory; the other recipe names are Moxi-native capabilities and are not mislabeled as `dataviz_mojo` parity.
 
 For a mark to move from planned to implemented, add a canonical fixture, specify its field mapping and validation rules, emit the shared Scene contract, exercise the Canvas/SVG/software lanes, and record accessibility and interaction behavior. Visual comparisons classify structural geometry separately from font/platform pixels.
 

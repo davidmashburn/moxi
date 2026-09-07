@@ -208,6 +208,11 @@ class PlotSpec:
     def add_area(self, label: str = "", x_field: str = "x", y_field: str = "y", color: Iterable[float] = (0.30, 0.65, 0.95, 0.55)) -> int:
         return self._add_layer("area", label, x_field, y_field, color)
 
+    def add_error_bar(self, label: str = "", x_field: str = "x", y_field: str = "y", color: Iterable[float] = (0.95, 0.45, 0.35, 1.0), *, y2_field: str = "y2") -> int:
+        layer_id = self._add_layer("error_bar", label, x_field, y_field, color)
+        self.layers[-1].y2 = y2_field
+        return layer_id
+
     def add_box(self, label: str, value_field: str, group_field: str = "", color: Iterable[float] = (0.40, 0.85, 0.55, 0.90)) -> int:
         layer_id = self._add_layer("box", label, group_field or "group", "y", color)
         layer = self.layers[-1]
@@ -241,6 +246,20 @@ class PlotSpec:
     def add_ecdf(self, label: str, field: str, color: Iterable[float] = (0.95, 0.65, 0.20, 1.0)) -> int:
         layer_id = self._add_layer("ecdf", label, "x", "y", color)
         self.transforms.append(Transform("ecdf", field=field))
+        return layer_id
+
+    def add_hexbin(self, label: str, x_field: str, y_field: str, x_bins: int = 16, y_bins: int = 12, color: Iterable[float] = (0.95, 0.45, 0.30, 0.90)) -> int:
+        layer_id = self._add_layer("hexbin", label, "x", "y", color)
+        layer = self.layers[-1]
+        layer.x2 = "x2"
+        layer.y2 = "y2"
+        layer.color_field = "count"
+        self.transforms.append(Transform("hexbin", field=x_field, second_field=y_field, limit=max(1, x_bins), window=max(1, y_bins)))
+        return layer_id
+
+    def add_regression(self, label: str, x_field: str, y_field: str, samples: int = 32, color: Iterable[float] = (1.0, 0.75, 0.35, 1.0)) -> int:
+        layer_id = self._add_layer("regression", label, "x", "y", color)
+        self.transforms.append(Transform("regression", field=x_field, second_field=y_field, limit=max(2, samples)))
         return layer_id
 
     def encode(self, layer_id: int, channel: str, field: str, type: str = "quantitative") -> bool:

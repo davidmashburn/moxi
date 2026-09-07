@@ -13,6 +13,7 @@ REQUIRED = {
     "python_status", "parity_fixture", "benchmark", "strategy",
 }
 CORE = {"point/scatter", "line", "bar", "area", "box", "heatmap"}
+RECIPE_WAVE = {"histogram"}
 
 
 def main() -> int:
@@ -30,6 +31,10 @@ def main() -> int:
         row = rows_by_mark.get(mark)
         if row is None or row["python_status"] != "implemented":
             raise SystemExit(f"core overlap row is not complete: {mark}")
+    for mark in RECIPE_WAVE:
+        row = rows_by_mark.get(mark)
+        if row is None or row["python_status"] != "implemented" or row["parity_fixture"] != "recipe-wave" or row["benchmark"] != "python-benchmark":
+            raise SystemExit(f"recipe-wave row is not complete: {mark}")
     strategies = Counter(row["strategy"] for row in rows)
     print("Moxi capability waves:", len(rows), "marks", dict(sorted(strategies.items())))
     return 0
