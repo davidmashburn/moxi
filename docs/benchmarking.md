@@ -46,3 +46,10 @@ each run's exit status, wall-clock seconds, and deterministic metric lines
 (rows, commands, work counters, checksums, and similar workload evidence).
 Wall-clock values are diagnostic; compare deterministic counters and checksums
 first, and compare timings only between compatible environment records.
+
+Reviewed release references live under
+[`benchmarks/results/`](../benchmarks/results/). They are refreshed only from a
+clean tree with the pinned compiler and repeated full profile; local/CI samples
+remain in ignored `dist/benchmark-results/` output. The baseline policy treats
+counter/checksum changes as contract review and wall-clock values as
+same-environment diagnostics.
