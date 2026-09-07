@@ -37,6 +37,11 @@ and checksums first; compare timings only when the environment records match.
 compilation/loading. The Metal binaries are compiled once before their
 measured runs.
 
+Use `pixi run benchmark-compare` to compare a full-profile candidate with the
+reviewed macOS arm64 baseline. It enforces compatible environment metadata and
+exact deterministic signatures before applying the documented timing diagnostic
+limit; it does not turn noisy wall-clock samples into a cross-machine claim.
+
 ## Workloads and budgets
 
 | Workload | What it exercises | Stable signals |

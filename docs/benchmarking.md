@@ -53,3 +53,16 @@ clean tree with the pinned compiler and repeated full profile; local/CI samples
 remain in ignored `dist/benchmark-results/` output. The baseline policy treats
 counter/checksum changes as contract review and wall-clock values as
 same-environment diagnostics.
+
+Compare a compatible full-profile candidate with the reviewed macOS baseline:
+
+```sh
+MOXI_BENCHMARK_RUNS=3 pixi run benchmark-full
+pixi run benchmark-compare
+```
+
+The comparison requires matching profile, run shape, Mojo version, OS, and
+architecture; it checks deterministic metric/checksum signatures exactly and
+flags median wall-time regressions above 20% by default. Use
+`--max-regression-percent` to set a review-specific diagnostic limit and
+`--allow-dirty` only for exploratory comparisons.
