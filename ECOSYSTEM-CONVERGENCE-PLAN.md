@@ -1,28 +1,29 @@
 # Moxi ecosystem convergence plan
 
-Status: E1-E8 local implementation complete; the recipe-wave and static-catalog continuations are landed; external publication and specialized upstream layout parity remain explicit boundaries
+Status: E1-E8 local implementation plus D0 row-native catalog geometry complete; external publication and specialized upstream layout parity remain explicit boundaries
 Planning baseline: September 7, 2026
 Implementation branch: `main`  
 Planning branch: `project-planning`
 
 ### Implementation audit — 2026-09-07
 
-The E1-E8 execution pass plus the recipe-wave and static-catalog continuations
-are complete on `main` at `6262caf`. The main implementation landed in
+The E1-E8 execution pass plus the recipe-wave, static-catalog, and D0
+row-native geometry continuations are complete on `main` at `6b2dafb`. The main implementation landed in
 `f018f6f`; follow-ups made upstream reference execution explicit, added shared
-Python recipe geometry, and then added the portable headless lane plus the
-row-oriented catalog contract. The local gates are closed as follows:
+Python recipe geometry, and then added the portable headless lane, the
+row-oriented catalog contract, and channel-aware row-native catalog geometry.
+The local gates are closed as follows:
 
 | Gate | Local status | Evidence and boundary |
 | --- | --- | --- |
 | E3 | complete | Typed paths, text style metadata, resource handles, isolated layers, Canvas/SVG/software/Metal mappings, fallback policy, and contract tests are in `666908b`. Text and image pixels remain explicit fallback/resource lanes where Canvas cannot provide parity. |
 | E4 | complete | A clean-install, value-boundary Python package, stateless render API, deterministic exceptions, wheel manifest, and package-consumer smoke are implemented. A native Mojo/CPython extension is intentionally not claimed. |
-| E5 | complete | `moxi.plot`, `PlotSpec`, `DataTable`, `Figure` PNG/SVG/PDF/RGBA/NumPy exports, optional NumPy/pandas adapters, typed tests, and canonical overlap scenarios are implemented. The recipe-wave continuation adds executable histogram, density, ECDF, regression, hexbin, and error-bar geometry across the Python exports; the catalog continuation adds the shared row-oriented mark boundary. |
+| E5 | complete | `moxi.plot`, `PlotSpec`, `DataTable`, `Figure` PNG/SVG/PDF/RGBA/NumPy exports, optional NumPy/pandas adapters, typed tests, and canonical overlap scenarios are implemented. The recipe-wave continuation adds executable histogram, density, ECDF, regression, hexbin, and error-bar geometry across the Python exports; the catalog continuation adds the shared row-oriented mark boundary and channel-aware static geometry. |
 | E6 | complete locally | `dataviz_mojo` v0.8.0 is pinned to `3fd5a7e`; the inventory, normalization rules, migration notes, parity command, point/line/bar/area/box/heatmap overlap fixtures, and recipe-wave fixtures are checked. A full upstream build remains optional and is reported as unavailable when the external toolchain is absent. |
-| E7 | complete for the static catalog lane | The complete upstream catalog is inventoried; the six core marks and recipe wave remain covered, and all 40 canonical catalog names now round-trip through Python and Mojo PlotSpec. The static lane has scene/export geometry, row-anchor interaction, accessibility rows, parity fixtures, and repeated benchmarks. It is explicitly `compatible-static`, not rich nested-layout parity. |
+| E7 | complete for the static catalog lane and D0 row-native promotion | The complete upstream catalog is inventoried; the six core marks and recipe wave remain covered, and all 40 canonical catalog names now round-trip through Python and Mojo PlotSpec. The static lane has scene/export geometry, row-anchor interaction, accessibility rows, parity fixtures, and repeated benchmarks. D0 adds grouped/stacked bars, waterfalls, candlesticks, spans, sectors, graph/flow edges, calendar cells, and sized-point/channel fixtures. It remains explicitly `compatible-static`, not rich nested-layout parity. |
 | E8 | complete locally | The local checks include clean-wheel/package-consumer, PlotSpec contract, dataviz overlap plus recipe-wave and catalog-static parity, capability-wave, three-run Python benchmarks, generated API checks, and the portable headless lane. `release-preflight` validates both package targets without uploading. |
 
-This audit closes the implementation work requested by this plan without
+This audit closes the currently unblocked implementation work requested by this plan without
 quietly converting a local nightly fork, a missing external reference build,
 or a credential-gated package upload into a public support claim.
 
@@ -577,54 +578,59 @@ mark breadth.
 
 ### Gate E7: dataviz capability waves
 
-**Status:** complete for the static catalog lane at `6262caf`. The core
-overlap wave and recipe wave have executable value-boundary evidence, and all
-40 canonical catalog names now round-trip through the shared Python/Mojo
-PlotSpec boundary. The 38 catalog inventory rows have explicit
-`compatible-static`, `implemented-static`, `implemented-anchor`,
-`implemented-row`, parity, and benchmark evidence. This closes the catalog
-schema/export/interaction/accessibility work without claiming that a generic
-row geometry is equivalent to every upstream nested-layout algorithm.
+**Status:** complete for the static catalog lane and D0 row-native promotion at
+`6b2dafb`. The core overlap wave and recipe wave have executable
+value-boundary evidence, and all 40 canonical catalog names now round-trip
+through the shared Python/Mojo PlotSpec boundary. The 38 catalog inventory
+rows have explicit `compatible-static`, `implemented-static`,
+`implemented-anchor`, `implemented-row`, parity, and benchmark evidence. D0
+adds channel-aware deterministic rectangles, sectors, segments, and sized
+points in the Python renderer plus native interval/edge Scene primitives in
+Mojo. This closes the currently unblocked row-native work without claiming
+that it is equivalent to every upstream nested-layout algorithm.
 
 Capability breadth follows measured user value and dependency order. The
 inventory, rather than this prose list, is authoritative after E6.
 
-#### Specialized geometry promotion backlog — Wave A
+#### Specialized geometry promotion backlog — remaining Wave A
 
 Candidate marks: lollipop, waterfall, candlestick, bullet, grouped/stacked
 bar, Gantt/span, and population pyramid.
 
 Estimate: 3-5 engineering weeks.
 
-The static catalog lane is already available for these names. This wave is
-only for replacing the row-oriented geometry with domain-specific layouts and
-fixtures; it is not a missing PlotSpec name or package-export task.
+The static catalog lane and D0 row-native geometry are already available for
+these names. Remaining work is replacing the row-oriented geometry with
+upstream-shaped layouts and reference fixtures; it is not a missing PlotSpec
+name or package-export task.
 
-#### Specialized geometry promotion backlog — Wave B
+#### Specialized geometry promotion backlog — remaining Wave B
 
 Candidate marks: pie/donut, radar, gauge, polar/radial bar, beeswarm, violin,
 ridgeline, Nightingale, streamgraph, and contour.
 
 Estimate: 4-7 engineering weeks.
 
-The static catalog lane is already available for these names. Polar sectors,
-distribution shapes, and contour grids require richer field/array fixtures
-before they can be called upstream-parity implementations.
+The static catalog lane and D0 polar/sector geometry are already available for
+these names. Distribution shapes and contour grids still require richer
+field/array fixtures before they can be called upstream-parity implementations.
 
-#### Specialized geometry promotion backlog — Wave C
+#### Specialized geometry promotion backlog — remaining Wave C
 
 Candidate marks: treemap, sunburst, tree, Sankey, chord, graph, calendar,
 corrplot, punchcard, Marimekko, barbs, and tricontour.
 
 Estimate: 4-7 engineering weeks.
 
-Every wave must use the E6 definition of done. Static rendering may be marked
-supported before specialized interaction only if the capability inventory and
-public API make that limitation explicit; the current inventory does so.
+The static catalog lane and D0 edge/calendar/sized-point geometry are already
+available for these names. Every remaining wave must use the E6 definition of
+done. Static rendering may be marked supported before specialized interaction
+only if the capability inventory and public API make that limitation explicit;
+the current inventory does so.
 
 ### Gate E8: release stabilization
 
-**Status:** complete for the local release gate at `6262caf`. The default
+**Status:** complete for the local release gate at `6b2dafb`. The default
 portable renderer remains the deterministic software oracle; Canvas is the
 nightly-pinned opt-in export backend for commands with explicit parity or
 fallback policy. Public artifact upload and any stable upstream Canvas release
