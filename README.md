@@ -112,8 +112,9 @@ separately below and are not being presented as a 0.5 compatibility promise.
 - A row-oriented static catalog lane for the inventoried `dataviz_mojo`
   marks. Python uses `PlotSpec.add_catalog_mark`; Mojo uses canonical `PLOT_*`
   constants. Every catalog name has shared validation, exports, row anchors,
-  and parity/benchmark fixtures; richer nested layouts remain explicitly
-  distinguishable from upstream pixel parity.
+  and parity/benchmark fixtures; common interval, sector, edge, calendar, and
+  sized-point families have deterministic row-native geometry, while richer
+  nested layouts remain explicitly distinguishable from upstream pixel parity.
 - An optional ordered `PlotRenderPacket` fast path for dense line, marker,
   bar, and rectangle marks, with software parity and instanced Metal
   expansion.

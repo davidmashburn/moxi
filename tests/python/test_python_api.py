@@ -31,6 +31,35 @@ def test_clean_value_boundary_round_trip_and_exports():
     assert figure.capabilities().as_dict()["compiler_runtime"] is False
 
 
+def test_catalog_channel_bindings_round_trip_and_grouped_wrapper():
+    spec = moxi.PlotSpec("Catalog channels")
+    layer_id = spec.add_grouped_bar(
+        "sales",
+        "category",
+        "value",
+        color_field="team",
+        x2_field="end",
+        size_field="size",
+        opacity_field="confidence",
+        fill_field="fill",
+        stroke_field="stroke",
+        text_field="label",
+        stat_low_field="low",
+        stat_high_field="high",
+        median_field="median",
+        tooltip="category,value,team",
+    )
+    layer = spec.layers[0]
+    assert layer.id == layer_id
+    assert layer.x2 == "end"
+    assert layer.color_field == "team"
+    assert layer.fill_field == "fill"
+    assert layer.stat_high_field == "high"
+    assert layer.tooltip == "category,value,team"
+    assert {encoding.channel for encoding in spec.encodings} >= {"x", "y", "x2", "size", "color", "fill", "stroke", "opacity", "text", "tooltip"}
+    assert moxi.PlotSpec.from_json(spec.to_json()).to_json() == spec.to_json()
+
+
 @pytest.mark.parametrize("name,data,spec", list(overlap_scenarios()))
 def test_dataviz_overlap_scenarios_are_renderable(name, data, spec):
     figure = moxi.plot(data, spec, width=80, height=60)
@@ -122,6 +151,29 @@ def test_catalog_marks_have_shared_schema_and_static_exports(name, data, spec):
     figure = moxi.plot(data, spec, width=160, height=120)
     geometry = figure._raw_geometry(spec.layers[0])
     assert geometry.points or geometry.rects or geometry.errors, name
+    if name == "grouped_bar":
+        assert geometry.kind == "bars"
+        assert len(geometry.rects) == len(data["y"])
+        assert len({geometry.colors[index] for index in range(len(geometry.colors))}) >= 2
+    elif name == "stacked_bar":
+        assert geometry.kind == "bars"
+        assert max(rect[3] for rect in geometry.rects) > max(data["y"])
+    elif name == "waterfall":
+        assert geometry.kind == "bars"
+        assert max(rect[3] for rect in geometry.rects) >= sum(data["y"])
+    elif name == "candlestick":
+        assert geometry.kind == "candlestick"
+        assert len(geometry.segments) == len(data["y"])
+        assert min(segment[1] for segment in geometry.segments) == min(data["low"])
+        assert max(segment[3] for segment in geometry.segments) == max(data["high"])
+    elif name in {"pie", "donut", "radialbar"}:
+        assert geometry.kind == "polygons"
+        assert len(geometry.polygons) == len(data["y"])
+    elif name in {"graph", "sankey", "chord"}:
+        assert geometry.kind == "segments"
+        assert len(geometry.segments) == len(data["y"])
+    elif name == "punchcard":
+        assert geometry.sizes == data["size"]
     screen = figure._screen_geometry(spec.layers[0])
     if screen.points:
         anchor = screen.points[0]

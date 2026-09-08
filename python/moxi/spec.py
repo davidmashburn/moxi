@@ -251,6 +251,13 @@ class PlotSpec:
         size_field: str = "",
         color_field: str = "",
         text_field: str = "",
+        fill_field: str = "",
+        stroke_field: str = "",
+        opacity_field: str = "",
+        stat_low_field: str = "",
+        stat_high_field: str = "",
+        median_field: str = "",
+        tooltip: str = "",
     ) -> int:
         """Add one dataviz catalog mark through the shared PlotSpec schema.
 
@@ -270,23 +277,48 @@ class PlotSpec:
         layer.size_field = str(size_field)
         layer.color_field = str(color_field)
         layer.text_field = str(text_field)
+        layer.fill_field = str(fill_field)
+        layer.stroke_field = str(stroke_field)
+        layer.opacity_field = str(opacity_field)
+        layer.stat_low_field = str(stat_low_field)
+        layer.stat_high_field = str(stat_high_field)
+        layer.median_field = str(median_field)
+        layer.tooltip = str(tooltip)
         channels = {
             "x2": x2_field,
             "y2": y2_field,
             "size": size_field,
             "color": color_field,
+            "fill": fill_field,
+            "stroke": stroke_field,
+            "opacity": opacity_field,
             "text": text_field,
+            "tooltip": tooltip,
         }
         for channel, field_name in channels.items():
             if field_name:
                 self.encode(layer_id, channel, str(field_name))
         return layer_id
 
-    def add_grouped_bar(self, label: str = "", x_field: str = "x", y_field: str = "y", color: Iterable[float] = (0.40, 0.85, 0.55, 1.0)) -> int:
-        return self.add_catalog_mark("grouped_bar", label, x_field, y_field, color)
+    def add_grouped_bar(
+        self,
+        label: str = "",
+        x_field: str = "x",
+        y_field: str = "y",
+        color: Iterable[float] = (0.40, 0.85, 0.55, 1.0),
+        **channels: Any,
+    ) -> int:
+        return self.add_catalog_mark("grouped_bar", label, x_field, y_field, color, **channels)
 
-    def add_stacked_bar(self, label: str = "", x_field: str = "x", y_field: str = "y", color: Iterable[float] = (0.40, 0.85, 0.55, 1.0)) -> int:
-        return self.add_catalog_mark("stacked_bar", label, x_field, y_field, color)
+    def add_stacked_bar(
+        self,
+        label: str = "",
+        x_field: str = "x",
+        y_field: str = "y",
+        color: Iterable[float] = (0.40, 0.85, 0.55, 1.0),
+        **channels: Any,
+    ) -> int:
+        return self.add_catalog_mark("stacked_bar", label, x_field, y_field, color, **channels)
 
     def add_line(self, label: str = "", x_field: str = "x", y_field: str = "y", color: Iterable[float] = (0.25, 0.75, 1.0, 1.0)) -> int:
         return self._add_layer("line", label, x_field, y_field, color)

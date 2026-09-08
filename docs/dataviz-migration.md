@@ -8,7 +8,7 @@ Moxi absorbs the reusable contract and recipe capabilities, not the upstream pac
 - `line`, `point/scatter`, `bar`, `area`, `box`, and `heatmap` are the initial overlap set.
 - The Python reference renderer proves the clean-install API and deterministic export path.
 - The recipe wave now has executable Python transforms and export evidence for histogram, density, ECDF, hexbin, regression, and error bars; the matching Mojo PlotSpec transforms remain the cross-language source of truth.
-- The inventoried catalog is now available through `PlotSpec.add_catalog_mark` and canonical Mojo `PLOT_*` values. Its row-oriented static lane covers every inventory row with exports, row anchors, accessibility summaries, and benchmark/parity fixtures; the inventory deliberately labels these rows `compatible-static` rather than claiming rich nested-layout parity.
+- The inventoried catalog is now available through `PlotSpec.add_catalog_mark` and canonical Mojo `PLOT_*` values. Its row-oriented lane covers every inventory row with exports, row anchors, accessibility summaries, and benchmark/parity fixtures; common interval, sector, edge, calendar, and sized-point families now have deterministic row-native geometry. The inventory deliberately labels these rows `compatible-static` rather than claiming rich nested-layout parity.
 
 For a mark to move from the static lane to a specialized implementation, add a canonical fixture, specify its field mapping and validation rules, emit the shared Scene contract, exercise the Canvas/SVG/software lanes, and record accessibility and interaction behavior. Visual comparisons classify structural geometry separately from font/platform pixels.
 

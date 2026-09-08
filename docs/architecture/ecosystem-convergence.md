@@ -117,11 +117,13 @@ The catalog promotion now has a row-oriented static lane. `PlotSpec` accepts
 canonical names for every inventoried mark, Python exposes
 `PlotSpec.add_catalog_mark`, Mojo preserves the corresponding numeric mark
 identity through JSON, and `catalog_scenarios()` drives SVG/PNG/RGBA/PDF,
-row-anchor hit testing, and repeated Python benchmarks for every mark. The
-inventory labels this lane `compatible-static`/`implemented-static` and
-`implemented-anchor` so it is not confused with the richer nested-array
-layout algorithms in the reference library. Static upstream output without
-those contracts is still reference evidence, not an absorbed Moxi feature.
+row-anchor hit testing, and repeated Python benchmarks for every mark. Common
+interval, sector, edge, calendar, and sized-point families use native
+row-oriented geometry while the inventory remains labeled
+`compatible-static`/`implemented-static`/`implemented-anchor`; this keeps the
+lane distinct from the richer nested-array layout algorithms in the reference
+library. Static upstream output without those contracts is still reference
+evidence, not an absorbed Moxi feature.
 
 ## Current evidence
 

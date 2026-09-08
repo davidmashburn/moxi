@@ -8,8 +8,10 @@
 - Added the inventoried dataviz catalog to the shared Mojo/Python PlotSpec
   boundary: 40 canonical catalog names, static export geometry, row-anchor
   hit testing, accessibility summaries, parity fixtures, and repeated
-  benchmarks. Specialized nested layouts remain explicitly separate from the
-  static compatibility lane.
+  benchmarks. Promoted row-native grouped/stacked bars, waterfalls,
+  candlesticks, spans, sectors, graph/flow edges, calendar cells, and sized
+  points with shared visual channels; specialized nested layouts remain
+  explicitly separate from the static compatibility lane.
 - Added a generated API surface snapshot and explicit compatibility/deprecation
   manifest. Removing a public root export now requires a reviewed
   `deprecated`/`moved`/`removed` entry with replacement and release metadata;

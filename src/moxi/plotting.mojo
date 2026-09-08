@@ -2174,24 +2174,196 @@ struct Plot:
                         self.series[series_index].kind >= PLOT_CATALOG_FIRST
                         and self.series[series_index].kind <= PLOT_CATALOG_LAST
                     ):
-                        # The catalog lane is deliberately conservative at
-                        # the retained Mojo layer: every mark has a real,
-                        # interactive point anchor now, while specialized
-                        # geometry remains a per-mark promotion step.
-                        scene.append_rounded_rect(
-                            2400 + self.series[series_index].id * 100 + point_index,
-                            Rect(
-                                point.x - point_size * 0.5,
-                                point.y - point_size * 0.5,
-                                point_size,
-                                point_size,
-                            ),
-                            point_color,
-                            point_size * 0.5,
-                        )
-                        var catalog_command = scene.commands[len(scene.commands) - 1]
-                        catalog_command.set_opacity(point_opacity)
-                        scene.commands[len(scene.commands) - 1] = catalog_command
+                        # Catalog marks share the row-oriented data boundary
+                        # with the core marks.  Promote the interval families
+                        # to their native Scene primitives while retaining a
+                        # compact anchor for the remaining catalog layouts.
+                        var catalog_id = 2400 + self.series[series_index].id * 100 + point_index
+                        if self.series[series_index].kind == PLOT_LOLLIPOP:
+                            var baseline = self.y_scale.map(0.0)
+                            scene.append_line(
+                                catalog_id,
+                                Point(point.x, baseline),
+                                point,
+                                point_color,
+                                self.series[series_index].line_width,
+                            )
+                            var stem_command = scene.commands[len(scene.commands) - 1]
+                            stem_command.set_opacity(point_opacity)
+                            scene.commands[len(scene.commands) - 1] = stem_command
+                            scene.append_rounded_rect(
+                                catalog_id + 1,
+                                Rect(
+                                    point.x - point_size * 0.5,
+                                    point.y - point_size * 0.5,
+                                    point_size,
+                                    point_size,
+                                ),
+                                point_color,
+                                point_size * 0.5,
+                            )
+                            var lollipop_command = scene.commands[len(scene.commands) - 1]
+                            lollipop_command.set_opacity(point_opacity)
+                            scene.commands[len(scene.commands) - 1] = lollipop_command
+                        elif self.series[series_index].kind == PLOT_CANDLESTICK and source_point.has_y2:
+                            var open_point = source_point
+                            open_point.y = source_point.y2
+                            var open_screen = self._screen_point(open_point)
+                            var low_screen = open_screen
+                            var high_screen = point
+                            if source_point.has_statistics:
+                                var low_point = source_point
+                                low_point.y = source_point.stat_low
+                                low_screen = self._screen_point(low_point)
+                                var high_point = source_point
+                                high_point.y = source_point.stat_high
+                                high_screen = self._screen_point(high_point)
+                            var wick_top = low_screen.y if low_screen.y < high_screen.y else high_screen.y
+                            var wick_bottom = low_screen.y if low_screen.y > high_screen.y else high_screen.y
+                            scene.append_line(
+                                catalog_id,
+                                Point(point.x, wick_top),
+                                Point(point.x, wick_bottom),
+                                point_color,
+                                self.series[series_index].line_width,
+                            )
+                            var wick_command = scene.commands[len(scene.commands) - 1]
+                            wick_command.set_opacity(point_opacity)
+                            scene.commands[len(scene.commands) - 1] = wick_command
+                            var body_top = point.y if point.y < open_screen.y else open_screen.y
+                            var body_bottom = point.y if point.y > open_screen.y else open_screen.y
+                            var body_height = body_bottom - body_top
+                            if body_height < 1.0:
+                                body_height = 1.0
+                            scene.append_rect(
+                                catalog_id + 1,
+                                Rect(point.x - point_size * 0.5, body_top, point_size, body_height),
+                                point_color,
+                            )
+                            var body_command = scene.commands[len(scene.commands) - 1]
+                            body_command.set_opacity(point_opacity)
+                            scene.commands[len(scene.commands) - 1] = body_command
+                        elif (
+                            self.series[series_index].kind == PLOT_GROUPED_BAR
+                            or self.series[series_index].kind == PLOT_STACKED_BAR
+                            or self.series[series_index].kind == PLOT_WATERFALL
+                            or self.series[series_index].kind == PLOT_BULLET
+                            or self.series[series_index].kind == PLOT_POPULATION_PYRAMID
+                            or self.series[series_index].kind == PLOT_MARIMEKKO
+                            or self.series[series_index].kind == PLOT_FUNNEL
+                            or self.series[series_index].kind == PLOT_SUNBURST
+                            or self.series[series_index].kind == PLOT_TREEMAP
+                            or self.series[series_index].kind == PLOT_CALENDAR_HEATMAP
+                        ):
+                            var catalog_end = source_point
+                            if source_point.has_x2:
+                                catalog_end.x = source_point.x2
+                            if source_point.has_y2:
+                                catalog_end.y = source_point.y2
+                            var end_screen = self._screen_point(catalog_end)
+                            var baseline = self.y_scale.map(0.0)
+                            var left = point.x - point_size * 0.5
+                            var top = point.y if point.y < baseline else baseline
+                            var width = point_size
+                            var height = point.y - baseline
+                            if height < 0.0:
+                                height = -height
+                            if source_point.has_x2:
+                                left = point.x if point.x < end_screen.x else end_screen.x
+                                width = point.x - end_screen.x
+                                if width < 0.0:
+                                    width = -width
+                            if source_point.has_y2:
+                                top = point.y if point.y < end_screen.y else end_screen.y
+                                height = point.y - end_screen.y
+                                if height < 0.0:
+                                    height = -height
+                            if width < 1.0:
+                                width = 1.0
+                            if height < 1.0:
+                                height = 1.0
+                            scene.append_rect(
+                                catalog_id,
+                                Rect(left, top, width, height),
+                                point_color,
+                            )
+                            var catalog_rect_command = scene.commands[len(scene.commands) - 1]
+                            catalog_rect_command.set_opacity(point_opacity)
+                            scene.commands[len(scene.commands) - 1] = catalog_rect_command
+                        elif (
+                            self.series[series_index].kind == PLOT_GANTT
+                            or self.series[series_index].kind == PLOT_SPAN_CHART
+                        ) and (source_point.has_x2 or source_point.has_y2):
+                            var catalog_end = source_point
+                            if source_point.has_x2:
+                                catalog_end.x = source_point.x2
+                            if source_point.has_y2:
+                                catalog_end.y = source_point.y2
+                            var end_screen = self._screen_point(catalog_end)
+                            var left = point.x if point.x < end_screen.x else end_screen.x
+                            var top = point.y if point.y < end_screen.y else end_screen.y
+                            var width = point.x - end_screen.x
+                            if width < 0.0:
+                                width = -width
+                            var height = point.y - end_screen.y
+                            if height < 0.0:
+                                height = -height
+                            if not source_point.has_x2:
+                                left = point.x - point_size * 0.5
+                                width = point_size
+                            if not source_point.has_y2:
+                                top = point.y - point_size * 0.5
+                                height = point_size
+                            if width < 1.0:
+                                width = 1.0
+                            if height < 1.0:
+                                height = 1.0
+                            scene.append_rect(
+                                catalog_id,
+                                Rect(left, top, width, height),
+                                point_color,
+                            )
+                            var span_command = scene.commands[len(scene.commands) - 1]
+                            span_command.set_opacity(point_opacity)
+                            scene.commands[len(scene.commands) - 1] = span_command
+                        elif (
+                            self.series[series_index].kind == PLOT_GRAPH
+                            or self.series[series_index].kind == PLOT_SANKEY
+                            or self.series[series_index].kind == PLOT_ARC_DIAGRAM
+                            or self.series[series_index].kind == PLOT_CHORD
+                            or self.series[series_index].kind == PLOT_BARBS
+                            or self.series[series_index].kind == PLOT_EFFECT_SCATTER
+                        ) and (source_point.has_x2 or source_point.has_y2):
+                            var catalog_end = source_point
+                            if source_point.has_x2:
+                                catalog_end.x = source_point.x2
+                            if source_point.has_y2:
+                                catalog_end.y = source_point.y2
+                            scene.append_line(
+                                catalog_id,
+                                point,
+                                self._screen_point(catalog_end),
+                                point_color,
+                                self.series[series_index].line_width,
+                            )
+                            var edge_command = scene.commands[len(scene.commands) - 1]
+                            edge_command.set_opacity(point_opacity)
+                            scene.commands[len(scene.commands) - 1] = edge_command
+                        else:
+                            scene.append_rounded_rect(
+                                catalog_id,
+                                Rect(
+                                    point.x - point_size * 0.5,
+                                    point.y - point_size * 0.5,
+                                    point_size,
+                                    point_size,
+                                ),
+                                point_color,
+                                point_size * 0.5,
+                            )
+                            var catalog_command = scene.commands[len(scene.commands) - 1]
+                            catalog_command.set_opacity(point_opacity)
+                            scene.commands[len(scene.commands) - 1] = catalog_command
                     if (
                         (
                             self.series[series_index].kind == PLOT_LINE

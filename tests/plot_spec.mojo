@@ -5,10 +5,14 @@ from moxi import (
     CHANNEL_X,
     PLOT_LINE,
     PLOT_GAUGE,
+    PLOT_GANTT,
+    PLOT_GRAPH,
     PLOT_SANKEY,
     PlotDataTable,
     PlotSpec,
     Rect,
+    SCENE_LINE,
+    SCENE_RECT,
     SCALE_LOG,
     TYPE_NOMINAL,
     plot_from_spec,
@@ -97,6 +101,56 @@ def main():
     test_check(plot_mark_name(catalog_decoded.layer(1).mark) == "sankey")
     var catalog_plot = plot_from_spec(catalog, data, Rect(0.0, 0.0, 320.0, 240.0))
     test_check(catalog_plot.build_scene().count() > 0)
+    var enriched_catalog = PlotSpec("Enriched catalog")
+    _ = enriched_catalog.add_catalog_mark(
+        PLOT_GAUGE,
+        "gauge",
+        "x",
+        "y",
+        Color(0.3, 0.7, 1.0, 1.0),
+        "x2",
+        "y2",
+        "size",
+        "group",
+        "fill",
+        "stroke",
+        "opacity",
+        "text",
+        "low",
+        "high",
+        "median",
+        "x,y,group",
+    )
+    test_check(enriched_catalog.layer(0).x2_field == "x2")
+    test_check(enriched_catalog.layer(0).stat_high_field == "high")
+    test_check(enriched_catalog.layer(0).tooltip_fields == "x,y,group")
+    test_check(enriched_catalog.encoding_count() == 11)
+    test_check(plot_spec_from_json(enriched_catalog.to_json()).is_valid())
+    var catalog_data = PlotDataTable()
+    test_check(catalog_data.add_float_column("x2"))
+    test_check(catalog_data.add_float_column("y2"))
+    _ = catalog_data.append(0.0, 1.0)
+    _ = catalog_data.append(1.0, 2.0)
+    test_check(catalog_data.set_float_field("x2", 0, 0.5))
+    test_check(catalog_data.set_float_field("x2", 1, 1.5))
+    test_check(catalog_data.set_float_field("y2", 0, 0.5))
+    test_check(catalog_data.set_float_field("y2", 1, 1.5))
+    var interval_spec = PlotSpec("Catalog scene")
+    _ = interval_spec.add_catalog_mark(PLOT_GANTT, "interval", "x", "y", Color(0.3, 0.7, 1.0, 1.0), "x2", "y2")
+    var interval_scene = plot_from_spec(interval_spec, catalog_data, Rect(0.0, 0.0, 320.0, 240.0)).build_scene()
+    var has_catalog_rect = False
+    for index in range(interval_scene.count()):
+        if interval_scene.command(index).kind == SCENE_RECT:
+            has_catalog_rect = True
+    test_check(has_catalog_rect)
+    var edge_spec = PlotSpec("Catalog edge")
+    _ = edge_spec.add_catalog_mark(PLOT_GRAPH, "edge", "x", "y", Color(0.3, 0.7, 1.0, 1.0), "x2", "y2")
+    var edge_scene = plot_from_spec(edge_spec, catalog_data, Rect(0.0, 0.0, 320.0, 240.0)).build_scene()
+    var has_catalog_line = False
+    for index in range(edge_scene.count()):
+        if edge_scene.command(index).kind == SCENE_LINE:
+            has_catalog_line = True
+    test_check(has_catalog_line)
     var invalid = plot_spec_from_json("{\"version\":99,\"layers\":[]}")
     test_check(not invalid.is_valid())
     print("Moxi plot-spec test passed")

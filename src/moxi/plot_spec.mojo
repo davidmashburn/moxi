@@ -1261,11 +1261,56 @@ struct PlotSpec:
         x_field: String = "x",
         y_field: String = "y",
         color: Color = Color(0.25, 0.75, 1.0, 1.0),
+        x2_field: String = "",
+        y2_field: String = "",
+        size_field: String = "",
+        color_field: String = "",
+        fill_field: String = "",
+        stroke_field: String = "",
+        opacity_field: String = "",
+        text_field: String = "",
+        stat_low_field: String = "",
+        stat_high_field: String = "",
+        median_field: String = "",
+        tooltip_fields: String = "",
     ) -> Int:
-        """Add a named dataviz catalog mark through the shared row boundary."""
+        """Add a catalog mark with the complete row-oriented channel set."""
         if mark < PLOT_CATALOG_FIRST or mark > PLOT_CATALOG_LAST:
             self.valid = False
-        return self.add_layer(mark, label, x_field, y_field, color)
+        var id = self.add_layer(mark, label, x_field, y_field, color)
+        var layer_index = self._layer_index(id)
+        if layer_index != -1:
+            self.layers[layer_index].x2_field = x2_field
+            self.layers[layer_index].y2_field = y2_field
+            self.layers[layer_index].size_field = size_field
+            self.layers[layer_index].color_field = color_field
+            self.layers[layer_index].fill_field = fill_field
+            self.layers[layer_index].stroke_field = stroke_field
+            self.layers[layer_index].opacity_field = opacity_field
+            self.layers[layer_index].text_field = text_field
+            self.layers[layer_index].stat_low_field = stat_low_field
+            self.layers[layer_index].stat_high_field = stat_high_field
+            self.layers[layer_index].median_field = median_field
+            self.layers[layer_index].tooltip_fields = tooltip_fields
+        if x2_field.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_X2, x2_field)
+        if y2_field.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_Y2, y2_field)
+        if size_field.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_SIZE, size_field)
+        if color_field.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_COLOR, color_field)
+        if fill_field.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_FILL, fill_field)
+        if stroke_field.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_STROKE, stroke_field)
+        if opacity_field.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_OPACITY, opacity_field)
+        if text_field.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_TEXT, text_field)
+        if tooltip_fields.count_codepoints() > 0:
+            _ = self.encode(id, CHANNEL_TOOLTIP, tooltip_fields)
+        return id
 
     def add_line(
         mut self,
@@ -1354,8 +1399,12 @@ struct PlotSpec:
         x_field: String = "x",
         y_field: String = "y",
         color: Color = Color(0.40, 0.85, 0.55, 1.0),
+        x2_field: String = "",
+        y2_field: String = "",
+        size_field: String = "",
+        color_field: String = "",
     ) -> Int:
-        return self.add_catalog_mark(PLOT_GROUPED_BAR, label, x_field, y_field, color)
+        return self.add_catalog_mark(PLOT_GROUPED_BAR, label, x_field, y_field, color, x2_field, y2_field, size_field, color_field)
 
     def add_stacked_bar(
         mut self,
@@ -1363,8 +1412,12 @@ struct PlotSpec:
         x_field: String = "x",
         y_field: String = "y",
         color: Color = Color(0.40, 0.85, 0.55, 1.0),
+        x2_field: String = "",
+        y2_field: String = "",
+        size_field: String = "",
+        color_field: String = "",
     ) -> Int:
-        return self.add_catalog_mark(PLOT_STACKED_BAR, label, x_field, y_field, color)
+        return self.add_catalog_mark(PLOT_STACKED_BAR, label, x_field, y_field, color, x2_field, y2_field, size_field, color_field)
 
     def add_dot(
         mut self,

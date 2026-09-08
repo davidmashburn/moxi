@@ -209,14 +209,15 @@ and `y2_field` carry interval or extent data, while `size_field`,
 `color_field`, and `text_field` are ordinary channel bindings. Mojo callers
 use the corresponding `PLOT_*` constants with `PlotSpec.add_catalog_mark`.
 
-The current catalog lane is intentionally row-oriented and static. Every
-canonical mark name has validation, a deterministic scene/export path,
-row-anchor hit testing, accessibility/tabular identity through the existing
-plot model, and a shared parity/benchmark fixture. The inventory marks these
-rows `compatible-static`, `implemented-static`, and `implemented-anchor`.
-Rich nested-array layouts such as true Sankey flow routing, hierarchy packing,
-or polar sectors are not silently claimed as upstream pixel parity; they are
-the next per-mark geometry promotion behind the already-stable contract.
+The catalog lane is row-oriented and static, with a small row-native geometry
+promotion already in place. Grouped/stacked bars, waterfalls, candlesticks,
+spans, polar/radial sectors, calendar cells, graph-like edges, and sized points
+emit deterministic geometry in Python; the matching interval and edge families
+use native Scene primitives in Mojo. Every canonical mark name still has
+validation, exports, row-anchor hit testing, accessibility/tabular identity,
+and a shared parity/benchmark fixture. Rich nested-array layouts such as true
+Sankey routing, hierarchy packing, distribution envelopes, or contour surfaces
+remain explicit per-mark promotion work rather than implied upstream parity.
 
 ## Target matrix
 

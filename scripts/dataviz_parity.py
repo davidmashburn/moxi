@@ -134,9 +134,12 @@ def run_local_catalog(repo_dir: Path) -> List[Dict[str, Any]]:
             "spec_version": spec.version,
             "valid": spec.validate(),
             "geometry": {
+                "kind": geometry.kind,
                 "points": len(geometry.points),
                 "rects": len(geometry.rects),
                 "errors": len(geometry.errors),
+                "polygons": len(geometry.polygons),
+                "segments": len(geometry.segments),
             },
             "svg_bytes": len(svg),
             "png_bytes": len(figure.to_png()),
@@ -145,7 +148,7 @@ def run_local_catalog(repo_dir: Path) -> List[Dict[str, Any]]:
         if (
             not spec.validate()
             or f'data-mark="{name}"'.encode("utf-8") not in svg
-            or not (geometry.points or geometry.rects or geometry.errors)
+            or not (geometry.points or geometry.rects or geometry.errors or geometry.polygons or geometry.segments)
         ):
             raise SystemExit(f"local catalog failed for {name}")
     return results

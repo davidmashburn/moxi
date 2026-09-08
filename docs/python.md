@@ -29,17 +29,23 @@ row-oriented contract:
 ```python
 catalog = moxi.PlotSpec("Schedule")
 catalog.add_catalog_mark(
-    "gantt", "tasks", "start", "duration", x2_field="end"
+    "gantt", "tasks", "start", "duration", x2_field="end",
+    color_field="team", opacity_field="confidence"
 )
-figure = moxi.plot({"start": [0, 1], "duration": [2, 3], "end": [2, 4]}, catalog)
+figure = moxi.plot({
+    "start": [0, 1], "duration": [2, 3], "end": [2, 4],
+    "team": ["red", "blue"], "confidence": [0.9, 0.7],
+}, catalog)
 figure.hit_test(120, 80)       # stable mark/layer/row anchor, or None
 figure.accessibility()         # chart plus tabular mark summaries
 ```
 
 Every catalog name has validation, static export geometry, row anchors, and a
-shared parity/benchmark scenario. The richer upstream nested-array layouts are
-not hidden behind look-alike aliases; they remain per-mark geometry promotion
-work behind this stable schema.
+shared parity/benchmark scenario. The optional `x2_field`, `y2_field`,
+`size_field`, `color_field`/`fill_field`, `opacity_field`, `text_field`, and
+statistic fields are carried by the same JSON schema. Row-native geometry is
+implemented for the common interval, sector, edge, calendar, and sized-point
+families; richer upstream nested-array layouts remain explicit promotion work.
 
 The Python package and the Mojo package share the versioned `PlotSpec` JSON contract. `moxi.render(spec_json, named_columns, width, height, format)` is the low-level boundary for services that want bytes without retaining a `Figure`.
 

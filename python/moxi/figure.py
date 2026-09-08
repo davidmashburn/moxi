@@ -14,6 +14,7 @@ from .data import DataTable
 from .spec import PlotSpec
 
 RGBA = Tuple[int, int, int, int]
+ColorValue = Tuple[float, float, float, float]
 
 
 @dataclass(frozen=True)
@@ -99,6 +100,11 @@ class _Geometry:
     rects: List[Tuple[float, float, float, float, float]] = dataclass_field(default_factory=list)
     boxes: List[Tuple[float, float, float, float, float, float, float]] = dataclass_field(default_factory=list)
     errors: List[Tuple[float, float, float]] = dataclass_field(default_factory=list)
+    polygons: List[List[Tuple[float, float]]] = dataclass_field(default_factory=list)
+    segments: List[Tuple[float, float, float, float]] = dataclass_field(default_factory=list)
+    colors: List[ColorValue] = dataclass_field(default_factory=list)
+    opacities: List[float] = dataclass_field(default_factory=list)
+    sizes: List[float] = dataclass_field(default_factory=list)
 
 
 def _chunk(kind: bytes, payload: bytes) -> bytes:
@@ -149,6 +155,32 @@ class _Raster:
             amount = index / distance
             self.circle(x0 + (x1 - x0) * amount, y0 + (y1 - y0) * amount, radius, color)
 
+    def polygon(self, points: Sequence[Tuple[float, float]], color: RGBA) -> None:
+        """Fill a polygon with the same deterministic software raster path."""
+        if len(points) < 3:
+            return
+        left = max(0, int(math.floor(min(point[0] for point in points))))
+        right = min(self.width - 1, int(math.ceil(max(point[0] for point in points))))
+        top = max(0, int(math.floor(min(point[1] for point in points))))
+        bottom = min(self.height - 1, int(math.ceil(max(point[1] for point in points))))
+        if left > right or top > bottom:
+            return
+        for py in range(top, bottom + 1):
+            for px in range(left, right + 1):
+                inside = False
+                start = points[-1]
+                for end in points:
+                    x0, y0 = start
+                    x1, y1 = end
+                    crosses = (y0 > py + 0.5) != (y1 > py + 0.5)
+                    if crosses:
+                        intersection = (x1 - x0) * ((py + 0.5) - y0) / (y1 - y0) + x0
+                        if px + 0.5 < intersection:
+                            inside = not inside
+                    start = end
+                if inside:
+                    self.blend(px, py, color)
+
 
 class Figure:
     """A data/spec pair with stable export methods."""
@@ -198,6 +230,22 @@ class Figure:
                         "x": (left + right) / 2.0,
                         "y": (top + bottom) / 2.0,
                     }
+            for row_index, (x0, y0, x1, y1) in enumerate(geometry.segments):
+                dx, dy = x1 - x0, y1 - y0
+                denominator = dx * dx + dy * dy
+                amount = ((float(x) - x0) * dx + (float(y) - y0) * dy) / denominator if denominator else 0.0
+                amount = max(0.0, min(1.0, amount))
+                nearest_x, nearest_y = x0 + amount * dx, y0 + amount * dy
+                distance = (nearest_x - float(x)) ** 2 + (nearest_y - float(y)) ** 2
+                if distance <= best_distance:
+                    best_distance = distance
+                    result = {
+                        "layer": layer.id,
+                        "mark": layer.mark,
+                        "row_index": row_index,
+                        "x": nearest_x,
+                        "y": nearest_y,
+                    }
         return result
 
     def accessibility(self) -> List[Dict[str, Any]]:
@@ -215,6 +263,11 @@ class Figure:
                 "label": layer.label or layer.mark,
                 "x_field": layer.x,
                 "y_field": layer.y,
+                "x2_field": layer.x2,
+                "y2_field": layer.y2,
+                "color_field": layer.color_field or layer.fill_field,
+                "size_field": layer.size_field,
+                "opacity_field": layer.opacity_field,
                 "row_count": self.data.row_count,
             })
         return rows
@@ -414,17 +467,88 @@ class Figure:
         all_y = [value for _, lower, upper in errors for value in (lower, upper)]
         return _Geometry("errors", _domain([x for _, x, _ in rows]), _domain(all_y), points=centers, errors=errors)
 
-    def _catalog_geometry(self, layer: Any) -> _Geometry:
-        """Produce deterministic row-oriented geometry for catalog marks.
+    def _row_style(self, layer: Any, row_index: int) -> Tuple[ColorValue, float, float]:
+        """Resolve the portable per-row visual channels used by catalog marks."""
+        color: ColorValue = tuple(float(value) for value in layer.color)  # type: ignore[assignment]
+        color_field = layer.fill_field or layer.color_field or layer.stroke_field
+        values = self.data.columns.get(color_field, []) if color_field else []
+        if values and row_index < len(values):
+            raw_value = values[row_index]
+            numeric_values = _finite_values(values)
+            if len(numeric_values) == len(values) and numeric_values:
+                low, high = min(numeric_values), max(numeric_values)
+                try:
+                    numeric = float(raw_value)
+                except (TypeError, ValueError):
+                    numeric = (low + high) * 0.5
+                fraction = 0.5 if high == low else (numeric - low) / (high - low)
+                fraction = max(0.0, min(1.0, fraction))
+                color = (fraction, 0.35, 1.0 - fraction, 1.0)
+            else:
+                categories: List[str] = []
+                for value in values:
+                    key = repr(value)
+                    if key not in categories:
+                        categories.append(key)
+                category = repr(raw_value)
+                palette = (
+                    (0.25, 0.75, 1.0, 1.0),
+                    (1.0, 0.45, 0.30, 1.0),
+                    (0.40, 0.85, 0.55, 1.0),
+                    (0.95, 0.65, 0.20, 1.0),
+                    (0.75, 0.45, 1.0, 1.0),
+                    (1.0, 0.75, 0.35, 1.0),
+                )
+                color = palette[categories.index(category) % len(palette)]
+        opacity = 1.0
+        opacity_values = self.data.columns.get(layer.opacity_field, []) if layer.opacity_field else []
+        if row_index < len(opacity_values):
+            try:
+                opacity = max(0.0, min(1.0, float(opacity_values[row_index])))
+            except (TypeError, ValueError):
+                pass
+        size = float(layer.size)
+        size_values = self.data.columns.get(layer.size_field, []) if layer.size_field else []
+        if row_index < len(size_values):
+            try:
+                candidate = float(size_values[row_index])
+                if math.isfinite(candidate) and candidate > 0.0:
+                    size = candidate
+            except (TypeError, ValueError):
+                pass
+        return color, opacity, size
 
-        The upstream catalog contains convenience APIs with nested arrays and
-        domain-specific layout objects.  Moxi absorbs those capabilities at
-        the PlotSpec boundary first: every mark has a stable name, field
-        validation, scene output, hit-test anchors, accessibility rows, and a
-        portable static geometry path.  Optional x2/y2 fields preserve the
-        interval information needed by bars, spans, candles, and ranges while
-        leaving nested layout algorithms free to evolve behind the same
-        contract.
+    def _group_values(self, layer: Any, count: int) -> List[Any]:
+        field = layer.color_field or layer.fill_field
+        values = self.data.columns.get(field, []) if field else []
+        return [values[index] if index < len(values) else "all" for index in range(count)]
+
+    @staticmethod
+    def _step(values: Sequence[float], fallback: float = 1.0) -> float:
+        unique = sorted(set(values))
+        gaps = [right - left for left, right in zip(unique, unique[1:]) if right > left]
+        return min(gaps) if gaps else max(fallback, 1.0)
+
+    @staticmethod
+    def _sector(start: float, end: float, outer: float, inner: float = 0.0) -> List[Tuple[float, float]]:
+        span = max(1, int(math.ceil(abs(end - start) * 10.0)))
+        points = [(0.0, 0.0)] if inner <= 0.0 else []
+        for index in range(span + 1):
+            angle = start + (end - start) * index / float(span)
+            points.append((math.cos(angle) * outer, math.sin(angle) * outer))
+        if inner > 0.0:
+            for index in range(span, -1, -1):
+                angle = start + (end - start) * index / float(span)
+                points.append((math.cos(angle) * inner, math.sin(angle) * inner))
+        return points
+
+    def _catalog_geometry(self, layer: Any) -> _Geometry:
+        """Produce static geometry while retaining the shared row boundary.
+
+        These layouts intentionally consume ordinary columns.  They are not a
+        claim of upstream nested-array parity; they are the deterministic,
+        renderer-neutral geometry that lets the same PlotSpec exercise Python,
+        Mojo, export, hit testing, and accessibility paths.
         """
         x_values = _numeric_or_categories(self.data.column(layer.x))
         y_values = _numeric_or_categories(self.data.column(layer.y))
@@ -434,61 +558,203 @@ class Figure:
         mark = layer.mark
         x2_values = _numeric_or_categories(self.data.columns[layer.x2]) if layer.x2 and layer.x2 in self.data.columns else []
         y2_values = _numeric_or_categories(self.data.columns[layer.y2]) if layer.y2 and layer.y2 in self.data.columns else []
+        colors: List[ColorValue] = []
+        opacities: List[float] = []
+        sizes: List[float] = []
 
-        bar_marks = {
-            "grouped_bar", "stacked_bar", "waterfall", "candlestick", "bullet",
-            "gantt", "span_chart", "population_pyramid", "calendar_heatmap",
-            "marimekko", "funnel", "sunburst", "treemap",
-        }
-        if mark in bar_marks:
+        def style(index: int) -> None:
+            color, opacity, size = self._row_style(layer, index)
+            colors.append(color)
+            opacities.append(opacity)
+            sizes.append(size)
+
+        if mark in {"grouped_bar", "stacked_bar"}:
+            groups = self._group_values(layer, count)
+            unique_groups: List[str] = []
+            for value in groups:
+                key = repr(value)
+                if key not in unique_groups:
+                    unique_groups.append(key)
+            x_step = self._step(x_values, fallback=1.0)
+            outer = x_step * 0.82
+            rects: List[Tuple[float, float, float, float, float]] = []
+            points: List[Tuple[float, float]] = []
+            positive: Dict[float, float] = {}
+            negative: Dict[float, float] = {}
+            for index in range(count):
+                group_index = unique_groups.index(repr(groups[index]))
+                if mark == "grouped_bar":
+                    slot = outer / max(1.0, float(len(unique_groups)))
+                    left = x_values[index] - outer * 0.5 + slot * group_index + slot * 0.08
+                    right = x_values[index] - outer * 0.5 + slot * (group_index + 1) - slot * 0.08
+                    bottom, top = 0.0, y_values[index]
+                else:
+                    slot = outer
+                    left, right = x_values[index] - slot * 0.5, x_values[index] + slot * 0.5
+                    key = x_values[index]
+                    if y_values[index] >= 0.0:
+                        bottom = positive.get(key, 0.0)
+                        top = bottom + y_values[index]
+                        positive[key] = top
+                    else:
+                        top = negative.get(key, 0.0)
+                        bottom = top + y_values[index]
+                        negative[key] = bottom
+                rects.append((left, bottom, right, top, 1.0))
+                points.append(((left + right) * 0.5, (bottom + top) * 0.5))
+                style(index)
+            stacked_extrema = list(y_values[:count])
+            stacked_extrema.extend(positive.values())
+            stacked_extrema.extend(negative.values())
+            return _Geometry("bars", _domain(x_values), _domain([0.0] + stacked_extrema), points=points, rects=rects, colors=colors, opacities=opacities, sizes=sizes)
+
+        if mark == "waterfall":
+            width = self._step(x_values, fallback=1.0) * 0.72
+            rects, points = [], []
+            running = 0.0
+            extrema = [0.0]
+            for index in range(count):
+                bottom = running
+                running += y_values[index]
+                top = running
+                rects.append((x_values[index] - width * 0.5, min(bottom, top), x_values[index] + width * 0.5, max(bottom, top), 1.0))
+                points.append((x_values[index], (bottom + top) * 0.5))
+                extrema.extend((bottom, top))
+                style(index)
+            return _Geometry("bars", _domain(x_values), _domain(extrema), points=points, rects=rects, colors=colors, opacities=opacities, sizes=sizes)
+
+        if mark == "candlestick":
+            width = self._step(x_values, fallback=1.0) * 0.62
+            opens = y2_values if y2_values else (
+                _numeric_or_categories(self.data.columns[layer.median_field])
+                if layer.median_field and layer.median_field in self.data.columns else y_values
+            )
+            low_values = _numeric_or_categories(self.data.columns[layer.stat_low_field]) if layer.stat_low_field and layer.stat_low_field in self.data.columns else []
+            high_values = _numeric_or_categories(self.data.columns[layer.stat_high_field]) if layer.stat_high_field and layer.stat_high_field in self.data.columns else []
+            rects, segments, points, extrema = [], [], [], []
+            for index in range(count):
+                opened = opens[index] if index < len(opens) else y_values[index]
+                closed = y_values[index]
+                low = low_values[index] if index < len(low_values) else min(opened, closed)
+                high = high_values[index] if index < len(high_values) else max(opened, closed)
+                rects.append((x_values[index] - width * 0.5, min(opened, closed), x_values[index] + width * 0.5, max(opened, closed), 1.0))
+                segments.append((x_values[index], low, x_values[index], high))
+                points.append((x_values[index], closed))
+                extrema.extend((low, high))
+                style(index)
+            return _Geometry("candlestick", _domain(x_values), _domain(extrema), points=points, rects=rects, segments=segments, colors=colors, opacities=opacities, sizes=sizes)
+
+        if mark in {"gantt", "span_chart"}:
+            y_step = self._step(y_values, fallback=1.0)
+            x_step = self._step(x_values + x2_values[:count], fallback=1.0)
+            rects, points = [], []
             x_domain_values = list(x_values)
             y_domain_values = list(y_values)
-            if x2_values:
-                x_domain_values.extend(x2_values[:count])
-            if y2_values:
-                y_domain_values.extend(y2_values[:count])
-            y_domain_values.append(0.0)
-            step = (max(x_domain_values) - min(x_domain_values)) / max(1.0, float(count))
-            width = max(step * 0.72, 0.2)
-            rects = []
             for index in range(count):
-                left = x_values[index] - width / 2.0
-                right = x_values[index] + width / 2.0
                 if index < len(x2_values):
                     left, right = sorted((x_values[index], x2_values[index]))
-                bottom = 0.0
-                top = y_values[index]
-                if index < len(y2_values):
-                    bottom, top = sorted((y_values[index], y2_values[index]))
-                rects.append((left, bottom, right, top, 1.0))
-            return _Geometry("bars", _domain(x_domain_values), _domain(y_domain_values), rects=rects)
+                    top, bottom = y_values[index] - y_step * 0.32, y_values[index] + y_step * 0.32
+                elif index < len(y2_values):
+                    left, right = x_values[index] - x_step * 0.32, x_values[index] + x_step * 0.32
+                    top, bottom = sorted((y_values[index], y2_values[index]))
+                else:
+                    left, right = x_values[index] - x_step * 0.36, x_values[index] + x_step * 0.36
+                    top, bottom = y_values[index] - y_step * 0.32, y_values[index] + y_step * 0.32
+                rects.append((left, top, right, bottom, 1.0))
+                points.append(((left + right) * 0.5, (top + bottom) * 0.5))
+                x_domain_values.extend((left, right))
+                y_domain_values.extend((top, bottom))
+                style(index)
+            return _Geometry("bars", _domain(x_domain_values), _domain(y_domain_values), points=points, rects=rects, colors=colors, opacities=opacities, sizes=sizes)
 
         if mark == "lollipop":
             endpoints = [(x_values[index], 0.0, y_values[index]) for index in range(count)]
-            return _Geometry("errors", _domain(x_values), _domain([0.0] + y_values), points=list(zip(x_values[:count], y_values[:count])), errors=endpoints)
-
-        if mark in {"pie", "donut", "nightingale", "polar", "polar_bar", "radialbar", "gauge", "radar"}:
-            points = []
-            total = sum(abs(value) for value in y_values[:count]) or 1.0
             for index in range(count):
-                angle = -math.pi / 2.0 + (2.0 * math.pi * (index + 0.5) / max(1.0, float(count)))
-                radius = abs(y_values[index]) / total if mark in {"pie", "donut"} else abs(y_values[index])
+                style(index)
+            return _Geometry("errors", _domain(x_values), _domain([0.0] + y_values), points=list(zip(x_values[:count], y_values[:count])), errors=endpoints, colors=colors, opacities=opacities, sizes=sizes)
+
+        if mark in {"pie", "donut", "nightingale", "polar", "polar_bar", "radialbar", "gauge"}:
+            values = [max(0.0, value) for value in y_values[:count]]
+            total = sum(values) or float(max(1, count))
+            start = -3.0 * math.pi / 4.0 if mark == "gauge" else -math.pi / 2.0
+            span = 1.5 * math.pi if mark == "gauge" else 2.0 * math.pi
+            polygons, points = [], []
+            for index, value in enumerate(values):
+                fraction = value / total if sum(values) else 1.0 / max(1.0, float(count))
+                end = start + span * fraction
+                normalized = value / max(values or [1.0])
+                outer = 1.0 if mark in {"pie", "donut"} else 0.35 + 0.65 * normalized
+                inner = 0.45 if mark in {"donut", "gauge", "radialbar"} else 0.0
+                polygons.append(self._sector(start, end, outer, inner))
+                middle = (start + end) * 0.5
+                points.append((math.cos(middle) * (outer + inner) * 0.5, math.sin(middle) * (outer + inner) * 0.5))
+                style(index)
+                start = end
+            return _Geometry("polygons", (-1.1, 1.1), (-1.1, 1.1), points=points, polygons=polygons, colors=colors, opacities=opacities, sizes=sizes)
+
+        if mark == "radar":
+            maximum = max(max(y_values[:count]), 1.0)
+            points = []
+            for index, value in enumerate(y_values[:count]):
+                angle = -math.pi / 2.0 + 2.0 * math.pi * index / max(1.0, float(count))
+                radius = max(0.0, value) / maximum
                 points.append((math.cos(angle) * radius, math.sin(angle) * radius))
-            extent = max(1.0, max((abs(value) for point in points for value in point), default=1.0))
-            return _Geometry("points", (-extent, extent), (-extent, extent), points=points)
+            if points:
+                colors.append(self._row_style(layer, 0)[0])
+                opacities.append(self._row_style(layer, 0)[1])
+                sizes.append(self._row_style(layer, 0)[2])
+            return _Geometry("polygons", (-1.1, 1.1), (-1.1, 1.1), points=points, polygons=[points] if len(points) >= 3 else [], colors=colors, opacities=opacities, sizes=sizes)
+
+        if mark == "calendar_heatmap":
+            x_step = self._step(x_values, fallback=1.0)
+            y_step = self._step(y_values, fallback=1.0)
+            rects, points = [], []
+            for index in range(count):
+                rects.append((x_values[index] - x_step * 0.42, y_values[index] - y_step * 0.42, x_values[index] + x_step * 0.42, y_values[index] + y_step * 0.42, max(0.05, min(1.0, abs(y_values[index])))))
+                points.append((x_values[index], y_values[index]))
+                style(index)
+            return _Geometry("calendar", _domain(x_values), _domain(y_values), points=points, rects=rects, colors=colors, opacities=opacities, sizes=sizes)
+
+        if mark in {"graph", "sankey", "arc_diagram", "chord", "barbs", "effect_scatter"} and (x2_values or y2_values):
+            segments, points = [], []
+            x_domain_values, y_domain_values = list(x_values), list(y_values)
+            for index in range(count):
+                end_x = x2_values[index] if index < len(x2_values) else x_values[index]
+                end_y = y2_values[index] if index < len(y2_values) else y_values[index]
+                if mark == "barbs" and not (x2_values or y2_values):
+                    end_x += 0.5
+                segments.append((x_values[index], y_values[index], end_x, end_y))
+                points.append((x_values[index], y_values[index]))
+                x_domain_values.append(end_x)
+                y_domain_values.append(end_y)
+                style(index)
+            return _Geometry("segments", _domain(x_domain_values), _domain(y_domain_values), points=points, segments=segments, colors=colors, opacities=opacities, sizes=sizes)
+
+        if mark in {"beeswarm", "punchcard"}:
+            points = []
+            seen: Dict[float, int] = {}
+            jitter = self._step(x_values, fallback=1.0) * 0.12
+            for index in range(count):
+                offset = seen.get(x_values[index], 0)
+                seen[x_values[index]] = offset + 1
+                points.append((x_values[index] + (offset % 2) * jitter * (1 if offset % 4 < 2 else -1), y_values[index]))
+                style(index)
+            return _Geometry("points", _domain([point[0] for point in points]), _domain(y_values), points=points, colors=colors, opacities=opacities, sizes=sizes)
 
         line_marks = {
             "violin", "ridgeline", "parallel", "contour", "contourf",
-            "tricontour", "corrplot", "bump", "arc_diagram", "graph",
-            "sankey", "tree", "chord", "streamgraph",
+            "tricontour", "corrplot", "bump", "tree", "streamgraph",
         }
         if mark in line_marks:
-            return _Geometry("line", _domain(x_values), _domain(y_values), points=list(zip(x_values[:count], y_values[:count])))
+            for index in range(count):
+                style(index)
+            return _Geometry("line", _domain(x_values), _domain(y_values), points=list(zip(x_values[:count], y_values[:count])), colors=colors, opacities=opacities, sizes=sizes)
 
-        # Beeswarm, effect-scatter, punchcard, barbs, and any future catalog
-        # mark with no interval metadata retain one stable hit-test anchor per
-        # row.  SVG/RGBA/PDF all render these anchors as visible markers.
-        return _Geometry("points", _domain(x_values), _domain(y_values), points=list(zip(x_values[:count], y_values[:count])))
+        # Remaining catalog rows still receive one stable anchor and retain
+        # every resolved visual channel for renderers that support markers.
+        for index in range(count):
+            style(index)
+        return _Geometry("points", _domain(x_values), _domain(y_values), points=list(zip(x_values[:count], y_values[:count])), colors=colors, opacities=opacities, sizes=sizes)
 
     def _raw_geometry(self, layer: Any) -> _Geometry:
         transform = self._transform_for_layer(layer)
@@ -532,9 +798,17 @@ class Figure:
 
         result = _Geometry(raw.kind, raw.x_domain, raw.y_domain)
         result.points = [project(x, y) for x, y in raw.points]
+        result.colors = list(raw.colors)
+        result.opacities = list(raw.opacities)
+        result.sizes = list(raw.sizes)
         for x0, y0, x1, y1, weight in raw.rects:
             first, second = project(x0, y0), project(x1, y1)
             result.rects.append((min(first[0], second[0]), min(first[1], second[1]), max(first[0], second[0]), max(first[1], second[1]), weight))
+        result.polygons = [[project(x, y) for x, y in polygon] for polygon in raw.polygons]
+        result.segments = []
+        for x0, y0, x1, y1 in raw.segments:
+            start, end = project(x0, y0), project(x1, y1)
+            result.segments.append((start[0], start[1], end[0], end[1]))
         for x0, x1, q1, q3, low, high, median in raw.boxes:
             sx0 = project(x0, q1)[0]
             sx1 = project(x1, q3)[0]
@@ -548,6 +822,29 @@ class Figure:
     def _points(self, layer: Any) -> List[Tuple[float, float]]:
         return self._screen_geometry(layer).points
 
+    @staticmethod
+    def _geometry_color(geometry: _Geometry, layer: Any, index: int) -> ColorValue:
+        if index < len(geometry.colors):
+            return geometry.colors[index]
+        return tuple(float(value) for value in layer.color)  # type: ignore[return-value]
+
+    @staticmethod
+    def _geometry_opacity(geometry: _Geometry, layer: Any, index: int) -> float:
+        channel_opacity = geometry.opacities[index] if index < len(geometry.opacities) else 1.0
+        return max(0.0, min(1.0, float(layer.opacity) * channel_opacity))
+
+    @classmethod
+    def _svg_style(cls, geometry: _Geometry, layer: Any, index: int) -> str:
+        return _svg_color(cls._geometry_color(geometry, layer, index), cls._geometry_opacity(geometry, layer, index))
+
+    @classmethod
+    def _rgba_style(cls, geometry: _Geometry, layer: Any, index: int) -> RGBA:
+        return _rgba(cls._geometry_color(geometry, layer, index), cls._geometry_opacity(geometry, layer, index))
+
+    @classmethod
+    def _geometry_size(cls, geometry: _Geometry, layer: Any, index: int) -> float:
+        return geometry.sizes[index] if index < len(geometry.sizes) else float(layer.size)
+
     def to_svg(self) -> bytes:
         left, top, plot_width, plot_height, *_ = self._layout()
         parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.width}" height="{self.height}" viewBox="0 0 {self.width} {self.height}">', '<rect width="100%" height="100%" fill="white"/>', f'<g data-moxi="plot" data-version="{self.spec.version}">']
@@ -559,26 +856,41 @@ class Figure:
             color = _svg_color(layer.color, layer.opacity)
             if geometry.kind == "line" and len(points) > 1:
                 points_text = " ".join(f"{x:g},{y:g}" for x, y in points)
-                parts.append(f'<polyline points="{points_text}" fill="none" stroke="{color}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
+                parts.append(f'<polyline points="{points_text}" fill="none" stroke="{self._svg_style(geometry, layer, 0)}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
             elif layer.mark == "area" and points:
                 path = "M " + " L ".join(f"{x:g} {y:g}" for x, y in points) + f" L {points[-1][0]:g} {top+plot_height:g} L {points[0][0]:g} {top+plot_height:g} Z"
                 parts.append(f'<path d="{path}" fill="{color}" stroke="none" data-mark="area"/>')
             elif geometry.kind == "errors":
-                for x, lower, upper in geometry.errors:
-                    parts.append(f'<line x1="{x:g}" y1="{lower:g}" x2="{x:g}" y2="{upper:g}" stroke="{color}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
-                    parts.append(f'<line x1="{x-4:g}" y1="{lower:g}" x2="{x+4:g}" y2="{lower:g}" stroke="{color}" stroke-width="{layer.line_width:g}"/>')
-                    parts.append(f'<line x1="{x-4:g}" y1="{upper:g}" x2="{x+4:g}" y2="{upper:g}" stroke="{color}" stroke-width="{layer.line_width:g}"/>')
+                for index, (x, lower, upper) in enumerate(geometry.errors):
+                    error_color = self._svg_style(geometry, layer, index)
+                    parts.append(f'<line x1="{x:g}" y1="{lower:g}" x2="{x:g}" y2="{upper:g}" stroke="{error_color}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
+                    parts.append(f'<line x1="{x-4:g}" y1="{lower:g}" x2="{x+4:g}" y2="{lower:g}" stroke="{error_color}" stroke-width="{layer.line_width:g}"/>')
+                    parts.append(f'<line x1="{x-4:g}" y1="{upper:g}" x2="{x+4:g}" y2="{upper:g}" stroke="{error_color}" stroke-width="{layer.line_width:g}"/>')
             elif geometry.kind == "box" and geometry.boxes:
                 for x0, x1, q1, q3, low, high, median in geometry.boxes:
                     parts.append(f'<line x1="{(x0+x1)/2:g}" y1="{low:g}" x2="{(x0+x1)/2:g}" y2="{high:g}" stroke="#24324a" data-mark="box-whisker"/>')
                     parts.append(f'<rect x="{x0:g}" y="{min(q1, q3):g}" width="{max(1.0, x1-x0):g}" height="{abs(q3-q1):g}" fill="{color}" data-mark="box"/>')
                     parts.append(f'<line x1="{x0:g}" y1="{median:g}" x2="{x1:g}" y2="{median:g}" stroke="#24324a" data-mark="box-median"/>')
+            elif geometry.polygons:
+                for index, polygon in enumerate(geometry.polygons):
+                    if len(polygon) < 3:
+                        continue
+                    polygon_text = " ".join(f"{x:g},{y:g}" for x, y in polygon)
+                    parts.append(f'<polygon points="{polygon_text}" fill="{self._svg_style(geometry, layer, index)}" data-mark="{layer.mark}"/>')
+            elif geometry.segments and geometry.rects:
+                for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
+                    parts.append(f'<line x1="{x0:g}" y1="{y0:g}" x2="{x1:g}" y2="{y1:g}" stroke="{self._svg_style(geometry, layer, index)}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
+                for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
+                    parts.append(f'<rect x="{x0:g}" y="{y0:g}" width="{max(1.0, x1-x0):g}" height="{max(1.0, y1-y0):g}" fill="{self._svg_style(geometry, layer, index)}" data-mark="{layer.mark}"/>')
+            elif geometry.segments:
+                for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
+                    parts.append(f'<line x1="{x0:g}" y1="{y0:g}" x2="{x1:g}" y2="{y1:g}" stroke="{self._svg_style(geometry, layer, index)}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
             elif geometry.rects and layer.mark in {"heatmap", "hexbin"}:
                 for x0, y0, x1, y1, weight in geometry.rects:
                     parts.append(f'<rect x="{x0:g}" y="{y0:g}" width="{max(1.0, x1-x0):g}" height="{max(1.0, y1-y0):g}" fill="{color}" opacity="{max(0.05, min(1.0, weight)):g}" data-mark="{layer.mark}"/>')
             elif geometry.rects:
-                for x0, y0, x1, y1, _ in geometry.rects:
-                    parts.append(f'<rect x="{x0:g}" y="{y0:g}" width="{max(1.0, x1-x0):g}" height="{max(1.0, y1-y0):g}" fill="{color}" data-mark="{layer.mark}"/>')
+                for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
+                    parts.append(f'<rect x="{x0:g}" y="{y0:g}" width="{max(1.0, x1-x0):g}" height="{max(1.0, y1-y0):g}" fill="{self._svg_style(geometry, layer, index)}" data-mark="{layer.mark}"/>')
             elif layer.mark in {"bar", "column", "histogram"}:
                 bar_width = max(2.0, plot_width / max(1, len(points)) * 0.7)
                 baseline = top + plot_height
@@ -594,8 +906,10 @@ class Figure:
                     cell = max(3.0, min(18.0, plot_width / max(1, len(points))))
                     parts.append(f'<rect x="{x-cell/2:g}" y="{y-cell/2:g}" width="{cell:g}" height="{cell:g}" fill="{color}" opacity="{max(0.2, min(1.0, (index+1)/max(1,len(points)))):g}" data-mark="heatmap"/>')
             else:
-                for x, y in points:
-                    parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{max(1.0, layer.size/2):g}" fill="{color}" data-mark="{layer.mark}"/>')
+                for index, (x, y) in enumerate(points):
+                    point_color = self._svg_style(geometry, layer, index)
+                    radius = max(1.0, self._geometry_size(geometry, layer, index) / 2.0)
+                    parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{point_color}" data-mark="{layer.mark}"/>')
         if self.spec.title:
             parts.append(f'<text x="{self.width/2:g}" y="18" text-anchor="middle" fill="#101828">{escape(self.spec.title)}</text>')
         parts.append("</g></svg>")
@@ -612,26 +926,39 @@ class Figure:
             points = geometry.points
             color = _rgba(layer.color, layer.opacity)
             if geometry.kind == "line":
+                line_color = self._rgba_style(geometry, layer, 0)
                 for start, end in zip(points, points[1:]):
-                    raster.line(start, end, layer.line_width, color)
+                    raster.line(start, end, layer.line_width, line_color)
             elif geometry.kind == "errors":
-                for x, lower, upper in geometry.errors:
-                    raster.line((x, lower), (x, upper), layer.line_width, color)
-                    raster.line((x - 4, lower), (x + 4, lower), layer.line_width, color)
-                    raster.line((x - 4, upper), (x + 4, upper), layer.line_width, color)
+                for index, (x, lower, upper) in enumerate(geometry.errors):
+                    error_color = self._rgba_style(geometry, layer, index)
+                    raster.line((x, lower), (x, upper), layer.line_width, error_color)
+                    raster.line((x - 4, lower), (x + 4, lower), layer.line_width, error_color)
+                    raster.line((x - 4, upper), (x + 4, upper), layer.line_width, error_color)
             elif geometry.kind == "box" and geometry.boxes:
                 for x0, x1, q1, q3, low, high, median in geometry.boxes:
                     center = (x0 + x1) / 2.0
                     raster.line((center, low), (center, high), 1.0, (36, 50, 74, 255))
                     raster.rect(x0, min(q1, q3), max(1.0, x1 - x0), abs(q3 - q1), color)
                     raster.line((x0, median), (x1, median), 1.0, (36, 50, 74, 255))
+            elif geometry.polygons:
+                for index, polygon in enumerate(geometry.polygons):
+                    raster.polygon(polygon, self._rgba_style(geometry, layer, index))
+            elif geometry.segments and geometry.rects:
+                for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
+                    raster.line((x0, y0), (x1, y1), layer.line_width, self._rgba_style(geometry, layer, index))
+                for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
+                    raster.rect(x0, y0, max(1.0, x1 - x0), max(1.0, y1 - y0), self._rgba_style(geometry, layer, index))
+            elif geometry.segments:
+                for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
+                    raster.line((x0, y0), (x1, y1), layer.line_width, self._rgba_style(geometry, layer, index))
             elif geometry.rects and layer.mark in {"heatmap", "hexbin"}:
                 for x0, y0, x1, y1, weight in geometry.rects:
                     rgba = (color[0], color[1], color[2], max(8, int(color[3] * max(0.05, min(1.0, weight)))))
                     raster.rect(x0, y0, max(1.0, x1 - x0), max(1.0, y1 - y0), rgba)
             elif geometry.rects:
-                for x0, y0, x1, y1, _ in geometry.rects:
-                    raster.rect(x0, y0, max(1.0, x1 - x0), max(1.0, y1 - y0), color)
+                for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
+                    raster.rect(x0, y0, max(1.0, x1 - x0), max(1.0, y1 - y0), self._rgba_style(geometry, layer, index))
             elif layer.mark in {"bar", "column", "histogram"}:
                 baseline = top + plot_height
                 width = max(2.0, plot_width / max(1, len(points)) * 0.7)
@@ -653,8 +980,8 @@ class Figure:
                     rgba = (color[0], color[1], color[2], max(50, int(color[3] * (index + 1) / max(1, len(points)))))
                     raster.rect(x - cell / 2, y - cell / 2, cell, cell, rgba)
             else:
-                for x, y in points:
-                    raster.circle(x, y, max(1.0, layer.size / 2), color)
+                for index, (x, y) in enumerate(points):
+                    raster.circle(x, y, max(1.0, self._geometry_size(geometry, layer, index) / 2.0), self._rgba_style(geometry, layer, index))
         return bytes(raster.pixels)
 
     def to_png(self) -> bytes:
@@ -678,7 +1005,9 @@ class Figure:
             stroke = f"{red:g} {green:g} {blue:g} RG"
             if geometry.kind == "line" and len(points) > 1:
                 path = f"{points[0][0]:g} {self.height-points[0][1]:g} m " + " ".join(f"{x:g} {self.height-y:g} l" for x, y in points[1:])
-                commands.append(f"{stroke} {layer.line_width:g} w {path} S")
+                line_color = self._geometry_color(geometry, layer, 0)
+                line_stroke = f"{line_color[0]:g} {line_color[1]:g} {line_color[2]:g} RG"
+                commands.append(f"{line_stroke} {layer.line_width:g} w {path} S")
             elif geometry.kind == "errors":
                 for x, lower, upper in geometry.errors:
                     commands.append(f"{stroke} {layer.line_width:g} w {x:g} {self.height-lower:g} m {x:g} {self.height-upper:g} l S")
@@ -688,18 +1017,44 @@ class Figure:
                     commands.append(f"{stroke} 1 w {center:g} {self.height-low:g} m {center:g} {self.height-high:g} l S")
                     commands.append(f"{color} {x0:g} {self.height-max(q1, q3):g} {max(1.0, x1-x0):g} {abs(q3-q1):g} re f")
                     commands.append(f"{stroke} 1 w {x0:g} {self.height-median:g} m {x1:g} {self.height-median:g} l S")
+            elif geometry.polygons:
+                for index, polygon in enumerate(geometry.polygons):
+                    if len(polygon) < 3:
+                        continue
+                    polygon_color = self._geometry_color(geometry, layer, index)
+                    fill = f"{polygon_color[0]:g} {polygon_color[1]:g} {polygon_color[2]:g} rg"
+                    path = f"{polygon[0][0]:g} {self.height-polygon[0][1]:g} m " + " ".join(f"{x:g} {self.height-y:g} l" for x, y in polygon[1:]) + " h"
+                    commands.append(f"{fill} {path} f")
+            elif geometry.segments and geometry.rects:
+                for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
+                    segment_color = self._geometry_color(geometry, layer, index)
+                    stroke_color = f"{segment_color[0]:g} {segment_color[1]:g} {segment_color[2]:g} RG"
+                    commands.append(f"{stroke_color} {layer.line_width:g} w {x0:g} {self.height-y0:g} m {x1:g} {self.height-y1:g} l S")
+                for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
+                    rect_color = self._geometry_color(geometry, layer, index)
+                    fill = f"{rect_color[0]:g} {rect_color[1]:g} {rect_color[2]:g} rg"
+                    commands.append(f"{fill} {x0:g} {self.height-y1:g} {max(1.0, x1-x0):g} {max(1.0, y1-y0):g} re f")
+            elif geometry.segments:
+                for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
+                    segment_color = self._geometry_color(geometry, layer, index)
+                    stroke_color = f"{segment_color[0]:g} {segment_color[1]:g} {segment_color[2]:g} RG"
+                    commands.append(f"{stroke_color} {layer.line_width:g} w {x0:g} {self.height-y0:g} m {x1:g} {self.height-y1:g} l S")
             elif geometry.rects:
-                for x0, y0, x1, y1, _ in geometry.rects:
-                    commands.append(f"{color} {x0:g} {self.height-y1:g} {max(1.0, x1-x0):g} {max(1.0, y1-y0):g} re f")
+                for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
+                    rect_color = self._geometry_color(geometry, layer, index)
+                    fill = f"{rect_color[0]:g} {rect_color[1]:g} {rect_color[2]:g} rg"
+                    commands.append(f"{fill} {x0:g} {self.height-y1:g} {max(1.0, x1-x0):g} {max(1.0, y1-y0):g} re f")
             elif layer.mark in {"bar", "column", "histogram"}:
                 baseline = top + plot_height
                 bar_width = max(2.0, plot_width / max(1, len(points)) * 0.7)
                 for x, y in points:
                     commands.append(f"{color} {x-bar_width/2:g} {self.height-max(y, baseline):g} {bar_width:g} {abs(baseline-y):g} re f")
             else:
-                for x, y in points:
-                    radius = max(1.0, layer.size / 2.0)
-                    commands.append(f"{color} {x-radius:g} {self.height-y-radius:g} {radius*2:g} {radius*2:g} re f")
+                for index, (x, y) in enumerate(points):
+                    radius = max(1.0, self._geometry_size(geometry, layer, index) / 2.0)
+                    point_color = self._geometry_color(geometry, layer, index)
+                    fill = f"{point_color[0]:g} {point_color[1]:g} {point_color[2]:g} rg"
+                    commands.append(f"{fill} {x-radius:g} {self.height-y-radius:g} {radius*2:g} {radius*2:g} re f")
         content = "\n".join(commands) + "\n"
         objects = [b"<< /Type /Catalog /Pages 2 0 R >>", b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>", f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {self.width} {self.height}] /Contents 4 0 R >>".encode(), f"<< /Length {len(content.encode())} >>\nstream\n{content}endstream".encode()]
         output = bytearray(b"%PDF-1.4\n")
