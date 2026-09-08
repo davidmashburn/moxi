@@ -10,16 +10,15 @@ It covers the Python value-boundary package, the nightly-pinned
 `canvas_mojo` adapter, and the contract-driven `dataviz_mojo` capability
 inventory.
 
-The `0.5.1` release surface provides a small interactive view
+The `0.6.0` release surface provides a small interactive view
 tree:
 declarative children are laid out into retained bounds, reconciled into an
 ordered backend-neutral command stream, and drawn by native AppKit. A small
 `App` helper owns the component/update/rebuild loop, while backend-neutral
 events, focus state, and semantics make keyboard interaction and headless
-validation possible. The current `main` branch also contains experimental
-post-0.5 slices for Metal scene presentation, CoreText shaped runs, true
-stable-key view recycling, and the first Moxi Plot API; those are described
-separately below and are not being presented as a 0.5 compatibility promise.
+validation possible. The release also includes the documented plotting,
+Metal scene, shaped-text, stable-key recycling, and multi-host surfaces, with
+their compatibility boundaries recorded in the support matrix.
 
 ## What works
 

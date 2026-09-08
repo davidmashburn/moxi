@@ -86,9 +86,9 @@ def main():
     test_check(btn_ghost.style.fill.alpha == 0.0)
     test_check(btn_ghost.style.border_width == 0.0)
 
-    var badge_node = badge(201, "v0.5.1", 20.0, False, dt)
+    var badge_node = badge(201, "v0.6.0", 20.0, False, dt)
     test_check(badge_node.kind == LABEL_KIND)
-    test_check(badge_node.text == "v0.5.1")
+    test_check(badge_node.text == "v0.6.0")
     test_check(badge_node.use_intrinsic_width)
 
     var badge_accent = badge(202, "PRO", 20.0, True, dt)

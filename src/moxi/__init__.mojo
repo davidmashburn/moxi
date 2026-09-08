@@ -1019,4 +1019,4 @@ from .demo_walkthrough import (
 
 def moxi_version() -> String:
     """Return the package version embedded in this release."""
-    return "0.5.1"
+    return "0.6.0"

@@ -8,7 +8,7 @@ portable reference renderer for notebooks, scripts, and export pipelines.
 from .figure import Figure, BackendCapabilities, plot, render
 from .spec import CATALOG_MARKS, PlotSpec, PLOT_MARKS, PLOT_SPEC_VERSION
 
-__version__ = "0.5.1"
+__version__ = "0.6.0"
 
 __all__ = [
     "BackendCapabilities",

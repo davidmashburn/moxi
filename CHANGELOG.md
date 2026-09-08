@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased — post-0.5 experimental slices
+## Unreleased
+
+## 0.6.0 — 2026-09-08
 
 - Added the portable headless plotting lane for `osx-arm64` and `linux-64`, a
   locked Linux CI smoke, and a credential-gated `release-preflight` that

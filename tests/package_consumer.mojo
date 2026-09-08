@@ -36,7 +36,7 @@ from moxi.plot_api import Plot as FocusedPlot
 
 
 def main() raises:
-    test_check(moxi_version() == "0.5.1")
+    test_check(moxi_version() == "0.6.0")
     var focused_plot = FocusedPlot(Rect(0.0, 0.0, 80.0, 60.0))
     test_check(focused_plot.series_count() == 0)
 

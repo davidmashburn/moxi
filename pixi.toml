@@ -4,7 +4,7 @@ channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
 name = "moxi"
 platforms = ["osx-arm64", "linux-64"]
 preview = ["pixi-build"]
-version = "0.5.1"
+version = "0.6.0"
 
 [tasks]
 build = "mojo precompile src/moxi -o dist/moxi.mojoc"
@@ -117,7 +117,7 @@ canvas_mojo = { git = "https://github.com/davidmashburn/canvas_mojo.git", rev = 
 
 [package]
 name = "moxi"
-version = "0.5.1"
+version = "0.6.0"
 publish = true
 
 [package.build]
