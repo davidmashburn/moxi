@@ -1,5 +1,8 @@
 # module<TAB>support lane<TAB>owner
 plotting	provisional	typed plotting data, specification, or runtime
+plot_marks	provisional	typed plotting data, specification, or runtime
+plot_point	provisional	typed plotting data, specification, or runtime
+plot_series	provisional	typed plotting data, specification, or runtime
 plot_data	provisional	typed plotting data, specification, or runtime
 plot_spec	provisional	typed plotting data, specification, or runtime
 plot_runtime	provisional	typed plotting data, specification, or runtime

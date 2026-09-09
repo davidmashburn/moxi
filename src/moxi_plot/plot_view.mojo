@@ -6,7 +6,7 @@ from moxi.geometry import Rect
 from .plot_data import PlotDataSnapshot, PlotDataTable
 from .plot_runtime import PlotRuntime
 from moxi.plot_render import PlotRenderPacket
-from .plotting import PlotHit
+from .plot_series import PlotHit
 from .plot_spec import PlotSpec, plot_from_spec
 from moxi.scene import Scene
 

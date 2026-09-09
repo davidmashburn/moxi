@@ -5,7 +5,7 @@ core (geometry, scene, style, accessibility, event, and the renderer packet
 contract in `moxi.plot_render`). This package never imports `moxi_demo`.
 """
 
-from .plotting import (
+from .plot_marks import (
     PLOT_AREA,
     PLOT_BAR,
     PLOT_BAND,
@@ -68,6 +68,8 @@ from .plotting import (
     PLOT_BARBS,
     PLOT_CHORD,
     PLOT_STREAMGRAPH,
+)
+from .plot_point import (
     SCALE_BAND,
     SCALE_CATEGORICAL,
     SCALE_DIVERGING,
@@ -83,12 +85,11 @@ from .plotting import (
     SCALE_SYMLOG,
     SCALE_TEMPORAL,
     SCALE_THRESHOLD,
-    Plot,
-    PlotHit,
     PlotPoint,
     PlotScale,
-    PlotSeries,
 )
+from .plot_series import PlotHit, PlotSeries
+from .plotting import Plot
 from .plot_data import (
     COLUMN_BOOL,
     COLUMN_DURATION,

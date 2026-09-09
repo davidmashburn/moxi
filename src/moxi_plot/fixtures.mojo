@@ -12,7 +12,8 @@ from moxi.scenarios import (
     make_canvas_scene as _make_core_canvas_scene,
 )
 from .plot_data import PlotDataTable
-from .plotting import PLOT_LINE, PLOT_SCATTER, Plot
+from .plot_marks import PLOT_LINE, PLOT_SCATTER
+from .plotting import Plot
 
 
 def make_plot_scenario(bounds: Rect) -> Plot:

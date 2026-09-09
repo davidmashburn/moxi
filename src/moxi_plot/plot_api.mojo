@@ -32,7 +32,7 @@ from .plot_spec import (
     plot_spec_from_json,
 )
 from .plot_view import PlotControl, PlotView
-from .plotting import (
+from .plot_marks import (
     PLOT_AREA,
     PLOT_BAR,
     PLOT_BOX,
@@ -81,9 +81,7 @@ from .plotting import (
     PLOT_BARBS,
     PLOT_CHORD,
     PLOT_STREAMGRAPH,
-    Plot,
-    PlotHit,
-    PlotPoint,
-    PlotScale,
-    PlotSeries,
 )
+from .plot_point import PlotPoint, PlotScale
+from .plot_series import PlotHit, PlotSeries
+from .plotting import Plot

@@ -6,8 +6,10 @@ by the software oracle, the macOS Metal path, SVG/Web export, and native
 overlays.
 """
 
+
 from std.collections import List
-from std.math import exp, log, pow, sqrt
+from std.math import sqrt
+
 
 from moxi.geometry import Point, Rect
 from moxi.scene import Scene
@@ -15,93 +17,55 @@ from moxi.style import Color
 from moxi.accessibility import AccessibilitySnapshot, ROLE_CANVAS, ROLE_LABEL, Semantics
 from moxi.plot_render import PlotRenderPacket
 from .plot_data import COLUMN_CATEGORY, COLUMN_STRING, PlotDataTable
+from .plot_marks import (
+    PLOT_ARC_DIAGRAM,
+    PLOT_AREA,
+    PLOT_BAND,
+    PLOT_BAR,
+    PLOT_BARBS,
+    PLOT_BOX,
+    PLOT_BUBBLE,
+    PLOT_BULLET,
+    PLOT_CALENDAR_HEATMAP,
+    PLOT_CANDLESTICK,
+    PLOT_CATALOG_FIRST,
+    PLOT_CATALOG_LAST,
+    PLOT_CHORD,
+    PLOT_COLUMN,
+    PLOT_DENSITY,
+    PLOT_DOT,
+    PLOT_ECDF,
+    PLOT_EFFECT_SCATTER,
+    PLOT_ERROR_BAR,
+    PLOT_FUNNEL,
+    PLOT_GANTT,
+    PLOT_GRAPH,
+    PLOT_GROUPED_BAR,
+    PLOT_HEATMAP,
+    PLOT_HEXBIN,
+    PLOT_HISTOGRAM,
+    PLOT_INTERVAL,
+    PLOT_LINE,
+    PLOT_LOLLIPOP,
+    PLOT_MARIMEKKO,
+    PLOT_POPULATION_PYRAMID,
+    PLOT_RECT,
+    PLOT_REGRESSION,
+    PLOT_RULE,
+    PLOT_SANKEY,
+    PLOT_SCATTER,
+    PLOT_SPAN_CHART,
+    PLOT_STACKED_BAR,
+    PLOT_STEP,
+    PLOT_SUNBURST,
+    PLOT_TEXT,
+    PLOT_TICK,
+    PLOT_TREEMAP,
+    PLOT_WATERFALL,
+)
+from .plot_point import PlotPoint, PlotScale, SCALE_BAND, SCALE_LOG, SCALE_ORDINAL
+from .plot_series import PlotHit, PlotSeries
 
-
-comptime PLOT_LINE = 1
-comptime PLOT_SCATTER = 2
-comptime PLOT_BAR = 3
-comptime PLOT_DOT = 4
-comptime PLOT_AREA = 5
-comptime PLOT_RULE = 6
-comptime PLOT_ERROR_BAR = 7
-comptime PLOT_RECT = 8
-comptime PLOT_TEXT = 9
-comptime PLOT_STEP = 10
-comptime PLOT_TICK = 11
-comptime PLOT_INTERVAL = 12
-comptime PLOT_BUBBLE = 13
-comptime PLOT_BAND = 14
-comptime PLOT_COLUMN = 15
-comptime PLOT_HISTOGRAM = 16
-comptime PLOT_DENSITY = 17
-comptime PLOT_ECDF = 18
-comptime PLOT_BOX = 19
-comptime PLOT_HEATMAP = 20
-comptime PLOT_HEXBIN = 21
-comptime PLOT_REGRESSION = 22
-
-# The catalog lane uses the same row-oriented Plot/PlotSpec value boundary as
-# the core marks.  These constants intentionally keep catalog names distinct
-# so a consumer can round-trip a mark without pretending that a generic point
-# is an upstream-specific implementation.
-comptime PLOT_GROUPED_BAR = 23
-comptime PLOT_STACKED_BAR = 24
-comptime PLOT_PIE = 25
-comptime PLOT_DONUT = 26
-comptime PLOT_LOLLIPOP = 27
-comptime PLOT_WATERFALL = 28
-comptime PLOT_CANDLESTICK = 29
-comptime PLOT_BULLET = 30
-comptime PLOT_GANTT = 31
-comptime PLOT_SPAN_CHART = 32
-comptime PLOT_BEESWARM = 33
-comptime PLOT_VIOLIN = 34
-comptime PLOT_RIDGELINE = 35
-comptime PLOT_NIGHTINGALE = 36
-comptime PLOT_POLAR = 37
-comptime PLOT_POLAR_BAR = 38
-comptime PLOT_RADIALBAR = 39
-comptime PLOT_GAUGE = 40
-comptime PLOT_RADAR = 41
-comptime PLOT_POPULATION_PYRAMID = 42
-comptime PLOT_PARALLEL = 43
-comptime PLOT_CONTOUR = 44
-comptime PLOT_CONTOURF = 45
-comptime PLOT_TRICONTOUR = 46
-comptime PLOT_CORRPLOT = 47
-comptime PLOT_CALENDAR_HEATMAP = 48
-comptime PLOT_PUNCHCARD = 49
-comptime PLOT_MARIMEKKO = 50
-comptime PLOT_FUNNEL = 51
-comptime PLOT_BUMP = 52
-comptime PLOT_EFFECT_SCATTER = 53
-comptime PLOT_ARC_DIAGRAM = 54
-comptime PLOT_GRAPH = 55
-comptime PLOT_SANKEY = 56
-comptime PLOT_SUNBURST = 57
-comptime PLOT_TREE = 58
-comptime PLOT_TREEMAP = 59
-comptime PLOT_BARBS = 60
-comptime PLOT_CHORD = 61
-comptime PLOT_STREAMGRAPH = 62
-comptime PLOT_CATALOG_FIRST = PLOT_GROUPED_BAR
-comptime PLOT_CATALOG_LAST = PLOT_STREAMGRAPH
-
-comptime SCALE_LINEAR = 1
-comptime SCALE_LOG = 2
-comptime SCALE_POWER = 3
-comptime SCALE_SQRT = 4
-comptime SCALE_TEMPORAL = 5
-comptime SCALE_ORDINAL = 6
-comptime SCALE_BAND = 7
-comptime SCALE_SYMLOG = 8
-comptime SCALE_POINT = 9
-comptime SCALE_THRESHOLD = 10
-comptime SCALE_QUANTILE = 11
-comptime SCALE_QUANTIZE = 12
-comptime SCALE_SEQUENTIAL = 13
-comptime SCALE_DIVERGING = 14
-comptime SCALE_CATEGORICAL = 15
 
 comptime PLOT_COMPOSITION_LAYER = 1
 comptime PLOT_COMPOSITION_HORIZONTAL = 2
@@ -142,378 +106,6 @@ def _tooltip_for_row(data: PlotDataTable, fields: String, row: Int) -> String:
                 result += String(field, "=", data.string_field_at(field, row))
             start = cursor + 1
     return result
-
-
-def _symlog(value: Float32) -> Float32:
-    var magnitude = value if value >= 0.0 else -value
-    var transformed = Float32(log(1.0 + magnitude))
-    return transformed if value >= 0.0 else -transformed
-
-
-def _symexp(value: Float32) -> Float32:
-    var magnitude = value if value >= 0.0 else -value
-    var transformed = Float32(exp(magnitude) - 1.0)
-    return transformed if value >= 0.0 else -transformed
-
-
-struct PlotPoint(ImplicitlyCopyable):
-    """One data-space point."""
-
-    var x: Float32
-    var y: Float32
-    var row_key: Int
-    var facet_value: String
-    var facet_column_value: String
-    var panel_index: Int
-    var x2: Float32
-    var y2: Float32
-    var has_x2: Bool
-    var has_y2: Bool
-    var size: Float32
-    var opacity: Float32
-    var text: String
-    var tooltip: String
-    var color: Color
-    var has_color: Bool
-    var stat_low: Float32
-    var stat_high: Float32
-    var stat_median: Float32
-    var has_statistics: Bool
-
-    def __init__(out self, x: Float32, y: Float32, row_key: Int = -1):
-        self.x = x
-        self.y = y
-        self.row_key = row_key
-        self.facet_value = ""
-        self.facet_column_value = ""
-        self.panel_index = 0
-        self.x2 = x
-        self.y2 = y
-        self.has_x2 = False
-        self.has_y2 = False
-        self.size = 6.0
-        self.opacity = 1.0
-        self.text = ""
-        self.tooltip = ""
-        self.color = Color(0.0, 0.0, 0.0, 0.0)
-        self.has_color = False
-        self.stat_low = y
-        self.stat_high = y
-        self.stat_median = y
-        self.has_statistics = False
-
-    def set_facet(mut self, value: String):
-        self.facet_value = value
-
-    def set_facet_column(mut self, value: String):
-        self.facet_column_value = value
-
-    def set_extent(mut self, x2: Float32, y2: Float32, has_x2: Bool = True, has_y2: Bool = True):
-        self.x2 = x2
-        self.y2 = y2
-        self.has_x2 = has_x2
-        self.has_y2 = has_y2
-
-    def set_visuals(
-        mut self,
-        size: Float32,
-        opacity: Float32,
-        text: String = "",
-        tooltip: String = "",
-    ):
-        self.size = size if size > 0.0 else 1.0
-        var safe_opacity = opacity
-        if safe_opacity < 0.0:
-            safe_opacity = 0.0
-        if safe_opacity > 1.0:
-            safe_opacity = 1.0
-        self.opacity = safe_opacity
-        self.text = text
-        self.tooltip = tooltip
-
-    def set_color(mut self, color: Color):
-        self.color = color
-        self.has_color = True
-
-    def set_statistics(
-        mut self,
-        low: Float32,
-        high: Float32,
-        median: Float32,
-    ):
-        self.stat_low = low
-        self.stat_high = high
-        self.stat_median = median
-        self.has_statistics = True
-
-
-struct PlotScale(ImplicitlyCopyable):
-    """A clamped linear data-to-pixel transform."""
-
-    var data_min: Float32
-    var data_max: Float32
-    var pixel_min: Float32
-    var pixel_max: Float32
-    var kind: Int
-    var power: Float32
-
-    def __init__(
-        out self,
-        data_min: Float32 = 0.0,
-        data_max: Float32 = 1.0,
-        pixel_min: Float32 = 0.0,
-        pixel_max: Float32 = 1.0,
-    ):
-        self.data_min = data_min
-        self.data_max = data_max
-        self.pixel_min = pixel_min
-        self.pixel_max = pixel_max
-        self.kind = SCALE_LINEAR
-        self.power = 2.0
-        self.set_domain(data_min, data_max)
-
-    def set_kind(mut self, kind: Int):
-        if kind < SCALE_LINEAR or kind > SCALE_CATEGORICAL:
-            self.kind = SCALE_LINEAR
-        else:
-            self.kind = kind
-        # Log domains cannot contain zero or negative values. Keep the public
-        # domain valid as soon as the scale kind changes, including when a
-        # caller configures a scale after loading data.
-        if self.kind == SCALE_LOG:
-            self.set_domain(self.data_min, self.data_max)
-
-    def set_power(mut self, power: Float32):
-        self.power = power if power > 0.0 else 1.0
-
-    def kind_name(self) -> String:
-        if self.kind == SCALE_LOG:
-            return "log"
-        if self.kind == SCALE_POWER:
-            return "power"
-        if self.kind == SCALE_SQRT:
-            return "sqrt"
-        if self.kind == SCALE_TEMPORAL:
-            return "temporal"
-        if self.kind == SCALE_ORDINAL:
-            return "ordinal"
-        if self.kind == SCALE_BAND:
-            return "band"
-        if self.kind == SCALE_SYMLOG:
-            return "symlog"
-        if self.kind == SCALE_POINT:
-            return "point"
-        if self.kind == SCALE_THRESHOLD:
-            return "threshold"
-        if self.kind == SCALE_QUANTILE:
-            return "quantile"
-        if self.kind == SCALE_QUANTIZE:
-            return "quantize"
-        if self.kind == SCALE_SEQUENTIAL:
-            return "sequential"
-        if self.kind == SCALE_DIVERGING:
-            return "diverging"
-        if self.kind == SCALE_CATEGORICAL:
-            return "categorical"
-        return "linear"
-
-    def set_domain(mut self, minimum: Float32, maximum: Float32):
-        var lower = minimum
-        var upper = maximum
-        if lower > upper:
-            var swap = lower
-            lower = upper
-            upper = swap
-        if self.kind == SCALE_LOG:
-            if lower <= 0.0:
-                lower = 0.000001
-            if upper <= lower:
-                upper = lower * 10.0
-        if lower == upper:
-            lower -= 0.5
-            upper += 0.5
-        self.data_min = lower
-        self.data_max = upper
-
-    def set_range(mut self, minimum: Float32, maximum: Float32):
-        self.pixel_min = minimum
-        self.pixel_max = maximum
-
-    def map(self, value: Float32) -> Float32:
-        var amount = (value - self.data_min) / (self.data_max - self.data_min)
-        if self.kind == SCALE_LOG:
-            var lower = self.data_min if self.data_min > 0.0 else 0.000001
-            var safe_value = value if value > 0.0 else lower
-            var upper = self.data_max if self.data_max > lower else lower * 10.0
-            amount = Float32(
-                (log(safe_value) - log(lower))
-                / (log(upper) - log(lower))
-            )
-        elif self.kind == SCALE_SYMLOG:
-            var lower = _symlog(self.data_min)
-            var upper = _symlog(self.data_max)
-            amount = (_symlog(value) - lower) / (upper - lower)
-        elif self.kind == SCALE_POWER:
-            var safe_amount = amount if amount > 0.0 else 0.0
-            amount = Float32(pow(safe_amount, self.power))
-        elif self.kind == SCALE_SQRT:
-            var safe_amount = amount if amount > 0.0 else 0.0
-            amount = Float32(sqrt(safe_amount))
-        if amount < 0.0:
-            amount = 0.0
-        if amount > 1.0:
-            amount = 1.0
-        return self.pixel_min + amount * (self.pixel_max - self.pixel_min)
-
-    def fraction(self, value: Float32) -> Float32:
-        var span = self.pixel_max - self.pixel_min
-        if span == 0.0:
-            return 0.0
-        return (self.map(value) - self.pixel_min) / span
-
-    def domain_is_valid(self) -> Bool:
-        if self.data_max <= self.data_min:
-            return False
-        if self.kind == SCALE_LOG and self.data_min <= 0.0:
-            return False
-        return True
-
-    def range_is_valid(self) -> Bool:
-        return self.pixel_max != self.pixel_min
-
-    def inverse(self, pixel: Float32) -> Float32:
-        """Map a pixel coordinate back into the unclamped data domain."""
-        var pixel_span = self.pixel_max - self.pixel_min
-        if pixel_span == 0.0:
-            return self.data_min
-        var amount = (pixel - self.pixel_min) / pixel_span
-        if self.kind == SCALE_LOG:
-            var lower = self.data_min if self.data_min > 0.0 else 0.000001
-            var upper = self.data_max if self.data_max > lower else lower * 10.0
-            return exp(log(lower) + amount * (log(upper) - log(lower)))
-        if self.kind == SCALE_SYMLOG:
-            var lower = _symlog(self.data_min)
-            var upper = _symlog(self.data_max)
-            return _symexp(lower + amount * (upper - lower))
-        if self.kind == SCALE_POWER:
-            var safe_power = self.power if self.power > 0.0 else 1.0
-            var sign: Float32 = 1.0 if amount >= 0.0 else -1.0
-            var magnitude = amount if amount >= 0.0 else -amount
-            var powered = Float32(pow(magnitude, 1.0 / safe_power))
-            return self.data_min + powered * sign * (self.data_max - self.data_min)
-        if self.kind == SCALE_SQRT:
-            var safe_amount = amount if amount >= 0.0 else 0.0
-            return self.data_min + safe_amount * safe_amount * (self.data_max - self.data_min)
-        return self.data_min + amount * (self.data_max - self.data_min)
-
-    def pan_pixels(mut self, pixels: Float32):
-        """Translate the domain by a logical pixel distance."""
-        var pixel_span = self.pixel_max - self.pixel_min
-        if pixel_span == 0.0:
-            return
-        var data_delta = pixels / pixel_span * (self.data_max - self.data_min)
-        self.data_min -= data_delta
-        self.data_max -= data_delta
-
-    def zoom_at(mut self, factor: Float32, pixel: Float32):
-        """Zoom around a pixel anchor without losing the current domain."""
-        if factor <= 0.0 or factor == 1.0:
-            return
-        var safe_factor = factor
-        if safe_factor < 0.1:
-            safe_factor = 0.1
-        if safe_factor > 10.0:
-            safe_factor = 10.0
-        var anchor = self.inverse(pixel)
-        var minimum = anchor - (anchor - self.data_min) / safe_factor
-        var maximum = anchor + (self.data_max - anchor) / safe_factor
-        self.set_domain(minimum, maximum)
-
-    def tick(self, index: Int, count: Int) -> Float32:
-        """Return a scale-aware data-space tick value."""
-        var safe_count = count if count > 0 else 1
-        var safe_index = index
-        if safe_index < 0:
-            safe_index = 0
-        if safe_index > safe_count:
-            safe_index = safe_count
-        var fraction = Float32(safe_index) / Float32(safe_count)
-        if self.kind == SCALE_LOG:
-            var lower = self.data_min if self.data_min > 0.0 else 0.000001
-            var upper = self.data_max if self.data_max > lower else lower * 10.0
-            return Float32(exp(log(lower) + fraction * (log(upper) - log(lower))))
-        if self.kind == SCALE_POWER:
-            return self.data_min + Float32(pow(fraction, 1.0 / self.power)) * (self.data_max - self.data_min)
-        if self.kind == SCALE_SQRT:
-            return self.data_min + fraction * fraction * (self.data_max - self.data_min)
-        return self.data_min + (self.data_max - self.data_min) * fraction
-
-    def ticks(self, count: Int) -> List[Float32]:
-        """Return a deterministic list of scale-aware tick values."""
-        var result = List[Float32]()
-        var safe_count = count if count > 0 else 1
-        for index in range(safe_count + 1):
-            result.append(self.tick(index, safe_count))
-        return result^
-
-    def format(self, value: Float32) -> String:
-        """Format a guide value through the current scale's portable fallback."""
-        return String(value)
-
-
-struct PlotSeries:
-    """Stable identity, style, and points for one plotted series."""
-
-    var id: Int
-    var label: String
-    var kind: Int
-    var color: Color
-    var line_width: Float32
-    var marker_size: Float32
-    var opacity: Float32
-    var points: List[PlotPoint]
-    var visible: Bool
-
-    def __init__(
-        out self,
-        id: Int,
-        label: String,
-        color: Color,
-        kind: Int = PLOT_LINE,
-    ):
-        self.id = id
-        self.label = label
-        self.kind = kind
-        self.color = color
-        self.line_width = 2.0
-        self.marker_size = 6.0
-        self.opacity = 1.0
-        self.points = List[PlotPoint]()
-        self.visible = True
-
-    def append(mut self, point: PlotPoint):
-        self.points.append(point)
-
-    def count(self) -> Int:
-        return len(self.points)
-
-
-struct PlotHit(ImplicitlyCopyable):
-    """Nearest point hit result for interaction and accessibility overlays."""
-
-    var series_id: Int
-    var point_index: Int
-    var row_key: Int
-    var distance_squared: Float32
-
-    def __init__(out self):
-        self.series_id = -1
-        self.point_index = -1
-        self.row_key = -1
-        self.distance_squared = 0.0
-
-    def found(self) -> Bool:
-        return self.series_id != -1 and self.point_index != -1
 
 
 struct Plot:

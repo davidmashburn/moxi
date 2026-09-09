@@ -5,7 +5,7 @@ from std.collections import List
 from moxi.json import json_char, json_fragment_is_valid, json_quote
 from moxi.geometry import Rect
 from .plot_data import PlotDataTable
-from .plotting import (
+from .plot_marks import (
     PLOT_AREA,
     PLOT_BAND,
     PLOT_BAR,
@@ -70,6 +70,8 @@ from .plotting import (
     PLOT_STREAMGRAPH,
     PLOT_CATALOG_FIRST,
     PLOT_CATALOG_LAST,
+)
+from .plot_point import (
     SCALE_BAND,
     SCALE_CATEGORICAL,
     SCALE_DIVERGING,
@@ -85,8 +87,8 @@ from .plotting import (
     SCALE_SYMLOG,
     SCALE_TEMPORAL,
     SCALE_THRESHOLD,
-    Plot,
 )
+from .plotting import Plot
 from moxi.style import Color
 
 

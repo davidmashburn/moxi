@@ -30,7 +30,8 @@ from moxi.event import (
     Event,
 )
 from moxi.geometry import Point, Rect
-from .plotting import Plot, PlotHit
+from .plot_series import PlotHit
+from .plotting import Plot
 from moxi.plot_render import PlotRenderPacket
 from moxi.plot_selection import PlotSelection
 from .plot_spec import (
