@@ -151,12 +151,25 @@ from .capability_walkthrough import (
     CapabilityWalkthroughState,
     capability_walkthrough_step_count,
 )
-from .controls import (
+from .controls_basic import (
     ButtonControl,
     CheckboxControl,
     ImageControl,
     LabelControl,
+    CanvasControl,
+    SeparatorControl,
+    ProgressControl,
+    RadioControl,
+    SliderControl,
+    SwitchControl,
+)
+from .controls_text import (
     MultilineTextControl,
+    TextInputControl,
+    TextInputState,
+    MultilineTextState,
+)
+from .controls_collection import (
     ComboBoxControl,
     ListControl,
     TableControl,
@@ -164,18 +177,11 @@ from .controls import (
     MenuControl,
     DialogControl,
     TabsControl,
-    CanvasControl,
-    SeparatorControl,
-    ProgressControl,
-    RadioControl,
-    SliderControl,
-    SwitchControl,
-    TextInputControl,
-    TextInputState,
+)
+from .controls_state import (
     SliderState,
     ToggleState,
     RadioGroupState,
-    MultilineTextState,
 )
 from .control_state import (
     CanvasState,

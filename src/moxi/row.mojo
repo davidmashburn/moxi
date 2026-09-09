@@ -1,7 +1,7 @@
 """Shared row scenario used by the row demo and headless tests."""
 
 from .component import Component
-from .controls import ButtonControl
+from .controls_basic import ButtonControl
 from .event import CLICK_KIND, Event
 from .geometry import Rect
 from .style import default_panel_style, default_surface_style

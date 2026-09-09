@@ -11,12 +11,8 @@ from .event import (
     KEY_SPACE,
     TEXT_INPUT_KIND,
 )
-from .controls import (
-    ButtonControl,
-    LabelControl,
-    TextInputControl,
-    TextInputState,
-)
+from .controls_basic import ButtonControl, LabelControl
+from .controls_text import TextInputControl, TextInputState
 from .geometry import Rect
 from .style import (
     default_panel_style,

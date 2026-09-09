@@ -15,7 +15,8 @@ from moxi.app import CounterState
 from moxi.capability_walkthrough import CapabilityWalkthroughState
 from moxi.component import Component, ComponentSlot
 from moxi.composed import ComposedState
-from moxi.controls import ButtonControl, LabelControl, TextInputControl, TextInputState
+from moxi.controls_basic import ButtonControl, LabelControl
+from moxi.controls_text import TextInputControl, TextInputState
 from moxi.event import (
     ACTION_KIND,
     CLICK_KIND,

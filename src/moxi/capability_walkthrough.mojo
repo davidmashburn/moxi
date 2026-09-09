@@ -14,7 +14,7 @@ from .capability_types import (
 from .capability_bus import CapabilityBus, CapabilityHandler
 from .accessibility import ACTION_PRESS
 from .component import Component
-from .controls import ButtonControl, LabelControl
+from .controls_basic import ButtonControl, LabelControl
 from .event import ACTION_KIND, CLICK_KIND, Event, KEY_DOWN_KIND, KEY_ENTER, KEY_SPACE
 from .geometry import Rect
 from .style import (

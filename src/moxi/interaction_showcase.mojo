@@ -10,7 +10,7 @@ from .collection_state import (
     TreeCollectionState,
 )
 from .component import Component
-from .controls import ButtonControl, LabelControl
+from .controls_basic import ButtonControl, LabelControl
 from .event import (
     ACTION_KIND,
     CLICK_KIND,

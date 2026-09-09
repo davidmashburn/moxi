@@ -1,7 +1,8 @@
 """Theme and component recipe showcase demonstrating Moxi's design tokens."""
 
 from .component import Component
-from .controls import CheckboxControl, SwitchControl, TextInputControl, TextInputState
+from .controls_basic import CheckboxControl, SwitchControl
+from .controls_text import TextInputControl, TextInputState
 from .event import (
     ACTION_KIND,
     CLICK_KIND,

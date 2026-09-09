@@ -28,17 +28,14 @@ from .capability_types import (
     SIDE_EFFECT_LOCAL,
 )
 from .capability_bus import CapabilityBus
-from .controls import (
+from .controls_basic import (
     ButtonControl,
     CheckboxControl,
     LabelControl,
     ProgressControl,
-    SliderState,
-    ToggleState,
-    RadioGroupState,
-    TextInputControl,
-    TextInputState,
 )
+from .controls_text import TextInputControl, TextInputState
+from .controls_state import SliderState, ToggleState, RadioGroupState
 from .event import (
     CLICK_KIND,
     ACTION_KIND,

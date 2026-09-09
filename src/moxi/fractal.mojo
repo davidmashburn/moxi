@@ -11,12 +11,8 @@ from std.math import cos, sin, sqrt
 
 from .accessibility import ACTION_PRESS
 from .component import Component
-from .controls import (
-    ButtonControl,
-    CheckboxControl,
-    TextInputControl,
-    TextInputState,
-)
+from .controls_basic import ButtonControl, CheckboxControl
+from .controls_text import TextInputControl, TextInputState
 from .event import (
     ACTION_KIND,
     CLICK_KIND,

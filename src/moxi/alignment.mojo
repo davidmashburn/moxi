@@ -1,7 +1,7 @@
 """Shared 0.5 alignment scenario used by the demo and contract test."""
 
 from .component import Component
-from .controls import ButtonControl, LabelControl
+from .controls_basic import ButtonControl, LabelControl
 from .event import CLICK_KIND, Event
 from .geometry import Rect
 from .layout import ALIGN_CENTER, JUSTIFY_CENTER

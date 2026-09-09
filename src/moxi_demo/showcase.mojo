@@ -10,7 +10,7 @@ stateful scenarios remain available in ``src/moxi`` for larger applications.
 from moxi.accessibility import ACTION_PRESS
 from moxi.animation import Animation, EASE_IN_OUT
 from moxi.component import Component
-from moxi.controls import ButtonControl, LabelControl
+from moxi.controls_basic import ButtonControl, LabelControl
 from moxi.event import (
     ACTION_KIND,
     CLICK_KIND,

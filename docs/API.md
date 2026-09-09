@@ -278,7 +278,7 @@ the complete visible approval flow.
 | --- | --- |
 | Public exports | [`src/moxi/__init__.mojo`](../src/moxi/__init__.mojo) |
 | Views and layout | [`src/moxi/view.mojo`](../src/moxi/view.mojo), [`src/moxi/layout.mojo`](../src/moxi/layout.mojo) |
-| Controls and editing | [`src/moxi/controls.mojo`](../src/moxi/controls.mojo), [`src/moxi/control_state.mojo`](../src/moxi/control_state.mojo) |
+| Controls and editing | [`src/moxi/controls_basic.mojo`](../src/moxi/controls_basic.mojo), [`src/moxi/controls_text.mojo`](../src/moxi/controls_text.mojo), [`src/moxi/controls_collection.mojo`](../src/moxi/controls_collection.mojo), [`src/moxi/controls_state.mojo`](../src/moxi/controls_state.mojo), [`src/moxi/control_state.mojo`](../src/moxi/control_state.mojo) |
 | Runtime and invalidation | [`src/moxi/runtime.mojo`](../src/moxi/runtime.mojo), [`src/moxi/invalidation.mojo`](../src/moxi/invalidation.mojo) |
 | Scene and resources | [`src/moxi/scene.mojo`](../src/moxi/scene.mojo), [`src/moxi/software.mojo`](../src/moxi/software.mojo), [`src/moxi/resources.mojo`](../src/moxi/resources.mojo) |
 | Collection interactions | [`src/moxi/collection_state.mojo`](../src/moxi/collection_state.mojo), [`src/moxi/reorder.mojo`](../src/moxi/reorder.mojo), [`src/moxi/scrollbar.mojo`](../src/moxi/scrollbar.mojo), [`src/moxi/popup.mojo`](../src/moxi/popup.mojo), [`src/moxi/interaction_showcase.mojo`](../src/moxi/interaction_showcase.mojo) |

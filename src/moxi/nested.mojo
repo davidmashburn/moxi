@@ -1,7 +1,8 @@
 """Shared 0.5 nested-container scenario used by the demo and tests."""
 
 from .component import Component
-from .controls import ButtonControl, LabelControl, TextInputControl, TextInputState
+from .controls_basic import ButtonControl, LabelControl
+from .controls_text import TextInputControl, TextInputState
 from .event import (
     CLICK_KIND,
     COMPOSITION_END_KIND,

@@ -21,7 +21,10 @@ measure	stable-core	portable styling, measurement, or text boundaries
 text_boundary	stable-core	portable styling, measurement, or text boundaries
 clipboard	stable-core	host-neutral clipboard or window contracts
 window	stable-core	host-neutral clipboard or window contracts
-controls	provisional	stateful UI support primitives
+controls_basic	provisional	stateful UI support primitives
+controls_text	provisional	stateful UI support primitives
+controls_collection	provisional	stateful UI support primitives
+controls_state	provisional	stateful UI support primitives
 control_state	provisional	stateful UI support primitives
 collection_state	provisional	stateful UI support primitives
 scrollbar	provisional	stateful UI support primitives
