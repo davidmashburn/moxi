@@ -1,6 +1,6 @@
 """Versioned PlotSpec compatibility contract.
 
-The field order and names intentionally mirror ``src/moxi/plot_spec.mojo``.
+The field order and names intentionally mirror ``src/moxi_plot/plot_spec.mojo``.
 Keeping this layer as ordinary Python values makes it safe to import from a
 clean wheel without a Mojo compiler or a native extension.
 """

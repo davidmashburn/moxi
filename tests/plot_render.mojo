@@ -2,16 +2,18 @@
 
 from moxi import (
     Color,
-    PLOT_BAR,
-    PLOT_LINE,
     PLOT_RENDER_INSTANCES,
     PLOT_RENDER_LINES,
-    PLOT_SCATTER,
-    Plot,
     Point,
     Rect,
     SoftwareSceneRenderer,
     test_check,
+)
+from moxi_plot import (
+    PLOT_BAR,
+    PLOT_LINE,
+    PLOT_SCATTER,
+    Plot,
 )
 
 

@@ -2,18 +2,20 @@
 
 from moxi import (
     Color,
+    Point,
+    Rect,
+    SoftwareSceneRenderer,
+    test_check,
+)
+from moxi_plot import (
     PLOT_BAR,
     PLOT_LINE,
     PLOT_SCATTER,
     Plot,
     PlotScale,
-    Point,
-    Rect,
-    SoftwareSceneRenderer,
     SCALE_SYMLOG,
-    make_plot_scenario,
-    test_check,
 )
+from moxi_plot.fixtures import make_plot_scenario
 
 
 def main() raises:

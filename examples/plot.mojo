@@ -9,8 +9,8 @@ from moxi import (
     SoftwareSceneRenderer,
     default_panel_style,
     default_surface_style,
-    make_plot_scenario,
 )
+from moxi_plot.fixtures import make_plot_scenario
 
 
 comptime PLOT_CANVAS_ID = 1

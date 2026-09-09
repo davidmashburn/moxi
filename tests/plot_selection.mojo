@@ -4,8 +4,6 @@ from moxi import (
     Color,
     Event,
     MOD_OPTION,
-    PlotLink,
-    PlotRuntime,
     PlotSelection,
     Point,
     PointerEvent,
@@ -16,6 +14,7 @@ from moxi import (
     selection_from_keys,
     test_check,
 )
+from moxi_plot import PlotLink, PlotRuntime
 
 
 def main() raises:

@@ -14,11 +14,11 @@ from moxi import (
     MOD_SHIFT,
     POINTER_DOWN_KIND,
     POINTER_UP_KIND,
-    PlotRuntime,
     Point,
     PointerEvent,
     Rect,
 )
+from moxi_plot import PlotRuntime
 
 
 comptime QUERY_PASSES: Int = 120

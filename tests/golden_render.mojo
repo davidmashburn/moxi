@@ -16,10 +16,10 @@ from moxi import (
     canonical_text_fallback_caption,
     canonical_text_fallback_fixture,
     canonical_scenarios,
-    make_plot_scenario,
     scene_from_paint,
     test_check,
 )
+from moxi_plot.fixtures import make_plot_scenario
 
 
 comptime GOLDEN_RENDERER_VERSION = "software-v1"

@@ -1,6 +1,14 @@
 """Large-data plot scene-generation benchmark without rasterizing every point."""
 
-from moxi import Color, PLOT_SCATTER, PerformanceCounters, Plot, Rect
+from moxi import (
+    Color,
+    PerformanceCounters,
+    Rect,
+)
+from moxi_plot import (
+    PLOT_SCATTER,
+    Plot,
+)
 
 
 def main():

@@ -1,6 +1,10 @@
 """Stable-key plot data source contract test."""
 
 from moxi import (
+    selection_from_keys,
+    test_check,
+)
+from moxi_plot import (
     COLUMN_BOOL,
     COLUMN_CATEGORY,
     COLUMN_FLOAT64,
@@ -9,8 +13,6 @@ from moxi import (
     COLUMN_STRING,
     PlotDataTable,
     column_kind_name,
-    selection_from_keys,
-    test_check,
 )
 
 

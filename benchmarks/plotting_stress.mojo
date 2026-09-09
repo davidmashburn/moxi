@@ -1,6 +1,13 @@
 """Million-row scatter benchmark with deterministic level-of-detail output."""
 
-from moxi import Color, PLOT_SCATTER, Plot, Rect
+from moxi import (
+    Color,
+    Rect,
+)
+from moxi_plot import (
+    PLOT_SCATTER,
+    Plot,
+)
 
 
 def main():

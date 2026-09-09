@@ -4,8 +4,8 @@ from moxi import (
     PerformanceCounters,
     SoftwareSceneRenderer,
     canonical_scenarios,
-    make_plot_scenario,
 )
+from moxi_plot.fixtures import make_plot_scenario
 from moxi import Rect
 
 

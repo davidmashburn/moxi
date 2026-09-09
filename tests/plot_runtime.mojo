@@ -16,12 +16,12 @@ from moxi import (
     POINTER_MOVE_KIND,
     POINTER_UP_KIND,
     Point,
-    PlotRuntime,
     PointerEvent,
     Rect,
     ScrollEvent,
     test_check,
 )
+from moxi_plot import PlotRuntime
 
 
 def main():

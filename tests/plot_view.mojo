@@ -4,15 +4,17 @@ from moxi import (
     CLICK_KIND,
     Color,
     Event,
-    PlotControl,
-    PlotDataTable,
-    PlotSpec,
-    PlotView,
     Point,
     POINTER_MOVE_KIND,
     PointerEvent,
     Rect,
     test_check,
+)
+from moxi_plot import (
+    PlotControl,
+    PlotDataTable,
+    PlotSpec,
+    PlotView,
 )
 
 

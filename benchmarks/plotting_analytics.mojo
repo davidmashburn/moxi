@@ -3,15 +3,17 @@
 from moxi import (
     Color,
     PerformanceCounters,
-    PlotLink,
-    PlotRuntime,
     PlotSelection,
-    PlotSpec,
     Rect,
     SoftwareSceneRenderer,
-    make_plot_data_fixture,
+)
+from moxi_plot import (
+    PlotLink,
+    PlotRuntime,
+    PlotSpec,
     plot_from_spec,
 )
+from moxi_plot.fixtures import make_plot_data_fixture
 
 
 def main() raises:

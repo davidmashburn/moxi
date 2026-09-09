@@ -6,7 +6,7 @@ consumer can build a plot and render it without the native host modules.
 """
 
 from moxi.geometry import Rect
-from moxi.plot_api import Plot, PlotDataTable, PlotSpec, plot_from_spec
+from moxi_plot.plot_api import Plot, PlotDataTable, PlotSpec, plot_from_spec
 from moxi.software import SoftwareSceneRenderer
 from moxi.style import Color
 from moxi.testing import test_check

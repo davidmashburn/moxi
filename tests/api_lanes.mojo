@@ -1,9 +1,13 @@
 """Focused import-path and API-lane contract test."""
 
-from moxi import BACKEND_HEADLESS, Rect, test_check
+from moxi import (
+    BACKEND_HEADLESS,
+    Rect,
+    test_check,
+)
 from moxi.experimental_api import CapabilityDescriptor, CapabilityInvocation
 from moxi.host_api import HostContract, host_contract
-from moxi.plot_api import Plot, PlotDataTable, PlotSpec
+from moxi_plot.plot_api import Plot, PlotDataTable, PlotSpec
 
 
 def main():

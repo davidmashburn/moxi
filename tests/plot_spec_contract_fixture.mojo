@@ -1,6 +1,6 @@
 """Emit one cross-language PlotSpec fixture for the Python contract gate."""
 
-from moxi import PlotSpec
+from moxi_plot import PlotSpec
 
 
 def main():

@@ -8,7 +8,6 @@ from moxi import (
     SCENARIO_PLOT,
     SCENARIO_TEXT,
     SCENARIO_THEME,
-    DemoCatalog,
     ScenarioRegistry,
     canonical_scenarios,
     canonical_capability_steps,
@@ -18,6 +17,7 @@ from moxi import (
     canonical_theme_modes,
     test_check,
 )
+from moxi_demo import DemoCatalog
 
 
 def main():

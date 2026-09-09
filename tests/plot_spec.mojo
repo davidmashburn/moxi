@@ -1,6 +1,12 @@
 """Declarative plot specification contract test."""
 
 from moxi import (
+    Rect,
+    SCENE_LINE,
+    SCENE_RECT,
+    test_check,
+)
+from moxi_plot import (
     CHANNEL_COLOR,
     CHANNEL_X,
     PLOT_LINE,
@@ -10,15 +16,11 @@ from moxi import (
     PLOT_SANKEY,
     PlotDataTable,
     PlotSpec,
-    Rect,
-    SCENE_LINE,
-    SCENE_RECT,
     SCALE_LOG,
     TYPE_NOMINAL,
     plot_from_spec,
     plot_spec_from_json,
     plot_mark_name,
-    test_check,
 )
 from moxi.style import Color
 

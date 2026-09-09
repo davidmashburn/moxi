@@ -1,6 +1,12 @@
 """SVG Web-target serialization contract test."""
 
-from moxi import Plot, Rect, SvgSceneRenderer, make_plot_scenario, test_check
+from moxi import (
+    Rect,
+    SvgSceneRenderer,
+    test_check,
+)
+from moxi_plot import Plot
+from moxi_plot.fixtures import make_plot_scenario
 
 
 def main() raises:

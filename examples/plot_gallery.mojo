@@ -1,32 +1,34 @@
 """Moxi Plot gallery: typed data, encodings, facets, and interactions."""
 
 from moxi import (
-    CHANNEL_COLOR,
-    CHANNEL_OPACITY,
-    CHANNEL_SIZE,
-    CHANNEL_TOOLTIP,
-    CHANNEL_X,
     ClickEvent,
     Color,
     Event,
-    make_plot_data_fixture,
     MOD_SHIFT,
-    PlotLink,
-    PlotSpec,
-    PlotView,
     PointerEvent,
     POINTER_DOWN_KIND,
     POINTER_MOVE_KIND,
     POINTER_UP_KIND,
     Point,
     Rect,
-    SCALE_TEMPORAL,
     ScrollEvent,
     SoftwareSceneRenderer,
+)
+from moxi_plot import (
+    CHANNEL_COLOR,
+    CHANNEL_OPACITY,
+    PlotLink,
+    CHANNEL_SIZE,
+    CHANNEL_TOOLTIP,
+    CHANNEL_X,
+    PlotSpec,
+    PlotView,
+    SCALE_TEMPORAL,
     TYPE_NOMINAL,
     plot_mark_name,
     plot_from_spec,
 )
+from moxi_plot.fixtures import make_plot_data_fixture
 
 
 def main() raises:

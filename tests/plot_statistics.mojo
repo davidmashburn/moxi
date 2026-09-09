@@ -2,11 +2,13 @@
 
 from moxi import (
     Color,
+    Rect,
+    test_check,
+)
+from moxi_plot import (
     PlotDataTable,
     PlotSpec,
-    Rect,
     plot_from_spec,
-    test_check,
 )
 
 

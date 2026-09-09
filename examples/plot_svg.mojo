@@ -9,8 +9,8 @@ from moxi import (
     SvgSceneRenderer,
     default_panel_style,
     default_surface_style,
-    make_plot_scenario,
 )
+from moxi_plot.fixtures import make_plot_scenario
 
 
 comptime SVG_CANVAS_ID = 1
