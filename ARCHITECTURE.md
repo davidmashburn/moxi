@@ -376,7 +376,7 @@ separately. The capability
 bus is implemented as an in-process authorization/lease boundary; transport,
 serialization, and agent-session orchestration remain outside the core. The
 capability design note in
-[Specification High-Performance Agent-Re.md](Specification%20High-Performance%20Agent-Re.md)
+[docs/capability-bus-design.md](docs/capability-bus-design.md)
 is maintained as a truthful future-adapter guide rather than an implementation
 claim.
 

@@ -266,7 +266,7 @@ adapter that owns transport and execution. `ConversationContext` keeps
 historical turns separate from a fresh state payload and can append structured
 capability results.
 
-See [the agent design note](../Specification%20High-Performance%20Agent-Re.md)
+See [the agent design note](capability-bus-design.md)
 for the boundary and [examples/wx_style.mojo](../examples/wx_style.mojo) for
 the complete visible approval flow.
 
