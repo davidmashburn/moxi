@@ -1,14 +1,14 @@
 """Composable plot view boundary for Moxi layout and event hosts."""
 
-from .accessibility import AccessibilitySnapshot
-from .event import Event
-from .geometry import Rect
+from moxi.accessibility import AccessibilitySnapshot
+from moxi.event import Event
+from moxi.geometry import Rect
 from .plot_data import PlotDataSnapshot, PlotDataTable
 from .plot_runtime import PlotRuntime
-from .plot_render import PlotRenderPacket
+from moxi.plot_render import PlotRenderPacket
 from .plotting import PlotHit
 from .plot_spec import PlotSpec, plot_from_spec
-from .scene import Scene
+from moxi.scene import Scene
 
 
 struct PlotView(ImplicitlyCopyable):

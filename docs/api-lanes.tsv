@@ -36,15 +36,9 @@ performance	provisional	stateful UI support primitives
 execution	provisional	stateful UI support primitives
 virtual_view	provisional	stateful UI support primitives
 windowing	provisional	stateful UI support primitives
+plot_selection	provisional	stateful UI support primitives
 text_layout	provisional	portable text layout and editing
 text_shaping	provisional	portable text layout and editing
-plotting	provisional	typed plotting data, specification, or runtime
-plot_data	provisional	typed plotting data, specification, or runtime
-plot_spec	provisional	typed plotting data, specification, or runtime
-plot_runtime	provisional	typed plotting data, specification, or runtime
-plot_view	provisional	typed plotting data, specification, or runtime
-plot_selection	provisional	typed plotting data, specification, or runtime
-plot_link	provisional	typed plotting data, specification, or runtime
 plot_render	provisional	typed plotting data, specification, or runtime
 platform	host-adapter	platform and native-host adapters
 platform_adapters	host-adapter	platform and native-host adapters
@@ -64,9 +58,6 @@ wrapped	demo/support	examples, recipes, or validation support
 testing	demo/support	examples, recipes, or validation support
 tokens	demo/support	examples, recipes, or validation support
 recipes	demo/support	examples, recipes, or validation support
-showcase	demo/support	examples, recipes, or validation support
-demo_browser	demo/support	examples, recipes, or validation support
-demo_walkthrough	demo/support	examples, recipes, or validation support
 interaction_showcase	demo/support	examples, recipes, or validation support
 theme_showcase	demo/support	examples, recipes, or validation support
 capability_walkthrough	demo/support	examples, recipes, or validation support
@@ -78,6 +69,5 @@ coretext	experimental	experimental or optional integration
 fractal	experimental	experimental or optional integration
 harfbuzz	experimental	experimental or optional integration
 metal	experimental	experimental or optional integration
-plot_api	provisional	focused plotting import path
 host_api	host-adapter	focused host/adapter import path
 experimental_api	experimental	focused optional integration path

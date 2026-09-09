@@ -6,9 +6,9 @@ from moxi import (
     SoftwareSceneRenderer,
     SvgSceneRenderer,
     canonical_canvas_scene_fixtures,
-    make_canvas_scene,
     test_check,
 )
+from moxi_plot.fixtures import make_canvas_scene
 
 
 def check_fixture(fixture_index: Int) raises -> Int:

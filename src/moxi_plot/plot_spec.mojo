@@ -2,8 +2,8 @@
 
 from std.collections import List
 
-from .capability import json_char, json_fragment_is_valid, json_quote
-from .geometry import Rect
+from moxi.capability import json_char, json_fragment_is_valid, json_quote
+from moxi.geometry import Rect
 from .plot_data import PlotDataTable
 from .plotting import (
     PLOT_AREA,
@@ -87,7 +87,7 @@ from .plotting import (
     SCALE_THRESHOLD,
     Plot,
 )
-from .style import Color
+from moxi.style import Color
 
 
 comptime PLOT_SPEC_VERSION = 1

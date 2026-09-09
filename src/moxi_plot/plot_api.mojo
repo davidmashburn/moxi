@@ -5,7 +5,7 @@ can depend on this smaller provisional surface instead of importing the whole
 package boundary.
 """
 
-from .geometry import Rect
+from moxi.geometry import Rect
 from .plot_data import (
     COLUMN_CATEGORY,
     COLUMN_FLOAT32,
@@ -18,9 +18,9 @@ from .plot_data import (
     PlotDataTable,
 )
 from .plot_link import PlotLink
-from .plot_render import PlotRenderBatch, PlotRenderPacket
+from moxi.plot_render import PlotRenderBatch, PlotRenderPacket
 from .plot_runtime import PlotRuntime
-from .plot_selection import PlotSelection, selection_from_keys
+from moxi.plot_selection import PlotSelection, selection_from_keys
 from .plot_spec import (
     PlotEncoding,
     PlotInteraction,

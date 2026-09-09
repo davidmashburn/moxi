@@ -12,7 +12,7 @@ from std.memory import Pointer
 from std.math import floor
 from std.origin import Origin
 
-from .plot_selection import PlotSelection
+from moxi.plot_selection import PlotSelection
 
 
 comptime COLUMN_FLOAT32 = 1

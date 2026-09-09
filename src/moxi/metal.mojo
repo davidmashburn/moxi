@@ -38,8 +38,6 @@ from .plot_render import (
     PLOT_RENDER_LINES,
     PlotRenderPacket,
 )
-from .plotting import Plot
-from .plot_view import PlotView
 from .resources import ImageResource
 from .style import Color
 from .window import WindowBackend, WindowConfig
@@ -438,42 +436,6 @@ struct MacOSMetalRenderer(SceneRenderer):
         """Render a dense plot packet as a complete synchronized frame."""
         self.begin_scene()
         var rendered = self.draw_plot_packet(packet)
-        self.end_scene()
-        return rendered
-
-    def render_plot(mut self, plot: Plot) raises -> Bool:
-        """Render a complete plot, using the packet for supported dense marks.
-
-        The packet is placed after the chrome scene and clipped to the plot
-        area.  If a mark family still requires the generic Scene path, the
-        complete portable scene is rendered instead.
-        """
-        var packet = plot.build_render_packet()
-        if packet.fallback_required:
-            self.render_scene(plot.build_scene())
-            return False
-        self.begin_scene()
-        var chrome = plot.build_scene(False)
-        for index in range(chrome.count()):
-            self.draw_scene_command(chrome.command(index))
-        var rendered = self.draw_plot_packet(packet)
-        self.end_scene()
-        return rendered
-
-    def render_plot_view(mut self, mut view: PlotView) raises -> Bool:
-        """Render an interactive PlotView with the dense packet fast path."""
-        var packet = view.build_render_packet()
-        if packet.fallback_required:
-            self.render_scene(view.build_scene())
-            return False
-        self.begin_scene()
-        var chrome = view.build_chrome_scene()
-        for index in range(chrome.count()):
-            self.draw_scene_command(chrome.command(index))
-        var rendered = self.draw_plot_packet(packet)
-        var overlay = view.build_overlay_scene()
-        for index in range(overlay.count()):
-            self.draw_scene_command(overlay.command(index))
         self.end_scene()
         return rendered
 

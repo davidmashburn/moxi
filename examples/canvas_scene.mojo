@@ -4,8 +4,8 @@ from moxi import (
     CanvasSceneRenderer,
     CANVAS_SCENE_PLOT,
     canonical_canvas_scene_fixture,
-    make_canvas_scene,
 )
+from moxi_plot.fixtures import make_canvas_scene
 
 
 def main() raises:

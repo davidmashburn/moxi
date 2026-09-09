@@ -1,7 +1,7 @@
 """Explicit propagation helpers for linked plot views."""
 
 from .plot_runtime import PlotRuntime
-from .plot_selection import PlotSelection
+from moxi.plot_selection import PlotSelection
 
 
 struct PlotLink:

@@ -2,8 +2,8 @@
 
 from std.collections import List
 
-from .accessibility import AccessibilitySnapshot, ROLE_LABEL, Semantics
-from .event import (
+from moxi.accessibility import AccessibilitySnapshot, ROLE_LABEL, Semantics
+from moxi.event import (
     CLICK_KIND,
     KEY_DOWN_KIND,
     KEY_DOWN,
@@ -29,10 +29,10 @@ from .event import (
     TOUCH_UPDATE_KIND,
     Event,
 )
-from .geometry import Point, Rect
+from moxi.geometry import Point, Rect
 from .plotting import Plot, PlotHit
-from .plot_render import PlotRenderPacket
-from .plot_selection import PlotSelection
+from moxi.plot_render import PlotRenderPacket
+from moxi.plot_selection import PlotSelection
 from .plot_spec import (
     INTERACTION_BRUSH,
     INTERACTION_CLICK_SELECT,
@@ -42,8 +42,8 @@ from .plot_spec import (
     INTERACTION_PAN_ZOOM,
     PlotSpec,
 )
-from .scene import Scene
-from .style import Color
+from moxi.scene import Scene
+from moxi.style import Color
 
 
 comptime PLOT_INDEX_CELL_SIZE: Float32 = 32.0

@@ -9,12 +9,12 @@ overlays.
 from std.collections import List
 from std.math import exp, log, pow, sqrt
 
-from .geometry import Point, Rect
-from .scene import Scene
-from .style import Color
-from .accessibility import AccessibilitySnapshot, ROLE_CANVAS, ROLE_LABEL, Semantics
+from moxi.geometry import Point, Rect
+from moxi.scene import Scene
+from moxi.style import Color
+from moxi.accessibility import AccessibilitySnapshot, ROLE_CANVAS, ROLE_LABEL, Semantics
+from moxi.plot_render import PlotRenderPacket
 from .plot_data import COLUMN_CATEGORY, COLUMN_STRING, PlotDataTable
-from .plot_render import PlotRenderPacket
 
 
 comptime PLOT_LINE = 1

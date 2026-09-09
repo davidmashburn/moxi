@@ -26,8 +26,6 @@ from .plot_render import (
     PLOT_RENDER_LINES,
     PlotRenderPacket,
 )
-from .plotting import Plot
-from .plot_view import PlotView
 
 
 def _clamp_unit(value: Float32) -> Float32:
@@ -405,37 +403,6 @@ struct SoftwareSceneRenderer(SceneRenderer):
         self.begin_scene()
         self.draw_plot_packet(packet)
         self.end_scene()
-
-    def render_plot(mut self, plot: Plot) raises -> Bool:
-        """Render a complete plot using the packet when it is safe to do so."""
-        var packet = plot.build_render_packet()
-        if packet.fallback_required:
-            self.render_scene(plot.build_scene())
-            return False
-        self.begin_scene()
-        var chrome = plot.build_scene(False)
-        for index in range(chrome.count()):
-            self.draw_scene_command(chrome.command(index))
-        self.draw_plot_packet(packet)
-        self.end_scene()
-        return True
-
-    def render_plot_view(mut self, mut view: PlotView) raises -> Bool:
-        """Render an interactive PlotView with packet-safe overlays."""
-        var packet = view.build_render_packet()
-        if packet.fallback_required:
-            self.render_scene(view.build_scene())
-            return False
-        self.begin_scene()
-        var chrome = view.build_chrome_scene()
-        for index in range(chrome.count()):
-            self.draw_scene_command(chrome.command(index))
-        self.draw_plot_packet(packet)
-        var overlay = view.build_overlay_scene()
-        for index in range(overlay.count()):
-            self.draw_scene_command(overlay.command(index))
-        self.end_scene()
-        return True
 
     def fill_rect(mut self, bounds: Rect, color: Color):
         var visible = bounds

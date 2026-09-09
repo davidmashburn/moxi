@@ -1,6 +1,8 @@
 """Metal plot-packet benchmark over the shared line/scatter fixture."""
 
-from moxi import MacOSMetalRenderer, Rect, make_plot_scenario
+from moxi import MacOSMetalRenderer, Rect
+from moxi_plot.fixtures import make_plot_scenario
+from moxi_plot.plot_render_bridge import render_plot
 
 
 comptime BENCHMARK_PASSES: Int = 25
@@ -27,7 +29,7 @@ def main() raises:
         rendered = renderer.render_plot_packet(packet)
     var packet_frame_ms = renderer.frame_time_ms()
     var packet_gpu_ms = renderer.gpu_time_ms()
-    var full_rendered = renderer.render_plot(plot)
+    var full_rendered = render_plot(renderer, plot)
     var full_frame_ms = renderer.frame_time_ms()
     var full_gpu_ms = renderer.gpu_time_ms()
     print("  rendered: ", rendered)
