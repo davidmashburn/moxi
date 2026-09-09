@@ -63,11 +63,13 @@ separate companion entrypoints. The core `App` remains process-neutral.
 ## Focused import paths
 
 The compatibility root remains available for existing 0.5 callers, while new
-code can opt into smaller support surfaces: `moxi.plot_api` for provisional
-plot data/spec/runtime types, `moxi.host_api` for portable and macOS host
-adapters, and `moxi.experimental_api` for capability, text-engine, fractal, and
-Metal integrations. The checked-in `docs/api-lanes.tsv` policy makes every
-re-exported module explicit; adding a new public module without a lane fails
+code can opt into smaller support surfaces: `moxi_plot.plot_api` for
+provisional plot data/spec/runtime types, `moxi.host_api` for portable and
+macOS host adapters, and `moxi.experimental_api` for capability, text-engine,
+fractal, and Metal integrations. The checked-in `docs/api-lanes.tsv`,
+`docs/plot-api-lanes.tsv`, and `docs/demo-api-lanes.tsv` policies make every
+re-exported module explicit for `moxi`, `moxi_plot`, and `moxi_demo`
+respectively; adding a new public module without a lane fails
 `pixi run api-status-check`.
 
 ## View and layout
@@ -281,12 +283,12 @@ the complete visible approval flow.
 | Scene and resources | [`src/moxi/scene.mojo`](../src/moxi/scene.mojo), [`src/moxi/software.mojo`](../src/moxi/software.mojo), [`src/moxi/resources.mojo`](../src/moxi/resources.mojo) |
 | Collection interactions | [`src/moxi/collection_state.mojo`](../src/moxi/collection_state.mojo), [`src/moxi/reorder.mojo`](../src/moxi/reorder.mojo), [`src/moxi/scrollbar.mojo`](../src/moxi/scrollbar.mojo), [`src/moxi/popup.mojo`](../src/moxi/popup.mojo), [`src/moxi/interaction_showcase.mojo`](../src/moxi/interaction_showcase.mojo) |
 | Live development host | [`src/moxi/live_script.mojo`](../src/moxi/live_script.mojo), [`src/moxi/macos.mojo`](../src/moxi/macos.mojo), [`native/macos_window.m`](../native/macos_window.m), [`tests/live_reload.mojo`](../tests/live_reload.mojo) |
-| Plotting | [`docs/plotting.md`](plotting.md), [`src/moxi/plotting.mojo`](../src/moxi/plotting.mojo), [`src/moxi/plot_data.mojo`](../src/moxi/plot_data.mojo), [`src/moxi/plot_spec.mojo`](../src/moxi/plot_spec.mojo), [`src/moxi/plot_runtime.mojo`](../src/moxi/plot_runtime.mojo), [`src/moxi/plot_selection.mojo`](../src/moxi/plot_selection.mojo), [`src/moxi/plot_link.mojo`](../src/moxi/plot_link.mojo), [`src/moxi/plot_view.mojo`](../src/moxi/plot_view.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
+| Plotting | [`docs/plotting.md`](plotting.md), [`src/moxi_plot/plotting.mojo`](../src/moxi_plot/plotting.mojo), [`src/moxi_plot/plot_data.mojo`](../src/moxi_plot/plot_data.mojo), [`src/moxi_plot/plot_spec.mojo`](../src/moxi_plot/plot_spec.mojo), [`src/moxi_plot/plot_runtime.mojo`](../src/moxi_plot/plot_runtime.mojo), [`src/moxi/plot_selection.mojo`](../src/moxi/plot_selection.mojo), [`src/moxi_plot/plot_link.mojo`](../src/moxi_plot/plot_link.mojo), [`src/moxi_plot/plot_view.mojo`](../src/moxi_plot/plot_view.mojo), [`src/moxi/plot_render.mojo`](../src/moxi/plot_render.mojo), [`src/moxi_plot/plot_render_bridge.mojo`](../src/moxi_plot/plot_render_bridge.mojo), [`src/moxi/svg.mojo`](../src/moxi/svg.mojo) |
 | Performance | [`src/moxi/performance.mojo`](../src/moxi/performance.mojo), [`docs/performance.md`](performance.md), [`docs/benchmarking.md`](benchmarking.md), [`scripts/benchmark.sh`](../scripts/benchmark.sh), [`scripts/benchmark_compare.py`](../scripts/benchmark_compare.py), [`scripts/benchmark_policy_check.py`](../scripts/benchmark_policy_check.py), [`benchmarks/result-schema.json`](../benchmarks/result-schema.json), [`benchmarks/benchmark-policy.json`](../benchmarks/benchmark-policy.json), [`benchmarks/results/`](../benchmarks/results/) |
 | Platform targets | [`src/moxi/platform.mojo`](../src/moxi/platform.mojo), [`src/moxi/platform_adapters.mojo`](../src/moxi/platform_adapters.mojo), [`src/moxi/targets.mojo`](../src/moxi/targets.mojo), [`src/moxi/host_contract.mojo`](../src/moxi/host_contract.mojo), [`native/hosts/`](../native/hosts/) |
 | Text shaping | [`src/moxi/text_shaping.mojo`](../src/moxi/text_shaping.mojo), [`src/moxi/coretext.mojo`](../src/moxi/coretext.mojo), [`src/moxi/harfbuzz.mojo`](../src/moxi/harfbuzz.mojo), [`native/macos_text.m`](../native/macos_text.m), [`native/harfbuzz_text.cpp`](../native/harfbuzz_text.cpp), [`docs/text-policy.md`](text-policy.md) |
 | Reactivity and tasks | [`src/moxi/reactivity.mojo`](../src/moxi/reactivity.mojo), [`src/moxi/tasks.mojo`](../src/moxi/tasks.mojo), [`src/moxi/execution.mojo`](../src/moxi/execution.mojo) |
 | Capabilities and conversation | [`src/moxi/capability.mojo`](../src/moxi/capability.mojo), [`src/moxi/conversation.mojo`](../src/moxi/conversation.mojo) |
-| Demo browser | [`docs/demo-browser.md`](demo-browser.md), [`src/moxi/demo_browser.mojo`](../src/moxi/demo_browser.mojo), [`examples/demo_browser.mojo`](../examples/demo_browser.mojo) |
+| Demo browser | [`docs/demo-browser.md`](demo-browser.md), [`src/moxi_demo/demo_browser.mojo`](../src/moxi_demo/demo_browser.mojo), [`examples/demo_browser.mojo`](../examples/demo_browser.mojo) |
 | Native adapter | [`src/moxi/macos.mojo`](../src/moxi/macos.mojo), [`native/macos_window.m`](../native/macos_window.m) |
 | Contract tests | [`tests/`](../tests/), [`tests/goldens/`](../tests/goldens/), [`scripts/scenario_check.sh`](../scripts/scenario_check.sh), [`scripts/visual_check.sh`](../scripts/visual_check.sh), [`scripts/browser_check.sh`](../scripts/browser_check.sh) |

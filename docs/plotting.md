@@ -1,13 +1,19 @@
 # Moxi Plot
 
 Moxi Plot is the first product built on Moxi's portable data, scene, and
-interaction contracts. A plot can be inspected and tested without a window;
-the same `Scene` can then be rendered by the deterministic software backend,
-macOS Metal, or browser-compatible SVG.
+interaction contracts. It lives in the sibling `moxi_plot` package, which
+depends on `moxi` for geometry, scene, style, accessibility, and the renderer
+packet contract (`moxi.plot_render`); `moxi` never imports `moxi_plot`. A plot
+can be inspected and tested without a window; the same `Scene` can then be
+rendered by the deterministic software backend, macOS Metal, or
+browser-compatible SVG.
 
 ## Smallest useful example
 
 ```mojo
+from moxi import Rect
+from moxi_plot import PlotDataTable, PlotSpec, plot_from_spec
+
 var data = PlotDataTable()
 for index in range(20):
     _ = data.append(Float32(index), Float32(index % 7))
@@ -158,9 +164,11 @@ software.render_scene(chrome)
 software.draw_plot_packet(packet)
 ```
 
-`MacOSMetalRenderer.render_plot(plot)` and
-`MacOSMetalRenderer.render_plot_view(view)` perform this composition for a
-complete frame. The Metal path expands line records into quads in one
+`moxi_plot.plot_render_bridge.render_plot(renderer, plot)` and
+`render_plot_view(renderer, view)` perform this composition for a complete
+frame against either `MacOSMetalRenderer` or `SoftwareSceneRenderer`; the
+bridge module calls only each renderer's public scene-drawing methods, so
+`moxi.metal` and `moxi.software` stay free of plot-model imports. The Metal path expands line records into quads in one
 instanced draw and expands marker/bar/rect records into rounded or square
 instances in another. Per-mark color, opacity, width, and size remain in the
 packet, so a plot does not need one native call per point. A packet retains

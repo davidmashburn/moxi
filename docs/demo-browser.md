@@ -115,7 +115,7 @@ The initial catalog covers the current repository scope:
 - rendering: offscreen Metal and the visible Metal window;
 - text: CoreText and optional HarfBuzz shaping.
 
-The catalog source of truth is [demo_browser.mojo](../src/moxi/demo_browser.mojo),
+The catalog source of truth is [demo_browser.mojo](../src/moxi_demo/demo_browser.mojo),
 while reusable page implementations live in `src/moxi` and the opted-in
 editable implementation lives in `examples/editable_showcase.mojo`. The
 browser's own behavior is covered by

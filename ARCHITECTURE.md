@@ -6,6 +6,19 @@ of truth for the public architecture; the larger
 [SPEC.md](SPEC.md) is long-term design material and includes proposals that are
 not implemented.
 
+## Packages
+
+Moxi is three sibling Mojo packages under `src/`: `moxi` (core UI: views,
+layout, runtime, scene rendering, events, controls, and platform adapters),
+`moxi_plot` (the plot model, declarative spec, and interactive runtime), and
+`moxi_demo` (the showcase, demo browser, and demo walkthrough). Dependencies
+are one-directional: `moxi_plot` depends on `moxi`; `moxi_demo` depends on
+both `moxi` and `moxi_plot`; `moxi` never imports `moxi_plot` or `moxi_demo`.
+`mojo run -I src` and `mojo build -I src` resolve the sibling packages
+automatically; `mojo precompile` and `mojo doc` take one package directory
+per invocation, so each package is precompiled and documented separately
+(see [pixi.toml](../pixi.toml) and [scripts/check.sh](../scripts/check.sh)).
+
 ## Core contract
 
 Moxi components are Mojo values. A component owns application state, builds a
@@ -206,9 +219,11 @@ rather than a custom shaping engine. Rectangle clipping is opt-in at the root
 or container level. A caller can rebuild the root with new bounds;
 `App.resize()` supplies that relayout path for the native demo.
 
-The repository-level demo browser in `src/moxi/demo_browser.mojo` is a catalog
-and typed workbench, not a dynamic component registry in the portable core. It
-keeps the example inventory searchable, mounts every catalog page through an
+The repository-level demo browser in `src/moxi_demo/demo_browser.mojo` is a
+catalog and typed workbench, not a dynamic component registry in the portable
+core. It lives in the `moxi_demo` package alongside `showcase.mojo` and
+`demo_walkthrough.mojo`, and depends on both `moxi` and `moxi_plot`. It keeps
+the example inventory searchable, mounts every catalog page through an
 explicit `ComponentSlot`, and renders scene/plot output into a declared canvas
 in the same window. The development-only `MacOSLiveScript` adapter watches an
 explicit C-ABI module (`moxi_live_frame`) and swaps its scene without replacing
@@ -332,17 +347,21 @@ images remain explicit fallbacks. The software path remains the deterministic
 oracle for path bounds rather than full path tessellation.
 
 `Plot`, `PlotDataTable`, `PlotSpec`, and `PlotRuntime` form the first
-application library on the scene contract. A plot owns data-space series and
-linear scales, emits axes/grid/legend/core and statistical mark geometry,
-supports inverse mapping, pan/zoom, nearest-point hit testing, independent
-facet scales, stable-key lasso/linked selection semantics, and
-extrema-preserving line LOD. `PlotRenderPacket` is the optional dense-mark
-seam: it keeps source rows in the plot model while exporting ordered flat
-screen-space line/instance buffers. The software renderer consumes the packet
-for parity, and Metal expands its records with instanced line/quad shaders;
-unsupported marks retain the complete `Scene` fallback. `SvgSceneRenderer`
-serializes the same scene for browser-compatible SVG and escapes arbitrary
-text labels.
+application library on the scene contract; they live in the sibling
+`moxi_plot` package, which depends on `moxi` and is never imported back by
+it. A plot owns data-space series and linear scales, emits axes/grid/legend/
+core and statistical mark geometry, supports inverse mapping, pan/zoom,
+nearest-point hit testing, independent facet scales, stable-key lasso/linked
+selection semantics, and extrema-preserving line LOD. `PlotRenderPacket`
+(defined in `moxi.plot_render`, alongside the renderers it feeds) is the
+optional dense-mark seam: it keeps source rows in the plot model while
+exporting ordered flat screen-space line/instance buffers. The software
+renderer consumes the packet for parity, and Metal expands its records with
+instanced line/quad shaders; both compositions are free functions in
+`moxi_plot.plot_render_bridge` rather than renderer methods, so `moxi.metal`
+and `moxi.software` stay free of plot-model imports. Unsupported marks retain
+the complete `Scene` fallback. `SvgSceneRenderer` serializes the same scene
+for browser-compatible SVG and escapes arbitrary text labels.
 
 `BackendCapabilities` is the runtime capability matrix for a renderer. The
 shipped `MacOSRenderer` reports native windowing, AppKit shaping/bidi,

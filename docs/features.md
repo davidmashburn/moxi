@@ -129,10 +129,11 @@ synchronization, pass a `MacOSClipboard` to
 `MemoryClipboard` with the same API.
 
 The compatibility root remains broad for existing 0.5 callers. New code can
-use `moxi.plot_api`, `moxi.host_api`, or `moxi.experimental_api` as focused
-import paths, and `docs/api-lanes.tsv` records the support lane for every
-public module. The API check rejects an unclassified re-export instead of
-silently treating it as experimental.
+use `moxi_plot.plot_api`, `moxi.host_api`, or `moxi.experimental_api` as
+focused import paths, and `docs/api-lanes.tsv` (`moxi`), `docs/plot-api-lanes.tsv`
+(`moxi_plot`), and `docs/demo-api-lanes.tsv` (`moxi_demo`) record the support
+lane for every public module. The API check rejects an unclassified re-export
+instead of silently treating it as experimental.
 
 ## Layout
 
@@ -509,9 +510,11 @@ This is a focused 0.5 UI core rather than a full cross-platform framework.
   explicit follow-up work.
 
 For the public-surface inventory, see [API.md](API.md). Public export changes
-are checked against the generated [API surface snapshot](api-surface.tsv) and
-explicit [compatibility manifest](api-compatibility.tsv); focused/provisional
-imports do not silently change the root compatibility promise.
+are checked against the generated API surface snapshots
+([`moxi`](api-surface.tsv), [`moxi_plot`](plot-api-surface.tsv),
+[`moxi_demo`](demo-api-surface.tsv)) and the shared explicit
+[compatibility manifest](api-compatibility.tsv); focused/provisional imports
+do not silently change the root compatibility promise.
 
 ## Build, packaging, and testing
 
