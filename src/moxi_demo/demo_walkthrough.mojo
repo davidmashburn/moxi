@@ -4,20 +4,19 @@ from std.collections import List
 
 from moxi.accessibility import ACTION_PRESS
 from moxi.app_runtime import App
-from moxi.capability import (
+from moxi.capability_types import (
     CALLER_AGENT,
     CALLER_SYSTEM,
     CALLER_UI,
     CAPABILITY_REQUIRES_APPROVAL,
     CAPABILITY_OK,
-    CapabilityBus,
     CapabilityDescriptor,
-    CapabilityHandler,
     CapabilityInvocation,
     CapabilityResult,
     SIDE_EFFECT_DESTRUCTIVE,
     SIDE_EFFECT_LOCAL,
 )
+from moxi.capability_bus import CapabilityBus, CapabilityHandler
 from .demo_browser import (
     DEMO_COUNTER_ID,
     DEMO_COUNTER_ID_OFFSET,

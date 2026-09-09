@@ -2,7 +2,7 @@
 
 from std.collections import List
 
-from moxi.capability import json_char, json_fragment_is_valid, json_quote
+from moxi.json import json_char, json_fragment_is_valid, json_quote
 from moxi.geometry import Rect
 from .plot_data import PlotDataTable
 from .plotting import (

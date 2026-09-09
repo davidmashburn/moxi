@@ -1,12 +1,12 @@
 """Focused opt-in path for experimental integrations."""
 
-from .capability import (
+from .capability_types import (
     CapabilityApproval,
-    CapabilityBus,
     CapabilityDescriptor,
     CapabilityInvocation,
     CapabilityResult,
 )
+from .capability_bus import CapabilityBus
 from .conversation import ChatMessage, ConversationContext
 from .coretext import MacOSTextShaper
 from .fractal import FractalGeometry, FractalSegment, FractalState

@@ -63,7 +63,9 @@ theme_showcase	demo/support	examples, recipes, or validation support
 capability_walkthrough	demo/support	examples, recipes, or validation support
 live_script	demo/support	examples, recipes, or validation support
 scenarios	demo/support	examples, recipes, or validation support
-capability	experimental	experimental or optional integration
+capability_types	experimental	experimental or optional integration
+capability_bus	experimental	experimental or optional integration
+json	experimental	experimental or optional integration
 conversation	experimental	experimental or optional integration
 coretext	experimental	experimental or optional integration
 fractal	experimental	experimental or optional integration

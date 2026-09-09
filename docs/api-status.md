@@ -116,31 +116,31 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `KeyedSubtreeDescriptor` | `moxi.component` | stable-core | value-owned component contracts |
 | `ClipboardBackend` | `moxi.clipboard` | stable-core | host-neutral clipboard or window contracts |
 | `MemoryClipboard` | `moxi.clipboard` | stable-core | host-neutral clipboard or window contracts |
-| `CALLER_AGENT` | `moxi.capability` | experimental | experimental or optional integration |
-| `CALLER_SYSTEM` | `moxi.capability` | experimental | experimental or optional integration |
-| `CALLER_UI` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_BUSY` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_DISABLED` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_EXECUTOR_REQUIRED` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_HANDLER_MISMATCH` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_HANDLER_NOT_REGISTERED` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_INVALID` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_NOT_FOUND` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_OK` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_QUEUE_FULL` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_REQUIRES_APPROVAL` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_SCHEMA_INVALID` | `moxi.capability` | experimental | experimental or optional integration |
-| `CAPABILITY_UNAVAILABLE` | `moxi.capability` | experimental | experimental or optional integration |
-| `CapabilityBus` | `moxi.capability` | experimental | experimental or optional integration |
-| `CapabilityApproval` | `moxi.capability` | experimental | experimental or optional integration |
-| `CapabilityDescriptor` | `moxi.capability` | experimental | experimental or optional integration |
-| `CapabilityHandler` | `moxi.capability` | experimental | experimental or optional integration |
-| `CapabilityInvocation` | `moxi.capability` | experimental | experimental or optional integration |
-| `CapabilityResult` | `moxi.capability` | experimental | experimental or optional integration |
-| `SIDE_EFFECT_DESTRUCTIVE` | `moxi.capability` | experimental | experimental or optional integration |
-| `SIDE_EFFECT_LOCAL` | `moxi.capability` | experimental | experimental or optional integration |
-| `SIDE_EFFECT_NETWORK` | `moxi.capability` | experimental | experimental or optional integration |
-| `SIDE_EFFECT_NONE` | `moxi.capability` | experimental | experimental or optional integration |
+| `CALLER_AGENT` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CALLER_SYSTEM` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CALLER_UI` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_BUSY` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_DISABLED` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_EXECUTOR_REQUIRED` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_HANDLER_MISMATCH` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_HANDLER_NOT_REGISTERED` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_INVALID` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_NOT_FOUND` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_OK` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_QUEUE_FULL` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_REQUIRES_APPROVAL` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_SCHEMA_INVALID` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CAPABILITY_UNAVAILABLE` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CapabilityApproval` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CapabilityDescriptor` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CapabilityInvocation` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CapabilityResult` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `SIDE_EFFECT_DESTRUCTIVE` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `SIDE_EFFECT_LOCAL` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `SIDE_EFFECT_NETWORK` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `SIDE_EFFECT_NONE` | `moxi.capability_types` | experimental | experimental or optional integration |
+| `CapabilityBus` | `moxi.capability_bus` | experimental | experimental or optional integration |
+| `CapabilityHandler` | `moxi.capability_bus` | experimental | experimental or optional integration |
 | `ChatMessage` | `moxi.conversation` | experimental | experimental or optional integration |
 | `ConversationContext` | `moxi.conversation` | experimental | experimental or optional integration |
 | `CAPABILITY_WALKTHROUGH_STEP_COUNT` | `moxi.capability_walkthrough` | demo/support | examples, recipes, or validation support |

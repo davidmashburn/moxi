@@ -106,7 +106,7 @@ from .event import (
 )
 from .component import Component, ComponentSlot, KeyedSubtreeDescriptor
 from .clipboard import ClipboardBackend, MemoryClipboard
-from .capability import (
+from .capability_types import (
     CALLER_AGENT,
     CALLER_SYSTEM,
     CALLER_UI,
@@ -122,10 +122,8 @@ from .capability import (
     CAPABILITY_REQUIRES_APPROVAL,
     CAPABILITY_SCHEMA_INVALID,
     CAPABILITY_UNAVAILABLE,
-    CapabilityBus,
     CapabilityApproval,
     CapabilityDescriptor,
-    CapabilityHandler,
     CapabilityInvocation,
     CapabilityResult,
     SIDE_EFFECT_DESTRUCTIVE,
@@ -133,6 +131,7 @@ from .capability import (
     SIDE_EFFECT_NETWORK,
     SIDE_EFFECT_NONE,
 )
+from .capability_bus import CapabilityBus, CapabilityHandler
 from .conversation import ChatMessage, ConversationContext
 from .capability_walkthrough import (
     CAPABILITY_WALKTHROUGH_STEP_COUNT,

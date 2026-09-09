@@ -2,7 +2,8 @@
 
 from std.collections import List
 
-from .capability import CapabilityResult, json_quote
+from .capability_types import CapabilityResult
+from .json import json_quote
 
 
 struct ChatMessage(ImplicitlyCopyable):

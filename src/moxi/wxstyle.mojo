@@ -16,18 +16,18 @@ from .control_state import (
 from .app import CounterState
 from .conversation import ConversationContext
 from .backend import BACKEND_MACOS_APPKIT, backend_capabilities
-from .capability import (
+from .capability_types import (
     CALLER_AGENT,
     CALLER_UI,
     CAPABILITY_INVALID,
     CAPABILITY_REQUIRES_APPROVAL,
-    CapabilityBus,
     CapabilityDescriptor,
     CapabilityInvocation,
     CapabilityResult,
     SIDE_EFFECT_DESTRUCTIVE,
     SIDE_EFFECT_LOCAL,
 )
+from .capability_bus import CapabilityBus
 from .controls import (
     ButtonControl,
     CheckboxControl,

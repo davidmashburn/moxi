@@ -1,18 +1,17 @@
 """A ten-step, interactive lesson for Moxi's capability-bus boundary."""
 
-from .capability import (
+from .capability_types import (
     CALLER_AGENT,
     CALLER_UI,
     CAPABILITY_OK,
     CAPABILITY_REQUIRES_APPROVAL,
-    CapabilityBus,
     CapabilityDescriptor,
-    CapabilityHandler,
     CapabilityInvocation,
     CapabilityResult,
     SIDE_EFFECT_DESTRUCTIVE,
     SIDE_EFFECT_LOCAL,
 )
+from .capability_bus import CapabilityBus, CapabilityHandler
 from .accessibility import ACTION_PRESS
 from .component import Component
 from .controls import ButtonControl, LabelControl
