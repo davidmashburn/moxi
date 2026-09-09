@@ -486,10 +486,10 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `PaintCommands` | `moxi.paint` | stable-core | portable paint/scene rendering |
 | `Renderer` | `moxi.paint` | stable-core | portable paint/scene rendering |
 | `scene_from_paint` | `moxi.paint` | stable-core | portable paint/scene rendering |
-| `ColumnRuntime` | `moxi.runtime` | stable-core | retained reconciliation and lifecycle |
-| `CounterRuntime` | `moxi.runtime` | stable-core | retained reconciliation and lifecycle |
-| `Runtime` | `moxi.runtime` | stable-core | retained reconciliation and lifecycle |
-| `Widget` | `moxi.runtime` | stable-core | retained reconciliation and lifecycle |
+| `ColumnRuntime` | `moxi.column_runtime` | stable-core | retained reconciliation and lifecycle |
+| `CounterRuntime` | `moxi.legacy_runtime` | stable-core | retained reconciliation and lifecycle |
+| `Runtime` | `moxi.legacy_runtime` | stable-core | retained reconciliation and lifecycle |
+| `Widget` | `moxi.widget` | stable-core | retained reconciliation and lifecycle |
 | `Color` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
 | `Panel` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |
 | `Style` | `moxi.style` | stable-core | portable styling, measurement, or text boundaries |

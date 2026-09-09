@@ -9,7 +9,7 @@ from .event import Event
 from .geometry import Rect
 from .paint import PaintCommands
 from .reactivity import StateScope
-from .runtime import ColumnRuntime
+from .column_runtime import ColumnRuntime
 from .view import ColumnView
 
 

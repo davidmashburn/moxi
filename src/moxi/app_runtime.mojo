@@ -45,7 +45,7 @@ from .event import (
 )
 from .geometry import Point, Rect
 from .paint import PaintCommands, Renderer
-from .runtime import ColumnRuntime
+from .column_runtime import ColumnRuntime
 from .reactivity import ActionMessage, ActionQueue
 from .execution import ExecutionWorkCounters, LocalizedExecution
 from .layout import ROW_AXIS

@@ -520,7 +520,9 @@ from .animation import (
     eased_progress,
 )
 from .paint import PANEL_KIND, SURFACE_KIND, PaintCommand, PaintCommands, Renderer, scene_from_paint
-from .runtime import ColumnRuntime, CounterRuntime, Runtime, Widget
+from .column_runtime import ColumnRuntime
+from .legacy_runtime import CounterRuntime, Runtime
+from .widget import Widget
 from .style import (
     Color,
     Panel,
