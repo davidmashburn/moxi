@@ -29,5 +29,11 @@ for target in osx-arm64 linux-64; do
         --target-platform "$target" \
         --target-channel "$MOXI_PUBLIC_CHANNEL" \
         --auth-file "$PIXI_AUTH_FILE"
+    pixi publish \
+        --dry-run \
+        --path packages/moxi_plot/pixi.toml \
+        --target-platform "$target" \
+        --target-channel "$MOXI_PUBLIC_CHANNEL" \
+        --auth-file "$PIXI_AUTH_FILE"
 done
 echo "Preflight passed; no package was uploaded"

@@ -97,9 +97,10 @@ paint example. For the complete demo, benchmark, and packaging task list, see
 [docs/demo-browser.md](docs/demo-browser.md) and
 [docs/features.md](docs/features.md#demos).
 
-To build the distributable Pixi package, run `pixi publish --target-dir
-output/moxi`; the workspace resolves `osx-arm64` and `linux-64`, with
-`pixi run headless-check` as the portable Linux package lane.
+To build the distributable Pixi packages, run `pixi publish --target-dir
+output/moxi` followed by `pixi publish --path packages/moxi_plot/pixi.toml
+--target-dir output/moxi`; the workspace resolves `osx-arm64` and `linux-64`,
+with `pixi run package-consumer` as the install-and-import smoke lane.
 
 [![10-second Moxi Playground walkthrough](docs/moxi-capability-bus-walkthrough-10s.gif)](docs/moxi-capability-bus-walkthrough-10s.mp4)
 

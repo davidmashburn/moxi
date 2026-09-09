@@ -1,6 +1,7 @@
 """Smoke test compiled against the installed distributable package."""
 
 from moxi import test_check
+from moxi_plot import PlotDataTable, PlotSpec
 from moxi import (
     App,
     BACKEND_MACOS_APPKIT,
@@ -36,6 +37,11 @@ from moxi import (
 
 def main() raises:
     test_check(moxi_version() == "0.6.0")
+
+    var installed_plot_table = PlotDataTable()
+    var installed_plot_spec = PlotSpec()
+    test_check(installed_plot_table.row_count() == 0)
+    test_check(installed_plot_spec.valid)
 
     var editing = TextInputState("package")
     test_check(editing.select_all())

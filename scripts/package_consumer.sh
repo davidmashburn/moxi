@@ -24,6 +24,19 @@ if [[ -z "$canvas_archive" ]]; then
     exit 1
 fi
 
+# moxi_plot is an installable sibling package, but it is intentionally not a
+# workspace package in the root manifest. Publish it after moxi so its regular
+# runtime dependency resolves from the same local channel. Its build and host
+# dependencies remain local source paths for the monorepo build.
+pixi publish \
+    --path "$repo_dir/packages/moxi_plot/pixi.toml" \
+    --target-channel "$package_dir"
+plot_archive="$(find "$package_dir" -type f -name 'moxi_plot-*.conda' -print -quit)"
+if [[ -z "$plot_archive" ]]; then
+    echo "moxi_plot package build did not produce an archive" >&2
+    exit 1
+fi
+
 # The package build can be much larger than the local consumer environment.
 # Drop only Pixi's generated build cache before materializing the consumer.
 if [[ -d "$build_cache_dir" ]]; then
@@ -39,7 +52,7 @@ pixi init \
     "$consumer_dir"
 
 PIXI_NO_CONFIG=1 PIXI_CACHE_DIR="$cache_dir" \
-    pixi add --manifest-path "$consumer_dir/pixi.toml" "moxi==0.6.0"
+    pixi add --manifest-path "$consumer_dir/pixi.toml" "moxi==0.6.0" "moxi_plot==0.6.0"
 PIXI_NO_CONFIG=1 PIXI_CACHE_DIR="$cache_dir" \
     pixi run --manifest-path "$consumer_dir/pixi.toml" \
     mojo run "$repo_dir/tests/package_consumer.mojo"

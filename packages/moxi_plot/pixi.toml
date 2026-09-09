@@ -1,0 +1,29 @@
+[package]
+name = "moxi_plot"
+version = "0.6.0"
+publish = true
+description = "Typed plotting model and runtime for Moxi"
+license = "MIT"
+
+[package.build]
+backend = { name = "pixi-build-mojo", version = "0.*" }
+source = { path = "../../src/moxi_plot" }
+
+[package.build.config.pkg]
+path = "."
+name = "moxi_plot"
+
+[package.host-dependencies]
+mojo-compiler = "==1.1.0.dev2026082605"
+canvas_mojo = { path = "../canvas_mojo" }
+moxi = { path = "../.." }
+
+[package.build-dependencies]
+mojo-compiler = "==1.1.0.dev2026082605"
+canvas_mojo = { path = "../canvas_mojo" }
+moxi = { path = "../.." }
+
+[package.run-dependencies]
+mojo-compiler = "==1.1.0.dev2026082605"
+canvas_mojo = "==0.21.0"
+moxi = "==0.6.0"

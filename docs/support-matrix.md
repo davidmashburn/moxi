@@ -2,6 +2,9 @@
 
 | Surface | Status | Evidence | Policy |
 | --- | --- | --- | --- |
+| Moxi core package | installable | `pixi run package-consumer`, `pixi publish` | Mojo package for the `moxi` core; release versions stay aligned with sibling packages |
+| Moxi Plot package | installable provisional | `pixi run package-consumer`, `pixi publish --path packages/moxi_plot/pixi.toml` | Separate package depending on the published `moxi` and Canvas packages; plotting remains provisional |
+| Moxi Demo package | source-only | `pixi run demo`, `pixi run demo-browser` | Showcase sources are not part of the installable compatibility surface |
 | Mojo scene IR | stable | `pixi run test`, typed scene contract | backend-neutral contract; version changes require migration notes |
 | Canvas raster/export | stable subset | `pixi run canvas-scene`, `pixi run canvas-benchmark` | typed paths and isolated layers are supported; text/images and legacy string paths report fallbacks |
 | Software renderer | stable oracle | `pixi run test`, visual corpus | deterministic bounds/path oracle; it does not invent glyph or image pixels |
@@ -14,4 +17,4 @@
 
 ## Version support
 
-The Python package supports CPython 3.9+ and the current Mojo nightly pinned in `pixi.toml`. The Python lane is intentionally independent of the Mojo compiler runtime. The Mojo workspace resolves `osx-arm64` and `linux-64`; `pixi run headless-check` is the portable package lane, while native Linux host support remains unavailable. Mojo package consumers resolve the pinned Canvas fork through Pixi; public-channel upload still requires a chosen channel and release credentials. `pixi run release-preflight` checks both target packages without uploading.
+The Python package supports CPython 3.9+ and the current Mojo nightly pinned in `pixi.toml`. The Python lane is intentionally independent of the Mojo compiler runtime. The Mojo workspace resolves `osx-arm64` and `linux-64`; `pixi run headless-check` is the portable package lane, while native Linux host support remains unavailable. Mojo package consumers resolve the pinned Canvas fork through Pixi; public-channel upload still requires a chosen channel and release credentials. `pixi run release-preflight` checks the core and plotting package publish plans without uploading. The demo package remains source-only.
