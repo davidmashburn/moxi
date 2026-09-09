@@ -27,7 +27,7 @@ from .text_boundary import (
     next_text_boundary,
     previous_text_boundary,
 )
-from .view import MULTILINE_TEXT_KIND, TEXT_INPUT_VIEW_KIND, ViewNode
+from .view_node import MULTILINE_TEXT_KIND, TEXT_INPUT_VIEW_KIND, ViewNode
 
 
 struct TextInputControl(ImplicitlyCopyable):

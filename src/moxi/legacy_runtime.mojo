@@ -5,7 +5,9 @@ from .column_runtime import ColumnRuntime
 from .geometry import Point, Rect
 from .paint import PaintCommand, PaintCommands
 from .style import default_button_style
-from .view import BUTTON_KIND, CounterView, Label
+from .counter_view import CounterView
+from .view_leaf import Label
+from .view_node import BUTTON_KIND
 from .widget import Widget
 
 

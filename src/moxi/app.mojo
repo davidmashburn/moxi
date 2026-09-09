@@ -11,7 +11,9 @@ from .event import (
     Event,
 )
 from .geometry import Rect
-from .view import Button, ColumnView, CounterView, make_counter_column
+from .column_view import ColumnView, make_counter_column
+from .counter_view import CounterView
+from .view_leaf import Button
 
 
 comptime COUNTER_INCREMENT_ACTION = 100

@@ -48,7 +48,7 @@ from .scene import (
     SceneRenderer,
 )
 from .style import Color
-from .view import (
+from .view_node import (
     BUTTON_KIND,
     CHECKBOX_KIND,
     LABEL_KIND,

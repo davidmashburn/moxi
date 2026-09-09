@@ -7,7 +7,10 @@ event	stable-core	normalized input events
 geometry	stable-core	portable geometry values
 layout	stable-core	layout and virtualization math
 layout_primitives	stable-core	layout and virtualization math
-view	stable-core	portable view declarations and composition
+view_leaf	stable-core	portable view declarations and composition
+view_node	stable-core	portable view declarations and composition
+column_view	stable-core	portable view declarations and composition
+counter_view	stable-core	portable view declarations and composition
 paint	stable-core	portable paint/scene rendering
 scene	stable-core	portable paint/scene rendering
 scene_path	stable-core	portable paint/scene rendering

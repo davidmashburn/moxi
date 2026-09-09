@@ -57,12 +57,8 @@ from .scrollbar import (
     ScrollbarState,
 )
 from .tasks import TaskHandle, TaskScheduler
-from .view import (
-    CONTAINER_KIND,
-    ColumnView,
-    ROOT_SCROLL_ID,
-    TEXT_INPUT_VIEW_KIND,
-)
+from .column_view import ColumnView
+from .view_node import CONTAINER_KIND, ROOT_SCROLL_ID, TEXT_INPUT_VIEW_KIND
 from .window import WindowBackend
 
 

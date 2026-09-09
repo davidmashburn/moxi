@@ -37,7 +37,8 @@ from .scrollbar import (
     ScrollbarState,
 )
 from .style import Color, Panel, Style, default_panel_style, default_surface_style
-from .view import (
+from .column_view import ColumnView
+from .view_node import (
     BUTTON_KIND,
     CHECKBOX_KIND,
     CONTAINER_KIND,
@@ -56,7 +57,6 @@ from .view import (
     SPACER_KIND,
     SCROLLBAR_KIND,
     TEXT_INPUT_VIEW_KIND,
-    ColumnView,
     ROOT_SCROLL_ID,
 )
 from .widget import Widget

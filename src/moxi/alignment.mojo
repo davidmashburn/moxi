@@ -6,7 +6,7 @@ from .event import CLICK_KIND, Event
 from .geometry import Rect
 from .layout import ALIGN_CENTER, JUSTIFY_CENTER
 from .style import default_panel_style, default_surface_style
-from .view import ColumnView
+from .column_view import ColumnView
 
 
 comptime START_BUTTON_ID = 2

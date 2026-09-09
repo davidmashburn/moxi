@@ -3,7 +3,7 @@
 from .geometry import Rect
 from .style import Color, Panel, Style
 from .tokens import ThemeTokens, dark_tokens
-from .view import BUTTON_KIND, LABEL_KIND, ViewNode
+from .view_node import BUTTON_KIND, LABEL_KIND, ViewNode
 
 
 def primary_button(

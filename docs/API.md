@@ -277,7 +277,7 @@ the complete visible approval flow.
 | Area | Source |
 | --- | --- |
 | Public exports | [`src/moxi/__init__.mojo`](../src/moxi/__init__.mojo) |
-| Views and layout | [`src/moxi/view.mojo`](../src/moxi/view.mojo), [`src/moxi/layout.mojo`](../src/moxi/layout.mojo) |
+| Views and layout | [`src/moxi/view_leaf.mojo`](../src/moxi/view_leaf.mojo), [`src/moxi/view_node.mojo`](../src/moxi/view_node.mojo), [`src/moxi/column_view.mojo`](../src/moxi/column_view.mojo), [`src/moxi/counter_view.mojo`](../src/moxi/counter_view.mojo), [`src/moxi/layout.mojo`](../src/moxi/layout.mojo) |
 | Controls and editing | [`src/moxi/controls_basic.mojo`](../src/moxi/controls_basic.mojo), [`src/moxi/controls_text.mojo`](../src/moxi/controls_text.mojo), [`src/moxi/controls_collection.mojo`](../src/moxi/controls_collection.mojo), [`src/moxi/controls_state.mojo`](../src/moxi/controls_state.mojo), [`src/moxi/control_state.mojo`](../src/moxi/control_state.mojo) |
 | Runtime and invalidation | [`src/moxi/widget.mojo`](../src/moxi/widget.mojo), [`src/moxi/column_runtime.mojo`](../src/moxi/column_runtime.mojo), [`src/moxi/legacy_runtime.mojo`](../src/moxi/legacy_runtime.mojo), [`src/moxi/invalidation.mojo`](../src/moxi/invalidation.mojo) |
 | Scene and resources | [`src/moxi/scene.mojo`](../src/moxi/scene.mojo), [`src/moxi/software.mojo`](../src/moxi/software.mojo), [`src/moxi/resources.mojo`](../src/moxi/resources.mojo) |

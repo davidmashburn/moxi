@@ -2,7 +2,8 @@
 
 from .geometry import Rect
 from .layout_primitives import VirtualRecycler
-from .view import ColumnView, ViewNode
+from .column_view import ColumnView
+from .view_node import ViewNode
 
 
 trait VirtualItemBuilder(ImplicitlyCopyable & Deinitable):

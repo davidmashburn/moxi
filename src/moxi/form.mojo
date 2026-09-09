@@ -23,7 +23,7 @@ from .scenarios import (
     canonical_form_submit_label,
     canonical_form_title,
 )
-from .view import ColumnView
+from .column_view import ColumnView
 
 
 comptime NAME_FIELD_ID = 2

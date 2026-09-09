@@ -60,7 +60,7 @@ from .style import (
     default_panel_style,
     default_surface_style,
 )
-from .view import ColumnView
+from .column_view import ColumnView
 
 
 comptime INTERACTION_SHOWCASE_CANVAS_ID = 1

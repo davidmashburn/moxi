@@ -6,7 +6,7 @@ from .event import NO_ACTION
 from .geometry import Rect
 from .layout import ALIGN_STRETCH, COLUMN_AXIS, JUSTIFY_START
 from .style import Color, Style, default_label_style
-from .view import LABEL_KIND, ViewNode
+from .view_node import LABEL_KIND, ViewNode
 
 
 def colors_equal(left: Color, right: Color) -> Bool:

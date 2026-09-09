@@ -57,7 +57,7 @@ from moxi.style import (
     default_surface_style,
     default_text_input_style,
 )
-from moxi.view import ColumnView
+from moxi.column_view import ColumnView
 from moxi.wrapped import WrappedTextState
 from moxi.wxstyle import WxStyleState
 from .showcase import (

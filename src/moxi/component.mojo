@@ -3,7 +3,8 @@
 from .event import Event
 from .geometry import Rect
 from .layout import ROW_AXIS
-from .view import CONTAINER_KIND, ColumnView, ViewNode
+from .column_view import ColumnView
+from .view_node import CONTAINER_KIND, ViewNode
 
 
 trait Component(ImplicitlyCopyable):

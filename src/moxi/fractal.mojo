@@ -35,7 +35,7 @@ from .geometry import Point, Rect
 from .layout import ALIGN_CENTER, ALIGN_STRETCH, JUSTIFY_START
 from .scene import Scene
 from .style import Color, default_button_style, default_panel_style, default_surface_style
-from .view import ColumnView
+from .column_view import ColumnView
 
 
 comptime FRACTAL_CANVAS_WIDTH: Float32 = 920.0

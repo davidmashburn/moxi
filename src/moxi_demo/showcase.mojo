@@ -42,7 +42,7 @@ from moxi.style import (
     default_surface_style,
 )
 from moxi.text_shaping import PortableTextShaper
-from moxi.view import ColumnView
+from moxi.column_view import ColumnView
 
 
 comptime SHOWCASE_HELLO_WINDOW = 1

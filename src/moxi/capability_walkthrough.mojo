@@ -30,7 +30,7 @@ from .scenarios import (
     canonical_capability_steps,
     canonical_capability_title,
 )
-from .view import ColumnView
+from .column_view import ColumnView
 
 
 comptime CAPABILITY_WALKTHROUGH_STEP_COUNT = 10

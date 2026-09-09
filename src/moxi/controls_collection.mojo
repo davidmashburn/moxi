@@ -1,7 +1,7 @@
 """Collection and container control descriptors (list-shaped views)."""
 
 
-from .view import (
+from .view_node import (
     COMBO_BOX_KIND,
     DIALOG_KIND,
     LIST_KIND,

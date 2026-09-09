@@ -7,7 +7,7 @@ from .backend import BackendCapabilities, BACKEND_HEADLESS, backend_capabilities
 from .geometry import Rect
 from .style import Color, Style, default_label_style
 from .scene import Scene
-from .view import (
+from .view_node import (
     BUTTON_KIND,
     CHECKBOX_KIND,
     LABEL_KIND,

@@ -14,7 +14,7 @@ from .event import (
 from .geometry import Rect
 from .layout import ALIGN_CENTER
 from .style import default_panel_style, default_surface_style
-from .view import ColumnView
+from .column_view import ColumnView
 
 
 comptime CONTENT_CONTAINER_ID = 10

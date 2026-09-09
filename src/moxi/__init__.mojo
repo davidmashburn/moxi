@@ -566,7 +566,7 @@ from .recipes import (
     badge,
     card_panel,
 )
-from .view import (
+from .view_node import (
     BUTTON_KIND,
     CHECKBOX_KIND,
     LABEL_KIND,
@@ -588,15 +588,13 @@ from .view import (
     ROOT_SCROLL_ID,
     PROGRESS_KIND,
     SPACER_KIND,
-    Button,
-    ColumnView,
     CONTAINER_KIND,
-    CounterView,
-    Label,
     TEXT_INPUT_VIEW_KIND,
     ViewNode,
-    make_row,
 )
+from .view_leaf import Button, Label
+from .column_view import ColumnView, make_row
+from .counter_view import CounterView
 from .testing import TestRenderer, TestWindow, test_check
 from .window import WindowBackend, WindowConfig
 from .windowing import WindowId, WindowManager, WindowState

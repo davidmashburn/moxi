@@ -5,7 +5,7 @@ from .controls_basic import ButtonControl
 from .event import CLICK_KIND, Event
 from .geometry import Rect
 from .style import default_panel_style, default_surface_style
-from .view import ColumnView, make_row
+from .column_view import ColumnView, make_row
 
 
 comptime PREVIOUS_BUTTON_ID = 1

@@ -38,7 +38,7 @@ from .scenarios import (
     canonical_theme_status,
     canonical_theme_title,
 )
-from .view import ColumnView
+from .column_view import ColumnView
 
 comptime THEME_DARK = 0
 comptime THEME_LIGHT = 1

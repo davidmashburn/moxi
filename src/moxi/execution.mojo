@@ -10,7 +10,7 @@ from .geometry import Rect
 from .paint import PaintCommands
 from .reactivity import StateScope
 from .column_runtime import ColumnRuntime
-from .view import ColumnView
+from .column_view import ColumnView
 
 
 struct ExecutionWorkCounters(ImplicitlyCopyable):

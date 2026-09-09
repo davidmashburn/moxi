@@ -60,7 +60,7 @@ from .layout import ALIGN_STRETCH, JUSTIFY_START
 from .style import default_panel_style, default_surface_style
 from .style import default_label_style
 from .text_layout import RichText, TextSpan, layout_rich_text
-from .view import ColumnView
+from .column_view import ColumnView
 
 
 comptime WX_PANEL_ID = 100

@@ -12,7 +12,7 @@ from .style import (
     default_radio_style,
     default_image_style,
 )
-from .view import (
+from .view_node import (
     BUTTON_KIND,
     CANVAS_KIND,
     CHECKBOX_KIND,
