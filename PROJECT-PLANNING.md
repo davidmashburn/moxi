@@ -250,6 +250,92 @@ competing current roadmaps. The root README should explain how to evaluate the
 project; architecture docs should explain ownership and boundaries; API docs
 should list support status; the changelog should describe shipped deltas.
 
+## Gate 1 follow-on: structural boundary
+
+The package split (`extract-moxi-plot`) and module split (`split-monoliths`)
+establish a three-package shape and remove the largest file-level review
+barriers. Four boundaries remain open. Each is specified to the same standard
+as a gate slice; none is a prerequisite for the others.
+
+### S1. Decide the sibling-package distribution boundary
+
+`moxi_plot` and `moxi_demo` are source-only sibling directories. Every
+`mojo run -I src` flow resolves them, but they are not pixi-built packages, so
+the installable artifact no longer carries plotting and `tests/package_consumer.mojo`
+dropped its `moxi.plot_api` assertion.
+
+- Owner boundary: packaging and release support, not the UI or plot core.
+- Files: `pixi.toml`, `packages/`, `scripts/package_consumer.sh`,
+  `tests/package_consumer.mojo`, `docs/support-matrix.md`.
+- Open question first: whether `pixi-build-mojo` supports a local-monorepo
+  source (the existing `packages/canvas_mojo/pixi.toml` fetches from git).
+  Spike that before choosing a shape.
+- Validation command: `pixi run package-consumer`.
+- Acceptance: either the installed artifact carries plotting and the consumer
+  test asserts it again, or the support matrix states plainly that plotting
+  ships source-only and the docs stop implying otherwise.
+- Non-goals: publishing to a public channel; a Python extension wheel.
+
+### S2. Decide the oversized-struct boundary
+
+File splitting has reached its limit. `ColumnView` (1878 lines), `Plot` (2104),
+`DemoBrowserState` (1705), `PlotSpec` (1658), and `ColumnRuntime` (1001) are
+single structs, and Mojo offers no partial-struct or extension mechanism.
+
+- Owner boundary: whoever owns the view/runtime contract; this is a design
+  decision about delegation, not a cleanup task.
+- Files: `src/moxi/column_view.mojo`, `src/moxi/column_runtime.mojo`,
+  `src/moxi_plot/plotting.mojo`, `src/moxi_plot/plot_spec.mojo`,
+  `src/moxi_demo/demo_browser.mojo`.
+- Decide first whether thinning is worth it. Extracting method bodies into free
+  functions taking the struct as a parameter is mechanical but touches
+  behavior-adjacent code and adds an indirection the codebase does not
+  currently use anywhere. Doing nothing is a legitimate outcome if the review
+  cost is acceptable; what is not legitimate is treating the current sizes as
+  resolved because the files around them got smaller.
+- Validation command: `pixi run test` plus the affected area's targeted tests
+  after each extraction.
+- Acceptance: either a recorded decision to leave them whole with the reasoning,
+  or a per-struct extraction that reduces the largest reviewable unit without
+  changing a single public name or observable behavior.
+- Non-goals: redesigning the view model; introducing a trait-based partial-impl
+  pattern the language does not support.
+
+### S3. Validate the interactive macOS claims against a real desktop
+
+IME composition, the native accessibility tree, selection/clipboard, and
+scroll/virtualization are the most prominently documented behaviors and the
+least directly validated. Headless contracts and one reviewed capture are not
+the same as a session driven with synthetic input.
+
+- Owner boundary: host review lane, not a CI gate. This produces findings, not
+  a pass/fail signal.
+- Files: the demo lane under `src/moxi_demo/`, `native/macos_*.m`,
+  `src/moxi/macos.mojo`; harness kept outside the repository.
+- Preconditions: a macOS session with Accessibility and Screen Recording
+  permissions granted, and a CJK input source enabled for the IME scenario.
+- Validation command: the scenario scripts in the external harness, starting
+  with `pixi run demo-walkthrough` as the project's own definition of working.
+- Acceptance: each scenario has a recorded verdict with screenshot or AX-dump
+  evidence; every divergence from a documented claim becomes an issue or a
+  documentation correction. A scenario that cannot be driven is itself a
+  finding.
+- Non-goals: turning this into a CI gate; device farms; automating VoiceOver.
+
+### S4. Keep the api-status machinery honest across three packages
+
+`scripts/api_status_check.sh` now loops over per-package lane, surface, and
+status files. Module moves within a package are surface-neutral, but a name
+crossing a package boundary is a compatibility event.
+
+- Owner boundary: release support.
+- Files: `scripts/api_status_check.sh`, `docs/*-api-lanes.tsv`,
+  `docs/*-api-surface.tsv`, `docs/api-compatibility.tsv`, `tests/api_lanes.mojo`.
+- Validation command: `pixi run api-status-check`.
+- Acceptance: a name moved between packages fails validation until it has a
+  compatibility row; adding an unclassified export in any package fails.
+- Non-goals: per-package version numbers; independent release cadences.
+
 ## Gate 1 exit criteria
 
 - The stable/provisional public surfaces are mechanically classified.
@@ -335,8 +421,11 @@ rewrite:
 - a second GPU backend;
 - arbitrary runtime reflection or a browser IDE;
 - a network transport, persistence layer, or bundled LLM client for the
-  capability bus; and
-- performance marketing based on the current local benchmark numbers.
+  capability bus;
+- performance marketing based on the current local benchmark numbers; and
+- further structural refactoring beyond the boundaries named in the Gate 1
+  follow-on, including nested subpackages, which the tree has no precedent for
+  and which no current problem requires.
 
 ## Recommended implementation sequence
 
@@ -360,6 +449,12 @@ rewrite:
    `2eeb802` from the resolved toolchain pair, while E1/E4 remain gated on
    portable packaging and Python ABI decisions. Uploading the two package
    artifacts to a chosen public channel remains an external release action.
+7. Structural boundary follow-on: land the package and module splits, then
+   close S1 (distribution boundary) before S2 (oversized structs), because the
+   packaging decision determines whether the plot package needs an independent
+   support surface at all. S3 is independent of both and can run as soon as a
+   permitted desktop session is available; S4 rides along with whichever of
+   S1/S2 lands first.
 
 This order makes each later slice consume infrastructure already reviewed by
 the previous one and keeps the first milestone independently shippable.

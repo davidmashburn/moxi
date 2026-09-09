@@ -1,10 +1,16 @@
 # Moxi current-state audit
 
-Audited September 7, 2026 against local `main` at `88af901` (runtime
-follow-on at `2987c39`). This document is based
-on source, tests, build scripts, and local validation. README, changelog, and
-older roadmap claims were treated as hypotheses until the implementation
-confirmed them.
+Audited September 9, 2026 against `main` at `d5ac97c`, with the package split
+(`extract-moxi-plot`, pull request 2) and the module split (`split-monoliths`,
+pull request 3) reviewed as in-flight branches rather than shipped state. This
+document is based on source, tests, build scripts, and local validation.
+README, changelog, and older roadmap claims were treated as hypotheses until
+the implementation confirmed them.
+
+Structural status is recorded in two lanes because the restructure is not yet
+merged. Module paths named below use their `main` locations; the
+[structural restructure](#structural-restructure-in-review) section records the
+in-review layout and the boundaries it changes.
 
 ## Executive assessment
 
@@ -80,11 +86,40 @@ or process startup for several workloads; its repeated structured report is
 intentionally written to ignored local output and uploaded by CI only as review
 evidence. The policy-registered full baseline remains host/compiler specific.
 
+## Structural restructure in review
+
+Two stacked branches change the package and module boundary. Both pass the full
+headless suite and the macOS CI lane; neither is merged, so nothing below is a
+current `main` claim.
+
+| Branch | Change | Evidence | Boundary it creates |
+| --- | --- | --- | --- |
+| `extract-moxi-plot` (PR 2) | `src/moxi` becomes three sibling packages: `moxi` core, `moxi_plot`, and `moxi_demo`. Dependencies run one way into core; core imports neither sibling. `plot_render.mojo` stays in core as the backend-neutral packet contract, and `plot_selection.mojo` stays because core collection state depends on it. `make_canvas_scene` is split so the core scenario path has no plot branch. | `src/moxi_plot/`, `src/moxi_demo/`, per-package lane/surface/status files, 959 exports across three packages, generalized `scripts/api_status_check.sh` | The plot and demo lanes stop being implicit core surface; the renderer packet contract is the only plot-shaped thing core still owns. |
+| `split-monoliths` (PR 3) | Seven oversized files split into cohesive flat modules with no public name added or removed: `capability`, `controls`, `runtime`, `view`, `plotting`, `plot_spec`, and `demo_browser`. | `json.mojo`, `capability_types.mojo`, `capability_bus.mojo`, `controls_*.mojo`, `widget.mojo`, `column_runtime.mojo`, `view_node.mojo`, `column_view.mojo`, `plot_marks.mojo`, `plot_spec_json.mojo`, `demo_style.mojo`, `demo_entry.mojo` | Surrounding code is separable; the oversized structs themselves are unchanged. |
+
+Two findings from the restructure matter to the support boundary:
+
+- A generic JSON micro-library (about 350 lines) was living inside
+  `capability.mojo` with no capability-bus coupling, and `plot_spec` reached
+  through the capability module to use it. It is now `json.mojo`.
+- Mojo has no partial-struct or extension mechanism, so a struct cannot be
+  divided across files. `ColumnView` (1878 lines), `Plot` (2104),
+  `DemoBrowserState` (1705), `PlotSpec` (1658), and `ColumnRuntime` (1001)
+  moved whole and remain the largest reviewable units in the tree. File-level
+  splitting has reached its limit; thinning them requires extracting method
+  bodies into free functions, which is behavior-adjacent work.
+
+The package split also removes plotting from the installable package: the
+package-consumer test dropped its `moxi.plot_api` assertion because
+`moxi_plot` is deliberately not a pixi-built package yet. The installed
+artifact therefore no longer carries the plotting surface it carried at
+`0.6.0`.
+
 ## Capability matrix
 
 | Area | Implementation truth | Confidence | Evidence in `main` | Planning consequence |
 | --- | --- | --- | --- | --- |
-| Package and public API | The package is versioned `0.5.1`, `src/moxi/__init__.mojo` is about 900 lines and imports from 74 module groups, and all 887 current exports have generated support-lane rows plus a compatibility/deprecation manifest. Focused plotting, host, and experimental import paths are available, while stable 0.5 names and post-0.5 experiments still share the root boundary. | High | `pixi.toml`, `shelf.toml`, `src/moxi/__init__.mojo`, `docs/api-status.md`, `docs/api-lanes.tsv`, `docs/api-compatibility.tsv`, `tests/api_lanes.mojo`, package-consumer check | Review each future move against the manifest and decide which provisional lanes become package promises. |
+| Package and public API | The package is versioned `0.6.0` and every export has a generated support-lane row plus a compatibility/deprecation manifest. Focused plotting, host, and experimental import paths are available, while stable names and post-0.5 experiments still share the root boundary. In review, the single root surface becomes three per-package surfaces (959 exports) and the plot/demo names leave the core boundary entirely. | High | `pixi.toml`, `shelf.toml`, `src/moxi/__init__.mojo`, `docs/api-status.md`, `docs/api-lanes.tsv`, `docs/api-compatibility.tsv`, `tests/api_lanes.mojo`, package-consumer check | Decide which provisional lanes become package promises, and whether the sibling packages become installable artifacts or stay source-only. |
 | Component ownership | `Component.build(bounds)` returns a value tree and `update(event, view)` owns mutation. `ComponentSlot` and `KeyedSubtreeDescriptor` provide typed child ownership with stable keys and private id namespaces. | High | `src/moxi/component.mojo`, `src/moxi/composed.mojo`, component/composed tests | Integrate the keyed descriptor with parent event dispatch without leaking id arithmetic. |
 | Execution and reconciliation | `(id, kind)` reconciliation reuses retained nodes and reports changes. `TypedSubtreeExecutor` owns one typed component/view/runtime; `KeyedSubtreeExecutor` retains several typed children by key, composes cached views, and counts structural work. Opted-in `App` components dispatch to a keyed child, recompose the parent, and preserve focus; deterministic indexes cover localized scope/dirty, keyed topology, and dependency-edge fanout. The two-child harness covers marked text, root scroll, sibling popup state, accessibility identity, pointer capture, and deeper nested state. Components without localized hooks still record an explicit root fallback. | High | `src/moxi/runtime.mojo`, `src/moxi/execution.mojo`, `src/moxi/app_runtime.mojo`, `src/moxi/composed.mojo`, `tests/execution.mojo`, `tests/composed.mojo`, `2987c39` and the earlier localized/index commits | reduce root-wide fallback adoption gap; keep indexed fanout derived from the dependency source of truth |
 | Layout and interaction | Column/row, stack, grid, split, portal, constraints, clipping, automatic overflow, draggable/pageable scrollbars, stable-key variable-height recycling, focus, pointer, keyboard, IME, clipboard, popup, reorder, and accessibility actions are implemented and tested. | High | `src/moxi/view.mojo`, `layout_primitives.mojo`, `scrollbar.mojo`, `popup.mojo`, `reorder.mojo`, interaction tests | Treat this as an existing contract to protect, not a roadmap item. Do not broaden layout until regression scenarios are shared. |
@@ -146,6 +181,16 @@ in the active plan.
    baselines for other hosts are still planned.
 5. **Documentation classification drift.** Stable, experimental, host-only, and
    planned behavior must use one vocabulary as exports and host claims change.
+6. **Installed-package plotting coverage.** The package split removes the
+   plotting surface from the installable artifact and from package-consumer
+   validation. Until `moxi_plot` is either packaged or explicitly declared
+   source-only, "the package supports plotting" is no longer a checked claim.
+7. **Unverified interactive claims.** IME composition, the native accessibility
+   tree, text selection/clipboard, and scroll/virtualization behavior are
+   covered by headless contracts and one manually reviewed capture, but have
+   never been exercised against a real desktop session with synthetic input.
+   These are among the most prominently documented behaviors and the least
+   directly validated.
 
 ### P1: quality and platform risks
 

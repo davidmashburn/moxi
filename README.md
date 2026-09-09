@@ -6,12 +6,13 @@ branch.
 
 The current planning baseline is:
 
-- implementation: `main` at `7b9d8bd` (`test: cover out-of-order topology
-  indexes`), audited September 7, 2026;
+- implementation: `main` at `d5ac97c` (`docs: restructure README as a pitch and
+  move detail into docs/`), audited September 9, 2026, with the package and
+  module restructure in review as pull requests 2 and 3;
 - research: [`docs/modular-ecosystem-research.md`](docs/modular-ecosystem-research.md),
   the Modular/Mojo ecosystem review captured September 6 and reconciled
   against the September 7 implementation; and
-- validation: the 68-program Mojo test suite passes; release validation covers
+- validation: the 70-program Mojo test suite passes; release validation covers
   API/scenario/software/native/browser gates, a 30-run full benchmark, the
   reviewed macOS baseline, and the host-independent quick contract.
 
@@ -43,7 +44,8 @@ The current planning baseline is:
    the branch remains a decision tool rather than a history of stale TODOs.
 
 The immediate recommendation is to preserve the landed Gate 1 boundary while
-sequencing the remaining support work: dependency-edge fanout indexing,
-accessibility/pointer-capture and deeper localized state preservation, visible
-native screenshot review, and additional full-profile host baselines.
-New widget or plot-family breadth should wait for those contracts.
+sequencing the remaining support work: closing the package-consumer plotting
+coverage gap opened by the package split, deciding the oversized-struct
+boundary, validating the interactive macOS claims against a real desktop, and
+collecting additional full-profile host baselines. New widget or plot-family
+breadth should wait for those contracts.
