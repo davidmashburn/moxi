@@ -26,7 +26,7 @@ from .showcase import (
     SHOWCASE_PLOT_STATUS_ID,
     ShowcaseState,
 )
-from .demo_browser import (
+from .demo_style import (
     DEMO_CATEGORY_ALL,
     DEMO_CATEGORY_START,
     DEMO_CATEGORY_COMPONENTS,
@@ -72,6 +72,11 @@ from .demo_browser import (
     DEMO_LIVE_SCRIPT_ID,
     DEMO_THEME_SHOWCASE_ID,
     DEMO_CAPABILITY_WALKTHROUGH_ID,
+    demo_category_name,
+    demo_category_short_name,
+)
+from .demo_entry import DemoEntry, DemoCatalog
+from .demo_browser import (
     DEMO_TAB_OVERVIEW,
     DEMO_TAB_SOURCE,
     DEMO_TAB_DEMO,
@@ -107,11 +112,7 @@ from .demo_browser import (
     DEMO_EMPTY_CLEAR_ID,
     DEMO_STORY_SPLIT_ID,
     DEMO_STORY_CODE_TEXT_ID,
-    DemoEntry,
-    DemoCatalog,
     DemoBrowserState,
-    demo_category_name,
-    demo_category_short_name,
 )
 from .demo_walkthrough import (
     DEMO_WALKTHROUGH_EVENT,

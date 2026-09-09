@@ -115,8 +115,12 @@ The initial catalog covers the current repository scope:
 - rendering: offscreen Metal and the visible Metal window;
 - text: CoreText and optional HarfBuzz shaping.
 
-The catalog source of truth is [demo_browser.mojo](../src/moxi_demo/demo_browser.mojo),
-while reusable page implementations live in `src/moxi` and the opted-in
+The catalog source of truth is [demo_entry.mojo](../src/moxi_demo/demo_entry.mojo)
+(`DemoEntry`/`DemoCatalog`), with catalog-classification constants and
+formatting helpers in [demo_style.mojo](../src/moxi_demo/demo_style.mojo) and
+the browser component itself in
+[demo_browser.mojo](../src/moxi_demo/demo_browser.mojo). Reusable page
+implementations live in `src/moxi` and the opted-in
 editable implementation lives in `examples/editable_showcase.mojo`. The
 browser's own behavior is covered by
 [tests/demo_browser.mojo](../tests/demo_browser.mojo), while the standalone

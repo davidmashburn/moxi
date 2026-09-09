@@ -17,14 +17,16 @@ from moxi.capability_types import (
     SIDE_EFFECT_LOCAL,
 )
 from moxi.capability_bus import CapabilityBus, CapabilityHandler
-from .demo_browser import (
+from .demo_style import (
     DEMO_COUNTER_ID,
-    DEMO_COUNTER_ID_OFFSET,
-    DEMO_ENTRY_VIEW_BASE,
     DEMO_INTERACTION_ID,
-    DEMO_INTERACTION_ID_OFFSET,
     DEMO_METAL_SCENE_ID,
     DEMO_PLOT_GALLERY_ID,
+)
+from .demo_browser import (
+    DEMO_COUNTER_ID_OFFSET,
+    DEMO_ENTRY_VIEW_BASE,
+    DEMO_INTERACTION_ID_OFFSET,
     DEMO_RESET_BUTTON_ID,
     DEMO_SHOWCASE_ID_OFFSET,
     DEMO_TAB_DEMO_ID,

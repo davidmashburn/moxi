@@ -4,7 +4,7 @@ set -euo pipefail
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_dir"
 
-catalog_file="src/moxi_demo/demo_browser.mojo"
+catalog_file="src/moxi_demo/demo_entry.mojo"
 
 while IFS= read -r source; do
   if [[ ! -f "$source" ]]; then

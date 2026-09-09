@@ -1,4 +1,6 @@
 # module<TAB>support lane<TAB>owner
 showcase	demo/support	examples, recipes, or validation support
 demo_browser	demo/support	examples, recipes, or validation support
+demo_style	demo/support	examples, recipes, or validation support
+demo_entry	demo/support	examples, recipes, or validation support
 demo_walkthrough	demo/support	examples, recipes, or validation support
