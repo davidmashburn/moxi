@@ -46,6 +46,10 @@ pixi run native-screenshot-check
 mkdir -p dist
 mojo precompile src/moxi -o dist/moxi.mojoc
 mojo doc src/moxi -I src -o dist/moxi-api.json
+mojo precompile -I src src/moxi_plot -o dist/moxi_plot.mojoc
+mojo doc src/moxi_plot -I src -o dist/moxi_plot-api.json
+mojo precompile -I src src/moxi_demo -o dist/moxi_demo.mojoc
+mojo doc src/moxi_demo -I src -o dist/moxi_demo-api.json
 xmllint --noout docs/wx-style-showcase.svg
 xmllint --noout docs/wx-style-advanced.svg
 xmllint --noout docs/plot-gallery.svg
