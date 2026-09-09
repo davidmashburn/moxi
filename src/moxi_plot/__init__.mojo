@@ -105,7 +105,7 @@ from .plot_data import (
     PlotDataView,
     column_kind_name,
 )
-from .plot_spec import (
+from .plot_spec_names import (
     CHANNEL_ANGLE,
     CHANNEL_COLOR,
     CHANNEL_COLUMN,
@@ -137,7 +137,6 @@ from .plot_spec import (
     INTERACTION_KEYBOARD,
     INTERACTION_LASSO,
     INTERACTION_PAN_ZOOM,
-    PLOT_SPEC_VERSION,
     TRANSFORM_FILTER_BETWEEN,
     TRANSFORM_FILTER_GREATER,
     TRANSFORM_BIN,
@@ -162,23 +161,23 @@ from .plot_spec import (
     TYPE_ORDINAL,
     TYPE_QUANTITATIVE,
     TYPE_TEMPORAL,
+    channel_name,
+    composition_name,
+    data_type_name,
+    interaction_name,
+    plot_mark_name,
+    scale_kind_name,
+    transform_name,
+)
+from .plot_spec_types import (
     PlotAnnotation,
     PlotEncoding,
     PlotLayer,
     PlotInteraction,
     PlotScaleSpec,
-    PlotSpec,
     PlotTransform,
-    channel_name,
-    composition_name,
-    data_type_name,
-    interaction_name,
-    plot_from_spec,
-    plot_mark_name,
-    plot_spec_from_json,
-    scale_kind_name,
-    transform_name,
 )
+from .plot_spec import PLOT_SPEC_VERSION, PlotSpec, plot_from_spec, plot_spec_from_json
 from .plot_runtime import PlotRuntime
 from .plot_view import PlotControl, PlotView
 from moxi.plot_selection import PlotSelection, selection_from_keys

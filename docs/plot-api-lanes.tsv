@@ -5,6 +5,9 @@ plot_point	provisional	typed plotting data, specification, or runtime
 plot_series	provisional	typed plotting data, specification, or runtime
 plot_data	provisional	typed plotting data, specification, or runtime
 plot_spec	provisional	typed plotting data, specification, or runtime
+plot_spec_names	provisional	typed plotting data, specification, or runtime
+plot_spec_json	provisional	typed plotting data, specification, or runtime
+plot_spec_types	provisional	typed plotting data, specification, or runtime
 plot_runtime	provisional	typed plotting data, specification, or runtime
 plot_view	provisional	typed plotting data, specification, or runtime
 plot_link	provisional	typed plotting data, specification, or runtime

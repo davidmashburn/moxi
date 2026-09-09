@@ -1,1174 +1,128 @@
 """Inspectable declarative plot specification for the first Plot API."""
 
+
 from std.collections import List
 
-from moxi.json import json_char, json_fragment_is_valid, json_quote
+
+from moxi.json import json_fragment_is_valid, json_quote
 from moxi.geometry import Rect
+from moxi.style import Color
 from .plot_data import PlotDataTable
+from .plotting import Plot
 from .plot_marks import (
     PLOT_AREA,
     PLOT_BAND,
     PLOT_BAR,
-    PLOT_BUBBLE,
-    PLOT_COLUMN,
-    PLOT_DOT,
-    PLOT_ERROR_BAR,
-    PLOT_LINE,
-    PLOT_RECT,
-    PLOT_RULE,
-    PLOT_SCATTER,
-    PLOT_STEP,
-    PLOT_TICK,
-    PLOT_INTERVAL,
-    PLOT_HISTOGRAM,
-    PLOT_DENSITY,
-    PLOT_ECDF,
     PLOT_BOX,
-    PLOT_HEATMAP,
-    PLOT_HEXBIN,
-    PLOT_REGRESSION,
-    PLOT_TEXT,
-    PLOT_GROUPED_BAR,
-    PLOT_STACKED_BAR,
-    PLOT_PIE,
-    PLOT_DONUT,
-    PLOT_LOLLIPOP,
-    PLOT_WATERFALL,
-    PLOT_CANDLESTICK,
-    PLOT_BULLET,
-    PLOT_GANTT,
-    PLOT_SPAN_CHART,
-    PLOT_BEESWARM,
-    PLOT_VIOLIN,
-    PLOT_RIDGELINE,
-    PLOT_NIGHTINGALE,
-    PLOT_POLAR,
-    PLOT_POLAR_BAR,
-    PLOT_RADIALBAR,
-    PLOT_GAUGE,
-    PLOT_RADAR,
-    PLOT_POPULATION_PYRAMID,
-    PLOT_PARALLEL,
-    PLOT_CONTOUR,
-    PLOT_CONTOURF,
-    PLOT_TRICONTOUR,
-    PLOT_CORRPLOT,
-    PLOT_CALENDAR_HEATMAP,
-    PLOT_PUNCHCARD,
-    PLOT_MARIMEKKO,
-    PLOT_FUNNEL,
-    PLOT_BUMP,
-    PLOT_EFFECT_SCATTER,
-    PLOT_ARC_DIAGRAM,
-    PLOT_GRAPH,
-    PLOT_SANKEY,
-    PLOT_SUNBURST,
-    PLOT_TREE,
-    PLOT_TREEMAP,
-    PLOT_BARBS,
-    PLOT_CHORD,
-    PLOT_STREAMGRAPH,
+    PLOT_BUBBLE,
     PLOT_CATALOG_FIRST,
     PLOT_CATALOG_LAST,
+    PLOT_COLUMN,
+    PLOT_DENSITY,
+    PLOT_DOT,
+    PLOT_ECDF,
+    PLOT_ERROR_BAR,
+    PLOT_GROUPED_BAR,
+    PLOT_HEATMAP,
+    PLOT_HEXBIN,
+    PLOT_HISTOGRAM,
+    PLOT_INTERVAL,
+    PLOT_LINE,
+    PLOT_RECT,
+    PLOT_REGRESSION,
+    PLOT_RULE,
+    PLOT_SCATTER,
+    PLOT_STACKED_BAR,
+    PLOT_STEP,
+    PLOT_TEXT,
+    PLOT_TICK,
 )
-from .plot_point import (
-    SCALE_BAND,
-    SCALE_CATEGORICAL,
-    SCALE_DIVERGING,
-    SCALE_LINEAR,
-    SCALE_LOG,
-    SCALE_ORDINAL,
-    SCALE_POINT,
-    SCALE_POWER,
-    SCALE_QUANTILE,
-    SCALE_QUANTIZE,
-    SCALE_SQRT,
-    SCALE_SEQUENTIAL,
-    SCALE_SYMLOG,
-    SCALE_TEMPORAL,
-    SCALE_THRESHOLD,
+from .plot_spec_json import (
+    _find_token,
+    _read_number,
+    _string_member,
+    _number_member,
+    _bool_member,
+    _color_member,
+    _object_array,
+    _array_content,
 )
-from .plotting import Plot
-from moxi.style import Color
+from .plot_spec_names import (
+    CHANNEL_COLOR,
+    CHANNEL_FILL,
+    CHANNEL_OPACITY,
+    CHANNEL_SIZE,
+    CHANNEL_STROKE,
+    CHANNEL_TEXT,
+    CHANNEL_TOOLTIP,
+    CHANNEL_X,
+    CHANNEL_X2,
+    CHANNEL_Y,
+    CHANNEL_Y2,
+    COMPOSITION_FACET,
+    COMPOSITION_LAYER,
+    INTERACTION_BRUSH,
+    INTERACTION_CLICK_SELECT,
+    INTERACTION_HOVER,
+    INTERACTION_KEYBOARD,
+    INTERACTION_LASSO,
+    INTERACTION_PAN_ZOOM,
+    TRANSFORM_AGGREGATE,
+    TRANSFORM_BIN,
+    TRANSFORM_BOX,
+    TRANSFORM_CALCULATE,
+    TRANSFORM_DENSITY,
+    TRANSFORM_ECDF,
+    TRANSFORM_FILTER_BETWEEN,
+    TRANSFORM_FILTER_GREATER,
+    TRANSFORM_GROUP,
+    TRANSFORM_HEATMAP,
+    TRANSFORM_HEXBIN,
+    TRANSFORM_HISTOGRAM,
+    TRANSFORM_IMPUTE,
+    TRANSFORM_LIMIT,
+    TRANSFORM_REGRESSION,
+    TRANSFORM_ROLLING_MEAN,
+    TRANSFORM_SAMPLE,
+    TRANSFORM_SORT,
+    TRANSFORM_STACK,
+    TYPE_QUANTITATIVE,
+    channel_name,
+    composition_name,
+    data_type_name,
+    interaction_name,
+    scale_kind_name,
+    transform_name,
+    plot_mark_name,
+    _valid_channel,
+    _valid_data_type,
+    _valid_mark,
+    _valid_scale,
+    _valid_transform,
+    _mark_from_name,
+    _channel_from_name,
+    _data_type_from_name,
+    _scale_from_name,
+    _composition_from_name,
+    _interaction_from_name,
+    _transform_from_name,
+)
+from .plot_spec_types import (
+    PlotEncoding,
+    PlotTransform,
+    _derived_field_available,
+    PlotScaleSpec,
+    PlotAnnotation,
+    PlotInteraction,
+    PlotLayer,
+)
 
 
 comptime PLOT_SPEC_VERSION = 1
 
-comptime TYPE_QUANTITATIVE = 1
-comptime TYPE_TEMPORAL = 2
-comptime TYPE_NOMINAL = 3
-comptime TYPE_ORDINAL = 4
-comptime TYPE_BOOL = 5
-
-comptime CHANNEL_X = 1
-comptime CHANNEL_Y = 2
-comptime CHANNEL_X2 = 3
-comptime CHANNEL_Y2 = 4
-comptime CHANNEL_COLOR = 5
-comptime CHANNEL_FILL = 6
-comptime CHANNEL_STROKE = 7
-comptime CHANNEL_OPACITY = 8
-comptime CHANNEL_SIZE = 9
-comptime CHANNEL_SHAPE = 10
-comptime CHANNEL_ANGLE = 11
-comptime CHANNEL_RADIUS = 12
-comptime CHANNEL_TEXT = 13
-comptime CHANNEL_TOOLTIP = 14
-comptime CHANNEL_HREF = 15
-comptime CHANNEL_ORDER = 16
-comptime CHANNEL_DETAIL = 17
-comptime CHANNEL_KEY = 18
-comptime CHANNEL_ROW = 19
-comptime CHANNEL_COLUMN = 20
-comptime CHANNEL_FACET = 21
-
-comptime TRANSFORM_FILTER_GREATER = 1
-comptime TRANSFORM_FILTER_BETWEEN = 2
-comptime TRANSFORM_SORT = 3
-comptime TRANSFORM_LIMIT = 4
-comptime TRANSFORM_CALCULATE = 5
-comptime TRANSFORM_BIN = 6
-comptime TRANSFORM_ROLLING_MEAN = 7
-comptime TRANSFORM_IMPUTE = 8
-comptime TRANSFORM_SAMPLE = 9
-comptime TRANSFORM_STACK = 10
-comptime TRANSFORM_AGGREGATE = 11
-comptime TRANSFORM_GROUP = 12
-comptime TRANSFORM_HISTOGRAM = 13
-comptime TRANSFORM_DENSITY = 14
-comptime TRANSFORM_ECDF = 15
-comptime TRANSFORM_BOX = 16
-comptime TRANSFORM_HEATMAP = 17
-comptime TRANSFORM_HEXBIN = 18
-comptime TRANSFORM_REGRESSION = 19
-
-comptime COMPOSITION_LAYER = 1
-comptime COMPOSITION_HORIZONTAL = 2
-comptime COMPOSITION_VERTICAL = 3
-comptime COMPOSITION_FACET = 4
-
-comptime INTERACTION_HOVER = 1
-comptime INTERACTION_BRUSH = 2
-comptime INTERACTION_PAN_ZOOM = 3
-comptime INTERACTION_CLICK_SELECT = 4
-comptime INTERACTION_KEYBOARD = 5
-comptime INTERACTION_LASSO = 6
-
-
-def channel_name(channel: Int) -> String:
-    if channel == CHANNEL_X:
-        return "x"
-    if channel == CHANNEL_Y:
-        return "y"
-    if channel == CHANNEL_X2:
-        return "x2"
-    if channel == CHANNEL_Y2:
-        return "y2"
-    if channel == CHANNEL_COLOR:
-        return "color"
-    if channel == CHANNEL_FILL:
-        return "fill"
-    if channel == CHANNEL_STROKE:
-        return "stroke"
-    if channel == CHANNEL_OPACITY:
-        return "opacity"
-    if channel == CHANNEL_SIZE:
-        return "size"
-    if channel == CHANNEL_SHAPE:
-        return "shape"
-    if channel == CHANNEL_ANGLE:
-        return "angle"
-    if channel == CHANNEL_RADIUS:
-        return "radius"
-    if channel == CHANNEL_TEXT:
-        return "text"
-    if channel == CHANNEL_TOOLTIP:
-        return "tooltip"
-    if channel == CHANNEL_HREF:
-        return "href"
-    if channel == CHANNEL_ORDER:
-        return "order"
-    if channel == CHANNEL_DETAIL:
-        return "detail"
-    if channel == CHANNEL_KEY:
-        return "key"
-    if channel == CHANNEL_ROW:
-        return "row"
-    if channel == CHANNEL_COLUMN:
-        return "column"
-    if channel == CHANNEL_FACET:
-        return "facet"
-    return "unknown"
-
-
-def data_type_name(data_type: Int) -> String:
-    if data_type == TYPE_TEMPORAL:
-        return "temporal"
-    if data_type == TYPE_NOMINAL:
-        return "nominal"
-    if data_type == TYPE_ORDINAL:
-        return "ordinal"
-    if data_type == TYPE_BOOL:
-        return "boolean"
-    return "quantitative"
-
-
-def scale_kind_name(kind: Int) -> String:
-    if kind == SCALE_LOG:
-        return "log"
-    if kind == SCALE_POWER:
-        return "power"
-    if kind == SCALE_SQRT:
-        return "sqrt"
-    if kind == SCALE_TEMPORAL:
-        return "temporal"
-    if kind == SCALE_ORDINAL:
-        return "ordinal"
-    if kind == SCALE_BAND:
-        return "band"
-    if kind == SCALE_SYMLOG:
-        return "symlog"
-    if kind == SCALE_POINT:
-        return "point"
-    if kind == SCALE_THRESHOLD:
-        return "threshold"
-    if kind == SCALE_QUANTILE:
-        return "quantile"
-    if kind == SCALE_QUANTIZE:
-        return "quantize"
-    if kind == SCALE_SEQUENTIAL:
-        return "sequential"
-    if kind == SCALE_DIVERGING:
-        return "diverging"
-    if kind == SCALE_CATEGORICAL:
-        return "categorical"
-    return "linear"
-
-
-def transform_name(kind: Int) -> String:
-    if kind == TRANSFORM_FILTER_BETWEEN:
-        return "filter_between"
-    if kind == TRANSFORM_SORT:
-        return "sort"
-    if kind == TRANSFORM_LIMIT:
-        return "limit"
-    if kind == TRANSFORM_CALCULATE:
-        return "calculate"
-    if kind == TRANSFORM_BIN:
-        return "bin"
-    if kind == TRANSFORM_ROLLING_MEAN:
-        return "rolling_mean"
-    if kind == TRANSFORM_IMPUTE:
-        return "impute"
-    if kind == TRANSFORM_SAMPLE:
-        return "sample"
-    if kind == TRANSFORM_STACK:
-        return "stack"
-    if kind == TRANSFORM_AGGREGATE:
-        return "aggregate"
-    if kind == TRANSFORM_GROUP:
-        return "group"
-    if kind == TRANSFORM_HISTOGRAM:
-        return "histogram"
-    if kind == TRANSFORM_DENSITY:
-        return "density"
-    if kind == TRANSFORM_ECDF:
-        return "ecdf"
-    if kind == TRANSFORM_BOX:
-        return "box"
-    if kind == TRANSFORM_HEATMAP:
-        return "heatmap"
-    if kind == TRANSFORM_HEXBIN:
-        return "hexbin"
-    if kind == TRANSFORM_REGRESSION:
-        return "regression"
-    return "filter_greater"
-
-
-def composition_name(kind: Int) -> String:
-    if kind == COMPOSITION_HORIZONTAL:
-        return "horizontal"
-    if kind == COMPOSITION_VERTICAL:
-        return "vertical"
-    if kind == COMPOSITION_FACET:
-        return "facet"
-    return "layer"
-
-
-def interaction_name(kind: Int) -> String:
-    if kind == INTERACTION_BRUSH:
-        return "brush"
-    if kind == INTERACTION_PAN_ZOOM:
-        return "pan_zoom"
-    if kind == INTERACTION_CLICK_SELECT:
-        return "click_select"
-    if kind == INTERACTION_KEYBOARD:
-        return "keyboard"
-    if kind == INTERACTION_LASSO:
-        return "lasso"
-    return "hover"
-
 
 def json_bool(value: Bool) -> String:
     return "true" if value else "false"
-
-
-def _valid_channel(channel: Int) -> Bool:
-    return channel >= CHANNEL_X and channel <= CHANNEL_FACET
-
-
-def _valid_data_type(data_type: Int) -> Bool:
-    return data_type >= TYPE_QUANTITATIVE and data_type <= TYPE_BOOL
-
-
-def _valid_mark(mark: Int) -> Bool:
-    return mark >= PLOT_LINE and mark <= PLOT_CATALOG_LAST
-
-
-def _valid_scale(kind: Int) -> Bool:
-    return kind >= SCALE_LINEAR and kind <= SCALE_CATEGORICAL
-
-
-def _valid_transform(kind: Int) -> Bool:
-    return kind >= TRANSFORM_FILTER_GREATER and kind <= TRANSFORM_REGRESSION
-
-
-struct PlotEncoding(ImplicitlyCopyable):
-    """A channel binding to a typed field or literal value."""
-
-    var layer_id: Int
-    var channel: Int
-    var field: String
-    var data_type: Int
-    var literal: String
-    var has_literal: Bool
-
-    def __init__(
-        out self,
-        layer_id: Int,
-        channel: Int,
-        field: String,
-        data_type: Int = TYPE_QUANTITATIVE,
-    ):
-        self.layer_id = layer_id
-        self.channel = channel
-        self.field = field
-        self.data_type = data_type
-        self.literal = ""
-        self.has_literal = False
-
-    def set_literal(mut self, value: String):
-        self.literal = value
-        self.has_literal = True
-
-
-struct PlotTransform(ImplicitlyCopyable):
-    """A pure, serializable transform in the compact plot dataflow."""
-
-    var kind: Int
-    var field: String
-    var second_field: String
-    var output_field: String
-    var value: Float32
-    var second_value: Float32
-    var descending: Bool
-    var limit: Int
-    var window: Int
-    var mean: Bool
-
-    def __init__(out self, kind: Int, field: String = ""):
-        self.kind = kind
-        self.field = field
-        self.second_field = ""
-        self.output_field = ""
-        self.value = 0.0
-        self.second_value = 0.0
-        self.descending = False
-        self.limit = 0
-        self.window = 1
-        self.mean = False
-
-
-def _derived_field_available(
-    transforms: List[PlotTransform],
-    field: String,
-) -> Bool:
-    """Return whether a recipe transform materializes a named output field."""
-    for index in range(len(transforms)):
-        var transform = transforms[index]
-        if transform.output_field == field:
-            return True
-        if transform.kind == TRANSFORM_HISTOGRAM:
-            if field == "x" or field == "y" or field == "x2" or field == "count":
-                return True
-        elif transform.kind == TRANSFORM_DENSITY or transform.kind == TRANSFORM_ECDF:
-            if field == "x" or field == "y":
-                return True
-        elif transform.kind == TRANSFORM_BOX:
-            if (
-                field == "group"
-                or field == "x"
-                or field == "y"
-                or field == "y2"
-                or field == "low"
-                or field == "high"
-                or field == "median"
-                or field == "count"
-            ):
-                return True
-        elif transform.kind == TRANSFORM_HEATMAP or transform.kind == TRANSFORM_HEXBIN:
-            if field == "x" or field == "y" or field == "x2" or field == "y2" or field == "count":
-                return True
-        elif transform.kind == TRANSFORM_REGRESSION:
-            if field == "x" or field == "y":
-                return True
-    return False
-
-
-struct PlotScaleSpec(ImplicitlyCopyable):
-    """Serializable scale configuration for one positional channel."""
-
-    var channel: Int
-    var kind: Int
-    var power: Float32
-    var tick_count: Int
-    var reverse: Bool
-
-    def __init__(out self, channel: Int, kind: Int = SCALE_LINEAR):
-        self.channel = channel
-        self.kind = kind
-        self.power = 2.0
-        self.tick_count = 5
-        self.reverse = False
-
-
-struct PlotAnnotation(ImplicitlyCopyable):
-    """A renderer-neutral label anchored in data or screen coordinates."""
-
-    var id: Int
-    var text: String
-    var x: Float32
-    var y: Float32
-    var data_space: Bool
-
-    def __init__(
-        out self,
-        id: Int,
-        text: String,
-        x: Float32,
-        y: Float32,
-        data_space: Bool = True,
-    ):
-        self.id = id
-        self.text = text
-        self.x = x
-        self.y = y
-        self.data_space = data_space
-
-
-struct PlotInteraction(ImplicitlyCopyable):
-    """Declarative interaction tool configuration."""
-
-    var kind: Int
-    var x_only: Bool
-    var y_only: Bool
-    var crosshair: Bool
-    var tooltip: Bool
-    var additive: Bool
-
-    def __init__(out self, kind: Int):
-        self.kind = kind
-        self.x_only = False
-        self.y_only = False
-        self.crosshair = kind == INTERACTION_HOVER
-        self.tooltip = kind == INTERACTION_HOVER
-        self.additive = False
-
-
-struct _JsonString:
-    var value: String
-    var next: Int
-    var ok: Bool
-
-    def __init__(out self):
-        self.value = ""
-        self.next = 0
-        self.ok = False
-
-
-struct _JsonNumber:
-    var value: Float32
-    var integer: Int
-    var next: Int
-    var ok: Bool
-
-    def __init__(out self):
-        self.value = 0.0
-        self.integer = 0
-        self.next = 0
-        self.ok = False
-
-
-def _find_token(value: String, token: String, start: Int = 0) -> Int:
-    var first = start if start >= 0 else 0
-    var last = value.count_codepoints() - token.count_codepoints()
-    while first <= last:
-        if value[codepoint=first:first + token.count_codepoints()] == token:
-            return first
-        first += 1
-    return -1
-
-
-def _read_string(value: String, start: Int) -> _JsonString:
-    var result = _JsonString()
-    if json_char(value, start) != chr(34):
-        return result^
-    var index = start + 1
-    while index < value.count_codepoints():
-        var glyph = json_char(value, index)
-        if glyph == chr(34):
-            result.next = index + 1
-            result.ok = True
-            return result^
-        if glyph == chr(92):
-            index += 1
-            var escaped = json_char(value, index)
-            if escaped == "n":
-                result.value += chr(10)
-            elif escaped == "r":
-                result.value += chr(13)
-            elif escaped == "t":
-                result.value += chr(9)
-            elif escaped == "b":
-                result.value += chr(8)
-            elif escaped == "f":
-                result.value += chr(12)
-            else:
-                result.value += escaped
-        else:
-            result.value += glyph
-        index += 1
-    return result^
-
-
-def _read_number(value: String, start: Int) -> _JsonNumber:
-    var result = _JsonNumber()
-    var index = start
-    var sign: Float32 = 1.0
-    if json_char(value, index) == "-":
-        sign = -1.0
-        index += 1
-    if not (
-        json_char(value, index) == "0"
-        or json_char(value, index) == "1"
-        or json_char(value, index) == "2"
-        or json_char(value, index) == "3"
-        or json_char(value, index) == "4"
-        or json_char(value, index) == "5"
-        or json_char(value, index) == "6"
-        or json_char(value, index) == "7"
-        or json_char(value, index) == "8"
-        or json_char(value, index) == "9"
-    ):
-        return result^
-    var whole: Float32 = 0.0
-    while index < value.count_codepoints():
-        var glyph = json_char(value, index)
-        if not (
-            glyph == "0"
-            or glyph == "1"
-            or glyph == "2"
-            or glyph == "3"
-            or glyph == "4"
-            or glyph == "5"
-            or glyph == "6"
-            or glyph == "7"
-            or glyph == "8"
-            or glyph == "9"
-        ):
-            break
-        whole = whole * 10.0 + Float32(ord(glyph) - ord("0"))
-        index += 1
-    var fraction: Float32 = 0.0
-    if json_char(value, index) == ".":
-        index += 1
-        var place: Float32 = 0.1
-        while index < value.count_codepoints():
-            var glyph = json_char(value, index)
-            if not (
-                glyph == "0"
-                or glyph == "1"
-                or glyph == "2"
-                or glyph == "3"
-                or glyph == "4"
-                or glyph == "5"
-                or glyph == "6"
-                or glyph == "7"
-                or glyph == "8"
-                or glyph == "9"
-            ):
-                break
-            fraction += Float32(ord(glyph) - ord("0")) * place
-            place *= 0.1
-            index += 1
-    var magnitude = whole + fraction
-    if json_char(value, index) == "e" or json_char(value, index) == "E":
-        index += 1
-        var exponent_sign: Float32 = 1.0
-        if json_char(value, index) == "-":
-            exponent_sign = -1.0
-            index += 1
-        elif json_char(value, index) == "+":
-            index += 1
-        var exponent = 0
-        while index < value.count_codepoints():
-            var glyph = json_char(value, index)
-            if not (
-                glyph == "0"
-                or glyph == "1"
-                or glyph == "2"
-                or glyph == "3"
-                or glyph == "4"
-                or glyph == "5"
-                or glyph == "6"
-                or glyph == "7"
-                or glyph == "8"
-                or glyph == "9"
-            ):
-                break
-            exponent = exponent * 10 + ord(glyph) - ord("0")
-            index += 1
-        var scale: Float32 = 1.0
-        var steps = exponent
-        if steps < 0:
-            steps = -steps
-        for _ in range(steps):
-            if exponent_sign > 0.0:
-                scale *= 10.0
-            else:
-                scale *= 0.1
-        magnitude *= scale
-    result.value = sign * magnitude
-    result.integer = Int(result.value)
-    result.next = index
-    result.ok = True
-    return result^
-
-
-def _member_start(object: String, name: String) -> Int:
-    var marker = String(chr(34), name, chr(34), ":")
-    var location = _find_token(object, marker)
-    if location == -1:
-        return -1
-    return location + marker.count_codepoints()
-
-
-def _string_member(object: String, name: String) -> _JsonString:
-    var location = _member_start(object, name)
-    if location == -1:
-        return _JsonString()
-    return _read_string(object, location)
-
-
-def _number_member(object: String, name: String) -> _JsonNumber:
-    var location = _member_start(object, name)
-    if location == -1:
-        return _JsonNumber()
-    return _read_number(object, location)
-
-
-def _bool_member(object: String, name: String) -> Bool:
-    var location = _member_start(object, name)
-    return location != -1 and json_char(object, location) == "t"
-
-
-def _color_member(object: String) -> Color:
-    var location = _member_start(object, "color")
-    if location == -1 or json_char(object, location) != "[":
-        return Color(0.0, 0.0, 0.0, 1.0)
-    var red = _read_number(object, location + 1)
-    var green_start = _find_token(object, ",", red.next)
-    var green = _read_number(object, green_start + 1)
-    var blue_start = _find_token(object, ",", green.next)
-    var blue = _read_number(object, blue_start + 1)
-    var alpha_start = _find_token(object, ",", blue.next)
-    var alpha = _read_number(object, alpha_start + 1)
-    return Color(red.value, green.value, blue.value, alpha.value)
-
-
-def _mark_from_name(name: String) -> Int:
-    if name == "line":
-        return PLOT_LINE
-    if name == "scatter":
-        return PLOT_SCATTER
-    if name == "bar":
-        return PLOT_BAR
-    if name == "dot":
-        return PLOT_DOT
-    if name == "area":
-        return PLOT_AREA
-    if name == "rule":
-        return PLOT_RULE
-    if name == "error_bar":
-        return PLOT_ERROR_BAR
-    if name == "rect":
-        return PLOT_RECT
-    if name == "text":
-        return PLOT_TEXT
-    if name == "step":
-        return PLOT_STEP
-    if name == "tick":
-        return PLOT_TICK
-    if name == "interval":
-        return PLOT_INTERVAL
-    if name == "bubble":
-        return PLOT_BUBBLE
-    if name == "band":
-        return PLOT_BAND
-    if name == "column":
-        return PLOT_COLUMN
-    if name == "histogram":
-        return PLOT_HISTOGRAM
-    if name == "density":
-        return PLOT_DENSITY
-    if name == "ecdf":
-        return PLOT_ECDF
-    if name == "box":
-        return PLOT_BOX
-    if name == "heatmap":
-        return PLOT_HEATMAP
-    if name == "hexbin":
-        return PLOT_HEXBIN
-    if name == "regression":
-        return PLOT_REGRESSION
-    if name == "grouped_bar":
-        return PLOT_GROUPED_BAR
-    if name == "stacked_bar":
-        return PLOT_STACKED_BAR
-    if name == "pie":
-        return PLOT_PIE
-    if name == "donut":
-        return PLOT_DONUT
-    if name == "lollipop":
-        return PLOT_LOLLIPOP
-    if name == "waterfall":
-        return PLOT_WATERFALL
-    if name == "candlestick":
-        return PLOT_CANDLESTICK
-    if name == "bullet":
-        return PLOT_BULLET
-    if name == "gantt":
-        return PLOT_GANTT
-    if name == "span_chart":
-        return PLOT_SPAN_CHART
-    if name == "beeswarm":
-        return PLOT_BEESWARM
-    if name == "violin":
-        return PLOT_VIOLIN
-    if name == "ridgeline":
-        return PLOT_RIDGELINE
-    if name == "nightingale":
-        return PLOT_NIGHTINGALE
-    if name == "polar":
-        return PLOT_POLAR
-    if name == "polar_bar":
-        return PLOT_POLAR_BAR
-    if name == "radialbar":
-        return PLOT_RADIALBAR
-    if name == "gauge":
-        return PLOT_GAUGE
-    if name == "radar":
-        return PLOT_RADAR
-    if name == "population_pyramid":
-        return PLOT_POPULATION_PYRAMID
-    if name == "parallel":
-        return PLOT_PARALLEL
-    if name == "contour":
-        return PLOT_CONTOUR
-    if name == "contourf":
-        return PLOT_CONTOURF
-    if name == "tricontour":
-        return PLOT_TRICONTOUR
-    if name == "corrplot":
-        return PLOT_CORRPLOT
-    if name == "calendar_heatmap":
-        return PLOT_CALENDAR_HEATMAP
-    if name == "punchcard":
-        return PLOT_PUNCHCARD
-    if name == "marimekko":
-        return PLOT_MARIMEKKO
-    if name == "funnel":
-        return PLOT_FUNNEL
-    if name == "bump":
-        return PLOT_BUMP
-    if name == "effect_scatter":
-        return PLOT_EFFECT_SCATTER
-    if name == "arc_diagram":
-        return PLOT_ARC_DIAGRAM
-    if name == "graph":
-        return PLOT_GRAPH
-    if name == "sankey":
-        return PLOT_SANKEY
-    if name == "sunburst":
-        return PLOT_SUNBURST
-    if name == "tree":
-        return PLOT_TREE
-    if name == "treemap":
-        return PLOT_TREEMAP
-    if name == "barbs":
-        return PLOT_BARBS
-    if name == "chord":
-        return PLOT_CHORD
-    if name == "streamgraph":
-        return PLOT_STREAMGRAPH
-    return 0
-
-
-def _channel_from_name(name: String) -> Int:
-    if name == "x":
-        return CHANNEL_X
-    if name == "y":
-        return CHANNEL_Y
-    if name == "x2":
-        return CHANNEL_X2
-    if name == "y2":
-        return CHANNEL_Y2
-    if name == "color":
-        return CHANNEL_COLOR
-    if name == "fill":
-        return CHANNEL_FILL
-    if name == "stroke":
-        return CHANNEL_STROKE
-    if name == "opacity":
-        return CHANNEL_OPACITY
-    if name == "size":
-        return CHANNEL_SIZE
-    if name == "shape":
-        return CHANNEL_SHAPE
-    if name == "angle":
-        return CHANNEL_ANGLE
-    if name == "radius":
-        return CHANNEL_RADIUS
-    if name == "text":
-        return CHANNEL_TEXT
-    if name == "tooltip":
-        return CHANNEL_TOOLTIP
-    if name == "href":
-        return CHANNEL_HREF
-    if name == "order":
-        return CHANNEL_ORDER
-    if name == "detail":
-        return CHANNEL_DETAIL
-    if name == "key":
-        return CHANNEL_KEY
-    if name == "row":
-        return CHANNEL_ROW
-    if name == "column":
-        return CHANNEL_COLUMN
-    if name == "facet":
-        return CHANNEL_FACET
-    return 0
-
-
-def _data_type_from_name(name: String) -> Int:
-    if name == "temporal":
-        return TYPE_TEMPORAL
-    if name == "nominal":
-        return TYPE_NOMINAL
-    if name == "ordinal":
-        return TYPE_ORDINAL
-    if name == "boolean":
-        return TYPE_BOOL
-    if name == "quantitative":
-        return TYPE_QUANTITATIVE
-    return 0
-
-
-def _scale_from_name(name: String) -> Int:
-    if name == "log":
-        return SCALE_LOG
-    if name == "power":
-        return SCALE_POWER
-    if name == "sqrt":
-        return SCALE_SQRT
-    if name == "temporal":
-        return SCALE_TEMPORAL
-    if name == "ordinal":
-        return SCALE_ORDINAL
-    if name == "band":
-        return SCALE_BAND
-    if name == "symlog":
-        return SCALE_SYMLOG
-    if name == "point":
-        return SCALE_POINT
-    if name == "threshold":
-        return SCALE_THRESHOLD
-    if name == "quantile":
-        return SCALE_QUANTILE
-    if name == "quantize":
-        return SCALE_QUANTIZE
-    if name == "sequential":
-        return SCALE_SEQUENTIAL
-    if name == "diverging":
-        return SCALE_DIVERGING
-    if name == "categorical":
-        return SCALE_CATEGORICAL
-    if name == "linear":
-        return SCALE_LINEAR
-    return 0
-
-
-def _composition_from_name(name: String) -> Int:
-    if name == "horizontal":
-        return COMPOSITION_HORIZONTAL
-    if name == "vertical":
-        return COMPOSITION_VERTICAL
-    if name == "facet":
-        return COMPOSITION_FACET
-    if name == "layer":
-        return COMPOSITION_LAYER
-    return 0
-
-
-def _interaction_from_name(name: String) -> Int:
-    if name == "brush":
-        return INTERACTION_BRUSH
-    if name == "pan_zoom":
-        return INTERACTION_PAN_ZOOM
-    if name == "click_select":
-        return INTERACTION_CLICK_SELECT
-    if name == "keyboard":
-        return INTERACTION_KEYBOARD
-    if name == "lasso":
-        return INTERACTION_LASSO
-    if name == "hover":
-        return INTERACTION_HOVER
-    return 0
-
-
-def _transform_from_name(name: String) -> Int:
-    if name == "filter_between":
-        return TRANSFORM_FILTER_BETWEEN
-    if name == "sort":
-        return TRANSFORM_SORT
-    if name == "limit":
-        return TRANSFORM_LIMIT
-    if name == "calculate":
-        return TRANSFORM_CALCULATE
-    if name == "bin":
-        return TRANSFORM_BIN
-    if name == "rolling_mean":
-        return TRANSFORM_ROLLING_MEAN
-    if name == "impute":
-        return TRANSFORM_IMPUTE
-    if name == "sample":
-        return TRANSFORM_SAMPLE
-    if name == "stack":
-        return TRANSFORM_STACK
-    if name == "aggregate":
-        return TRANSFORM_AGGREGATE
-    if name == "group":
-        return TRANSFORM_GROUP
-    if name == "histogram":
-        return TRANSFORM_HISTOGRAM
-    if name == "density":
-        return TRANSFORM_DENSITY
-    if name == "ecdf":
-        return TRANSFORM_ECDF
-    if name == "box":
-        return TRANSFORM_BOX
-    if name == "heatmap":
-        return TRANSFORM_HEATMAP
-    if name == "hexbin":
-        return TRANSFORM_HEXBIN
-    if name == "regression":
-        return TRANSFORM_REGRESSION
-    if name == "filter_greater":
-        return TRANSFORM_FILTER_GREATER
-    return 0
-
-
-def plot_mark_name(mark: Int) -> String:
-    if mark == PLOT_SCATTER:
-        return "scatter"
-    if mark == PLOT_BAR:
-        return "bar"
-    if mark == PLOT_DOT:
-        return "dot"
-    if mark == PLOT_AREA:
-        return "area"
-    if mark == PLOT_RULE:
-        return "rule"
-    if mark == PLOT_ERROR_BAR:
-        return "error_bar"
-    if mark == PLOT_RECT:
-        return "rect"
-    if mark == PLOT_TEXT:
-        return "text"
-    if mark == PLOT_STEP:
-        return "step"
-    if mark == PLOT_TICK:
-        return "tick"
-    if mark == PLOT_INTERVAL:
-        return "interval"
-    if mark == PLOT_BUBBLE:
-        return "bubble"
-    if mark == PLOT_BAND:
-        return "band"
-    if mark == PLOT_COLUMN:
-        return "column"
-    if mark == PLOT_HISTOGRAM:
-        return "histogram"
-    if mark == PLOT_DENSITY:
-        return "density"
-    if mark == PLOT_ECDF:
-        return "ecdf"
-    if mark == PLOT_BOX:
-        return "box"
-    if mark == PLOT_HEATMAP:
-        return "heatmap"
-    if mark == PLOT_HEXBIN:
-        return "hexbin"
-    if mark == PLOT_REGRESSION:
-        return "regression"
-    if mark == PLOT_GROUPED_BAR:
-        return "grouped_bar"
-    if mark == PLOT_STACKED_BAR:
-        return "stacked_bar"
-    if mark == PLOT_PIE:
-        return "pie"
-    if mark == PLOT_DONUT:
-        return "donut"
-    if mark == PLOT_LOLLIPOP:
-        return "lollipop"
-    if mark == PLOT_WATERFALL:
-        return "waterfall"
-    if mark == PLOT_CANDLESTICK:
-        return "candlestick"
-    if mark == PLOT_BULLET:
-        return "bullet"
-    if mark == PLOT_GANTT:
-        return "gantt"
-    if mark == PLOT_SPAN_CHART:
-        return "span_chart"
-    if mark == PLOT_BEESWARM:
-        return "beeswarm"
-    if mark == PLOT_VIOLIN:
-        return "violin"
-    if mark == PLOT_RIDGELINE:
-        return "ridgeline"
-    if mark == PLOT_NIGHTINGALE:
-        return "nightingale"
-    if mark == PLOT_POLAR:
-        return "polar"
-    if mark == PLOT_POLAR_BAR:
-        return "polar_bar"
-    if mark == PLOT_RADIALBAR:
-        return "radialbar"
-    if mark == PLOT_GAUGE:
-        return "gauge"
-    if mark == PLOT_RADAR:
-        return "radar"
-    if mark == PLOT_POPULATION_PYRAMID:
-        return "population_pyramid"
-    if mark == PLOT_PARALLEL:
-        return "parallel"
-    if mark == PLOT_CONTOUR:
-        return "contour"
-    if mark == PLOT_CONTOURF:
-        return "contourf"
-    if mark == PLOT_TRICONTOUR:
-        return "tricontour"
-    if mark == PLOT_CORRPLOT:
-        return "corrplot"
-    if mark == PLOT_CALENDAR_HEATMAP:
-        return "calendar_heatmap"
-    if mark == PLOT_PUNCHCARD:
-        return "punchcard"
-    if mark == PLOT_MARIMEKKO:
-        return "marimekko"
-    if mark == PLOT_FUNNEL:
-        return "funnel"
-    if mark == PLOT_BUMP:
-        return "bump"
-    if mark == PLOT_EFFECT_SCATTER:
-        return "effect_scatter"
-    if mark == PLOT_ARC_DIAGRAM:
-        return "arc_diagram"
-    if mark == PLOT_GRAPH:
-        return "graph"
-    if mark == PLOT_SANKEY:
-        return "sankey"
-    if mark == PLOT_SUNBURST:
-        return "sunburst"
-    if mark == PLOT_TREE:
-        return "tree"
-    if mark == PLOT_TREEMAP:
-        return "treemap"
-    if mark == PLOT_BARBS:
-        return "barbs"
-    if mark == PLOT_CHORD:
-        return "chord"
-    if mark == PLOT_STREAMGRAPH:
-        return "streamgraph"
-    return "line"
-
-
-struct PlotLayer(ImplicitlyCopyable):
-    """One mark layer with explicit field encodings."""
-
-    var id: Int
-    var mark: Int
-    var label: String
-    var x_field: String
-    var y_field: String
-    var x2_field: String
-    var y2_field: String
-    var color_field: String
-    var fill_field: String
-    var stroke_field: String
-    var size_field: String
-    var opacity_field: String
-    var text_field: String
-    var stat_low_field: String
-    var stat_high_field: String
-    var median_field: String
-    var color: Color
-    var line_width: Float32
-    var size: Float32
-    var opacity: Float32
-    var tooltip_fields: String
-
-    def __init__(
-        out self,
-        id: Int,
-        mark: Int,
-        label: String,
-        x_field: String,
-        y_field: String,
-        color: Color,
-    ):
-        self.id = id
-        self.mark = mark
-        self.label = label
-        self.x_field = x_field
-        self.y_field = y_field
-        self.x2_field = ""
-        self.y2_field = ""
-        self.color_field = ""
-        self.fill_field = ""
-        self.stroke_field = ""
-        self.size_field = ""
-        self.opacity_field = ""
-        self.text_field = ""
-        self.stat_low_field = ""
-        self.stat_high_field = ""
-        self.median_field = ""
-        self.color = color
-        self.line_width = 2.0
-        self.size = 6.0
-        self.opacity = 1.0
-        self.tooltip_fields = ""
 
 
 struct PlotSpec:
@@ -2242,36 +1196,6 @@ struct PlotSpec:
             )
         result += "]}"
         return result
-
-
-def _object_array(value: String, start: Int, end: Int) -> List[String]:
-    """Extract the flat object members emitted by ``PlotSpec.to_json``."""
-    var result = List[String]()
-    if start < 0 or end < start:
-        return result^
-    var content = String(value[codepoint=start:end])
-    var cursor = 0
-    while True:
-        var object_start = _find_token(content, "{", cursor)
-        if object_start == -1:
-            break
-        var object_end = _find_token(content, "}", object_start)
-        if object_end == -1:
-            break
-        result.append(String(content[codepoint=object_start:object_end + 1]))
-        cursor = object_end + 1
-    return result^
-
-
-def _array_content(value: String, start_marker: String, end_marker: String) -> String:
-    var start = _find_token(value, start_marker)
-    if start == -1:
-        return ""
-    var content_start = start + start_marker.count_codepoints()
-    var end = _find_token(value, end_marker, content_start)
-    if end == -1:
-        return ""
-    return String(value[codepoint=content_start:end])
 
 
 def plot_spec_from_json(value: String) -> PlotSpec:
