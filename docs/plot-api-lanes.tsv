@@ -1,0 +1,10 @@
+# module<TAB>support lane<TAB>owner
+plotting	provisional	typed plotting data, specification, or runtime
+plot_data	provisional	typed plotting data, specification, or runtime
+plot_spec	provisional	typed plotting data, specification, or runtime
+plot_runtime	provisional	typed plotting data, specification, or runtime
+plot_view	provisional	typed plotting data, specification, or runtime
+plot_link	provisional	typed plotting data, specification, or runtime
+plot_api	provisional	focused plotting import path
+fixtures	demo/support	shared plot fixtures for demos, tests, and benchmarks
+plot_render_bridge	host-adapter	renderer-facing bridge between the plot model and scene renderers
