@@ -2,12 +2,14 @@
 
 from moxi import (
     App,
+    Rect,
+    test_check,
+)
+from moxi_demo import (
     DEMO_INTERACTION_ID,
     DEMO_TAB_DEMO,
     DemoBrowserState,
     DemoWalkthroughDriver,
-    Rect,
-    test_check,
 )
 
 

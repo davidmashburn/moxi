@@ -7,11 +7,11 @@ keep their component source in the ``examples/`` directory; reusable
 stateful scenarios remain available in ``src/moxi`` for larger applications.
 """
 
-from .accessibility import ACTION_PRESS
-from .animation import Animation, EASE_IN_OUT
-from .component import Component
-from .controls import ButtonControl, LabelControl
-from .event import (
+from moxi.accessibility import ACTION_PRESS
+from moxi.animation import Animation, EASE_IN_OUT
+from moxi.component import Component
+from moxi.controls import ButtonControl, LabelControl
+from moxi.event import (
     ACTION_KIND,
     CLICK_KIND,
     FRAME_TICK_KIND,
@@ -20,29 +20,29 @@ from .event import (
     KEY_DOWN_KIND,
     Event,
 )
-from .geometry import Point, Rect
-from .plot_data import PlotDataTable
-from .plot_spec import (
+from moxi.geometry import Point, Rect
+from moxi_plot import (
     CHANNEL_COLOR,
     CHANNEL_OPACITY,
     CHANNEL_SIZE,
     CHANNEL_TOOLTIP,
     CHANNEL_X,
+    PlotDataTable,
     PlotSpec,
+    PlotView,
     SCALE_TEMPORAL,
     TYPE_NOMINAL,
 )
-from .plot_view import PlotView
-from .scenarios import make_plot_data_fixture, make_plot_scenario
-from .scene import Scene
-from .style import (
+from moxi_plot.fixtures import make_plot_data_fixture, make_plot_scenario
+from moxi.scene import Scene
+from moxi.style import (
     Color,
     default_button_style,
     default_panel_style,
     default_surface_style,
 )
-from .text_shaping import PortableTextShaper
-from .view import ColumnView
+from moxi.text_shaping import PortableTextShaper
+from moxi.view import ColumnView
 
 
 comptime SHOWCASE_HELLO_WINDOW = 1

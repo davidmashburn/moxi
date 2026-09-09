@@ -9,14 +9,14 @@ replacement for composition.
 
 from std.collections import List
 
-from .accessibility import ACTION_COLLAPSE, ACTION_EXPAND, ACTION_PRESS
-from .alignment import AlignmentState
-from .app import CounterState
-from .capability_walkthrough import CapabilityWalkthroughState
-from .component import Component, ComponentSlot
-from .composed import ComposedState
-from .controls import ButtonControl, LabelControl, TextInputControl, TextInputState
-from .event import (
+from moxi.accessibility import ACTION_COLLAPSE, ACTION_EXPAND, ACTION_PRESS
+from moxi.alignment import AlignmentState
+from moxi.app import CounterState
+from moxi.capability_walkthrough import CapabilityWalkthroughState
+from moxi.component import Component, ComponentSlot
+from moxi.composed import ComposedState
+from moxi.controls import ButtonControl, LabelControl, TextInputControl, TextInputState
+from moxi.event import (
     ACTION_KIND,
     CLICK_KIND,
     COMPOSITION_END_KIND,
@@ -37,28 +37,28 @@ from .event import (
     SCROLL_KIND,
     TEXT_INPUT_KIND,
 )
-from .form import FormState
-from .fractal import FRACTAL_CANVAS_ID, FractalState
-from .geometry import Rect
-from .interaction_showcase import (
+from moxi.form import FormState
+from moxi.fractal import FRACTAL_CANVAS_ID, FractalState
+from moxi.geometry import Rect
+from moxi.interaction_showcase import (
     INTERACTION_SHOWCASE_CANVAS_ID,
     InteractionShowcaseState,
 )
-from .layout import ALIGN_STRETCH, JUSTIFY_START, ROW_AXIS
-from .live_script import LIVE_SCRIPT_CANVAS_ID, LiveScriptState
-from .nested import NestedState
-from .row import RowState
-from .theme_showcase import ThemeShowcaseState
-from .style import (
+from moxi.layout import ALIGN_STRETCH, JUSTIFY_START, ROW_AXIS
+from moxi.live_script import LIVE_SCRIPT_CANVAS_ID, LiveScriptState
+from moxi.nested import NestedState
+from moxi.row import RowState
+from moxi.theme_showcase import ThemeShowcaseState
+from moxi.style import (
     Color,
     Style,
     default_label_style,
     default_surface_style,
     default_text_input_style,
 )
-from .view import ColumnView
-from .wrapped import WrappedTextState
-from .wxstyle import WxStyleState
+from moxi.view import ColumnView
+from moxi.wrapped import WrappedTextState
+from moxi.wxstyle import WxStyleState
 from .showcase import (
     SHOWCASE_ANIMATION,
     SHOWCASE_CANVAS_ID,
@@ -73,8 +73,8 @@ from .showcase import (
     SHOWCASE_PLOT_SVG,
     ShowcaseState,
 )
-from .scene import Scene
-from .scenarios import SCENARIO_NONE, canonical_scenarios
+from moxi.scene import Scene
+from moxi.scenarios import SCENARIO_NONE, canonical_scenarios
 
 
 # Public page and category kinds make the catalog inspectable by tests and by

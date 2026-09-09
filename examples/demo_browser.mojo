@@ -2,11 +2,13 @@
 
 from moxi import (
     App,
-    DemoBrowserState,
-    DemoWalkthroughDriver,
     NONE_KIND,
     Rect,
     WindowConfig,
+)
+from moxi_demo import (
+    DemoBrowserState,
+    DemoWalkthroughDriver,
 )
 from moxi.macos import (
     MacOSCanvasSceneRenderer,

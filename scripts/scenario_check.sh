@@ -94,7 +94,7 @@ for record in records:
         raise SystemExit(
             f"{record['fixture']}: missing benchmark {record['benchmark']}"
         )
-    demo_source = (repo / "src/moxi/demo_browser.mojo").read_text(encoding="utf-8")
+    demo_source = (repo / "src/moxi_demo/demo_browser.mojo").read_text(encoding="utf-8")
     if record["source"] not in demo_source or record["task"] not in demo_source:
         raise SystemExit(
             f"{record['fixture']}: demo catalog is missing source/task mapping"

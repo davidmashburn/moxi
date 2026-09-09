@@ -2,9 +2,9 @@
 
 from std.collections import List
 
-from .accessibility import ACTION_PRESS
-from .app_runtime import App
-from .capability import (
+from moxi.accessibility import ACTION_PRESS
+from moxi.app_runtime import App
+from moxi.capability import (
     CALLER_AGENT,
     CALLER_SYSTEM,
     CALLER_UI,
@@ -31,9 +31,9 @@ from .demo_browser import (
     DEMO_TAB_DEMO_ID,
     DemoBrowserState,
 )
-from .event import ActionEvent, Event, ScrollEvent
-from .geometry import Point
-from .interaction_showcase import (
+from moxi.event import ActionEvent, Event, ScrollEvent
+from moxi.geometry import Point
+from moxi.interaction_showcase import (
     INTERACTION_SHOWCASE_CANVAS_ID,
     INTERACTION_SHOWCASE_MOVE_ID,
     INTERACTION_SHOWCASE_SELECT_NEXT_ID,
