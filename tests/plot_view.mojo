@@ -1,6 +1,7 @@
 """PlotView/PlotControl integration contract test."""
 
 from moxi import (
+    App,
     CLICK_KIND,
     Color,
     Event,
@@ -8,6 +9,7 @@ from moxi import (
     POINTER_MOVE_KIND,
     PointerEvent,
     Rect,
+    TypedSubtreeExecutor,
     test_check,
 )
 from moxi_plot import (
@@ -53,6 +55,30 @@ def main():
 
     var control = PlotControl(spec, data, Rect(0.0, 0.0, 320.0, 240.0))
     test_check(control.build_scene().count() > 0)
+
+    # PlotView uses the generic typed reactive executor without rebuilding its
+    # stable one-canvas view for each retained scene interaction.
+    var reactive_view = PlotView(spec, data, Rect(0.0, 0.0, 320.0, 240.0))
+    var reactive = TypedSubtreeExecutor[PlotView](
+        reactive_view,
+        Rect(0.0, 0.0, 320.0, 240.0),
+        7,
+        11,
+    )
+    test_check(reactive.dispatch(click))
+    test_check(reactive.component.selected_count() == 1)
+    var reactive_work = reactive.work_counters()
+    test_check(reactive_work.invalidation_count == 1)
+    test_check(reactive_work.dirty_consumed == 1)
+    test_check(reactive_work.component_builds == 1)
+
+    # The root App path uses the same retained update contract and therefore
+    # avoids a root fallback for plot-only scene changes.
+    var app_view = PlotView(spec, data, Rect(0.0, 0.0, 320.0, 240.0))
+    var app = App[PlotView](app_view, Rect(0.0, 0.0, 320.0, 240.0))
+    test_check(app.dispatch(click))
+    test_check(app.component.selected_count() == 1)
+    test_check(app.execution_work_counters().root_fallbacks == 0)
 
     var inert_spec = PlotSpec("Inert")
     _ = inert_spec.add_line("series", "x", "y")

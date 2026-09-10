@@ -101,6 +101,13 @@ if source.version != previous_version:
     _ = view.replace_data(source)
 ```
 
+`PlotView` also implements the Moxi `Component` contract. Mounting it through
+`App` or `TypedSubtreeExecutor[PlotView]` routes interaction changes through
+Moxi's normal `StateScope` invalidation path without rebuilding the stable
+one-canvas view for retained scene changes. The direct `dispatch()` API remains
+available for headless replay and hosts that already own their own event loop;
+it is the imperative escape hatch, not a second reactive model.
+
 The standalone `plot-gallery` command replays the same hover, click, zoom,
 brush, and linked-selection events before patching a source field, so these
 behaviors remain deterministic and testable without a window.

@@ -1,7 +1,23 @@
 """Composable plot view boundary for Moxi layout and event hosts."""
 
 from moxi.accessibility import AccessibilitySnapshot
-from moxi.event import Event
+from moxi.component import Component
+from moxi.column_view import ColumnView
+from moxi.event import (
+    CLICK_KIND,
+    DRAG_BEGIN_KIND,
+    DRAG_UPDATE_KIND,
+    DROP_KIND,
+    POINTER_CANCEL_KIND,
+    POINTER_DOWN_KIND,
+    POINTER_MOVE_KIND,
+    POINTER_UP_KIND,
+    SCROLL_KIND,
+    TOUCH_BEGIN_KIND,
+    TOUCH_END_KIND,
+    TOUCH_UPDATE_KIND,
+    Event,
+)
 from moxi.geometry import Rect
 from .plot_data import PlotDataSnapshot, PlotDataTable
 from .plot_runtime import PlotRuntime
@@ -11,7 +27,10 @@ from .plot_spec import PlotSpec, plot_from_spec
 from moxi.scene import Scene
 
 
-struct PlotView(ImplicitlyCopyable):
+comptime PLOT_VIEW_CANVAS_ID = 1
+
+
+struct PlotView(Component):
     """Compile a ``PlotSpec`` and own its interactive runtime state."""
 
     var runtime: PlotRuntime
@@ -50,9 +69,50 @@ struct PlotView(ImplicitlyCopyable):
         """Forward a backend-neutral event and report whether state changed."""
         return self.runtime.dispatch(event)
 
+    def build(self, bounds: Rect) -> ColumnView:
+        """Build a canvas host so the plot can use Moxi's component runtime."""
+        var root = ColumnView(bounds, 0.0, 0.0)
+        root.add_canvas(PLOT_VIEW_CANVAS_ID, self.spec.title, bounds.height)
+        root.layout()
+        return root^
+
+    def update(mut self, event: Event, view: ColumnView) -> Bool:
+        """Dispatch through the component contract used by Moxi reactivity."""
+        var canvas = view.bounds_for(PLOT_VIEW_CANVAS_ID)
+        var pointer_event = (
+            event.kind == CLICK_KIND
+            or event.kind == POINTER_DOWN_KIND
+            or event.kind == POINTER_MOVE_KIND
+            or event.kind == POINTER_UP_KIND
+            or event.kind == POINTER_CANCEL_KIND
+            or event.kind == DRAG_BEGIN_KIND
+            or event.kind == DRAG_UPDATE_KIND
+            or event.kind == DROP_KIND
+            or event.kind == SCROLL_KIND
+            or event.kind == TOUCH_BEGIN_KIND
+            or event.kind == TOUCH_UPDATE_KIND
+            or event.kind == TOUCH_END_KIND
+        )
+        if pointer_event:
+            if event.target != -1 and event.target != PLOT_VIEW_CANVAS_ID:
+                return False
+            if event.target == -1 and not canvas.contains(event.position):
+                return False
+        self.set_bounds(canvas)
+        return self.dispatch(event)
+
+    def update_retained(mut self, event: Event, view: ColumnView) -> Bool:
+        """Update the scene without rebuilding its stable canvas host."""
+        return self.update(event, view)
+
     def build_scene(self) -> Scene:
         """Build the current renderer-neutral scene."""
         return self.runtime.build_scene()
+
+    def scene(mut self, bounds: Rect) -> Scene:
+        """Update the plot viewport and return its current scene."""
+        self.set_bounds(bounds)
+        return self.build_scene()
 
     def build_render_packet(mut self) -> PlotRenderPacket:
         """Expose the optional dense-mark packet for a capable host."""
@@ -121,7 +181,7 @@ struct PlotView(ImplicitlyCopyable):
         return self.data.table.csv()
 
 
-struct PlotControl:
+struct PlotControl(Component):
     """Naming-compatible control wrapper for hosts that prefer a control API."""
 
     var view: PlotView
@@ -137,8 +197,20 @@ struct PlotControl:
     def dispatch(mut self, event: Event) -> Bool:
         return self.view.dispatch(event)
 
+    def build(self, bounds: Rect) -> ColumnView:
+        return self.view.build(bounds)
+
+    def update(mut self, event: Event, view: ColumnView) -> Bool:
+        return self.view.update(event, view)
+
+    def update_retained(mut self, event: Event, view: ColumnView) -> Bool:
+        return self.view.update_retained(event, view)
+
     def build_scene(self) -> Scene:
         return self.view.build_scene()
+
+    def scene(mut self, bounds: Rect) -> Scene:
+        return self.view.scene(bounds)
 
     def build_render_packet(mut self) -> PlotRenderPacket:
         return self.view.build_render_packet()

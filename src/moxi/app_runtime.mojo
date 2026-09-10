@@ -223,6 +223,7 @@ struct App[ComponentType: Component & Deinitable]:
         var focus_changed = False
         var pointer_changed = False
         var rebuilt = False
+        var retained = False
         var component_dispatched = False
         var updated = False
         var scrollbar_handled = False
@@ -451,8 +452,10 @@ struct App[ComponentType: Component & Deinitable]:
                 rebuilt = localized_result == 2
             else:
                 component_dispatched = True
-                updated = self.component.update(routed, self.view)
-            if not updated and target != -1:
+                retained = self.component.update_retained(routed, self.view)
+                if not retained:
+                    updated = self.component.update(routed, self.view)
+            if not updated and not retained and target != -1:
                 var current = self.scroll_offset_for(target)
                 var delta = event.scroll_delta.y
                 if (
@@ -512,7 +515,13 @@ struct App[ComponentType: Component & Deinitable]:
             if localized_result != 0:
                 rebuilt = localized_result == 2
             else:
-                updated = self.component.update(routed, self.view)
+                retained = self.component.update_retained(routed, self.view)
+                if not retained:
+                    updated = self.component.update(routed, self.view)
+        if retained:
+            _ = self.local_execution.invalidate_scope(0)
+            _ = self.local_execution.take_dirty(0)
+            _ = self.local_execution.clear_scope(0)
         if updated:
             if self.component.intercepts_pointer(routed):
                 pointer_changed = self.runtime.set_hover(-1) or pointer_changed
@@ -520,7 +529,7 @@ struct App[ComponentType: Component & Deinitable]:
             if reset_id != -1:
                 self.reset_scroll(reset_id)
             self.rebuild()
-        var changed = focus_changed or pointer_changed or rebuilt or updated
+        var changed = focus_changed or pointer_changed or rebuilt or updated or retained
         if changed and not rebuilt and not updated:
             self.pending.invalidate(INVALIDATE_ALL, self.root_bounds)
         return changed

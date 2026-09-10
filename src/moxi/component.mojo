@@ -43,6 +43,10 @@ trait Component(ImplicitlyCopyable):
         """Handle an event and report whether the view needs rebuilding."""
         return False
 
+    def update_retained(mut self, event: Event, view: ColumnView) -> Bool:
+        """Handle retained output without rebuilding the declarative view."""
+        return False
+
     def scroll_reset_target(self, event: Event) -> Int:
         """Return a scroll container that should return to its start."""
         return -1

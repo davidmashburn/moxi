@@ -829,6 +829,12 @@ struct TypedSubtreeExecutor[ComponentType: Component & Deinitable]:
 
     def dispatch(mut self, event: Event) -> Bool:
         """Update the typed component and rebuild only when it changed."""
+        var retained = self.component.update_retained(event, self.view)
+        if retained:
+            _ = self.invalidate()
+            _ = self.execution.take_dirty(self.component_id)
+            _ = self.execution.clear_scope(self.scope_id)
+            return True
         var changed = self.component.update(event, self.view)
         if not changed:
             return False
