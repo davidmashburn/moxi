@@ -389,7 +389,7 @@ static float moxi_previous_accessibility_value_min[MOXI_MAX_DRAW_COMMANDS];
 static float moxi_previous_accessibility_value_max[MOXI_MAX_DRAW_COMMANDS];
 static float moxi_previous_accessibility_value_now[MOXI_MAX_DRAW_COMMANDS];
 
-static void moxi_queue_accessibility_click(int id);
+static void moxi_queue_accessibility_action(int id, int action);
 static void moxi_queue_semantic_action(int target, int action);
 static void moxi_reset_custom_commands(void);
 
@@ -609,7 +609,8 @@ static void moxi_accessibility_build_elements(void) {
         [element setAccessibilityEnabled:moxi_accessibility_enabled[i]];
         [element setAccessibilityFocused:moxi_accessibility_focused[i]];
         [element setAccessibilitySelected:moxi_accessibility_selected[i]];
-        if (moxi_accessibility_values[i] != nil) {
+        if (moxi_accessibility_values[i] != nil &&
+            moxi_accessibility_roles[i] != MOXI_ROLE_TEXT_INPUT) {
             [element setAccessibilityValue:moxi_accessibility_values[i]];
         }
         if (moxi_accessibility_hints[i] != nil &&
@@ -830,21 +831,20 @@ static void moxi_queue_event(int kind) {
     );
 }
 
-static void moxi_queue_accessibility_click(int id) {
+static void moxi_queue_accessibility_action(int id, int action) {
     if (moxi_canvas == nil) {
         return;
     }
     for (int i = 0; i < moxi_accessibility_count; i++) {
         if (moxi_accessibility_ids[i] == id &&
-            (moxi_accessibility_actions[i] & MOXI_ACTION_PRESS) != 0 &&
+            (moxi_accessibility_actions[i] & action) != 0 &&
             moxi_accessibility_enabled[i]) {
-            NSRect frame = moxi_accessibility_frames[i];
-            moxi_event_x = NSMidX(frame);
-            moxi_event_y = NSMidY(frame);
-            moxi_last_click_x = moxi_event_x;
-            moxi_last_click_y = moxi_event_y;
-            moxi_event_modifiers = 0;
-            moxi_queue_event(MOXI_EVENT_CLICK);
+            /* AX already identified the stable semantic target. Preserve it
+             * instead of converting the action into a coordinate click: the
+             * custom canvas and the accessibility tree may use different
+             * coordinate spaces (and neither should have to agree for AX
+             * activation to work). */
+            moxi_queue_semantic_action(id, action);
             return;
         }
     }
@@ -1125,6 +1125,32 @@ static void moxi_queue_text_event(
     );
 }
 
+static void moxi_queue_text_event_for_target(
+    int target,
+    int kind,
+    NSString *text,
+    int selectionStart,
+    int selectionEnd
+) {
+    if (!moxi_enqueue_event(
+            kind,
+            0,
+            moxi_interpreting_modifiers,
+            moxi_first_codepoint(text),
+            text,
+            selectionStart,
+            selectionEnd,
+            0.0,
+            0.0,
+            0.0,
+            0.0)) {
+        return;
+    }
+    int queuedIndex = (moxi_event_queue_tail + MOXI_EVENT_QUEUE_CAPACITY - 1) %
+        MOXI_EVENT_QUEUE_CAPACITY;
+    moxi_event_queue[queuedIndex].target = target;
+}
+
 static void moxi_queue_key_event(int key) {
     moxi_event_key = key;
     moxi_event_modifiers = moxi_interpreting_modifiers;
@@ -1380,6 +1406,40 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     return names;
 }
 
+- (BOOL)accessibilityIsAttributeSettable:(NSAccessibilityAttributeName)attribute {
+    int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
+    if (index >= 0 &&
+        moxi_accessibility_roles[index] == MOXI_ROLE_TEXT_INPUT &&
+        [attribute isEqualToString:NSAccessibilityValueAttribute]) {
+        return self.accessibilityEnabled;
+    }
+    return [super accessibilityIsAttributeSettable:attribute];
+}
+
+- (void)accessibilitySetValue:(id)value
+                  forAttribute:(NSAccessibilityAttributeName)attribute {
+    int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
+    if (index < 0 ||
+        moxi_accessibility_roles[index] != MOXI_ROLE_TEXT_INPUT ||
+        ![attribute isEqualToString:NSAccessibilityValueAttribute] ||
+        !self.accessibilityEnabled) {
+        [super accessibilitySetValue:value forAttribute:attribute];
+        return;
+    }
+
+    NSString *next = moxi_input_string(value);
+    NSString *current = moxi_accessibility_values[index] == nil
+        ? @""
+        : moxi_accessibility_values[index];
+    moxi_queue_text_event_for_target(
+        self.moxiIdentifier,
+        MOXI_EVENT_TEXT_INPUT,
+        next,
+        0,
+        moxi_codepoint_index_for_utf16(current, [current length])
+    );
+}
+
 - (void)accessibilityPerformAction:(NSString *)action {
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     if (index < 0 || !self.accessibilityEnabled) {
@@ -1388,10 +1448,10 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     int actions = moxi_accessibility_actions[index];
     if ([action isEqualToString:@"AXPress"] &&
         (actions & MOXI_ACTION_PRESS) != 0) {
-        moxi_queue_accessibility_click(self.moxiIdentifier);
+        moxi_queue_accessibility_action(self.moxiIdentifier, MOXI_ACTION_PRESS);
     } else if ([action isEqualToString:@"AXPick"] &&
                (actions & MOXI_ACTION_SELECT) != 0) {
-        moxi_queue_accessibility_click(self.moxiIdentifier);
+        moxi_queue_accessibility_action(self.moxiIdentifier, MOXI_ACTION_SELECT);
     } else if ([action isEqualToString:@"AXIncrement"] &&
                (actions & MOXI_ACTION_INCREMENT) != 0) {
         moxi_queue_semantic_action(self.moxiIdentifier, MOXI_ACTION_INCREMENT);
@@ -1412,7 +1472,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     if (index >= 0 &&
         (moxi_accessibility_actions[index] & MOXI_ACTION_PRESS) != 0 &&
         self.accessibilityEnabled) {
-        moxi_queue_accessibility_click(self.moxiIdentifier);
+        moxi_queue_accessibility_action(self.moxiIdentifier, MOXI_ACTION_PRESS);
         return YES;
     }
     return NO;

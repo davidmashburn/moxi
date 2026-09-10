@@ -161,7 +161,7 @@ struct MacOSRenderer(Renderer):
                 node.value_min,
                 node.value_max,
                 node.value_now,
-                node.actions,
+                Int32(node.actions),
             )
         external_call["moxi_window_end_accessibility", NoneType]()
         external_call["moxi_window_end_frame", NoneType]()
@@ -1063,23 +1063,35 @@ struct MacOSWindow(WindowBackend):
                 )
             )
         elif kind == TEXT_INPUT_KIND:
-            return Event(
+            var text_event = Event(
                 TextInputEvent(
                     self.event_text(),
                     Int(external_call["moxi_window_event_selection_start", Int32]()),
                     Int(external_call["moxi_window_event_selection_end", Int32]()),
                 )
             )
+            text_event.set_target(
+                Int(external_call["moxi_window_event_target", Int32]())
+            )
+            return text_event
         elif kind == COMPOSITION_UPDATE_KIND:
-            return Event(
+            var composition_event = Event(
                 CompositionEvent(
                     self.event_text(),
                     Int(external_call["moxi_window_event_selection_start", Int32]()),
                     Int(external_call["moxi_window_event_selection_end", Int32]()),
                 )
             )
+            composition_event.set_target(
+                Int(external_call["moxi_window_event_target", Int32]())
+            )
+            return composition_event
         elif kind == COMPOSITION_END_KIND:
-            return Event(CompositionEvent())
+            var composition_end = Event(CompositionEvent())
+            composition_end.set_target(
+                Int(external_call["moxi_window_event_target", Int32]())
+            )
+            return composition_end
         elif kind == SCROLL_KIND:
             # AppKit has already applied the user's natural-scrolling
             # preference to scrollingDeltaY. Moxi's vertical viewport offset

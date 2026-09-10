@@ -42,6 +42,10 @@ current laid-out frame. The AppKit bridge provides:
 - explicit value behavior for toggles and scalar controls, including min/max;
 - dialog role/hidden state follows its open/expanded semantic state;
 - AXPress, AXPick, AXIncrement, AXDecrement, AXExpand, and AXCollapse;
+- AX activation keeps the stable semantic target on the backend event instead
+  of converting it into a coordinate click;
+- single-line text nodes accept settable `AXValue` assignments as targeted
+  replacement events, including Unicode values;
 - value-change notifications for text, toggle, disclosure, and scalar-range
   changes, plus selected-child and focused-element notifications;
 - nested hit testing that prefers the deepest control under the pointer.

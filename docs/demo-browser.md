@@ -6,11 +6,14 @@ learning workbench: the catalog stays visible while the selected example gets
 its own overview, source, and live/demo surface.
 
 `pixi run demo-walkthrough` runs the exact same `examples/demo_browser.mojo`
-host with a deterministic CapabilityBus event source. It traverses the normal
-catalog and mounted components through their ordinary event path, demonstrating
-the live Counter, Plot Gallery, embedded Metal Scene, scrolling, selection,
-reorder, and approval-gated reset without opening a second window. `pixi run
-demo` remains the manual-input version of that host.
+host with a deterministic CapabilityBus event source. On macOS it launches the
+walkthrough executable through a stable `Moxi Playground.app` bundle, so the
+application and its native accessibility tree are discoverable by desktop
+automation. It traverses the normal catalog and mounted components through
+their ordinary event path, demonstrating the live Counter, Plot Gallery,
+embedded Metal Scene, scrolling, selection, reorder, and approval-gated reset
+without opening a second window. `pixi run demo` remains the manual-input
+version of that host.
 
 `pixi run demo-record` runs that same walkthrough without agent or GUI
 automation. It builds an isolated temporary app bundle, discovers the live

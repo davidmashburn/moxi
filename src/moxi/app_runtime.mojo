@@ -13,6 +13,8 @@ from .invalidation import (
 )
 from .event import (
     CLICK_KIND,
+    COMPOSITION_END_KIND,
+    COMPOSITION_UPDATE_KIND,
     CompositionEvent,
     KEY_DOWN_KIND,
     KEY_C,
@@ -31,6 +33,7 @@ from .event import (
     POINTER_DOWN_KIND,
     POINTER_UP_KIND,
     SCROLL_KIND,
+    TEXT_INPUT_KIND,
     WINDOW_RESIZED_KIND,
     ClickEvent,
     ActionEvent,
@@ -483,6 +486,19 @@ struct App[ComponentType: Component & Deinitable]:
             if target == -1:
                 target = self.runtime.focus_id()
             routed.set_target(target)
+            routed.set_action(event.action_id)
+        elif (
+            event.kind == TEXT_INPUT_KIND
+            or event.kind == COMPOSITION_UPDATE_KIND
+            or event.kind == COMPOSITION_END_KIND
+        ):
+            # Native accessibility setters may address a text field directly,
+            # while keyboard/IME events continue to follow keyboard focus.
+            var target = event.target
+            if target == -1:
+                target = self.runtime.focus_id()
+            routed.set_target(target)
+            routed.set_action(self.runtime.action_for(target))
         elif event.kind == KEY_DOWN_KIND:
             if event.key == KEY_TAB:
                 var previous_focus = self.runtime.focus_id()
