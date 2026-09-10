@@ -229,6 +229,9 @@ struct IntIndex:
         if position != -1:
             self.entries[position].value = value
             return True
+        if len(self.entries) == 0 or key > self.entries[len(self.entries) - 1].key:
+            self.entries.append(IntIndexEntry(key, value))
+            return True
         var low = 0
         var high = len(self.entries)
         while low < high:
@@ -251,6 +254,9 @@ struct IntIndex:
         var position = self._position(key)
         if position == -1:
             return False
+        if position == len(self.entries) - 1:
+            _ = self.entries.pop(position)
+            return True
         var next = List[IntIndexEntry](capacity=len(self.entries) - 1)
         for index in range(len(self.entries)):
             if index != position:
@@ -369,14 +375,13 @@ struct LocalizedExecution:
         var found = self.dirty_lookup.find(component_id)
         if found == -1:
             return False
-        var remaining = List[Int](capacity=len(self.dirty_components) - 1)
-        for index in range(len(self.dirty_components)):
-            if index != found:
-                remaining.append(self.dirty_components[index])
-        self.dirty_components = remaining^
-        self.dirty_lookup.clear()
-        for index in range(len(self.dirty_components)):
-            _ = self.dirty_lookup.set(self.dirty_components[index], index)
+        var last = len(self.dirty_components) - 1
+        if found != last:
+            var moved = self.dirty_components[last]
+            self.dirty_components[found] = moved
+            _ = self.dirty_lookup.set(moved, found)
+        _ = self.dirty_components.pop(last)
+        _ = self.dirty_lookup.remove(component_id)
         while len(self.build_counts) <= component_id:
             self.build_counts.append(0)
         self.build_counts[component_id] += 1
