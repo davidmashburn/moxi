@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Added `Component.update_retained`, a trait method for components that settle
+  their own output without rebuilding a declarative view. It has a default
+  implementation returning `False`, so existing implementers are unaffected.
+  `PlotView` and `PlotControl` implement `Component` and use it so plot
+  interaction runs through the normal invalidation path.
+- Added a generated trait-contract inventory (`docs/trait-surface.tsv`) to the
+  API status check. Adding or removing a public trait method now requires a
+  reviewed regeneration, closing a gap where trait changes were invisible to
+  the export-name surface.
+- A retained update now reports the bounds of the node it was routed to as its
+  pending invalidation region instead of the whole root; unrouted events keep
+  the conservative root region.
+
 ## 0.6.0 — 2026-09-08
 
 - Added the portable headless plotting lane for `osx-arm64` and `linux-64`, a

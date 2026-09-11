@@ -370,8 +370,8 @@ struct LocalizedExecution:
                 )
         return True
 
-    def take_dirty(mut self, component_id: Int) -> Bool:
-        """Consume one component invalidation and return whether it was dirty."""
+    def _remove_dirty(mut self, component_id: Int) -> Bool:
+        """Drop one dirty entry and report whether it was present."""
         var found = self.dirty_lookup.find(component_id)
         if found == -1:
             return False
@@ -382,11 +382,25 @@ struct LocalizedExecution:
             _ = self.dirty_lookup.set(moved, found)
         _ = self.dirty_components.pop(last)
         _ = self.dirty_lookup.remove(component_id)
+        self.counters.dirty_consumed += 1
+        return True
+
+    def take_dirty(mut self, component_id: Int) -> Bool:
+        """Consume one component invalidation ahead of a rebuild."""
+        if not self._remove_dirty(component_id):
+            return False
         while len(self.build_counts) <= component_id:
             self.build_counts.append(0)
         self.build_counts[component_id] += 1
-        self.counters.dirty_consumed += 1
         return True
+
+    def discard_dirty(mut self, component_id: Int) -> Bool:
+        """Consume one component invalidation that no rebuild will follow.
+
+        Retained updates settle their own output, so the per-component build
+        count must not advance for work that never ran a builder.
+        """
+        return self._remove_dirty(component_id)
 
     def clear_scope(mut self, scope_id: Int) -> Bool:
         var index = self.scope_index(scope_id)
@@ -837,7 +851,7 @@ struct TypedSubtreeExecutor[ComponentType: Component & Deinitable]:
         var retained = self.component.update_retained(event, self.view)
         if retained:
             _ = self.invalidate()
-            _ = self.execution.take_dirty(self.component_id)
+            _ = self.execution.discard_dirty(self.component_id)
             _ = self.execution.clear_scope(self.scope_id)
             return True
         var changed = self.component.update(event, self.view)

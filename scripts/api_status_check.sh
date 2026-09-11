@@ -13,6 +13,11 @@ packages=(
   "moxi_demo:src/moxi_demo/__init__.mojo:docs/demo-api-lanes.tsv:docs/demo-api-surface.tsv:docs/demo-api-status.md:"
 )
 compatibility_file="docs/api-compatibility.tsv"
+# Exported names are only half of the public contract: a trait's method set is
+# a promise to every implementer, and adding or removing one is invisible to
+# the export surface. This inventory makes those changes reviewable too.
+trait_surface_file="docs/trait-surface.tsv"
+trait_sources=(src/moxi src/moxi_plot src/moxi_demo)
 
 write_file=false
 if [ "${1:-}" = "--write" ]; then
@@ -197,9 +202,49 @@ for row in "${packages[@]}"; do
   export_count=$((export_count + package_export_count))
 done
 
+# Inventory every public trait's method set across the packages. A trait method
+# with a default body is source-compatible to add, but it still changes the
+# contract every implementer inherits, so it must be an explicit review.
+tmp_traits="$tmp_dir/trait-surface.tsv"
+{
+  printf '# package\ttrait\tmethod\n'
+  for source_dir in "${trait_sources[@]}"; do
+    package="$(basename "$source_dir")"
+    for module in "$source_dir"/*.mojo; do
+      awk -v package="$package" '
+      /^trait [A-Za-z_][A-Za-z0-9_]*/ {
+        current = $2
+        sub(/[(:].*$/, "", current)
+        next
+      }
+      current != "" && /^[ \t]+(def|fn) [A-Za-z_][A-Za-z0-9_]*\(/ {
+        method = $2
+        sub(/\(.*$/, "", method)
+        if (method !~ /^__/) print package "\t" current "\t" method
+        next
+      }
+      /^[^ \t#]/ { current = "" }
+      ' "$module"
+    done
+  done | sort -u
+} > "$tmp_traits"
+
 if [ "$write_file" = true ]; then
+  cp "$tmp_traits" "$trait_surface_file"
+  echo "Wrote $trait_surface_file"
   exit 0
 fi
+
+if [ ! -f "$trait_surface_file" ]; then
+  echo "$trait_surface_file is missing; run $0 --write" >&2
+  exit 1
+fi
+if ! cmp -s "$tmp_traits" "$trait_surface_file"; then
+  echo "$trait_surface_file is stale; run $0 --write and review the trait-contract change" >&2
+  diff -u "$trait_surface_file" "$tmp_traits" || true
+  exit 1
+fi
+trait_method_count="$(grep -vc '^#' "$trait_surface_file" || true)"
 
 # The compatibility manifest is checked once across the union of every
 # package's surface: a name that moved from one sibling package to another
@@ -297,4 +342,4 @@ END {
 }
 '
 
-echo "Moxi API status check passed ($export_count exports across ${#packages[@]} packages)"
+echo "Moxi API status check passed ($export_count exports and $trait_method_count trait methods across ${#packages[@]} packages)"

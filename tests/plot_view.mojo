@@ -18,6 +18,7 @@ from moxi_plot import (
     PlotSpec,
     PlotView,
 )
+from moxi_plot.plot_view import PLOT_VIEW_CANVAS_ID
 
 
 def main():
@@ -76,9 +77,30 @@ def main():
     # avoids a root fallback for plot-only scene changes.
     var app_view = PlotView(spec, data, Rect(0.0, 0.0, 320.0, 240.0))
     var app = App[PlotView](app_view, Rect(0.0, 0.0, 320.0, 240.0))
+    var build_count_before = app.execution_build_count(0)
     test_check(app.dispatch(click))
     test_check(app.component.selected_count() == 1)
     test_check(app.execution_work_counters().root_fallbacks == 0)
+
+    # A retained update runs no builder, so the per-component build count must
+    # not advance for the consumed invalidation.
+    test_check(app.execution_build_count(0) == build_count_before)
+
+    # The retained update settles inside its routed node, so the pending region
+    # is that node rather than the whole root.
+    var retained_region = app.pending_invalidation().bounds
+    var canvas_bounds = app.view.bounds_for(PLOT_VIEW_CANVAS_ID)
+    test_check(retained_region.width == canvas_bounds.width)
+    test_check(retained_region.height == canvas_bounds.height)
+
+    # An unrouted retained event keeps the conservative root region because the
+    # owning node is not known at the App boundary.
+    var unrouted = Event(PointerEvent(CLICK_KIND, Point(150.0, 120.0)))
+    var unrouted_app_view = PlotView(spec, data, Rect(0.0, 0.0, 320.0, 240.0))
+    var unrouted_app = App[PlotView](
+        unrouted_app_view, Rect(0.0, 0.0, 320.0, 240.0)
+    )
+    _ = unrouted_app.dispatch(unrouted)
 
     var inert_spec = PlotSpec("Inert")
     _ = inert_spec.add_line("series", "x", "y")

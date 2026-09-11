@@ -5,8 +5,14 @@ The generated export inventory is mechanically checked against
 [`api-compatibility.tsv`](api-compatibility.tsv) as a `deprecated`, `moved`, or
 `removed` entry with its introduction and removal release; deprecated/moved
 names remain exported until the removal release is intentionally recorded.
+Public trait method sets are inventoried separately in
+[`trait-surface.tsv`](trait-surface.tsv), because a trait method is a promise to
+every implementer and is invisible to the export-name surface. Adding or
+removing one — including a method with a default body — requires a reviewed
+regeneration.
+
 Run `pixi run api-status-check -- --write` after an intentional public-surface
-change, review all three generated/manifest diffs, and commit the compatibility
+change, review the generated/manifest diffs, and commit the compatibility
 decision with the API change. This is a compatibility guard, not a promise that
 host-adapter or experimental lanes are stable.
 

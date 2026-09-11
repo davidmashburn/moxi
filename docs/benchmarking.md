@@ -15,6 +15,15 @@ It runs the typed localized-execution, retained layout/paint/scene, and
 portable plot workloads once. Use `MOXI_BENCHMARK_RUNS=3` (or another positive
 integer) when comparing runs.
 
+Some benchmarks stay outside both profiles. `pixi run plot-reactive-benchmark`
+compares retained `TypedSubtreeExecutor` dispatch against direct
+`PlotView.dispatch` in one process and reports their ratio. A ratio between two
+paths is a diagnostic rather than a deterministic counter, so it is not part of
+the policy-checked matrix and does not contribute to a baseline. Keep workloads
+of this shape out of the profiled programs: adding output to a profiled program
+changes its deterministic signature and invalidates the reviewed baseline for
+that case.
+
 The localized and plot workloads identify themselves through
 `canonical_scenarios()`. Run `pixi run scenario-check` when changing the
 registry; it verifies that benchmark sources remain mapped to real files and

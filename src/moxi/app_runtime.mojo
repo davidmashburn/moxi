@@ -536,7 +536,7 @@ struct App[ComponentType: Component & Deinitable]:
                     updated = self.component.update(routed, self.view)
         if retained:
             _ = self.local_execution.invalidate_scope(0)
-            _ = self.local_execution.take_dirty(0)
+            _ = self.local_execution.discard_dirty(0)
             _ = self.local_execution.clear_scope(0)
         if updated:
             if self.component.intercepts_pointer(routed):
@@ -547,8 +547,23 @@ struct App[ComponentType: Component & Deinitable]:
             self.rebuild()
         var changed = focus_changed or pointer_changed or rebuilt or updated or retained
         if changed and not rebuilt and not updated:
-            self.pending.invalidate(INVALIDATE_ALL, self.root_bounds)
+            self.pending.invalidate(INVALIDATE_ALL, self.retained_region(routed))
         return changed
+
+    def retained_region(self, event: Event) -> Rect:
+        """Return the dirty region for an update that rebuilt no view.
+
+        A retained update settles inside the node it was routed to, so the
+        pending region is that node's bounds. Unrouted events keep the root
+        region because their owner is not known here.
+        """
+        var target = event.target
+        if target == -1:
+            return self.root_bounds
+        var bounds = self.view.bounds_for(target)
+        if bounds.width <= 0.0 or bounds.height <= 0.0:
+            return self.root_bounds
+        return bounds
 
     def end_composition(mut self, target: Int) -> Bool:
         """Cancel marked text when focus leaves a text-input control."""
