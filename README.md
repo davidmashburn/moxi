@@ -6,9 +6,10 @@ branch.
 
 The current planning baseline is:
 
-- implementation: `main` at `d5ac97c` (`docs: restructure README as a pitch and
-  move detail into docs/`), audited September 9, 2026, with the package and
-  module restructure in review as pull requests 2 and 3;
+- implementation: `main` at `a34963f` (`fix: restore benchmark baseline
+  integrity and record the trait contract`), audited September 10, 2026, with
+  the three-package restructure, module splits, and the packaging/trait-contract
+  follow-on landed;
 - research: [`docs/modular-ecosystem-research.md`](docs/modular-ecosystem-research.md),
   the Modular/Mojo ecosystem review captured September 6 and reconciled
   against the September 7 implementation; and

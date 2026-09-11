@@ -252,12 +252,14 @@ should list support status; the changelog should describe shipped deltas.
 
 ## Gate 1 follow-on: structural boundary
 
-The package split (`extract-moxi-plot`) and module split (`split-monoliths`)
-establish a three-package shape and remove the largest file-level review
-barriers. Four boundaries remain open. Each is specified to the same standard
-as a gate slice; none is a prerequisite for the others.
+The package split (#2) and module split (#3) established a three-package
+shape and removed the largest file-level review barriers; the packaging and
+contract follow-on (#4) closed two of the resulting gaps. All three merged to
+`main` at `a34963f`. Two boundaries remain open (S2, S3); S1, S4, and S5 are
+settled and kept below as the record of what closed them. None was a
+prerequisite for another.
 
-### S1. Decide the sibling-package distribution boundary — settled
+### S1. Sibling-package distribution boundary — settled
 
 `moxi_plot` is an installable package built from a local source path
 (`packages/moxi_plot/pixi.toml`), published after `moxi` so its runtime
@@ -267,7 +269,7 @@ dry-runs both packages per target. The open question about
 `pixi-build-mojo` and local-monorepo sources is answered: `source = { path }`
 works.
 
-Evidence: CI `package-consumer` on `planned-follow-on`. Remaining boundary:
+Evidence: CI `package-consumer`, green on `main`. Remaining boundary:
 `moxi_demo` is still source-only, which is the intended outcome for a demo
 lane but is not yet stated in the support matrix.
 
@@ -327,7 +329,7 @@ to. The session itself has not been run.
   finding.
 - Non-goals: turning this into a CI gate; device farms; automating VoiceOver.
 
-### S4. Keep the api-status machinery honest across three packages
+### S4. Keep the api-status machinery honest across three packages — enforced
 
 `scripts/api_status_check.sh` loops over per-package lane, surface, and status
 files, and public trait method sets are inventoried in
@@ -354,7 +356,7 @@ automatically better.
 - Non-goals: per-package version numbers; independent release cadences;
   inventorying every struct method.
 
-### S5. Keep profiled benchmarks separable from diagnostics
+### S5. Keep profiled benchmarks separable from diagnostics — settled
 
 A retained-dispatch comparison was added to `benchmarks/plotting_interaction.mojo`,
 which is a policy-checked full-profile case. New deterministic metric lines
@@ -488,12 +490,11 @@ rewrite:
    `2eeb802` from the resolved toolchain pair, while E1/E4 remain gated on
    portable packaging and Python ABI decisions. Uploading the two package
    artifacts to a chosen public channel remains an external release action.
-7. Structural boundary follow-on: land the package and module splits, then
-   close S1 (distribution boundary) before S2 (oversized structs), because the
-   packaging decision determines whether the plot package needs an independent
-   support surface at all. S3 is independent of both and can run as soon as a
-   permitted desktop session is available; S4 rides along with whichever of
-   S1/S2 lands first.
+7. Structural boundary follow-on: the package split, module split, and
+   packaging/trait-contract follow-on landed on `main` at `a34963f` (S1, S4,
+   and S5 settled). S2 (oversized structs) and S3 (desktop validation) remain
+   open and are independent of each other; S3 can run as soon as a permitted
+   desktop session is available.
 
 This order makes each later slice consume infrastructure already reviewed by
 the previous one and keeps the first milestone independently shippable.

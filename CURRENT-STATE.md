@@ -1,16 +1,14 @@
 # Moxi current-state audit
 
-Audited September 9, 2026 against `main` at `d5ac97c`, with the package split
-(`extract-moxi-plot`, pull request 2) and the module split (`split-monoliths`,
-pull request 3) reviewed as in-flight branches rather than shipped state. This
-document is based on source, tests, build scripts, and local validation.
-README, changelog, and older roadmap claims were treated as hypotheses until
-the implementation confirmed them.
+Audited September 10, 2026 against `main` at `a34963f`. This document is based
+on source, tests, build scripts, and local validation. README, changelog, and
+older roadmap claims were treated as hypotheses until the implementation
+confirmed them.
 
-Structural status is recorded in two lanes because the restructure is not yet
-merged. Module paths named below use their `main` locations; the
-[structural restructure](#structural-restructure-in-review) section records the
-in-review layout and the boundaries it changes.
+The package split, module split, and the packaging/trait-contract follow-on
+that shipped alongside them are all on `main`; the
+[structural restructure](#structural-restructure) section below records what
+changed and the boundaries it left open.
 
 ## Executive assessment
 
@@ -86,16 +84,22 @@ or process startup for several workloads; its repeated structured report is
 intentionally written to ignored local output and uploaded by CI only as review
 evidence. The policy-registered full baseline remains host/compiler specific.
 
-## Structural restructure in review
+## Structural restructure
 
-Two stacked branches change the package and module boundary. Both pass the full
-headless suite and the macOS CI lane; neither is merged, so nothing below is a
-current `main` claim.
+Three stacked pull requests (#2, #3, #4) changed the package and module
+boundary and merged to `main` via fast-forward at `a34963f`, in that order. All
+passed the full headless suite and the macOS CI lane, including
+`package-consumer`, before merging. The feature branches were deleted after
+merge; the commits below are the historical record.
 
-| Branch | Change | Evidence | Boundary it creates |
+| Change | What it did | Evidence | Boundary it created |
 | --- | --- | --- | --- |
-| `extract-moxi-plot` (PR 2) | `src/moxi` becomes three sibling packages: `moxi` core, `moxi_plot`, and `moxi_demo`. Dependencies run one way into core; core imports neither sibling. `plot_render.mojo` stays in core as the backend-neutral packet contract, and `plot_selection.mojo` stays because core collection state depends on it. `make_canvas_scene` is split so the core scenario path has no plot branch. | `src/moxi_plot/`, `src/moxi_demo/`, per-package lane/surface/status files, 959 exports across three packages, generalized `scripts/api_status_check.sh` | The plot and demo lanes stop being implicit core surface; the renderer packet contract is the only plot-shaped thing core still owns. |
-| `split-monoliths` (PR 3) | Seven oversized files split into cohesive flat modules with no public name added or removed: `capability`, `controls`, `runtime`, `view`, `plotting`, `plot_spec`, and `demo_browser`. | `json.mojo`, `capability_types.mojo`, `capability_bus.mojo`, `controls_*.mojo`, `widget.mojo`, `column_runtime.mojo`, `view_node.mojo`, `column_view.mojo`, `plot_marks.mojo`, `plot_spec_json.mojo`, `demo_style.mojo`, `demo_entry.mojo` | Surrounding code is separable; the oversized structs themselves are unchanged. |
+| Package split (#2) | `src/moxi` became three sibling packages: `moxi` core, `moxi_plot`, and `moxi_demo`. Dependencies run one way into core; core imports neither sibling. `plot_render.mojo` stayed in core as the backend-neutral packet contract, and `plot_selection.mojo` stayed because core collection state depends on it. `make_canvas_scene` was split so the core scenario path has no plot branch. | `src/moxi_plot/`, `src/moxi_demo/`, per-package lane/surface/status files, generalized `scripts/api_status_check.sh` | The plot and demo lanes stopped being implicit core surface; the renderer packet contract is the only plot-shaped thing core still owns. |
+| Module split (#3) | Seven oversized files split into cohesive flat modules with no public name added or removed: `capability`, `controls`, `runtime`, `view`, `plotting`, `plot_spec`, and `demo_browser`. | `json.mojo`, `capability_types.mojo`, `capability_bus.mojo`, `controls_*.mojo`, `widget.mojo`, `column_runtime.mojo`, `view_node.mojo`, `column_view.mojo`, `plot_marks.mojo`, `plot_spec_json.mojo`, `demo_style.mojo`, `demo_entry.mojo` | Surrounding code became separable; the oversized structs themselves are unchanged (see risk 1 below). |
+| Packaging and contract follow-on (#4) | Closed the packaging gap #2 opened: `moxi_plot` is now an installable package built from a local source path, and `package-consumer` asserts installed plot types again. Added `Component.update_retained` with `PlotView`/`PlotControl` implementing `Component`, AX activation that preserves the semantic target instead of synthesizing a coordinate click, a launchable app bundle for AX automation, indexed/swap-removal execution bookkeeping, and two review fixes (below). | `packages/moxi_plot/pixi.toml`, `scripts/launch_demo_app.sh`, `native/moxi_demo_Info.plist`, `docs/trait-surface.tsv`, `benchmarks/plot_reactive.mojo` | `moxi_plot` is a checked installable artifact again; public trait contracts are now inventoried; profiled benchmarks and path-comparison diagnostics are kept structurally separate. |
+
+The package/module split total is 956 exports and 79 trait methods across
+three packages.
 
 Two findings from the restructure matter to the support boundary:
 
@@ -109,16 +113,8 @@ Two findings from the restructure matter to the support boundary:
   splitting has reached its limit; thinning them requires extracting method
   bodies into free functions, which is behavior-adjacent work.
 
-A third branch, `planned-follow-on`, stacks on the split and closes the
-packaging gap the split opened. `moxi_plot` is an installable package built
-from a local source path, the package-consumer test asserts installed plot
-types again, and the release preflight covers both packages. It also adds
-`Component.update_retained` with `PlotView`/`PlotControl` implementing
-`Component`, AX activation that preserves the semantic target instead of
-synthesizing a coordinate click, a launchable app bundle for AX automation,
-and indexed/swap-removal execution bookkeeping.
-
-Two contract lessons came out of reviewing that branch and are now enforced:
+Two contract lessons came out of reviewing #4 before merge and are now
+enforced on `main`:
 
 - A trait method is public contract that export-name counting cannot see.
   `docs/trait-surface.tsv` inventories public trait method sets and the API
