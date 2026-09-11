@@ -11,20 +11,26 @@ from moxi import (
     Scene,
     WindowConfig,
 )
+from std.ffi import external_call
 from std.math import cos, sin
 
 
 comptime RIPPLE_CAPACITY = 32
 comptime RIPPLE_SEGMENTS = 64
 comptime CIRCLE_SAMPLES = RIPPLE_SEGMENTS
-comptime RIPPLE_LIFETIME = Float32(96.0)
+comptime RIPPLE_LIFETIME = Float32(1.6)
+comptime RIPPLE_SPEED = Float32(246.0)
+comptime RIPPLE_FADE_IN_DISTANCE = Float32(28.0)
+comptime HOLD_EMISSION_SECONDS = Float32(1.0 / 15.0)
+comptime HOVER_EMISSION_SECONDS = Float32(0.30)
 
 
 struct MetalWindowDemo(Component):
     """Emit bounded ripple fronts from the real window pointer."""
 
-    var tick: Int
     var ripple_cursor: Int
+    var emission_elapsed: Float32
+    var seeded: Bool
     var was_pointer_down: Bool
     var ripple_x: SIMD[DType.float32, RIPPLE_CAPACITY]
     var ripple_y: SIMD[DType.float32, RIPPLE_CAPACITY]
@@ -34,8 +40,9 @@ struct MetalWindowDemo(Component):
     var circle_y: SIMD[DType.float32, CIRCLE_SAMPLES]
 
     def __init__(out self):
-        self.tick = 0
         self.ripple_cursor = 0
+        self.emission_elapsed = 0.0
+        self.seeded = False
         self.was_pointer_down = False
         self.ripple_x = SIMD[DType.float32, RIPPLE_CAPACITY](0.0)
         self.ripple_y = SIMD[DType.float32, RIPPLE_CAPACITY](0.0)
@@ -51,18 +58,34 @@ struct MetalWindowDemo(Component):
             self.circle_x[index] = cos(angle)
             self.circle_y[index] = sin(angle)
 
-    def emit(mut self, point: Point, strength: Float32):
+    def emit(
+        mut self,
+        point: Point,
+        strength: Float32,
+        initial_age: Float32 = 0.0,
+    ):
         self.ripple_x[self.ripple_cursor] = point.x
         self.ripple_y[self.ripple_cursor] = point.y
-        self.ripple_age[self.ripple_cursor] = 0.0
+        self.ripple_age[self.ripple_cursor] = initial_age
         self.ripple_strength[self.ripple_cursor] = strength
         self.ripple_cursor = (self.ripple_cursor + 1) % RIPPLE_CAPACITY
 
-    def advance(mut self, bounds: Rect, pointer: Point, pointer_down: Bool):
-        self.tick += 1
+    def advance(
+        mut self,
+        bounds: Rect,
+        pointer: Point,
+        pointer_down: Bool,
+        delta_seconds: Float32 = Float32(1.0 / 60.0),
+    ):
+        var delta = delta_seconds
+        if delta < 0.0:
+            delta = 0.0
+        elif delta > 0.05:
+            delta = 0.05
+        self.emission_elapsed += delta
         for index in range(RIPPLE_CAPACITY):
             if self.ripple_strength[index] > 0.0:
-                self.ripple_age[index] += 1.0
+                self.ripple_age[index] += delta
                 if self.ripple_age[index] >= RIPPLE_LIFETIME:
                     self.ripple_strength[index] = 0.0
 
@@ -73,20 +96,31 @@ struct MetalWindowDemo(Component):
             bounds.height - 102.0,
         )
         var pointer_inside = basin.contains(pointer)
-        if pointer_inside and pointer_down and (
-            self.tick % 4 == 0 or not self.was_pointer_down
-        ):
-            self.emit(pointer, Float32(1.0))
-        elif pointer_inside and not pointer_down and self.tick % 18 == 0:
-            self.emit(pointer, Float32(0.46))
-        elif self.tick == 1:
-            self.emit(
-                Point(
-                    basin.x + basin.width * 0.5,
-                    basin.y + basin.height * 0.5,
-                ),
-                Float32(0.52),
-            )
+        if not self.seeded:
+            self.seeded = True
+            if not pointer_inside or not pointer_down:
+                self.emit(
+                    Point(
+                        basin.x + basin.width * 0.5,
+                        basin.y + basin.height * 0.5,
+                    ),
+                    Float32(0.52),
+                )
+        if pointer_inside and pointer_down:
+            if not self.was_pointer_down:
+                self.emit(pointer, Float32(1.0))
+                self.emission_elapsed = 0.0
+            elif self.emission_elapsed >= HOLD_EMISSION_SECONDS:
+                self.emission_elapsed -= HOLD_EMISSION_SECONDS
+                self.emit(pointer, Float32(1.0), self.emission_elapsed)
+        elif pointer_inside:
+            if self.was_pointer_down:
+                self.emission_elapsed = 0.0
+            elif self.emission_elapsed >= HOVER_EMISSION_SECONDS:
+                self.emission_elapsed -= HOVER_EMISSION_SECONDS
+                self.emit(pointer, Float32(0.46), self.emission_elapsed)
+        else:
+            self.emission_elapsed = 0.0
         self.was_pointer_down = pointer_down
 
     def fold_coordinate(
@@ -219,11 +253,17 @@ struct MetalWindowDemo(Component):
                 continue
             var age = self.ripple_age[ripple]
             var life = Float32(1.0) - age / RIPPLE_LIFETIME
-            var radius = age * Float32(4.1)
+            var radius = age * RIPPLE_SPEED
             if radius < 16.0:
                 continue
             var origin = Point(self.ripple_x[ripple], self.ripple_y[ripple])
-            var alpha = strength * life * life * Float32(0.82)
+            var fade_in = (radius - Float32(16.0)) / RIPPLE_FADE_IN_DISTANCE
+            if fade_in > 1.0:
+                fade_in = 1.0
+            # Smoothly introduce complete rings so dense emission does not
+            # create a brightness pulse at each ring's first visible frame.
+            fade_in = fade_in * fade_in * (Float32(3.0) - Float32(2.0) * fade_in)
+            var alpha = strength * fade_in * life * life * Float32(0.82)
             self.append_reflected_ring(
                 scene,
                 1000 + ripple * 400,
@@ -276,13 +316,18 @@ def main() raises:
         print("Moxi Metal window unavailable")
         renderer.shutdown()
         return
+    var previous_time = external_call["moxi_metal_time_seconds", Float64]()
     while window.is_open():
         window.pump()
+        var current_time = external_call["moxi_metal_time_seconds", Float64]()
+        var delta_seconds = Float32(current_time - previous_time)
+        previous_time = current_time
         var bounds = Rect(0.0, 0.0, window.config.width, window.config.height)
         component.advance(
             bounds,
             window.pointer_position(),
             window.left_mouse_down(),
+            delta_seconds,
         )
         var scene = component.scene(bounds)
         renderer.render_scene(scene)

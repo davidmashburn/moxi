@@ -177,6 +177,7 @@ static BOOL moxi_metal_window_opened;
 static float moxi_metal_mouse_x = -1.0f;
 static float moxi_metal_mouse_y = -1.0f;
 static BOOL moxi_metal_left_mouse_down = NO;
+static CFTimeInterval moxi_metal_next_frame_time = 0.0;
 static id<MTLTexture> moxi_metal_images[MOXI_METAL_MAX_IMAGES];
 static int moxi_metal_image_ids[MOXI_METAL_MAX_IMAGES];
 static id<MTLTexture> moxi_metal_textures[MOXI_METAL_MAX_TEXT_TEXTURES];
@@ -3396,6 +3397,8 @@ int moxi_metal_open_window(const char *title, float width, float height) {
         moxi_metal_layer.device = moxi_metal_device;
         moxi_metal_layer.pixelFormat = MTLPixelFormatRGBA8Unorm;
         moxi_metal_layer.framebufferOnly = NO;
+        moxi_metal_layer.maximumDrawableCount = MOXI_METAL_FRAME_BUFFERS;
+        moxi_metal_layer.displaySyncEnabled = YES;
         moxi_metal_layer.drawableSize = CGSizeMake(frame.size.width, frame.size.height);
         moxi_metal_window.contentView = view;
         [view setNeedsLayout:YES];
@@ -3404,6 +3407,7 @@ int moxi_metal_open_window(const char *title, float width, float height) {
         [moxi_metal_window setAcceptsMouseMovedEvents:YES];
         [moxi_metal_window makeKeyAndOrderFront:nil];
         [NSApp activateIgnoringOtherApps:YES];
+        moxi_metal_next_frame_time = 0.0;
         moxi_metal_window_opened = YES;
         return 1;
     }
@@ -3411,12 +3415,25 @@ int moxi_metal_open_window(const char *title, float width, float height) {
 
 void moxi_metal_pump_window(void) {
     @autoreleasepool {
-        NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:0.016];
-        NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                             untilDate:deadline
-                                                inMode:NSDefaultRunLoopMode
-                                               dequeue:YES];
-        if (event != nil) {
+        NSScreen *screen = moxi_metal_window.screen ?: [NSScreen mainScreen];
+        NSInteger frames_per_second = screen.maximumFramesPerSecond;
+        if (frames_per_second < 30) frames_per_second = 60;
+        CFTimeInterval interval = 1.0 / (CFTimeInterval)frames_per_second;
+        CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+        if (moxi_metal_next_frame_time <= 0.0) {
+            moxi_metal_next_frame_time = now + interval;
+        }
+        while (moxi_metal_next_frame_time <= now) {
+            moxi_metal_next_frame_time += interval;
+        }
+        NSDate *deadline = [NSDate dateWithTimeIntervalSinceReferenceDate:
+            moxi_metal_next_frame_time];
+        while (true) {
+            NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                                 untilDate:deadline
+                                                    inMode:NSDefaultRunLoopMode
+                                                   dequeue:YES];
+            if (event == nil) break;
             if ([event type] == NSEventTypeLeftMouseDown) {
                 moxi_metal_left_mouse_down = YES;
             } else if ([event type] == NSEventTypeLeftMouseUp) {
@@ -3424,6 +3441,7 @@ void moxi_metal_pump_window(void) {
             }
             [NSApp sendEvent:event];
         }
+        moxi_metal_next_frame_time += interval;
         [NSApp updateWindows];
         if (moxi_metal_view != nil) {
             NSRect bounds = moxi_metal_view.bounds;
@@ -3446,12 +3464,17 @@ void moxi_metal_close_window(void) {
     moxi_metal_mouse_x = -1.0f;
     moxi_metal_mouse_y = -1.0f;
     moxi_metal_left_mouse_down = NO;
+    moxi_metal_next_frame_time = 0.0;
 }
 
 float moxi_metal_window_mouse_x(void) { return moxi_metal_mouse_x; }
 float moxi_metal_window_mouse_y(void) { return moxi_metal_mouse_y; }
 int moxi_metal_window_left_mouse_down(void) {
     return moxi_metal_left_mouse_down ? 1 : 0;
+}
+
+double moxi_metal_time_seconds(void) {
+    return CFAbsoluteTimeGetCurrent();
 }
 
 float moxi_metal_window_width(void) {
