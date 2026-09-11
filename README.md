@@ -44,8 +44,8 @@ The current planning baseline is:
    the branch remains a decision tool rather than a history of stale TODOs.
 
 The immediate recommendation is to preserve the landed Gate 1 boundary while
-sequencing the remaining support work: closing the package-consumer plotting
-coverage gap opened by the package split, deciding the oversized-struct
-boundary, validating the interactive macOS claims against a real desktop, and
-collecting additional full-profile host baselines. New widget or plot-family
-breadth should wait for those contracts.
+sequencing the remaining support work: deciding the oversized-struct boundary,
+validating the interactive macOS claims against a real desktop, and collecting
+additional full-profile host baselines. Packaging and the trait-contract lane
+are settled. New widget or plot-family breadth should wait for those
+contracts.

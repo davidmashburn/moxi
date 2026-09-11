@@ -257,24 +257,21 @@ establish a three-package shape and remove the largest file-level review
 barriers. Four boundaries remain open. Each is specified to the same standard
 as a gate slice; none is a prerequisite for the others.
 
-### S1. Decide the sibling-package distribution boundary
+### S1. Decide the sibling-package distribution boundary — settled
 
-`moxi_plot` and `moxi_demo` are source-only sibling directories. Every
-`mojo run -I src` flow resolves them, but they are not pixi-built packages, so
-the installable artifact no longer carries plotting and `tests/package_consumer.mojo`
-dropped its `moxi.plot_api` assertion.
+`moxi_plot` is an installable package built from a local source path
+(`packages/moxi_plot/pixi.toml`), published after `moxi` so its runtime
+dependency resolves from the same local channel. `tests/package_consumer.mojo`
+asserts installed `PlotDataTable`/`PlotSpec`, and the release preflight
+dry-runs both packages per target. The open question about
+`pixi-build-mojo` and local-monorepo sources is answered: `source = { path }`
+works.
 
-- Owner boundary: packaging and release support, not the UI or plot core.
-- Files: `pixi.toml`, `packages/`, `scripts/package_consumer.sh`,
-  `tests/package_consumer.mojo`, `docs/support-matrix.md`.
-- Open question first: whether `pixi-build-mojo` supports a local-monorepo
-  source (the existing `packages/canvas_mojo/pixi.toml` fetches from git).
-  Spike that before choosing a shape.
-- Validation command: `pixi run package-consumer`.
-- Acceptance: either the installed artifact carries plotting and the consumer
-  test asserts it again, or the support matrix states plainly that plotting
-  ships source-only and the docs stop implying otherwise.
-- Non-goals: publishing to a public channel; a Python extension wheel.
+Evidence: CI `package-consumer` on `planned-follow-on`. Remaining boundary:
+`moxi_demo` is still source-only, which is the intended outcome for a demo
+lane but is not yet stated in the support matrix.
+
+- Non-goals held: publishing to a public channel; a Python extension wheel.
 
 ### S2. Decide the oversized-struct boundary
 
@@ -308,12 +305,20 @@ scroll/virtualization are the most prominently documented behaviors and the
 least directly validated. Headless contracts and one reviewed capture are not
 the same as a session driven with synthetic input.
 
+The AX half is now driveable: AX activation preserves the stable semantic
+target instead of synthesizing a coordinate click, single-line text nodes
+accept settable `AXValue`, and `scripts/launch_demo_app.sh` plus the bundle
+`Info.plist` let the Playground run as a real app that automation can attach
+to. The session itself has not been run.
+
 - Owner boundary: host review lane, not a CI gate. This produces findings, not
   a pass/fail signal.
 - Files: the demo lane under `src/moxi_demo/`, `native/macos_*.m`,
-  `src/moxi/macos.mojo`; harness kept outside the repository.
+  `src/moxi/macos.mojo`, `scripts/launch_demo_app.sh`; harness kept outside the
+  repository.
 - Preconditions: a macOS session with Accessibility and Screen Recording
   permissions granted, and a CJK input source enabled for the IME scenario.
+  These are the current blockers.
 - Validation command: the scenario scripts in the external harness, starting
   with `pixi run demo-walkthrough` as the project's own definition of working.
 - Acceptance: each scenario has a recorded verdict with screenshot or AX-dump
@@ -324,17 +329,51 @@ the same as a session driven with synthetic input.
 
 ### S4. Keep the api-status machinery honest across three packages
 
-`scripts/api_status_check.sh` now loops over per-package lane, surface, and
-status files. Module moves within a package are surface-neutral, but a name
-crossing a package boundary is a compatibility event.
+`scripts/api_status_check.sh` loops over per-package lane, surface, and status
+files, and public trait method sets are inventoried in
+`docs/trait-surface.tsv`. The trait lane exists because `Component` gained
+`update_retained` without the export-name surface being able to see it: a
+trait method is a promise to every implementer, and a default body makes the
+addition source-compatible but not contract-neutral.
+
+The remaining hole is the same shape. Export-name counting still cannot see a
+struct's method set, a changed function signature, or a field added to a public
+value type. Decide whether those warrant the same treatment or whether the
+trait lane plus review is where this stops; more generated inventories are not
+automatically better.
 
 - Owner boundary: release support.
 - Files: `scripts/api_status_check.sh`, `docs/*-api-lanes.tsv`,
-  `docs/*-api-surface.tsv`, `docs/api-compatibility.tsv`, `tests/api_lanes.mojo`.
+  `docs/*-api-surface.tsv`, `docs/trait-surface.tsv`,
+  `docs/api-compatibility.tsv`, `tests/api_lanes.mojo`.
 - Validation command: `pixi run api-status-check`.
 - Acceptance: a name moved between packages fails validation until it has a
-  compatibility row; adding an unclassified export in any package fails.
-- Non-goals: per-package version numbers; independent release cadences.
+  compatibility row; adding an unclassified export in any package fails; adding
+  or removing a public trait method fails until the inventory is regenerated
+  and reviewed.
+- Non-goals: per-package version numbers; independent release cadences;
+  inventorying every struct method.
+
+### S5. Keep profiled benchmarks separable from diagnostics
+
+A retained-dispatch comparison was added to `benchmarks/plotting_interaction.mojo`,
+which is a policy-checked full-profile case. New deterministic metric lines
+change that case's exact signature and added iterations blow its wall-clock
+budget, so the reviewed baseline would have failed the next full run. CI did
+not catch it because the case is full-profile-only while CI runs the quick
+profile. The comparison now lives in a standalone `plot_reactive` program
+outside both profiles.
+
+- Owner boundary: benchmark protocol.
+- Files: `scripts/benchmark.sh`, `benchmarks/`, `docs/benchmarking.md`,
+  `benchmarks/results/`.
+- Acceptance: changing a profiled program's output is a deliberate act that
+  ships with a regenerated, re-reviewed baseline; a comparison between two code
+  paths in one process stays a standalone diagnostic.
+- Open: CI runs only the quick profile, so full-profile drift is found late.
+  Decide whether a periodic full run is worth its cost or whether the
+  regenerate-on-change discipline is sufficient.
+- Non-goals: promoting ratios or wall-clock values to product claims.
 
 ## Gate 1 exit criteria
 

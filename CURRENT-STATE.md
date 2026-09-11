@@ -109,11 +109,24 @@ Two findings from the restructure matter to the support boundary:
   splitting has reached its limit; thinning them requires extracting method
   bodies into free functions, which is behavior-adjacent work.
 
-The package split also removes plotting from the installable package: the
-package-consumer test dropped its `moxi.plot_api` assertion because
-`moxi_plot` is deliberately not a pixi-built package yet. The installed
-artifact therefore no longer carries the plotting surface it carried at
-`0.6.0`.
+A third branch, `planned-follow-on`, stacks on the split and closes the
+packaging gap the split opened. `moxi_plot` is an installable package built
+from a local source path, the package-consumer test asserts installed plot
+types again, and the release preflight covers both packages. It also adds
+`Component.update_retained` with `PlotView`/`PlotControl` implementing
+`Component`, AX activation that preserves the semantic target instead of
+synthesizing a coordinate click, a launchable app bundle for AX automation,
+and indexed/swap-removal execution bookkeeping.
+
+Two contract lessons came out of reviewing that branch and are now enforced:
+
+- A trait method is public contract that export-name counting cannot see.
+  `docs/trait-surface.tsv` inventories public trait method sets and the API
+  status lane checks it.
+- Adding output to a profiled benchmark program changes its exact
+  deterministic signature and invalidates that case's reviewed baseline. CI
+  runs only the quick profile, so full-profile drift is not caught there.
+  Path-versus-path comparisons now live outside the profiles.
 
 ## Capability matrix
 
@@ -181,10 +194,11 @@ in the active plan.
    baselines for other hosts are still planned.
 5. **Documentation classification drift.** Stable, experimental, host-only, and
    planned behavior must use one vocabulary as exports and host claims change.
-6. **Installed-package plotting coverage.** The package split removes the
-   plotting surface from the installable artifact and from package-consumer
-   validation. Until `moxi_plot` is either packaged or explicitly declared
-   source-only, "the package supports plotting" is no longer a checked claim.
+6. **Support-surface blind spots.** Installed-package plotting coverage is
+   restored and trait contracts are now inventoried, but export-name counting
+   still cannot see a changed function signature, a new field on a public value
+   type, or a struct's method set. The generated surface is a guard against one
+   class of change, not a complete compatibility contract.
 7. **Unverified interactive claims.** IME composition, the native accessibility
    tree, text selection/clipboard, and scroll/virtualization behavior are
    covered by headless contracts and one manually reviewed capture, but have
