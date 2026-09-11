@@ -987,6 +987,17 @@ struct MacOSMetalWindow(WindowBackend):
     def is_open(self) raises -> Bool:
         return self.opened and external_call["moxi_metal_window_is_open", Int32]() != 0
 
+    def pointer_position(self) raises -> Point:
+        """Return the current pointer in flipped window content coordinates."""
+        return Point(
+            external_call["moxi_metal_window_mouse_x", Float32](),
+            external_call["moxi_metal_window_mouse_y", Float32](),
+        )
+
+    def left_mouse_down(self) raises -> Bool:
+        """Return whether the left mouse button is currently held."""
+        return external_call["moxi_metal_window_left_mouse_down", Int32]() != 0
+
     def poll_event(mut self) raises -> Event:
         return Event()
 

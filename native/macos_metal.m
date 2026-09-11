@@ -174,6 +174,9 @@ static MoxiMetalView *moxi_metal_view;
 static MoxiMetalView *moxi_metal_canvas_view;
 static CAMetalLayer *moxi_metal_layer;
 static BOOL moxi_metal_window_opened;
+static float moxi_metal_mouse_x = -1.0f;
+static float moxi_metal_mouse_y = -1.0f;
+static BOOL moxi_metal_left_mouse_down = NO;
 static id<MTLTexture> moxi_metal_images[MOXI_METAL_MAX_IMAGES];
 static int moxi_metal_image_ids[MOXI_METAL_MAX_IMAGES];
 static id<MTLTexture> moxi_metal_textures[MOXI_METAL_MAX_TEXT_TEXTURES];
@@ -315,6 +318,7 @@ static void moxi_metal_flush_geometry(void);
 static void moxi_metal_flush_line_batch(void);
 static void moxi_metal_flush_plot_line_batch(void);
 static void moxi_metal_flush_plot_instance_batch(void);
+static void moxi_metal_flush_instanced_batches(void);
 static void moxi_metal_flush_all_batches(void);
 static void moxi_metal_poll_completed(void);
 static void moxi_metal_wait_for_idle(void);
@@ -331,7 +335,8 @@ static int moxi_metal_draw_texture_quad(
     float m21,
     float m22,
     float tx,
-    float ty
+    float ty,
+    BOOL text_coordinates
 );
 
 static vector_float2 moxi_transform_point(
@@ -365,7 +370,25 @@ static MoxiMetalVertex moxi_transformed_vertex(
     return moxi_vertex(point.x, point.y, color);
 }
 
-static void moxi_append_transformed_rect(
+static MoxiMetalVertex moxi_text_transformed_vertex(
+    float x,
+    float y,
+    const float color[4],
+    float m11,
+    float m12,
+    float m21,
+    float m22,
+    float tx,
+    float ty
+) {
+    vector_float2 point = moxi_transform_point(x, y, m11, m12, m21, m22, tx, ty);
+    MoxiMetalVertex result;
+    result.position = moxi_ndc(point.x, point.y);
+    result.color = (vector_float4){color[0], color[1], color[2], color[3]};
+    return result;
+}
+
+static void moxi_append_text_rect(
     float x,
     float y,
     float width,
@@ -379,13 +402,13 @@ static void moxi_append_transformed_rect(
     float ty
 ) {
     if (width <= 0.0f || height <= 0.0f) return;
-    MoxiMetalVertex top_left = moxi_transformed_vertex(
+    MoxiMetalVertex top_left = moxi_text_transformed_vertex(
         x, y, color, m11, m12, m21, m22, tx, ty);
-    MoxiMetalVertex top_right = moxi_transformed_vertex(
+    MoxiMetalVertex top_right = moxi_text_transformed_vertex(
         x + width, y, color, m11, m12, m21, m22, tx, ty);
-    MoxiMetalVertex bottom_left = moxi_transformed_vertex(
+    MoxiMetalVertex bottom_left = moxi_text_transformed_vertex(
         x, y + height, color, m11, m12, m21, m22, tx, ty);
-    MoxiMetalVertex bottom_right = moxi_transformed_vertex(
+    MoxiMetalVertex bottom_right = moxi_text_transformed_vertex(
         x + width, y + height, color, m11, m12, m21, m22, tx, ty);
     moxi_append_triangle(top_left, top_right, bottom_left);
     moxi_append_triangle(bottom_left, top_right, bottom_right);
@@ -1030,7 +1053,8 @@ static int moxi_metal_draw_coretext_text(
                 m21,
                 m22,
                 tx,
-                ty
+                ty,
+                YES
             );
             CFRelease(framesetter);
             CGColorRelease(textColor);
@@ -1141,7 +1165,8 @@ static int moxi_metal_draw_coretext_text(
             m21,
             m22,
             tx,
-            ty
+            ty,
+            YES
         );
         if (!drawn) {
             moxi_metal_textures[slot] = nil;
@@ -1230,7 +1255,7 @@ int moxi_metal_draw_text(
             uint8_t bits = moxi_ascii_glyph_row(value, row);
             for (int column = 0; column < 5; column++) {
                 if ((bits & (uint8_t)(1 << (4 - column))) != 0) {
-                    moxi_append_transformed_rect(
+                    moxi_append_text_rect(
                         current_x + (float)column * scale,
                         current_y + (float)row * scale,
                         scale,
@@ -2347,10 +2372,14 @@ static void moxi_metal_flush_plot_instance_batch(void) {
     moxi_metal_plot_instance_count = 0;
 }
 
-static void moxi_metal_flush_all_batches(void) {
+static void moxi_metal_flush_instanced_batches(void) {
     moxi_metal_flush_line_batch();
     moxi_metal_flush_plot_line_batch();
     moxi_metal_flush_plot_instance_batch();
+}
+
+static void moxi_metal_flush_all_batches(void) {
+    moxi_metal_flush_instanced_batches();
     moxi_metal_flush_geometry();
 }
 
@@ -2366,7 +2395,8 @@ static int moxi_metal_draw_texture_quad(
     float m21,
     float m22,
     float tx,
-    float ty
+    float ty,
+    BOOL text_coordinates
 ) {
     if (moxi_metal_encoder == nil || texture == nil ||
         moxi_metal_image_buffer == nil || moxi_metal_image_pipeline == nil ||
@@ -2379,12 +2409,14 @@ static int moxi_metal_draw_texture_quad(
     vector_float2 bottomRight = moxi_transform_point(x + width, y + height, m11, m12, m21, m22, tx, ty);
     vector_float4 color = (vector_float4){1.0f, 1.0f, 1.0f, moxi_clamp(alpha)};
     MoxiMetalImageVertex *vertices = moxi_metal_image_vertices;
-    vertices[0] = (MoxiMetalImageVertex){moxi_ndc(topLeft.x, topLeft.y), (vector_float2){0.0f, 0.0f}, color};
-    vertices[1] = (MoxiMetalImageVertex){moxi_ndc(topRight.x, topRight.y), (vector_float2){1.0f, 0.0f}, color};
-    vertices[2] = (MoxiMetalImageVertex){moxi_ndc(bottomLeft.x, bottomLeft.y), (vector_float2){0.0f, 1.0f}, color};
+    float top_v = text_coordinates ? 1.0f : 0.0f;
+    float bottom_v = text_coordinates ? 0.0f : 1.0f;
+    vertices[0] = (MoxiMetalImageVertex){moxi_ndc(topLeft.x, topLeft.y), (vector_float2){0.0f, top_v}, color};
+    vertices[1] = (MoxiMetalImageVertex){moxi_ndc(topRight.x, topRight.y), (vector_float2){1.0f, top_v}, color};
+    vertices[2] = (MoxiMetalImageVertex){moxi_ndc(bottomLeft.x, bottomLeft.y), (vector_float2){0.0f, bottom_v}, color};
     vertices[3] = vertices[2];
     vertices[4] = vertices[1];
-    vertices[5] = (MoxiMetalImageVertex){moxi_ndc(bottomRight.x, bottomRight.y), (vector_float2){1.0f, 1.0f}, color};
+    vertices[5] = (MoxiMetalImageVertex){moxi_ndc(bottomRight.x, bottomRight.y), (vector_float2){1.0f, bottom_v}, color};
     moxi_metal_flush_all_batches();
     [moxi_metal_encoder setRenderPipelineState:moxi_metal_image_pipeline];
     [moxi_metal_encoder setVertexBuffer:moxi_metal_image_buffer offset:0 atIndex:0];
@@ -2710,7 +2742,10 @@ void moxi_metal_draw_gradient(
 void moxi_metal_draw_line(float x1, float y1, float x2, float y2, float width, float red, float green, float blue, float alpha) {
     float color[4] = {red, green, blue, alpha};
     if (moxi_metal_encoder != nil) {
-        moxi_metal_flush_all_batches();
+        // Generic lines use the same per-vertex-color geometry pipeline as
+        // rectangles. Keep consecutive lines in that geometry batch while
+        // still preserving order with the instanced fast paths.
+        moxi_metal_flush_instanced_batches();
         moxi_append_line(x1, y1, x2, y2, width, color);
     }
 }
@@ -2871,7 +2906,8 @@ int moxi_metal_draw_image(
         m21,
         m22,
         tx,
-        ty
+        ty,
+        NO
     );
 }
 
@@ -3162,6 +3198,9 @@ void moxi_metal_shutdown(void) {
     moxi_metal_view = nil;
     moxi_metal_layer = nil;
     moxi_metal_window_opened = NO;
+    moxi_metal_mouse_x = -1.0f;
+    moxi_metal_mouse_y = -1.0f;
+    moxi_metal_left_mouse_down = NO;
     moxi_metal_encoder = nil;
     moxi_metal_command_buffer = nil;
     moxi_metal_texture = nil;
@@ -3265,9 +3304,49 @@ void moxi_metal_shutdown(void) {
 @implementation MoxiMetalView
 - (BOOL)isFlipped { return YES; }
 - (CALayer *)makeBackingLayer { return [CAMetalLayer layer]; }
+- (BOOL)acceptsFirstResponder { return YES; }
+- (void)updateTrackingAreas {
+    [super updateTrackingAreas];
+    for (NSTrackingArea *area in [self.trackingAreas copy]) {
+        [self removeTrackingArea:area];
+    }
+    if (self == moxi_metal_view) {
+        NSTrackingAreaOptions options = NSTrackingMouseMoved |
+            NSTrackingMouseEnteredAndExited |
+            NSTrackingActiveInKeyWindow |
+            NSTrackingInVisibleRect;
+        [self addTrackingArea:[[NSTrackingArea alloc]
+            initWithRect:NSZeroRect
+            options:options
+            owner:self
+            userInfo:nil]];
+    }
+}
 - (NSView *)hitTest:(NSPoint)point {
-    (void)point;
-    return nil;
+    if (self != moxi_metal_view || !NSPointInRect(point, self.bounds)) return nil;
+    return self;
+}
+- (void)mouseMoved:(NSEvent *)event {
+    NSPoint local = [self convertPoint:event.locationInWindow fromView:nil];
+    moxi_metal_mouse_x = (float)local.x;
+    moxi_metal_mouse_y = (float)local.y;
+}
+- (void)mouseDragged:(NSEvent *)event {
+    [self mouseMoved:event];
+}
+- (void)mouseDown:(NSEvent *)event {
+    moxi_metal_left_mouse_down = YES;
+    [self mouseMoved:event];
+}
+- (void)mouseUp:(NSEvent *)event {
+    moxi_metal_left_mouse_down = NO;
+    [self mouseMoved:event];
+}
+- (void)mouseExited:(NSEvent *)event {
+    (void)event;
+    moxi_metal_mouse_x = -1.0f;
+    moxi_metal_mouse_y = -1.0f;
+    moxi_metal_left_mouse_down = NO;
 }
 - (void)layout {
     [super layout];
@@ -3322,6 +3401,7 @@ int moxi_metal_open_window(const char *title, float width, float height) {
         [view setNeedsLayout:YES];
         [view layoutSubtreeIfNeeded];
         [moxi_metal_window center];
+        [moxi_metal_window setAcceptsMouseMovedEvents:YES];
         [moxi_metal_window makeKeyAndOrderFront:nil];
         [NSApp activateIgnoringOtherApps:YES];
         moxi_metal_window_opened = YES;
@@ -3336,7 +3416,14 @@ void moxi_metal_pump_window(void) {
                                              untilDate:deadline
                                                 inMode:NSDefaultRunLoopMode
                                                dequeue:YES];
-        if (event != nil) [NSApp sendEvent:event];
+        if (event != nil) {
+            if ([event type] == NSEventTypeLeftMouseDown) {
+                moxi_metal_left_mouse_down = YES;
+            } else if ([event type] == NSEventTypeLeftMouseUp) {
+                moxi_metal_left_mouse_down = NO;
+            }
+            [NSApp sendEvent:event];
+        }
         [NSApp updateWindows];
         if (moxi_metal_view != nil) {
             NSRect bounds = moxi_metal_view.bounds;
@@ -3356,6 +3443,15 @@ void moxi_metal_close_window(void) {
     moxi_metal_view = nil;
     moxi_metal_layer = nil;
     moxi_metal_window_opened = NO;
+    moxi_metal_mouse_x = -1.0f;
+    moxi_metal_mouse_y = -1.0f;
+    moxi_metal_left_mouse_down = NO;
+}
+
+float moxi_metal_window_mouse_x(void) { return moxi_metal_mouse_x; }
+float moxi_metal_window_mouse_y(void) { return moxi_metal_mouse_y; }
+int moxi_metal_window_left_mouse_down(void) {
+    return moxi_metal_left_mouse_down ? 1 : 0;
 }
 
 float moxi_metal_window_width(void) {

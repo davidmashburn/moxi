@@ -85,6 +85,8 @@ metal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xli
 metal-demo = { cmd = "./dist/moxi-metal-demo", depends-on = ["metal-demo-build"] }
 metal-window-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Foundation examples/metal_window.mojo -o dist/moxi-metal-window-demo", depends-on = ["metal-object"] }
 metal-window-demo = { cmd = "./dist/moxi-metal-window-demo", depends-on = ["metal-window-demo-build"] }
+metal-wavetable-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Foundation examples/metal_wavetable_window.mojo -o dist/moxi-metal-wavetable-demo", depends-on = ["metal-object"] }
+metal-wavetable-demo = { cmd = "./dist/moxi-metal-wavetable-demo", depends-on = ["metal-wavetable-demo-build"] }
 metal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker Foundation benchmarks/metal.mojo -o dist/moxi-metal-benchmark", depends-on = ["metal-object"] }
 metal-benchmark = { cmd = "./dist/moxi-metal-benchmark", depends-on = ["metal-benchmark-build"] }
 plot-metal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker Foundation benchmarks/plotting_metal.mojo -o dist/moxi-plot-metal-benchmark", depends-on = ["metal-object"] }
