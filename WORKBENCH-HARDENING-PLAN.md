@@ -32,6 +32,26 @@ based on `c267311`. The companion report is
 The original acceptance criteria below remain the milestone contract. Partial
 native coverage and an agent authoring exercise do not close their open items.
 
+### Follow-up measurements
+
+The native probe and follow-up evidence are committed as `15ffce2` on
+`feat/data-workbench`.
+
+The implementation worktree's `docs/workbench-native-latency.md` records a real
+native-window trace: twelve scroll samples per size yielded 19.203 ms median
+at 10k and 83.364 ms at 100k from event enqueue to the end of CPU drawing.
+This is not display-presentation latency. At 100k, scene construction and
+drawing dominate; table-only scrolling still rebuilds and redraws the plots.
+The next optimization should preserve unchanged plot output across table
+scrolling, with explicit invalidation checks for plot-affecting interactions.
+
+`docs/workbench-native-acceptance.md` records passing path-field focus/caret
+retention across native window enlarge/restore. VoiceOver output and actual
+Japanese marked-text composition could not be verified through the automation
+interface; they remain acceptance gaps. Temporary test settings were restored.
+`docs/workbench-memory-profile.md` records paired small-fixture/100k allocation
+snapshots and the limitations of attributing allocations without stack logging.
+
 ## Decision and evidence
 
 Use the workbench as Moxi's continuing integration workload. The next milestone
