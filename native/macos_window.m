@@ -24,7 +24,7 @@
 #define MOXI_MAX_DRAW_COMMANDS 128
 #define MOXI_MAX_CUSTOM_LINES 32768
 #define MOXI_MAX_CUSTOM_CIRCLES 4096
-#define MOXI_MAX_CUSTOM_RECTS 64
+#define MOXI_MAX_CUSTOM_RECTS 262144 /* 100k observations plus selection overlays */
 #define MOXI_MAX_CUSTOM_TEXT 256
 #define MOXI_EVENT_QUEUE_CAPACITY 64
 #define MOXI_POINTER_DRAG_THRESHOLD 4.0f
@@ -1057,9 +1057,7 @@ static void moxi_reset_custom_commands(void) {
         moxi_copy_color(moxi_custom_text_colors[i], 1.0, 1.0, 1.0, 1.0);
         moxi_custom_text_font_sizes[i] = 14.0;
     }
-    for (int i = 0; i < MOXI_MAX_CUSTOM_RECTS; i++) {
-        moxi_custom_rect_radii[i] = 0.0;
-    }
+    /* Rectangle slots are initialized when appended; reset only the count. */
     moxi_custom_clip_enabled = NO;
     moxi_custom_clip_frame = NSZeroRect;
 }
@@ -3006,6 +3004,36 @@ double moxi_window_benchmark_custom_paint(int iterations) {
     [self interpretKeyEvents:@[event]];
     moxi_interpreting_modifiers = 0;
 }
+
+/* Standard Edit menu actions also serve a focused canvas control. Native
+ * field editors handle these selectors earlier in the responder chain. */
+- (void)selectAll:(id)sender {
+    (void)sender;
+    moxi_interpreting_modifiers = MOXI_MOD_COMMAND;
+    moxi_queue_key_event('a');
+    moxi_interpreting_modifiers = 0;
+}
+
+- (void)copy:(id)sender {
+    (void)sender;
+    moxi_interpreting_modifiers = MOXI_MOD_COMMAND;
+    moxi_queue_key_event(MOXI_KEY_C);
+    moxi_interpreting_modifiers = 0;
+}
+
+- (void)cut:(id)sender {
+    (void)sender;
+    moxi_interpreting_modifiers = MOXI_MOD_COMMAND;
+    moxi_queue_key_event(MOXI_KEY_X);
+    moxi_interpreting_modifiers = 0;
+}
+
+- (void)paste:(id)sender {
+    (void)sender;
+    moxi_interpreting_modifiers = MOXI_MOD_COMMAND;
+    moxi_queue_key_event(MOXI_KEY_V);
+    moxi_interpreting_modifiers = 0;
+}
 @end
 
 void moxi_window_open(
@@ -3022,6 +3050,27 @@ void moxi_window_open(
     @autoreleasepool {
         [NSApplication sharedApplication];
         [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+        if ([NSApp mainMenu] == nil) {
+            NSMenu *mainMenu = [[NSMenu alloc] initWithTitle:@""];
+            NSMenuItem *applicationItem = [[NSMenuItem alloc] initWithTitle:@""
+                action:nil keyEquivalent:@""];
+            NSMenu *applicationMenu = [[NSMenu alloc] initWithTitle:@"Application"];
+            NSMenuItem *quitItem = [applicationMenu addItemWithTitle:@"Quit"
+                action:@selector(terminate:) keyEquivalent:@"q"];
+            quitItem.target = NSApp;
+            applicationItem.submenu = applicationMenu;
+            [mainMenu addItem:applicationItem];
+            NSMenuItem *editItem = [[NSMenuItem alloc] initWithTitle:@"Edit"
+                action:nil keyEquivalent:@""];
+            NSMenu *editMenu = [[NSMenu alloc] initWithTitle:@"Edit"];
+            [editMenu addItemWithTitle:@"Cut" action:@selector(cut:) keyEquivalent:@"x"];
+            [editMenu addItemWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"c"];
+            [editMenu addItemWithTitle:@"Paste" action:@selector(paste:) keyEquivalent:@"v"];
+            [editMenu addItemWithTitle:@"Select All" action:@selector(selectAll:) keyEquivalent:@"a"];
+            editItem.submenu = editMenu;
+            [mainMenu addItem:editItem];
+            [NSApp setMainMenu:mainMenu];
+        }
         [NSApp finishLaunching];
 
         NSRect frame = NSMakeRect(0, 0, width, height);

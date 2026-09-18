@@ -37,6 +37,32 @@ def main():
     test_check(data.key_at(0) == 2)
     test_check(data.version >= 7)
 
+    # Generated keys stay beyond sparse explicit keys, including after
+    # rollover, and failed duplicate inserts do not consume a generated key.
+    var sparse = PlotDataTable()
+    test_check(sparse.add_float_column("extra"))
+    test_check(sparse.append_with_key(1000, 1.0, 2.0))
+    test_check(sparse.append_with_key(12, 3.0, 4.0))
+    var sparse_version = sparse.version
+    test_check(not sparse.append_with_key(1000, 9.0, 9.0))
+    test_check(sparse.version == sparse_version)
+    test_check(sparse.append(5.0, 6.0) == 1001)
+    test_check(sparse.version == sparse_version + 1)
+    test_check(not sparse.field_is_valid("extra", 2))
+    sparse.rollover(1)
+    test_check(sparse.append(7.0, 8.0) == 1002)
+    test_check(sparse.key_at(0) == 1001)
+    test_check(sparse.key_at(1) == 1002)
+
+    var maximum_key = PlotDataTable()
+    test_check(maximum_key.append_with_key(9223372036854775807, 1.0, 2.0))
+    test_check(not maximum_key.append_with_key(9223372036854775807, 3.0, 4.0))
+    test_check(maximum_key.row_count() == 1)
+    test_check(maximum_key.append_with_key(7, 5.0, 6.0))
+    test_check(not maximum_key.append_with_key(9223372036854775807, 7.0, 8.0))
+    test_check(maximum_key.append(9.0, 10.0) < 0)
+    test_check(maximum_key.row_count() == 2)
+
     var typed = PlotDataTable()
     test_check(typed.add_float_column("temperature"))
     test_check(typed.add_int_column("timestamp"))
