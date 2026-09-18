@@ -32,6 +32,9 @@ The current planning baseline is:
 - [APPLICATION-VALIDATION-PLAN.md](APPLICATION-VALIDATION-PLAN.md) expands the
   September 18 assessment into a proposed macOS data-workbench milestone,
   with native interaction, authoring usability, and measured performance gates.
+- [WORKBENCH-HARDENING-PLAN.md](WORKBENCH-HARDENING-PLAN.md) follows the workbench
+  implementation at `c267311` with fresh-launch checks, native interaction fixes,
+  performance attribution, and an independent authoring exercise.
 
 ## Rules of record
 
@@ -48,12 +51,11 @@ The current planning baseline is:
 6. Completed proposals are removed or folded into the current-state record so
    the branch remains a decision tool rather than a history of stale TODOs.
 
-The immediate recommendation is to preserve the landed contracts and build
-one useful application through them. Follow
-[APPLICATION-VALIDATION-PLAN.md](APPLICATION-VALIDATION-PLAN.md), beginning with
-a fixture-driven data exploration workflow and real desktop validation (S3).
-Let reproduced application friction inform the oversized-struct decision (S2)
-and API improvements. Additional host baselines remain a support follow-on;
-new widget, plot-family, and platform breadth should wait for application
-evidence. This September 18 planning update did not rerun the historical
-validation recorded above.
+The immediate recommendation is to harden the workbench implemented on
+`feat/data-workbench` at `c267311`. Follow
+[WORKBENCH-HARDENING-PLAN.md](WORKBENCH-HARDENING-PLAN.md), starting with fresh
+packaged launch verification and native accessibility activation. Measure native
+interaction costs before choosing a rendering optimization. The historical main
+baseline above remains separate from this feature-branch evidence; this planning
+update did not rerun implementation tests. New widget, plot-family, and platform
+breadth should wait for these application findings to be resolved.
