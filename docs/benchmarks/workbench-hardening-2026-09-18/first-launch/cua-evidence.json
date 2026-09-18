@@ -1,0 +1,13 @@
+{
+  "os": "macOS 26.6.2 (25G83)",
+  "architecture": "arm64",
+  "input_source": "U.S.",
+  "backing_scale": "not recorded",
+  "app_path": "/Users/davmash/code/moxi/dist/workbench-launch/replay-i_6uuilp/Moxi Data Workbench.app",
+  "initial_window": "Moxi \u00b7 Data Workbench; 48 source rows",
+  "action": "AX press Sort Y once",
+  "observed_result": "Sorted y descending",
+  "quit": "Command-Q via CUA",
+  "voiceover": "not verified",
+  "ime": "dead-key cafe \u2192 caf\u00e9 verified in earlier same-hash launch; CJK not tested"
+}

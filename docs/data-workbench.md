@@ -15,7 +15,8 @@ verifies the signature before launch. No signing account is required.
 The initial data comes from Moxi’s deterministic plotting fixture. No network
 service or account is needed. The application is experimental and is not a
 new stable framework API. See the [validation report](data-workbench-validation.md)
-for measured behavior and unverified paths.
+and [hardening evidence](data-workbench-hardening.md) for measured behavior and
+unverified paths.
 
 `examples/data/workbench-tail.csv` is a small synthetic import example. Its
 `value > 10` tail contains observations with keys 6, 7, and 10, with values
@@ -55,9 +56,46 @@ PDF, and print-layout export are outside this application's scope.
   writes requested exports.
 
 These modules are imported directly, rather than added to the package’s
-compatibility export surface. Existing framework traits and public APIs stay
-unchanged. The native host must render both retained controls and the plot
+compatibility export surface. Existing framework traits stay unchanged.
+The native host must render both retained controls and the plot
 scene; declaring a canvas alone does not draw its contents.
+
+## Add a summary panel
+
+Compute read-only derived UI from the current model during `build`; filtering
+already rebuilds the component. Use `visible_value_at` and
+`visible_value_is_valid` for visible positions. The `value_at` method instead
+expects a source-row index, which differs after filtering or sorting.
+
+For example, add this method to `DataWorkbenchState` to summarize the active Y
+field without changing selection:
+
+```mojo
+def summary_text(self) -> String:
+    var count = 0
+    var total: Float64 = 0.0
+    for row in range(self.data.visible_count()):
+        if self.data.visible_value_is_valid(self.y_field, row):
+            total += Float64(self.data.visible_value_at(self.y_field, row))
+            count += 1
+    if count == 0:
+        return String("Summary · ", self.y_field, " · no valid visible values")
+    return String("Summary · ", self.y_field, " · ", count, " valid · mean ", total / Float64(count))
+```
+
+Allocate an unused label ID, such as `DATA_WORKBENCH_SUMMARY_ID = 106`, and add
+`root.add_label(DATA_WORKBENCH_SUMMARY_ID, self.summary_text(), 28.0)` after the
+status label in `build`. The current workbench manually budgets table height:
+change its subtraction from `470.0` to `506.0` to reserve the label's 28 pixels
+plus the 8-pixel gap. This is specific to the current app layout.
+
+Test the extension through `App.dispatch` with a targeted threshold
+`TextInputEvent`: verify the summary changes, missing values are excluded, and
+a selected row hidden by the filter keeps its key. The
+[authoring exercise](workbench-authoring-exercise.md) records a passing example
+and empty-result check. That supplementary agent exercise does not establish
+human authoring usability or native visual fit. This example also adds
+O(visible rows) work per build; measure it before using it on large datasets.
 
 ## Reproducing validation
 
@@ -148,9 +186,15 @@ keys. Previously, constructing a large canonical fixture performed a linear
 scan per row. Lower explicit keys still receive duplicate checking, and tests
 cover sparse keys, rollover, duplicates, and generated-key exhaustion.
 
+The workbench now builds each plot table with `append_rows`, validating
+arbitrarily ordered imported keys once per batch. See the
+[plot data guide](plotting.md#data-and-statistical-recipes) for its atomic
+failure contract and time/memory tradeoffs. Single-row nonmonotone append still
+scans; a batch avoids that repeated cost without retaining a key index.
+
 These are implementation findings and self-assessed authoring guidance. No
-independent developer usability study was conducted, and no new convenience
-API or compatibility export was introduced for the application.
+independent human developer usability study was conducted. The additive batch
+method does not add a compatibility-root export.
 
 The native adapter also supplies standard Edit/Quit menu commands when the
 host has not supplied a main menu. The desktop replay found that native text

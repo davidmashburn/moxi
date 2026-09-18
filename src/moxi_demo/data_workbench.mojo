@@ -355,9 +355,13 @@ struct DataWorkbenchState(Component):
 
     def _plot_table(self) -> PlotDataTable:
         var table = PlotDataTable()
-        # Sorting changes visible_rows order.  PlotDataTable's keyed append is
-        # intentionally fast for the fixture's monotonic source keys, so keep
-        # plotting in source order and let the table alone follow the sort.
+        # Keep plotting in source order and let the table alone follow sorting.
+        # Validate all keys once: imported source keys need not be monotonic.
+        var keys = List[Int]()
+        var xs = List[Float32]()
+        var ys = List[Float32]()
+        var xs_valid = List[Bool]()
+        var ys_valid = List[Bool]()
         var visible = List[Bool](capacity=self.data.row_count())
         for _ in range(self.data.row_count()):
             visible.append(False)
@@ -370,13 +374,12 @@ struct DataWorkbenchState(Component):
                 continue
             var x_valid = self.data.value_is_valid(self.x_field, source)
             var y_valid = self.data.value_is_valid(self.y_field, source)
-            _ = table.append_with_key(
-                self.data.key_at(source),
-                self.data.value_at(self.x_field, source),
-                self.data.value_at(self.y_field, source),
-                x_valid,
-                y_valid,
-            )
+            keys.append(self.data.key_at(source))
+            xs.append(self.data.value_at(self.x_field, source))
+            ys.append(self.data.value_at(self.y_field, source))
+            xs_valid.append(x_valid)
+            ys_valid.append(y_valid)
+        _ = table.append_rows(keys, xs, ys, xs_valid, ys_valid)
         return table^
 
     def _scatter_spec(self) -> PlotSpec:

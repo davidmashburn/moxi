@@ -4,6 +4,7 @@ from moxi import (
     selection_from_keys,
     test_check,
 )
+from std.collections import List
 from moxi_plot import (
     COLUMN_BOOL,
     COLUMN_CATEGORY,
@@ -17,6 +18,48 @@ from moxi_plot import (
 
 
 def main():
+    var bulk = PlotDataTable()
+    test_check(bulk.add_float_column("extra"))
+    var keys: List[Int] = [9, 2, 1000003, 0]
+    var xs: List[Float32] = [1.0, 2.0, 3.0, 4.0]
+    var ys: List[Float32] = [4.0, 3.0, 2.0, 1.0]
+    var valid: List[Bool] = [True, False, True, True]
+    test_check(bulk.append_rows(keys, xs, ys, valid, valid))
+    test_check(bulk.key_at(1) == 2 and bulk.x_at(1) == 2.0)
+    test_check(not bulk.row_is_valid(1))
+    test_check(not bulk.field_is_valid("extra", 3))
+    test_check(bulk.append(5.0, 6.0) == 1000004)
+    var version = bulk.version
+    keys = [10, 11, 12, 9]
+    test_check(not bulk.append_rows(keys, xs, ys, valid, valid))
+    test_check(bulk.version == version and bulk.row_count() == 5)
+    keys = [10, 11, 12, 10]
+    test_check(not bulk.append_rows(keys, xs, ys, valid, valid))
+    keys = [10, 11, 12, -1]
+    test_check(not bulk.append_rows(keys, xs, ys, valid, valid))
+    keys = [10]
+    test_check(not bulk.append_rows(keys, xs, ys, valid, valid))
+    test_check(bulk.version == version and bulk.row_count() == 5)
+    # A transient index reads current public storage, even after same-size edits.
+    bulk.keys[0] = 77
+    keys = [10, 11, 12, 77]
+    test_check(not bulk.append_rows(keys, xs, ys, valid, valid))
+    keys = [10, 11, 12, 9]
+    test_check(bulk.append_rows(keys, xs, ys, valid, valid))
+    var copied = bulk
+    var cloned = bulk.clone()
+    copied.rollover(1)
+    test_check(copied.append_rows([77], [1.0], [2.0], [True], [True]))
+    test_check(not cloned.append_rows([77], [1.0], [2.0], [True], [True]))
+    var moved = copied^
+    test_check(not moved.append_rows([77], [1.0], [2.0], [True], [True]))
+    moved.replace(cloned)
+    test_check(not moved.append_rows([10], [1.0], [2.0], [True], [True]))
+    var exhausted_bulk = PlotDataTable()
+    test_check(exhausted_bulk.append_rows([9223372036854775807, 1], [1.0, 2.0], [1.0, 2.0], [True, True], [True, True]))
+    test_check(exhausted_bulk.append(0.0, 0.0) < 0)
+    test_check(exhausted_bulk.append_rows([0], [1.0], [2.0], [True], [True]))
+    test_check(not exhausted_bulk.append_rows([9223372036854775807], [1.0], [2.0], [True], [True]))
     var data = PlotDataTable()
     var first = data.append(0.0, 1.0)
     var second = data.append(1.0, 2.0)

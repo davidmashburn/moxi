@@ -1,0 +1,249 @@
+{
+  "status": "passed",
+  "boundary": "RSS of an existing native window process; interactions supplied separately",
+  "app": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app",
+  "executable": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+  "pid": 61848,
+  "started_at": "2026-09-18T20:53:22.095217+00:00",
+  "macos_version": "26.6.2",
+  "architecture": "arm64",
+  "warmup_seconds": 30,
+  "measured_seconds": 600,
+  "sample_interval_seconds": 30,
+  "samples": [
+    {
+      "observed_at": "2026-09-18T20:53:22.110301+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 531415040,
+      "elapsed_seconds": 0.0,
+      "phase": "warmup"
+    },
+    {
+      "observed_at": "2026-09-18T20:53:52.116407+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 603947008,
+      "elapsed_seconds": 30.004192624997813,
+      "scheduled_elapsed_seconds": 30,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:54:22.121541+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 518356992,
+      "elapsed_seconds": 60.00897733299644,
+      "scheduled_elapsed_seconds": 60,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:54:52.121725+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 602243072,
+      "elapsed_seconds": 90.00901770798373,
+      "scheduled_elapsed_seconds": 90,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:55:22.120249+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 591282176,
+      "elapsed_seconds": 120.00743958298699,
+      "scheduled_elapsed_seconds": 120,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:55:52.120170+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 545734656,
+      "elapsed_seconds": 150.00726791698253,
+      "scheduled_elapsed_seconds": 150,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:56:22.122720+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 531857408,
+      "elapsed_seconds": 180.00972991698654,
+      "scheduled_elapsed_seconds": 180,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:56:52.122110+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 530448384,
+      "elapsed_seconds": 210.00902479200158,
+      "scheduled_elapsed_seconds": 210,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:57:22.121284+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 460783616,
+      "elapsed_seconds": 240.00811662498745,
+      "scheduled_elapsed_seconds": 240,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:57:52.122624+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 754827264,
+      "elapsed_seconds": 270.00950287497835,
+      "scheduled_elapsed_seconds": 270,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:58:22.130712+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 765804544,
+      "elapsed_seconds": 300.0174891249917,
+      "scheduled_elapsed_seconds": 300,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:58:52.128373+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 683786240,
+      "elapsed_seconds": 330.01502583298134,
+      "scheduled_elapsed_seconds": 330,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:59:22.128420+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 622542848,
+      "elapsed_seconds": 360.0149712919956,
+      "scheduled_elapsed_seconds": 360,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T20:59:52.128373+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 619020288,
+      "elapsed_seconds": 390.0148196249793,
+      "scheduled_elapsed_seconds": 390,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T21:00:22.127477+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 627032064,
+      "elapsed_seconds": 420.0138421669835,
+      "scheduled_elapsed_seconds": 420,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T21:00:52.130560+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 647446528,
+      "elapsed_seconds": 450.02186395798344,
+      "scheduled_elapsed_seconds": 450,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T21:01:22.129142+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 655343616,
+      "elapsed_seconds": 480.0152805830003,
+      "scheduled_elapsed_seconds": 480,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T21:01:52.130402+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 612499456,
+      "elapsed_seconds": 510.01648941700114,
+      "scheduled_elapsed_seconds": 510,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T21:02:22.122839+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 624607232,
+      "elapsed_seconds": 540.0087434169836,
+      "scheduled_elapsed_seconds": 540,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T21:02:52.130027+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 639565824,
+      "elapsed_seconds": 570.0158924169955,
+      "scheduled_elapsed_seconds": 570,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T21:03:22.129478+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 607977472,
+      "elapsed_seconds": 600.015287666989,
+      "scheduled_elapsed_seconds": 600,
+      "phase": "measurement"
+    },
+    {
+      "observed_at": "2026-09-18T21:03:52.132376+00:00",
+      "pid": 61848,
+      "process_started": "Fri Sep 18 16:52:30 2026",
+      "command": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench",
+      "resident_bytes": 619020288,
+      "elapsed_seconds": 630.0180797079811,
+      "scheduled_elapsed_seconds": 630,
+      "phase": "measurement"
+    }
+  ],
+  "interaction_evidence": "not observed by this script; pair with native replay",
+  "leak_verdict": "not established; inspect post-warmup interval samples",
+  "bundle_before": {
+    "verified_at": "2026-09-18T20:53:22.106153+00:00",
+    "executable_sha256": "9f9f419dab5ea5bc7085cf01e64f5b4e88d81004e23f98c5c41782cbde37c477",
+    "info_plist_sha256": "cd5db0c0a10abb02043c1b72c90bc16082fc42d13a7f52ffde4ecee767a80661",
+    "codesign_stderr": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app: valid on disk\n/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app: satisfies its Designated Requirement"
+  },
+  "bundle_after": {
+    "verified_at": "2026-09-18T21:03:52.155643+00:00",
+    "executable_sha256": "9f9f419dab5ea5bc7085cf01e64f5b4e88d81004e23f98c5c41782cbde37c477",
+    "info_plist_sha256": "cd5db0c0a10abb02043c1b72c90bc16082fc42d13a7f52ffde4ecee767a80661",
+    "codesign_stderr": "/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app: valid on disk\n/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app: satisfies its Designated Requirement"
+  },
+  "completed_at": "2026-09-18T21:03:52.163634+00:00"
+}

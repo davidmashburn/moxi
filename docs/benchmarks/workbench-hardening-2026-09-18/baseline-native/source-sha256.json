@@ -1,0 +1,10 @@
+{
+  "benchmarks/data_workbench.mojo": "0912b276c54308c7c79f3bec7e88e35af7ca6457dc829ab6423fcddd4669c3ea",
+  "scripts/workbench_benchmark.sh": "dc259e7b5818abeaeb553b0fd979a0a3d69edc81b542590075190b6f6f259b2e",
+  "native/workbench_benchmark_config.c": "cbc9ba463a1226c9d1938f257b747c7dd93edcc5a3590205562a8d958341f6bd",
+  "native/benchmark_clock.c": "63dbe3e70ba33fc38ddd2d182d8a31188c6f66643f2f7ee1392df0f287022d7b",
+  "native/macos_window.m": "efc24943f03d2cb33cea3a6fdd46e03c5b1f3738e05ae27b17ca483754456902",
+  "src/moxi_demo/data_workbench.mojo": "356ec6edbb5bedd3f75f52c1d61f231b1caea489e8b7a9734027bb0492bab8e3",
+  "src/moxi_demo/workbench_data.mojo": "ed5c14a6a2aa74641b69c23b71f8b6816dd82e1670a82d04655b55a8f34e6c53",
+  "src/moxi_plot/plot_data.mojo": "b65d91ce2dd970e8f18311313afc5d2ff1aee27fb1d9643b3ece51c9c9b38aee"
+}
