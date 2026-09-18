@@ -1215,9 +1215,8 @@ struct PlotDataTable(ImplicitlyCopyable):
         return result^
 
     def append(mut self, x: Float32, y: Float32) -> Int:
-        """Append a valid row and return its stable generated key."""
+        """Append a valid row; return a negative key if generated keys are exhausted."""
         var key = self.next_key
-        self.next_key += 1
         _ = self.append_with_key(key, x, y)
         return key
 
@@ -1230,7 +1229,14 @@ struct PlotDataTable(ImplicitlyCopyable):
         y_is_valid: Bool = True,
     ) -> Bool:
         """Append a row unless its stable key already exists."""
-        if key < 0 or self.row_index(key) != -1:
+        # A nonnegative next_key is greater than every key inserted through
+        # this table; a negative value means generated keys are exhausted.
+        # Generated or monotonically increasing keys cannot collide; scanning
+        # for them makes ordinary fixture/import construction quadratic.
+        if key < 0 or (
+            (self.next_key < 0 or key < self.next_key)
+            and self.row_index(key) != -1
+        ):
             return False
         self.keys.append(key)
         self.x_values.append(x)
@@ -1238,7 +1244,7 @@ struct PlotDataTable(ImplicitlyCopyable):
         self.x_valid.append(x_is_valid)
         self.y_valid.append(y_is_valid)
         self._append_missing_columns()
-        if key >= self.next_key:
+        if self.next_key >= 0 and key >= self.next_key:
             self.next_key = key + 1
         self.version += 1
         return True

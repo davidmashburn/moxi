@@ -84,6 +84,7 @@ pixi run counter-demo
 pixi run plot-demo
 pixi run capability-bus-demo
 pixi run interactive-fractal-demo
+pixi run data-workbench
 ```
 
 `pixi run demo` opens the Moxi Playground: search or filter the catalog, read
@@ -96,6 +97,11 @@ whose controls all go through a typed `CapabilityBus` handler; and
 paint example. For the complete demo, benchmark, and packaging task list, see
 [docs/demo-browser.md](docs/demo-browser.md) and
 [docs/features.md](docs/features.md#demos).
+
+`pixi run data-workbench` opens a standalone numerical data workbench with
+linked scatter/histogram views and a virtualized table. See
+[the workbench guide](docs/data-workbench.md) for CSV limits, controls,
+validation evidence, and performance measurements.
 
 To build the distributable Pixi packages, run `pixi publish --target-dir
 output/moxi` followed by `pixi publish --path packages/moxi_plot/pixi.toml
