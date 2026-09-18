@@ -56,11 +56,29 @@ cp "$dist_dir/moxi-data-workbench" "$staged_app/Contents/MacOS/moxi-data-workben
 cp native/moxi_workbench_Info.plist "$staged_app/Contents/Info.plist"
 chmod +x "$staged_app/Contents/MacOS/moxi-data-workbench"
 
+mkdir -p "$staged_app/Contents/Resources"
+python3 - "$staged_app" <<'PY'
+import datetime
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+app = Path(sys.argv[1])
+manifest = {
+    "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    "revision": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+    "worktree_dirty": bool(subprocess.check_output(["git", "status", "--porcelain"], text=True)),
+    "linker_output_sha256": hashlib.sha256((app / "Contents/MacOS/moxi-data-workbench").read_bytes()).hexdigest(),
+}
+(app / "Contents/Resources/build.json").write_text(json.dumps(manifest, indent=2) + "\n")
+PY
+
 # A linker-signed executable is not enough for LaunchServices to accept an
 # application bundle. Ad-hoc sign the bundle so Info.plist and its resource
 # seal are present, then verify the exact staged bundle before installation.
 /usr/bin/codesign --force --sign - --timestamp=none "$staged_app"
-/usr/bin/codesign --verify --deep --strict --verbose=2 "$staged_app"
+python3 scripts/workbench_artifact_check.py "$staged_app"
 
 # Move the old bundle aside and install the freshly signed directory with a
 # single same-filesystem rename. This keeps a failed replacement recoverable.
@@ -74,5 +92,6 @@ if ! mv "$staged_app" "$app_path"; then
   exit 1
 fi
 new_app_installed=1
+python3 scripts/workbench_artifact_check.py "$app_path"
 
 echo "Packaged and ad-hoc signed: $app_path"

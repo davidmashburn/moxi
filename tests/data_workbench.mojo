@@ -38,6 +38,7 @@ from moxi_demo.data_workbench import (
     DATA_WORKBENCH_Y_FIELD_ID,
     DataWorkbenchState,
 )
+from moxi_demo.workbench_data import WorkbenchData
 
 
 def _click(mut app: App[DataWorkbenchState], target: Int) -> Bool:
@@ -81,6 +82,21 @@ def _read_file(path: String) raises -> String:
 
 
 def main() raises:
+    # Explicit CSV keys preserve source identity across the batched plot path.
+    var keyed = WorkbenchData()
+    var loaded = keyed.load_csv("key,x,y\n90,1,2\n2,2,8\n400000,3,5\n7,4,1\n")
+    test_check(loaded.accepted)
+    test_check(keyed.select_key(90))
+    test_check(keyed.select_key(400000))
+    test_check(keyed.set_filter("y", 3.0))
+    test_check(keyed.sort_visible("y"))
+    test_check(keyed.visible_key_at(0) == 400000)
+    var keyed_state = DataWorkbenchState(keyed)
+    test_check(keyed_state.scatter_view.data.key_at(0) == 2)
+    test_check(keyed_state.scatter_view.data.key_at(1) == 400000)
+    test_check(keyed_state.scatter_view.data.row_count() == 2)
+    test_check(keyed_state.data.hidden_selected_count() == 1)
+    test_check(keyed_state.data.export_selected_csv() == "key,x,y\n90,1.0,2.0\n400000,3.0,5.0\n")
     var app = App[DataWorkbenchState](
         DataWorkbenchState(),
         Rect(0.0, 0.0, 1180.0, 820.0),

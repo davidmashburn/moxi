@@ -1,0 +1,123 @@
+{
+  "boundary": "persistent App, offscreen AppKit custom-command drawing; no native window",
+  "binary": "dist/workbench-hardening/candidate-native/moxi-data-workbench-benchmark",
+  "binary_sha256": "77f177f935a321535a5553e79621a87802083cdfe87f32fbd1ffd9b3b554486b",
+  "requested_seconds_after_warmup": 600,
+  "warmup_seconds": 30,
+  "rows": 100000,
+  "sample_interval_seconds": 30,
+  "samples": [
+    {
+      "elapsed_seconds": 1.19218,
+      "resident_bytes": 399572992,
+      "cycles": 0
+    },
+    {
+      "elapsed_seconds": 31.258137,
+      "resident_bytes": 563200000,
+      "cycles": 23
+    },
+    {
+      "elapsed_seconds": 60.65506,
+      "resident_bytes": 563200000,
+      "cycles": 45
+    },
+    {
+      "elapsed_seconds": 90.919218,
+      "resident_bytes": 541343744,
+      "cycles": 67
+    },
+    {
+      "elapsed_seconds": 120.418411,
+      "resident_bytes": 541360128,
+      "cycles": 89
+    },
+    {
+      "elapsed_seconds": 150.454794,
+      "resident_bytes": 541442048,
+      "cycles": 111
+    },
+    {
+      "elapsed_seconds": 180.957725,
+      "resident_bytes": 541310976,
+      "cycles": 134
+    },
+    {
+      "elapsed_seconds": 210.884452,
+      "resident_bytes": 506593280,
+      "cycles": 158
+    },
+    {
+      "elapsed_seconds": 240.945647,
+      "resident_bytes": 506396672,
+      "cycles": 183
+    },
+    {
+      "elapsed_seconds": 270.865051,
+      "resident_bytes": 411910144,
+      "cycles": 208
+    },
+    {
+      "elapsed_seconds": 300.79344,
+      "resident_bytes": 414072832,
+      "cycles": 233
+    },
+    {
+      "elapsed_seconds": 331.422747,
+      "resident_bytes": 412303360,
+      "cycles": 257
+    },
+    {
+      "elapsed_seconds": 360.424032,
+      "resident_bytes": 411320320,
+      "cycles": 280
+    },
+    {
+      "elapsed_seconds": 390.547909,
+      "resident_bytes": 413679616,
+      "cycles": 305
+    },
+    {
+      "elapsed_seconds": 420.415269,
+      "resident_bytes": 413941760,
+      "cycles": 330
+    },
+    {
+      "elapsed_seconds": 450.131131,
+      "resident_bytes": 413302784,
+      "cycles": 355
+    },
+    {
+      "elapsed_seconds": 480.066015,
+      "resident_bytes": 413450240,
+      "cycles": 380
+    },
+    {
+      "elapsed_seconds": 511.055473,
+      "resident_bytes": 413745152,
+      "cycles": 406
+    },
+    {
+      "elapsed_seconds": 540.90908,
+      "resident_bytes": 413859840,
+      "cycles": 431
+    },
+    {
+      "elapsed_seconds": 570.578611,
+      "resident_bytes": 413876224,
+      "cycles": 456
+    },
+    {
+      "elapsed_seconds": 600.405737,
+      "resident_bytes": 413925376,
+      "cycles": 481
+    },
+    {
+      "elapsed_seconds": 630.224303,
+      "resident_bytes": 413925376,
+      "cycles": 506
+    }
+  ],
+  "leak_verdict": "not_established; inspect growth after warmup, not peak RSS alone",
+  "native_window_acceptance": false
+}

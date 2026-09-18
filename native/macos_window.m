@@ -1993,23 +1993,53 @@ static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
     moxi_end_clip(slot.clipEnabled);
 }
 
-static void moxi_draw_custom_commands(void) {
-    moxi_begin_clip(moxi_custom_clip_enabled, moxi_custom_clip_frame);
-
+static void moxi_draw_custom_rectangles(void) {
+    CGContextRef context = NSGraphicsContext.currentContext.CGContext;
+    CGContextSaveGState(context);
+    // Match NSBezierPath's rasterization defaults. Core Graphics' default
+    // flatness differs, producing visible edge changes on small rounded marks.
+    CGContextSetFlatness(context, NSBezierPath.defaultFlatness);
+    CGContextSetLineJoin(context, (CGLineJoin)NSBezierPath.defaultLineJoinStyle);
+    CGContextSetLineCap(context, (CGLineCap)NSBezierPath.defaultLineCapStyle);
+    CGContextSetMiterLimit(context, NSBezierPath.defaultMiterLimit);
+    CGContextSetLineDash(context, 0, NULL, 0);
     for (int i = 0; i < moxi_custom_rect_count; i++) {
         [moxi_color(moxi_custom_rect_fills[i]) setFill];
-        NSBezierPath *rectPath = [NSBezierPath bezierPathWithRoundedRect:
-            moxi_custom_rect_frames[i]
-            xRadius:moxi_custom_rect_radii[i]
-            yRadius:moxi_custom_rect_radii[i]];
-        [rectPath fill];
+        NSRect frame = moxi_custom_rect_frames[i];
+        CGFloat radius = moxi_custom_rect_radii[i];
+        // AppKit's radius clamping has slightly different edge rounding.
+        // Retain its exact path for oversized radii and degenerate rectangles.
+        if (frame.size.width <= 0 || frame.size.height <= 0 ||
+            radius > MIN(frame.size.width, frame.size.height) * 0.5) {
+            NSBezierPath *legacy = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:radius yRadius:radius];
+            [legacy fill];
+            if (moxi_custom_rect_stroke_widths[i] > 0 && moxi_custom_rect_strokes[i][3] > 0) {
+                [moxi_color(moxi_custom_rect_strokes[i]) setStroke];
+                legacy.lineWidth = moxi_custom_rect_stroke_widths[i];
+                [legacy stroke];
+            }
+            continue;
+        }
+        CGPathRef path = CGPathCreateWithRoundedRect(NSRectToCGRect(frame), radius, radius, NULL);
+        CGContextAddPath(context, path);
+        CGContextFillPath(context);
         if (moxi_custom_rect_stroke_widths[i] > 0.0 &&
             moxi_custom_rect_strokes[i][3] > 0.0) {
             [moxi_color(moxi_custom_rect_strokes[i]) setStroke];
-            [rectPath setLineWidth:moxi_custom_rect_stroke_widths[i]];
-            [rectPath stroke];
+            CGContextSetLineWidth(context, moxi_custom_rect_stroke_widths[i]);
+            // Separate operations preserve translucent fill/stroke overlap;
+            // batching or a combined fill-and-stroke changes compositing.
+            CGContextAddPath(context, path);
+            CGContextStrokePath(context);
         }
+        CGPathRelease(path);
     }
+    CGContextRestoreGState(context);
+}
+
+static void moxi_draw_custom_commands(void) {
+    moxi_begin_clip(moxi_custom_clip_enabled, moxi_custom_clip_frame);
+    moxi_draw_custom_rectangles();
 
     int line_index = 0;
     while (line_index < moxi_custom_line_count) {
@@ -2066,15 +2096,15 @@ static void moxi_draw_custom_commands(void) {
     moxi_end_clip(moxi_custom_clip_enabled);
 }
 
-double moxi_window_benchmark_custom_paint(int iterations) {
-    if (iterations <= 0) {
+double moxi_window_benchmark_custom_paint_size(int iterations, int width, int height) {
+    if (iterations <= 0 || width <= 0 || height <= 0) {
         return 0.0;
     }
     @autoreleasepool {
         NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc]
             initWithBitmapDataPlanes:NULL
-                          pixelsWide:920
-                          pixelsHigh:620
+                          pixelsWide:width
+                          pixelsHigh:height
                        bitsPerSample:8
                      samplesPerPixel:4
                             hasAlpha:YES
@@ -2100,6 +2130,10 @@ double moxi_window_benchmark_custom_paint(int iterations) {
         }
         return (CFAbsoluteTimeGetCurrent() - start) * 1000.0;
     }
+}
+
+double moxi_window_benchmark_custom_paint(int iterations) {
+    return moxi_window_benchmark_custom_paint_size(iterations, 920, 620);
 }
 
 - (void)drawRect:(NSRect)dirtyRect {

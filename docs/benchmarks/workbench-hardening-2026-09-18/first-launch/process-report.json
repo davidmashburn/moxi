@@ -1,0 +1,21 @@
+{
+  "status": "process_lifecycle_observed",
+  "app": "/Users/davmash/code/moxi/dist/workbench-launch/replay-i_6uuilp/Moxi Data Workbench.app",
+  "build": {
+    "created_at": "2026-09-18T20:29:35.838985+00:00",
+    "revision": "c267311a7d78fa378d31222deaad2f9a6e5f73ca",
+    "worktree_dirty": true,
+    "linker_output_sha256": "7069d2b9ccf1a854d49e47dd015cb99a7b6ca0f63040e65ab3c3f54605d9931d",
+    "executable_sha256": "c4f64bdbc10170b6c916913767a9ab0b1cfaa6ccd87f043e3cfdbb134f697b1c"
+  },
+  "prepared_at": "2026-09-18T20:37:08.909998+00:00",
+  "existing_source_pids": [],
+  "desktop_acceptance": "pending CUA window, input, and ordinary quit evidence",
+  "observation_started_at": 1789763833.002367,
+  "startup_stderr": "unavailable: CUA owns LaunchServices launch",
+  "clean_exit": "requires CUA ordinary quit evidence; process disappearance is insufficient",
+  "pid": 47019,
+  "process_observed_at": 1789763838.2740421,
+  "process_disappeared_at": 1789763846.812989,
+  "possible_matching_crash_reports": []
+}

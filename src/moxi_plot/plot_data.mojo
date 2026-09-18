@@ -7,7 +7,7 @@ projections whose lifetime is tied to the borrowed source table; transforms
 still materialize a new table when they change rows or column values.
 """
 
-from std.collections import List
+from std.collections import List, Set
 from std.memory import Pointer
 from std.math import floor
 from std.origin import Origin
@@ -1238,6 +1238,45 @@ struct PlotDataTable(ImplicitlyCopyable):
             and self.row_index(key) != -1
         ):
             return False
+        self._append_validated_key(key, x, y, x_is_valid, y_is_valid)
+        return True
+
+    def append_rows(
+        mut self,
+        keys: List[Int],
+        x: List[Float32],
+        y: List[Float32],
+        x_valid: List[Bool],
+        y_valid: List[Bool],
+    ) -> Bool:
+        """Atomically append parallel columns with distinct nonnegative keys.
+
+        Validation uses expected O(existing + incoming rows) time and temporary
+        O(existing + incoming rows) key storage. No index survives the call:
+        callers may continue to mutate public key storage, copy, or move tables.
+        Malformed lengths, negative keys, or duplicates leave the table unchanged.
+        """
+        var count = len(keys)
+        if len(x) != count or len(y) != count or len(x_valid) != count or len(y_valid) != count:
+            return False
+        if count == 0:
+            return True
+        var seen = Set[Int]()
+        for key in self.keys:
+            _ = seen.add(key)
+        for key in keys:
+            if key < 0 or key in seen:
+                return False
+            _ = seen.add(key)
+        for row in range(count):
+            self._append_validated_key(keys[row], x[row], y[row], x_valid[row], y_valid[row])
+        return True
+
+    def _append_validated_key(
+        mut self, key: Int, x: Float32, y: Float32,
+        x_is_valid: Bool, y_is_valid: Bool,
+    ):
+        """Append after the caller has checked key uniqueness."""
         self.keys.append(key)
         self.x_values.append(x)
         self.y_values.append(y)
@@ -1247,7 +1286,6 @@ struct PlotDataTable(ImplicitlyCopyable):
         if self.next_key >= 0 and key >= self.next_key:
             self.next_key = key + 1
         self.version += 1
-        return True
 
     def row_index(self, key: Int) -> Int:
         for index in range(len(self.keys)):

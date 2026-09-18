@@ -9,6 +9,7 @@ input-to-display latency in a native window.
 """
 
 from std.ffi import external_call
+from moxi.macos import MacOSCanvasSceneRenderer
 
 from moxi import (
     App,
@@ -51,6 +52,14 @@ def benchmark_time_ns() -> Int64:
     return external_call["moxi_benchmark_time_ns", Int64]()
 
 
+def config(field: Int32) -> Int:
+    return Int(external_call["moxi_workbench_benchmark_config", Int32](field))
+
+
+def phase_time() -> Int64:
+    return benchmark_time_ns() if config(2) != 0 else Int64(0)
+
+
 struct FrameMetrics(ImplicitlyCopyable):
     """Counts and checksum for one complete headless application frame."""
 
@@ -59,6 +68,12 @@ struct FrameMetrics(ImplicitlyCopyable):
     var render_commands: Int
     var rasterized_pixels: Int
     var checksum: Int
+    var retained_ms: Float64
+    var scene_ms: Float64
+    var submission_ms: Float64
+    var raster_ms: Float64
+    var overflow: Int
+    var validation_ms: Float64
 
     def __init__(out self):
         self.retained_commands = 0
@@ -66,6 +81,12 @@ struct FrameMetrics(ImplicitlyCopyable):
         self.render_commands = 0
         self.rasterized_pixels = 0
         self.checksum = 0
+        self.retained_ms = 0.0
+        self.scene_ms = 0.0
+        self.submission_ms = 0.0
+        self.raster_ms = 0.0
+        self.overflow = 0
+        self.validation_ms = 0.0
 
 
 struct OperationMetrics(ImplicitlyCopyable):
@@ -75,12 +96,14 @@ struct OperationMetrics(ImplicitlyCopyable):
     var changed: Bool
     var frame: FrameMetrics
     var work: ExecutionWorkCounters
+    var dispatch_ms: Float64
 
     def __init__(out self):
         self.elapsed_ms = 0.0
         self.changed = False
         self.frame = FrameMetrics()
         self.work = ExecutionWorkCounters()
+        self.dispatch_ms = 0.0
 
 
 def midpoint(bounds: Rect) -> Point:
@@ -146,21 +169,49 @@ def render_workbench(
 ) raises -> FrameMetrics:
     """Render retained controls and both linked plot scenes in one frame."""
     var frame = FrameMetrics()
+    if config(3) != 0:
+        external_call["moxi_window_begin_frame", NoneType]()
+    var start = phase_time()
     var paint = app.paint()
     var retained = scene_from_paint(paint)
+    frame.retained_ms = Float64(phase_time() - start) / 1000000.0
     frame.retained_commands = retained.count()
-    renderer.render_scene(retained)
-    var retained_pixels = renderer.rasterized_pixels
-    var retained_checksum = renderer.checksum()
+    var native = MacOSCanvasSceneRenderer()
+    start = phase_time()
+    if config(3) != 0:
+        native.render_scene(retained)
+        frame.submission_ms += Float64(phase_time() - start) / 1000000.0
+        frame.raster_ms += external_call["moxi_window_benchmark_custom_paint_size", Float64](Int32(1), Int32(1280), Int32(900))
+    else:
+        renderer.render_scene(retained)
+        frame.raster_ms += Float64(phase_time() - start) / 1000000.0
+        frame.rasterized_pixels += renderer.rasterized_pixels
+        start = phase_time()
+        frame.checksum += renderer.checksum()
+        frame.validation_ms += Float64(phase_time() - start) / 1000000.0
 
+    start = phase_time()
     var scatter_bounds = app.view.bounds_for(DATA_WORKBENCH_SCATTER_CANVAS_ID)
     var histogram_bounds = app.view.bounds_for(DATA_WORKBENCH_HISTOGRAM_CANVAS_ID)
     var plots = app.component.combined_scene(scatter_bounds, histogram_bounds)
+    frame.scene_ms = Float64(phase_time() - start) / 1000000.0
     frame.plot_commands = plots.count()
-    renderer.render_scene(plots)
+    start = phase_time()
+    if config(3) != 0:
+        native.render_scene(plots)
+        frame.submission_ms += Float64(phase_time() - start) / 1000000.0
+        frame.raster_ms += external_call["moxi_window_benchmark_custom_paint_size", Float64](Int32(1), Int32(1280), Int32(900))
+    else:
+        renderer.render_scene(plots)
+        frame.raster_ms += Float64(phase_time() - start) / 1000000.0
+        frame.rasterized_pixels += renderer.rasterized_pixels
+        start = phase_time()
+        frame.checksum += renderer.checksum()
+        frame.validation_ms += Float64(phase_time() - start) / 1000000.0
     frame.render_commands = frame.retained_commands + frame.plot_commands
-    frame.rasterized_pixels = retained_pixels + renderer.rasterized_pixels
-    frame.checksum = retained_checksum + renderer.checksum()
+    if config(3) != 0:
+        frame.overflow = Int(external_call["moxi_window_command_overflow_count", Int32]())
+        test_check(frame.overflow == 0)
     return frame^
 
 
@@ -173,6 +224,8 @@ def dispatch_and_render(
     var before = app.execution_work_counters()
     var start = benchmark_time_ns()
     result.changed = app.dispatch(event)
+    if config(2) != 0:
+        result.dispatch_ms = Float64(benchmark_time_ns() - start) / 1000000.0
     result.frame = render_workbench(app, renderer)
     var end = benchmark_time_ns()
     result.elapsed_ms = Float64(end - start) / 1000000.0
@@ -188,6 +241,7 @@ def print_case(
     app: App[DataWorkbenchState],
     frame: FrameMetrics,
     work: ExecutionWorkCounters,
+    dispatch_ms: Float64 = 0.0,
 ):
     """Emit one parser-friendly record; every field is one key=value token."""
     print(
@@ -225,7 +279,18 @@ def print_case(
         String("root_fallbacks=", work.root_fallbacks),
         " ",
         String("checksum=", frame.checksum),
-        " visible_latency=not_measured cache_reuse=not_measured",
+        String(" retained_ms=", frame.retained_ms),
+        String(" scene_ms=", frame.scene_ms),
+        String(" submission_ms=", frame.submission_ms),
+        String(" raster_ms=", frame.raster_ms),
+        String(" dispatch_ms=", dispatch_ms),
+        String(" invalidations=", work.invalidation_count),
+        String(" dirty_marks=", work.dirty_marks),
+        String(" command_overflows=", frame.overflow),
+        String(" validation_ms=", frame.validation_ms),
+        String(" scatter_packet_rebuilds=", app.component.scatter_view.runtime.packet_rebuilds()),
+        String(" histogram_packet_rebuilds=", app.component.histogram_view.runtime.packet_rebuilds()),
+        " visible_latency=not_measured cache_reuse=not_measured queue_latency=not_measured",
     )
 
 
@@ -243,7 +308,7 @@ def click_view(
     settle(app, renderer)
 
 
-def run_case(row_count: Int) raises:
+def run_case(row_count: Int, measured: Bool) raises:
     var bounds = Rect(0.0, 0.0, WORKBENCH_WIDTH, WORKBENCH_HEIGHT)
     var cold_start = benchmark_time_ns()
     var fixture = make_workbench_fixture(row_count)
@@ -258,15 +323,10 @@ def run_case(row_count: Int) raises:
     test_check(app.view_is_valid())
     test_check(app.component.total_row_count() == row_count)
     test_check(cold_frame.plot_commands > 0)
-    print_case(
-        row_count,
-        "cold_load",
-        cold_elapsed_ms,
-        True,
-        app,
-        cold_frame,
-        cold_work,
-    )
+    if measured:
+        print_case(
+            row_count, "cold_load", cold_elapsed_ms, True, app, cold_frame, cold_work,
+        )
 
     var scatter_bounds = app.view.bounds_for(DATA_WORKBENCH_SCATTER_CANVAS_ID)
     var scatter_scene = app.component.scatter_scene(scatter_bounds)
@@ -280,44 +340,32 @@ def run_case(row_count: Int) raises:
     test_check(filter_result.changed)
     test_check(filter_result.frame.plot_commands > 0)
     test_check(app.component.visible_row_count() < row_count)
-    print_case(
-        row_count,
-        "filter",
-        filter_result.elapsed_ms,
-        filter_result.changed,
-        app,
-        filter_result.frame,
-        filter_result.work,
-    )
+    if measured:
+        print_case(
+            row_count, "filter", filter_result.elapsed_ms, filter_result.changed,
+            app, filter_result.frame, filter_result.work, filter_result.dispatch_ms,
+        )
 
     click_view(app, renderer, DATA_WORKBENCH_CLEAR_FILTER_ID)
 
     var hover_event = Event(PointerEvent(POINTER_MOVE_KIND, plot_point))
     var hover_result = dispatch_and_render(app, renderer, hover_event)
     test_check(hover_result.changed)
-    print_case(
-        row_count,
-        "hover",
-        hover_result.elapsed_ms,
-        hover_result.changed,
-        app,
-        hover_result.frame,
-        hover_result.work,
-    )
+    if measured:
+        print_case(
+            row_count, "hover", hover_result.elapsed_ms, hover_result.changed,
+            app, hover_result.frame, hover_result.work, hover_result.dispatch_ms,
+        )
 
     var selection_event = Event(ClickEvent(plot_point))
     var selection_result = dispatch_and_render(app, renderer, selection_event)
     test_check(selection_result.changed)
     test_check(app.component.selected_row_count() > 0)
-    print_case(
-        row_count,
-        "selection",
-        selection_result.elapsed_ms,
-        selection_result.changed,
-        app,
-        selection_result.frame,
-        selection_result.work,
-    )
+    if measured:
+        print_case(
+            row_count, "selection", selection_result.elapsed_ms, selection_result.changed,
+            app, selection_result.frame, selection_result.work, selection_result.dispatch_ms,
+        )
 
     var table_bounds = app.view.bounds_for(DATA_WORKBENCH_TABLE_PORTAL_ID)
     var scroll_event = Event(
@@ -326,15 +374,11 @@ def run_case(row_count: Int) raises:
     var scroll_result = dispatch_and_render(app, renderer, scroll_event)
     test_check(scroll_result.changed)
     test_check(app.component.table_scroll_offset() > 0.0)
-    print_case(
-        row_count,
-        "scroll",
-        scroll_result.elapsed_ms,
-        scroll_result.changed,
-        app,
-        scroll_result.frame,
-        scroll_result.work,
-    )
+    if measured:
+        print_case(
+            row_count, "scroll", scroll_result.elapsed_ms, scroll_result.changed,
+            app, scroll_result.frame, scroll_result.work, scroll_result.dispatch_ms,
+        )
 
     var resize_result = dispatch_and_render(
         app,
@@ -343,18 +387,63 @@ def run_case(row_count: Int) raises:
     )
     test_check(resize_result.changed)
     test_check(app.view_is_valid())
-    print_case(
-        row_count,
-        "resize",
-        resize_result.elapsed_ms,
-        resize_result.changed,
-        app,
-        resize_result.frame,
-        resize_result.work,
+    if measured:
+        print_case(
+            row_count, "resize", resize_result.elapsed_ms, resize_result.changed,
+            app, resize_result.frame, resize_result.work, resize_result.dispatch_ms,
+        )
+
+
+def run_soak(seconds: Int) raises:
+    """Persistent App interaction cycle; RSS sampling, not native-window acceptance."""
+    var app = App[DataWorkbenchState](
+        DataWorkbenchState(make_workbench_fixture(100000)),
+        Rect(0.0, 0.0, WORKBENCH_WIDTH, WORKBENCH_HEIGHT),
     )
+    var renderer = SoftwareSceneRenderer(Int(WORKBENCH_WIDTH), Int(WORKBENCH_HEIGHT))
+    settle(app, renderer)
+    var start = benchmark_time_ns()
+    var next_sample: Float64 = 0.0
+    var cycle = 0
+    var elapsed: Float64 = 0.0
+    while elapsed < Float64(seconds + 30):
+        # First thirty seconds warm caches/allocator; measured soak follows.
+        var table = app.view.bounds_for(DATA_WORKBENCH_TABLE_PORTAL_ID)
+        _ = dispatch_and_render(app, renderer, Event(ScrollEvent(inset_midpoint(table), Point(0.0, 480.0))))
+        test_check(app.component.table_scroll_offset() > 0.0)
+        var scatter = app.view.bounds_for(DATA_WORKBENCH_SCATTER_CANVAS_ID)
+        var scene = app.component.scatter_scene(scatter)
+        var point = find_plot_point(scene, scatter)
+        _ = dispatch_and_render(app, renderer, Event(PointerEvent(POINTER_MOVE_KIND, point)))
+        _ = dispatch_and_render(app, renderer, Event(ClickEvent(point)))
+        click_view(app, renderer, DATA_WORKBENCH_THRESHOLD_ID)
+        var event = Event(TextInputEvent(FILTER_TEXT if cycle % 2 == 0 else "3.50", 0, 4))
+        event.target = DATA_WORKBENCH_THRESHOLD_ID
+        _ = dispatch_and_render(app, renderer, event)
+        test_check(app.component.visible_row_count() < 100000)
+        click_view(app, renderer, DATA_WORKBENCH_CLEAR_FILTER_ID)
+        _ = dispatch_and_render(app, renderer, Event(ResizeEvent(Size(
+            1280.0 if cycle % 2 == 0 else WORKBENCH_WIDTH,
+            900.0 if cycle % 2 == 0 else WORKBENCH_HEIGHT,
+        ))))
+        test_check(app.view_is_valid())
+        test_check(app.component.total_row_count() == 100000)
+        test_check(app.component.visible_row_count() == 100000)
+        elapsed = Float64(benchmark_time_ns() - start) / 1000000000.0
+        if elapsed >= next_sample:
+            print("SOAK ", String("elapsed_seconds=", elapsed),
+                  String(" resident_bytes=", external_call["moxi_workbench_resident_bytes", Int64]()),
+                  String(" cycles=", cycle), " rows=100000 native_window=false")
+            next_sample += 30.0
+        cycle += 1
+    print("SOAK_COMPLETE ", String("elapsed_seconds=", elapsed), String(" cycles=", cycle))
 
 
 def main() raises:
+    print(String("process_id=", external_call["getpid", Int32]()))
+    if config(4) > 0:
+        run_soak(config(4))
+        return
     print("Moxi data-workbench composed benchmark")
     print("measurement_boundary=cold_fixture_state_app_first_frame_and_steady_dispatch_plus_scene_render")
     print("fixture=make_workbench_fixture_parameterized")
@@ -363,5 +452,10 @@ def main() raises:
     print("memory=process_peak_only_if_wrapper_supports_it")
     print("memory_scope=process_not_operation_level")
     print("release_baseline=unestablished")
-    run_case(10000)
-    run_case(100000)
+    for _ in range(config(1)):
+        run_case(10000, False)
+        run_case(100000, False)
+    for sample in range(config(0)):
+        print(String("sample=", sample))
+        run_case(10000, True)
+        run_case(100000, True)
