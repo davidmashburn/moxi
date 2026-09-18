@@ -1,0 +1,3 @@
+✨ Pixi task (workbench-test): mojo run -I src tests/workbench_data.mojo && mojo run -I src tests/data_workbench.mojo
+Moxi workbench-data test passed
+Moxi data-workbench integration test passed
