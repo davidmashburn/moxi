@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-18T17:04:40Z",
+  "benchmark_artifact": "docs/benchmarks/data-workbench-2026-09-18/full.json",
+  "git_revision": "a34963ffa8876f397d3facdc79c84e07d2f1dcf2",
+  "git_dirty": true,
+  "hash_algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "benchmarks/data_workbench.mojo",
+      "role": "composed application benchmark",
+      "sha256": "808d16db9e6af444d5fe96540dc8d65b860f2696fc1f7e20e8761f9f93a19674"
+    },
+    {
+      "path": "scripts/workbench_benchmark.sh",
+      "role": "benchmark build, run, metadata, and artifact collector",
+      "sha256": "6b7e29b66c145dbb1b215b4ce3a85b9dd512af1b67b68a9f715c5db2eed2a878"
+    },
+    {
+      "path": "src/moxi_demo/data_workbench.mojo",
+      "role": "data workbench application UI",
+      "sha256": "b2fb6539cbcca2b53708f0fbb7f4461710467bb318d77e1de45c649d4721f473"
+    },
+    {
+      "path": "src/moxi_demo/workbench_data.mojo",
+      "role": "workbench data model and benchmark fixture",
+      "sha256": "ed5c14a6a2aa74641b69c23b71f8b6816dd82e1670a82d04655b55a8f34e6c53"
+    },
+    {
+      "path": "src/moxi_demo/workbench_files.mojo",
+      "role": "workbench file import and export support",
+      "sha256": "b06dc8b2dc2c62a562752bd7ff45a4d4279a89acdc016d8ab5b8bae4e59c8bfe"
+    },
+    {
+      "path": "src/moxi/macos.mojo",
+      "role": "MacOSCanvasSceneRenderer bridge",
+      "sha256": "cba096c29d206edbe5182ac6ccd04798fd6e552b2b36e93d937e4970de1ca689"
+    },
+    {
+      "path": "native/macos_window.m",
+      "role": "native command buffer and overflow counter",
+      "sha256": "bef6fd64a46b65be94ff893fe65755b0a3ea7b414486fd66d43fab39fee83b37"
+    },
+    {
+      "path": "tests/native_workbench_capacity.mojo",
+      "role": "native scene capacity regression test",
+      "sha256": "28aea1e75ab6557596af3de1e20df9ca015a42b0ff501adba0efa16477ce0274"
+    },
+    {
+      "path": "pixi.toml",
+      "role": "benchmark and native capacity task definitions",
+      "sha256": "0ff8ee4c581c0e90078733be9321eef5c981f2e4bbc14a208e8e6e1835ea8786"
+    },
+    {
+      "path": "scripts/check.sh",
+      "role": "native capacity check integration",
+      "sha256": "274108745bb427cce7c60950966beaac0408135826095c2059c71c3f541f369b"
+    }
+  ]
+}

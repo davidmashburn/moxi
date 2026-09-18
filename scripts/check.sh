@@ -6,6 +6,8 @@ cd "$repo_dir"
 
 git diff --check
 git diff --cached --check
+bash -n scripts/package_workbench_app.sh
+bash -n scripts/workbench_benchmark.sh
 bash -n scripts/record_demo.sh
 bash -n scripts/api_status_check.sh
 bash -n scripts/visual_check.sh
@@ -33,6 +35,7 @@ python3 scripts/dataviz_parity.py
 python3 scripts/plot_spec_contract_check.py
 python3 scripts/capability_wave_check.py
 pixi run demo-walkthrough-build
+pixi run data-workbench-build
 bash scripts/test.sh
 bash scripts/canvas_benchmark.sh
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
@@ -43,6 +46,7 @@ clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c native/macos_text.m -o native/macos_text.o
 pixi run native-text-parity
 pixi run native-screenshot-check
+pixi run native-workbench-capacity
 mkdir -p dist
 mojo precompile src/moxi -o dist/moxi.mojoc
 mojo doc src/moxi -I src -o dist/moxi-api.json

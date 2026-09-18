@@ -17,6 +17,8 @@ tests=(
   tests/measurement.mojo
   tests/wx_style.mojo
   tests/wx_advanced.mojo
+  tests/workbench_data.mojo
+  tests/data_workbench.mojo
   tests/demo_browser.mojo
   tests/demo_walkthrough.mojo
   tests/fractal.mojo
