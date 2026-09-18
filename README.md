@@ -29,6 +29,10 @@ The current planning baseline is:
   preserves the source research and records how its recommendations map to the
   current code.
 
+- [APPLICATION-VALIDATION-PLAN.md](APPLICATION-VALIDATION-PLAN.md) expands the
+  September 18 assessment into a proposed macOS data-workbench milestone,
+  with native interaction, authoring usability, and measured performance gates.
+
 ## Rules of record
 
 1. Code is the source of truth for implementation status. A plan item is not
@@ -44,9 +48,12 @@ The current planning baseline is:
 6. Completed proposals are removed or folded into the current-state record so
    the branch remains a decision tool rather than a history of stale TODOs.
 
-The immediate recommendation is to preserve the landed Gate 1 boundary while
-sequencing the remaining support work: deciding the oversized-struct boundary,
-validating the interactive macOS claims against a real desktop, and collecting
-additional full-profile host baselines. Packaging and the trait-contract lane
-are settled. New widget or plot-family breadth should wait for those
-contracts.
+The immediate recommendation is to preserve the landed contracts and build
+one useful application through them. Follow
+[APPLICATION-VALIDATION-PLAN.md](APPLICATION-VALIDATION-PLAN.md), beginning with
+a fixture-driven data exploration workflow and real desktop validation (S3).
+Let reproduced application friction inform the oversized-struct decision (S2)
+and API improvements. Additional host baselines remain a support follow-on;
+new widget, plot-family, and platform breadth should wait for application
+evidence. This September 18 planning update did not rerun the historical
+validation recorded above.

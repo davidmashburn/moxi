@@ -20,6 +20,24 @@ The differentiator is the combination of:
 - typed plotting built on the same scene/runtime contracts; and
 - an optional authorization boundary for UI and agent actions.
 
+## September 18 application validation priority
+
+The next execution milestone is specified in
+[APPLICATION-VALIDATION-PLAN.md](APPLICATION-VALIDATION-PLAN.md): a bounded
+macOS data workbench that proves linked plots, ordinary controls, text input,
+virtualized rows, accessibility, and state preservation in one useful workflow.
+This sharpens the existing product decision around interactive visualization
+close to Mojo computation. It is a hypothesis to validate, not a new support
+claim or a mandate to expand all adjacent surfaces.
+
+Start with A1's fixture-driven workflow and A2's native interaction evidence.
+Use that evidence for targeted API improvements and bounded local data import,
+then make a measured support decision. S3 is part of this milestone; S2 is
+informed by demonstrated ownership or authoring problems. Required Gate 2 and
+Gate 4 slices can precede Gate 3. The numbered gates below remain capability
+boundaries, not a requirement to implement another platform before validating
+the existing application stack. Historical completion records are preserved.
+
 ## Contract decisions to hold
 
 1. **State source of truth:** application/component values own durable UI
@@ -496,5 +514,12 @@ rewrite:
    open and are independent of each other; S3 can run as soon as a permitted
    desktop session is available.
 
-This order makes each later slice consume infrastructure already reviewed by
-the previous one and keeps the first milestone independently shippable.
+8. Application validation: execute A1–A5 in
+   [APPLICATION-VALIDATION-PLAN.md](APPLICATION-VALIDATION-PLAN.md), bringing S3
+   into the early application workflow and using evidence to select any S2,
+   text/native, or plotting follow-up. Defer new feature/platform breadth
+   until this bounded workflow has a recorded support decision.
+
+The landed sequence remains historical context. The application milestone is
+the next proposed execution priority and consumes the infrastructure already
+reviewed above.
