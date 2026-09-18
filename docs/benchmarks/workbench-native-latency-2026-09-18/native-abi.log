@@ -1,0 +1,2 @@
+✨ Pixi task (native-accessibility-abi): mkdir -p dist && clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c tests/native_accessibility_probe.m -o dist/native_accessibility_probe.o && mojo build -I src -Xlinker dist/native_accessibility_probe.o -Xlinker -framework -Xlinker Cocoa tests/native_accessibility_abi.mojo -o dist/moxi-native-accessibility-abi && ./dist/moxi-native-accessibility-abi
+Native accessibility ABI passed: all 64 flag combinations

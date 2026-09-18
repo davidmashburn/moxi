@@ -1,0 +1,12 @@
+snapshot=pid-7690-100k
+command exit codes:
+  footprint-json: 0
+  footprint-summary: 0
+  heap-summary: 0
+  heap-zones: 0
+  leaks-summary: 1
+  ps-final: 0
+  ps-initial: 0
+  vmmap-regions: 0
+  vmmap-summary: 0
+meaningful stderr: none

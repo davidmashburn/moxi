@@ -1,0 +1,1 @@
+ 7690     1 davmash Fri Sep 18 18:24:44 2026     08:25 435568 436408832 /Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench

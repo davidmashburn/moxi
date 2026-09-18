@@ -1,6 +1,11 @@
 #import <Cocoa/Cocoa.h>
 #include <dlfcn.h>
+#include <mach/mach_time.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
+#include <string.h>
 
 @interface MoxiWindowDelegate : NSObject <NSWindowDelegate>
 @end
@@ -127,7 +132,24 @@ typedef struct {
     int target;
     int action;
     NSString *text;
+    uint64_t receivedAtNs;
 } MoxiQueuedEvent;
+
+typedef struct {
+    BOOL active;
+    BOOL frameReady;
+    int firstEventKind;
+    int lastEventKind;
+    int eventCount;
+    int queueDepthAtPoll;
+    uint64_t receiptNs;
+    uint64_t dispatchStartNs;
+    uint64_t dispatchEndNs;
+    uint64_t sceneStartNs;
+    uint64_t sceneEndNs;
+    uint64_t frameReadyNs;
+    uint64_t drawStartNs;
+} MoxiNativeTiming;
 
 typedef struct {
     NSString *text;
@@ -180,6 +202,8 @@ static float moxi_event_scroll_x;
 static float moxi_event_scroll_y;
 static int moxi_event_target;
 static int moxi_event_action;
+static uint64_t moxi_current_event_receipt_ns;
+static int moxi_current_event_queue_depth;
 static int moxi_interpreting_modifiers;
 static NSString *moxi_marked_text;
 static int moxi_marked_selection_start;
@@ -188,6 +212,131 @@ static int moxi_marked_selection_end;
 static CGFloat moxi_last_canvas_width;
 static CGFloat moxi_last_canvas_height;
 static NSString *moxi_clipboard_value;
+
+/*
+ * Opt-in native timing for the real window path. This is deliberately kept
+ * private to the native window and the workbench example. The logged draw
+ * boundary is the final probe in -drawRect:, before trace I/O and return.
+ * It measures CPU work in AppKit's view callback, not compositor presentation
+ * or input-to-photon latency.
+ */
+static BOOL moxi_native_timing_active;
+static MoxiNativeTiming moxi_native_timing;
+static FILE *moxi_native_timing_output;
+
+static uint64_t moxi_native_timing_now_ns(void) {
+    static mach_timebase_info_data_t timebase;
+    if (timebase.denom == 0) {
+        (void)mach_timebase_info(&timebase);
+    }
+    uint64_t ticks = mach_absolute_time();
+    return (ticks * (uint64_t)timebase.numer) / (uint64_t)timebase.denom;
+}
+
+static double moxi_native_timing_ms(uint64_t start, uint64_t end) {
+    if (start == 0 || end < start) {
+        return -1.0;
+    }
+    return (double)(end - start) / 1000000.0;
+}
+
+static BOOL moxi_native_timing_from_environment(void) {
+    const char *value = getenv("MOXI_NATIVE_TIMING");
+    const char *path = getenv("MOXI_NATIVE_TIMING_FILE");
+    return (
+        (value != NULL && value[0] != '\0' && strcmp(value, "0") != 0)
+        || (path != NULL && path[0] != '\0')
+    );
+}
+
+static void moxi_native_timing_reset(void) {
+    memset(&moxi_native_timing, 0, sizeof(moxi_native_timing));
+}
+
+static void moxi_native_timing_close_output(void) {
+    if (moxi_native_timing_output != NULL &&
+        moxi_native_timing_output != stderr) {
+        fclose(moxi_native_timing_output);
+    }
+    moxi_native_timing_output = NULL;
+}
+
+static void moxi_native_timing_configure_output(void) {
+    moxi_native_timing_close_output();
+    if (!moxi_native_timing_active) {
+        return;
+    }
+    const char *path = getenv("MOXI_NATIVE_TIMING_FILE");
+    if (path != NULL && path[0] != '\0') {
+        moxi_native_timing_output = fopen(path, "w");
+    }
+}
+
+static void moxi_native_timing_draw_started(void) {
+    if (!moxi_native_timing_active || !moxi_native_timing.active ||
+        !moxi_native_timing.frameReady) {
+        return;
+    }
+    moxi_native_timing.drawStartNs = moxi_native_timing_now_ns();
+}
+
+static void moxi_native_timing_draw_completed(void) {
+    if (!moxi_native_timing_active || !moxi_native_timing.active ||
+        !moxi_native_timing.frameReady) {
+        return;
+    }
+    uint64_t drawEndNs = moxi_native_timing_now_ns();
+    FILE *output = moxi_native_timing_output == NULL
+        ? stderr
+        : moxi_native_timing_output;
+    fprintf(
+        output,
+        "MOXI_NATIVE_TIMING first_event=%d last_event=%d events=%d queue_depth=%d "
+        "queue_wait_ms=%.3f dispatch_layout_ms=%.3f scene_ms=%.3f "
+        "scene_to_frame_ready_ms=%.3f frame_ready_to_drawRect_return_ms=%.3f "
+        "drawRect_cpu_ms=%.3f "
+        "receipt_to_drawRect_return_ms=%.3f receipt_ns=%llu "
+        "dispatch_start_ns=%llu dispatch_end_ns=%llu scene_start_ns=%llu "
+        "scene_end_ns=%llu frame_ready_ns=%llu draw_start_ns=%llu "
+        "draw_end_ns=%llu\n",
+        moxi_native_timing.firstEventKind,
+        moxi_native_timing.lastEventKind,
+        moxi_native_timing.eventCount,
+        moxi_native_timing.queueDepthAtPoll,
+        moxi_native_timing_ms(
+            moxi_native_timing.receiptNs,
+            moxi_native_timing.dispatchStartNs
+        ),
+        moxi_native_timing_ms(
+            moxi_native_timing.dispatchStartNs,
+            moxi_native_timing.dispatchEndNs
+        ),
+        moxi_native_timing_ms(
+            moxi_native_timing.sceneStartNs,
+            moxi_native_timing.sceneEndNs
+        ),
+        moxi_native_timing_ms(
+            moxi_native_timing.sceneEndNs,
+            moxi_native_timing.frameReadyNs
+        ),
+        moxi_native_timing_ms(
+            moxi_native_timing.frameReadyNs,
+            drawEndNs
+        ),
+        moxi_native_timing_ms(moxi_native_timing.drawStartNs, drawEndNs),
+        moxi_native_timing_ms(moxi_native_timing.receiptNs, drawEndNs),
+        (unsigned long long)moxi_native_timing.receiptNs,
+        (unsigned long long)moxi_native_timing.dispatchStartNs,
+        (unsigned long long)moxi_native_timing.dispatchEndNs,
+        (unsigned long long)moxi_native_timing.sceneStartNs,
+        (unsigned long long)moxi_native_timing.sceneEndNs,
+        (unsigned long long)moxi_native_timing.frameReadyNs,
+        (unsigned long long)moxi_native_timing.drawStartNs,
+        (unsigned long long)drawEndNs
+    );
+    fflush(output);
+    moxi_native_timing_reset();
+}
 
 static int moxi_label_count;
 static int moxi_command_overflow_count;
@@ -758,6 +907,7 @@ static void moxi_reset_event_queue(void) {
         moxi_event_queue[i].target = -1;
         moxi_event_queue[i].action = -1;
         moxi_event_queue[i].text = nil;
+        moxi_event_queue[i].receivedAtNs = 0;
     }
     moxi_event_queue_head = 0;
     moxi_event_queue_tail = 0;
@@ -776,6 +926,8 @@ static void moxi_reset_event_queue(void) {
     moxi_event_scroll_y = 0.0;
     moxi_event_target = -1;
     moxi_event_action = -1;
+    moxi_current_event_receipt_ns = 0;
+    moxi_current_event_queue_depth = 0;
 }
 
 static BOOL moxi_enqueue_event(
@@ -809,6 +961,9 @@ static BOOL moxi_enqueue_event(
     queued->target = -1;
     queued->action = -1;
     queued->text = text == nil ? nil : [text copy];
+    queued->receivedAtNs = moxi_native_timing_active
+        ? moxi_native_timing_now_ns()
+        : 0;
     moxi_event_queue_tail =
         (moxi_event_queue_tail + 1) % MOXI_EVENT_QUEUE_CAPACITY;
     moxi_event_queue_count += 1;
@@ -872,6 +1027,9 @@ static void moxi_queue_semantic_action(int target, int action) {
     queued->target = target;
     queued->action = action;
     queued->text = nil;
+    queued->receivedAtNs = moxi_native_timing_active
+        ? moxi_native_timing_now_ns()
+        : 0;
     moxi_event_queue_tail =
         (moxi_event_queue_tail + 1) % MOXI_EVENT_QUEUE_CAPACITY;
     moxi_event_queue_count += 1;
@@ -1492,6 +1650,8 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 
 - (void)windowWillClose:(NSNotification *)notification {
     moxi_window_opened = NO;
+    moxi_native_timing_reset();
+    moxi_native_timing_close_output();
     moxi_mouse_is_down = NO;
     moxi_mouse_dragging = NO;
     moxi_click_pending = NO;
@@ -2137,6 +2297,8 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
+    (void)dirtyRect;
+    moxi_native_timing_draw_started();
     [moxi_color(moxi_surface_fill) setFill];
     NSRectFill(self.bounds);
 
@@ -2728,6 +2890,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
     moxi_draw_custom_commands();
     /* Keep the scroll affordance above component-owned canvas content. */
     moxi_draw_scrollbars();
+    moxi_native_timing_draw_completed();
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -3082,6 +3245,9 @@ void moxi_window_open(
     int fullscreen
 ) {
     @autoreleasepool {
+        moxi_native_timing_active = moxi_native_timing_from_environment();
+        moxi_native_timing_reset();
+        moxi_native_timing_configure_output();
         [NSApplication sharedApplication];
         [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
         if ([NSApp mainMenu] == nil) {
@@ -4243,6 +4409,64 @@ void moxi_window_pump(void) {
     }
 }
 
+int moxi_window_timing_enabled(void) {
+    return moxi_native_timing_active ? 1 : 0;
+}
+
+void moxi_window_timing_begin_dispatch(int event_kind) {
+    if (!moxi_native_timing_active) {
+        return;
+    }
+    uint64_t now = moxi_native_timing_now_ns();
+    if (!moxi_native_timing.active) {
+        moxi_native_timing_reset();
+        moxi_native_timing.active = YES;
+        moxi_native_timing.firstEventKind = event_kind;
+        moxi_native_timing.lastEventKind = event_kind;
+        moxi_native_timing.eventCount = 1;
+        moxi_native_timing.queueDepthAtPoll = moxi_current_event_queue_depth;
+        moxi_native_timing.receiptNs = moxi_current_event_receipt_ns;
+        if (moxi_native_timing.receiptNs == 0) {
+            moxi_native_timing.receiptNs = now;
+        }
+        moxi_native_timing.dispatchStartNs = now;
+    } else {
+        moxi_native_timing.lastEventKind = event_kind;
+        moxi_native_timing.eventCount += 1;
+    }
+}
+
+void moxi_window_timing_end_dispatch(void) {
+    if (moxi_native_timing_active && moxi_native_timing.active) {
+        moxi_native_timing.dispatchEndNs = moxi_native_timing_now_ns();
+    }
+}
+
+void moxi_window_timing_begin_scene(void) {
+    if (moxi_native_timing_active && moxi_native_timing.active) {
+        moxi_native_timing.sceneStartNs = moxi_native_timing_now_ns();
+    }
+}
+
+void moxi_window_timing_end_scene(void) {
+    if (moxi_native_timing_active && moxi_native_timing.active) {
+        moxi_native_timing.sceneEndNs = moxi_native_timing_now_ns();
+    }
+}
+
+void moxi_window_timing_frame_ready(void) {
+    if (moxi_native_timing_active && moxi_native_timing.active) {
+        moxi_native_timing.frameReady = YES;
+        moxi_native_timing.frameReadyNs = moxi_native_timing_now_ns();
+    }
+}
+
+void moxi_window_timing_cancel(void) {
+    if (moxi_native_timing_active) {
+        moxi_native_timing_reset();
+    }
+}
+
 int moxi_window_is_open(void) {
     return moxi_window_opened ? 1 : 0;
 }
@@ -4266,6 +4490,8 @@ int moxi_window_poll_event(void) {
         return MOXI_EVENT_NONE;
     }
     MoxiQueuedEvent *queued = &moxi_event_queue[moxi_event_queue_head];
+    moxi_current_event_receipt_ns = queued->receivedAtNs;
+    moxi_current_event_queue_depth = moxi_event_queue_count;
     moxi_event_kind = queued->kind;
     moxi_event_key = queued->key;
     moxi_event_modifiers = queued->modifiers;
@@ -4285,6 +4511,7 @@ int moxi_window_poll_event(void) {
     moxi_event_queue_head =
         (moxi_event_queue_head + 1) % MOXI_EVENT_QUEUE_CAPACITY;
     moxi_event_queue_count -= 1;
+    queued->receivedAtNs = 0;
     if (kind == MOXI_EVENT_POINTER_DOWN) {
         moxi_click_pending = NO;
     }

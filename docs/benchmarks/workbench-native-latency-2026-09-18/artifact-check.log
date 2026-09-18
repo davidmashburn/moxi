@@ -1,0 +1,11 @@
+✨ Pixi task (workbench-artifact-check): python3 scripts/workbench_artifact_check.py
+/Users/davmash/code/moxi/dist/Moxi Data Workbench.app: valid on disk
+/Users/davmash/code/moxi/dist/Moxi Data Workbench.app: satisfies its Designated Requirement
+{
+  "created_at": "2026-09-18T22:35:07.550838+00:00",
+  "revision": "99b1ba7a1cbe0667540aa2065c151af1a3c5718c",
+  "worktree_dirty": true,
+  "linker_output_sha256": "ae18472a1d6493c5d62f07f83a76ebfd63011bd0bc6c0ee8a09fab594f1466e2",
+  "executable_sha256": "12fcd22ef2f35910205e9503683bf995ebf754339382345caea4d691004cd613"
+}
+Workbench artifact passed; desktop behavior not checked

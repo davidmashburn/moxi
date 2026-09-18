@@ -1,0 +1,19 @@
+snapshot=pid-7690-baseline
+command exit codes:
+  footprint-json: 0
+  footprint-summary: 0
+  heap-summary: 0
+  heap-zones: 0
+  leaks-summary: 1
+  malloc-history-calltree: 249
+  malloc-history-size: 249
+  vmmap-regions: 0
+  vmmap-stacks: 0
+  vmmap-summary: 0
+meaningful stderr:
+  [malloc-history-calltree.stderr]
+    The target process has no stack logs.  Run it with the MallocStackLogging environment variable set to get stack logs.
+  [malloc-history-size.stderr]
+    The target process has no stack logs.  Run it with the MallocStackLogging environment variable set to get stack logs.
+  [vmmap-stacks.stderr]
+    -stacks also implies -interleaved -noCoalesce

@@ -1,0 +1,14 @@
+APP=/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app
+BIN=/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench
+/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app: valid on disk
+/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app: satisfies its Designated Requirement
+codesign_exit=0
+9f9f419dab5ea5bc7085cf01e64f5b4e88d81004e23f98c5c41782cbde37c477  /Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench
+cd5db0c0a10abb02043c1b72c90bc16082fc42d13a7f52ffde4ecee767a80661  /Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/Info.plist
+5c307237d87ca4ff10fdd846875bca02fc3e60e62526e55a0d36fdc8887dbf27  /Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/Resources/build.json
+{
+  "created_at" => "2026-09-18T20:47:33.878536+00:00"
+  "linker_output_sha256" => "c1d6b7e5ed77d0ea2798d937c7dd3ee409260a594e8a3f0cfca69fbb93e2a291"
+  "revision" => "c267311a7d78fa378d31222deaad2f9a6e5f73ca"
+  "worktree_dirty" => true
+}

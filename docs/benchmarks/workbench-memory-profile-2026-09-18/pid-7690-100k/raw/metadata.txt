@@ -1,0 +1,7 @@
+captured_by=memory_profile_agent
+state=CSV loaded; rows=100000; numeric_fields=3; visible_rows=100000; selected_rows=0
+capture_start=2026-09-18T18:33:09-0400
+pid=7690
+expected_app=/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app
+expected_binary=/Users/davmash/code/moxi/dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app/Contents/MacOS/moxi-data-workbench
+capture_end=2026-09-18T18:33:18-0400
