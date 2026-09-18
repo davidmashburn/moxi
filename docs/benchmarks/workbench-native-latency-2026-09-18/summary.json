@@ -1,0 +1,98 @@
+{
+  "10k": {
+    "queue_wait_ms": {
+      "n": 12,
+      "median": 0.009,
+      "p95": 0.011
+    },
+    "dispatch_layout_ms": {
+      "n": 12,
+      "median": 0.148,
+      "p95": 0.178
+    },
+    "scene_ms": {
+      "n": 12,
+      "median": 3.7365000000000004,
+      "p95": 4.501
+    },
+    "scene_to_frame_ready_ms": {
+      "n": 12,
+      "median": 0.463,
+      "p95": 0.731
+    },
+    "drawRect_cpu_ms": {
+      "n": 12,
+      "median": 8.593499999999999,
+      "p95": 9.926
+    },
+    "receipt_to_drawRect_return_ms": {
+      "n": 12,
+      "median": 19.2025,
+      "p95": 20.463
+    }
+  },
+  "100k": {
+    "queue_wait_ms": {
+      "n": 12,
+      "median": 0.008,
+      "p95": 0.011
+    },
+    "dispatch_layout_ms": {
+      "n": 12,
+      "median": 0.7324999999999999,
+      "p95": 0.873
+    },
+    "scene_ms": {
+      "n": 12,
+      "median": 24.505,
+      "p95": 26.681
+    },
+    "scene_to_frame_ready_ms": {
+      "n": 12,
+      "median": 3.7015000000000002,
+      "p95": 4.118
+    },
+    "drawRect_cpu_ms": {
+      "n": 12,
+      "median": 50.337,
+      "p95": 57.311
+    },
+    "receipt_to_drawRect_return_ms": {
+      "n": 12,
+      "median": 83.3635,
+      "p95": 90.845
+    }
+  },
+  "selection": {
+    "queue_wait_ms": {
+      "n": 6,
+      "median": 0.1745,
+      "p95": 0.48
+    },
+    "dispatch_layout_ms": {
+      "n": 6,
+      "median": 12.342,
+      "p95": 15.939
+    },
+    "scene_ms": {
+      "n": 6,
+      "median": 88.163,
+      "p95": 112.685
+    },
+    "scene_to_frame_ready_ms": {
+      "n": 6,
+      "median": 14.445,
+      "p95": 17.05
+    },
+    "drawRect_cpu_ms": {
+      "n": 6,
+      "median": 261.39300000000003,
+      "p95": 276.706
+    },
+    "receipt_to_drawRect_return_ms": {
+      "n": 6,
+      "median": 396.4375,
+      "p95": 424.949
+    }
+  }
+}

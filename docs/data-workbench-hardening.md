@@ -176,6 +176,14 @@ No PR was opened, so remote CI was not checked.
 
 ## Authoring and remaining acceptance
 
+The [native acceptance follow-up](workbench-native-acceptance.md) records a
+passing focused path-field zoom/restore sequence and the remaining VoiceOver
+and Japanese composition verification limits after the checkpoint.
+The [native latency follow-up](workbench-native-latency.md) measures the real
+window through CPU drawing completion and identifies unchanged plot work on
+table scrolling. The [memory profile](workbench-memory-profile.md) separates
+live allocations, resident memory, and physical footprint.
+
 An agent added a filter-sensitive count/mean panel in an isolated source copy
 and passed routed-filter and existing workbench tests. The public guide now
 explains visible-row accessors, derived labels, and the app-specific height
