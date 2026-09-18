@@ -1,5 +1,9 @@
 # Data workbench validation — September 18, 2026
 
+Later fixes and stronger measurements are recorded in the
+[hardening report](data-workbench-hardening.md). This document preserves the
+original validation evidence and its limitations.
+
 The workbench answers the synthetic tail-analysis question through a native
 macOS window, with bounded local CSV input and CSV/SVG output. Confidence is
 high for the tested data and event contracts, moderate for desktop usability.

@@ -43,6 +43,50 @@ boundary. `view()` and `view_selection()` borrow the original table and copy
 only row indices, so a filtered selection does not duplicate column storage.
 Transforms materialize when they change rows or values.
 
+For a batch of imported rows whose explicit keys are not increasing, use
+`append_rows(keys, x, y, x_valid, y_valid)`:
+
+```mojo
+var accepted = data.append_rows(
+    [900, 42, 7000],
+    [1.0, 2.0, 3.0],
+    [5.0, 0.0, 8.0],
+    [True, True, True],
+    [True, False, True],
+)
+```
+
+All five lists must have equal length. Negative keys, duplicates within the
+batch, or keys already present return `False` without appending any rows or
+changing the version. Existing extra columns receive missing values. Successful
+rows preserve input order and advance the version once per row; generated keys
+continue beyond the largest accepted key, or remain exhausted after `Int.MAX`.
+
+The batch validates keys in expected O(existing + incoming rows) time with a
+temporary hash set of that size. It retains no index, so copying, rollover, and
+direct mutation of public key storage cannot leave a stale batch index. Use a
+single substantial batch: repeatedly submitting tiny batches rescans existing
+keys. Ordinary `append` and increasing `append_with_key` calls avoid this hash
+allocation; nonmonotone single-row appends still scan for duplicates. In the
+workbench experiment, batch construction removed the nonmonotone quadratic
+cost but added temporary memory and overhead for already-monotone input.
+
+Reproduce the bounded comparison from the repository root:
+
+```sh
+mkdir -p dist
+pixi run clang -O3 -Wall -Wextra -Werror -c native/benchmark_clock.c -o native/benchmark_clock.o
+pixi run mojo build -I src -Xlinker native/benchmark_clock.o benchmarks/plot_key_construction.mojo -o dist/plot-key-comparison
+dist/plot-key-comparison > dist/plot-key-comparison.tsv
+```
+
+It measures three in-process repetitions at 1k, 10k, and 100k rows for monotone,
+reversed, deterministically shuffled, and sparse shuffled keys. Each case pairs
+single-row and batch construction. Key generation is excluded; batch input
+value/validity lists are included. The printed samples are construction elapsed
+timings, not native frame latency. Preserve the full output and run without
+competing compilation or benchmarks when comparing changes.
+
 The current recipe set is deliberately small but executable:
 
 | Recipe | Output | Notes |

@@ -7,6 +7,7 @@ preview = ["pixi-build"]
 version = "0.6.0"
 
 [tasks]
+native-accessibility-abi = { cmd = "mkdir -p dist && clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c tests/native_accessibility_probe.m -o dist/native_accessibility_probe.o && mojo build -I src -Xlinker dist/native_accessibility_probe.o -Xlinker -framework -Xlinker Cocoa tests/native_accessibility_abi.mojo -o dist/moxi-native-accessibility-abi && ./dist/moxi-native-accessibility-abi" }
 build = "mkdir -p dist && mojo precompile src/moxi -o dist/moxi.mojoc && mojo precompile -I src src/moxi_plot -o dist/moxi_plot.mojoc && mojo precompile -I src src/moxi_demo -o dist/moxi_demo.mojoc"
 native-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
 metal-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_metal.m -o native/macos_metal.o"
@@ -51,9 +52,12 @@ demo-walkthrough-build = { cmd = "mojo build -I src -I examples -Xlinker native/
 demo-walkthrough = { cmd = "bash scripts/launch_demo_app.sh", depends-on = ["demo-walkthrough-build"] }
 data-workbench-build = { cmd = "mkdir -p dist && mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/data_workbench.mojo -o dist/moxi-data-workbench && bash scripts/package_workbench_app.sh", depends-on = ["native-object"] }
 data-workbench = { cmd = "open -n -W 'dist/Moxi Data Workbench.app'", depends-on = ["data-workbench-build"] }
+workbench-artifact-check = "python3 scripts/workbench_artifact_check.py"
+workbench-launch-smoke = "python3 scripts/workbench_launch_smoke.py"
 workbench-test = "mojo run -I src tests/workbench_data.mojo && mojo run -I src tests/data_workbench.mojo"
 workbench-benchmark = "bash scripts/workbench_benchmark.sh"
 native-workbench-capacity = { cmd = "mkdir -p dist && mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa tests/native_workbench_capacity.mojo -o dist/moxi-native-workbench-capacity && ./dist/moxi-native-workbench-capacity", depends-on = ["native-object"] }
+native-custom-rect-equivalence = "mkdir -p dist && clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules tests/native_custom_rect_equivalence.m -framework Cocoa -o dist/moxi-native-custom-rect-equivalence && ./dist/moxi-native-custom-rect-equivalence"
 demo-record = "bash scripts/record_demo.sh"
 theme-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/theme_showcase.mojo -o dist/moxi-theme-showcase-demo", depends-on = ["native-object"] }
 theme-showcase-demo = { cmd = "./dist/moxi-theme-showcase-demo", depends-on = ["theme-showcase-demo-build"] }

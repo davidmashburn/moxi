@@ -1,0 +1,7 @@
+{
+  "window": "48-row fixture visible; scatter and histogram rendered",
+  "keyboard": "7 Tabs from initial X focus, Return: Sorted y descending",
+  "accessibility": "one AX press Sort Y: Sorted y ascending",
+  "pointer": "one coordinate click Sort Y: Sorted y descending",
+  "quit": "Command-Q via CUA"
+}

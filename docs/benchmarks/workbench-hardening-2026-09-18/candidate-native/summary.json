@@ -1,0 +1,1405 @@
+{
+  "schema_version": 1,
+  "report_schema": "data_workbench_exploratory",
+  "benchmark": "data_workbench",
+  "profile": "full",
+  "requested_runs": 3,
+  "repetitions_per_case_per_process": 100,
+  "warmup_cycles": 3,
+  "instrumented": true,
+  "lane": "native_offscreen",
+  "source_sha256": {
+    "benchmarks/data_workbench.mojo": "f4819d9e157d7269fe3444cdf1a941e8be4446a404baf2d161620fac875b5aa8",
+    "scripts/workbench_benchmark.sh": "965040d7921ba35a58c905dbd4d8e443ead12004a26ddefc0d38aa221db5d886",
+    "native/workbench_benchmark_config.c": "910b44796b90a169d601cd9e42c277c2746b6c50f4d59ea9645657797d5b970f",
+    "native/benchmark_clock.c": "63dbe3e70ba33fc38ddd2d182d8a31188c6f66643f2f7ee1392df0f287022d7b",
+    "native/macos_window.m": "c1db0739c658d0a07d26ba6b4b608b53d41b63f3289a97298efbc413facc1956",
+    "src/moxi_demo/data_workbench.mojo": "356ec6edbb5bedd3f75f52c1d61f231b1caea489e8b7a9734027bb0492bab8e3",
+    "src/moxi_demo/workbench_data.mojo": "ed5c14a6a2aa74641b69c23b71f8b6816dd82e1670a82d04655b55a8f34e6c53",
+    "src/moxi_plot/plot_data.mojo": "b65d91ce2dd970e8f18311313afc5d2ff1aee27fb1d9643b3ece51c9c9b38aee"
+  },
+  "binary_sha256": "77f177f935a321535a5553e79621a87802083cdfe87f32fbd1ffd9b3b554486b",
+  "baseline_status": "exploratory_unreviewed",
+  "measurement": {
+    "boundary": "cold DataWorkbench/App construction and steady-state App.dispatch plus retained paint and combined scatter/histogram scene rasterization measured inside the benchmark executable; software or offscreen AppKit custom-command drawing as specified by lane. Native widgets, queue latency and presentation are not measured",
+    "in_process_elapsed": "monotonic elapsed time for the composed application operation",
+    "process_wall": "process wall time from /usr/bin/time, including startup",
+    "process_cpu": "user/system process samples from /usr/bin/time -p",
+    "visible_latency": null,
+    "visible_latency_status": "not_measured",
+    "visible_completion_observed": false,
+    "memory": "process-level peak resident set size from /usr/bin/time -l; not an operation-level allocation or leak measurement",
+    "memory_status": "process_peak_observed"
+  },
+  "workload": {
+    "row_counts": [
+      10000,
+      100000
+    ],
+    "operations": [
+      "cold_load",
+      "filter",
+      "hover",
+      "selection",
+      "scroll",
+      "resize"
+    ],
+    "fixture": "public parameterized WorkbenchData fixture consumed by DataWorkbench",
+    "app_path": "App[DataWorkbench] with public dispatch and scene/render path",
+    "cold_load_boundary": "DataWorkbench/App construction plus initial retained view and scene work",
+    "steady_state_boundary": "one public input dispatch followed by retained paint and combined plot scene rasterization",
+    "render_backend": "native_offscreen",
+    "window_dimensions": [
+      1180,
+      820
+    ],
+    "resize_dimensions": [
+      1280,
+      900
+    ],
+    "native_bitmap_dimensions": [
+      1280,
+      900
+    ],
+    "native_bitmap_scale": 1,
+    "native_composition": "sum of two independent fresh bitmap paints; retained scene conversion, not native widgets; host plot_bounds clip absent",
+    "key_distribution": "monotone generated keys",
+    "selection_density": "single hit-tested observation after selection",
+    "cycle_reset": "fresh fixture/App each cycle; cold_load means object construction, not new process",
+    "phase_boundary": "dispatch includes state mutation, plot replacement, reconciliation/layout; retained is paint+scene conversion; scene is combined plot scene construction; native submission excludes drawing; raster is software or offscreen AppKit CPU drawing",
+    "native_presentation": "not_measured"
+  },
+  "environment": {
+    "git_revision": "c267311a7d78fa378d31222deaad2f9a6e5f73ca",
+    "git_dirty": true,
+    "mojo_version": "Mojo 1.1.0.dev2026082605 (dd957314)",
+    "clang_version": "Apple clang version 21.0.0 (clang-2100.0.123.102)",
+    "os": "Darwin",
+    "os_version": "26.6.2",
+    "architecture": "arm64",
+    "host_model": "Mac16,13",
+    "cpu_brand": "Apple M4",
+    "host_isolation": "not guaranteed; development tasks may overlap; retain raw tails and compare per-process medians"
+  },
+  "commands": {
+    "clock_build": "pixi run clang -O3 -Wall -Wextra -Werror -c native/benchmark_clock.c -o native/benchmark_clock.o",
+    "benchmark_build": "pixi run mojo build -I src -Xlinker native/benchmark_clock.o -Xlinker native/workbench_benchmark_config.o -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa benchmarks/data_workbench.mojo -o dist/workbench-hardening/candidate-native/moxi-data-workbench-benchmark",
+    "benchmark_run": "/usr/bin/time -lp dist/workbench-hardening/candidate-native/moxi-data-workbench-benchmark",
+    "binary": "dist/workbench-hardening/candidate-native/moxi-data-workbench-benchmark",
+    "clock_object": "native/benchmark_clock.o"
+  },
+  "artifacts": {
+    "records": "dist/workbench-hardening/candidate-native/records.tsv",
+    "raw_directory": "dist/workbench-hardening/candidate-native/raw"
+  },
+  "process_runs": [
+    {
+      "run": 1,
+      "process_id": 47393,
+      "status": 0,
+      "process_wall_seconds": 162.42,
+      "process_user_seconds": 159.79,
+      "process_system_seconds": 1.43,
+      "process_peak_resident_bytes": 583204864,
+      "stdout_artifact": "dist/workbench-hardening/candidate-native/raw/run-1.stdout",
+      "timing_artifact": "dist/workbench-hardening/candidate-native/raw/run-1.time"
+    },
+    {
+      "run": 2,
+      "process_id": 49979,
+      "status": 0,
+      "process_wall_seconds": 162.28,
+      "process_user_seconds": 160.1,
+      "process_system_seconds": 1.44,
+      "process_peak_resident_bytes": 435650560,
+      "stdout_artifact": "dist/workbench-hardening/candidate-native/raw/run-2.stdout",
+      "timing_artifact": "dist/workbench-hardening/candidate-native/raw/run-2.time"
+    },
+    {
+      "run": 3,
+      "process_id": 52099,
+      "status": 0,
+      "process_wall_seconds": 161.25,
+      "process_user_seconds": 159.18,
+      "process_system_seconds": 1.35,
+      "process_peak_resident_bytes": 573784064,
+      "stdout_artifact": "dist/workbench-hardening/candidate-native/raw/run-3.stdout",
+      "timing_artifact": "dist/workbench-hardening/candidate-native/raw/run-3.time"
+    }
+  ],
+  "summary": [
+    {
+      "rows": 10000,
+      "operation": "cold_load",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 25.72,
+        "p50": 26.5245,
+        "p95": 27.946550000000002,
+        "max": 55.041
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.042,
+          "p50": 0.046,
+          "p95": 0.052,
+          "max": 0.149
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 2.131,
+          "p50": 2.2475,
+          "p95": 2.4793000000000003,
+          "max": 4.092
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 0.309,
+          "p50": 0.339,
+          "p95": 0.4161500000000001,
+          "max": 0.998
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 15.926957130432129,
+          "p50": 16.592442989349365,
+          "p95": 17.39223599433899,
+          "max": 39.12687301635742
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 25.72,
+          "p50": 26.503,
+          "p95": 27.56665,
+          "max": 55.041
+        },
+        "2": {
+          "count": 100,
+          "min": 26.164,
+          "p50": 26.616500000000002,
+          "p95": 28.717,
+          "max": 40.451
+        },
+        "3": {
+          "count": 100,
+          "min": 25.895,
+          "p50": 26.433,
+          "p95": 27.51285,
+          "max": 32.529
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 10000,
+      "operation": "filter",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 7.994,
+        "p50": 8.4145,
+        "p95": 9.454500000000001,
+        "max": 32.778
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.915,
+          "p50": 0.952,
+          "p95": 1.03235,
+          "max": 3.106
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.063,
+          "p50": 0.068,
+          "p95": 0.07405,
+          "max": 0.174
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 0.64,
+          "p50": 0.674,
+          "p95": 0.7451,
+          "max": 1.668
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 0.084,
+          "p50": 0.095,
+          "p95": 0.11515000000000003,
+          "max": 0.55
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 6.189107894897461,
+          "p50": 6.51097297668457,
+          "p95": 7.0574164390563965,
+          "max": 28.506994247436523
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 7.994,
+          "p50": 8.4885,
+          "p95": 9.503250000000001,
+          "max": 17.868
+        },
+        "2": {
+          "count": 100,
+          "min": 8.11,
+          "p50": 8.371,
+          "p95": 9.90015,
+          "max": 32.778
+        },
+        "3": {
+          "count": 100,
+          "min": 8.09,
+          "p50": 8.381,
+          "p95": 8.91425,
+          "max": 10.973
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 10000,
+      "operation": "hover",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 18.925,
+        "p50": 19.651,
+        "p95": 20.6592,
+        "max": 34.18
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.387,
+          "p50": 0.4115,
+          "p95": 0.45005,
+          "max": 0.55
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.061,
+          "p50": 0.066,
+          "p95": 0.07205,
+          "max": 0.086
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 2.148,
+          "p50": 2.2625,
+          "p95": 2.4452,
+          "max": 2.594
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 0.28500000000000003,
+          "p50": 0.331,
+          "p95": 0.39905,
+          "max": 0.561
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 15.726089477539062,
+          "p50": 16.4259672164917,
+          "p95": 17.27423667907715,
+          "max": 30.617952346801758
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 18.925,
+          "p50": 19.647,
+          "p95": 20.8894,
+          "max": 24.856
+        },
+        "2": {
+          "count": 100,
+          "min": 19.072,
+          "p50": 19.7115,
+          "p95": 20.6381,
+          "max": 25.103
+        },
+        "3": {
+          "count": 100,
+          "min": 19.013,
+          "p50": 19.610500000000002,
+          "p95": 20.53125,
+          "max": 34.18
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 10000,
+      "operation": "resize",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 18.39,
+        "p50": 19.277,
+        "p95": 20.846149999999998,
+        "max": 48.004
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.095,
+          "p50": 0.113,
+          "p95": 0.13910000000000003,
+          "max": 0.245
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.072,
+          "p50": 0.078,
+          "p95": 0.086,
+          "max": 0.207
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 2.138,
+          "p50": 2.2615,
+          "p95": 2.51375,
+          "max": 4.261
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 0.274,
+          "p50": 0.334,
+          "p95": 0.43105,
+          "max": 0.764
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 15.661001205444336,
+          "p50": 16.378939151763916,
+          "p95": 17.505991458892822,
+          "max": 44.80409622192383
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 18.39,
+          "p50": 19.360500000000002,
+          "p95": 21.818299999999997,
+          "max": 48.004
+        },
+        "2": {
+          "count": 100,
+          "min": 18.405,
+          "p50": 19.328,
+          "p95": 20.68825,
+          "max": 25.513
+        },
+        "3": {
+          "count": 100,
+          "min": 18.645,
+          "p50": 19.1995,
+          "p95": 20.0823,
+          "max": 28.081
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 10000,
+      "operation": "scroll",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 18.384,
+        "p50": 19.305,
+        "p95": 20.507550000000002,
+        "max": 43.059
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.099,
+          "p50": 0.114,
+          "p95": 0.134,
+          "max": 0.21
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.068,
+          "p50": 0.074,
+          "p95": 0.081,
+          "max": 0.198
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 2.13,
+          "p50": 2.257,
+          "p95": 2.5263999999999998,
+          "max": 4.067
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 0.28300000000000003,
+          "p50": 0.335,
+          "p95": 0.41305000000000003,
+          "max": 1.505
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 15.691041946411133,
+          "p50": 16.389906406402588,
+          "p95": 17.332512140274048,
+          "max": 37.74607181549072
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 18.384,
+          "p50": 19.310000000000002,
+          "p95": 20.849050000000002,
+          "max": 43.059
+        },
+        "2": {
+          "count": 100,
+          "min": 18.576,
+          "p50": 19.3595,
+          "p95": 20.339249999999996,
+          "max": 26.055
+        },
+        "3": {
+          "count": 100,
+          "min": 18.644,
+          "p50": 19.246499999999997,
+          "p95": 20.244,
+          "max": 27.614
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 10000,
+      "operation": "selection",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 18.493,
+        "p50": 19.4955,
+        "p95": 20.606,
+        "max": 28.673
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.316,
+          "p50": 0.339,
+          "p95": 0.37205,
+          "max": 0.438
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.061,
+          "p50": 0.066,
+          "p95": 0.072,
+          "max": 0.16
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 2.108,
+          "p50": 2.2645,
+          "p95": 2.47315,
+          "max": 3.573
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 0.279,
+          "p50": 0.333,
+          "p95": 0.41000000000000003,
+          "max": 1.228
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 15.617012977600098,
+          "p50": 16.360461711883545,
+          "p95": 17.130672931671143,
+          "max": 23.12791347503662
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 18.493,
+          "p50": 19.47,
+          "p95": 20.6094,
+          "max": 28.673
+        },
+        "2": {
+          "count": 100,
+          "min": 18.82,
+          "p50": 19.598,
+          "p95": 20.707900000000002,
+          "max": 27.544
+        },
+        "3": {
+          "count": 100,
+          "min": 18.861,
+          "p50": 19.421,
+          "p95": 20.39035,
+          "max": 23.119
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 100000,
+      "operation": "cold_load",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 228.379,
+        "p50": 233.28050000000002,
+        "p95": 247.4066,
+        "max": 337.818
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.044,
+          "p50": 0.048,
+          "p95": 0.055,
+          "max": 0.102
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 20.626,
+          "p50": 21.2935,
+          "p95": 22.791150000000002,
+          "max": 43.631
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 3.1020000000000003,
+          "p50": 3.2984999999999998,
+          "p95": 3.84675,
+          "max": 11.314
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 147.51601219177246,
+          "p50": 150.92092752456665,
+          "p95": 157.17309117317203,
+          "max": 254.79388236999512
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 229.276,
+          "p50": 233.398,
+          "p95": 252.53795,
+          "max": 337.818
+        },
+        "2": {
+          "count": 100,
+          "min": 230.597,
+          "p50": 234.1465,
+          "p95": 242.6521,
+          "max": 278.737
+        },
+        "3": {
+          "count": 100,
+          "min": 228.379,
+          "p50": 231.6705,
+          "p95": 244.3522,
+          "max": 292.776
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 100000,
+      "operation": "filter",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 70.567,
+        "p50": 72.687,
+        "p95": 76.3722,
+        "max": 110.694
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 8.797,
+          "p50": 9.123,
+          "p95": 9.7295,
+          "max": 13.625
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.065,
+          "p50": 0.07,
+          "p95": 0.077,
+          "max": 0.456
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 8.073,
+          "p50": 8.455,
+          "p95": 9.144,
+          "max": 36.535
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 1.0999999999999999,
+          "p50": 1.1749999999999998,
+          "p95": 1.3643,
+          "max": 3.034
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 51.980018615722656,
+          "p50": 53.65753173828125,
+          "p95": 56.49852752685547,
+          "max": 81.86793327331543
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 70.993,
+          "p50": 72.8455,
+          "p95": 76.39144999999999,
+          "max": 100.887
+        },
+        "2": {
+          "count": 100,
+          "min": 70.567,
+          "p50": 72.878,
+          "p95": 77.3429,
+          "max": 99.806
+        },
+        "3": {
+          "count": 100,
+          "min": 71.21,
+          "p50": 72.4245,
+          "p95": 75.1152,
+          "max": 110.694
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 100000,
+      "operation": "hover",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 173.933,
+        "p50": 178.244,
+        "p95": 185.5336,
+        "max": 216.72
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 2.754,
+          "p50": 2.902,
+          "p95": 3.11305,
+          "max": 3.505
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.063,
+          "p50": 0.067,
+          "p95": 0.07505,
+          "max": 0.101
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 20.667,
+          "p50": 21.264499999999998,
+          "p95": 22.5521,
+          "max": 27.058
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 3.112,
+          "p50": 3.3015,
+          "p95": 3.7162500000000005,
+          "max": 4.343
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 146.5369462966919,
+          "p50": 150.27952194213867,
+          "p95": 155.84282875061035,
+          "max": 187.99102306365967
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 174.616,
+          "p50": 178.23450000000003,
+          "p95": 185.60474999999997,
+          "max": 216.72
+        },
+        "2": {
+          "count": 100,
+          "min": 175.769,
+          "p50": 178.66649999999998,
+          "p95": 184.32925,
+          "max": 207.072
+        },
+        "3": {
+          "count": 100,
+          "min": 173.933,
+          "p50": 177.7265,
+          "p95": 186.04555,
+          "max": 216.618
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 100000,
+      "operation": "resize",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 172.866,
+        "p50": 176.7415,
+        "p95": 183.88335,
+        "max": 209.546
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.65,
+          "p50": 0.7204999999999999,
+          "p95": 0.8602500000000001,
+          "max": 0.978
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.077,
+          "p50": 0.08,
+          "p95": 0.08705,
+          "max": 0.106
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 20.637,
+          "p50": 21.204,
+          "p95": 22.73455,
+          "max": 27.711
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 3.116,
+          "p50": 3.3120000000000003,
+          "p95": 3.7299,
+          "max": 12.925999999999998
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 147.55690097808838,
+          "p50": 151.07500553131104,
+          "p95": 157.2536587715149,
+          "max": 181.74898624420166
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 172.866,
+          "p50": 176.51850000000002,
+          "p95": 182.31375,
+          "max": 207.27
+        },
+        "2": {
+          "count": 100,
+          "min": 173.123,
+          "p50": 177.43099999999998,
+          "p95": 183.88334999999998,
+          "max": 209.546
+        },
+        "3": {
+          "count": 100,
+          "min": 173.016,
+          "p50": 176.348,
+          "p95": 184.58964999999998,
+          "max": 207.347
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 100000,
+      "operation": "scroll",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 173.029,
+        "p50": 177.451,
+        "p95": 187.24765,
+        "max": 265.582
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 0.654,
+          "p50": 0.727,
+          "p95": 0.86005,
+          "max": 1.182
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.072,
+          "p50": 0.076,
+          "p95": 0.082,
+          "max": 0.164
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 20.744,
+          "p50": 21.222,
+          "p95": 22.9146,
+          "max": 58.629
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 3.0959999999999996,
+          "p50": 3.308,
+          "p95": 3.79455,
+          "max": 7.2700000000000005
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 147.81904220581055,
+          "p50": 151.55398845672607,
+          "p95": 159.38485264778137,
+          "max": 202.44300365447998
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 173.27,
+          "p50": 177.276,
+          "p95": 193.99159999999998,
+          "max": 265.582
+        },
+        "2": {
+          "count": 100,
+          "min": 174.546,
+          "p50": 178.042,
+          "p95": 190.64349999999996,
+          "max": 237.088
+        },
+        "3": {
+          "count": 100,
+          "min": 173.029,
+          "p50": 176.636,
+          "p95": 184.11069999999998,
+          "max": 228.62
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    },
+    {
+      "rows": 100000,
+      "operation": "selection",
+      "in_process_elapsed_ms": {
+        "count": 300,
+        "min": 174.12,
+        "p50": 179.257,
+        "p95": 191.1608,
+        "max": 246.858
+      },
+      "phases": {
+        "dispatch_ms": {
+          "count": 300,
+          "min": 2.674,
+          "p50": 2.8225,
+          "p95": 3.04325,
+          "max": 5.387
+        },
+        "retained_ms": {
+          "count": 300,
+          "min": 0.063,
+          "p50": 0.068,
+          "p95": 0.073,
+          "max": 0.164
+        },
+        "scene_ms": {
+          "count": 300,
+          "min": 20.755,
+          "p50": 21.244,
+          "p95": 22.8965,
+          "max": 36.208
+        },
+        "submission_ms": {
+          "count": 300,
+          "min": 3.0989999999999998,
+          "p50": 3.3,
+          "p95": 3.8662499999999995,
+          "max": 5.159
+        },
+        "raster_ms": {
+          "count": 300,
+          "min": 146.60191535949707,
+          "p50": 151.2489914894104,
+          "p95": 161.10621690750122,
+          "max": 219.29800510406494
+        },
+        "validation_ms": {
+          "count": 300,
+          "min": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "per_process_elapsed_ms": {
+        "1": {
+          "count": 100,
+          "min": 174.12,
+          "p50": 178.8825,
+          "p95": 190.06965,
+          "max": 246.858
+        },
+        "2": {
+          "count": 100,
+          "min": 176.595,
+          "p50": 180.1045,
+          "p95": 196.76174999999995,
+          "max": 224.369
+        },
+        "3": {
+          "count": 100,
+          "min": 174.959,
+          "p50": 178.559,
+          "p95": 187.09980000000002,
+          "max": 208.728
+        }
+      },
+      "process_wall_seconds": {
+        "count": 300,
+        "min": 161.25,
+        "p50": 162.28,
+        "p95": 162.42,
+        "max": 162.42
+      },
+      "process_user_seconds": {
+        "count": 300,
+        "min": 159.18,
+        "p50": 159.79,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "process_system_seconds": {
+        "count": 300,
+        "min": 1.35,
+        "p50": 1.43,
+        "p95": 1.44,
+        "max": 1.44
+      },
+      "process_peak_resident_bytes": {
+        "count": 300,
+        "min": 435650560,
+        "p50": 573784064.0,
+        "p95": 583204864.0,
+        "max": 583204864
+      }
+    }
+  ],
+  "archive_raw_samples": "full.json.gz"
+}
