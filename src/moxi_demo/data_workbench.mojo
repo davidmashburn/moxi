@@ -871,6 +871,17 @@ struct DataWorkbenchState(Component):
         root.layout()
         return root^
 
+    def can_reuse_plot_output(self, event: Event, view: ColumnView) -> Bool:
+        """Only table scrolling is proven to leave both plots unchanged.
+
+        Hosts must rebuild for ticks or any other event in the same batch,
+        and when either plot's bounds change.
+        """
+        return event.kind == SCROLL_KIND and (
+            event.target == DATA_WORKBENCH_TABLE_PORTAL_ID
+            or view.bounds_for(DATA_WORKBENCH_TABLE_PORTAL_ID).contains(event.position)
+        )
+
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         if self._handle_text_input(event, DATA_WORKBENCH_THRESHOLD_ID):
             if event.kind == TEXT_INPUT_KIND:
@@ -916,10 +927,7 @@ struct DataWorkbenchState(Component):
                 )
             return changed
 
-        if event.kind == SCROLL_KIND and (
-            event.target == DATA_WORKBENCH_TABLE_PORTAL_ID
-            or view.bounds_for(DATA_WORKBENCH_TABLE_PORTAL_ID).contains(event.position)
-        ):
+        if self.can_reuse_plot_output(event, view):
             self.table_offset += event.scroll_delta.y
             if self.table_offset < 0.0:
                 self.table_offset = 0.0

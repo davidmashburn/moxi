@@ -4,6 +4,8 @@ from moxi import (
     App,
     ACTION_PRESS,
     Event,
+    FRAME_TICK_KIND,
+    FrameEvent,
     KEY_A,
     KEY_C,
     KEY_ENTER,
@@ -15,8 +17,10 @@ from moxi import (
     POINTER_DOWN_KIND,
     POINTER_UP_KIND,
     Rect,
+    ResizeEvent,
     ScrollEvent,
     SemanticActionEvent,
+    Size,
     TextInputEvent,
     test_check,
 )
@@ -132,10 +136,93 @@ def main() raises:
     # The table owns its own scroll state and preserves it through resize.
     var table_bounds = app.view.bounds_for(DATA_WORKBENCH_TABLE_PORTAL_ID)
     var table_point = Point(table_bounds.x + 20.0, table_bounds.y + 20.0)
+    var scatter_reuse_bounds = app.view.bounds_for(DATA_WORKBENCH_SCATTER_CANVAS_ID)
+    var scatter_reuse_point = Point(
+        scatter_reuse_bounds.x + 20.0,
+        scatter_reuse_bounds.y + 20.0,
+    )
+
+    # Plot output reuse is intentionally narrow: only a table scroll may
+    # preserve the plot render output, and only when the event is over the
+    # table portal (or has already been routed to that portal).
+    var selection_event = Event(
+        SemanticActionEvent(DATA_WORKBENCH_TABLE_ROW_BASE, ACTION_PRESS)
+    )
+    test_check(not app.component.can_reuse_plot_output(selection_event, app.view))
+    var filter_event = Event(TextInputEvent("6.0", 0, 3))
+    filter_event.set_target(DATA_WORKBENCH_THRESHOLD_ID)
+    test_check(not app.component.can_reuse_plot_output(filter_event, app.view))
+    var clear_filter_event = Event(
+        SemanticActionEvent(DATA_WORKBENCH_CLEAR_FILTER_ID, ACTION_PRESS)
+    )
+    test_check(not app.component.can_reuse_plot_output(clear_filter_event, app.view))
+    var x_axis_event = Event(
+        SemanticActionEvent(DATA_WORKBENCH_X_FIELD_ID, ACTION_PRESS)
+    )
+    test_check(not app.component.can_reuse_plot_output(x_axis_event, app.view))
+    var y_axis_event = Event(
+        SemanticActionEvent(DATA_WORKBENCH_Y_FIELD_ID, ACTION_PRESS)
+    )
+    test_check(not app.component.can_reuse_plot_output(y_axis_event, app.view))
+    var pointer_event = Event(
+        PointerEvent(POINTER_DOWN_KIND, scatter_reuse_point)
+    )
+    test_check(not app.component.can_reuse_plot_output(pointer_event, app.view))
+    var plot_zoom_event = Event(
+        ScrollEvent(scatter_reuse_point, Point(0.0, 20.0))
+    )
+    test_check(not app.component.can_reuse_plot_output(plot_zoom_event, app.view))
+    var resize_event = Event(ResizeEvent(Size(1020.0, 760.0)))
+    test_check(not app.component.can_reuse_plot_output(resize_event, app.view))
+    var tick_event = Event(FrameEvent(1.0 / 60.0))
+    test_check(tick_event.kind == FRAME_TICK_KIND)
+    test_check(not app.component.can_reuse_plot_output(tick_event, app.view))
+
+    var routed_table_scroll = Event(
+        ScrollEvent(Point(0.0, 0.0), Point(0.0, 120.0))
+    )
+    routed_table_scroll.set_target(DATA_WORKBENCH_TABLE_PORTAL_ID)
+    test_check(app.component.can_reuse_plot_output(routed_table_scroll, app.view))
+
+    # A real table scroll keeps the linked data and both plot models intact.
+    test_check(_click(app, DATA_WORKBENCH_TABLE_ROW_BASE))
+    var scatter_selection_before = app.component.scatter_view.runtime.selection()
+    var histogram_selection_before = app.component.histogram_view.runtime.selection()
+    var scatter_revision_before = app.component.scatter_view.runtime.plot.revision
+    var histogram_revision_before = app.component.histogram_view.runtime.plot.revision
+    test_check(app.component.data.selected_count() == 1)
+    test_check(app.component.data.is_selected_key(0))
+    test_check(scatter_selection_before.count() == 1)
+    test_check(histogram_selection_before.count() == 1)
+    var table_scroll_event = Event(ScrollEvent(table_point, Point(0.0, 120.0)))
+    test_check(app.component.can_reuse_plot_output(table_scroll_event, app.view))
     test_check(
-        app.dispatch(Event(ScrollEvent(table_point, Point(0.0, 120.0))))
+        app.dispatch(table_scroll_event)
     )
     test_check(app.component.table_scroll_offset() > 0.0)
+    test_check(app.component.data.selected_count() == 1)
+    test_check(app.component.data.is_selected_key(0))
+    var scatter_selection_after = app.component.scatter_view.runtime.selection()
+    var histogram_selection_after = app.component.histogram_view.runtime.selection()
+    test_check(
+        app.component.scatter_view.runtime.plot.revision == scatter_revision_before
+    )
+    test_check(
+        app.component.histogram_view.runtime.plot.revision == histogram_revision_before
+    )
+    test_check(scatter_selection_after.count() == scatter_selection_before.count())
+    test_check(scatter_selection_after.key_at(0) == scatter_selection_before.key_at(0))
+    test_check(
+        histogram_selection_after.count() == histogram_selection_before.count()
+    )
+    test_check(
+        histogram_selection_after.key_at(0) == histogram_selection_before.key_at(0)
+    )
+    var deselect_row_event = Event(
+        SemanticActionEvent(DATA_WORKBENCH_TABLE_ROW_BASE, ACTION_PRESS)
+    )
+    test_check(app.dispatch(deselect_row_event))
+    test_check(app.component.selected_row_count() == 0)
     var old_table_offset = app.component.table_scroll_offset()
     test_check(app.resize(Rect(0.0, 0.0, 1020.0, 760.0)))
     test_check(app.component.table_scroll_offset() == old_table_offset)

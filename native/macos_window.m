@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #include <dlfcn.h>
 #include <mach/mach_time.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -498,6 +499,22 @@ static float moxi_custom_text_font_sizes[MOXI_MAX_CUSTOM_TEXT];
 static BOOL moxi_custom_clip_enabled;
 static NSRect moxi_custom_clip_frame;
 
+/*
+ * The dense custom canvas is normally submitted and rasterized on every
+ * frame.  Workbench can opt into retaining the already-rasterized canvas for
+ * frames that only update native/semantic widgets.  The cache is deliberately
+ * a single output layer: command submission invalidates it, while
+ * begin_frame() leaves the last complete custom command stream in place so
+ * a backing-size change can rebuild the retained layer when needed.
+ */
+static BOOL moxi_custom_paint_cache_enabled;
+static BOOL moxi_custom_paint_cache_valid;
+static NSBitmapImageRep *moxi_custom_paint_cache_bitmap;
+static NSRect moxi_custom_paint_cache_bounds;
+static CGFloat moxi_custom_paint_cache_scale;
+static uint64_t moxi_custom_paint_cache_build_count;
+static uint64_t moxi_custom_paint_cache_hit_count;
+
 static BOOL moxi_current_clip_enabled;
 static NSRect moxi_current_clip_frame;
 
@@ -541,6 +558,8 @@ static float moxi_previous_accessibility_value_now[MOXI_MAX_DRAW_COMMANDS];
 static void moxi_queue_accessibility_action(int id, int action);
 static void moxi_queue_semantic_action(int target, int action);
 static void moxi_reset_custom_commands(void);
+static void moxi_custom_paint_cache_discard(void);
+static void moxi_custom_paint_cache_invalidate(void);
 
 static void moxi_copy_color(float destination[4], float red, float green, float blue, float alpha) {
     destination[0] = red;
@@ -1069,7 +1088,12 @@ static void moxi_reset_commands(void) {
     moxi_panel_count = 0;
     moxi_native_widget_count = 0;
     moxi_scrollbar_count = 0;
-    moxi_reset_custom_commands();
+    /* A cache-enabled host may submit a table-only frame. Keep the last
+     * custom command stream so a backing-size change can rebuild the retained
+     * raster; begin_custom_paint() is the explicit replacement boundary. */
+    if (!moxi_custom_paint_cache_enabled) {
+        moxi_reset_custom_commands();
+    }
     moxi_copy_color(moxi_surface_fill, 0.08, 0.10, 0.16, 1.0);
     for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
         moxi_label_texts[i] = nil;
@@ -1218,6 +1242,20 @@ static void moxi_reset_custom_commands(void) {
     /* Rectangle slots are initialized when appended; reset only the count. */
     moxi_custom_clip_enabled = NO;
     moxi_custom_clip_frame = NSZeroRect;
+}
+
+static void moxi_custom_paint_cache_discard(void) {
+    moxi_custom_paint_cache_bitmap = nil;
+    moxi_custom_paint_cache_valid = NO;
+    moxi_custom_paint_cache_bounds = NSZeroRect;
+    moxi_custom_paint_cache_scale = 0.0;
+}
+
+static void moxi_custom_paint_cache_invalidate(void) {
+    if (!moxi_custom_paint_cache_enabled) {
+        return;
+    }
+    moxi_custom_paint_cache_valid = NO;
 }
 
 static NSUInteger moxi_advance_codepoint(NSString *text, NSUInteger index) {
@@ -1650,6 +1688,8 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 
 - (void)windowWillClose:(NSNotification *)notification {
     moxi_window_opened = NO;
+    moxi_custom_paint_cache_enabled = NO;
+    moxi_custom_paint_cache_discard();
     moxi_native_timing_reset();
     moxi_native_timing_close_output();
     moxi_mouse_is_down = NO;
@@ -2197,7 +2237,7 @@ static void moxi_draw_custom_rectangles(void) {
     CGContextRestoreGState(context);
 }
 
-static void moxi_draw_custom_commands(void) {
+static void moxi_draw_custom_commands_uncached(void) {
     moxi_begin_clip(moxi_custom_clip_enabled, moxi_custom_clip_frame);
     moxi_draw_custom_rectangles();
 
@@ -2254,6 +2294,126 @@ static void moxi_draw_custom_commands(void) {
                           withAttributes:attributes];
     }
     moxi_end_clip(moxi_custom_clip_enabled);
+}
+
+static CGFloat moxi_custom_paint_backing_scale(void) {
+    if (moxi_canvas == nil || moxi_canvas.window == nil) {
+        return 1.0;
+    }
+    CGFloat scale = moxi_canvas.window.backingScaleFactor;
+    return scale > 0.0 ? scale : 1.0;
+}
+
+static NSInteger moxi_custom_paint_pixel_extent(CGFloat points, CGFloat scale) {
+    CGFloat pixels = ceil(points * scale);
+    if (pixels < 1.0) {
+        pixels = 1.0;
+    }
+    return (NSInteger)pixels;
+}
+
+static BOOL moxi_custom_paint_cache_key_matches(NSRect bounds, CGFloat scale) {
+    if (!moxi_custom_paint_cache_valid || moxi_custom_paint_cache_bitmap == nil) {
+        return NO;
+    }
+    if (!NSEqualRects(bounds, moxi_custom_paint_cache_bounds) ||
+        fabs(scale - moxi_custom_paint_cache_scale) > 0.0001) {
+        return NO;
+    }
+    NSInteger expectedWidth = moxi_custom_paint_pixel_extent(NSWidth(bounds), scale);
+    NSInteger expectedHeight = moxi_custom_paint_pixel_extent(NSHeight(bounds), scale);
+    return moxi_custom_paint_cache_bitmap.pixelsWide == expectedWidth &&
+        moxi_custom_paint_cache_bitmap.pixelsHigh == expectedHeight;
+}
+
+static BOOL moxi_custom_paint_cache_build(void) {
+    if (!moxi_custom_paint_cache_enabled || moxi_canvas == nil) {
+        return NO;
+    }
+
+    NSRect bounds = moxi_canvas.bounds;
+    CGFloat scale = moxi_custom_paint_backing_scale();
+    NSInteger pixelsWide = moxi_custom_paint_pixel_extent(NSWidth(bounds), scale);
+    NSInteger pixelsHigh = moxi_custom_paint_pixel_extent(NSHeight(bounds), scale);
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc]
+        initWithBitmapDataPlanes:NULL
+                      pixelsWide:pixelsWide
+                      pixelsHigh:pixelsHigh
+                   bitsPerSample:8
+                 samplesPerPixel:4
+                        hasAlpha:YES
+                        isPlanar:NO
+                  colorSpaceName:NSDeviceRGBColorSpace
+                     bitmapFormat:0
+                      bytesPerRow:0
+                     bitsPerPixel:0];
+    if (bitmap == nil || bitmap.bitmapData == NULL) {
+        return NO;
+    }
+    memset(bitmap.bitmapData, 0, bitmap.bytesPerRow * bitmap.pixelsHigh);
+    [bitmap setSize:bounds.size];
+
+    NSGraphicsContext *bitmapContext = [NSGraphicsContext
+        graphicsContextWithBitmapImageRep:bitmap];
+    if (bitmapContext == nil) {
+        return NO;
+    }
+
+    [NSGraphicsContext saveGraphicsState];
+    // The bitmap's point size already supplies the backing-scale transform.
+    // Match the flipped view in both Quartz coordinates and AppKit text layout.
+    CGContextRef cgContext = bitmapContext.CGContext;
+    CGContextTranslateCTM(cgContext, 0.0, NSHeight(bounds));
+    CGContextScaleCTM(cgContext, 1.0, -1.0);
+    CGContextTranslateCTM(cgContext, -NSMinX(bounds), -NSMinY(bounds));
+    NSGraphicsContext *context = [NSGraphicsContext
+        graphicsContextWithCGContext:cgContext flipped:YES];
+    [NSGraphicsContext setCurrentContext:context];
+    moxi_draw_custom_commands_uncached();
+    [context flushGraphics];
+    [NSGraphicsContext restoreGraphicsState];
+
+    moxi_custom_paint_cache_bitmap = bitmap;
+    moxi_custom_paint_cache_bounds = bounds;
+    moxi_custom_paint_cache_scale = scale;
+    moxi_custom_paint_cache_valid = YES;
+    moxi_custom_paint_cache_build_count += 1;
+    return YES;
+}
+
+static BOOL moxi_draw_custom_paint_cache(void) {
+    if (!moxi_custom_paint_cache_enabled || moxi_canvas == nil) {
+        return NO;
+    }
+    NSRect bounds = moxi_canvas.bounds;
+    CGFloat scale = moxi_custom_paint_backing_scale();
+    if (!moxi_custom_paint_cache_key_matches(bounds, scale)) {
+        moxi_custom_paint_cache_valid = NO;
+        return NO;
+    }
+    [moxi_custom_paint_cache_bitmap drawInRect:bounds
+                                      fromRect:NSZeroRect
+                                     operation:NSCompositingOperationSourceOver
+                                      fraction:1.0
+                                respectFlipped:YES
+                                         hints:nil];
+    moxi_custom_paint_cache_hit_count += 1;
+    return YES;
+}
+
+static void moxi_draw_custom_commands(void) {
+    if (!moxi_custom_paint_cache_enabled || moxi_canvas == nil) {
+        moxi_draw_custom_commands_uncached();
+        return;
+    }
+    if (moxi_draw_custom_paint_cache()) {
+        return;
+    }
+    if (moxi_custom_paint_cache_build()) {
+        (void)moxi_draw_custom_paint_cache();
+        return;
+    }
+    moxi_draw_custom_commands_uncached();
 }
 
 double moxi_window_benchmark_custom_paint_size(int iterations, int width, int height) {
@@ -3311,6 +3471,8 @@ void moxi_window_open(
 
         moxi_canvas = [[MoxiCanvasView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
         [moxi_canvas setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+        moxi_custom_paint_cache_enabled = NO;
+        moxi_custom_paint_cache_discard();
         moxi_reset_commands();
         moxi_accessibility_reset_storage();
         moxi_reset_event_queue();
@@ -3343,6 +3505,15 @@ void moxi_window_begin_frame(void) {
     }
 }
 
+void moxi_window_set_custom_paint_cache_enabled(int enabled) {
+    BOOL next = enabled != 0;
+    if (next == moxi_custom_paint_cache_enabled) {
+        return;
+    }
+    moxi_custom_paint_cache_enabled = next;
+    moxi_custom_paint_cache_discard();
+}
+
 /* Optional GPU canvas hosts use this opaque handle to attach a CAMetalLayer
  * without making the AppKit-only window object depend on Metal symbols. */
 void *moxi_window_canvas_view(void) {
@@ -3351,6 +3522,7 @@ void *moxi_window_canvas_view(void) {
 
 void moxi_window_begin_custom_paint(void) {
     moxi_reset_custom_commands();
+    moxi_custom_paint_cache_invalidate();
     if (moxi_canvas != nil) {
         [moxi_canvas setNeedsDisplay:YES];
     }
@@ -3364,6 +3536,7 @@ void moxi_window_set_custom_clip(
 ) {
     moxi_custom_clip_enabled = width > 0.0 && height > 0.0;
     moxi_custom_clip_frame = NSMakeRect(x, y, width, height);
+    moxi_custom_paint_cache_invalidate();
 }
 
 void moxi_window_add_custom_rect(
@@ -3404,6 +3577,7 @@ void moxi_window_add_custom_rect(
     moxi_custom_rect_stroke_widths[index] = stroke_width;
     moxi_custom_rect_radii[index] = 0.0;
     moxi_custom_rect_count += 1;
+    moxi_custom_paint_cache_invalidate();
 }
 
 void moxi_window_add_custom_rounded_rect(
@@ -3464,6 +3638,7 @@ void moxi_window_add_custom_line(
     moxi_copy_color(moxi_custom_line_colors[index], red, green, blue, alpha);
     moxi_custom_line_widths[index] = width > 0.0 ? width : 1.0;
     moxi_custom_line_count += 1;
+    moxi_custom_paint_cache_invalidate();
 }
 
 void moxi_window_add_custom_circle(
@@ -3503,6 +3678,7 @@ void moxi_window_add_custom_circle(
     );
     moxi_custom_circle_stroke_widths[index] = stroke_width;
     moxi_custom_circle_count += 1;
+    moxi_custom_paint_cache_invalidate();
 }
 
 void moxi_window_add_custom_text(
@@ -3538,6 +3714,7 @@ void moxi_window_add_custom_text(
     );
     moxi_custom_text_font_sizes[index] = font_size > 0.0 ? font_size : 14.0;
     moxi_custom_text_count += 1;
+    moxi_custom_paint_cache_invalidate();
 }
 
 void moxi_window_end_frame(void) {

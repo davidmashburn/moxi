@@ -58,6 +58,7 @@ workbench-test = "mojo run -I src tests/workbench_data.mojo && mojo run -I src t
 workbench-benchmark = "bash scripts/workbench_benchmark.sh"
 native-workbench-capacity = { cmd = "mkdir -p dist && mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa tests/native_workbench_capacity.mojo -o dist/moxi-native-workbench-capacity && ./dist/moxi-native-workbench-capacity", depends-on = ["native-object"] }
 native-custom-rect-equivalence = "mkdir -p dist && clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules tests/native_custom_rect_equivalence.m -framework Cocoa -o dist/moxi-native-custom-rect-equivalence && ./dist/moxi-native-custom-rect-equivalence"
+native-custom-paint-cache = "mkdir -p dist && clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules tests/native_custom_paint_cache.m -framework Cocoa -o dist/moxi-native-custom-paint-cache && ./dist/moxi-native-custom-paint-cache"
 demo-record = "bash scripts/record_demo.sh"
 theme-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/theme_showcase.mojo -o dist/moxi-theme-showcase-demo", depends-on = ["native-object"] }
 theme-showcase-demo = { cmd = "./dist/moxi-theme-showcase-demo", depends-on = ["theme-showcase-demo-build"] }

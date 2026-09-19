@@ -19,19 +19,81 @@ behavior. The shared host and small sample count also limit comparisons.
 
 ## Interpretation
 
-Table-only scrolling rebuilds both plot scenes. `render_frame` calls
-`combined_scene`, which builds scatter and histogram scenes and copies their
-commands into the combined result. `MacOSCanvasSceneRenderer` then clears and
-resubmits the native custom command buffer. The 100k scroll trace spends a
+In the baseline above, table-only scrolling rebuilt both plot scenes. `render_frame` called
+`combined_scene`, which built scatter and histogram scenes and copied their
+commands into the combined result. `MacOSCanvasSceneRenderer` then cleared and
+resubmitted the native custom command buffer. The 100k scroll trace spent a
 median 24.505 ms constructing scenes, 3.702 ms submitting them, and 50.337 ms
-inside drawing; dispatch/layout itself takes 0.732 ms.
+inside drawing; dispatch/layout itself took 0.732 ms.
 
-The next focused optimization should retain plot scenes and drawing output
-when only table offset changes. Merely caching scene construction leaves the
-larger drawing cost. Validate invalidation for selection, filtering, fields,
-zoom, and bounds before accepting such a change. A repeated trace showing
-another dominant cost would change this recommendation. No rendering cache or
-optimization was implemented in this measurement pass.
+This motivated retaining plot drawing output when only table offset changes:
+caching scene construction alone would leave the larger drawing cost.
+No rendering cache or optimization was implemented in that baseline
+measurement pass.
+
+## Plot output reuse
+
+The workbench now opts into native custom-paint retention. A batch containing
+only table scroll events skips scene construction and command submission if
+both plot bounds still match the last rendered frame. Ticks that change state
+and every other event invalidate reuse, including mixed batches. This is a
+conservative event contract: filtering, selection, field changes, and plot
+interaction all rebuild through the existing path.
+
+The native host retains a transparent raster of the custom commands and
+composites it at the same point in the draw order. New commands, custom clip
+changes, view bounds, and backing scale invalidate the raster. Other native
+hosts retain their existing behavior unless they explicitly enable the cache.
+
+### Cache validation and native replay
+
+Workbench tests passed, covering scroll reuse and conservative invalidation
+for selection, filtering, axes, plot interaction, resize, and frame events.
+The new `pixi run native-custom-paint-cache` check compares cached and direct
+pixels at 1× and 2×, exercises warm reuse, and checks command, clip, bounds,
+and backing-scale invalidation. It passed with six builds, eight hits, and
+zero failures, and is now included in `pixi run check`.
+
+The full `pixi run check` passed against the final source: 72 test files plus
+native and host checks. Source hashes were unchanged across the run. Focused
+cache pixel, rectangle equivalence, accessibility ABI, native capacity,
+workbench build, and signed artifact checks also passed. Android and iOS
+checks were skipped because the required SDKs were unavailable.
+
+The native replay subsequently succeeded in a fresh desktop automation session,
+using the exact path `dist/Moxi Cache Replay.app`. The normal packaged app also
+launched and exposed its window successfully. No additional application change
+was needed. The earlier `cgWindowNotFound` failure affected both corrected and
+baseline bundles; its underlying cause remains unknown.
+
+The same fixtures and twelve alternating one-page scrolls per size produced:
+
+| Workload | Samples | Total median / p95 ms | Scene median ms | Drawing median ms |
+|---|---:|---:|---:|---:|
+| Cached 10k table scroll | 12 | 5.291 / 5.886 | 0.000 | 0.812 |
+| Cached 100k table scroll | 12 | 4.589 / 5.018 | 0.000 | 0.653 |
+
+Compared with the earlier baseline, median scroll-frame latency was 3.6× lower
+at 10k and 18.2× lower at 100k. Confidence in the magnitude is moderate: these
+are separate small runs on a shared host, not a randomized paired benchmark.
+All 24 scroll frames skipped scene construction. Pointer-move frames still
+rebuild plots and are excluded from both baseline and cached scroll summaries;
+this is not a measurement of the total work caused by a gesture or continuous
+trackpad scrolling. A larger paired run could change the reported ratios.
+
+Live screenshots and accessibility state confirmed initial plot placement,
+retained output after scrolling, selection markers, filtering with a hidden
+selection, both axis field changes, window zoom/resizing, hover tooltips, and
+linked plot-click selection. Both app launches ended with normal Command-Q
+exit. Plot pan/zoom is not enabled by the workbench's plot specification, so
+plot zoom was not accepted as a live feature. A physical display/backing-scale
+transition, VoiceOver, and CJK acceptance were not repeated.
+
+The [cache replay evidence](benchmarks/workbench-plot-cache-2026-09-18/) contains
+the trace, workload line ranges and summary, source patch, build metadata,
+replay bundle plist, final signed executable hash, and checksum manifest.
+The copied bundle was re-signed after adding its replay identity, so its
+executable hash differs from the original bundle hash in `build.json`.
 
 ## Reproduction and boundaries
 
@@ -72,7 +134,7 @@ source patch, build provenance, test bundle plist, and SHA-256 manifest.
 The summary uses median and nearest-rank p95; with these sample counts p95 is
 the maximum. Independent phase medians need not sum to the total median.
 
-## Validation
+## Baseline validation
 
 Native object compilation, workbench build, workbench tests, artifact checks,
 all 64 native accessibility ABI cases, and `git diff --check` passed.
