@@ -45,12 +45,12 @@ check confirmed U.S. as the remaining keyboard layout.
 
 Automation then returned `cgWindowNotFound` for System Settings, VoiceOver
 Utility, and the workbench, including after resetting the automation session.
-This blocked further VoiceOver testing and verification of the remaining
-settings cleanup. The input-menu visibility, globe-key emoji action, and
-English-only dictation list still need restoration or confirmation; adding
-Japanese had automatically changed these preferences. VoiceOver was not
-enabled during this retry. Neither native acceptance item is a pass, and the
-automation failure does not establish an application defect.
+This blocked further VoiceOver testing. Desktop access later recovered, and
+the hidden input menu, globe-key emoji action, and U.S.-only source list were
+confirmed. Japanese was removed from dictation and the English-only language
+list was verified. Settings cleanup is complete. VoiceOver was not enabled
+during this retry. Neither native acceptance item is a pass, and the automation
+failure does not establish an application defect.
 
 - With a confirmed active Japanese input method, compose and cancel text in
   the path and threshold controls, then commit and replace a selected range.
