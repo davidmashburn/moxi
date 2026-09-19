@@ -1,0 +1,54 @@
+[
+  {
+    "name": "10k table scroll",
+    "line_range_zero_based_half_open": [
+      39,
+      63
+    ],
+    "samples": 12,
+    "metrics": {
+      "receipt_to_drawRect_return_ms": {
+        "median": 5.291,
+        "p95": 5.886
+      },
+      "scene_ms": {
+        "median": 0.0,
+        "p95": 0.0
+      },
+      "drawRect_cpu_ms": {
+        "median": 0.812,
+        "p95": 1.06
+      },
+      "dispatch_layout_ms": {
+        "median": 0.14,
+        "p95": 0.255
+      }
+    }
+  },
+  {
+    "name": "100k table scroll",
+    "line_range_zero_based_half_open": [
+      91,
+      115
+    ],
+    "samples": 12,
+    "metrics": {
+      "receipt_to_drawRect_return_ms": {
+        "median": 4.589,
+        "p95": 5.018
+      },
+      "scene_ms": {
+        "median": 0.0,
+        "p95": 0.0
+      },
+      "drawRect_cpu_ms": {
+        "median": 0.6525000000000001,
+        "p95": 0.741
+      },
+      "dispatch_layout_ms": {
+        "median": 0.654,
+        "p95": 0.696
+      }
+    }
+  }
+]

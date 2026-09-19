@@ -52,6 +52,7 @@ pixi run native-text-parity
 pixi run native-screenshot-check
 pixi run native-workbench-capacity
 pixi run native-custom-rect-equivalence
+pixi run native-custom-paint-cache
 pixi run native-accessibility-abi
 mkdir -p dist
 mojo precompile src/moxi -o dist/moxi.mojoc

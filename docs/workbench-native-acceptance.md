@@ -34,6 +34,24 @@ an unintended UI toggle during settings navigation.
 
 ## Next native probes
 
+A subsequent retry on 2026-09-18 used the default signed bundle with the plot
+cache changes (executable SHA-256
+`13226b444885304faa150fdd3277bd39d02f306306b01d6251b4f0a058b0814e`).
+The workbench opened and exposed its controls, but the Japanese Romaji probe
+again produced literal `nihon ` without an observable candidate window.
+Activation of the input method was not established. The temporary Japanese
+source was removed; both the settings source list and a read-only preference
+check confirmed U.S. as the remaining keyboard layout.
+
+Automation then returned `cgWindowNotFound` for System Settings, VoiceOver
+Utility, and the workbench, including after resetting the automation session.
+This blocked further VoiceOver testing and verification of the remaining
+settings cleanup. The input-menu visibility, globe-key emoji action, and
+English-only dictation list still need restoration or confirmation; adding
+Japanese had automatically changed these preferences. VoiceOver was not
+enabled during this retry. Neither native acceptance item is a pass, and the
+automation failure does not establish an application defect.
+
 - With a confirmed active Japanese input method, compose and cancel text in
   the path and threshold controls, then commit and replace a selected range.
   Observe both candidate display and committed model value.

@@ -1,0 +1,26 @@
+{
+  "source_head": "15ffce263f3694e2833a43662a1d2ee89173043c",
+  "dirty": true,
+  "bundle_path": "/Users/davmash/code/moxi/dist/Moxi Cache Replay.app",
+  "signed_executable_sha256": "9272b755f3cd89102f6c0fd37cc1d9ed2c7007fb962452522bd9668578165c99",
+  "normal_quit_verified": true,
+  "window_recovery": "Fresh CUA session and exact bundle path succeeded without a new code change; prior cgWindowNotFound cause remains unknown.",
+  "visual_checks": [
+    "initial layout",
+    "retained plots after 10k and 100k scrolls",
+    "row selection markers",
+    "filter and hidden selection",
+    "X field",
+    "Y field",
+    "window zoom resize",
+    "hover tooltip",
+    "plot click linked selection"
+  ],
+  "not_checked": [
+    "plot zoom: workbench spec does not enable pan/zoom",
+    "physical backing-scale transition",
+    "VoiceOver",
+    "CJK",
+    "display presentation latency"
+  ]
+}
