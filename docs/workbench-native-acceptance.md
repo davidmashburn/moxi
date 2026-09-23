@@ -1,5 +1,38 @@
 # Native acceptance follow-up
 
+## Interactive follow-up, 2026-09-23
+
+The user activated Japanese–Romaji/Hiragana and used the physical keyboard in
+the CSV path field. Typing `nihon` and converting produced underlined `日本`,
+visible in the captured application view; the user also observed the candidate
+menu and Japanese description. The user confirmed the original sequence worked
+after pressing Return twice. Basic native Japanese conversion and commit are
+confirmed for this field, with high confidence from the visible composition and
+the user's direct observation. An initial Escape result was clarified as an
+uncommitted composition, not an established application defect.
+
+Automation-generated key events continued to insert Latin text and did not
+reliably exercise the active input method. The accessibility snapshot did not
+independently establish the final committed model value. Threshold composition,
+selected-range replacement, cancellation after a separately verified commit,
+and canvas/emoji cases were not independently completed. This result is scoped
+to the basic CSV-field flow, not full IME acceptance.
+
+The user also confirmed hearing VoiceOver speak workbench controls. Further
+VoiceOver traversal and selection-announcement testing was paused at the user's
+request. VoiceOver was restored off. The temporary Japanese source was removed,
+and U.S.-only input, a hidden input menu, the globe-key emoji action, and
+English-only dictation were verified restored. No application code changed and
+no automated suite was rerun for this manual test record.
+
+The bundle inspected during this follow-up had executable SHA-256
+`665f06d9197a19c43606feadba82745e26d5a3c63787314a5bda7faf4edd0ee6`;
+its build manifest records revision `15ffce2` with a dirty worktree and linker
+output SHA-256
+`e51cc206124eaefc77510cb4c2b786319152d13e98df1e9ef2ce944ff18b87eb`.
+
+## Earlier checks
+
 Tested on macOS arm64 on 2026-09-18 using the signed isolated bundle at
 `dist/workbench-launch/replay-drzjd9oj/Moxi Data Workbench.app`, PID 7690.
 Its executable SHA-256 is
