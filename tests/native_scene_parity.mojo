@@ -6,6 +6,7 @@ from moxi import (
     Point,
     Rect,
     Scene,
+    SceneTextStyle,
     SoftwareSceneRenderer,
     canonical_text_coretext_fixture,
     test_check,
@@ -58,6 +59,7 @@ def main() raises:
     test_check(metal.rendered_text_glyph_count() > 0)
     test_check(metal.fallback_command_count() == 0)
     test_check(metal.checksum() != 0)
+
     test_check(
         metal.write_ppm("dist/native-artifacts/native-scene.ppm")
     )
@@ -65,5 +67,38 @@ def main() raises:
     print("NATIVE_SCREENSHOT_SOFTWARE_BEGIN")
     print(software.ppm())
     print("NATIVE_SCREENSHOT_SOFTWARE_END")
+    metal.shutdown()
+
+    # Keep the text content and font size constant while changing only the
+    # allocated box height. The native rasterizer must keep the glyph ink
+    # geometry stable; box height remains available for clipping/layout.
+    # Use a separate larger target without changing the screenshot fixture.
+    metal = MacOSMetalRenderer(320, 180)
+    test_check(metal.is_ready())
+    var stable_scene = Scene()
+    var stable_style = SceneTextStyle("system-ui", 16.0)
+    metal.enable_text_ink_metrics(True)
+    stable_scene.append_text_styled(
+        4,
+        canonical_text_coretext_fixture(),
+        Rect(8.0, 8.0, 260.0, 24.0),
+        Color(0.95, 0.95, 1.0, 1.0),
+        stable_style,
+    )
+    stable_scene.append_text_styled(
+        5,
+        canonical_text_coretext_fixture(),
+        Rect(8.0, 40.0, 260.0, 64.0),
+        Color(0.95, 0.95, 1.0, 1.0),
+        stable_style,
+    )
+    metal.render_scene(stable_scene)
+    test_check(metal.rendered_text_count() == 2)
+    test_check(metal.rendered_text_texture_raster_count() == 2)
+    test_check(metal.rendered_text_ink_width_min() > 0)
+    test_check(metal.rendered_text_ink_width_min() == metal.rendered_text_ink_width_max())
+    test_check(metal.rendered_text_ink_height_min() > 0)
+    test_check(metal.rendered_text_ink_height_min() == metal.rendered_text_ink_height_max())
+    metal.enable_text_ink_metrics(False)
     metal.shutdown()
     print("Moxi native scene parity passed")

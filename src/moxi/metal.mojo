@@ -307,12 +307,16 @@ struct MacOSMetalRenderer(SceneRenderer):
         elif command.kind == SCENE_TEXT:
             var color = _with_opacity(command.fill, self.opacity * command.opacity)
             var text = command.text
+            var font_size = Float32(14.0)
+            if command.has_text_style and command.text_style.size > 0.0:
+                font_size = command.text_style.size
             var result = external_call["moxi_metal_draw_text", Int32](
                 text.as_c_string_slice().ptr(),
                 command.bounds.x,
                 command.bounds.y,
                 command.bounds.width,
                 command.bounds.height,
+                font_size,
                 color.red,
                 color.green,
                 color.blue,
@@ -496,6 +500,28 @@ struct MacOSMetalRenderer(SceneRenderer):
     def rendered_text_texture_raster_count(self) -> Int:
         """Return CoreText texture rasterizations recorded in the last frame."""
         return self.frame_text_texture_raster_count
+
+    def rendered_text_ink_width_min(self) -> Int:
+        """Return the smallest CoreText ink width in the last frame."""
+        return Int(external_call["moxi_metal_text_ink_width_min_value", Int32]())
+
+    def rendered_text_ink_width_max(self) -> Int:
+        """Return the largest CoreText ink width in the last frame."""
+        return Int(external_call["moxi_metal_text_ink_width_max_value", Int32]())
+
+    def rendered_text_ink_height_min(self) -> Int:
+        """Return the smallest CoreText ink height in the last frame."""
+        return Int(external_call["moxi_metal_text_ink_height_min_value", Int32]())
+
+    def rendered_text_ink_height_max(self) -> Int:
+        """Return the largest CoreText ink height in the last frame."""
+        return Int(external_call["moxi_metal_text_ink_height_max_value", Int32]())
+
+    def enable_text_ink_metrics(mut self, enabled: Bool):
+        """Enable optional native text ink diagnostics for a test frame."""
+        external_call["moxi_metal_enable_text_ink_metrics", NoneType](
+            Int32(1 if enabled else 0)
+        )
 
     def rendered_image_count(self) -> Int:
         return self.frame_image_count
