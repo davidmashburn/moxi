@@ -279,3 +279,58 @@ float moxi_paragraph_metric(uintptr_t handle, int metric) {
         default: return 0;
     }
 }
+
+// Optional retained-tree adapter. Intrinsic sizing uses the same font/shaping
+// provider. The paragraph profile permits emergency cluster wrapping, so its
+// minimum inline contribution is the widest composed cluster, not a scalar.
+void moxi_paragraph_retain(uintptr_t handle) {
+    if (handle != 0) CFRetain((CFTypeRef)handle);
+}
+
+static float moxi_paragraph_intrinsic_width(const char *utf8, float fontSize, int query) {
+    NSString *text = [NSString stringWithUTF8String:utf8];
+    if (text == nil) return NAN;
+    NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:fontSize]};
+    __block double widest = 0;
+    NSStringEnumerationOptions options = query == 1
+        ? NSStringEnumerationByComposedCharacterSequences : NSStringEnumerationByLines;
+    [text enumerateSubstringsInRange:NSMakeRange(0, text.length) options:options
+        usingBlock:^(NSString *substring, NSRange range, NSRange enclosing, BOOL *stop) {
+            (void)range; (void)enclosing; (void)stop;
+            if ([substring isEqualToString:@"\n"] || [substring isEqualToString:@"\r"] ||
+                [substring isEqualToString:@"\r\n"]) return;
+            NSAttributedString *attributed = [[NSAttributedString alloc] initWithString:substring attributes:attributes];
+            CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)attributed);
+            widest = MAX(widest, CTLineGetTypographicBounds(line, NULL, NULL, NULL));
+            CFRelease(line);
+        }];
+    // Round up so an intrinsic max-content offer does not accidentally wrap the
+    // last cluster because the C ABI has lower precision than CoreText.
+    float result = (float)widest;
+    if ((double)result < widest) result = nextafterf(result, INFINITY);
+    return result;
+}
+
+typedef struct {
+    float width, height, firstBaseline, lastBaseline;
+} MoxiLayoutMetrics;
+
+static int moxi_layout_native_measure(const char *text, float fontSize, float width,
+    int direction, int query, MoxiLayoutMetrics *metrics, uintptr_t *payload) {
+    if (metrics == NULL || payload == NULL || text == NULL || query < 0 || query > 2) return 1;
+    *payload = 0;
+    @autoreleasepool {
+        if (query != 0) width = moxi_paragraph_intrinsic_width(text, fontSize, query);
+        uintptr_t handle = moxi_paragraph_create(text, fontSize, width, direction);
+        if (handle == 0) return 1;
+        metrics->width = width;
+        metrics->height = moxi_paragraph_metric(handle, 1);
+        metrics->firstBaseline = moxi_paragraph_metric(handle, 2);
+        metrics->lastBaseline = moxi_paragraph_metric(handle, 3);
+        *payload = handle;
+        return 0;
+    }
+}
+
+uintptr_t moxi_layout_native_measure_address(void) { return (uintptr_t)&moxi_layout_native_measure; }
+uintptr_t moxi_layout_native_release_address(void) { return (uintptr_t)&moxi_paragraph_release; }

@@ -41,6 +41,15 @@ struct NativeParagraph(ParagraphPayload):
         result._storage = ArcPointer(_NativeParagraphStorage(handle))
         return result^
 
+    @staticmethod
+    def from_handle(handle: UInt) -> Self:
+        """Retain a borrowed native payload from an optional layout adapter."""
+        var result = Self()
+        if handle != 0:
+            external_call["moxi_paragraph_retain", NoneType](handle)
+            result._storage = ArcPointer(_NativeParagraphStorage(handle))
+        return result^
+
     def _metric(self, index: Int32) -> Float32:
         return external_call["moxi_paragraph_metric", Float32](self._storage[].handle, index)
 
