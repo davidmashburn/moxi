@@ -1,16 +1,16 @@
 # Composed layout workbench
 
 This is the optional authoring and acceptance screen for retained layout. It uses
-Taffy flow for the adaptive panes and toolbar, a Kiwi region for the form,
+Mojo flow/grid for the adaptive panes and toolbar, a Kiwi region for the form,
 a variable extent collection for the results, and viewport-fitted popups. All
 strategies stage against the parent's exact allocation before one geometry
 publication supplies paint, input and accessibility.
 
 Run `pixi run layout-candidate-check`, then `pixi run layout-workbench`.
-The candidate requires Cargo/Rust and the pinned Kiwi source in addition to the
-locked Mojo environment. The check bootstraps Kiwi at its recorded commit,
-builds the Rust library with `--locked`, and builds the native demo. Ordinary
-legacy consumers do not acquire these dependencies.
+The candidate uses the locked Mojo environment, CoreText/AppKit and pinned Kiwi
+for constraint solving. The check bootstraps Kiwi at its recorded commit and
+builds the native demo. Flow/grid layout and retained ownership execute in Mojo;
+Cargo and the experimental Taffy bridge are not build dependencies.
 
 The toolbar toggles a summary, RTL, an anchored column menu, a deliberate required
 constraint conflict, empty/100,000 rows, text scaling and a modal dialog. Below
@@ -56,9 +56,10 @@ unresolved; the temporary system-setting attempts were canceled or restored.
 
 Run `pixi run layout-consumer-check` for an independently authored screen linked
 against a precompiled `moxi.mojoc` with no source-tree include path. This optional
-profile still links the Rust, Kiwi and macOS sidecars explicitly; it does not ship
+profile links the Kiwi and macOS sidecars explicitly; it does not ship
 a standalone conda package containing those sidecars.
 
 The candidate stays out of the root public exports until the promotion gates in
 [the delivery ledger](layout-delivery.md) are satisfied. Its current supported
-native host is macOS; the collection, overlay and coordinate policies are portable.
+native host is macOS; the Mojo retained engine, collection, overlay and coordinate
+policies have portable contract tests.

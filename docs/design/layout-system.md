@@ -13,8 +13,9 @@ Design the target from component composition and user-visible behavior, independ
 of the current ColumnView representation. Build one retained layout system with
 explicit container strategies, a common measurement protocol, and one geometry
 publication boundary. Keep layout semantics
-owned by Moxi. Use Kiwi for scoped linear relationships and evaluate Taffy for
-flex/grid execution; neither defines the whole Moxi API. Do not translate all layout
+and flow/grid execution owned by Mojo. Use Kiwi for scoped linear relationships
+and retain Taffy as an experimental comparison reference; neither defines the
+whole Moxi API. Do not translate all layout
 into linear equations or pretend these engines are interchangeable.
 
 The target is a complete desktop application layout system: flow, grids, forms,
@@ -471,16 +472,17 @@ cycle breaking requires explicit author consent.
 
 ### Flow and grid
 
-Moxi owns the documented flow/track rules. Taffy is the preferred evaluation target
-for richer flex/grid execution because those are its native algorithms; adoption
-requires proving the supported Moxi profile maps correctly, including shrink and
-minimum defaults. Translate declarations explicitly and test that profile. Do not
-claim full CSS compatibility or silently substitute Kiwi for grid.
+Moxi owns the documented flow/track rules and implements them in Mojo. The
+[retained candidate](../retained-layout.md) owns its tree, sizing, placement,
+measurement caches and publication. Native text services provide measurements
+and drawing payloads. Taffy remains an experimental comparison reference, not
+a production layout dependency. Test the supported Moxi profile explicitly;
+do not claim full CSS compatibility or silently substitute Kiwi for grid.
 
-Keep the existing Mojo linear path during migration. Once the production adapter
-passes gates, choose one default implementation per supported strategy/profile;
+Keep the existing Mojo linear path during migration. Once the retained engine
+passes promotion gates, choose one default implementation per supported profile;
 do not maintain several production engines for the same behavior without evidence
-that the extra cost is justified. Taffy stays experimental until those gates pass.
+that the extra cost is justified.
 
 ### Constraint regions
 
@@ -722,7 +724,7 @@ below remain the target contract; they are not a claim that every gate has passe
 | --- | --- | --- |
 | 1. Shared contracts | Keyed store, request/result types, geometry generations, legacy adapter and real paragraph provider | Same paragraph used for measure/draw; font/width invalidation; unchanged pass makes zero leaf measurements; paint/hit/AX geometry agrees |
 | 2. Composed workbench | Flow + Kiwi form + existing virtual recycler + popup through common ownership | Resize, scroll, summary insertion, popup following anchor, required conflict rollback, narrow arrangement and focus preservation |
-| 3. Flow/grid profile | Wrapping, baselines, track spans, shared tracks and Taffy candidate adapter | Named profile fixtures, differential geometry tests, intrinsic/indefinite cases, packaging and full pipeline timings |
+| 3. Flow/grid profile | Wrapping, baselines, track spans, shared tracks and Mojo-owned retained engine | Named profile fixtures, differential geometry tests, intrinsic/indefinite cases, packaging and full pipeline timings |
 | 4. Collections and overlays | Variable-height/two-axis virtualization, frozen tracks, candidate placement and modal integration | Large dataset with bounded realization, scroll anchoring, offscreen focus, nested clipping, RTL, active editor/IME retention |
 | 5. Release hardening | Diagnostics, cache/solver lifecycle, documentation and migrated consumer | Long churn, fault injection, supported platform builds, accessibility/IME manual checks, representative frame budgets |
 
@@ -789,8 +791,10 @@ risk rather than limiting the design to today's widgets.
 Confidence is high in single-owner geometry, stable-child policy switching and the
 separation of measurement, arrangement and publication. The
 [API review](layout-api-review.md) records executable counterexamples and the
-limits of that evidence. Confidence is moderate in selecting Kiwi and
-Taffy as eventual production dependencies. The composed authoring exercise, native
+limits of that evidence. The selected implementation boundary is Mojo-owned
+flow/grid execution with Kiwi retained for constraint solving. Confidence is
+moderate in promoting the complete profile before the remaining release checks.
+The composed authoring exercise, native
 paragraph integration, cross-platform builds and representative cost measurements
 can change those backend choices without changing the ownership model.
 
