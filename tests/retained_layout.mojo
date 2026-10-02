@@ -1,6 +1,7 @@
 """Native integration contracts for the optional retained layout adapter."""
 from moxi.retained_layout import RetainedLayout, RetainedStyle, RetainedTrack, RetainedSnapshot, RetainedPlacement, COLUMN, ROW, WRAP, GRID, STACK, LEAF, CONTENT, FIXED
 from moxi.geometry import Point, Size, Rect
+from moxi.retained_leaf import RetainedPresentation
 from std.collections import List
 from moxi.content_layout import AxisSize, LayoutStyle, LayoutNode, LayoutTree
 from std.testing import assert_true, assert_equal, assert_almost_equal
@@ -138,4 +139,18 @@ def main() raises:
     var final = grid.commit(staged)
     assert_almost_equal(final.bounds(4).width, Float32(180))
     assert_almost_equal(final.bounds(4).x, Float32(5))
+    # A valid engine key can exceed the native AX ABI; reject presentation before
+    # the first publication rather than truncating it into another semantic ID.
+    var oversized_key = RetainedLayout()
+    oversized_key.set_region(1,RetainedStyle(COLUMN))
+    oversized_key.set_box(2147483648,RetainedStyle(LEAF,height_kind=FIXED,height=20))
+    oversized_key.children(1,[2147483648])
+    var invalid = oversized_key.stage(1,Size(100,100))
+    rejected = False
+    try:
+        _ = RetainedPresentation(invalid.snapshot,[])
+    except:
+        rejected = True
+    assert_true(rejected)
+    assert_equal(oversized_key.snapshot().generation,UInt64(0))
     print("Retained layout native contracts passed")

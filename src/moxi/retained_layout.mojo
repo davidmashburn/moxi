@@ -413,3 +413,7 @@ struct RetainedLayout:
 
     def mutations(self) -> UInt64:
         return external_call["moxi_layout_counter", UInt64](self._handle, Int32(1))
+
+    def measurement_nanoseconds(self) -> UInt64:
+        """Cumulative provider callback time; excludes cached lookups and arrangement."""
+        return external_call["moxi_layout_counter", UInt64](self._handle, Int32(3))

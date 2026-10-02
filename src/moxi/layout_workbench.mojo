@@ -1,5 +1,6 @@
 """Candidate acceptance screen composing flow, Kiwi, collection and popup policy."""
 from std.collections import List, Dict
+from std.ffi import external_call
 from .geometry import Rect, Size, Point
 from .retained_layout import RetainedLayout, RetainedStyle, RetainedPlacement, RetainedSnapshot, COLUMN, ROW, WRAP, STACK, LEAF, COLLAPSED, FILL, FIXED
 from .constraint_layout import ConstraintRegion, LinearConstraint, coordinate, PARENT_WIDTH, AT_LEAST
@@ -39,6 +40,7 @@ struct LayoutWorkbench:
     var _published_leaves: List[ViewNode]
     var _snapshot: RetainedSnapshot
     var _size: Size
+    var _phase_ns: List[Int64]
 
     def __init__(out self, row_count: Int = 100000) raises:
         self.tree = RetainedLayout()
@@ -63,6 +65,7 @@ struct LayoutWorkbench:
         self._published_leaves = List[ViewNode]()
         self._snapshot = RetainedSnapshot()
         self._size = Size(0,0)
+        self._phase_ns = List[Int64]()
         self.set_rows(row_count)
         self.table.columns.sync([1,2,3,4],[Float64(180),180,180,180])
 
@@ -148,9 +151,20 @@ struct LayoutWorkbench:
         self.tree.children(90,[91])
         self.tree.children(1,[2,90])
 
-    def frame(mut self, size: Size) raises -> RetainedPresentation:
+    def _record_phase[profile: Bool](mut self):
+        if profile:
+            self._phase_ns.append(external_call["moxi_benchmark_time_ns", Int64]())
+
+    def frame[profile: Bool = False](mut self, size: Size) raises -> RetainedPresentation:
+        # Profiling is compiled out for ordinary frames. The acceptance benchmark
+        # supplies the clock and reads ten boundary timestamps (nine phases).
+        if profile:
+            self._phase_ns = List[Int64]()
+        self._record_phase[profile]()
         self._declare(size)
+        self._record_phase[profile]()
         var allocation = self.tree.stage(1,size)
+        self._record_phase[profile]()
         var form_rect = allocation.snapshot.bounds(10)
         var constraints = List[LinearConstraint]()
         for key in [11,12,13,14]:
@@ -173,6 +187,7 @@ struct LayoutWorkbench:
             constraints.append(LinearConstraint([coordinate(13,2)],[Float64(1)],-10000,AT_LEAST))
         self.form.model([11,12,13,14],constraints)
         var form_plan = self.form.stage(Size(form_rect.width,form_rect.height))
+        self._record_phase[profile]()
         var placements = List[RetainedPlacement]()
         for key in [11,12,13,14]:
             placements.append(RetainedPlacement(key,form_plan.rectangles[key]))
@@ -182,6 +197,7 @@ struct LayoutWorkbench:
             placements.append(RetainedPlacement(18,Rect(pane.x-body.x-9 if self.rtl else pane.x-body.x+pane.width+3,pane.y-body.y,6,pane.height)))
         var viewport = allocation.snapshot.bounds(21)
         var collection = self.table.stage(viewport,self.offset_x,self.offset_y,overscan=1,frozen_rows=min(1,self.table.rows.count()),frozen_columns=1,rtl=self.rtl)
+        self._record_phase[profile]()
         var cells = Dict[Int,Bool]()
         var children = List[Int]()
         var popup_anchor = allocation.snapshot.bounds(42)
@@ -222,11 +238,14 @@ struct LayoutWorkbench:
                 self.tree.set_region(90,RetainedStyle(COLLAPSED))
                 self.tree.clear_placement(90)
         self.tree.place(placements)
+        self._record_phase[profile]()
         var ready = self.tree.stage(1,size)
+        self._record_phase[profile]()
         self.form.validate(form_plan)
         self.table.validate(collection)
         # Capacity and adapter validation precede every publication.
         _ = RetainedPresentation(ready.snapshot,self._leaves,self.focused)
+        self._record_phase[profile]()
         var published = self.tree.commit(ready)
         self.form.commit(form_plan)
         self.offset_x = collection.offset_x
@@ -242,7 +261,10 @@ struct LayoutWorkbench:
         self._published_leaves = self._leaves.copy()
         self._size = size
         self.error = ""
-        return RetainedPresentation(published,self._leaves,self.focused)
+        self._record_phase[profile]()
+        var presentation = RetainedPresentation(published,self._leaves,self.focused)
+        self._record_phase[profile]()
+        return presentation^
 
     def recovery(self) raises -> RetainedPresentation:
         var snapshot = self.tree.snapshot()
