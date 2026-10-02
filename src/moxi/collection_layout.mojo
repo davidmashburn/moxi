@@ -78,6 +78,8 @@ struct ExtentIndex:
             var parent = i + (i & -i)
             if parent < len(tree):
                 tree[parent] += tree[i]
+            if not isfinite(tree[i]):
+                raise Error("Collection extent total overflow")
         self.keys = keys.copy()
         self._values = values^
         self._measured = measured^
@@ -90,6 +92,8 @@ struct ExtentIndex:
         var index = self.index(key)
         if index < 0:
             raise Error("Unknown collection key")
+        if not isfinite(self.total() - self._values[index] + value):
+            raise Error("Collection extent total overflow")
         self._measured[index] = True
         if self._values[index] == value:
             return
@@ -349,6 +353,8 @@ struct CollectionViewport:
                 if rtl:
                     x = Float64(viewport.width) - x - width
                 var rect = Rect(viewport.x + Float32(x), viewport.y + Float32(y), Float32(width), Float32(height))
+                if not isfinite(rect.x) or not isfinite(rect.y) or not isfinite(rect.width) or not isfinite(rect.height):
+                    raise Error("Collection coordinates exceed geometry precision")
                 var clip = viewport
                 if row >= frozen_rows:
                     clip.y += Float32(frozen_h)
