@@ -53,6 +53,7 @@ demo-walkthrough = { cmd = "bash scripts/launch_demo_app.sh", depends-on = ["dem
 data-workbench-build = { cmd = "mkdir -p dist && mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/data_workbench.mojo -o dist/moxi-data-workbench && bash scripts/package_workbench_app.sh", depends-on = ["native-object"] }
 data-workbench = { cmd = "open -n -W 'dist/Moxi Data Workbench.app'", depends-on = ["data-workbench-build"] }
 workbench-artifact-check = "python3 scripts/workbench_artifact_check.py"
+workbench-release-gate = "python3 scripts/workbench_release_gate.py"
 workbench-launch-smoke = "python3 scripts/workbench_launch_smoke.py"
 workbench-test = "mojo run -I src tests/workbench_data.mojo && mojo run -I src tests/data_workbench.mojo"
 workbench-benchmark = "bash scripts/workbench_benchmark.sh"
