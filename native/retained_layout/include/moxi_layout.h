@@ -8,6 +8,8 @@ extern "C" {
 // Thread-confined opaque owners. Release once; never forge or reuse a handle.
 typedef struct MoxiLayout MoxiLayout;
 typedef struct MoxiLayoutSnapshot MoxiLayoutSnapshot;
+typedef struct MoxiLayoutCandidate MoxiLayoutCandidate;
+typedef struct { uint64_t key; float x, y, width, height; } MoxiLayoutPlacement;
 typedef struct { float width, height, first_baseline, last_baseline; } MoxiLayoutMetrics;
 typedef int32_t (*MoxiLayoutMeasure)(const char *, float, float, int32_t, int32_t,
                                    MoxiLayoutMetrics *, uintptr_t *);
@@ -31,6 +33,13 @@ int32_t moxi_layout_remove(MoxiLayout *, uint64_t);
 int32_t moxi_layout_has_key(const MoxiLayout *, uint64_t);
 int32_t moxi_layout_invalidate(MoxiLayout *);
 int32_t moxi_layout_compute(MoxiLayout *, uint64_t, float, float, MoxiLayoutSnapshot **);
+// Stage never publishes; commit rejects stale/foreign candidates and borrows it.
+int32_t moxi_layout_stage(MoxiLayout *, uint64_t, float, float, MoxiLayoutCandidate **);
+int32_t moxi_layout_commit(MoxiLayout *, const MoxiLayoutCandidate *, MoxiLayoutSnapshot **);
+MoxiLayoutSnapshot *moxi_layout_candidate_snapshot(const MoxiLayoutCandidate *);
+void moxi_layout_candidate_release(MoxiLayoutCandidate *);
+int32_t moxi_layout_place(MoxiLayout *, const MoxiLayoutPlacement *, size_t);
+int32_t moxi_layout_clear_placement(MoxiLayout *, uint64_t);
 MoxiLayoutSnapshot *moxi_layout_snapshot(const MoxiLayout *);
 void moxi_layout_snapshot_release(MoxiLayoutSnapshot *);
 size_t moxi_layout_snapshot_count(const MoxiLayoutSnapshot *);

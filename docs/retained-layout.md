@@ -26,6 +26,16 @@ depth (more than 256 regions) are rejected before publication. A declaration wit
 unchanged inputs does no mutation work. Each paragraph caches at most eight
 query/width payloads; environment invalidation clears them explicitly.
 
+For mixed strategies, `stage(root, size)` measures tentative geometry without
+publishing it. Read the region allocation, solve its policy, then submit a batch
+of `RetainedPlacement` rectangles local to that region. Custom placement removes
+those children from flow and supplies exact sizes; it does not change their owner.
+Stage the complete tree again and `commit(plan)`. Stale, foreign or conflicting
+allocations reject without replacing the previous publication. A custom region
+should have zero padding and no child margins so local coordinates are explicit.
+Use `clear_placement` when a child returns to ordinary flow. A policy may inspect
+its allocated region; it must not feed child size back into the parent allocation.
+
 A snapshot owns its geometry, semantic metadata and native paragraphs. It remains
 usable after cache eviction, declaration replacement, removal and context
 destruction. Paint and hit testing use the same clipped rectangles. Accessibility

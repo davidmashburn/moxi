@@ -112,6 +112,7 @@ struct Node {
     hidden: bool,
     mount: u64,
     declared: Style,
+    placement: Option<[f32; 4]>,
 }
 #[derive(Clone)]
 pub struct Output {
@@ -129,6 +130,23 @@ pub struct Snapshot {
     pub outputs: Vec<Output>,
 }
 
+pub struct Candidate {
+    snapshot: Snapshot,
+    owner: Rc<()>,
+    request: (u64, u32, u32, u64),
+    base_generation: u64,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Placement {
+    pub key: u64,
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+}
+
 pub struct Engine {
     tree: TaffyTree<Paragraph>,
     nodes: HashMap<u64, Node>,
@@ -141,6 +159,7 @@ pub struct Engine {
     revision: u64,
     thread: ThreadId,
     error: CString,
+    owner: Rc<()>,
 }
 
 fn extent(value: f32) -> Result<f32, String> {
@@ -176,6 +195,7 @@ impl Engine {
             last_request: None,
             thread: thread::current().id(),
             error: CString::default(),
+            owner: Rc::new(()),
         }
     }
     fn id(&self, key: u64) -> Result<NodeId, String> {
@@ -268,6 +288,7 @@ impl Engine {
                     hidden: false,
                     mount: self.next_mount,
                     declared: style,
+                    placement: None,
                 },
             );
             self.next_mount += 1;
@@ -298,7 +319,55 @@ impl Engine {
                 end: line(2),
             };
         }
+        if let Some(rect) = self.nodes.get(&key).and_then(|n| n.placement) {
+            result.position = Position::Absolute;
+            result.inset.left = length(rect[0]);
+            result.inset.top = length(rect[1]);
+            result.size = Size {
+                width: length(rect[2]),
+                height: length(rect[3]),
+            };
+        }
         result
+    }
+
+    pub fn place(&mut self, placements: &[Placement]) -> Result<(), String> {
+        let mut keys = HashSet::new();
+        for p in placements {
+            self.id(p.key)?;
+            if !keys.insert(p.key) || self.nodes[&p.key].parent.is_none() {
+                return Err("custom placement requires unique owned children".into());
+            }
+            if !p.x.is_finite() || !p.y.is_finite() {
+                return Err("custom placement origin must be finite".into());
+            }
+            extent(p.width)?;
+            extent(p.height)?;
+        }
+        for p in placements {
+            let rect = [p.x, p.y, p.width, p.height];
+            let node = self.nodes.get_mut(&p.key).unwrap();
+            if node.placement == Some(rect) {
+                continue;
+            }
+            node.placement = Some(rect);
+            let id = node.id;
+            let style = self.effective_style(p.key, &self.nodes[&p.key].declared);
+            self.tree.set_style(id, style).map_err(|e| e.to_string())?;
+            self.changed();
+        }
+        Ok(())
+    }
+
+    pub fn clear_placement(&mut self, key: u64) -> Result<(), String> {
+        let id = self.id(key)?;
+        if self.nodes.get_mut(&key).unwrap().placement.take().is_some() {
+            self.tree
+                .set_style(id, self.effective_style(key, &self.nodes[&key].declared))
+                .map_err(|e| e.to_string())?;
+            self.changed();
+        }
+        Ok(())
     }
     fn refresh_child_styles(&mut self, key: u64) -> Result<(), String> {
         for child in self.nodes[&key].children.clone() {
@@ -405,6 +474,10 @@ impl Engine {
         Ok(())
     }
     pub fn layout(&mut self, root: u64, width: f32, height: f32) -> Result<Snapshot, String> {
+        let candidate = self.stage(root, width, height)?;
+        self.commit(&candidate)
+    }
+    pub fn stage(&mut self, root: u64, width: f32, height: f32) -> Result<Candidate, String> {
         extent(width)?;
         extent(height)?;
         let root_id = self.id(root)?;
@@ -418,7 +491,12 @@ impl Engine {
         }
         let request = (root, width.to_bits(), height.to_bits(), self.revision);
         if self.last_request == Some(request) {
-            return Ok(self.snapshot.clone());
+            return Ok(Candidate {
+                snapshot: self.snapshot.clone(),
+                owner: Rc::clone(&self.owner),
+                request,
+                base_generation: self.snapshot.generation,
+            });
         }
         let mut style = self.effective_style(root, &self.nodes[&root].declared);
         for (allocated, minimum, maximum) in [
@@ -534,12 +612,42 @@ impl Engine {
         {
             return Err("nonfinite computed geometry".into());
         }
-        self.snapshot = Snapshot {
+        for output in &outputs {
+            if let Some(rect) = self.nodes[&output.key].placement {
+                if (output.rect[2] - rect[2]).abs() > 0.001
+                    || (output.rect[3] - rect[3]).abs() > 0.001
+                {
+                    return Err(format!(
+                        "exact custom allocation conflicts with bounds at key {}",
+                        output.key
+                    ));
+                }
+            }
+        }
+        let snapshot = Snapshot {
             generation: self.snapshot.generation + 1,
             outputs,
         };
+        Ok(Candidate {
+            snapshot,
+            owner: Rc::clone(&self.owner),
+            request,
+            base_generation: self.snapshot.generation,
+        })
+    }
+    pub fn commit(&mut self, candidate: &Candidate) -> Result<Snapshot, String> {
+        if !Rc::ptr_eq(&candidate.owner, &self.owner)
+            || candidate.request.3 != self.revision
+            || candidate.base_generation != self.snapshot.generation
+        {
+            return Err("stale or foreign layout candidate".into());
+        }
+        if self.last_request == Some(candidate.request) {
+            return Ok(self.snapshot.clone());
+        }
+        self.snapshot = candidate.snapshot.clone();
         self.counters.publications += 1;
-        self.last_request = Some(request);
+        self.last_request = Some(candidate.request);
         Ok(self.snapshot.clone())
     }
     fn walk_keys(&self, key: u64, out: &mut HashSet<u64>) -> Result<(), String> {
@@ -1038,6 +1146,88 @@ pub unsafe extern "C" fn moxi_layout_compute(
         *out = Box::into_raw(Box::new(e.layout(root, width, height)?));
         Ok(())
     })
+}
+/// # Safety
+/// The owner and candidate must be live handles on their creating thread.
+/// The output must be writable. Candidates must be released exactly once.
+#[no_mangle]
+pub unsafe extern "C" fn moxi_layout_stage(
+    handle: *mut Engine,
+    root: u64,
+    width: f32,
+    height: f32,
+    out: *mut *mut Candidate,
+) -> i32 {
+    call(handle, |e| {
+        if out.is_null() {
+            return Err("null candidate output".into());
+        }
+        *out = Box::into_raw(Box::new(e.stage(root, width, height)?));
+        Ok(())
+    })
+}
+/// # Safety
+/// The owner and candidate must be live handles on their creating thread.
+/// The output must be writable. This operation borrows the candidate.
+#[no_mangle]
+pub unsafe extern "C" fn moxi_layout_commit(
+    handle: *mut Engine,
+    candidate: *const Candidate,
+    out: *mut *mut Snapshot,
+) -> i32 {
+    call(handle, |e| {
+        if out.is_null() {
+            return Err("null snapshot output".into());
+        }
+        let candidate = candidate.as_ref().ok_or("null layout candidate")?;
+        *out = Box::into_raw(Box::new(e.commit(candidate)?));
+        Ok(())
+    })
+}
+/// # Safety
+/// Candidate must be a live handle on its creating thread. Result is owned.
+#[no_mangle]
+pub unsafe extern "C" fn moxi_layout_candidate_snapshot(
+    candidate: *const Candidate,
+) -> *mut Snapshot {
+    candidate.as_ref().map_or(std::ptr::null_mut(), |c| {
+        Box::into_raw(Box::new(c.snapshot.clone()))
+    })
+}
+/// # Safety
+/// Candidate must be null or a live handle on its creating thread. Consumes it.
+#[no_mangle]
+pub unsafe extern "C" fn moxi_layout_candidate_release(candidate: *mut Candidate) {
+    if !candidate.is_null() {
+        drop(Box::from_raw(candidate));
+    }
+}
+/// # Safety
+/// The owner must be live on its creating thread and the placements must cover
+/// the declared count. Input is borrowed and validated before mutation.
+#[no_mangle]
+pub unsafe extern "C" fn moxi_layout_place(
+    handle: *mut Engine,
+    placements: *const Placement,
+    count: usize,
+) -> i32 {
+    call(handle, |e| {
+        if count > 0 && placements.is_null() {
+            return Err("null placement list".into());
+        }
+        let placements = if count == 0 {
+            &[]
+        } else {
+            std::slice::from_raw_parts(placements, count)
+        };
+        e.place(placements)
+    })
+}
+/// # Safety
+/// The owner must be live on its creating thread.
+#[no_mangle]
+pub unsafe extern "C" fn moxi_layout_clear_placement(handle: *mut Engine, key: u64) -> i32 {
+    call(handle, |e| e.clear_placement(key))
 }
 /// # Safety
 /// Handles must be null or live handles of the declared type, used on their
