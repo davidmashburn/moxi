@@ -55,7 +55,12 @@ provider trait hierarchy are needed at the main-thread native boundary.
 
 `tests/retained_layout.mojo` exercises actual CoreText baselines, resize wrapping,
 unchanged declarations, retained lifetime, grid spans and tombstone recovery.
+Two shared geometry fixtures compare the retained adapter to the legacy engine
+across 116 exact parent sizes. Approximate legacy text metrics are deliberately
+excluded from that comparison. Native semantic keys must fit signed 32-bit IDs;
+presentation rejects larger keys before publication.
 Rust tests cover allocation, fractional wrap boundaries, ownership rejection,
 cache bounds, native-provider failure, clipping and invalid ABI inputs. These are
-candidate-profile checks; composed workbench, collection, overlay, external
-consumer, VoiceOver/IME and supported-target CI gates remain separate.
+candidate-profile checks. The [composed workbench](layout-workbench.md) integrates
+collections, constraints, overlays and native editors. See the
+[delivery ledger](layout-delivery.md) for current verification and promotion gates.
