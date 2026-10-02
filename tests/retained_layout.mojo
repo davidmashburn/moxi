@@ -1,6 +1,6 @@
 """Native integration contracts for the optional retained layout adapter."""
-from moxi.retained_layout import RetainedLayout, RetainedStyle, RetainedTrack, RetainedSnapshot, COLUMN, ROW, WRAP, GRID, STACK, LEAF, CONTENT, FIXED
-from moxi.geometry import Point, Size
+from moxi.retained_layout import RetainedLayout, RetainedStyle, RetainedTrack, RetainedSnapshot, RetainedPlacement, COLUMN, ROW, WRAP, GRID, STACK, LEAF, CONTENT, FIXED
+from moxi.geometry import Point, Size, Rect
 from std.testing import assert_true, assert_equal, assert_almost_equal
 
 
@@ -78,4 +78,18 @@ def main() raises:
     assert_almost_equal(g.bounds(2).width, Float32(100))
     assert_almost_equal(g.bounds(3).width, Float32(200))
     assert_almost_equal(g.bounds(4).width, Float32(310))
+    var staged = grid.stage(1, Size(400,120))
+    assert_equal(grid.snapshot().generation, g.generation)
+    grid.place([RetainedPlacement(4, Rect(5,60,180,30))])
+    var rejected = False
+    try:
+        _ = grid.commit(staged)
+    except:
+        rejected = True
+    assert_true(rejected)
+    assert_equal(grid.snapshot().generation, g.generation)
+    staged = grid.stage(1, Size(400,120))
+    var final = grid.commit(staged)
+    assert_almost_equal(final.bounds(4).width, Float32(180))
+    assert_almost_equal(final.bounds(4).x, Float32(5))
     print("Retained layout native contracts passed")

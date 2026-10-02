@@ -117,6 +117,28 @@ struct _RetainedSnapshotStorage:
             external_call["moxi_layout_snapshot_release", NoneType](self.handle)
 
 
+struct _RetainedCandidateStorage:
+    var handle: UInt
+    def __init__(out self, handle: UInt):
+        self.handle = handle
+    def __deinit__(deinit self):
+        external_call["moxi_layout_candidate_release", NoneType](self.handle)
+
+
+struct RetainedPlacement(ImplicitlyCopyable):
+    var key: UInt64
+    var x: Float32
+    var y: Float32
+    var width: Float32
+    var height: Float32
+    def __init__(out self, key: Int, rect: Rect):
+        self.key = UInt64(key)
+        self.x = rect.x
+        self.y = rect.y
+        self.width = rect.width
+        self.height = rect.height
+
+
 struct RetainedOutput(ImplicitlyCopyable):
     var key: Int
     var mount: UInt64
@@ -220,6 +242,21 @@ def draw_retained_snapshot(mut renderer: MacOSRenderer, snapshot: RetainedSnapsh
         slot += 1
 
 
+struct RetainedPlan:
+    var snapshot: RetainedSnapshot
+    var _storage: ArcPointer[_RetainedCandidateStorage]
+    var _semantics: Dict[Int, Semantics]
+    var _fonts: Dict[Int, Float32]
+    var _metadata_revision: Int
+    def __init__(out self, handle: UInt, snapshot: RetainedSnapshot,
+                 semantics: Dict[Int, Semantics], fonts: Dict[Int, Float32], revision: Int):
+        self.snapshot = snapshot
+        self._storage = ArcPointer(_RetainedCandidateStorage(handle))
+        self._semantics = semantics.copy()
+        self._fonts = fonts.copy()
+        self._metadata_revision = revision
+
+
 struct RetainedLayout:
     """Unique owner of a keyed tree. Use snapshot() after a failed transaction to
     obtain recovery geometry with removed identities already tombstoned.
@@ -229,6 +266,7 @@ struct RetainedLayout:
     var _fonts: Dict[Int, Float32]
     var _published_semantics: Dict[Int, Semantics]
     var _published_fonts: Dict[Int, Float32]
+    var _metadata_revision: Int
 
     def __init__(out self) raises:
         self._handle = external_call["moxi_layout_create", UInt](
@@ -238,6 +276,7 @@ struct RetainedLayout:
         self._fonts = Dict[Int, Float32]()
         self._published_semantics = Dict[Int, Semantics]()
         self._published_fonts = Dict[Int, Float32]()
+        self._metadata_revision = 0
         if self._handle == 0:
             raise Error("Cannot create retained layout context")
 
@@ -257,6 +296,7 @@ struct RetainedLayout:
         self._check(external_call["moxi_layout_set_region", Int32](self._handle, UInt64(key), Pointer(to=abi)))
         self._semantics[key] = Semantics(key, ROLE_CONTAINER, label)
         self._fonts[key] = Float32(16)
+        self._metadata_revision += 1
 
     def set_box(mut self, key: Int, style: RetainedStyle, label: String = "") raises:
         self.set_region(key, style, label)
@@ -272,11 +312,13 @@ struct RetainedLayout:
         self._check(external_call["moxi_layout_set_node", Int32](self._handle, UInt64(key), Pointer(to=abi), c_source.ptr(), font, Int32(direction)))
         self._semantics[key] = Semantics(key, ROLE_LABEL, text)
         self._fonts[key] = font
+        self._metadata_revision += 1
 
     def set_semantics(mut self, key: Int, semantics: Semantics) raises:
         if key not in self._semantics or semantics.id != key:
             raise Error("Semantics must identify an existing layout key")
         self._semantics[key] = semantics
+        self._metadata_revision += 1
 
     def children(mut self, key: Int, keys: List[Int]) raises:
         var values = List[UInt64]()
@@ -307,17 +349,39 @@ struct RetainedLayout:
     def invalidate_environment(mut self) raises:
         self._check(external_call["moxi_layout_invalidate", Int32](self._handle))
 
+    def place(mut self, placements: List[RetainedPlacement]) raises:
+        var values = placements.copy()
+        self._check(external_call["moxi_layout_place", Int32](self._handle, values.unsafe_ptr(), UInt(len(values))))
+
+    def clear_placement(mut self, key: Int) raises:
+        self._check(external_call["moxi_layout_clear_placement", Int32](self._handle, UInt64(key)))
+
+    def stage(mut self, root: Int, size: Size) raises -> RetainedPlan:
+        var handle: UInt = 0
+        self._check(external_call["moxi_layout_stage", Int32](self._handle, UInt64(root), size.width, size.height, Pointer(to=handle)))
+        var snapshot = self._copy_snapshot(external_call["moxi_layout_candidate_snapshot", UInt](handle), self._semantics, self._fonts)
+        return RetainedPlan(handle, snapshot, self._semantics, self._fonts, self._metadata_revision)
+
+    def commit(mut self, plan: RetainedPlan) raises -> RetainedSnapshot:
+        if plan._metadata_revision != self._metadata_revision:
+            raise Error("Stale semantic metadata in layout candidate")
+        var result: UInt = 0
+        self._check(external_call["moxi_layout_commit", Int32](self._handle, plan._storage[].handle, Pointer(to=result)))
+        self._published_semantics = plan._semantics.copy()
+        self._published_fonts = plan._fonts.copy()
+        return self._copy_snapshot(result, self._published_semantics, self._published_fonts)
+
     def layout(mut self, root: Int, size: Size) raises -> RetainedSnapshot:
         var result: UInt = 0
         self._check(external_call["moxi_layout_compute", Int32](self._handle, UInt64(root), size.width, size.height, Pointer(to=result)))
         self._published_semantics = self._semantics.copy()
         self._published_fonts = self._fonts.copy()
-        return self._copy_snapshot(result)
+        return self._copy_snapshot(result, self._published_semantics, self._published_fonts)
 
     def snapshot(self) raises -> RetainedSnapshot:
-        return self._copy_snapshot(external_call["moxi_layout_snapshot", UInt](self._handle))
+        return self._copy_snapshot(external_call["moxi_layout_snapshot", UInt](self._handle), self._published_semantics, self._published_fonts)
 
-    def _copy_snapshot(self, handle: UInt) raises -> RetainedSnapshot:
+    def _copy_snapshot(self, handle: UInt, metadata: Dict[Int, Semantics], fonts: Dict[Int, Float32]) raises -> RetainedSnapshot:
         var result = RetainedSnapshot()
         result._storage = ArcPointer(_RetainedSnapshotStorage(handle))
         result.generation = external_call["moxi_layout_snapshot_generation", UInt64](handle)
@@ -330,9 +394,9 @@ struct RetainedLayout:
             var payload = UInt(external_call["moxi_layout_snapshot_integer", UInt64](handle, UInt(i), Int32(4)))
             var rect = self._rect(handle, i, 0)
             var clip = self._rect(handle, i, 4)
-            var semantics = self._published_semantics.get(key, Semantics(key, ROLE_CONTAINER, ""))
+            var semantics = metadata.get(key, Semantics(key, ROLE_CONTAINER, ""))
             semantics.parent_id = parent
-            result._outputs[].append(RetainedOutput(key, mount, rect, clip, hidden, payload, semantics, self._published_fonts.get(key, Float32(16))))
+            result._outputs[].append(RetainedOutput(key, mount, rect, clip, hidden, payload, semantics, fonts.get(key, Float32(16))))
         return result^
 
     def _rect(self, handle: UInt, index: Int, field: Int) -> Rect:

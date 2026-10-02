@@ -544,3 +544,71 @@ fn churn_releases_payloads_and_bounds_retention() {
     assert_eq!(e.nodes.len(), 1);
     assert_eq!(e.snapshot.outputs.len(), 1);
 }
+
+#[test]
+fn staged_custom_allocation_is_atomic_and_rejects_stale_candidates() {
+    let mut e = engine();
+    node(&mut e, 1, Spec::default());
+    node(
+        &mut e,
+        2,
+        Spec {
+            kind: 5,
+            min_width: 30.0,
+            ..Spec::default()
+        },
+    );
+    e.set_children(1, &[2]).unwrap();
+    let old = e.layout(1, 200.0, 100.0).unwrap();
+    let tentative = e.stage(1, 300.0, 100.0).unwrap();
+    assert_eq!(e.snapshot.generation, old.generation);
+    assert_eq!(e.counters.publications, 1);
+    e.place(&[Placement {
+        key: 2,
+        x: 10.5,
+        y: 12.0,
+        width: 70.0,
+        height: 20.0,
+    }])
+    .unwrap();
+    assert!(e.commit(&tentative).is_err());
+    let ready = e.stage(1, 300.0, 100.0).unwrap();
+    assert_eq!(rect(&ready.snapshot, 2), [10.5, 12.0, 70.0, 20.0]);
+    let published = e.commit(&ready).unwrap();
+    assert_eq!(published.generation, old.generation + 1);
+    assert!(e.commit(&ready).is_err());
+    let mut other = engine();
+    assert!(other.commit(&ready).is_err());
+    let mutations = e.counters.mutations;
+    assert!(e
+        .place(&[
+            Placement {
+                key: 2,
+                x: 0.0,
+                y: 0.0,
+                width: 80.0,
+                height: 20.0
+            },
+            Placement {
+                key: 999,
+                x: 0.0,
+                y: 0.0,
+                width: 80.0,
+                height: 20.0
+            },
+        ])
+        .is_err());
+    assert_eq!(e.counters.mutations, mutations);
+    e.place(&[Placement {
+        key: 2,
+        x: 0.0,
+        y: 0.0,
+        width: 10.0,
+        height: 20.0,
+    }])
+    .unwrap();
+    assert!(e.stage(1, 300.0, 100.0).is_err());
+    assert_eq!(e.snapshot.generation, published.generation);
+    e.clear_placement(2).unwrap();
+    assert_eq!(rect(&e.layout(1, 300.0, 100.0).unwrap(), 2)[2], 300.0);
+}
