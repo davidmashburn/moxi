@@ -85,8 +85,8 @@ def main() raises:
                 if screen.popups.traps_focus() and (activate<92 or activate>94):
                     activate = -1
             elif event.kind==SCROLL_KIND and not screen.popups.traps_focus():
-                screen.offset_y = max(Float64(0),screen.offset_y-Float64(event.scroll_delta.y))
-                screen.offset_x = max(Float64(0),screen.offset_x-Float64(event.scroll_delta.x))
+                screen.offset_y = max(Float64(0),screen.offset_y+Float64(event.scroll_delta.y))
+                screen.offset_x = max(Float64(0),screen.offset_x+Float64(event.scroll_delta.x))
                 dirty = True
             elif event.kind==KEY_DOWN_KIND:
                 if event.key==KEY_ESCAPE:
