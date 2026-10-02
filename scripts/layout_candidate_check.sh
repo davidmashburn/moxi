@@ -10,3 +10,5 @@ clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules \
 ./dist/moxi-native-retained-presentation
 mojo run -I src tests/collection_layout.mojo
 mojo run -I src tests/overlay_layout.mojo
+
+bash scripts/layout_consumer_check.sh
