@@ -262,6 +262,10 @@ struct LayoutWorkbench:
     def close_popup(mut self):
         _ = self.popups.dismiss_all()
         var restored = self.popups.restored_focus_target()
+        if restored>=1000 and self.table.rows.index((restored-1000)//10)<0:
+            restored = 13
+        if restored==18 and self._size.width<760:
+            restored = 13
         self.focused = restored if restored>=0 else 13
 
     def edit_row(mut self, row_key: Int) raises:

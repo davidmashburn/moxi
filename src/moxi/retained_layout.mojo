@@ -193,7 +193,7 @@ struct RetainedSnapshot(ImplicitlyCopyable):
     def hit_test(self, point: Point) -> Int:
         for i in range(self.count() - 1, -1, -1):
             var output = self._outputs[][i]
-            if not output.hidden and output.clip.contains(point):
+            if not output.hidden and output.rect.contains(point) and output.clip.contains(point):
                 return output.key
         return -1
 

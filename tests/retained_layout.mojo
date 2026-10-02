@@ -1,6 +1,8 @@
 """Native integration contracts for the optional retained layout adapter."""
 from moxi.retained_layout import RetainedLayout, RetainedStyle, RetainedTrack, RetainedSnapshot, RetainedPlacement, COLUMN, ROW, WRAP, GRID, STACK, LEAF, CONTENT, FIXED
 from moxi.geometry import Point, Size, Rect
+from std.collections import List
+from moxi.content_layout import AxisSize, LayoutStyle, LayoutNode, LayoutTree
 from std.testing import assert_true, assert_equal, assert_almost_equal
 
 
@@ -12,7 +14,50 @@ def detached() raises -> RetainedSnapshot:
     return tree.layout(1, Size(240, 160))
 
 
+def compare_geometry(legacy: LayoutTree, retained: RetainedSnapshot) raises:
+    for index in range(legacy.count()):
+        var expected = legacy.bounds(index)
+        var actual = retained.bounds(index+1)
+        assert_almost_equal(actual.x,expected.x,atol=0.001)
+        assert_almost_equal(actual.y,expected.y,atol=0.001)
+        assert_almost_equal(actual.width,expected.width,atol=0.001)
+        assert_almost_equal(actual.height,expected.height,atol=0.001)
+
+
+def shared_geometry_profile() raises:
+    # Only compare shared geometry: the legacy approximate text provider is not
+    # a reference for CoreText paragraph metrics or the new grid/wrap profile.
+    var nodes = List[LayoutNode]()
+    nodes.append(LayoutNode(0,-1,LayoutStyle(AxisSize.fill(),AxisSize.fill(),axis=1,gap=10),True))
+    nodes.append(LayoutNode(1,0,LayoutStyle(AxisSize.fill(1),AxisSize.fill(),max_width=60)))
+    nodes.append(LayoutNode(2,0,LayoutStyle(AxisSize.fill(2),AxisSize.fill())))
+    var legacy = LayoutTree()
+    legacy.sync(nodes^)
+    var retained = RetainedLayout()
+    retained.set_region(1,RetainedStyle(ROW,gap=10))
+    retained.set_box(2,RetainedStyle(LEAF,grow=1,max_width=60))
+    retained.set_box(3,RetainedStyle(LEAF,grow=2))
+    retained.children(1,[2,3])
+    for width in range(100,501,7):
+        legacy.layout(Rect(0,0,Float32(width),40))
+        compare_geometry(legacy,retained.layout(1,Size(Float32(width),40)))
+    nodes = List[LayoutNode]()
+    nodes.append(LayoutNode(0,-1,LayoutStyle(AxisSize.fill(),AxisSize.fill(),padding=10,gap=5),True))
+    nodes.append(LayoutNode(1,0,LayoutStyle(AxisSize.fill(),AxisSize.fixed(20))))
+    nodes.append(LayoutNode(2,0,LayoutStyle(AxisSize.fill(),AxisSize.fill(),min_height=40)))
+    legacy.sync(nodes^)
+    retained = RetainedLayout()
+    retained.set_region(1,RetainedStyle(COLUMN,padding=10,gap=5))
+    retained.set_box(2,RetainedStyle(LEAF,height_kind=FIXED,height=20))
+    retained.set_box(3,RetainedStyle(LEAF,grow=1,min_height=40))
+    retained.children(1,[2,3])
+    for height in range(100,501,7):
+        legacy.layout(Rect(0,0,300,Float32(height)))
+        compare_geometry(legacy,retained.layout(1,Size(300,Float32(height))))
+
+
 def main() raises:
+    shared_geometry_profile()
     var tree = RetainedLayout()
     tree.set_region(1, RetainedStyle(padding=12, gap=8))
     tree.set_region(2, RetainedStyle(ROW, align=4, gap=8))
@@ -48,6 +93,7 @@ def main() raises:
     assert_true(narrow.bounds(6).height < wide.bounds(6).height)
     var point = Point(narrow.bounds(6).x + 1, narrow.bounds(6).y + 1)
     assert_equal(narrow.hit_test(point), 6)
+    assert_equal(narrow.hit_test(Point(-1,-1)),-1)
     var ax = narrow.accessibility()
     assert_equal(len(ax.nodes), narrow.count())
     tree.remove(5)

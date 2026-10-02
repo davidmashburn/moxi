@@ -6,7 +6,7 @@ from moxi.geometry import Point, Rect
 from moxi.macos import MacOSRenderer, MacOSWindow, MacOSCanvasPainter
 from moxi.window import WindowConfig
 from moxi.style import Color
-from moxi.event import NONE_KIND, WINDOW_RESIZED_KIND, POINTER_DOWN_KIND, POINTER_UP_KIND, POINTER_MOVE_KIND, POINTER_CANCEL_KIND, CLICK_KIND, SCROLL_KIND, TEXT_INPUT_KIND, KEY_DOWN_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND, KEY_ESCAPE, KEY_TAB, KEY_DOWN, KEY_UP, KEY_END, KEY_HOME, KEY_LEFT, KEY_RIGHT, DRAG_UPDATE_KIND, DROP_KIND, ACTION_KIND, KEY_ENTER, KEY_SPACE
+from moxi.event import NONE_KIND, WINDOW_RESIZED_KIND, POINTER_DOWN_KIND, POINTER_UP_KIND, POINTER_MOVE_KIND, POINTER_CANCEL_KIND, CLICK_KIND, SCROLL_KIND, TEXT_INPUT_KIND, KEY_DOWN_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND, KEY_ESCAPE, KEY_TAB, KEY_DOWN, KEY_UP, KEY_END, KEY_HOME, KEY_LEFT, KEY_RIGHT, DRAG_UPDATE_KIND, DROP_KIND, ACTION_KIND, KEY_ENTER, KEY_SPACE, MOD_SHIFT
 
 
 def main() raises:
@@ -56,6 +56,7 @@ def main() raises:
                 dragging = target==18
                 if screen.popups.traps_focus() and (target<92 or target>94):
                     pressed = -1
+                    dragging = False
                 elif target==18:
                     screen.focused = 18
                     dirty = True
@@ -93,7 +94,7 @@ def main() raises:
                     dirty = True
                 elif screen.popups.is_open():
                     if event.key==KEY_TAB or event.key==KEY_DOWN:
-                        screen.focused = 92+(screen.focused-92+1)%3
+                        screen.focused = 92+(screen.focused-92+(2 if event.key==KEY_TAB and (event.modifiers & MOD_SHIFT)!=0 else 1))%3
                         dirty = True
                     elif event.key==KEY_UP:
                         screen.focused = 92+(screen.focused-92+2)%3
@@ -108,13 +109,13 @@ def main() raises:
                     var next = 13
                     for index in range(len(order)):
                         if order[index]==screen.focused:
-                            next = order[(index+1)%len(order)]
+                            next = order[(index+len(order)+(-1 if (event.modifiers & MOD_SHIFT)!=0 else 1))%len(order)]
                     screen.focused = next
                     dirty = True
                 elif (event.key==KEY_ENTER or event.key==KEY_SPACE) and screen.focused>=40 and screen.focused<=46:
                     activate = screen.focused
                 elif screen.focused==18 and (event.key==KEY_LEFT or event.key==KEY_RIGHT):
-                    screen.form_width = max(Float32(240),min(Float32(500),screen.form_width+Float32(-10 if event.key==KEY_LEFT else 10)))
+                    screen.form_width = max(Float32(240),min(Float32(500),screen.form_width+Float32(-10 if (event.key==KEY_LEFT)!=screen.rtl else 10)))
                     dirty = True
                 elif screen.focused==21 and screen.table.rows.count()>0:
                     var row = max(1,screen.table.focused_row)
@@ -149,6 +150,8 @@ def main() raises:
                 elif screen.focused>=1000:
                     screen.cell_editor.set_composition(event.text,event.selection_start,event.selection_end)
                 dirty = True
+            if screen.popups.traps_focus() and (activate<92 or activate>94):
+                activate = -1
             if activate==40:
                 screen.summary = not screen.summary
             elif activate==41:

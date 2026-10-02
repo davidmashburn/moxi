@@ -91,7 +91,10 @@ def main() raises:
     assert_true(len(large.commands)>128)
     assert_true(len(large.commands)<1024)
     # Removing the active row closes its editor even if the following solve fails.
+    screen.open_popup(modal=True)
     screen.set_rows(0)
+    screen.close_popup()
+    assert_equal(screen.focused,13)
     screen.conflict = True
     try:
         _ = screen.frame(Size(2000,1400))
@@ -100,4 +103,26 @@ def main() raises:
     var removed = screen.recovery()
     for command in removed.commands:
         assert_true(command.id<1000)
+    # Repeated simultaneous strategy changes and injected conflicts preserve one publication.
+    var churn = LayoutWorkbench(100000)
+    for iteration in range(250):
+        churn.summary = iteration%3==0
+        churn.rtl = iteration%2==0
+        churn.offset_y = Float64(iteration*48)
+        churn.offset_x = Float64(iteration%4*60)
+        churn.form_width = Float32(280+iteration%5*12)
+        var size = Size(Float32(1100 if iteration%2==0 else 540),900)
+        var current = churn.frame(size)
+        assert_true(churn.table.realized()<200)
+        var generation = current.snapshot.generation
+        if iteration%7==0:
+            churn.conflict = True
+            var failed = False
+            try:
+                _ = churn.frame(size)
+            except:
+                failed = True
+            assert_true(failed)
+            assert_equal(churn.recovery().snapshot.generation,generation)
+            churn.conflict = False
     print("Composed layout workbench contracts passed")
