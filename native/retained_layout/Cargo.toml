@@ -5,7 +5,7 @@ edition = "2021"
 rust-version = "1.85"
 publish = false
 license = "MIT"
-description = "Optional retained flow/grid layout bridge for Moxi"
+description = "Experimental Taffy comparison bridge for Moxi"
 
 [lib]
 crate-type = ["rlib", "staticlib"]
