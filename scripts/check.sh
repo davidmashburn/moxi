@@ -42,6 +42,7 @@ python3 scripts/capability_wave_check.py
 pixi run demo-walkthrough-build
 pixi run data-workbench-build
 python3 tests/workbench_artifact_check.py
+python3 tests/workbench_release_gate.py
 bash scripts/test.sh
 bash scripts/canvas_benchmark.sh
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \

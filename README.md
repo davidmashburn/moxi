@@ -105,6 +105,12 @@ linked scatter/histogram views and a virtualized table. See
 [the workbench guide](docs/data-workbench.md) for CSV limits, controls,
 validation evidence, and performance measurements.
 
+`pixi run workbench-release-gate` records the focused automated acceptance checks
+and their logs. See [the release gate](docs/workbench-release-gate.md) for optional
+package/benchmark checks and the separate manual checklist, and
+[the external consumer milestone](docs/external-consumer-milestone.md) for the
+next authoring and packaging exercise.
+
 To build the distributable Pixi packages, run `pixi publish --target-dir
 output/moxi` followed by `pixi publish --path packages/moxi_plot/pixi.toml
 --target-dir output/moxi`; the workspace resolves `osx-arm64` and `linux-64`,
