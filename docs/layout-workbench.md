@@ -41,8 +41,23 @@ The contract test covers unchanged measurements/solver reuse, geometry agreement
 wide/narrow switching, summary insertion, popup anchoring, modal focus restoration,
 conflict rollback, source removal, RTL, scaling and an offscreen pinned editor.
 The native bitmap probe covers submission order, custom canvas layering and editor
-clip-host identity. These automated checks do not certify VoiceOver interaction or
+clip-host identity, stable AX objects and a real AppKit field editor's marked range
+across offscreen clipping. Native wheel scrolling uses the portable event delta;
+vertical direction was verified in the live demo. Tab and Shift-Tab traverse in
+both directions; modal activation is rejected for targets outside the popup.
+These automated checks do not certify VoiceOver interaction or
 Japanese input-method composition; those require explicit native verification.
+
+The native acceptance pass also exercised wide/narrow resizing, RTL, summary
+insertion, divider dragging, modal dismissal and a row editor scrolled offscreen
+and back with its text intact. Pasting Japanese text is not an input-method test.
+Live VoiceOver, Japanese composition and horizontal wheel verification remain
+unresolved; the temporary system-setting attempts were canceled or restored.
+
+Run `pixi run layout-consumer-check` for an independently authored screen linked
+against a precompiled `moxi.mojoc` with no source-tree include path. This optional
+profile still links the Rust, Kiwi and macOS sidecars explicitly; it does not ship
+a standalone conda package containing those sidecars.
 
 The candidate stays out of the root public exports until the promotion gates in
 [the delivery ledger](layout-delivery.md) are satisfied. Its current supported

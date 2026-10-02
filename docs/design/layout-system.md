@@ -714,6 +714,10 @@ reason to claim an application speedup.
 
 ## Delivery and acceptance
 
+The [delivery ledger](../layout-delivery.md) records the implemented candidate,
+local validation and remaining public-promotion gates. The acceptance requirements
+below remain the target contract; they are not a claim that every gate has passed.
+
 | Milestone | Deliverable | Required evidence |
 | --- | --- | --- |
 | 1. Shared contracts | Keyed store, request/result types, geometry generations, legacy adapter and real paragraph provider | Same paragraph used for measure/draw; font/width invalidation; unchanged pass makes zero leaf measurements; paint/hit/AX geometry agrees |
