@@ -41,7 +41,7 @@ result = {
     "host": platform.platform(),
     "cpu": subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"], text=True).strip(),
     "mojo": subprocess.check_output(["mojo", "--version"], text=True).strip(),
-    "taffy": "0.14.0", "kiwi_commit": "5e76d91fd77dc443cb0db36e7398fc13844a0524",
+    "layout_engine": "mojo-retained", "kiwi_commit": "5e76d91fd77dc443cb0db36e7398fc13844a0524",
     "budget": {"warm_frame_p95_ms": 16.67, "declared_before_optimization": True, "applies_to": ["unchanged", "scroll", "resize", "summary"]},
     "workload": {"rows": 100000, "columns": 4, "viewport_points": [1100,800], "growth_viewports": [[1500,1000],[2000,1400]], "churn_viewports": [[1100,900],[540,900]], "warmup_frames_per_workload": 10, "bitmap_scale": 1},
     "includes": ["declaration sync", "measurement", "strategy stage/solve", "publication", "paint commands", "AX snapshot/submission", "AppKit/CoreText bitmap paint", "chart commands"],

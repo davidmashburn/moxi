@@ -6,6 +6,7 @@ from std.ffi import external_call
 from std.memory import ArcPointer
 from .box_layout import BoxMetrics, ParagraphPayload, GeometrySnapshot
 from .geometry import Size
+from .retained_engine import RetainedParagraph
 from .macos import MacOSRenderer
 
 
@@ -20,7 +21,7 @@ struct _NativeParagraphStorage:
             external_call["moxi_paragraph_release", NoneType](self.handle)
 
 
-struct NativeParagraph(ParagraphPayload):
+struct NativeParagraph(ParagraphPayload, RetainedParagraph):
     """Shared ownership prevents cache eviction from retiring a live draw payload."""
     var _storage: ArcPointer[_NativeParagraphStorage]
 
@@ -37,6 +38,19 @@ struct NativeParagraph(ParagraphPayload):
             c_source.ptr(), font_size, width, Int32(direction))
         if handle == 0:
             raise Error("Native paragraph creation failed")
+        var result = Self()
+        result._storage = ArcPointer(_NativeParagraphStorage(handle))
+        return result^
+
+    @staticmethod
+    def query(text: String, font: Float32, width: Float32, direction: Int, kind: Int) raises -> Self:
+        if "\x00" in text:
+            raise Error("Native paragraph text cannot contain a NUL character")
+        var source = text
+        var c_source = source.as_c_string_slice()
+        var handle = external_call["moxi_paragraph_query", UInt](c_source.ptr(),font,width,Int32(direction),Int32(kind))
+        if handle==0:
+            raise Error("Native paragraph query failed")
         var result = Self()
         result._storage = ArcPointer(_NativeParagraphStorage(handle))
         return result^

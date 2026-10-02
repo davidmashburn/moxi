@@ -76,19 +76,15 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
-      - name: Check retained engine contracts on Linux
-        run: |
-          cargo fmt --manifest-path native/retained_layout/Cargo.toml --check
-          cargo clippy --locked --manifest-path native/retained_layout/Cargo.toml --all-targets -- -D warnings
-          cargo test --locked --manifest-path native/retained_layout/Cargo.toml
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
           pixi-version: latest
           cache: true
-      - name: Check portable collection and overlay policies
+      - name: Check portable Mojo layout policies
         run: |
           pixi install --locked
+          pixi run retained-engine-test
           pixi run mojo run -I src tests/collection_layout.mojo
           pixi run mojo run -I src tests/overlay_layout.mojo
 
