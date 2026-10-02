@@ -1,0 +1,19 @@
+[package]
+name = "layout-taffy-spike"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.71"
+publish = false
+license = "MIT"
+description = "Isolated Taffy 0.14 layout comparison spike for Moxi"
+
+[lib]
+name = "layout_taffy_spike"
+crate-type = ["rlib", "staticlib"]
+
+[[bin]]
+name = "layout-taffy"
+path = "src/main.rs"
+
+[dependencies]
+taffy = { version = "=0.14.0", default-features = true }

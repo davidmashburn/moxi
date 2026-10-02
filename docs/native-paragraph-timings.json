@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-02",
+  "hardware": "Apple M4, 32 GiB RAM",
+  "os": "macOS 26.6.2 (25G83), arm64",
+  "mojo": "1.1.0.dev2026082605 (dd957314)",
+  "command": "pixi run paragraph-layout-benchmark",
+  "method": "Seven fresh contexts in one process; 100 unchanged and 100 alternating-width passes per context. Includes declaration, layout, publication, paint/AX output creation; excludes compile and native drawing. First cold sample includes font initialization. Two alternating widths fit cache.",
+  "samples": [
+    {
+      "sample": 0,
+      "cold_ns": 10194000,
+      "unchanged_mean_ns": 2510,
+      "alternating_resize_mean_ns": 2660,
+      "unchanged_measures": 0,
+      "resize_measures": 4,
+      "checksum": 107634.09
+    },
+    {
+      "sample": 1,
+      "cold_ns": 253000,
+      "unchanged_mean_ns": 1320,
+      "alternating_resize_mean_ns": 1850,
+      "unchanged_measures": 0,
+      "resize_measures": 4,
+      "checksum": 107634.09
+    },
+    {
+      "sample": 2,
+      "cold_ns": 227000,
+      "unchanged_mean_ns": 1310,
+      "alternating_resize_mean_ns": 1840,
+      "unchanged_measures": 0,
+      "resize_measures": 4,
+      "checksum": 107634.09
+    },
+    {
+      "sample": 3,
+      "cold_ns": 187000,
+      "unchanged_mean_ns": 1280,
+      "alternating_resize_mean_ns": 1880,
+      "unchanged_measures": 0,
+      "resize_measures": 4,
+      "checksum": 107634.09
+    },
+    {
+      "sample": 4,
+      "cold_ns": 208000,
+      "unchanged_mean_ns": 1250,
+      "alternating_resize_mean_ns": 1830,
+      "unchanged_measures": 0,
+      "resize_measures": 4,
+      "checksum": 107634.09
+    },
+    {
+      "sample": 5,
+      "cold_ns": 280000,
+      "unchanged_mean_ns": 1320,
+      "alternating_resize_mean_ns": 2120,
+      "unchanged_measures": 0,
+      "resize_measures": 4,
+      "checksum": 107634.09
+    },
+    {
+      "sample": 6,
+      "cold_ns": 274000,
+      "unchanged_mean_ns": 1360,
+      "alternating_resize_mean_ns": 1970,
+      "unchanged_measures": 0,
+      "resize_measures": 4,
+      "checksum": 107634.09
+    }
+  ],
+  "median_ns": {
+    "cold_ns": 253000,
+    "unchanged_mean_ns": 1320,
+    "alternating_resize_mean_ns": 1880
+  }
+}

@@ -217,9 +217,9 @@ tmp_traits="$tmp_dir/trait-surface.tsv"
         sub(/[(:].*$/, "", current)
         next
       }
-      current != "" && /^[ \t]+(def|fn) [A-Za-z_][A-Za-z0-9_]*\(/ {
+      current != "" && /^[ \t]+(def|fn) [A-Za-z_][A-Za-z0-9_]*[\[(]/ {
         method = $2
-        sub(/\(.*$/, "", method)
+        sub(/[\[(].*$/, "", method)
         if (method !~ /^__/) print package "\t" current "\t" method
         next
       }

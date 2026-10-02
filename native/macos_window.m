@@ -1,3 +1,4 @@
+#import "macos_paragraph.h"
 #import <Cocoa/Cocoa.h>
 #include <dlfcn.h>
 #include <mach/mach_time.h>
@@ -342,6 +343,7 @@ static void moxi_native_timing_draw_completed(void) {
 static int moxi_label_count;
 static int moxi_command_overflow_count;
 static NSString *moxi_label_texts[MOXI_MAX_DRAW_COMMANDS];
+static id<MoxiParagraphDrawing> moxi_label_paragraphs[MOXI_MAX_DRAW_COMMANDS];
 static NSRect moxi_label_frames[MOXI_MAX_DRAW_COMMANDS];
 static float moxi_label_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
 static float moxi_label_font_sizes[MOXI_MAX_DRAW_COMMANDS];
@@ -1097,6 +1099,7 @@ static void moxi_reset_commands(void) {
     moxi_copy_color(moxi_surface_fill, 0.08, 0.10, 0.16, 1.0);
     for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
         moxi_label_texts[i] = nil;
+        moxi_label_paragraphs[i] = nil;
         moxi_button_texts[i] = nil;
         moxi_checkbox_texts[i] = nil;
         moxi_progress_texts[i] = nil;
@@ -2498,6 +2501,15 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 
     for (int i = 0; i < moxi_label_count; i++) {
         moxi_begin_clip(moxi_label_clip_enabled[i], moxi_label_clip_frames[i]);
+        if (moxi_label_paragraphs[i] != nil) {
+            [NSGraphicsContext saveGraphicsState];
+            NSRectClip(moxi_label_frames[i]);
+            [moxi_label_paragraphs[i] drawAt:moxi_label_frames[i].origin
+                                     color:moxi_color(moxi_label_text_colors[i])];
+            [NSGraphicsContext restoreGraphicsState];
+            moxi_end_clip(moxi_label_clip_enabled[i]);
+            continue;
+        }
         NSMutableParagraphStyle *labelParagraph = [[NSMutableParagraphStyle alloc] init];
         labelParagraph.lineBreakMode = moxi_label_wraps[i]
             ? NSLineBreakByCharWrapping
@@ -4143,6 +4155,7 @@ void moxi_window_set_label_at(
             ? @""
             : [NSString stringWithUTF8String:text];
         moxi_label_texts[index] = label;
+        moxi_label_paragraphs[index] = nil;
         moxi_label_frames[index] = NSMakeRect(x, y, width, height);
         moxi_copy_color(moxi_label_text_colors[index], text_red, text_green, text_blue, text_alpha);
         moxi_label_font_sizes[index] = font_size;
@@ -4154,6 +4167,13 @@ void moxi_window_set_label_at(
         }
         [moxi_canvas setNeedsDisplay:YES];
     }
+}
+
+// Install after set_label_at: the ordinary slot owns bounds, color and clipping.
+// ARC keeps the immutable paragraph alive through deferred drawRect calls.
+void moxi_window_set_paragraph_at(int index, uintptr_t handle) {
+    if (index < 0 || index >= moxi_label_count) return;
+    moxi_label_paragraphs[index] = (__bridge id<MoxiParagraphDrawing>)(void *)handle;
 }
 
 void moxi_window_set_label(

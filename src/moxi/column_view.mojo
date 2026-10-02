@@ -1,10 +1,11 @@
 """`ColumnView`: the composable vertical (or row) container of leaf views."""
 
 
-from std.collections import List
+from std.collections import Dict, List
 
 
 from .geometry import Point, Rect, Size
+from .content_layout import AxisSize, LayoutStyle, LayoutNode, LayoutTree
 from .layout import (
     ALIGN_CENTER,
     ALIGN_END,
@@ -102,6 +103,11 @@ struct ColumnView:
     var clip_to_bounds: Bool
     var root_scroll_offset: Float32
     var theme: Theme
+    var content_layout_enabled: Bool
+    var content_layout_active: Bool
+    var content_layout_tree: LayoutTree
+    var sizing_ids: List[Int]
+    var sizing_styles: List[LayoutStyle]
 
     def __init__(
         out self,
@@ -125,6 +131,11 @@ struct ColumnView:
         self.clip_to_bounds = False
         self.root_scroll_offset = 0.0
         self.theme = Theme()
+        self.content_layout_enabled = False
+        self.content_layout_active = False
+        self.content_layout_tree = LayoutTree()
+        self.sizing_ids = List[Int]()
+        self.sizing_styles = List[LayoutStyle]()
 
     def add(mut self, child: ViewNode):
         """Append a declarative child before running layout."""
@@ -148,6 +159,11 @@ struct ColumnView:
         result.clip_to_bounds = self.clip_to_bounds
         result.root_scroll_offset = self.root_scroll_offset
         result.theme = self.theme
+        result.content_layout_enabled = self.content_layout_enabled
+        result.content_layout_active = self.content_layout_active
+        result.content_layout_tree = self.content_layout_tree.clone()
+        result.sizing_ids = self.sizing_ids.copy()
+        result.sizing_styles = self.sizing_styles.copy()
         return result^
 
     def add_to(mut self, parent_id: Int, child: ViewNode):
@@ -540,6 +556,23 @@ struct ColumnView:
 
     def scroll_max_offset(self, id: Int) -> Float32:
         """Return the clamped scroll extent for a scroll container."""
+        if self.content_layout_active:
+            var tree_index = 0
+            var axis = self.axis
+            if id != ROOT_SCROLL_ID:
+                tree_index = -1
+                for index in range(len(self.children)):
+                    if self.children[index].id == id:
+                        tree_index = index + 1
+                        axis = self.children[index].container_axis
+                        break
+                if tree_index < 0:
+                    return 0.0
+            var extent = self.content_layout_tree.content_extent(tree_index)
+            var viewport = self.content_layout_tree.bounds(tree_index)
+            if axis == ROW_AXIS:
+                return max(extent.width - viewport.width, 0.0)
+            return max(extent.height - viewport.height, 0.0)
         if id == ROOT_SCROLL_ID:
             var content = self._linear_content_extent(
                 -1,
@@ -1372,8 +1405,161 @@ struct ColumnView:
             self.layout_spec.spacing,
         )
 
+    def enable_content_layout(mut self, enabled: Bool = True):
+        """Opt into explicit sizing for linear rows and columns.
+
+        Unsupported container modes retain the legacy layout for the whole
+        view; `content_layout_active` reports whether the new path ran.
+        Call `layout()` before reading bounds, as with the legacy API.
+        """
+        self.content_layout_enabled = enabled
+
+    def set_sizing(mut self, id: Int, width: AxisSize, height: AxisSize):
+        """Set explicit axis policies; node min/max constraints still apply."""
+        self.content_layout_enabled = True
+        for index in range(len(self.sizing_ids)):
+            if self.sizing_ids[index] == id:
+                self.sizing_styles[index] = LayoutStyle(width, height)
+                return
+        self.sizing_ids.append(id)
+        self.sizing_styles.append(LayoutStyle(width, height))
+
+    def layout_diagnostic(self, id: Int) -> String:
+        """Describe the last finalized allocation, not pending declarations."""
+        if not self.content_layout_active:
+            return "Legacy layout: content layout disabled or unsupported container/alignment"
+        for index in range(len(self.children)):
+            if self.children[index].id != id:
+                continue
+            var input = self.content_layout_tree.node(index + 1)
+            var extent = self.content_layout_tree.content_extent(index + 1)
+            var bounds = self.content_layout_tree.bounds(index + 1)
+            return String(
+                "id=", id,
+                " policy(content=0,fill=1,fixed=2)=", input.style.width.kind, ",", input.style.height.kind,
+                " min=", input.style.min_width, ",", input.style.min_height,
+                " max(-1=unbounded)=", input.style.max_width, ",", input.style.max_height,
+                " content=", extent.width, "x", extent.height,
+                " allocated=", bounds.width, "x", bounds.height,
+                " overflow=", self.content_layout_tree.overflow(index + 1),
+                " pass_leaf_measurements=", self.content_layout_tree.leaf_measurements(),
+                " pass_cache_hits=", self.content_layout_tree.cache_hits(),
+            )
+        return String("No finalized layout node for id=", id)
+
+    def _layout_content(mut self) -> Bool:
+        """Publish measured bounds into the shared paint/hit/AX geometry."""
+        if self.main_alignment != JUSTIFY_START or self.cross_alignment != ALIGN_STRETCH:
+            return False
+        for index in range(len(self.children)):
+            var node = self.children[index]
+            if node.kind == CONTAINER_KIND and (node.container_layout_kind != LAYOUT_LINEAR or node.container_main_alignment != JUSTIFY_START or node.container_cross_alignment != ALIGN_STRETCH):
+                return False
+        var indices = Dict[Int, Int]()
+        indices[-1] = 0
+        for index in range(len(self.children)):
+            indices[self.children[index].id] = index + 1
+        var overrides = Dict[Int, Int]()
+        for index in range(len(self.sizing_ids)):
+            overrides[self.sizing_ids[index]] = index
+        var inputs = List[LayoutNode]()
+        var root_style = LayoutStyle(AxisSize.fill(), AxisSize.fill())
+        root_style.axis = self.axis
+        root_style.padding = self.layout_spec.padding
+        root_style.gap = self.layout_spec.spacing
+        inputs.append(LayoutNode(-1, -1, root_style, True))
+        for index in range(len(self.children)):
+            var node = self.children[index]
+            var width = AxisSize.fill()
+            if node.preferred_width > 0.0:
+                width = AxisSize.fixed(node.preferred_width)
+            elif node.use_intrinsic_width:
+                width = AxisSize.content()
+            var height = AxisSize.content()
+            if node.preferred_height > 0.0:
+                height = AxisSize.fixed(node.preferred_height)
+            var style = LayoutStyle(width, height)
+            var override_index = overrides.get(node.id, -1)
+            if override_index >= 0:
+                style = self.sizing_styles[override_index]
+            style.min_width = node.min_width
+            style.max_width = node.max_width if node.max_width > 0.0 else -1.0
+            style.min_height = node.min_height
+            style.max_height = node.max_height if node.max_height > 0.0 else -1.0
+            style.axis = node.container_axis
+            style.padding = node.container_padding
+            style.gap = node.container_spacing
+            var parent = indices.get(node.parent_id, -1)
+            if parent < 0:
+                return False
+            var item = LayoutNode(node.id, parent, style, node.kind == CONTAINER_KIND)
+            item.text = node.text
+            item.font_size = node.style.font_size
+            item.wrap = node.wrap_text
+            if node.kind == BUTTON_KIND:
+                item.chrome_width = 32.0
+                item.chrome_height = 12.0
+            elif node.kind == TEXT_INPUT_VIEW_KIND:
+                item.chrome_width = 24.0
+                item.chrome_height = 12.0
+                item.intrinsic_width = 160.0
+                item.intrinsic_height = max(node.style.font_size * 1.25, 16.0) + 12.0
+            elif node.kind == CHECKBOX_KIND:
+                item.chrome_width = 28.0
+                item.intrinsic_height = 24.0
+            elif node.kind == MULTILINE_TEXT_KIND:
+                item.chrome_width = 16.0
+                item.chrome_height = 16.0
+            elif node.kind != LABEL_KIND and node.kind != CONTAINER_KIND:
+                var intrinsic = node.intrinsic_size()
+                item.intrinsic_width = intrinsic.width
+                item.intrinsic_height = intrinsic.height
+                item.text = ""
+            inputs.append(item)
+        self.content_layout_tree.sync(inputs^)
+        self.content_layout_tree.layout(self.layout_spec.bounds)
+        self.content_layout_active = True
+        # Scroll affects published coordinates only. Cached content geometry
+        # remains independent of viewport translation.
+        var root_max = self.scroll_max_offset(ROOT_SCROLL_ID)
+        self.root_scroll_offset = min(max(self.root_scroll_offset, 0.0), root_max)
+        var has_nested_scroll = False
+        for index in range(len(self.children)):
+            if self.children[index].kind == CONTAINER_KIND:
+                var extent = self.content_layout_tree.content_extent(index + 1)
+                var viewport = self.content_layout_tree.bounds(index + 1)
+                var maximum = max(extent.height - viewport.height, 0.0)
+                if self.children[index].container_axis == ROW_AXIS:
+                    maximum = max(extent.width - viewport.width, 0.0)
+                self.children[index].container_scroll_offset = min(max(self.children[index].container_scroll_offset, 0.0), maximum)
+                has_nested_scroll = has_nested_scroll or self.children[index].container_scroll_offset > 0.0
+        for index in range(len(self.children)):
+            var bounds = self.content_layout_tree.bounds(index + 1)
+            if self.axis == ROW_AXIS:
+                bounds.x -= self.root_scroll_offset
+            else:
+                bounds.y -= self.root_scroll_offset
+            var parent = self.children[index].parent_id
+            var hops = 0
+            while has_nested_scroll and parent != -1 and hops < len(self.children):
+                var parent_index = indices.get(parent, 0) - 1
+                if parent_index < 0:
+                    break
+                var ancestor = self.children[parent_index]
+                if ancestor.container_axis == ROW_AXIS:
+                    bounds.x -= ancestor.container_scroll_offset
+                else:
+                    bounds.y -= ancestor.container_scroll_offset
+                parent = ancestor.parent_id
+                hops += 1
+            self.children[index].bounds = bounds
+        return True
+
     def layout(mut self):
         """Assign bounds to the root and any nested container children."""
+        if self.content_layout_enabled and self._layout_content():
+            return
+        self.content_layout_active = False
         var bounds = self.layout_spec.bounds
         var axis = self.axis
         var padding = self.layout_spec.padding
@@ -1859,6 +2045,8 @@ struct ColumnView:
             )
         ):
             return False
+        if self.content_layout_active:
+            return self.scroll_max_offset(node.id) > 0.0
         var content = self._linear_content_extent(
             node.id,
             node.container_axis,
