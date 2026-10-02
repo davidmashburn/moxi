@@ -526,11 +526,16 @@ struct RetainedEngine[P: RetainedParagraph]:
         return natural
 
     def _natural_width(mut self, index: Int, query: Int = 2) raises -> Float32:
-        var cached = self.nodes[index].min_content if query==1 else self.nodes[index].max_content
+        var actual_query = query
+        if self.nodes[index].style.width_kind==MIN_CONTENT:
+            actual_query = 1
+        elif self.nodes[index].style.width_kind==MAX_CONTENT:
+            actual_query = 2
+        var cached = self.nodes[index].min_content if actual_query==1 else self.nodes[index].max_content
         if cached>=0:
             return cached
-        var width = self._compute_natural_width(index,query)
-        if query==1:
+        var width = self._compute_natural_width(index,actual_query)
+        if actual_query==1:
             self.nodes[index].min_content = width
         else:
             self.nodes[index].max_content = width
