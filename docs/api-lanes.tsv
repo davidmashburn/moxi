@@ -81,3 +81,4 @@ harfbuzz	experimental	experimental or optional integration
 metal	experimental	experimental or optional integration
 host_api	host-adapter	focused host/adapter import path
 experimental_api	experimental	focused optional integration path
+content_layout	provisional	explicit content and weighted fill layout

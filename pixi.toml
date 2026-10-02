@@ -111,6 +111,20 @@ text-demo = { cmd = "./dist/moxi-coretext-demo", depends-on = ["text-demo-build"
 text-conformance = "mojo run -I src tests/text_conformance.mojo"
 harfbuzz-demo = "bash scripts/harfbuzz_check.sh"
 harfbuzz-check = "bash scripts/harfbuzz_check.sh"
+box-layout-test = "mojo run -I src tests/box_layout.mojo"
+native-paragraph-test = "mkdir -p dist && clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c tests/native_paragraph_probe.m -o dist/native_paragraph_probe.o && mojo build -I src -I examples -Xlinker dist/native_paragraph_probe.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker CoreText tests/native_paragraph.mojo -o dist/moxi-native-paragraph-test && ./dist/moxi-native-paragraph-test"
+paragraph-layout-build = { cmd = "mkdir -p dist && mojo build -I src -I examples -Xlinker native/macos_window.o -Xlinker native/macos_text.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker CoreText examples/paragraph_layout.mojo -o dist/moxi-paragraph-layout", depends-on = ["native-object", "text-object"] }
+paragraph-layout-benchmark-build = { cmd = "mkdir -p dist && mojo build -I src -I examples -Xlinker native/macos_text.o -Xlinker native/benchmark_clock.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker CoreText benchmarks/paragraph_layout.mojo -o dist/moxi-paragraph-layout-benchmark", depends-on = ["text-object", "fractal-benchmark-clock"] }
+paragraph-layout-benchmark = { cmd = "./dist/moxi-paragraph-layout-benchmark", depends-on = ["paragraph-layout-benchmark-build"] }
+paragraph-layout = { cmd = "./dist/moxi-paragraph-layout", depends-on = ["paragraph-layout-build"] }
+content-layout-test = "mojo run -I src tests/content_layout.mojo && mojo run -I src tests/content_layout_view.mojo"
+content-layout-benchmark-build = { cmd = "mojo build -I src -Xlinker native/benchmark_clock.o benchmarks/content_layout_view.mojo -o dist/moxi-content-layout", depends-on = ["fractal-benchmark-clock"] }
+content-layout-benchmark = { cmd = "./dist/moxi-content-layout", depends-on = ["content-layout-benchmark-build"] }
+layout-reference-build = "mojo build -I src tests/content_layout_reference.mojo -o dist/moxi-layout-reference"
+layout-reference-check = { cmd = "python3 scripts/layout_reference_check.py", depends-on = ["layout-reference-build"] }
+layout-baseline-build = { cmd = "mojo build -I src -Xlinker native/benchmark_clock.o benchmarks/layout_baseline.mojo -o dist/moxi-layout-baseline", depends-on = ["fractal-benchmark-clock"] }
+layout-baseline = { cmd = "./dist/moxi-layout-baseline", depends-on = ["layout-baseline-build"] }
+
 benchmark = "bash scripts/benchmark.sh"
 benchmark-compare = "python3 scripts/benchmark_compare.py"
 benchmark-policy-check = "python3 scripts/benchmark_policy_check.py"

@@ -1,0 +1,387 @@
+{
+  "date": "2026-09-24",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "samples": 7,
+  "unchanged_layouts_per_sample": 20,
+  "notes": "Flat fixed-height labels. Construction/compilation excluded. No own builds running. Legacy binary built before content adapter changes. Not comparable to Taffy arena benchmark.",
+  "runs": [
+    {
+      "engine": "legacy",
+      "sample": 0,
+      "n": 100,
+      "cold_ns": 2000.0,
+      "unchanged_mean_ns": 2100.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 0,
+      "n": 1000,
+      "cold_ns": 22000.0,
+      "unchanged_mean_ns": 21250.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 0,
+      "n": 10000,
+      "cold_ns": 309000.0,
+      "unchanged_mean_ns": 206700.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "content",
+      "sample": 0,
+      "n": 100,
+      "cold_ns": 132000.0,
+      "unchanged_mean_ns": 23050.0,
+      "cold_measures": 100.0,
+      "unchanged_measures": 0.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "content",
+      "sample": 0,
+      "n": 1000,
+      "cold_ns": 575000.0,
+      "unchanged_mean_ns": 216150.0,
+      "cold_measures": 1000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "content",
+      "sample": 0,
+      "n": 10000,
+      "cold_ns": 6441000.0,
+      "unchanged_mean_ns": 2528200.0,
+      "cold_measures": 10000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 1,
+      "n": 100,
+      "cold_ns": 3000.0,
+      "unchanged_mean_ns": 2100.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 1,
+      "n": 1000,
+      "cold_ns": 25000.0,
+      "unchanged_mean_ns": 21100.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 1,
+      "n": 10000,
+      "cold_ns": 375000.0,
+      "unchanged_mean_ns": 213750.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "content",
+      "sample": 1,
+      "n": 100,
+      "cold_ns": 119000.0,
+      "unchanged_mean_ns": 23200.0,
+      "cold_measures": 100.0,
+      "unchanged_measures": 0.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "content",
+      "sample": 1,
+      "n": 1000,
+      "cold_ns": 649000.0,
+      "unchanged_mean_ns": 210850.0,
+      "cold_measures": 1000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "content",
+      "sample": 1,
+      "n": 10000,
+      "cold_ns": 5879000.0,
+      "unchanged_mean_ns": 2612700.0,
+      "cold_measures": 10000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 2,
+      "n": 100,
+      "cold_ns": 3000.0,
+      "unchanged_mean_ns": 2050.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 2,
+      "n": 1000,
+      "cold_ns": 22000.0,
+      "unchanged_mean_ns": 24650.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 2,
+      "n": 10000,
+      "cold_ns": 317000.0,
+      "unchanged_mean_ns": 217050.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "content",
+      "sample": 2,
+      "n": 100,
+      "cold_ns": 112000.0,
+      "unchanged_mean_ns": 25700.0,
+      "cold_measures": 100.0,
+      "unchanged_measures": 0.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "content",
+      "sample": 2,
+      "n": 1000,
+      "cold_ns": 722000.0,
+      "unchanged_mean_ns": 236100.0,
+      "cold_measures": 1000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "content",
+      "sample": 2,
+      "n": 10000,
+      "cold_ns": 5946000.0,
+      "unchanged_mean_ns": 2502900.0,
+      "cold_measures": 10000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 3,
+      "n": 100,
+      "cold_ns": 3000.0,
+      "unchanged_mean_ns": 2100.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 3,
+      "n": 1000,
+      "cold_ns": 23000.0,
+      "unchanged_mean_ns": 21050.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 3,
+      "n": 10000,
+      "cold_ns": 300000.0,
+      "unchanged_mean_ns": 210650.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "content",
+      "sample": 3,
+      "n": 100,
+      "cold_ns": 112000.0,
+      "unchanged_mean_ns": 23100.0,
+      "cold_measures": 100.0,
+      "unchanged_measures": 0.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "content",
+      "sample": 3,
+      "n": 1000,
+      "cold_ns": 614000.0,
+      "unchanged_mean_ns": 210200.0,
+      "cold_measures": 1000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "content",
+      "sample": 3,
+      "n": 10000,
+      "cold_ns": 6057000.0,
+      "unchanged_mean_ns": 2187800.0,
+      "cold_measures": 10000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 4,
+      "n": 100,
+      "cold_ns": 3000.0,
+      "unchanged_mean_ns": 2050.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 4,
+      "n": 1000,
+      "cold_ns": 21000.0,
+      "unchanged_mean_ns": 20800.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 4,
+      "n": 10000,
+      "cold_ns": 282000.0,
+      "unchanged_mean_ns": 209650.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "content",
+      "sample": 4,
+      "n": 100,
+      "cold_ns": 115000.0,
+      "unchanged_mean_ns": 23150.0,
+      "cold_measures": 100.0,
+      "unchanged_measures": 0.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "content",
+      "sample": 4,
+      "n": 1000,
+      "cold_ns": 585000.0,
+      "unchanged_mean_ns": 204050.0,
+      "cold_measures": 1000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "content",
+      "sample": 4,
+      "n": 10000,
+      "cold_ns": 6082000.0,
+      "unchanged_mean_ns": 2223950.0,
+      "cold_measures": 10000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 5,
+      "n": 100,
+      "cold_ns": 4000.0,
+      "unchanged_mean_ns": 2100.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 5,
+      "n": 1000,
+      "cold_ns": 23000.0,
+      "unchanged_mean_ns": 20900.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 5,
+      "n": 10000,
+      "cold_ns": 388000.0,
+      "unchanged_mean_ns": 204150.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "content",
+      "sample": 5,
+      "n": 100,
+      "cold_ns": 114000.0,
+      "unchanged_mean_ns": 22850.0,
+      "cold_measures": 100.0,
+      "unchanged_measures": 0.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "content",
+      "sample": 5,
+      "n": 1000,
+      "cold_ns": 594000.0,
+      "unchanged_mean_ns": 208100.0,
+      "cold_measures": 1000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "content",
+      "sample": 5,
+      "n": 10000,
+      "cold_ns": 5481000.0,
+      "unchanged_mean_ns": 2244200.0,
+      "cold_measures": 10000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 6,
+      "n": 100,
+      "cold_ns": 3000.0,
+      "unchanged_mean_ns": 2100.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 6,
+      "n": 1000,
+      "cold_ns": 21000.0,
+      "unchanged_mean_ns": 21250.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "legacy",
+      "sample": 6,
+      "n": 10000,
+      "cold_ns": 239000.0,
+      "unchanged_mean_ns": 210100.0,
+      "last_y": 239976.0
+    },
+    {
+      "engine": "content",
+      "sample": 6,
+      "n": 100,
+      "cold_ns": 118000.0,
+      "unchanged_mean_ns": 22800.0,
+      "cold_measures": 100.0,
+      "unchanged_measures": 0.0,
+      "last_y": 2376.0
+    },
+    {
+      "engine": "content",
+      "sample": 6,
+      "n": 1000,
+      "cold_ns": 605000.0,
+      "unchanged_mean_ns": 209850.0,
+      "cold_measures": 1000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 23976.0
+    },
+    {
+      "engine": "content",
+      "sample": 6,
+      "n": 10000,
+      "cold_ns": 6039000.0,
+      "unchanged_mean_ns": 2203100.0,
+      "cold_measures": 10000.0,
+      "unchanged_measures": 0.0,
+      "last_y": 239976.0
+    }
+  ]
+}

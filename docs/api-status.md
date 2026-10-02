@@ -45,6 +45,10 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `Rect` | `moxi.geometry` | stable-core | portable geometry values |
 | `Size` | `moxi.geometry` | stable-core | portable geometry values |
 | `Transform` | `moxi.geometry` | stable-core | portable geometry values |
+| `AxisSize` | `moxi.content_layout` | provisional | explicit content and weighted fill layout |
+| `LayoutStyle` | `moxi.content_layout` | provisional | explicit content and weighted fill layout |
+| `LayoutNode` | `moxi.content_layout` | provisional | explicit content and weighted fill layout |
+| `LayoutTree` | `moxi.content_layout` | provisional | explicit content and weighted fill layout |
 | `BACKEND_GPU` | `moxi.backend` | stable-core | backend capability profiles |
 | `BACKEND_HEADLESS` | `moxi.backend` | stable-core | backend capability profiles |
 | `BACKEND_LINUX` | `moxi.backend` | stable-core | backend capability profiles |

@@ -51,6 +51,7 @@ clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c native/macos_text.m -o native/macos_text.o
 pixi run native-text-parity
+pixi run native-paragraph-test
 pixi run native-screenshot-check
 pixi run native-workbench-capacity
 pixi run native-custom-rect-equivalence

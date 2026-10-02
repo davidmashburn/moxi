@@ -7,6 +7,9 @@ cd "$repo_dir"
 tests=(
   tests/smoke.mojo
   tests/layout.mojo
+  tests/box_layout.mojo
+  tests/content_layout.mojo
+  tests/content_layout_view.mojo
   tests/layout_primitives.mojo
   tests/component.mojo
   tests/counter.mojo

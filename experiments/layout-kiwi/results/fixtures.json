@@ -1,0 +1,721 @@
+{
+  "schema": "moxi.layout.kiwi-fixtures.v1",
+  "backend": "kiwi-cpp",
+  "kiwi_header": "kiwi/kiwi.h",
+  "kiwi_requested_version": "1.5.0",
+  "ok": true,
+  "assertions": {
+    "passed": 76,
+    "failed": 0,
+    "total": 76
+  },
+  "fixtures": [
+    {
+      "name": "csv_column",
+      "viewport_width": 800,
+      "padding": 10,
+      "gap": 8,
+      "chart_minimum": 160,
+      "phases": [
+        {
+          "name": "cold_h600_no_summary",
+          "summary": false,
+          "overflow": false,
+          "rects": {
+            "root": {
+              "x": 0,
+              "y": 0,
+              "width": 800,
+              "height": 600
+            },
+            "header": {
+              "x": 10,
+              "y": 10,
+              "width": 780,
+              "height": 40
+            },
+            "chart": {
+              "x": 10,
+              "y": 58,
+              "width": 780,
+              "height": 532
+            }
+          }
+        },
+        {
+          "name": "resize_h800_no_summary",
+          "summary": false,
+          "overflow": false,
+          "rects": {
+            "root": {
+              "x": 0,
+              "y": 0,
+              "width": 800,
+              "height": 800
+            },
+            "header": {
+              "x": 10,
+              "y": 10,
+              "width": 780,
+              "height": 40
+            },
+            "chart": {
+              "x": 10,
+              "y": 58,
+              "width": 780,
+              "height": 732
+            }
+          }
+        },
+        {
+          "name": "insert_summary_h600",
+          "summary": true,
+          "overflow": false,
+          "rects": {
+            "root": {
+              "x": 0,
+              "y": 0,
+              "width": 800,
+              "height": 600
+            },
+            "header": {
+              "x": 10,
+              "y": 10,
+              "width": 780,
+              "height": 40
+            },
+            "summary": {
+              "x": 10,
+              "y": 58,
+              "width": 780,
+              "height": 40
+            },
+            "chart": {
+              "x": 10,
+              "y": 106,
+              "width": 780,
+              "height": 484
+            }
+          }
+        },
+        {
+          "name": "overflow_h150_summary",
+          "summary": true,
+          "overflow": true,
+          "rects": {
+            "root": {
+              "x": 0,
+              "y": 0,
+              "width": 800,
+              "height": 150
+            },
+            "header": {
+              "x": 10,
+              "y": 10,
+              "width": 780,
+              "height": 40
+            },
+            "summary": {
+              "x": 10,
+              "y": 58,
+              "width": 780,
+              "height": 40
+            },
+            "chart": {
+              "x": 10,
+              "y": 106,
+              "width": 780,
+              "height": 160
+            }
+          }
+        },
+        {
+          "name": "unchanged_h150_summary",
+          "summary": true,
+          "overflow": true,
+          "rects": {
+            "root": {
+              "x": 0,
+              "y": 0,
+              "width": 800,
+              "height": 150
+            },
+            "header": {
+              "x": 10,
+              "y": 10,
+              "width": 780,
+              "height": 40
+            },
+            "summary": {
+              "x": 10,
+              "y": 58,
+              "width": 780,
+              "height": 40
+            },
+            "chart": {
+              "x": 10,
+              "y": 106,
+              "width": 780,
+              "height": 160
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "aligned_form",
+      "authoring": {
+        "label_natural_widths": [
+          40,
+          90
+        ],
+        "field_preferred_width": 180,
+        "field_minimum_width": 80,
+        "button_preferred_width": 100,
+        "button_minimum_width": 60
+      },
+      "normal": {
+        "viewport_width": 520,
+        "rects": [
+          {
+            "x": 50,
+            "y": 0,
+            "width": 40,
+            "height": 20
+          },
+          {
+            "x": 0,
+            "y": 40,
+            "width": 90,
+            "height": 20
+          },
+          {
+            "x": 102,
+            "y": 0,
+            "width": 180,
+            "height": 28
+          },
+          {
+            "x": 102,
+            "y": 40,
+            "width": 180,
+            "height": 28
+          },
+          {
+            "x": 294,
+            "y": 80,
+            "width": 100,
+            "height": 28
+          },
+          {
+            "x": 406,
+            "y": 80,
+            "width": 100,
+            "height": 28
+          }
+        ]
+      },
+      "narrow": {
+        "viewport_width": 350,
+        "rects": [
+          {
+            "x": 50,
+            "y": 0,
+            "width": 40,
+            "height": 20
+          },
+          {
+            "x": 0,
+            "y": 40,
+            "width": 90,
+            "height": 20
+          },
+          {
+            "x": 102,
+            "y": 0,
+            "width": 80,
+            "height": 28
+          },
+          {
+            "x": 102,
+            "y": 40,
+            "width": 180,
+            "height": 28
+          },
+          {
+            "x": 194,
+            "y": 80,
+            "width": 72,
+            "height": 28
+          },
+          {
+            "x": 278,
+            "y": 80,
+            "width": 72,
+            "height": 28
+          }
+        ],
+        "field_compressed": true,
+        "buttons_compressed": true
+      },
+      "minimum_conflict": {
+        "viewport_width": 280,
+        "rejected": true,
+        "rejected_author_id": "form.viewport.right",
+        "author_ids": [
+          "form.viewport.right",
+          "form.field.minimum-width",
+          "form.button.minimum-width"
+        ]
+      }
+    },
+    {
+      "name": "splitter",
+      "viewport_width": 600,
+      "gap": 8,
+      "minimums": {
+        "left": 100,
+        "right": 120
+      },
+      "drag_suggestions": [
+        {
+          "requested_left_width": 300,
+          "actual_left_width": 300,
+          "actual_right_width": 292
+        },
+        {
+          "requested_left_width": 50,
+          "actual_left_width": 100,
+          "actual_right_width": 492
+        },
+        {
+          "requested_left_width": 700,
+          "actual_left_width": 472,
+          "actual_right_width": 120
+        },
+        {
+          "requested_left_width": 100,
+          "actual_left_width": 100,
+          "actual_right_width": 492
+        },
+        {
+          "requested_left_width": 472,
+          "actual_left_width": 472,
+          "actual_right_width": 120
+        }
+      ],
+      "unrelated_y": [
+        42,
+        117
+      ],
+      "add_remove_cycles": 64,
+      "churn_ns": 52834,
+      "priority_probe": {
+        "weak_count": 1001,
+        "medium_target": 0,
+        "weak_target": 1,
+        "actual": 1
+      }
+    },
+    {
+      "name": "wrapped_text",
+      "model": {
+        "advance_factor": 0.56,
+        "line_height_factor": 1.25,
+        "minimum_line_height": 16
+      },
+      "pass_order": [
+        "allocation",
+        "measurement",
+        "height_constraint_refresh",
+        "publication"
+      ],
+      "cases": [
+        {
+          "name": "ascii20_width95",
+          "measurement": {
+            "scalar_count": 20,
+            "font_size": 16,
+            "advance": 8.96,
+            "line_height": 20,
+            "natural_width": 179.2,
+            "offered_width": 95,
+            "scalars_per_line": 10,
+            "line_count": 2,
+            "width": 95,
+            "height": 40
+          },
+          "convergence_iterations": 2,
+          "overflow": false,
+          "final_geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 95,
+            "height": 40
+          }
+        },
+        {
+          "name": "ascii30_width95",
+          "measurement": {
+            "scalar_count": 30,
+            "font_size": 16,
+            "advance": 8.96,
+            "line_height": 20,
+            "natural_width": 268.8,
+            "offered_width": 95,
+            "scalars_per_line": 10,
+            "line_count": 3,
+            "width": 95,
+            "height": 60
+          },
+          "convergence_iterations": 2,
+          "overflow": true,
+          "final_geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 95,
+            "height": 60
+          }
+        },
+        {
+          "name": "ascii20_width89_59",
+          "measurement": {
+            "scalar_count": 20,
+            "font_size": 16,
+            "advance": 8.96,
+            "line_height": 20,
+            "natural_width": 179.2,
+            "offered_width": 89.59,
+            "scalars_per_line": 9,
+            "line_count": 3,
+            "width": 89.59,
+            "height": 60
+          },
+          "convergence_iterations": 2,
+          "overflow": true,
+          "final_geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 89.59,
+            "height": 60
+          }
+        },
+        {
+          "name": "ascii20_width89_61",
+          "measurement": {
+            "scalar_count": 20,
+            "font_size": 16,
+            "advance": 8.96,
+            "line_height": 20,
+            "natural_width": 179.2,
+            "offered_width": 89.61,
+            "scalars_per_line": 10,
+            "line_count": 2,
+            "width": 89.61,
+            "height": 40
+          },
+          "convergence_iterations": 2,
+          "overflow": false,
+          "final_geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 89.61,
+            "height": 40
+          }
+        },
+        {
+          "name": "ascii20_font24_width95",
+          "measurement": {
+            "scalar_count": 20,
+            "font_size": 24,
+            "advance": 13.44,
+            "line_height": 30,
+            "natural_width": 268.8,
+            "offered_width": 95,
+            "scalars_per_line": 7,
+            "line_count": 3,
+            "width": 95,
+            "height": 90
+          },
+          "convergence_iterations": 2,
+          "overflow": true,
+          "final_geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 95,
+            "height": 90
+          }
+        },
+        {
+          "name": "ascii20_font12_width95",
+          "measurement": {
+            "scalar_count": 20,
+            "font_size": 12,
+            "advance": 6.72,
+            "line_height": 16,
+            "natural_width": 134.4,
+            "offered_width": 95,
+            "scalars_per_line": 14,
+            "line_count": 2,
+            "width": 95,
+            "height": 32
+          },
+          "convergence_iterations": 2,
+          "overflow": false,
+          "final_geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 95,
+            "height": 32
+          }
+        }
+      ]
+    },
+    {
+      "name": "weighted_row",
+      "width": 300,
+      "gap": 10,
+      "weights": [
+        1,
+        2
+      ],
+      "first_maximum": 60,
+      "allocation_policy": "clamp_then_redistribute",
+      "rects": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 300,
+          "height": 40
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "width": 60,
+          "height": 40
+        },
+        {
+          "x": 70,
+          "y": 0,
+          "width": 230,
+          "height": 40
+        }
+      ],
+      "ratio_preference_error": 110
+    },
+    {
+      "name": "retention",
+      "variable_entry_counts": {
+        "before_churn": 1,
+        "after_remove": 65,
+        "after_reset": 0
+      },
+      "churn_constraints": 64,
+      "process_rss_collected": false,
+      "process_rss_note": "not collected; solver dump counts do not claim heap bytes"
+    }
+  ],
+  "parity_fixtures": {
+    "row-weighted-fill-min-max": {
+      "name": "row-weighted-fill-min-max",
+      "rects": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 300,
+          "height": 40
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "width": 60,
+          "height": 40
+        },
+        {
+          "x": 70,
+          "y": 0,
+          "width": 230,
+          "height": 40
+        }
+      ]
+    },
+    "column-content-header-fill-body": {
+      "name": "column-content-header-fill-body",
+      "rects": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 300,
+          "height": 200
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "width": 280,
+          "height": 20
+        },
+        {
+          "x": 10,
+          "y": 35,
+          "width": 280,
+          "height": 155
+        }
+      ]
+    },
+    "wrapped-text-at-offered-width": {
+      "name": "wrapped-text-at-offered-width",
+      "rects": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 200,
+          "height": 60
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "width": 95,
+          "height": 40
+        },
+        {
+          "x": 105,
+          "y": 0,
+          "width": 95,
+          "height": 60
+        }
+      ]
+    }
+  },
+  "rect_arrays": {
+    "row-weighted-fill-min-max": [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 300,
+        "height": 40
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "width": 60,
+        "height": 40
+      },
+      {
+        "x": 70,
+        "y": 0,
+        "width": 230,
+        "height": 40
+      }
+    ],
+    "column-content-header-fill-body": [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 300,
+        "height": 200
+      },
+      {
+        "x": 10,
+        "y": 10,
+        "width": 280,
+        "height": 20
+      },
+      {
+        "x": 10,
+        "y": 35,
+        "width": 280,
+        "height": 155
+      }
+    ],
+    "wrapped-text-at-offered-width": [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 200,
+        "height": 60
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "width": 95,
+        "height": 40
+      },
+      {
+        "x": 105,
+        "y": 0,
+        "width": 95,
+        "height": 60
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "fixture": "csv_column",
+      "code": "explicit_overflow",
+      "severity": "info",
+      "message": "chart minimum is retained when the viewport cannot contain all required content",
+      "author_ids": []
+    },
+    {
+      "fixture": "aligned_form",
+      "code": "preferred_compression",
+      "severity": "info",
+      "message": "narrow viewport compresses optional field/button preferences while required minima remain active",
+      "author_ids": [
+        "form.field.preferred-width",
+        "form.button.preferred-width",
+        "form.field.minimum-width",
+        "form.button.minimum-width"
+      ]
+    },
+    {
+      "fixture": "aligned_form",
+      "code": "required_minimum_conflict",
+      "severity": "warning",
+      "message": "viewport width 280 cannot satisfy the shared field/button minimums and the required trailing edge",
+      "author_ids": [
+        "form.viewport.right",
+        "form.field.minimum-width",
+        "form.button.minimum-width"
+      ]
+    },
+    {
+      "fixture": "splitter",
+      "code": "bounded_drag",
+      "severity": "info",
+      "message": "strong edit suggestions are clamped by required left/right minimums and viewport width",
+      "author_ids": []
+    },
+    {
+      "fixture": "splitter",
+      "code": "numeric_strength_priority",
+      "severity": "warning",
+      "message": "Kiwi numeric strengths allow 1001 weak preferences to outweigh one medium preference",
+      "author_ids": [
+        "splitter.weak-preference-1001",
+        "splitter.medium-preference"
+      ]
+    },
+    {
+      "fixture": "wrapped_text",
+      "code": "allocation_measurement_refresh",
+      "severity": "info",
+      "message": "the fixture allocates width, measures wrapped text, refreshes the height constraint, and converges in a bounded pass count",
+      "author_ids": []
+    },
+    {
+      "fixture": "weighted_row",
+      "code": "explicit_clamp_redistribute",
+      "severity": "info",
+      "message": "the 1:2 row computes the capped first allocation and redistributes the remainder; a soft ratio does not own geometry",
+      "author_ids": []
+    },
+    {
+      "fixture": "retention",
+      "code": "solver_dump_retention",
+      "severity": "info",
+      "message": "counts come from Kiwi Solver::dumps() variable entries and are not exact heap-byte measurements",
+      "author_ids": []
+    }
+  ]
+}

@@ -149,3 +149,133 @@ float moxi_coretext_glyph_advance_at(int index) {
 
 float moxi_coretext_width(void) { return moxi_shaped_width; }
 float moxi_coretext_height(void) { return moxi_shaped_ascent + moxi_shaped_descent; }
+
+#import "macos_paragraph.h"
+#include <math.h>
+#include <stdint.h>
+
+// One immutable set of CoreText lines supplies measurement AND drawing. The
+// bridge owns one reference; snapshots and the AppKit draw slot retain it.
+@interface MoxiParagraph : NSObject <MoxiParagraphDrawing>
+@property(nonatomic, strong) NSArray *lines;
+@property(nonatomic, strong) NSArray<NSNumber *> *baselines;
+@property(nonatomic) CGFloat width;
+@property(nonatomic) CGFloat height;
+@property(nonatomic) CGFloat firstBaseline;
+@property(nonatomic) CGFloat lastBaseline;
+@end
+
+@implementation MoxiParagraph
+- (void)drawAt:(NSPoint)origin color:(NSColor *)color {
+    CGContextRef context = NSGraphicsContext.currentContext.CGContext;
+    if (context == NULL) return;
+    CGContextSaveGState(context);
+    CGContextSetTextMatrix(context, CGAffineTransformIdentity);
+    CGContextSetFillColorWithColor(context, color.CGColor);
+    // Moxi's canvas is top-down. Keep the retained line origins top-down too,
+    // and invert only the glyph coordinate system, not the paragraph order.
+    CGContextTranslateCTM(context, origin.x, origin.y);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    for (NSUInteger i = 0; i < self.lines.count; i++) {
+        CGContextSetTextPosition(context, 0.0, -self.baselines[i].doubleValue);
+        CTLineDraw((__bridge CTLineRef)self.lines[i], context);
+    }
+    CGContextRestoreGState(context);
+}
+@end
+
+uintptr_t moxi_paragraph_create(const char *utf8, float fontSize, float width, int direction) {
+    if (utf8 == NULL || !isfinite(fontSize) || fontSize <= 0 ||
+        !isfinite(width) || width < 0 || direction < 0 || direction > 2) return 0;
+    @autoreleasepool {
+        NSString *text = [NSString stringWithUTF8String:utf8];
+        if (text == nil) return 0;
+        NSFont *font = [NSFont systemFontOfSize:fontSize];
+        CTWritingDirection writing = direction == 2 ? kCTWritingDirectionRightToLeft
+            : direction == 1 ? kCTWritingDirectionLeftToRight : kCTWritingDirectionNatural;
+        CTParagraphStyleSetting setting = { kCTParagraphStyleSpecifierBaseWritingDirection,
+            sizeof(writing), &writing };
+        CTParagraphStyleRef style = CTParagraphStyleCreate(&setting, 1);
+        NSAttributedString *attributed = [[NSAttributedString alloc] initWithString:text attributes:@{
+            NSFontAttributeName: font,
+            (__bridge NSString *)kCTParagraphStyleAttributeName: (__bridge id)style,
+            (__bridge NSString *)kCTForegroundColorFromContextAttributeName: @YES,
+        }];
+        CFRelease(style);
+        CTTypesetterRef typesetter = CTTypesetterCreateWithAttributedString(
+            (__bridge CFAttributedStringRef)attributed);
+        NSMutableArray *lines = [NSMutableArray array];
+        NSMutableArray<NSNumber *> *baselines = [NSMutableArray array];
+        CGFloat top = 0;
+        NSUInteger start = 0;
+        // Include an empty final line after a hard break and one line for empty
+        // content. Zero width is a real offer; overflowing clusters are clipped
+        // by the committed box, never interpreted as an unbounded paragraph.
+        do {
+            NSUInteger paragraphEnd = start;
+            while (paragraphEnd < text.length &&
+                   [text characterAtIndex:paragraphEnd] != '\n' &&
+                   [text characterAtIndex:paragraphEnd] != '\r') paragraphEnd++;
+            NSUInteger count = 0;
+            if (paragraphEnd > start) {
+                CFIndex suggested = CTTypesetterSuggestLineBreak(typesetter, (CFIndex)start, width);
+                count = MIN((NSUInteger)MAX(suggested, 0), paragraphEnd - start);
+                if (count == 0) {
+                    count = MIN([text rangeOfComposedCharacterSequenceAtIndex:start].length,
+                                paragraphEnd - start);
+                }
+            }
+            // CTTypesetter's zero-length range means "the rest", so create
+            // blank lines separately instead of accidentally drawing that rest.
+            CTLineRef line;
+            if (count == 0) {
+                NSAttributedString *empty = [[NSAttributedString alloc] initWithString:@""
+                    attributes:@{NSFontAttributeName: font}];
+                line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)empty);
+            } else {
+                line = CTTypesetterCreateLine(typesetter, CFRangeMake(start, count));
+            }
+            CGFloat ascent = 0, descent = 0, leading = 0;
+            CTLineGetTypographicBounds(line, &ascent, &descent, &leading);
+            ascent = MAX(ascent, font.ascender);
+            descent = MAX(descent, -font.descender);
+            leading = MAX(leading, MAX(0, font.leading));
+            [baselines addObject:@(top + ascent)];
+            [lines addObject:(__bridge id)line];
+            CFRelease(line);
+            top += ascent + descent + leading;
+            start += count;
+            if (start == text.length) break;
+            if (start == paragraphEnd) {
+                unichar separator = [text characterAtIndex:start++];
+                if (separator == '\r' && start < text.length && [text characterAtIndex:start] == '\n') start++;
+            }
+        } while (start <= text.length);
+        CFRelease(typesetter);
+        MoxiParagraph *result = [MoxiParagraph new];
+        result.lines = [lines copy];
+        result.baselines = [baselines copy];
+        result.width = width;
+        result.height = top;
+        result.firstBaseline = baselines.firstObject.doubleValue;
+        result.lastBaseline = baselines.lastObject.doubleValue;
+        return (uintptr_t)CFBridgingRetain(result);
+    }
+}
+
+void moxi_paragraph_release(uintptr_t handle) {
+    if (handle != 0) CFRelease((CFTypeRef)handle);
+}
+
+float moxi_paragraph_metric(uintptr_t handle, int metric) {
+    if (handle == 0) return 0;
+    MoxiParagraph *paragraph = (__bridge MoxiParagraph *)(void *)handle;
+    switch (metric) {
+        case 0: return (float)paragraph.width;
+        case 1: return (float)paragraph.height;
+        case 2: return (float)paragraph.firstBaseline;
+        case 3: return (float)paragraph.lastBaseline;
+        case 4: return (float)paragraph.lines.count;
+        default: return 0;
+    }
+}

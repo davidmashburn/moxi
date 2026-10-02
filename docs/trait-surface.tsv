@@ -1,4 +1,6 @@
 # package	trait	method
+moxi	BoxLayout	arrange
+moxi	BoxLayout	measure
 moxi	CapabilityHandler	capability_descriptor
 moxi	CapabilityHandler	execute_capability
 moxi	ClipboardBackend	copy
@@ -25,6 +27,8 @@ moxi	FractalCanvasPainter	fill_rect
 moxi	FractalCanvasPainter	line
 moxi	FractalCanvasPainter	line_batch
 moxi	FractalCanvasPainter	set_canvas_bounds
+moxi	ParagraphPayload	create
+moxi	ParagraphPayload	metrics
 moxi	PlatformAdapter	begin_frame
 moxi	PlatformAdapter	close
 moxi	PlatformAdapter	is_available

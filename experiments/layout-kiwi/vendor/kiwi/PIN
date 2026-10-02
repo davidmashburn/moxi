@@ -1,0 +1,6 @@
+Kiwi upstream: https://github.com/nucleic/kiwi.git
+Release tag: 1.5.0
+Verified peeled tag SHA: 5e76d91fd77dc443cb0db36e7398fc13844a0524
+
+The tag object itself is 281006331153898b9c6ef76a454437339142909a.
+The bootstrap script verifies refs/tags/1.5.0^{} before fetching headers.

@@ -29,6 +29,8 @@ The full per-feature inventory, including fallback behavior and scope
 caveats, is in [docs/features.md](docs/features.md).
 
 - Declarative `ColumnView`/`ViewNode` layout with vertical/horizontal/stack/grid/split/portal containers and virtualized scrolling.
+- Opt-in [content/fill layout](docs/content-layout.md) with width-dependent text measurement, weighted remaining space, and retained measurement counters.
+- Provisional [native paragraph layout](docs/native-paragraph-layout.md) with a compiled custom policy and shared CoreText measurement/drawing (`pixi run paragraph-layout`).
 - Identity-based reconciliation with observable create/reuse/update/remove/move counters.
 - A typed `Component`/`App` lifecycle with subtree and keyed-subtree execution for localized updates.
 - Backend-neutral events, focus, and keyboard navigation, including native macOS IME composition.
