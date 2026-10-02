@@ -6,6 +6,7 @@ use std::ffi::{c_char, CStr, CString};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::rc::Rc;
 use std::thread::{self, ThreadId};
+use std::time::Instant;
 use taffy::geometry::Point;
 use taffy::prelude::*;
 use taffy::style::{Direction, Overflow};
@@ -59,6 +60,7 @@ impl Paragraph {
         let mut metrics = Metrics::default();
         let mut handle = 0;
         counters.measurements += 1;
+        let started = Instant::now();
         let status = unsafe {
             callback(
                 self.text.as_ptr(),
@@ -70,6 +72,9 @@ impl Paragraph {
                 &mut handle,
             )
         };
+        counters.measurement_nanoseconds = counters
+            .measurement_nanoseconds
+            .saturating_add(started.elapsed().as_nanos().min(u64::MAX as u128) as u64);
         if status != 0 || handle == 0 {
             if handle != 0 {
                 unsafe { release(handle) };
@@ -104,6 +109,7 @@ pub struct Counters {
     pub measurements: u64,
     pub mutations: u64,
     pub publications: u64,
+    pub measurement_nanoseconds: u64,
 }
 struct Node {
     id: NodeId,
@@ -1372,6 +1378,7 @@ pub unsafe extern "C" fn moxi_layout_counter(handle: *const Engine, field: i32) 
         0 => engine.counters.measurements,
         1 => engine.counters.mutations,
         2 => engine.counters.publications,
+        3 => engine.counters.measurement_nanoseconds,
         _ => 0,
     }
 }

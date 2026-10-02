@@ -49,7 +49,7 @@ uint64_t moxi_layout_snapshot_generation(const MoxiLayoutSnapshot *);
 uint64_t moxi_layout_snapshot_integer(const MoxiLayoutSnapshot *, size_t, int32_t);
 // Float fields: rect[4], clip[4], first baseline, last baseline.
 float moxi_layout_snapshot_float(const MoxiLayoutSnapshot *, size_t, size_t);
-// Counter fields: measurements, declaration mutations, publications.
+// Counter fields: measurements, declaration mutations, publications, provider ns.
 uint64_t moxi_layout_counter(const MoxiLayout *, int32_t);
 #ifdef __cplusplus
 }

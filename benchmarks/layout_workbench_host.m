@@ -12,6 +12,9 @@ void moxi_layout_benchmark_host(int width, int height) {
         colorSpaceName:NSDeviceRGBColorSpace bitmapFormat:0 bytesPerRow:0 bitsPerPixel:0];
     layout_benchmark_context = [NSGraphicsContext graphicsContextWithBitmapImageRep:layout_benchmark_bitmap];
 }
+void moxi_layout_benchmark_size(int width, int height) {
+    [moxi_canvas setFrameSize:NSMakeSize(width, height)];
+}
 void moxi_layout_benchmark_draw(void) {
     @autoreleasepool {
         [NSGraphicsContext saveGraphicsState];

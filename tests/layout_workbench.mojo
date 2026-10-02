@@ -125,4 +125,18 @@ def main() raises:
             assert_true(failed)
             assert_equal(churn.recovery().snapshot.generation,generation)
             churn.conflict = False
+    # Host capacity rejects before any geometry or recycler lifecycle publishes.
+    var bounded = LayoutWorkbench()
+    var accepted = bounded.frame(Size(1100,800))
+    var created = bounded.table.created
+    var capacity_rejected = False
+    try:
+        _ = bounded.frame(Size(1100,20000))
+    except:
+        capacity_rejected = True
+    assert_true(capacity_rejected)
+    assert_equal(bounded.recovery().snapshot.generation,accepted.snapshot.generation)
+    assert_equal(bounded.table.created,created)
+    var recovered = bounded.frame(Size(1100,800))
+    assert_equal(recovered.snapshot.output(13).mount,accepted.snapshot.output(13).mount)
     print("Composed layout workbench contracts passed")
