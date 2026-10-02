@@ -356,6 +356,9 @@ struct RetainedLayout:
     def clear_placement(mut self, key: Int) raises:
         self._check(external_call["moxi_layout_clear_placement", Int32](self._handle, UInt64(key)))
 
+    def clip(mut self, key: Int, rect: Rect) raises:
+        self._check(external_call["moxi_layout_clip", Int32](self._handle, UInt64(key),rect.x,rect.y,rect.width,rect.height))
+
     def stage(mut self, root: Int, size: Size) raises -> RetainedPlan:
         var handle: UInt = 0
         self._check(external_call["moxi_layout_stage", Int32](self._handle, UInt64(root), size.width, size.height, Pointer(to=handle)))

@@ -612,3 +612,32 @@ fn staged_custom_allocation_is_atomic_and_rejects_stale_candidates() {
     e.clear_placement(2).unwrap();
     assert_eq!(rect(&e.layout(1, 300.0, 100.0).unwrap(), 2)[2], 300.0);
 }
+
+#[test]
+fn parent_local_clip_changes_publication_without_remeasuring_geometry() {
+    let mut e = engine();
+    node(
+        &mut e,
+        1,
+        Spec {
+            padding: 10.0,
+            ..Spec::default()
+        },
+    );
+    node(&mut e, 2, Spec::default());
+    text(&mut e, 3, "retained", 10.0);
+    e.set_children(1, &[2]).unwrap();
+    e.set_children(2, &[3]).unwrap();
+    let initial = e.layout(1, 100.0, 100.0).unwrap();
+    let count = e.counters().measurements;
+    e.set_clip(3, [5.0, 3.0, 20.0, 4.0]).unwrap();
+    let staged = e.stage(1, 100.0, 100.0).unwrap();
+    assert_eq!(e.snapshot.generation, initial.generation);
+    let output = staged.snapshot.outputs.iter().find(|o| o.key == 3).unwrap();
+    assert_eq!(output.clip, [15.0, 13.0, 20.0, 4.0]);
+    assert_eq!(output.rect, rect(&initial, 3));
+    assert_eq!(e.counters().measurements, count);
+    assert!(e.set_clip(3, [0.0, 0.0, -1.0, 4.0]).is_err());
+    e.commit(&staged).unwrap();
+    assert_eq!(e.snapshot.generation, initial.generation + 1);
+}

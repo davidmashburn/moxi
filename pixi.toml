@@ -115,6 +115,10 @@ harfbuzz-check = "bash scripts/harfbuzz_check.sh"
 box-layout-test = "mojo run -I src tests/box_layout.mojo"
 retained-layout-check = "bash scripts/retained_layout_check.sh"
 constraint-layout-check = "bash scripts/constraint_layout_check.sh"
+composed-layout-check = "bash scripts/composed_layout_check.sh"
+layout-candidate-check = "bash scripts/layout_candidate_check.sh"
+layout-workbench-benchmark = "bash scripts/layout_workbench_benchmark.sh"
+layout-workbench = { cmd = "./dist/moxi-layout-workbench", depends-on = ["composed-layout-check"] }
 native-paragraph-test = "mkdir -p dist && clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c tests/native_paragraph_probe.m -o dist/native_paragraph_probe.o && mojo build -I src -I examples -Xlinker dist/native_paragraph_probe.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker CoreText tests/native_paragraph.mojo -o dist/moxi-native-paragraph-test && ./dist/moxi-native-paragraph-test"
 paragraph-layout-build = { cmd = "mkdir -p dist && mojo build -I src -I examples -Xlinker native/macos_window.o -Xlinker native/macos_text.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker CoreText examples/paragraph_layout.mojo -o dist/moxi-paragraph-layout", depends-on = ["native-object", "text-object"] }
 paragraph-layout-benchmark-build = { cmd = "mkdir -p dist && mojo build -I src -I examples -Xlinker native/macos_text.o -Xlinker native/benchmark_clock.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker CoreText benchmarks/paragraph_layout.mojo -o dist/moxi-paragraph-layout-benchmark", depends-on = ["text-object", "fractal-benchmark-clock"] }

@@ -113,6 +113,7 @@ struct Node {
     mount: u64,
     declared: Style,
     placement: Option<[f32; 4]>,
+    clip: Option<[f32; 4]>,
 }
 #[derive(Clone)]
 pub struct Output {
@@ -289,6 +290,7 @@ impl Engine {
                     mount: self.next_mount,
                     declared: style,
                     placement: None,
+                    clip: None,
                 },
             );
             self.next_mount += 1;
@@ -365,6 +367,20 @@ impl Engine {
             self.tree
                 .set_style(id, self.effective_style(key, &self.nodes[&key].declared))
                 .map_err(|e| e.to_string())?;
+            self.changed();
+        }
+        Ok(())
+    }
+    pub fn set_clip(&mut self, key: u64, clip: [f32; 4]) -> Result<(), String> {
+        self.id(key)?;
+        if !clip[0].is_finite() || !clip[1].is_finite() {
+            return Err("nonfinite clip origin".into());
+        }
+        extent(clip[2])?;
+        extent(clip[3])?;
+        let node = self.nodes.get_mut(&key).unwrap();
+        if node.clip != Some(clip) {
+            node.clip = Some(clip);
             self.changed();
         }
         Ok(())
@@ -665,7 +681,7 @@ impl Engine {
         &mut self,
         key: u64,
         origin: [f32; 2],
-        clip: [f32; 4],
+        mut clip: [f32; 4],
         hidden: bool,
         out: &mut Vec<Output>,
     ) -> Result<(), String> {
@@ -680,6 +696,17 @@ impl Engine {
             layout.size.width,
             layout.size.height,
         ];
+        if let Some(local) = node.clip {
+            clip = intersect(
+                clip,
+                [
+                    origin[0] + local[0],
+                    origin[1] + local[1],
+                    local[2],
+                    local[3],
+                ],
+            );
+        }
         let mut child_clip = clip;
         if style.overflow.x != Overflow::Visible {
             child_clip[0] = rect[0].max(clip[0]);
@@ -1228,6 +1255,19 @@ pub unsafe extern "C" fn moxi_layout_place(
 #[no_mangle]
 pub unsafe extern "C" fn moxi_layout_clear_placement(handle: *mut Engine, key: u64) -> i32 {
     call(handle, |e| e.clear_placement(key))
+}
+/// # Safety
+/// The owner must be live on its creating thread. Clip uses parent coordinates.
+#[no_mangle]
+pub unsafe extern "C" fn moxi_layout_clip(
+    handle: *mut Engine,
+    key: u64,
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
+) -> i32 {
+    call(handle, |e| e.set_clip(key, [x, y, width, height]))
 }
 /// # Safety
 /// Handles must be null or live handles of the declared type, used on their
