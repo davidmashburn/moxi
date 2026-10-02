@@ -40,6 +40,7 @@ MoxiLayoutSnapshot *moxi_layout_candidate_snapshot(const MoxiLayoutCandidate *);
 void moxi_layout_candidate_release(MoxiLayoutCandidate *);
 int32_t moxi_layout_place(MoxiLayout *, const MoxiLayoutPlacement *, size_t);
 int32_t moxi_layout_clear_placement(MoxiLayout *, uint64_t);
+int32_t moxi_layout_clip(MoxiLayout *, uint64_t, float, float, float, float);
 MoxiLayoutSnapshot *moxi_layout_snapshot(const MoxiLayout *);
 void moxi_layout_snapshot_release(MoxiLayoutSnapshot *);
 size_t moxi_layout_snapshot_count(const MoxiLayoutSnapshot *);

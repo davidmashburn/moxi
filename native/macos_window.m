@@ -12,8 +12,15 @@
 @interface MoxiWindowDelegate : NSObject <NSWindowDelegate>
 @end
 
+@interface MoxiEditorClipView : NSView
+@end
+@implementation MoxiEditorClipView
+- (BOOL)isFlipped { return YES; }
+@end
+
 @interface MoxiCanvasView : NSView <NSTextInputClient, NSTextFieldDelegate>
 @property(nonatomic, strong) NSTextField *nativeTextEditor;
+@property(nonatomic, strong) MoxiEditorClipView *nativeTextEditorClip;
 @property(nonatomic, strong) NSString *nativeTextEditorValue;
 @property(nonatomic, assign) BOOL synchronizingNativeTextEditor;
 @property(nonatomic, strong) NSTrackingArea *moxiTrackingArea;
@@ -28,7 +35,12 @@
 @property(nonatomic, strong) NSMutableArray *moxiChildren;
 @end
 
-#define MOXI_MAX_DRAW_COMMANDS 128
+#define MOXI_MAX_DRAW_COMMANDS 1024
+/* Opt-in retained submission order. Legacy hosts keep their established order. */
+static BOOL moxi_ordered_paint_enabled = NO;
+static int moxi_ordered_paint_count = 0;
+static int moxi_ordered_paint_kinds[MOXI_MAX_DRAW_COMMANDS + 1];
+static int moxi_ordered_paint_slots[MOXI_MAX_DRAW_COMMANDS + 1];
 #define MOXI_MAX_CUSTOM_LINES 32768
 #define MOXI_MAX_CUSTOM_CIRCLES 4096
 #define MOXI_MAX_CUSTOM_RECTS 262144 /* 100k observations plus selection overlays */
@@ -1074,6 +1086,8 @@ static int moxi_event_modifiers_for_flags(NSEventModifierFlags flags) {
 }
 
 static void moxi_reset_commands(void) {
+    moxi_ordered_paint_enabled = NO;
+    moxi_ordered_paint_count = 0;
     moxi_native_text_editor_seen = NO;
     moxi_label_count = 0;
     moxi_button_count = 0;
@@ -1805,12 +1819,24 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
         self.nativeTextEditor.alignment = NSTextAlignmentLeft;
         self.nativeTextEditor.accessibilityElement = YES;
         self.nativeTextEditor.accessibilityIdentifier = @"moxi-native-text-input";
-        [self addSubview:self.nativeTextEditor];
+        self.nativeTextEditorClip = [[MoxiEditorClipView alloc] initWithFrame:NSZeroRect];
+        self.nativeTextEditorClip.wantsLayer = YES;
+        self.nativeTextEditorClip.layer.masksToBounds = YES;
+        [self.nativeTextEditorClip addSubview:self.nativeTextEditor];
+        [self addSubview:self.nativeTextEditorClip];
     }
 
     BOOL wasHidden = self.nativeTextEditor.hidden;
     self.nativeTextEditor.hidden = NO;
-    self.nativeTextEditor.frame = moxi_text_input_frames[index];
+    NSRect logicalFrame = moxi_text_input_frames[index];
+    NSRect visibleFrame = logicalFrame;
+    if (moxi_ordered_paint_enabled && moxi_text_input_clip_enabled[index]) {
+        visibleFrame = NSIntersectionRect(logicalFrame, moxi_text_input_clip_frames[index]);
+    }
+    self.nativeTextEditorClip.frame = visibleFrame;
+    /* Move the clip host, not the editor identity or its marked text. */
+    self.nativeTextEditor.frame = NSOffsetRect(logicalFrame,
+        -visibleFrame.origin.x, -visibleFrame.origin.y);
     self.nativeTextEditor.font = [NSFont systemFontOfSize:
         moxi_text_input_font_sizes[index]];
     self.nativeTextEditor.textColor = moxi_color(
@@ -2459,47 +2485,17 @@ double moxi_window_benchmark_custom_paint(int iterations) {
     return moxi_window_benchmark_custom_paint_size(iterations, 920, 620);
 }
 
-- (void)drawRect:(NSRect)dirtyRect {
-    (void)dirtyRect;
-    moxi_native_timing_draw_started();
-    [moxi_color(moxi_surface_fill) setFill];
-    NSRectFill(self.bounds);
-
-    for (int i = 0; i < moxi_panel_count; i++) {
+- (void)drawOrderedSlot:(int)i kind:(int)kind {
+    if (kind == 3) {
         moxi_begin_clip(moxi_panel_clip_enabled[i], moxi_panel_clip_frames[i]);
         [moxi_color(moxi_panel_fills[i]) setFill];
         [[NSBezierPath bezierPathWithRoundedRect:moxi_panel_frames[i]
                                           xRadius:moxi_panel_radii[i]
                                           yRadius:moxi_panel_radii[i]] fill];
         moxi_end_clip(moxi_panel_clip_enabled[i]);
+        return;
     }
-
-    for (int i = 0; i < moxi_image_count; i++) {
-        moxi_begin_clip(moxi_image_clip_enabled[i], moxi_image_clip_frames[i]);
-        NSRect frame = moxi_image_frames[i];
-        [moxi_color(moxi_image_fill_colors[i]) setFill];
-        [[NSBezierPath bezierPathWithRoundedRect:frame
-                                          xRadius:moxi_image_radii[i]
-                                          yRadius:moxi_image_radii[i]] fill];
-        NSImage *image = moxi_image_resources[i];
-        if (image != nil) {
-            [image drawInRect:frame
-                     fromRect:NSZeroRect
-                    operation:NSCompositingOperationSourceOver
-                     fraction:1.0
-               respectFlipped:YES
-                        hints:nil];
-        } else {
-            NSDictionary *imageAttributes = @{
-                NSFontAttributeName: [NSFont systemFontOfSize:14.0],
-                NSForegroundColorAttributeName: moxi_color(moxi_image_text_colors[i]),
-            };
-            [moxi_image_alt_texts[i] drawInRect:frame withAttributes:imageAttributes];
-        }
-        moxi_end_clip(moxi_image_clip_enabled[i]);
-    }
-
-    for (int i = 0; i < moxi_label_count; i++) {
+    if (kind == 1) {
         moxi_begin_clip(moxi_label_clip_enabled[i], moxi_label_clip_frames[i]);
         if (moxi_label_paragraphs[i] != nil) {
             [NSGraphicsContext saveGraphicsState];
@@ -2508,7 +2504,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
                                      color:moxi_color(moxi_label_text_colors[i])];
             [NSGraphicsContext restoreGraphicsState];
             moxi_end_clip(moxi_label_clip_enabled[i]);
-            continue;
+            return;
         }
         NSMutableParagraphStyle *labelParagraph = [[NSMutableParagraphStyle alloc] init];
         labelParagraph.lineBreakMode = moxi_label_wraps[i]
@@ -2523,9 +2519,10 @@ double moxi_window_benchmark_custom_paint(int iterations) {
         [moxi_label_texts[i] drawInRect:moxi_label_frames[i]
                           withAttributes:attributes];
         moxi_end_clip(moxi_label_clip_enabled[i]);
-    }
 
-    for (int i = 0; i < moxi_button_count; i++) {
+        return;
+    }
+    if (kind == 2) {
         moxi_begin_clip(moxi_button_clip_enabled[i], moxi_button_clip_frames[i]);
         float fill[4] = {
             moxi_button_fill_colors[i][0],
@@ -2588,6 +2585,224 @@ double moxi_window_benchmark_custom_paint(int iterations) {
         [moxi_button_texts[i] drawInRect:moxi_button_frames[i]
                           withAttributes:buttonAttributes];
         moxi_end_clip(moxi_button_clip_enabled[i]);
+
+        return;
+    }
+    if (kind == 5) {
+        if ([self nativeTextEditorIsVisibleForIndex:i]) {
+            return;
+        }
+        moxi_begin_clip(
+            moxi_text_input_clip_enabled[i],
+            moxi_text_input_clip_frames[i]
+        );
+        NSRect frame = moxi_text_input_frames[i];
+        [moxi_color(moxi_text_input_fill_colors[i]) setFill];
+        [[NSBezierPath bezierPathWithRoundedRect:frame
+                                          xRadius:moxi_text_input_radii[i]
+                                          yRadius:moxi_text_input_radii[i]] fill];
+
+        NSMutableParagraphStyle *textParagraph = [[NSMutableParagraphStyle alloc] init];
+        textParagraph.lineBreakMode = moxi_text_input_wraps[i]
+            ? NSLineBreakByCharWrapping
+            : NSLineBreakByClipping;
+        NSDictionary *textAttributes = @{
+            NSFontAttributeName: [NSFont systemFontOfSize:moxi_text_input_font_sizes[i]],
+            NSForegroundColorAttributeName: moxi_color(moxi_text_input_text_colors[i]),
+            NSParagraphStyleAttributeName: textParagraph,
+        };
+        NSRect textFrame = NSInsetRect(frame, 10.0, 0.0);
+
+        NSString *text = moxi_text_input_texts[i];
+        NSUInteger selectionStart = moxi_utf16_index_for_codepoint(
+            text,
+            moxi_text_input_selection_starts[i]
+        );
+        NSUInteger selectionEnd = moxi_utf16_index_for_codepoint(
+            text,
+            moxi_text_input_selection_ends[i]
+        );
+        if (selectionEnd > selectionStart) {
+            NSString *prefix = [text substringToIndex:selectionStart];
+            NSString *selected = [text substringWithRange:NSMakeRange(
+                selectionStart,
+                selectionEnd - selectionStart
+            )];
+            CGFloat startX = textFrame.origin.x + [prefix sizeWithAttributes:textAttributes].width;
+            CGFloat selectionWidth = [selected sizeWithAttributes:textAttributes].width;
+            NSRect selectionFrame = NSMakeRect(
+                startX,
+                frame.origin.y + 5.0,
+                selectionWidth,
+                frame.size.height - 10.0
+            );
+            [[NSColor selectedTextBackgroundColor] setFill];
+            NSRectFill(selectionFrame);
+        }
+        [moxi_text_input_texts[i] drawInRect:textFrame withAttributes:textAttributes];
+
+        NSString *composition = moxi_text_input_compositions[i];
+        if (composition != nil && [composition length] > 0) {
+            NSUInteger cursor = moxi_utf16_index_for_codepoint(
+                text,
+                moxi_text_input_cursors[i]
+            );
+            NSString *prefix = [text substringToIndex:cursor];
+            CGFloat compositionX = textFrame.origin.x +
+                [prefix sizeWithAttributes:textAttributes].width;
+            NSUInteger compositionStart = moxi_utf16_index_for_codepoint(
+                composition,
+                moxi_text_input_composition_selection_starts[i]
+            );
+            NSUInteger compositionEnd = moxi_utf16_index_for_codepoint(
+                composition,
+                moxi_text_input_composition_selection_ends[i]
+            );
+            NSDictionary *compositionAttributes = @{
+                NSFontAttributeName: [NSFont systemFontOfSize:moxi_text_input_font_sizes[i]],
+                NSForegroundColorAttributeName: moxi_color(moxi_text_input_text_colors[i]),
+                NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle),
+                NSUnderlineColorAttributeName: [NSColor systemOrangeColor],
+            };
+            if (compositionEnd > compositionStart) {
+                NSString *selected = [composition substringWithRange:NSMakeRange(
+                    compositionStart,
+                    compositionEnd - compositionStart
+                )];
+                NSString *markedPrefix = [composition substringToIndex:compositionStart];
+                CGFloat selectedX = compositionX +
+                    [markedPrefix sizeWithAttributes:compositionAttributes].width;
+                CGFloat selectedWidth = [selected sizeWithAttributes:compositionAttributes].width;
+                NSRect selectedFrame = NSMakeRect(
+                    selectedX,
+                    frame.origin.y + 5.0,
+                    selectedWidth,
+                    frame.size.height - 10.0
+                );
+                [[NSColor selectedTextBackgroundColor] setFill];
+                NSRectFill(selectedFrame);
+            }
+            [composition drawAtPoint:NSMakePoint(compositionX, textFrame.origin.y)
+                       withAttributes:compositionAttributes];
+            if (moxi_text_input_focused[i] && selectionEnd == selectionStart) {
+                NSUInteger markedCursor = compositionEnd;
+                NSString *markedPrefix = [composition substringToIndex:markedCursor];
+                CGFloat caretX = compositionX +
+                    [markedPrefix sizeWithAttributes:compositionAttributes].width;
+                [[NSColor whiteColor] setStroke];
+                NSBezierPath *caret = [NSBezierPath bezierPath];
+                [caret moveToPoint:NSMakePoint(caretX, frame.origin.y + 8.0)];
+                [caret lineToPoint:NSMakePoint(caretX, NSMaxY(frame) - 8.0)];
+                [caret setLineWidth:1.5];
+                [caret stroke];
+            }
+        }
+
+        if (selectionEnd > selectionStart) {
+            NSString *prefix = [text substringToIndex:selectionStart];
+            NSString *selected = [text substringWithRange:NSMakeRange(
+                selectionStart,
+                selectionEnd - selectionStart
+            )];
+            CGFloat startX = textFrame.origin.x + [prefix sizeWithAttributes:textAttributes].width;
+            NSDictionary *selectedAttributes = @{
+                NSFontAttributeName: [NSFont systemFontOfSize:moxi_text_input_font_sizes[i]],
+                NSForegroundColorAttributeName: [NSColor selectedTextColor],
+            };
+            [selected drawAtPoint:NSMakePoint(startX, textFrame.origin.y)
+                    withAttributes:selectedAttributes];
+        }
+
+        if (moxi_text_input_focused[i] &&
+            selectionEnd == selectionStart &&
+            (composition == nil || [composition length] == 0)) {
+            [[NSColor keyboardFocusIndicatorColor] setStroke];
+            NSBezierPath *focusPath = [NSBezierPath bezierPathWithRoundedRect:
+                NSInsetRect(frame, 1.0, 1.0)
+                xRadius:moxi_text_input_radii[i]
+                yRadius:moxi_text_input_radii[i]];
+            [focusPath setLineWidth:2.0];
+            [focusPath stroke];
+
+            NSUInteger cursor = moxi_utf16_index_for_codepoint(
+                text,
+                moxi_text_input_cursors[i]
+            );
+            NSString *prefix = [text substringToIndex:cursor];
+            CGFloat advance = [prefix sizeWithAttributes:textAttributes].width;
+            CGFloat caretX = textFrame.origin.x + advance;
+            CGFloat caretTop = frame.origin.y + 8.0;
+            CGFloat caretBottom = NSMaxY(frame) - 8.0;
+            [[NSColor whiteColor] setStroke];
+            NSBezierPath *caret = [NSBezierPath bezierPath];
+            [caret moveToPoint:NSMakePoint(caretX, caretTop)];
+            [caret lineToPoint:NSMakePoint(caretX, caretBottom)];
+            [caret setLineWidth:1.5];
+            [caret stroke];
+        }
+        moxi_end_clip(moxi_text_input_clip_enabled[i]);
+
+        return;
+    }
+    if (kind == 22) { moxi_draw_native_widget(moxi_native_widget_slots[i]); }
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    (void)dirtyRect;
+    moxi_native_timing_draw_started();
+    [moxi_color(moxi_surface_fill) setFill];
+    NSRectFill(self.bounds);
+
+    if (moxi_ordered_paint_enabled) {
+        for (int entry = 0; entry < moxi_ordered_paint_count; entry++) {
+            int kind = moxi_ordered_paint_kinds[entry];
+            if (kind == 100) { moxi_draw_custom_commands(); }
+            else { [self drawOrderedSlot:moxi_ordered_paint_slots[entry] kind:kind]; }
+        }
+        moxi_native_timing_draw_completed();
+        return;
+    }
+
+    for (int i = 0; i < moxi_panel_count; i++) {
+        moxi_begin_clip(moxi_panel_clip_enabled[i], moxi_panel_clip_frames[i]);
+        [moxi_color(moxi_panel_fills[i]) setFill];
+        [[NSBezierPath bezierPathWithRoundedRect:moxi_panel_frames[i]
+                                          xRadius:moxi_panel_radii[i]
+                                          yRadius:moxi_panel_radii[i]] fill];
+        moxi_end_clip(moxi_panel_clip_enabled[i]);
+    }
+
+    for (int i = 0; i < moxi_image_count; i++) {
+        moxi_begin_clip(moxi_image_clip_enabled[i], moxi_image_clip_frames[i]);
+        NSRect frame = moxi_image_frames[i];
+        [moxi_color(moxi_image_fill_colors[i]) setFill];
+        [[NSBezierPath bezierPathWithRoundedRect:frame
+                                          xRadius:moxi_image_radii[i]
+                                          yRadius:moxi_image_radii[i]] fill];
+        NSImage *image = moxi_image_resources[i];
+        if (image != nil) {
+            [image drawInRect:frame
+                     fromRect:NSZeroRect
+                    operation:NSCompositingOperationSourceOver
+                     fraction:1.0
+               respectFlipped:YES
+                        hints:nil];
+        } else {
+            NSDictionary *imageAttributes = @{
+                NSFontAttributeName: [NSFont systemFontOfSize:14.0],
+                NSForegroundColorAttributeName: moxi_color(moxi_image_text_colors[i]),
+            };
+            [moxi_image_alt_texts[i] drawInRect:frame withAttributes:imageAttributes];
+        }
+        moxi_end_clip(moxi_image_clip_enabled[i]);
+    }
+
+    for (int i = 0; i < moxi_label_count; i++) {
+        [self drawOrderedSlot:i kind:1];
+    }
+
+    for (int i = 0; i < moxi_button_count; i++) {
+        [self drawOrderedSlot:i kind:2];
     }
 
     for (int i = 0; i < moxi_checkbox_count; i++) {
@@ -2901,158 +3116,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
     }
 
     for (int i = 0; i < moxi_text_input_count; i++) {
-        if ([self nativeTextEditorIsVisibleForIndex:i]) {
-            continue;
-        }
-        moxi_begin_clip(
-            moxi_text_input_clip_enabled[i],
-            moxi_text_input_clip_frames[i]
-        );
-        NSRect frame = moxi_text_input_frames[i];
-        [moxi_color(moxi_text_input_fill_colors[i]) setFill];
-        [[NSBezierPath bezierPathWithRoundedRect:frame
-                                          xRadius:moxi_text_input_radii[i]
-                                          yRadius:moxi_text_input_radii[i]] fill];
-
-        NSMutableParagraphStyle *textParagraph = [[NSMutableParagraphStyle alloc] init];
-        textParagraph.lineBreakMode = moxi_text_input_wraps[i]
-            ? NSLineBreakByCharWrapping
-            : NSLineBreakByClipping;
-        NSDictionary *textAttributes = @{
-            NSFontAttributeName: [NSFont systemFontOfSize:moxi_text_input_font_sizes[i]],
-            NSForegroundColorAttributeName: moxi_color(moxi_text_input_text_colors[i]),
-            NSParagraphStyleAttributeName: textParagraph,
-        };
-        NSRect textFrame = NSInsetRect(frame, 10.0, 0.0);
-
-        NSString *text = moxi_text_input_texts[i];
-        NSUInteger selectionStart = moxi_utf16_index_for_codepoint(
-            text,
-            moxi_text_input_selection_starts[i]
-        );
-        NSUInteger selectionEnd = moxi_utf16_index_for_codepoint(
-            text,
-            moxi_text_input_selection_ends[i]
-        );
-        if (selectionEnd > selectionStart) {
-            NSString *prefix = [text substringToIndex:selectionStart];
-            NSString *selected = [text substringWithRange:NSMakeRange(
-                selectionStart,
-                selectionEnd - selectionStart
-            )];
-            CGFloat startX = textFrame.origin.x + [prefix sizeWithAttributes:textAttributes].width;
-            CGFloat selectionWidth = [selected sizeWithAttributes:textAttributes].width;
-            NSRect selectionFrame = NSMakeRect(
-                startX,
-                frame.origin.y + 5.0,
-                selectionWidth,
-                frame.size.height - 10.0
-            );
-            [[NSColor selectedTextBackgroundColor] setFill];
-            NSRectFill(selectionFrame);
-        }
-        [moxi_text_input_texts[i] drawInRect:textFrame withAttributes:textAttributes];
-
-        NSString *composition = moxi_text_input_compositions[i];
-        if (composition != nil && [composition length] > 0) {
-            NSUInteger cursor = moxi_utf16_index_for_codepoint(
-                text,
-                moxi_text_input_cursors[i]
-            );
-            NSString *prefix = [text substringToIndex:cursor];
-            CGFloat compositionX = textFrame.origin.x +
-                [prefix sizeWithAttributes:textAttributes].width;
-            NSUInteger compositionStart = moxi_utf16_index_for_codepoint(
-                composition,
-                moxi_text_input_composition_selection_starts[i]
-            );
-            NSUInteger compositionEnd = moxi_utf16_index_for_codepoint(
-                composition,
-                moxi_text_input_composition_selection_ends[i]
-            );
-            NSDictionary *compositionAttributes = @{
-                NSFontAttributeName: [NSFont systemFontOfSize:moxi_text_input_font_sizes[i]],
-                NSForegroundColorAttributeName: moxi_color(moxi_text_input_text_colors[i]),
-                NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle),
-                NSUnderlineColorAttributeName: [NSColor systemOrangeColor],
-            };
-            if (compositionEnd > compositionStart) {
-                NSString *selected = [composition substringWithRange:NSMakeRange(
-                    compositionStart,
-                    compositionEnd - compositionStart
-                )];
-                NSString *markedPrefix = [composition substringToIndex:compositionStart];
-                CGFloat selectedX = compositionX +
-                    [markedPrefix sizeWithAttributes:compositionAttributes].width;
-                CGFloat selectedWidth = [selected sizeWithAttributes:compositionAttributes].width;
-                NSRect selectedFrame = NSMakeRect(
-                    selectedX,
-                    frame.origin.y + 5.0,
-                    selectedWidth,
-                    frame.size.height - 10.0
-                );
-                [[NSColor selectedTextBackgroundColor] setFill];
-                NSRectFill(selectedFrame);
-            }
-            [composition drawAtPoint:NSMakePoint(compositionX, textFrame.origin.y)
-                       withAttributes:compositionAttributes];
-            if (moxi_text_input_focused[i] && selectionEnd == selectionStart) {
-                NSUInteger markedCursor = compositionEnd;
-                NSString *markedPrefix = [composition substringToIndex:markedCursor];
-                CGFloat caretX = compositionX +
-                    [markedPrefix sizeWithAttributes:compositionAttributes].width;
-                [[NSColor whiteColor] setStroke];
-                NSBezierPath *caret = [NSBezierPath bezierPath];
-                [caret moveToPoint:NSMakePoint(caretX, frame.origin.y + 8.0)];
-                [caret lineToPoint:NSMakePoint(caretX, NSMaxY(frame) - 8.0)];
-                [caret setLineWidth:1.5];
-                [caret stroke];
-            }
-        }
-
-        if (selectionEnd > selectionStart) {
-            NSString *prefix = [text substringToIndex:selectionStart];
-            NSString *selected = [text substringWithRange:NSMakeRange(
-                selectionStart,
-                selectionEnd - selectionStart
-            )];
-            CGFloat startX = textFrame.origin.x + [prefix sizeWithAttributes:textAttributes].width;
-            NSDictionary *selectedAttributes = @{
-                NSFontAttributeName: [NSFont systemFontOfSize:moxi_text_input_font_sizes[i]],
-                NSForegroundColorAttributeName: [NSColor selectedTextColor],
-            };
-            [selected drawAtPoint:NSMakePoint(startX, textFrame.origin.y)
-                    withAttributes:selectedAttributes];
-        }
-
-        if (moxi_text_input_focused[i] &&
-            selectionEnd == selectionStart &&
-            (composition == nil || [composition length] == 0)) {
-            [[NSColor keyboardFocusIndicatorColor] setStroke];
-            NSBezierPath *focusPath = [NSBezierPath bezierPathWithRoundedRect:
-                NSInsetRect(frame, 1.0, 1.0)
-                xRadius:moxi_text_input_radii[i]
-                yRadius:moxi_text_input_radii[i]];
-            [focusPath setLineWidth:2.0];
-            [focusPath stroke];
-
-            NSUInteger cursor = moxi_utf16_index_for_codepoint(
-                text,
-                moxi_text_input_cursors[i]
-            );
-            NSString *prefix = [text substringToIndex:cursor];
-            CGFloat advance = [prefix sizeWithAttributes:textAttributes].width;
-            CGFloat caretX = textFrame.origin.x + advance;
-            CGFloat caretTop = frame.origin.y + 8.0;
-            CGFloat caretBottom = NSMaxY(frame) - 8.0;
-            [[NSColor whiteColor] setStroke];
-            NSBezierPath *caret = [NSBezierPath bezierPath];
-            [caret moveToPoint:NSMakePoint(caretX, caretTop)];
-            [caret lineToPoint:NSMakePoint(caretX, caretBottom)];
-            [caret setLineWidth:1.5];
-            [caret stroke];
-        }
-        moxi_end_clip(moxi_text_input_clip_enabled[i]);
+        [self drawOrderedSlot:i kind:5];
     }
 
     for (int i = 0; i < moxi_native_widget_count; i++) {
@@ -3515,6 +3579,23 @@ void moxi_window_begin_frame(void) {
     if (moxi_canvas != nil) {
         [moxi_canvas setNeedsDisplay:YES];
     }
+}
+
+void moxi_window_ordered_paint_begin(void) {
+    moxi_ordered_paint_enabled = YES;
+    moxi_ordered_paint_count = 0;
+}
+
+void moxi_window_ordered_paint(int kind, int slot) {
+    if (!moxi_ordered_paint_enabled ||
+        (kind != 1 && kind != 2 && kind != 3 && kind != 5 && kind != 22 && kind != 100) ||
+        slot < 0 || slot >= MOXI_MAX_DRAW_COMMANDS ||
+        moxi_ordered_paint_count >= MOXI_MAX_DRAW_COMMANDS + 1) {
+        moxi_command_overflow_count++;
+        return;
+    }
+    moxi_ordered_paint_kinds[moxi_ordered_paint_count] = kind;
+    moxi_ordered_paint_slots[moxi_ordered_paint_count++] = slot;
 }
 
 void moxi_window_set_custom_paint_cache_enabled(int enabled) {

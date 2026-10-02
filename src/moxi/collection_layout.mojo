@@ -387,10 +387,13 @@ struct CollectionViewport:
         plan.cells = sorted^
         return plan^
 
-    def commit(mut self, var plan: ViewportPlan) raises:
-        """Call only after global geometry publication succeeds; discard on failure."""
+    def validate(self, plan: ViewportPlan) raises:
         if plan._owner.ptr() != self._owner.ptr() or plan._generation != self._generation or plan._rows_revision != self.rows.revision or plan._columns_revision != self.columns.revision or plan._pin_revision != self._pin_revision:
             raise Error("Stale or foreign viewport realization plan")
+
+    def commit(mut self, var plan: ViewportPlan) raises:
+        """Call only after global geometry publication succeeds; discard on failure."""
+        self.validate(plan)
         for cell in plan.cells:
             if cell.mount >= self._next_mount:
                 self.created += 1
