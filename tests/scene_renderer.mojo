@@ -29,6 +29,8 @@ def main() raises:
     test_check(scene.count() == 3)
     test_check(scene.command(0).kind == SCENE_RECT)
     test_check(scene.command(1).kind == SCENE_TEXT)
+    test_check(scene.command(1).has_text_style)
+    test_check(scene.command(1).text_style.size == 24.0)
     test_check(scene.command(2).kind == SCENE_IMAGE)
     var recorder = SceneRecorder()
     recorder.render_scene(scene)

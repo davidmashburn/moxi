@@ -190,6 +190,12 @@ static int moxi_metal_text_cache_count;
 static size_t moxi_metal_text_cache_bytes;
 static int moxi_metal_text_texture_cache_hit_count;
 static int moxi_metal_text_texture_raster_count;
+static int moxi_metal_text_ink_sample_count;
+static int moxi_metal_text_ink_width_min;
+static int moxi_metal_text_ink_width_max;
+static int moxi_metal_text_ink_height_min;
+static int moxi_metal_text_ink_height_max;
+static BOOL moxi_metal_text_ink_metrics_enabled;
 static CFTimeInterval moxi_metal_line_geometry_start_time;
 static float moxi_metal_last_line_geometry_time_ms;
 static float moxi_metal_frame_encode_times[MOXI_METAL_FRAME_BUFFERS];
@@ -938,6 +944,7 @@ static int moxi_metal_draw_coretext_text(
     float y,
     float width,
     float height,
+    float font_size,
     float red,
     float green,
     float blue,
@@ -957,10 +964,7 @@ static int moxi_metal_draw_coretext_text(
         if (string == nil) return -1;
         if ([string length] == 0) return 0;
 
-        /* Scene text supplies a box height rather than a font size. Leave
-         * enough leading for CoreText's ascent/descent so a one-line label
-         * fits in the same box that the ASCII fast path accepts. */
-        CGFloat fontSize = height > 0.0f ? (CGFloat)height * 0.80 : 14.0;
+        CGFloat fontSize = font_size > 0.0f ? (CGFloat)font_size : 14.0;
         fontSize = MAX(1.0, MIN(fontSize, 256.0));
         CTFontRef font = CTFontCreateUIFontForLanguage(
             kCTFontUIFontSystem,
@@ -1029,10 +1033,11 @@ static int moxi_metal_draw_coretext_text(
         size_t byteCount = pixelWidth * pixelHeight * 4;
 
         NSString *cacheKey = [NSString stringWithFormat:
-            @"%@|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f",
+            @"%@|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f",
             string,
             logicalWidth,
             logicalHeight,
+            fontSize,
             red,
             green,
             blue,
@@ -1123,6 +1128,46 @@ static int moxi_metal_draw_coretext_text(
             return -1;
         }
         CTFrameDraw(frame, context);
+        if (moxi_metal_text_ink_metrics_enabled) {
+            int inkLeft = (int)pixelWidth;
+            int inkTop = (int)pixelHeight;
+            int inkRight = -1;
+            int inkBottom = -1;
+            for (size_t row = 0; row < pixelHeight; row++) {
+                for (size_t column = 0; column < pixelWidth; column++) {
+                    size_t offset = (row * pixelWidth + column) * 4 + 3;
+                    if (bytes[offset] == 0) continue;
+                    if ((int)column < inkLeft) inkLeft = (int)column;
+                    if ((int)column > inkRight) inkRight = (int)column;
+                    if ((int)row < inkTop) inkTop = (int)row;
+                    if ((int)row > inkBottom) inkBottom = (int)row;
+                }
+            }
+            if (inkRight >= inkLeft && inkBottom >= inkTop) {
+                int inkWidth = inkRight - inkLeft + 1;
+                int inkHeight = inkBottom - inkTop + 1;
+                if (moxi_metal_text_ink_sample_count == 0) {
+                    moxi_metal_text_ink_width_min = inkWidth;
+                    moxi_metal_text_ink_width_max = inkWidth;
+                    moxi_metal_text_ink_height_min = inkHeight;
+                    moxi_metal_text_ink_height_max = inkHeight;
+                } else {
+                    if (inkWidth < moxi_metal_text_ink_width_min) {
+                        moxi_metal_text_ink_width_min = inkWidth;
+                    }
+                    if (inkWidth > moxi_metal_text_ink_width_max) {
+                        moxi_metal_text_ink_width_max = inkWidth;
+                    }
+                    if (inkHeight < moxi_metal_text_ink_height_min) {
+                        moxi_metal_text_ink_height_min = inkHeight;
+                    }
+                    if (inkHeight > moxi_metal_text_ink_height_max) {
+                        moxi_metal_text_ink_height_max = inkHeight;
+                    }
+                }
+                moxi_metal_text_ink_sample_count += 1;
+            }
+        }
         CGContextRelease(context);
         CGColorSpaceRelease(colorSpace);
         CGPathRelease(path);
@@ -1200,6 +1245,7 @@ int moxi_metal_draw_text(
     float y,
     float width,
     float height,
+    float font_size,
     float red,
     float green,
     float blue,
@@ -1222,12 +1268,13 @@ int moxi_metal_draw_text(
     }
     if (!ascii) {
         return moxi_metal_draw_coretext_text(
-            text, x, y, width, height, red, green, blue, alpha,
+            text, x, y, width, height, font_size, red, green, blue, alpha,
             m11, m12, m21, m22, tx, ty
         );
     }
     if (height <= 0.0f) return 0;
-    float scale = height / 7.0f;
+    float resolved_font_size = font_size > 0.0f ? font_size : 14.0f;
+    float scale = resolved_font_size / 7.0f;
     float advance = scale * 6.0f;
     float line_height = scale * 8.0f;
     float current_x = x;
@@ -2547,6 +2594,12 @@ int moxi_metal_init(int width, int height) {
     moxi_metal_text_cache_bytes = 0;
     moxi_metal_text_texture_cache_hit_count = 0;
     moxi_metal_text_texture_raster_count = 0;
+    moxi_metal_text_ink_sample_count = 0;
+    moxi_metal_text_ink_width_min = 0;
+    moxi_metal_text_ink_width_max = 0;
+    moxi_metal_text_ink_height_min = 0;
+    moxi_metal_text_ink_height_max = 0;
+    moxi_metal_text_ink_metrics_enabled = NO;
     moxi_metal_initialized = YES;
     return 1;
 }
@@ -2661,6 +2714,11 @@ void moxi_metal_begin(float red, float green, float blue, float alpha) {
     moxi_metal_text_texture_draw_count = 0;
     moxi_metal_text_texture_cache_hit_count = 0;
     moxi_metal_text_texture_raster_count = 0;
+    moxi_metal_text_ink_sample_count = 0;
+    moxi_metal_text_ink_width_min = 0;
+    moxi_metal_text_ink_width_max = 0;
+    moxi_metal_text_ink_height_min = 0;
+    moxi_metal_text_ink_height_max = 0;
     moxi_metal_last_gpu_time_ms = 0.0f;
     moxi_metal_last_cpu_encode_time_ms = 0.0f;
     moxi_metal_last_cpu_wait_time_ms = 0.0f;
@@ -3081,6 +3139,21 @@ int moxi_metal_text_texture_cache_hit_count_value(void) {
 }
 int moxi_metal_text_texture_raster_count_value(void) {
     return moxi_metal_text_texture_raster_count;
+}
+int moxi_metal_text_ink_width_min_value(void) {
+    return moxi_metal_text_ink_width_min;
+}
+int moxi_metal_text_ink_width_max_value(void) {
+    return moxi_metal_text_ink_width_max;
+}
+int moxi_metal_text_ink_height_min_value(void) {
+    return moxi_metal_text_ink_height_min;
+}
+int moxi_metal_text_ink_height_max_value(void) {
+    return moxi_metal_text_ink_height_max;
+}
+void moxi_metal_enable_text_ink_metrics(int enabled) {
+    moxi_metal_text_ink_metrics_enabled = enabled != 0 ? YES : NO;
 }
 
 int64_t moxi_metal_checksum(void) {

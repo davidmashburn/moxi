@@ -7,6 +7,7 @@ from .backend import BackendCapabilities, BACKEND_HEADLESS, backend_capabilities
 from .geometry import Rect
 from .style import Color, Style, default_label_style
 from .scene import Scene
+from .scene_text import SceneTextStyle
 from .view_node import (
     BUTTON_KIND,
     CHECKBOX_KIND,
@@ -589,5 +590,15 @@ def scene_from_paint(commands: PaintCommands) -> Scene:
                     command.style.corner_radius,
                 )
         else:
-            scene.append_text(command.id, command.text, command.bounds, command.style.text)
+            var font_size = command.style.font_size
+            if font_size <= 0.0:
+                font_size = 14.0
+            var text_style = SceneTextStyle("system-ui", font_size)
+            scene.append_text_styled(
+                command.id,
+                command.text,
+                command.bounds,
+                command.style.text,
+                text_style,
+            )
     return scene^
