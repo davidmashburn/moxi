@@ -363,6 +363,15 @@ def intrinsic_alignment_and_depth() raises:
     e.set_node(2,RetainedStyle(LEAF,width_kind=MAX_CONTENT),True,"abcdef",10)
     s = e.layout(1,Size(100,100))
     close(s.bounds(2).width,60)
+    # Declared intrinsic dimensions also constrain contribution to grid tracks.
+    e.set_node(1,RetainedStyle(GRID))
+    e.tracks(1,[RetainedTrack(3,3),RetainedTrack(3,3)])
+    e.set_node(2,RetainedStyle(LEAF,width_kind=MIN_CONTENT),True,"abcdef",10)
+    e.set_node(3,RetainedStyle(LEAF),True,"other",10)
+    e.children(1,[2,3])
+    s = e.layout(1,Size(200,100))
+    close(s.bounds(3).x,10)
+    e.remove(3)
     # Fixed max bounds still receive space when their minimum is smaller.
     e.set_node(1,RetainedStyle(GRID))
     e.tracks(1,[RetainedTrack(1,1,30,60)])
