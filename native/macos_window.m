@@ -440,6 +440,7 @@ static float moxi_image_radii[MOXI_MAX_DRAW_COMMANDS];
 static BOOL moxi_image_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
 static NSRect moxi_image_clip_frames[MOXI_MAX_DRAW_COMMANDS];
 static int moxi_active_text_input_index;
+static int moxi_retained_text_editor_key = -1;
 static BOOL moxi_native_text_editor_seen;
 
 static float moxi_surface_fill[4];
@@ -553,6 +554,8 @@ static int moxi_accessibility_actions[MOXI_MAX_DRAW_COMMANDS];
 static NSAccessibilityElement *moxi_accessibility_elements[MOXI_MAX_DRAW_COMMANDS];
 static NSMutableArray *moxi_accessibility_owned_elements;
 static NSMutableArray *moxi_accessibility_root_children;
+// The opt-in retained presenter keeps AX identity for active semantic keys only.
+static NSDictionary<NSNumber *, MoxiAccessibilityElement *> *moxi_retained_accessibility_elements;
 static BOOL moxi_accessibility_focused_text_input;
 static BOOL moxi_accessibility_has_previous_snapshot;
 static int moxi_previous_accessibility_count;
@@ -738,6 +741,7 @@ static void moxi_accessibility_capture_previous(void) {
 static void moxi_accessibility_reset_storage(void) {
     moxi_accessibility_count = 0;
     moxi_accessibility_focused_text_input = NO;
+    if (!moxi_ordered_paint_enabled) moxi_retained_accessibility_elements = nil;
     moxi_accessibility_owned_elements = [[NSMutableArray alloc] initWithCapacity:MOXI_MAX_DRAW_COMMANDS];
     moxi_accessibility_root_children = [[NSMutableArray alloc] initWithCapacity:MOXI_MAX_DRAW_COMMANDS];
     for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
@@ -768,6 +772,9 @@ static void moxi_accessibility_build_elements(void) {
     }
     [moxi_accessibility_owned_elements removeAllObjects];
     [moxi_accessibility_root_children removeAllObjects];
+    NSMutableDictionary *nextRetained = moxi_ordered_paint_enabled
+        ? [[NSMutableDictionary alloc] initWithCapacity:moxi_accessibility_count] : nil;
+    BOOL structureChanged = moxi_retained_accessibility_elements.count != (NSUInteger)moxi_accessibility_count;
 
     for (int i = 0; i < moxi_accessibility_count; i++) {
         NSRect screenFrame = NSAccessibilityFrameInView(
@@ -777,28 +784,40 @@ static void moxi_accessibility_build_elements(void) {
         NSString *label = moxi_accessibility_labels[i] == nil
             ? @""
             : moxi_accessibility_labels[i];
-        MoxiAccessibilityElement *element = [[MoxiAccessibilityElement alloc] init];
-        element.moxiChildren = [[NSMutableArray alloc] init];
-        [element setAccessibilityElement:YES];
-        [element setAccessibilityFrame:screenFrame];
-        [element setAccessibilityRole:moxi_accessibility_role(moxi_accessibility_roles[i])];
-        [element setAccessibilityLabel:label];
-        [element setAccessibilityParent:nil];
-        element.moxiIdentifier = moxi_accessibility_ids[i];
+        NSNumber *key = @(moxi_accessibility_ids[i]);
+        MoxiAccessibilityElement *element = moxi_retained_accessibility_elements[key];
+        BOOL reused = element != nil && [element.accessibilityRole isEqualToString:
+            moxi_accessibility_role(moxi_accessibility_roles[i])];
+        if (!reused) {
+            element = [[MoxiAccessibilityElement alloc] init];
+            element.moxiChildren = [[NSMutableArray alloc] init];
+            element.accessibilityElement = YES;
+            element.accessibilityRole = moxi_accessibility_role(moxi_accessibility_roles[i]);
+            element.moxiIdentifier = moxi_accessibility_ids[i];
+            element.accessibilityIdentifier = [NSString stringWithFormat:@"moxi-%d", moxi_accessibility_ids[i]];
+            structureChanged = YES;
+        }
+        [element.moxiChildren removeAllObjects];
+        if (!reused || !NSEqualRects(element.accessibilityFrame, screenFrame))
+            element.accessibilityFrame = screenFrame;
+        if (!reused || ![element.accessibilityLabel isEqualToString:label])
+            element.accessibilityLabel = label;
+        if (!reused || element.accessibilityEnabled != moxi_accessibility_enabled[i])
+            element.accessibilityEnabled = moxi_accessibility_enabled[i];
+        if (!reused || element.accessibilityFocused != moxi_accessibility_focused[i])
+            element.accessibilityFocused = moxi_accessibility_focused[i];
+        if (!reused || element.accessibilitySelected != moxi_accessibility_selected[i])
+            element.accessibilitySelected = moxi_accessibility_selected[i];
+        NSString *value = moxi_accessibility_values[i] ?: @"";
+        if (moxi_accessibility_roles[i] != MOXI_ROLE_TEXT_INPUT &&
+            (!reused || ![element.accessibilityValue isEqual:value]))
+            element.accessibilityValue = value;
+        NSString *hint = moxi_accessibility_hints[i] ?: @"";
+        if (!reused || ![element.accessibilityHelp isEqualToString:hint])
+            element.accessibilityHelp = hint;
         moxi_accessibility_elements[i] = element;
         [moxi_accessibility_owned_elements addObject:element];
-        [element setAccessibilityIdentifier:[NSString stringWithFormat:@"moxi-%d", moxi_accessibility_ids[i]]];
-        [element setAccessibilityEnabled:moxi_accessibility_enabled[i]];
-        [element setAccessibilityFocused:moxi_accessibility_focused[i]];
-        [element setAccessibilitySelected:moxi_accessibility_selected[i]];
-        if (moxi_accessibility_values[i] != nil &&
-            moxi_accessibility_roles[i] != MOXI_ROLE_TEXT_INPUT) {
-            [element setAccessibilityValue:moxi_accessibility_values[i]];
-        }
-        if (moxi_accessibility_hints[i] != nil &&
-            [moxi_accessibility_hints[i] length] > 0) {
-            [element setAccessibilityHelp:moxi_accessibility_hints[i]];
-        }
+        if (nextRetained != nil) nextRetained[key] = element;
     }
 
     for (int i = 0; i < moxi_accessibility_count; i++) {
@@ -806,10 +825,12 @@ static void moxi_accessibility_build_elements(void) {
         int parentID = moxi_accessibility_parent_ids[i];
         NSAccessibilityElement *parent = moxi_accessibility_element_for_id(parentID);
         if (parent == nil) {
-            [element setAccessibilityParent:moxi_canvas];
+            if (element.accessibilityParent != moxi_canvas)
+                [element setAccessibilityParent:moxi_canvas];
             [moxi_accessibility_root_children addObject:element];
         } else {
-            [element setAccessibilityParent:parent];
+            if (element.accessibilityParent != parent)
+                [element setAccessibilityParent:parent];
             if ([parent isKindOfClass:[MoxiAccessibilityElement class]]) {
                 MoxiAccessibilityElement *parentElement =
                     (MoxiAccessibilityElement *)parent;
@@ -817,7 +838,10 @@ static void moxi_accessibility_build_elements(void) {
             }
         }
     }
+    moxi_retained_accessibility_elements = nextRetained;
     [moxi_canvas setNeedsDisplay:YES];
+    if (moxi_ordered_paint_enabled && structureChanged)
+        NSAccessibilityPostNotification(moxi_canvas, NSAccessibilityLayoutChangedNotification);
 
     if (moxi_accessibility_has_previous_snapshot) {
         for (int i = 0; i < moxi_accessibility_count; i++) {
@@ -4248,6 +4272,21 @@ void moxi_window_set_label_at(
         }
         [moxi_canvas setNeedsDisplay:YES];
     }
+}
+
+// Called by the retained adapter before submitting its focused editor slot.
+// Slot movement preserves composition; a different semantic key starts a new edit.
+void moxi_window_text_editor_key(int key) {
+    if (moxi_retained_text_editor_key == key) return;
+    if (moxi_canvas != nil) {
+        moxi_canvas.synchronizingNativeTextEditor = YES;
+        NSText *fieldEditor = [moxi_canvas.window fieldEditor:NO forObject:moxi_canvas.nativeTextEditor];
+        if ([fieldEditor respondsToSelector:@selector(unmarkText)])
+            [(NSTextView *)fieldEditor unmarkText];
+        moxi_canvas.nativeTextEditorValue = nil;
+        moxi_canvas.synchronizingNativeTextEditor = NO;
+    }
+    moxi_retained_text_editor_key = key;
 }
 
 // Install after set_label_at: the ordinary slot owns bounds, color and clipping.

@@ -45,6 +45,8 @@ struct RetainedPresentation:
             _ = snapshot.output(leaf.id)
             nodes[leaf.id] = leaf
         for output in snapshot._outputs[]:
+            if output.key > 2147483647:
+                raise Error("Retained native semantic key exceeds the signed 32-bit host ABI")
             if output.hidden or output.semantics.role == ROLE_CONTAINER:
                 continue
             var command = PaintCommand(output.semantics.label,output.rect)
@@ -78,6 +80,8 @@ struct RetainedPresentation:
     def draw_commands(self, mut renderer: MacOSRenderer, custom_layer: Int = -1) raises:
         external_call["moxi_window_ordered_paint_begin", NoneType]()
         for command in self.commands:
+            if command.kind == TEXT_INPUT_VIEW_KIND and command.focused:
+                external_call["moxi_window_text_editor_key", NoneType](Int32(command.id))
             if command.kind == CANVAS_KIND:
                 renderer.draw_panel(command)
             else:
