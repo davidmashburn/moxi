@@ -161,6 +161,30 @@ struct _Measurement[P: RetainedParagraph](ImplicitlyCopyable):
         self.payload = payload
 
 
+struct _SizeMemo(ImplicitlyCopyable):
+    var available_width: Float32
+    var available_height: Float32
+    var forced_width: Float32
+    var forced_height: Float32
+    var size: Size
+    def __init__(out self, aw: Float32, ah: Float32, fw: Float32, fh: Float32, size: Size):
+        self.available_width = aw
+        self.available_height = ah
+        self.forced_width = fw
+        self.forced_height = fh
+        self.size = size
+
+
+struct _BoxesMemo(Copyable):
+    var width: Float32
+    var height: Float32
+    var boxes: List[_ChildBox]
+    def __init__(out self, width: Float32, height: Float32, var boxes: List[_ChildBox]):
+        self.width = width
+        self.height = height
+        self.boxes = boxes^
+
+
 struct _Node[P: RetainedParagraph](Copyable):
     var key: Int
     var parent: Int
@@ -179,6 +203,11 @@ struct _Node[P: RetainedParagraph](Copyable):
     var clipped: Bool
     var clip: Rect
     var cache: List[_Measurement[Self.P]]
+    # Request-local memoization bounds repeated intrinsic/nested-grid work.
+    var sizes: List[_SizeMemo]
+    var boxes: List[_BoxesMemo]
+    var min_content: Float32
+    var max_content: Float32
     def __init__(out self, key: Int, mount: UInt64, style: RetainedStyle):
         self.key = key
         self.parent = 0
@@ -197,6 +226,10 @@ struct _Node[P: RetainedParagraph](Copyable):
         self.clipped = False
         self.clip = Rect(0,0,0,0)
         self.cache = List[_Measurement[Self.P]]()
+        self.sizes = List[_SizeMemo]()
+        self.boxes = List[_BoxesMemo]()
+        self.min_content = -1
+        self.max_content = -1
 
 
 struct GeometryOutput[P: RetainedParagraph](ImplicitlyCopyable):
@@ -493,6 +526,17 @@ struct RetainedEngine[P: RetainedParagraph]:
         return natural
 
     def _natural_width(mut self, index: Int, query: Int = 2) raises -> Float32:
+        var cached = self.nodes[index].min_content if query==1 else self.nodes[index].max_content
+        if cached>=0:
+            return cached
+        var width = self._compute_natural_width(index,query)
+        if query==1:
+            self.nodes[index].min_content = width
+        else:
+            self.nodes[index].max_content = width
+        return width
+
+    def _compute_natural_width(mut self, index: Int, query: Int) raises -> Float32:
         var s = self.nodes[index].style
         if s.kind==COLLAPSED:
             return 0
@@ -513,12 +557,12 @@ struct RetainedEngine[P: RetainedParagraph]:
                 if self.nodes[child].placed or self.nodes[child].style.kind==COLLAPSED:
                     continue
                 var next = self._natural_width(child,query)
-                if s.kind==ROW or (s.kind==WRAP and query==2):
+                if s.kind==ROW or s.kind==LEAF or (s.kind==WRAP and query==2):
                     width += next
                 else:
                     width = max(width,next)
                 count += 1
-            if s.kind==ROW or (s.kind==WRAP and query==2):
+            if s.kind==ROW or s.kind==LEAF or (s.kind==WRAP and query==2):
                 width += Float32(max(0,count-1))*s.gap
             width += 2*s.padding
         if s.width_kind==FIT_CONTENT:
@@ -539,6 +583,15 @@ struct RetainedEngine[P: RetainedParagraph]:
 
     def _size(mut self, index: Int, available_width: Float32, available_height: Float32,
               forced_width: Float32 = -1, forced_height: Float32 = -1) raises -> Size:
+        for memo in self.nodes[index].sizes:
+            if memo.available_width==available_width and memo.available_height==available_height and memo.forced_width==forced_width and memo.forced_height==forced_height:
+                return memo.size
+        var result = self._compute_size(index,available_width,available_height,forced_width,forced_height)
+        self.nodes[index].sizes.append(_SizeMemo(available_width,available_height,forced_width,forced_height,result))
+        return result
+
+    def _compute_size(mut self, index: Int, available_width: Float32, available_height: Float32,
+                      forced_width: Float32, forced_height: Float32) raises -> Size:
         var s = self.nodes[index].style
         if s.kind==COLLAPSED:
             return Size(0,0)
@@ -615,6 +668,14 @@ struct RetainedEngine[P: RetainedParagraph]:
                 break
 
     def _boxes(mut self, index: Int, width: Float32, height: Float32) raises -> List[_ChildBox]:
+        for memo in self.nodes[index].boxes:
+            if memo.width==width and memo.height==height:
+                return memo.boxes.copy()
+        var result = self._compute_boxes(index,width,height)
+        self.nodes[index].boxes.append(_BoxesMemo(width,height,result.copy()))
+        return result^
+
+    def _compute_boxes(mut self, index: Int, width: Float32, height: Float32) raises -> List[_ChildBox]:
         var s = self.nodes[index].style
         if s.kind==GRID:
             return self._grid_boxes(index,width,height)
@@ -625,7 +686,7 @@ struct RetainedEngine[P: RetainedParagraph]:
             if not self.nodes[child].placed and self.nodes[child].style.kind!=COLLAPSED:
                 children.append(child)
         var result = List[_ChildBox]()
-        if s.kind==LEAF or s.kind==COLLAPSED:
+        if s.kind==COLLAPSED:
             return result^
         if s.kind==STACK:
             for child in children:
@@ -949,14 +1010,32 @@ struct RetainedEngine[P: RetainedParagraph]:
             var w = self._track_sum(columns,cell.column,cell.columns,s.gap)
             var h = self._track_sum(rows,cell.row,cell.rows,s.gap)
             var cs = self.nodes[cell.index].style
-            var fw = w if cs.width_kind==CONTENT and s.align==0 else Float32(-1)
+            var fw = w if cs.width_kind==CONTENT else Float32(-1)
             var fh = h if cs.height_kind==CONTENT and s.align==0 else Float32(-1)
             var size = self._size(cell.index,w,h,fw,fh)
-            x += self._offset(s.align,w,size.width)
             y += self._offset(s.align,h,size.height)
             if s.rtl!=0:
                 x = width-x-size.width
             result.append(_ChildBox(cell.index,Rect(x,y,size.width,size.height)))
+        if s.align==4:
+            var baselines = Dict[Int,Float32]()
+            for j in range(len(cells)):
+                var cell = cells[j]
+                if cell.rows!=1:
+                    continue
+                var box = result[j]
+                var baseline = box.rect.height
+                if self.nodes[cell.index].paragraph:
+                    baseline = self._paragraph(cell.index,box.rect.width).metrics().first_baseline
+                baselines[cell.row] = max(baselines.get(cell.row,Float32(0)),baseline)
+            for j in range(len(cells)):
+                var cell = cells[j]
+                if cell.rows!=1:
+                    continue
+                var baseline = result[j].rect.height
+                if self.nodes[cell.index].paragraph:
+                    baseline = self._paragraph(cell.index,result[j].rect.width).metrics().first_baseline
+                result[j].rect.y += baselines[cell.row]-baseline
         return result^
 
     def _check_tree(self, index: Int, depth: Int, mut visited: Dict[Int,Bool]) raises:
@@ -975,7 +1054,7 @@ struct RetainedEngine[P: RetainedParagraph]:
         var current = Rect(0,0,0,0) if is_collapsed else rect
         _extent(current.width)
         _extent(current.height)
-        if not isfinite(current.x) or not isfinite(current.y):
+        if not isfinite(current.x) or not isfinite(current.y) or not isfinite(current.x+current.width) or not isfinite(current.y+current.height):
             raise Error("Retained geometry overflow")
         var is_hidden = hidden or self.nodes[index].hidden or is_collapsed
         var clip = current.intersection(inherited_clip)
@@ -1028,6 +1107,11 @@ struct RetainedEngine[P: RetainedParagraph]:
             raise Error("Root allocation violates retained bounds")
         var snapshot = self.published
         if self._last_root!=root or self._last_revision!=self.revision or self._last_size.width!=size.width or self._last_size.height!=size.height:
+            for i in range(len(self.nodes)):
+                self.nodes[i].sizes.clear()
+                self.nodes[i].boxes.clear()
+                self.nodes[i].min_content = -1
+                self.nodes[i].max_content = -1
             snapshot = EngineSnapshot[Self.P]()
             snapshot.generation = self.published.generation+1
             var rect = Rect(0,0,size.width,size.height)

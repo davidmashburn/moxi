@@ -68,6 +68,8 @@ moxi	Renderer	update_accessibility
 moxi	ResourceResolver	release_image
 moxi	ResourceResolver	resolve_font
 moxi	ResourceResolver	resolve_image
+moxi	RetainedParagraph	metrics
+moxi	RetainedParagraph	query
 moxi	SceneRenderer	begin_scene
 moxi	SceneRenderer	draw_scene_command
 moxi	SceneRenderer	end_scene

@@ -389,6 +389,50 @@ def intrinsic_alignment_and_depth() raises:
     assert_equal(deep.published.generation,UInt64(0))
 
 
+def nested_grid_memoization() raises:
+    var e = RetainedEngine[Text]()
+    for key in range(1,25):
+        e.set_node(key,RetainedStyle(GRID))
+        e.tracks(key,[RetainedTrack(3,3)])
+        if key>1:
+            e.children(key-1,[key])
+    e.set_node(25,RetainedStyle(LEAF),True,"nested",10)
+    e.children(24,[25])
+    var s = e.layout(1,Size(200,100))
+    close(s.bounds(25).width,60)
+    assert_true(e.measurements<10)
+    # A new request must discard intrinsic memo entries after text changes.
+    e.set_node(25,RetainedStyle(LEAF),True,"changed text",10)
+    s = e.layout(1,Size(200,100))
+    close(s.bounds(25).width,120)
+    # A nonparagraph leaf retains column behavior if it has owned children.
+    e.set_node(1,RetainedStyle(LEAF))
+    s = e.layout(1,Size(200,100))
+    assert_true(s.bounds(25).height>0)
+
+
+def grid_baseline_and_geometry_overflow() raises:
+    var e = RetainedEngine[Text]()
+    e.set_node(1,RetainedStyle(GRID,align=4))
+    e.tracks(1,[RetainedTrack.fraction(1),RetainedTrack.fraction(1)])
+    e.set_node(2,RetainedStyle(LEAF),True,"small",10)
+    e.set_node(3,RetainedStyle(LEAF),True,"BIG",20)
+    e.children(1,[2,3])
+    var s = e.layout(1,Size(100,100))
+    close(s.bounds(2).width,50)
+    close(s.bounds(3).width,50)
+    close(s.bounds(2).y+s.outputs[][1].payload.metrics().first_baseline,
+          s.bounds(3).y+s.outputs[][2].payload.metrics().first_baseline)
+    e.place([RetainedPlacement(2,Rect(3e38,0,3e38,20))])
+    var caught = False
+    try:
+        _ = e.stage(1,Size(100,100))
+    except:
+        caught = True
+    assert_true(caught)
+    assert_equal(e.published.generation,s.generation)
+
+
 def churn() raises:
     var e = RetainedEngine[Text]()
     e.set_node(1,RetainedStyle())
@@ -413,5 +457,7 @@ def main() raises:
     visibility_clipping_stack()
     plans_and_validation()
     intrinsic_alignment_and_depth()
+    nested_grid_memoization()
+    grid_baseline_and_geometry_overflow()
     churn()
     print("Mojo retained engine contracts passed")
