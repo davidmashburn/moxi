@@ -311,6 +311,16 @@ static float moxi_paragraph_intrinsic_width(const char *utf8, float fontSize, in
     return result;
 }
 
+// CoreText is a paragraph provider; all retained layout ownership is in Mojo.
+uintptr_t moxi_paragraph_query(const char *text, float fontSize, float width,
+                             int direction, int query) {
+    if (text == NULL || query < 0 || query > 2) return 0;
+    @autoreleasepool {
+        if (query != 0) width = moxi_paragraph_intrinsic_width(text, fontSize, query);
+        return moxi_paragraph_create(text, fontSize, width, direction);
+    }
+}
+
 typedef struct {
     float width, height, firstBaseline, lastBaseline;
 } MoxiLayoutMetrics;

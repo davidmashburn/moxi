@@ -4,7 +4,6 @@ repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_dir"
 mkdir -p dist
 links=(
-  -Xlinker native/retained_layout/target/release/libmoxi_retained_layout.a
   -Xlinker native/macos_text.o -Xlinker native/macos_window.o
   -Xlinker experiments/layout-kiwi/build/liblayout_kiwi.a -Xlinker -lc++
   -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker CoreText
