@@ -68,8 +68,8 @@ jobs:
           cache: true
       - name: Install locked environment
         run: pixi install --locked
-      - name: Build and consume the package
-        run: pixi run package-consumer
+      - name: Build and consume Mojo packages and native layout services
+        run: pixi run layout-package-consumer
 
   retained-layout-linux:
     runs-on: ubuntu-24.04

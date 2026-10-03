@@ -1,0 +1,58 @@
+package:
+  name: moxi_layout_native
+  version: 0.6.0
+
+# Only native services and the Kiwi bridge are packaged here. Flow/grid remains Mojo.
+source:
+  - path: ../../native/macos_text.m
+    target_directory: native
+  - path: ../../native/macos_window.m
+    target_directory: native
+  - path: ../../native/macos_paragraph.h
+    target_directory: native
+  - path: ../../experiments/layout-kiwi/src/bridge.cpp
+    target_directory: kiwi_bridge
+  - path: ../../experiments/layout-kiwi/include/layout_kiwi.h
+    target_directory: kiwi_bridge
+  - path: ../../LICENSE
+  - url: https://codeload.github.com/nucleic/kiwi/tar.gz/5e76d91fd77dc443cb0db36e7398fc13844a0524
+    sha256: ea4bd6b08b15f8252921e0be0267ffac39d87739baace0d941c809bc7e14fe14
+    target_directory: kiwi
+
+build:
+  number: 0
+  skip: target_platform != "osx-arm64"
+  script: |
+    set -euo pipefail
+    # Build with the host Xcode tools and SDK, like the native candidate checks.
+    # The archive has no checkout paths or separately loaded native libraries.
+    xcrun clang -arch arm64 -mmacosx-version-min=14.0 -O3 -Wall -Wextra -Werror \
+      -fobjc-arc -fmodules -c native/macos_text.m -o macos_text.o
+    xcrun clang -arch arm64 -mmacosx-version-min=14.0 -O3 -Wall -Wextra -Werror \
+      -fobjc-arc -fmodules -c native/macos_window.m -o macos_window.o
+    xcrun clang++ -arch arm64 -mmacosx-version-min=14.0 -std=c++17 -O3 -DNDEBUG \
+      -Wall -Wextra -Wpedantic -Werror -Ikiwi_bridge -Ikiwi \
+      -c kiwi_bridge/bridge.cpp -o kiwi_bridge.o
+    mkdir -p "$PREFIX/lib" "$PREFIX/share/licenses/moxi_layout_native"
+    xcrun libtool -static -o "$PREFIX/lib/libmoxi_layout_native.a" \
+      macos_text.o macos_window.o kiwi_bridge.o
+    cp LICENSE "$PREFIX/share/licenses/moxi_layout_native/MOXI-LICENSE"
+    cp kiwi/LICENSE "$PREFIX/share/licenses/moxi_layout_native/KIWI-LICENSE"
+
+requirements:
+  run:
+    - __osx >=14
+
+tests:
+  - package_contents:
+      files:
+        - lib/libmoxi_layout_native.a
+        - share/licenses/moxi_layout_native/MOXI-LICENSE
+        - share/licenses/moxi_layout_native/KIWI-LICENSE
+
+about:
+  license: MIT AND BSD-3-Clause
+  license_file:
+    - LICENSE
+    - kiwi/LICENSE
+  summary: Optional Kiwi and macOS services for the Mojo-owned Moxi layout candidate
