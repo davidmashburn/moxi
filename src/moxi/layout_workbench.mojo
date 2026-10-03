@@ -135,7 +135,9 @@ struct LayoutWorkbench:
         var editor = TextInputControl(13,self.editor.text,self.editor.cursor,self.editor.anchor,36*self.text_scale)
         editor.style.font_size = 17*self.text_scale
         editor.set_composition(self.editor.composition,self.editor.composition_selection_start,self.editor.composition_selection_end)
-        self._leaf(editor.node(),RetainedStyle(LEAF))
+        var editor_node = editor.node()
+        editor_node.set_accessibility_label("Dataset")
+        self._leaf(editor_node,RetainedStyle(LEAF))
         var description = ViewNode(LABEL_KIND,14,"Resize the pane or window. Scroll results; double-click is not required: select a cell to keep its editor alive.",80)
         description.style.font_size = 17*self.text_scale
         self._leaf(description,RetainedStyle(LEAF))
@@ -216,6 +218,7 @@ struct LayoutWorkbench:
                 var editor = TextInputControl(key,self.cell_editor.text,self.cell_editor.cursor,self.cell_editor.anchor,32)
                 editor.set_composition(self.cell_editor.composition,self.cell_editor.composition_selection_start,self.cell_editor.composition_selection_end)
                 node = editor.node()
+                node.set_accessibility_label(String("Value, region ",cell.row_key,", column ",cell.column_key))
             self._leaf(node,RetainedStyle(LEAF))
             var local = cell.rect
             local.x -= viewport.x

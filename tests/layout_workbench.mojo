@@ -14,6 +14,8 @@ def main() raises:
     var second = wide.snapshot.output(1012)
     assert_equal(wide.hit_test(Point(second.rect.x+4,second.rect.y+4)),1012)
     var ax = wide.snapshot.accessibility()
+    assert_equal(ax.node_for_id(13).label,String("Dataset"))
+    assert_equal(ax.node_for_id(13).value,screen.editor.text)
     var found = False
     for node in ax.nodes:
         if node.id==1012:
@@ -43,11 +45,16 @@ def main() raises:
     assert_equal(screen.editor.anchor,2)
     assert_equal(screen.cell_editor.composition,String("かな"))
     var cell = 1000+100*10+2
+    var narrow_ax = narrow.snapshot.accessibility()
+    assert_equal(narrow_ax.node_for_id(13).label,String("Dataset"))
+    assert_equal(narrow_ax.node_for_id(cell).label,String("Value, region 100, column 2"))
+    assert_equal(narrow_ax.node_for_id(cell).value,screen.cell_editor.text)
     var mount = narrow.snapshot.output(cell).mount
     screen.offset_y = 50000
     var scrolled = screen.frame(Size(540,900))
     assert_equal(scrolled.snapshot.output(cell).mount,mount)
     assert_equal(scrolled.snapshot.output(cell).clip.height,Float32(0))
+    assert_equal(scrolled.snapshot.output(cell).semantics.label,String("Value, region 100, column 2"))
     screen.open_popup()
     var popup = screen.frame(Size(540,900))
     var popup_button = popup.snapshot.bounds(92)
