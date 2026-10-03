@@ -12,7 +12,7 @@ fail() {
 [[ "$(uname -s)" == Linux ]] || fail "run this script inside a Linux VM"
 [[ "$(uname -m)" == x86_64 ]] || fail "the locked guest lane requires x86_64 (linux-64)"
 
-for tool in cc node pixi systemd-detect-virt; do
+for tool in cc g++ ar git tar node pixi systemd-detect-virt; do
   command -v "$tool" >/dev/null 2>&1 || fail "missing prerequisite: $tool"
 done
 if container_kind="$(systemd-detect-virt --container 2>/dev/null)"; then
@@ -53,6 +53,7 @@ awk '/^model name[[:space:]]*:/ { print; exit }' /proc/cpuinfo
 sed -n '/^MemTotal:/p' /proc/meminfo
 echo "CPU: x86-64-v3 flags verified"
 cc --version | sed -n '1p'
+g++ --version | sed -n '1p'
 node --version
 pixi --version
 sha256sum pixi.toml pixi.lock
@@ -66,6 +67,8 @@ pixi run --locked headless-check
 echo "==> Mojo retained engine and box publication contracts"
 pixi run --locked retained-engine-test
 pixi run --locked box-layout-test
+echo "==> Kiwi C++ bridge and Mojo constraint publication contracts"
+CXX=g++ pixi run --locked constraint-layout-check
 
 for test_file in \
   tests/collection_layout.mojo \

@@ -9,7 +9,7 @@ browser interaction and physical input checks.
 
 | Guest | Checks | Current boundary |
 | --- | --- | --- |
-| Ubuntu 24.04 x86-64, first | Exact `pixi.lock`; Mojo retained engine, box/collection/overlay policies, portable plotting and precompilation; rebased request/runtime/plot regressions; Node host contracts | Linux native window, text and accessibility backends are unavailable. Node harnesses do not exercise a browser. |
+| Ubuntu 24.04 x86-64, first | Exact `pixi.lock`; Mojo retained engine, box/collection/overlay policies, Kiwi constraints, portable plotting and precompilation; rebased request/runtime/plot regressions; Node host contracts | Linux native window, text and accessibility backends are unavailable. Node harnesses do not exercise a browser. |
 | Ubuntu desktop, next | Actual guest browser rendering, pointer/key/resize, then a fixture for scroll, composition and ARIA | The current browser demo is a JavaScript host demo, not a compiled Mojo layout app. The pinned compiler has no supported WASM package target. |
 | macOS ARM64, next | Clean native-services build, installed consumer and layout workbench in a GUI session | AppKit/CoreText checks apply to macOS. VoiceOver speech, real Japanese composition and physical horizontal input require separate observations. |
 | Windows 11 ARM64, later | Actual Edge/browser host and Python wheel consumption | Mojo has no native Windows support; WSL results must be reported as Linux. Moxi's Windows native backend is unavailable. Guest image/license and GUI provisioning are not established yet. |
@@ -119,8 +119,22 @@ passed and reported Mojo `1.1.0.dev2026082605 (dd957314)`, but the first headles
 check failed before execution with `unknown target CPU 'athlon-xp'`. This is a
 guest CPU/compiler compatibility failure, not a passing Moxi check. The guest
 was stopped, changed to `Haswell-v4` and restarted for a fresh-snapshot rerun.
-No guest product pass is claimed yet.
+The default-target compiler smoke and portable plot execution passed with this
+CPU setting. The broader rerun started at 2026-10-03 21:27:29 UTC against
+`e3e0a72`; its archive SHA-256 is
+`711bdb1be0bcab18b482a08dc7ea46eae5ad6e3bfcfd70423df279e60e91fed7`.
+The remaining guest checks are still running.
+
+The Kiwi build and constraint check now select `.dylib`/libc++ on macOS and
+`.so`/libstdc++ on Linux. The guest runner uses g++ for the C++ bridge, preserves
+assertions in its C ABI tests, and runs the existing Mojo constraint publication
+and rollback tests. This does not add a Linux window/text backend.
+The changed build/link path passed `constraint-layout-check` on the macOS host,
+including the C++ bridge and 1,000 Mojo staged rebuilds. Linux execution is
+pending a separate committed-source guest run.
 
 Local logs are `/tmp/moxi-rebase-check.log`, `/tmp/moxi-vm-linux-start.log`,
-`/tmp/moxi-vm-linux-bootstrap.log` and `/tmp/moxi-vm-linux-check-18f5a27.log`.
+`/tmp/moxi-vm-linux-bootstrap.log`, `/tmp/moxi-vm-linux-check-18f5a27.log`,
+`/tmp/moxi-vm-linux-cpu-smoke.log`, `/tmp/moxi-vm-linux-check-e3e0a72.log` and
+`/tmp/moxi-vm-kiwi-darwin-check.log`.
 Guest browser interaction, macOS VM and Windows VM checks have not started.
