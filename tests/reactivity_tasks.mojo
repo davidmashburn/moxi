@@ -12,7 +12,9 @@ from moxi import (
     StringMemo,
     TASK_CANCELLED,
     TASK_COMPLETED,
+    TASK_FAILED,
     TASK_RESULT_KIND,
+    TASK_TIMED_OUT,
     RequestScheduler,
     TaskScheduler,
     test_check,
@@ -23,12 +25,18 @@ from moxi.geometry import Rect
 
 struct TaskState(Component):
     var completed: Int
+    var failed: Int
+    var timed_out: Int
+    var cancelled: Int
     var request_completed: Int
     var request_key: Int
     var request_generation: Int
 
     def __init__(out self):
         self.completed = 0
+        self.failed = 0
+        self.timed_out = 0
+        self.cancelled = 0
         self.request_completed = 0
         self.request_key = -1
         self.request_generation = -1
@@ -41,12 +49,22 @@ struct TaskState(Component):
 
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         if event.kind == TASK_RESULT_KIND and event.task_status == TASK_COMPLETED:
-            if event.request_key >= 0:
-                self.request_completed += 1
-                self.request_key = event.request_key
-                self.request_generation = event.request_generation
-            else:
+            if event.request_key < 0:
                 self.completed += 1
+                return True
+        if event.kind == TASK_RESULT_KIND and event.request_key >= 0:
+            if event.task_status == TASK_COMPLETED:
+                self.request_completed += 1
+            elif event.task_status == TASK_FAILED:
+                self.failed += 1
+            elif event.task_status == TASK_TIMED_OUT:
+                self.timed_out += 1
+            elif event.task_status == TASK_CANCELLED:
+                self.cancelled += 1
+            else:
+                return False
+            self.request_key = event.request_key
+            self.request_generation = event.request_generation
             return True
         return False
 
@@ -228,6 +246,17 @@ def main():
     test_check(app.component.request_completed == 2)
     test_check(app.component.request_key == 8)
     test_check(app.component.request_generation == external_handle.generation)
+
+    var failed_handle = app.schedule_request(10, "failed", 10.0)
+    test_check(app.complete_request(failed_handle, TASK_FAILED, "failure"))
+    var timeout_handle = app.schedule_request(11, "timeout", 10.0)
+    test_check(app.complete_request(timeout_handle, TASK_TIMED_OUT, "deadline"))
+    var cancelled_handle = app.schedule_request(12, "cancelled", 10.0)
+    test_check(app.cancel_request(cancelled_handle))
+    test_check(app.tick(0.0))
+    test_check(app.component.failed == 1)
+    test_check(app.component.timed_out == 1)
+    test_check(app.component.cancelled == 1)
 
     var app_scope = app.create_request_scope()
     var detached_handle = app.schedule_scoped_request(

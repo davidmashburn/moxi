@@ -7,6 +7,7 @@ comptime TASK_PENDING = 0
 comptime TASK_COMPLETED = 1
 comptime TASK_CANCELLED = 2
 comptime TASK_FAILED = 3
+comptime TASK_TIMED_OUT = 4
 comptime REQUEST_GLOBAL_SCOPE = 0
 
 

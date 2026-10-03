@@ -416,6 +416,7 @@ from .tasks import (
     TASK_COMPLETED,
     TASK_FAILED,
     TASK_PENDING,
+    TASK_TIMED_OUT,
     TaskHandle,
     TaskRecord,
     TaskResult,

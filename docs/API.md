@@ -66,7 +66,9 @@ contract; `App.complete_request()` injects an adapter-owned completion into
 the same queue. `App.create_request_scope()` and
 `schedule_scoped_request()` group requests under an explicit mounted-surface
 lifetime; `cancel_request_scope()` closes that scope, invalidates its queued
-work, and prevents detached completions from reaching the component.
+work, and prevents detached completions from reaching the component. Adapter
+completion statuses include success, failure, cancellation, and timeout; the
+core does not decide when a real transport has exceeded its deadline.
 
 Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and

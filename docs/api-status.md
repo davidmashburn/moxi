@@ -394,6 +394,7 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `TASK_COMPLETED` | `moxi.tasks` | provisional | stateful UI support primitives |
 | `TASK_FAILED` | `moxi.tasks` | provisional | stateful UI support primitives |
 | `TASK_PENDING` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `TASK_TIMED_OUT` | `moxi.tasks` | provisional | stateful UI support primitives |
 | `TaskHandle` | `moxi.tasks` | provisional | stateful UI support primitives |
 | `TaskRecord` | `moxi.tasks` | provisional | stateful UI support primitives |
 | `TaskResult` | `moxi.tasks` | provisional | stateful UI support primitives |
