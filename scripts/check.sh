@@ -11,6 +11,7 @@ bash -n scripts/api_status_check.sh
 bash -n scripts/api_ergonomics.sh
 bash -n scripts/visual_check.sh
 bash -n scripts/browser_check.sh
+bash -n scripts/web_package_check.sh
 bash -n scripts/benchmark.sh
 bash -n scripts/canvas_benchmark.sh
 bash -n scripts/scenario_check.sh

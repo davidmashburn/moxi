@@ -5,6 +5,7 @@
 | Moxi core package | installable | `pixi run package-consumer`, `pixi publish` | Mojo package for the `moxi` core; release versions stay aligned with sibling packages |
 | Moxi Plot package | installable provisional | `pixi run package-consumer`, `pixi publish --path packages/moxi_plot/pixi.toml` | Separate package depending on the published `moxi` and Canvas packages; plotting remains provisional |
 | Moxi Demo package | source-only | `pixi run demo`, `pixi run demo-browser` | Showcase sources are not part of the installable compatibility surface |
+| Mojo WebAssembly package | blocked by pinned compiler target set | `pixi run web-package-check`, `pixi run web-package-required` | The host lifecycle/ARIA harness is real; do not label it a Mojo Web runtime until a Mojo WASM target and package ABI are available |
 | Mojo scene IR | stable | `pixi run test`, typed scene contract | backend-neutral contract; version changes require migration notes |
 | Canvas raster/export | stable subset | `pixi run canvas-scene`, `pixi run canvas-benchmark` | typed paths and isolated layers are supported; text/images and legacy string paths report fallbacks |
 | Software renderer | stable oracle | `pixi run test`, visual corpus | deterministic bounds/path oracle; it does not invent glyph or image pixels |

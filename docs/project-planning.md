@@ -55,7 +55,7 @@ The remaining follow-ups are:
 | Define the real async adapter contract (initial completion-status seam implemented). | Keep transport, executors, cancellation, and deadlines in host adapters; keep `RequestScheduler` deterministic and injectable. | `App` now carries success, failure, timeout, and cancellation statuses through the normal event path; the remaining gate is a host-backed/network-like adapter test with deadline and cancel acknowledgements, without hidden threads in the core. |
 | Keep view construction pure and effects explicit. | `build()`/`localized_view()` must not perform I/O or mutate external state; evaluate a narrow effect/request context only if concrete examples need it, rather than adding a broad `CompCtx` or HOC layer. | A documented effect policy plus a representative example and trace show request commands originating from event/state transitions, not view construction. |
 | Measure Mojo API ergonomics before growing abstractions. | Track compile time, diagnostic size, and public generic surface for `Component`, `ComponentSlot`, and request examples; prefer explicit actions/lenses over implicit two-way bindings. | `pixi run api-ergonomics-quick` / `-full` record compile fixtures, a consumer diagnostic, and the public surface before new generic or binding machinery is added. |
-| Ship a real browser package path. | Treat the current host demo/ARIA bridge as an adapter, not proof of a Mojo Web runtime; keep WASM packaging and browser lifecycle tests as a separate gate. | A packaged Mojo/WASM example starts through the documented server, exercises request cancellation and teardown in a real browser, and reports unsupported capabilities honestly. |
+| Ship a real browser package path. | Treat the current host demo/ARIA bridge as an adapter, not proof of a Mojo Web runtime; keep WASM packaging and browser lifecycle tests as a separate gate. | `pixi run web-package-check` verifies the host lifecycle and records the compiler capability; `web-package-required` stays a release blocker until a Mojo WASM target and package ABI exist. |
 
 These items are intentionally staged after the bounded request contract. Do not
 introduce a generic HOC system, implicit two-way binding, or hidden executor in
@@ -609,9 +609,10 @@ The Web slice has a known-good server path (`python3 -m http.server 8765`), a
 stable route (`native/web/host_demo.html`), explicit `MoxiWebHost.stop()`
 teardown, Node contract tests, and a real browser smoke path. The browser demo
 exercises pointer/focus/resize/frame callbacks and exposes a labeled Canvas;
-the host bridge also exposes DOM accessibility mapping. Live plotting updates
-and a packaged WebAssembly target remain later gates. Do not claim the Mojo
-Web package from the host demo alone.
+the host bridge also exposes DOM accessibility mapping. The
+`web_package_check.sh` probe records whether the pinned Mojo compiler exposes a
+WASM target and fails closed for a required package build. Until that target
+and package ABI exist, do not claim the Mojo Web package from the host demo.
 
 ## Documentation and release gates
 
