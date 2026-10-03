@@ -22,6 +22,7 @@ constraint solver remains Kiwi commit `5e76d91fd77dc443cb0db36e7398fc13844a0524`
 | Existing installed package | `pixi run package-consumer` passed with moxi/moxi_plot 0.6.0 installed from a temporary local channel; this checks the existing package, not distribution of candidate native sidecars |
 | Installed native services | `pixi run layout-package-consumer` passed: a fresh environment installed Moxi and the optional `moxi_layout_native` archive from a temporary local channel, then compiled and ran the independent layout consumer with only installed Mojo modules and the installed native archive |
 | Hosted Mojo migration | [All five CI jobs](https://github.com/davidmashburn/moxi/actions/runs/37064134839) passed for `670175e`, completing at 2026-10-02 21:15:10 UTC; this includes Linux Mojo contracts and macOS candidate/precompiled-consumer checks |
+| Hosted installed-package gate | [All five CI jobs](https://github.com/davidmashburn/moxi/actions/runs/37080596570) passed for `950205d`, completing at 2026-10-03 00:21:05 UTC; the package-consumer log confirms both the existing Mojo consumer and the installed native layout consumer passed |
 | Reference-host performance | All four workloads with the predeclared 16.67 ms warm-frame p95 budget passed; raw samples and growth/churn observations are recorded below |
 
 The rebuilt Mojo demo passed wide/narrow resizing, toolbar wrapping, RTL and
@@ -73,9 +74,6 @@ document is the recorded run, not an automatically updated claim.
 
 ## Remaining verification
 
-- The new installed-native-package CI gate is configured and passed locally;
-  its hosted result remains pending. The successful hosted migration run above
-  predates this packaging addition. Linux execution was not verified locally.
 - Android/iOS host checks were skipped because the required SDK/NDK and simulator
   SDK were unavailable. No mobile layout release is certified by these checks.
 - Live VoiceOver remains inconclusive. On retry, its switch enabled and the
@@ -89,6 +87,9 @@ document is the recorded run, not an automatically updated claim.
   removed, U.S. restored as the sole source, the input menu turned off, and the
   automatically added Japanese dictation language removed. The native marked-text
   probe does not replace composition with the real Japanese input method.
+  A later attempt to use the source menu was blocked by native UI-tool timeouts
+  for the input-menu agent and menu-bar controller; no settings changed on that
+  attempt.
 - Horizontal scrolling through the live UI tools produced no observable movement
   in either direction. Portable two-axis collection offsets are covered by tests;
   native horizontal wheel delivery/direction still needs a direct manual check.
@@ -97,8 +98,13 @@ document is the recorded run, not an automatically updated claim.
   the host Apple compiler/SDK, is not a hermetic build, and has not been uploaded
   to a public channel. No Intel or non-macOS native-services package is certified.
 
+Linux contracts are verified by hosted CI, rather than local execution. The
+[direct manual steps](layout-workbench.md#manual-release-checks) identify the
+remaining macOS interaction checks.
+
 Confidence is high in the observed local candidate contracts, installed package
-consumer and reference-host timings. Passing the new packaging CI gate and the live accessibility/input checks would change
+consumer, hosted CI and reference-host timings. Passing the live
+accessibility/input checks would change
 the promotion assessment. Until then, this remains an optional candidate rather
 than a certified replacement for the legacy layout path. The
 [design acceptance requirements](design/layout-system.md#delivery-and-acceptance)
