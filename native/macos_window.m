@@ -850,6 +850,12 @@ static void moxi_accessibility_build_elements(void) {
             );
             if (previous < 0 ||
                 moxi_previous_accessibility_roles[previous] != moxi_accessibility_roles[i]) {
+                if (moxi_accessibility_focused[i]) {
+                    NSAccessibilityPostNotification(
+                        moxi_accessibility_elements[i],
+                        NSAccessibilityFocusedUIElementChangedNotification
+                    );
+                }
                 continue;
             }
             NSString *previousValue = moxi_previous_accessibility_values[previous] == nil

@@ -1,4 +1,12 @@
+#import <Cocoa/Cocoa.h>
+static NSMutableArray *focusNotifications;
+static void recordAccessibilityNotification(id element, NSAccessibilityNotificationName notification) {
+    if ([notification isEqualToString:NSAccessibilityFocusedUIElementChangedNotification])
+        [focusNotifications addObject:element];
+}
+#define NSAccessibilityPostNotification recordAccessibilityNotification
 #import "../native/macos_window.m"
+#undef NSAccessibilityPostNotification
 #include <assert.h>
 
 static NSBitmapImageRep *render(MoxiCanvasView *canvas) {
@@ -16,6 +24,7 @@ static NSBitmapImageRep *render(MoxiCanvasView *canvas) {
 int main(void) {
     @autoreleasepool {
         [NSApplication sharedApplication];
+        focusNotifications = [[NSMutableArray alloc] init];
         MoxiCanvasView *canvas = [[MoxiCanvasView alloc] initWithFrame:NSMakeRect(0,0,80,80)];
         moxi_reset_commands();
         moxi_button_count = 2;
@@ -76,6 +85,36 @@ int main(void) {
         assert(moxi_accessibility_elements[0]==retainedRoot);
         assert(moxi_retained_accessibility_elements.count==1);
         assert(((MoxiAccessibilityElement *)retainedRoot).moxiChildren.count==0);
+        // A scoped modal publishes only its dialog and descendants, and announces
+        // a newly mounted focused control even though it had no previous AX entry.
+        for (int frame=0; frame<2; frame++) {
+            moxi_window_begin_accessibility();
+            moxi_accessibility_count = 2;
+            moxi_accessibility_ids[0] = 90;
+            moxi_accessibility_roles[0] = MOXI_ROLE_DIALOG;
+            moxi_accessibility_labels[0] = @"Layout dialog";
+            moxi_accessibility_expanded[0] = YES;
+            moxi_accessibility_ids[1] = 92;
+            moxi_accessibility_parent_ids[1] = 90;
+            moxi_accessibility_roles[1] = MOXI_ROLE_BUTTON;
+            moxi_accessibility_focused[1] = YES;
+            moxi_window_end_accessibility();
+            NSArray *roots = [canvas accessibilityChildrenInNavigationOrder];
+            assert(roots.count==1 && roots[0]==moxi_accessibility_elements[0]);
+            NSArray *children = [roots[0] accessibilityChildrenInNavigationOrder];
+            assert(children.count==1 && children[0]==moxi_accessibility_elements[1]);
+            assert([canvas accessibilityFocusedUIElement]==children[0]);
+            assert(focusNotifications.count==1 && focusNotifications[0]==children[0]);
+        }
+        moxi_window_begin_accessibility();
+        moxi_accessibility_count = 1;
+        moxi_accessibility_ids[0] = 1;
+        moxi_accessibility_roles[0] = MOXI_ROLE_CONTAINER;
+        moxi_accessibility_focused[0] = YES;
+        moxi_window_end_accessibility();
+        assert([canvas accessibilityChildrenInNavigationOrder].count==1);
+        assert([canvas accessibilityFocusedUIElement]==moxi_accessibility_elements[0]);
+        assert(focusNotifications.count==2 && focusNotifications[1]==moxi_accessibility_elements[0]);
         // Clip movement preserves the editor object and its full logical size.
         moxi_text_input_count = 1;
         moxi_text_input_frames[0] = NSMakeRect(10,10,60,40);
