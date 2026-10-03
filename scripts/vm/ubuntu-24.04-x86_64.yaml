@@ -20,4 +20,4 @@ vmOpts:
   qemu:
     minimumVersion: 11.1.2
     cpuType:
-      x86_64: max
+      x86_64: Haswell-v4

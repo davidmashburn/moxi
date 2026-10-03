@@ -71,7 +71,9 @@ first failed product check. Record the commit and archive checksum with its log.
 Mojo's nightly [requirements](https://mojolang.static.modular.com/nightly/docs/requirements/)
 include glibc 2.34+, a C linker, 8 GiB RAM and x86-64-v3 instructions. Verify
 the guest CPU flags and actual pinned compiler execution before attributing a
-compiler crash to Moxi. `max` selects QEMU's emulated CPU features.
+compiler crash to Moxi. `Haswell-v4` provides an explicit x86-64-v3 CPU identity
+that the pinned compiler can recognize; the initial `max` CPU exposed the required
+flags but Mojo rejected its detected `athlon-xp` identity.
 [Lima's driver guidance](https://lima-vm.io/docs/config/vmtype/) distinguishes full
 Intel guests from translated userspace. Experimental
 [macOS guests](https://lima-vm.io/docs/usage/guests/macos/) require an ARM host and
@@ -113,7 +115,11 @@ the runner used for that run has SHA-256
 The runner subsequently gained explicit container rejection because
 `systemd-detect-virt --vm` alone can report an outer VM from inside a container.
 The first run's direct-guest identity was checked separately. Locked installation
-and guest product checks remain in progress; no pass is claimed yet.
+passed and reported Mojo `1.1.0.dev2026082605 (dd957314)`, but the first headless
+check failed before execution with `unknown target CPU 'athlon-xp'`. This is a
+guest CPU/compiler compatibility failure, not a passing Moxi check. The guest
+was stopped, changed to `Haswell-v4` and restarted for a fresh-snapshot rerun.
+No guest product pass is claimed yet.
 
 Local logs are `/tmp/moxi-rebase-check.log`, `/tmp/moxi-vm-linux-start.log`,
 `/tmp/moxi-vm-linux-bootstrap.log` and `/tmp/moxi-vm-linux-check-18f5a27.log`.
