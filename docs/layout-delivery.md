@@ -78,9 +78,10 @@ document is the recorded run, not an automatically updated claim.
   predates this packaging addition. Linux execution was not verified locally.
 - Android/iOS host checks were skipped because the required SDK/NDK and simulator
   SDK were unavailable. No mobile layout release is certified by these checks.
-- Live VoiceOver remains inconclusive. Its switch enabled, but no responsive
-  VoiceOver process, cursor or caption feedback could be observed through this
-  session. The switch was restored to off. Automated AX checks do not certify
+- Live VoiceOver remains inconclusive. On retry, its switch enabled and the
+  screen-reader process started after the tutorial was dismissed, but navigation
+  produced no observable cursor or caption feedback through these tools.
+  The switch was restored to off. Automated AX checks do not certify
   VoiceOver traversal, announcements or modal navigation.
 - Live Japanese IME remains unverified. On retry, filtering the chooser allowed
   temporary addition of Japanese–Kana, but input-source switching shortcuts
