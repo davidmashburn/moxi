@@ -1,0 +1,23 @@
+# Full x86 guest on Apple Silicon; QEMU TCG timings are not performance evidence.
+minimumLimaVersion: 2.2.0
+vmType: qemu
+arch: x86_64
+cpus: 4
+memory: 8GiB
+disk: 40GiB
+images:
+  - location: https://cloud-images.ubuntu.com/releases/noble/release-20260705/ubuntu-24.04-server-cloudimg-amd64.img
+    arch: x86_64
+    digest: sha256:ffe6203da54deeb6db5d2a98a83f9ec8e55f149d3f7ba622e1abe5fa966ee3d6
+mounts: []
+containerd:
+  system: false
+  user: false
+ssh:
+  loadDotSSHPubKeys: false
+  forwardAgent: false
+vmOpts:
+  qemu:
+    minimumVersion: 11.1.2
+    cpuType:
+      x86_64: max
