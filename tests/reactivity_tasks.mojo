@@ -211,6 +211,28 @@ def main():
     test_check(scoped_cancel_result.matches(scoped_request))
     test_check(not requests.should_deliver(scoped_cancel_result))
 
+    var mounted_scope = requests.mount_scope(101)
+    test_check(mounted_scope.is_valid())
+    test_check(requests.mount_scope(101).id == mounted_scope.id)
+    test_check(requests.scope_for_owner(101).id == mounted_scope.id)
+    var mounted_request = requests.request_in_scope(
+        mounted_scope,
+        67,
+        "mounted",
+        10.0,
+        "detached by remove",
+    )
+    test_check(mounted_request.is_valid())
+    test_check(requests.unmount_scope(101))
+    test_check(requests.mounted_scope_count() == 0)
+    test_check(not requests.scope_is_active(mounted_scope))
+    var mounted_cancel_result = requests.pop_ready()
+    test_check(mounted_cancel_result.matches(mounted_request))
+    test_check(not requests.should_deliver(mounted_cancel_result))
+    var remounted_scope = requests.mount_scope(101)
+    test_check(remounted_scope.is_valid())
+    test_check(remounted_scope.id != mounted_scope.id)
+
     var bounded_requests = RequestScheduler(2)
     _ = bounded_requests.request(1, "one", 0.0, "one")
     _ = bounded_requests.request(2, "two", 0.0, "two")
@@ -270,6 +292,23 @@ def main():
     test_check(app.request_scope_is_active(app_scope))
     test_check(app.cancel_request_scope(app_scope))
     test_check(not app.request_scope_is_active(app_scope))
+    test_check(not app.tick(0.0))
+    test_check(app.component.request_completed == 2)
+
+    var app_mounted_scope = app.mount_request_scope(303)
+    test_check(app_mounted_scope.is_valid())
+    test_check(app.request_scope_for_owner(303).id == app_mounted_scope.id)
+    test_check(app.mounted_request_scope_count() == 1)
+    var app_mounted_request = app.schedule_scoped_request(
+        app_mounted_scope,
+        13,
+        "mounted app request",
+        10.0,
+        "ignored after unmount",
+    )
+    test_check(app_mounted_request.is_valid())
+    test_check(app.unmount_request_scope(303))
+    test_check(app.mounted_request_scope_count() == 0)
     test_check(not app.tick(0.0))
     test_check(app.component.request_completed == 2)
 

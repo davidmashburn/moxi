@@ -180,6 +180,22 @@ struct App[ComponentType: Component & Deinitable]:
         """Create a request lifetime scope for a mounted child or surface."""
         return self.requests.create_scope()
 
+    def mount_request_scope(mut self, owner_key: Int) -> RequestScopeHandle:
+        """Mount or reuse a request scope for one keyed child surface."""
+        return self.requests.mount_scope(owner_key)
+
+    def request_scope_for_owner(self, owner_key: Int) -> RequestScopeHandle:
+        """Return the active request scope for a keyed child surface."""
+        return self.requests.scope_for_owner(owner_key)
+
+    def unmount_request_scope(mut self, owner_key: Int) -> Bool:
+        """Close a keyed child scope and suppress its detached completions."""
+        return self.requests.unmount_scope(owner_key)
+
+    def mounted_request_scope_count(self) -> Int:
+        """Return the number of active keyed child request scopes."""
+        return self.requests.mounted_scope_count()
+
     def schedule_scoped_request(
         mut self,
         scope: RequestScopeHandle,

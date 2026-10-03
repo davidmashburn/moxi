@@ -11,6 +11,7 @@ from moxi import (
     KeyedSubtreeExecutor,
     LocalizedExecution,
     Rect,
+    RequestScheduler,
     TypedSubtreeExecutor,
     test_check,
 )
@@ -151,4 +152,28 @@ def main():
     test_check(indexed.remove(10))
     test_check(indexed.child_build_count(20) == 1)
     test_check(indexed.schedule.descriptor(20).slot_id == 303)
+
+    var scoped = KeyedSubtreeExecutor[CounterState](70)
+    var scoped_requests = RequestScheduler()
+    var scoped_descriptor = KeyedSubtreeDescriptor(77, 701, 71, 7, 7000)
+    var scoped_request_scope = scoped.insert_scoped(
+        scoped_requests,
+        scoped_descriptor,
+        CounterState(),
+        Rect(0.0, 0.0, 120.0, 60.0),
+    )
+    test_check(scoped_request_scope.is_valid())
+    test_check(scoped_requests.mounted_scope_count() == 1)
+    var scoped_request = scoped_requests.request_in_scope(
+        scoped_request_scope,
+        1,
+        "child work",
+        10.0,
+        "detached",
+    )
+    test_check(scoped_request.is_valid())
+    test_check(scoped.remove_scoped(scoped_requests, 77))
+    test_check(scoped_requests.mounted_scope_count() == 0)
+    test_check(not scoped_requests.scope_is_active(scoped_request_scope))
+    test_check(not scoped_requests.should_deliver(scoped_requests.pop_ready()))
     print("Moxi keyed-subtree scheduling test passed")

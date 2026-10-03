@@ -69,6 +69,11 @@ lifetime; `cancel_request_scope()` closes that scope, invalidates its queued
 work, and prevents detached completions from reaching the component. Adapter
 completion statuses include success, failure, cancellation, and timeout; the
 core does not decide when a real transport has exceeded its deadline.
+For keyed retained children, `RequestScheduler.mount_scope()` and
+`unmount_scope()` provide the lifecycle bridge: `KeyedSubtreeExecutor` exposes
+`insert_scoped()` / `remove_scoped()` so the same key that mounts a child also
+closes its request lifetime. The bridge is explicit at the keyed host boundary
+and does not add lifecycle callbacks to `Component`.
 
 Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and

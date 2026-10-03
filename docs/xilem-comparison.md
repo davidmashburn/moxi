@@ -97,8 +97,8 @@ repeatability harness, not a comparative Xilem/Masonry performance result.
   Xilem's broader model remains open.
 - The request slice now addresses the article's strongest async critique—late
   results and view-owned side effects need an explicit lifecycle—but it is not
-  yet a full component context/effect system. Explicit scope cleanup exists;
-  automatic component mount/unmount wiring, transport ownership, and deadlines
+  yet a full component context/effect system. Explicit scopes and an opt-in
+  keyed-subtree mount/remove bridge exist; transport ownership and deadlines
   remain deliberately outside the core. Adapters can inject a completion
   through the keyed handle.
 - Narrower ecosystem, fewer backend implementations, and less external validation.

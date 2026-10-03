@@ -11,6 +11,7 @@ from .paint import PaintCommands
 from .reactivity import StateScope
 from .column_runtime import ColumnRuntime
 from .column_view import ColumnView
+from .tasks import RequestScopeHandle, RequestScheduler
 
 
 struct ExecutionWorkCounters(ImplicitlyCopyable):
@@ -695,6 +696,18 @@ struct KeyedSubtreeExecutor[Child: Component & Deinitable]:
         )
         return True
 
+    def insert_scoped(
+        mut self,
+        mut requests: RequestScheduler,
+        descriptor: KeyedSubtreeDescriptor,
+        component: Self.Child,
+        bounds: Rect,
+    ) -> RequestScopeHandle:
+        """Insert a child and mount its keyed request lifetime."""
+        if not self.insert(descriptor, component, bounds):
+            return RequestScopeHandle()
+        return requests.mount_scope(descriptor.key)
+
     def remove(mut self, key: Int) -> Bool:
         var index = self.child_index(key)
         if index == -1 or not self.schedule.remove(key):
@@ -702,6 +715,13 @@ struct KeyedSubtreeExecutor[Child: Component & Deinitable]:
         _ = self.children.pop(index)
         _ = self.child_lookup.remove(key)
         self._reindex_children()
+        return True
+
+    def remove_scoped(mut self, mut requests: RequestScheduler, key: Int) -> Bool:
+        """Remove a child and close its keyed request lifetime."""
+        if not self.remove(key):
+            return False
+        _ = requests.unmount_scope(key)
         return True
 
     def reorder(mut self, next_order: List[Int]) -> Bool:

@@ -377,6 +377,21 @@ struct RequestScopeRecord(ImplicitlyCopyable):
         self.active = active
 
 
+struct RequestScopeBinding(ImplicitlyCopyable):
+    """Associate one stable keyed subtree owner with its request scope."""
+
+    var owner_key: Int
+    var scope: RequestScopeHandle
+
+    def __init__(
+        out self,
+        owner_key: Int,
+        scope: RequestScopeHandle,
+    ):
+        self.owner_key = owner_key
+        self.scope = scope
+
+
 struct RequestScheduler:
     """Keyed request lifecycle on top of the deterministic task scheduler.
 
@@ -390,6 +405,7 @@ struct RequestScheduler:
     var requests: List[RequestRecord]
     var key_states: List[RequestKeyState]
     var scopes: List[RequestScopeRecord]
+    var scope_bindings: List[RequestScopeBinding]
     var next_scope_id: Int
 
     def __init__(out self, capacity: Int = 32):
@@ -397,6 +413,7 @@ struct RequestScheduler:
         self.requests = List[RequestRecord]()
         self.key_states = List[RequestKeyState]()
         self.scopes = List[RequestScopeRecord]()
+        self.scope_bindings = List[RequestScopeBinding]()
         self.next_scope_id = 1
 
     def create_scope(mut self) -> RequestScopeHandle:
@@ -416,6 +433,49 @@ struct RequestScheduler:
             if self.scopes[index].id == scope.id:
                 return self.scopes[index].active
         return False
+
+    def mount_scope(mut self, owner_key: Int) -> RequestScopeHandle:
+        """Mount or reuse the request scope owned by one keyed subtree."""
+        if owner_key < 0:
+            return RequestScopeHandle()
+        for index in range(len(self.scope_bindings)):
+            var binding = self.scope_bindings[index]
+            if binding.owner_key == owner_key and self.scope_is_active(binding.scope):
+                return binding.scope
+        var scope = self.create_scope()
+        self.scope_bindings.append(RequestScopeBinding(owner_key, scope))
+        return scope
+
+    def scope_for_owner(self, owner_key: Int) -> RequestScopeHandle:
+        """Return the active request scope for a keyed subtree owner."""
+        if owner_key < 0:
+            return RequestScopeHandle()
+        for index in range(len(self.scope_bindings)):
+            var binding = self.scope_bindings[index]
+            if binding.owner_key == owner_key and self.scope_is_active(binding.scope):
+                return binding.scope
+        return RequestScopeHandle()
+
+    def unmount_scope(mut self, owner_key: Int) -> Bool:
+        """Close and forget the request scope owned by one keyed subtree."""
+        var scope = self.scope_for_owner(owner_key)
+        if not scope.is_valid():
+            return False
+        var changed = self.cancel_scope(scope)
+        var retained = List[RequestScopeBinding]()
+        for index in range(len(self.scope_bindings)):
+            if self.scope_bindings[index].owner_key != owner_key:
+                retained.append(self.scope_bindings[index])
+        self.scope_bindings = retained^
+        return changed
+
+    def mounted_scope_count(self) -> Int:
+        """Return the number of active keyed subtree request scopes."""
+        var count = 0
+        for index in range(len(self.scope_bindings)):
+            if self.scope_is_active(self.scope_bindings[index].scope):
+                count += 1
+        return count
 
     def _prune_records(mut self):
         """Drop terminal requests whose bounded result queue lost them."""
