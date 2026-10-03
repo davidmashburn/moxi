@@ -420,6 +420,9 @@ from .tasks import (
     TaskRecord,
     TaskResult,
     TaskScheduler,
+    RequestHandle,
+    RequestResult,
+    RequestScheduler,
 )
 from .resources import (
     RESOURCE_DATA,

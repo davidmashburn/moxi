@@ -398,6 +398,9 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `TaskRecord` | `moxi.tasks` | provisional | stateful UI support primitives |
 | `TaskResult` | `moxi.tasks` | provisional | stateful UI support primitives |
 | `TaskScheduler` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `RequestHandle` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `RequestResult` | `moxi.tasks` | provisional | stateful UI support primitives |
+| `RequestScheduler` | `moxi.tasks` | provisional | stateful UI support primitives |
 | `RESOURCE_DATA` | `moxi.resources` | provisional | stateful UI support primitives |
 | `RESOURCE_FONT` | `moxi.resources` | provisional | stateful UI support primitives |
 | `RESOURCE_IMAGE` | `moxi.resources` | provisional | stateful UI support primitives |

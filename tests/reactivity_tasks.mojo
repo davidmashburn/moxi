@@ -13,6 +13,7 @@ from moxi import (
     TASK_CANCELLED,
     TASK_COMPLETED,
     TASK_RESULT_KIND,
+    RequestScheduler,
     TaskScheduler,
     test_check,
 )
@@ -22,9 +23,15 @@ from moxi.geometry import Rect
 
 struct TaskState(Component):
     var completed: Int
+    var request_completed: Int
+    var request_key: Int
+    var request_generation: Int
 
     def __init__(out self):
         self.completed = 0
+        self.request_completed = 0
+        self.request_key = -1
+        self.request_generation = -1
 
     def build(self, bounds: Rect) -> ColumnView:
         var view = ColumnView(bounds, 8.0, 4.0)
@@ -34,7 +41,12 @@ struct TaskState(Component):
 
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         if event.kind == TASK_RESULT_KIND and event.task_status == TASK_COMPLETED:
-            self.completed += 1
+            if event.request_key >= 0:
+                self.request_completed += 1
+                self.request_key = event.request_key
+                self.request_generation = event.request_generation
+            else:
+                self.completed += 1
             return True
         return False
 
@@ -99,6 +111,64 @@ def main():
     test_check(bounded.dropped_count() == 1)
     _ = bounded.pop_ready()
 
+    var requests = RequestScheduler(4)
+    var first_request = requests.request(11, "first", 0.5, "old")
+    test_check(first_request.is_valid())
+    test_check(requests.is_current(first_request))
+    var replacement = requests.request(11, "replacement", 0.5, "new")
+    test_check(replacement.is_valid())
+    test_check(replacement.generation == first_request.generation + 1)
+    test_check(not requests.is_current(first_request))
+    test_check(requests.is_current(replacement))
+    var cancelled_request = requests.pop_ready()
+    test_check(cancelled_request.matches(first_request))
+    test_check(cancelled_request.status == TASK_CANCELLED)
+    requests.advance(0.5)
+    var completed_request = requests.pop_ready()
+    test_check(completed_request.matches(replacement))
+    test_check(completed_request.status == TASK_COMPLETED)
+    test_check(completed_request.payload == "new")
+    test_check(not requests.is_current(replacement))
+
+    var ready_request = requests.request(22, "ready", 0.0, "stale")
+    requests.advance(0.0)
+    var ready_replacement = requests.request(22, "fresh", 0.0, "current")
+    test_check(not requests.is_current(ready_request))
+    test_check(requests.is_current(ready_replacement))
+    var stale_result = requests.pop_ready()
+    test_check(stale_result.matches(ready_request))
+    test_check(stale_result.payload == "stale")
+    requests.advance(0.0)
+    var fresh_result = requests.pop_ready()
+    test_check(fresh_result.matches(ready_replacement))
+    test_check(fresh_result.payload == "current")
+
+    var keyed_cancel = requests.request(33, "cancel", 10.0, "ignored")
+    test_check(requests.cancel_key(33))
+    test_check(not requests.is_current(keyed_cancel))
+    var keyed_cancel_result = requests.pop_ready()
+    test_check(keyed_cancel_result.matches(keyed_cancel))
+    test_check(keyed_cancel_result.status == TASK_CANCELLED)
+
+    var injected_request = requests.request(44, "injected", 10.0)
+    test_check(requests.complete(injected_request, TASK_COMPLETED, "external"))
+    test_check(requests.is_current(injected_request))
+    var injected_result = requests.pop_ready()
+    test_check(injected_result.matches(injected_request))
+    test_check(injected_result.payload == "external")
+    var sequential_request = requests.request(44, "sequential", 0.0, "next")
+    test_check(sequential_request.generation == injected_request.generation + 1)
+    requests.advance(0.0)
+    test_check(requests.pop_ready().matches(sequential_request))
+
+    var completed_then_removed = requests.request(55, "removed", 0.0, "late")
+    requests.advance(0.0)
+    test_check(requests.cancel_key(55))
+    test_check(not requests.is_current(completed_then_removed))
+    var removed_result = requests.pop_ready()
+    test_check(removed_result.matches(completed_then_removed))
+    test_check(removed_result.status == TASK_COMPLETED)
+
     var app = App[TaskState](TaskState(), Rect(0.0, 0.0, 520.0, 320.0))
     var handle = app.schedule_task("app task", 0.1, "payload")
     test_check(app.pending_task_count() == 1)
@@ -106,5 +176,22 @@ def main():
     test_check(app.task_status(handle) == TASK_COMPLETED)
     test_check(app.component.completed == 1)
     test_check(app.forget_task(handle))
+
+    var request_handle = app.schedule_request(7, "request", 0.1, "response")
+    test_check(request_handle.is_valid())
+    test_check(app.pending_request_count() == 1)
+    test_check(app.request_is_current(request_handle))
+    test_check(app.tick(0.1))
+    test_check(app.component.request_completed == 1)
+    test_check(app.component.request_key == 7)
+    test_check(app.component.request_generation == request_handle.generation)
+    test_check(not app.request_is_current(request_handle))
+
+    var external_handle = app.schedule_request(8, "external", 10.0)
+    test_check(app.complete_request(external_handle, TASK_COMPLETED, "adapter"))
+    test_check(app.tick(0.0))
+    test_check(app.component.request_completed == 2)
+    test_check(app.component.request_key == 8)
+    test_check(app.component.request_generation == external_handle.generation)
 
     print("Moxi reactivity-tasks test passed")

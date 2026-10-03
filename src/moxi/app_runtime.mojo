@@ -59,7 +59,13 @@ from .scrollbar import (
     SCROLLBAR_VERTICAL,
     ScrollbarState,
 )
-from .tasks import TaskHandle, TaskScheduler
+from .tasks import (
+    RequestHandle,
+    RequestScheduler,
+    TASK_COMPLETED,
+    TaskHandle,
+    TaskScheduler,
+)
 from .column_view import ColumnView
 from .view_node import CONTAINER_KIND, ROOT_SCROLL_ID, TEXT_INPUT_VIEW_KIND
 from .window import WindowBackend
@@ -75,6 +81,7 @@ struct App[ComponentType: Component & Deinitable]:
     var clipboard: String
     var pending: Invalidation
     var tasks: TaskScheduler
+    var requests: RequestScheduler
     var scroll_ids: List[Int]
     var scroll_values: List[Float32]
     var scrollbar_pointer_id: Int
@@ -94,6 +101,7 @@ struct App[ComponentType: Component & Deinitable]:
         self.pending = Invalidation()
         self.pending.invalidate(INVALIDATE_ALL, bounds)
         self.tasks = TaskScheduler()
+        self.requests = RequestScheduler()
         self.scroll_ids = List[Int]()
         self.scroll_values = List[Float32]()
         self.scrollbar_pointer_id = -1
@@ -129,6 +137,17 @@ struct App[ComponentType: Component & Deinitable]:
                 TaskEvent(result.task_id, result.status, result.payload)
             ))
             changed = changed or task_changed
+        self.requests.advance(delta_seconds)
+        while self.requests.has_ready():
+            var result = self.requests.pop_ready()
+            var request_changed = self.dispatch(Event(TaskEvent(
+                result.task_id,
+                result.status,
+                result.payload,
+                result.key,
+                result.generation,
+            )))
+            changed = changed or request_changed
         return changed
 
     def schedule_task(
@@ -143,6 +162,40 @@ struct App[ComponentType: Component & Deinitable]:
     def cancel_task(mut self, handle: TaskHandle) -> Bool:
         """Cancel a pending task and deliver its result on the next tick."""
         return self.tasks.cancel(handle)
+
+    def schedule_request(
+        mut self,
+        key: Int,
+        label: String,
+        delay_seconds: Float32,
+        payload: String = "",
+    ) -> RequestHandle:
+        """Schedule the current generation for a logical request key."""
+        return self.requests.request(key, label, delay_seconds, payload)
+
+    def cancel_request(mut self, handle: RequestHandle) -> Bool:
+        """Cancel one request generation and deliver its result on tick."""
+        return self.requests.cancel(handle)
+
+    def cancel_request_key(mut self, key: Int) -> Bool:
+        """Cancel the current request associated with a logical key."""
+        return self.requests.cancel_key(key)
+
+    def complete_request(
+        mut self,
+        handle: RequestHandle,
+        status: Int = TASK_COMPLETED,
+        payload: String = "",
+    ) -> Bool:
+        """Inject an adapter completion for a still-current request."""
+        return self.requests.complete(handle, status, payload)
+
+    def request_is_current(self, handle: RequestHandle) -> Bool:
+        """Return whether a request handle is still current for its key."""
+        return self.requests.is_current(handle)
+
+    def pending_request_count(self) -> Int:
+        return self.requests.pending_count()
 
     def forget_task(mut self, handle: TaskHandle) -> Bool:
         """Release a terminal task record when the application no longer needs it."""

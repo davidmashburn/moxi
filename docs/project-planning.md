@@ -41,6 +41,26 @@ The remaining explicitly deferred post-0.5 work is now narrower:
 - Localized component execution and dependency-scoped invalidation beyond the
   current accounting contract.
 
+## Article-derived follow-ups
+
+The Xilem critique is useful as a design warning rather than a mandate to copy
+Xilem's full abstraction stack. The current keyed request slice addresses the
+most concrete gap—replacement, cancellation, adapter completion, and stale
+result identity—while keeping the deterministic core free of threads and I/O.
+The remaining follow-ups are:
+
+| To-do | Boundary | Acceptance |
+| --- | --- | --- |
+| Add lifecycle-owned request scopes. | Tie request keys to a mounted component/subtree so removal cancels or invalidates its requests, bounds retained request history, and prevents late results from updating detached state. | Mount/unmount and replacement traces prove cancellation, stale-result rejection, and bounded records without adding a callback-heavy component trait. |
+| Define the real async adapter contract. | Keep transport, executors, cancellation, and deadlines in host adapters; keep `RequestScheduler` deterministic and injectable. | A network-like adapter test delivers success, failure, timeout, and cancellation through the normal event path without hidden threads in the core. |
+| Keep view construction pure and effects explicit. | `build()`/`localized_view()` must not perform I/O or mutate external state; evaluate a narrow effect/request context only if concrete examples need it, rather than adding a broad `CompCtx` or HOC layer. | A documented effect policy plus a representative example and trace show request commands originating from event/state transitions, not view construction. |
+| Measure Mojo API ergonomics before growing abstractions. | Track compile time, diagnostic size, and public generic surface for `Component`, `ComponentSlot`, and request examples; prefer explicit actions/lenses over implicit two-way bindings. | Quick/full compile fixtures and a small consumer example establish a baseline and block unnecessary generic or binding machinery. |
+| Ship a real browser package path. | Treat the current host demo/ARIA bridge as an adapter, not proof of a Mojo Web runtime; keep WASM packaging and browser lifecycle tests as a separate gate. | A packaged Mojo/WASM example starts through the documented server, exercises request cancellation and teardown in a real browser, and reports unsupported capabilities honestly. |
+
+These items are intentionally staged after the bounded request contract. Do not
+introduce a generic HOC system, implicit two-way binding, or hidden executor in
+the core solely to match another framework's vocabulary.
+
 Performance is a release requirement, not a later optimization pass. Mojo is
 being used for predictable, low-overhead UI work, so every renderer/runtime
 slice must have a repeatable benchmark, a stated workload, and a recorded

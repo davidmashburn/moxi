@@ -47,7 +47,7 @@ Linebender stack, Parley, and AccessKit.
 | Text | Deterministic approximate portable shaping with script/direction/fallback runs and stable clusters; CoreText supplies native glyph ids, shaping, bidi, and fallback on macOS; Metal uses printable-ASCII geometry or a CoreText Unicode texture fallback. | Parley supplies rich layout, font fallback, shaping, bidi, segmentation, and editing infrastructure. |
 | Accessibility | Backend-neutral roles, labels, values, hints, checked/expanded state, scalar ranges, bounds, parent links, and semantic actions; native macOS AX hierarchy exposes those attributes, state/value notifications, nested hit testing, and action bridge; Web maps snapshots to ARIA and iOS/Android expose virtual native nodes. | AccessKit-based accessibility integrated into the widget contract, with broader platform coverage. |
 | Widgets | Label, button, text inputs, checkbox, progress, slider, switch, radio, image, multiline, combo, list, table, tree, menu, dialog, tabs, canvas, separator, containers, typed slots, and small state models. macOS collection presenters draw selection, headers/grids, disclosure, menu, dialog, tab, and canvas affordances from shared semantics; focused single-line text inputs use an AppKit field editor, while editable collection ownership remains open. | Broader and deeper widget layer, including platform-integrated controls and view composition. |
-| Async | Deterministic frame-stepped scheduler with completion/cancel/fail results, bounded queues, and explicit task lifetime. External I/O/thread execution belongs to an adapter. | `task` views and reactive integration support asynchronous work in the broader framework. |
+| Async | Deterministic frame-stepped tasks plus keyed, generation-tagged requests. Replacing a key cancels the prior pending task, and request completions carry key/generation metadata through the normal event path; bounded queues and external I/O/thread execution still belong to an adapter. | `task` views and reactive integration support asynchronous work in the broader framework. |
 | Agent integration | In-process capability descriptors, schema checks, approvals, leases, typed handlers, replay, bounded queues, and conversation state. | No equivalent authorization/LLM capability bus; that is outside Xilem's stated UI scope. |
 | Testing | Headless behavior tests, semantic snapshots, software-scene pixel/checksum checks, source-controlled lossless PPM goldens with reviewable diffs, deterministic browser-host lifecycle checks, native compile checks, package-consumer checks, property-style edge cases, and structured quick/full benchmark reports. | Masonry widget harness, interaction tests, render snapshots, and widget-tree snapshots. |
 | Plotting | First-class typed stable-key table, executable versioned spec, field encodings, core/statistical recipes, categorical/temporal scales, independent facets, deterministic transforms, pan/zoom/brush/lasso/select/keyboard runtime, linked selection, line/scatter LOD, ordered `PlotRenderPacket` dense-mark path, PlotView, software/Metal/SVG scene output. | No direct plotting-library equivalent in the core comparison. |
@@ -95,6 +95,11 @@ repeatability harness, not a comparative Xilem/Masonry performance result.
 - Localized execution now has a typed subtree executor with scope/dependency
   invalidation and work counters; a richer view-sequence diff comparable to
   Xilem's broader model remains open.
+- The request slice now addresses the article's strongest async critique—late
+  results and view-owned side effects need an explicit lifecycle—but it is not
+  yet a full component context/effect system. Transport ownership, deadlines,
+  and mount/unmount cleanup remain deliberately outside the core; adapters can
+  inject a completion through the keyed handle.
 - Narrower ecosystem, fewer backend implementations, and less external validation.
 
 Xilem is not production-stable either: its own documentation calls the current

@@ -29,6 +29,7 @@ metadata.
 | `ComponentSlot[Child]` | Typed child ownership, namespaced ids, and local event routing. |
 | `KeyedSubtreeDescriptor` | Stable child key, parent slot, execution scope, and private id namespace. |
 | `App[ComponentType]` | Mount, dispatch, resize, tick, paint, render, and clipboard-aware loops. |
+| `RequestScheduler` / `RequestHandle` | Keyed, generation-tagged request ownership with replacement and cancellation. |
 | `WindowBackend` / `WindowConfig` | Backend-neutral window and event-pump boundary. |
 | `WindowManager` / `WindowId` | Bounded portable multi-window ownership model. |
 | `Renderer` / `PaintCommands` | Backend-neutral complete-frame and optional incremental paint boundary. |
@@ -52,6 +53,17 @@ localized hooks (`supports_localized_execution()`, `localized_view()`, and
 parent is recomposed around the updated child and
 `ExecutionWorkCounters.root_fallbacks` stays at zero for child-local updates.
 Components using only `build()`/`update()` retain the root-wide fallback path.
+
+`App.schedule_request(key, label, delay, payload)` is the small async seam for
+component-owned work. A key identifies one logical request (for example, a
+search query or resource slot); replacing that key cancels the old pending
+task, increments its generation, and marks any late result as stale through
+`RequestHandle`/`RequestResult`. `App.tick()` delivers request completions
+through the ordinary `Event` path, with `request_key` and
+`request_generation` on the event. The core still does not create threads or
+perform I/O: a host adapter owns transport and may use the same identity
+contract; `App.complete_request()` injects an adapter-owned completion into
+the same queue.
 
 Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and
