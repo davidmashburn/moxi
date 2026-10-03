@@ -31,6 +31,13 @@ vertical scrolling, modal keyboard traversal
 and dismissal, and a row editor scrolled offscreen and back with its text intact.
 Japanese text was pasted; this does not establish input-method composition.
 
+On 2026-10-03, `pixi run composed-layout-check` passed after assigning explicit
+editor names. The rebuilt app's native accessibility tree exposed the dataset
+field as “Dataset” and an activated cell editor as “Value, region 2, column 2”,
+with their editable text still published as values. Regression checks preserve
+these semantics through resizing, composition state and offscreen retention.
+This verifies naming through AppKit, not VoiceOver speech or navigation.
+
 ## Frame cost
 
 [Recorded timings](layout-workbench-timings.json) preserve all 840 measured frames,
