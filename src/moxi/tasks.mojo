@@ -7,6 +7,7 @@ comptime TASK_PENDING = 0
 comptime TASK_COMPLETED = 1
 comptime TASK_CANCELLED = 2
 comptime TASK_FAILED = 3
+comptime REQUEST_GLOBAL_SCOPE = 0
 
 
 struct TaskHandle(ImplicitlyCopyable):
@@ -39,6 +40,18 @@ struct TaskResult(ImplicitlyCopyable):
         self.payload = payload
 
 
+struct RequestScopeHandle(ImplicitlyCopyable):
+    """Stable lifetime identity for a group of component-owned requests."""
+
+    var id: Int
+
+    def __init__(out self, id: Int = -1):
+        self.id = id
+
+    def is_valid(self) -> Bool:
+        return self.id >= 0
+
+
 struct RequestHandle(ImplicitlyCopyable):
     """Stable identity for one keyed background request.
 
@@ -51,19 +64,27 @@ struct RequestHandle(ImplicitlyCopyable):
     var key: Int
     var generation: Int
     var task_id: Int
+    var scope_id: Int
 
     def __init__(
         out self,
         key: Int = -1,
         generation: Int = -1,
         task_id: Int = -1,
+        scope_id: Int = REQUEST_GLOBAL_SCOPE,
     ):
         self.key = key
         self.generation = generation
         self.task_id = task_id
+        self.scope_id = scope_id
 
     def is_valid(self) -> Bool:
-        return self.key >= 0 and self.generation > 0 and self.task_id >= 0
+        return (
+            self.key >= 0
+            and self.generation > 0
+            and self.task_id >= 0
+            and self.scope_id >= 0
+        )
 
 
 struct RequestResult(ImplicitlyCopyable):
@@ -74,6 +95,7 @@ struct RequestResult(ImplicitlyCopyable):
     var task_id: Int
     var status: Int
     var payload: String
+    var scope_id: Int
 
     def __init__(
         out self,
@@ -82,21 +104,29 @@ struct RequestResult(ImplicitlyCopyable):
         task_id: Int = -1,
         status: Int = TASK_FAILED,
         payload: String = "",
+        scope_id: Int = REQUEST_GLOBAL_SCOPE,
     ):
         self.key = key
         self.generation = generation
         self.task_id = task_id
         self.status = status
         self.payload = payload
+        self.scope_id = scope_id
 
     def is_valid(self) -> Bool:
-        return self.key >= 0 and self.generation > 0 and self.task_id >= 0
+        return (
+            self.key >= 0
+            and self.generation > 0
+            and self.task_id >= 0
+            and self.scope_id >= 0
+        )
 
     def matches(self, handle: RequestHandle) -> Bool:
         return (
             self.key == handle.key
             and self.generation == handle.generation
             and self.task_id == handle.task_id
+            and self.scope_id == handle.scope_id
         )
 
 
@@ -230,6 +260,13 @@ struct TaskScheduler:
     def has_ready(self) -> Bool:
         return self.ready_head < len(self.ready)
 
+    def has_ready_task(self, task_id: Int) -> Bool:
+        """Return whether a result for one task remains in the ready queue."""
+        for index in range(self.ready_head, len(self.ready)):
+            if self.ready[index].task_id == task_id:
+                return True
+        return False
+
     def enqueue_ready(mut self, result: TaskResult):
         """Append a result without allowing the ready queue to grow forever."""
         if self.ready_head > 0:
@@ -313,12 +350,30 @@ struct RequestRecord(ImplicitlyCopyable):
 struct RequestKeyState(ImplicitlyCopyable):
     """Internal monotonic generation counter for one logical request key."""
 
+    var scope_id: Int
     var key: Int
     var generation: Int
 
-    def __init__(out self, key: Int, generation: Int = 0):
+    def __init__(
+        out self,
+        scope_id: Int,
+        key: Int,
+        generation: Int = 0,
+    ):
+        self.scope_id = scope_id
         self.key = key
         self.generation = generation
+
+
+struct RequestScopeRecord(ImplicitlyCopyable):
+    """Internal active/inactive state for one request lifetime scope."""
+
+    var id: Int
+    var active: Bool
+
+    def __init__(out self, id: Int, active: Bool = True):
+        self.id = id
+        self.active = active
 
 
 struct RequestScheduler:
@@ -333,11 +388,46 @@ struct RequestScheduler:
     var tasks: TaskScheduler
     var requests: List[RequestRecord]
     var key_states: List[RequestKeyState]
+    var scopes: List[RequestScopeRecord]
+    var next_scope_id: Int
 
     def __init__(out self, capacity: Int = 32):
         self.tasks = TaskScheduler(capacity)
         self.requests = List[RequestRecord]()
         self.key_states = List[RequestKeyState]()
+        self.scopes = List[RequestScopeRecord]()
+        self.next_scope_id = 1
+
+    def create_scope(mut self) -> RequestScopeHandle:
+        """Create a scope whose requests can be invalidated together."""
+        var id = self.next_scope_id
+        self.next_scope_id += 1
+        self.scopes.append(RequestScopeRecord(id))
+        return RequestScopeHandle(id)
+
+    def scope_is_active(self, scope: RequestScopeHandle) -> Bool:
+        """Return whether a request scope may still receive completions."""
+        if not scope.is_valid():
+            return False
+        if scope.id == REQUEST_GLOBAL_SCOPE:
+            return True
+        for index in range(len(self.scopes)):
+            if self.scopes[index].id == scope.id:
+                return self.scopes[index].active
+        return False
+
+    def _prune_records(mut self):
+        """Drop terminal requests whose bounded result queue lost them."""
+        var retained = List[RequestRecord]()
+        for index in range(len(self.requests)):
+            var record = self.requests[index]
+            var task = TaskHandle(record.handle.task_id)
+            if (
+                self.tasks.status(task) == TASK_PENDING
+                or self.tasks.has_ready_task(record.handle.task_id)
+            ):
+                retained.append(record)
+        self.requests = retained^
 
     def request(
         mut self,
@@ -346,21 +436,45 @@ struct RequestScheduler:
         delay_seconds: Float32,
         payload: String = "",
     ) -> RequestHandle:
-        """Start or replace the request associated with ``key``."""
-        if key < 0:
+        """Start or replace a request in the process-wide scope."""
+        return self.request_in_scope(
+            RequestScopeHandle(REQUEST_GLOBAL_SCOPE),
+            key,
+            label,
+            delay_seconds,
+            payload,
+        )
+
+    def request_in_scope(
+        mut self,
+        scope: RequestScopeHandle,
+        key: Int,
+        label: String,
+        delay_seconds: Float32,
+        payload: String = "",
+    ) -> RequestHandle:
+        """Start or replace the request associated with ``scope`` and ``key``."""
+        self._prune_records()
+        if not self.scope_is_active(scope) or key < 0:
             return RequestHandle()
 
         var generation = 0
         var key_state_index = -1
         for index in range(len(self.key_states)):
-            if self.key_states[index].key == key:
+            if (
+                self.key_states[index].scope_id == scope.id
+                and self.key_states[index].key == key
+            ):
                 generation = self.key_states[index].generation
                 key_state_index = index
                 break
 
         for index in range(len(self.requests)):
             var record = self.requests[index]
-            if record.handle.key != key:
+            if (
+                record.handle.scope_id != scope.id
+                or record.handle.key != key
+            ):
                 continue
             if record.active:
                 # The task may already be complete but still waiting in the
@@ -375,12 +489,14 @@ struct RequestScheduler:
 
         var next_generation = generation + 1
         if key_state_index == -1:
-            self.key_states.append(RequestKeyState(key, next_generation))
+            self.key_states.append(
+                RequestKeyState(scope.id, key, next_generation)
+            )
         else:
             var key_state = self.key_states[key_state_index]
             key_state.generation = next_generation
             self.key_states[key_state_index] = key_state
-        var handle = RequestHandle(key, next_generation, task.id)
+        var handle = RequestHandle(key, next_generation, task.id, scope.id)
         self.requests.append(RequestRecord(handle))
         return handle
 
@@ -388,7 +504,11 @@ struct RequestScheduler:
         """Invalidate one request generation and cancel it when still pending."""
         for index in range(len(self.requests)):
             var record = self.requests[index]
-            if not record.active or record.handle.task_id != handle.task_id:
+            if (
+                not record.active
+                or record.handle.scope_id != handle.scope_id
+                or record.handle.task_id != handle.task_id
+            ):
                 continue
             _ = self.tasks.cancel(TaskHandle(record.handle.task_id))
             record.active = False
@@ -397,16 +517,64 @@ struct RequestScheduler:
         return False
 
     def cancel_key(mut self, key: Int) -> Bool:
-        """Invalidate the current request for a key and cancel it if pending."""
+        """Invalidate the current global-scope request for a key."""
+        return self.cancel_key_in_scope(
+            RequestScopeHandle(REQUEST_GLOBAL_SCOPE),
+            key,
+        )
+
+    def cancel_key_in_scope(
+        mut self,
+        scope: RequestScopeHandle,
+        key: Int,
+    ) -> Bool:
+        """Invalidate the current request for a scoped key."""
         for index in range(len(self.requests)):
             var record = self.requests[index]
-            if not record.active or record.handle.key != key:
+            if (
+                not record.active
+                or record.handle.scope_id != scope.id
+                or record.handle.key != key
+            ):
                 continue
             _ = self.tasks.cancel(TaskHandle(record.handle.task_id))
             record.active = False
             self.requests[index] = record
             return True
         return False
+
+    def cancel_scope(mut self, scope: RequestScopeHandle) -> Bool:
+        """Invalidate every request and close one non-global scope."""
+        if not self.scope_is_active(scope):
+            return False
+        var changed = False
+        for index in range(len(self.requests)):
+            var record = self.requests[index]
+            if record.handle.scope_id != scope.id or not record.active:
+                continue
+            _ = self.tasks.cancel(TaskHandle(record.handle.task_id))
+            record.active = False
+            self.requests[index] = record
+            changed = True
+
+        if scope.id == REQUEST_GLOBAL_SCOPE:
+            self._prune_records()
+            return changed
+
+        for index in range(len(self.scopes)):
+            if self.scopes[index].id == scope.id:
+                var scope_record = self.scopes[index]
+                scope_record.active = False
+                self.scopes[index] = scope_record
+                break
+
+        var retained_states = List[RequestKeyState]()
+        for index in range(len(self.key_states)):
+            if self.key_states[index].scope_id != scope.id:
+                retained_states.append(self.key_states[index])
+        self.key_states = retained_states^
+        self._prune_records()
+        return True
 
     def complete(
         mut self,
@@ -419,6 +587,7 @@ struct RequestScheduler:
             var record = self.requests[index]
             if (
                 record.active
+                and record.handle.scope_id == handle.scope_id
                 and record.handle.key == handle.key
                 and record.handle.generation == handle.generation
                 and record.handle.task_id == handle.task_id
@@ -436,6 +605,7 @@ struct RequestScheduler:
             var record = self.requests[index]
             if (
                 record.active
+                and record.handle.scope_id == handle.scope_id
                 and record.handle.key == handle.key
                 and record.handle.generation == handle.generation
                 and record.handle.task_id == handle.task_id
@@ -444,16 +614,32 @@ struct RequestScheduler:
         return False
 
     def current(self, key: Int) -> RequestHandle:
-        """Return the active request for a key, or an invalid handle."""
+        """Return the active global-scope request for a key, if any."""
+        return self.current_in_scope(
+            RequestScopeHandle(REQUEST_GLOBAL_SCOPE),
+            key,
+        )
+
+    def current_in_scope(
+        self,
+        scope: RequestScopeHandle,
+        key: Int,
+    ) -> RequestHandle:
+        """Return the active request for a scoped key, if any."""
         for index in range(len(self.requests)):
             var record = self.requests[index]
-            if record.active and record.handle.key == key:
+            if (
+                record.active
+                and record.handle.scope_id == scope.id
+                and record.handle.key == key
+            ):
                 return record.handle
         return RequestHandle()
 
     def advance(mut self, delta_seconds: Float32):
         """Advance deterministic work; real adapters may supply completions."""
         self.tasks.advance(delta_seconds)
+        self._prune_records()
 
     def has_ready(self) -> Bool:
         return self.tasks.has_ready()
@@ -473,6 +659,7 @@ struct RequestScheduler:
                 result.task_id,
                 result.status,
                 result.payload,
+                record.handle.scope_id,
             )
             _ = self.requests.pop(index)
             return request_result
@@ -482,7 +669,16 @@ struct RequestScheduler:
             result.task_id,
             result.status,
             result.payload,
+            -1,
         )
+
+    def should_deliver(self, result: RequestResult) -> Bool:
+        """Reject completions belonging to a closed request scope."""
+        return self.scope_is_active(RequestScopeHandle(result.scope_id))
+
+    def retained_count(self) -> Int:
+        """Return retained request metadata after bounded-queue pruning."""
+        return len(self.requests)
 
     def pending_count(self) -> Int:
         return self.tasks.pending_count()

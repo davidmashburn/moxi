@@ -61,6 +61,7 @@ from .scrollbar import (
 )
 from .tasks import (
     RequestHandle,
+    RequestScopeHandle,
     RequestScheduler,
     TASK_COMPLETED,
     TaskHandle,
@@ -140,14 +141,16 @@ struct App[ComponentType: Component & Deinitable]:
         self.requests.advance(delta_seconds)
         while self.requests.has_ready():
             var result = self.requests.pop_ready()
-            var request_changed = self.dispatch(Event(TaskEvent(
-                result.task_id,
-                result.status,
-                result.payload,
-                result.key,
-                result.generation,
-            )))
-            changed = changed or request_changed
+            if self.requests.should_deliver(result):
+                var request_changed = self.dispatch(Event(TaskEvent(
+                    result.task_id,
+                    result.status,
+                    result.payload,
+                    result.key,
+                    result.generation,
+                    result.scope_id,
+                )))
+                changed = changed or request_changed
         return changed
 
     def schedule_task(
@@ -173,6 +176,27 @@ struct App[ComponentType: Component & Deinitable]:
         """Schedule the current generation for a logical request key."""
         return self.requests.request(key, label, delay_seconds, payload)
 
+    def create_request_scope(mut self) -> RequestScopeHandle:
+        """Create a request lifetime scope for a mounted child or surface."""
+        return self.requests.create_scope()
+
+    def schedule_scoped_request(
+        mut self,
+        scope: RequestScopeHandle,
+        key: Int,
+        label: String,
+        delay_seconds: Float32,
+        payload: String = "",
+    ) -> RequestHandle:
+        """Schedule a request owned by one explicit lifetime scope."""
+        return self.requests.request_in_scope(
+            scope,
+            key,
+            label,
+            delay_seconds,
+            payload,
+        )
+
     def cancel_request(mut self, handle: RequestHandle) -> Bool:
         """Cancel one request generation and deliver its result on tick."""
         return self.requests.cancel(handle)
@@ -180,6 +204,18 @@ struct App[ComponentType: Component & Deinitable]:
     def cancel_request_key(mut self, key: Int) -> Bool:
         """Cancel the current request associated with a logical key."""
         return self.requests.cancel_key(key)
+
+    def cancel_scoped_request_key(
+        mut self,
+        scope: RequestScopeHandle,
+        key: Int,
+    ) -> Bool:
+        """Cancel the current request for a scoped logical key."""
+        return self.requests.cancel_key_in_scope(scope, key)
+
+    def cancel_request_scope(mut self, scope: RequestScopeHandle) -> Bool:
+        """Close a scope and invalidate all of its pending requests."""
+        return self.requests.cancel_scope(scope)
 
     def complete_request(
         mut self,
@@ -194,8 +230,15 @@ struct App[ComponentType: Component & Deinitable]:
         """Return whether a request handle is still current for its key."""
         return self.requests.is_current(handle)
 
+    def request_scope_is_active(self, scope: RequestScopeHandle) -> Bool:
+        """Return whether a request scope can still deliver completions."""
+        return self.requests.scope_is_active(scope)
+
     def pending_request_count(self) -> Int:
         return self.requests.pending_count()
+
+    def retained_request_count(self) -> Int:
+        return self.requests.retained_count()
 
     def forget_task(mut self, handle: TaskHandle) -> Bool:
         """Release a terminal task record when the application no longer needs it."""

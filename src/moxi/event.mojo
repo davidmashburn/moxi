@@ -202,6 +202,7 @@ struct TaskEvent(ImplicitlyCopyable):
     var payload: String
     var request_key: Int
     var request_generation: Int
+    var request_scope_id: Int
 
     def __init__(
         out self,
@@ -210,12 +211,14 @@ struct TaskEvent(ImplicitlyCopyable):
         payload: String = "",
         request_key: Int = -1,
         request_generation: Int = -1,
+        request_scope_id: Int = -1,
     ):
         self.task_id = task_id
         self.status = status
         self.payload = payload
         self.request_key = request_key
         self.request_generation = request_generation
+        self.request_scope_id = request_scope_id
 
 
 struct DragEvent(ImplicitlyCopyable):
@@ -289,6 +292,7 @@ struct Event(ImplicitlyCopyable):
     var task_status: Int
     var request_key: Int
     var request_generation: Int
+    var request_scope_id: Int
     var pointer_id: Int
     var buttons: Int
     var drag_delta: Point
@@ -312,6 +316,7 @@ struct Event(ImplicitlyCopyable):
         self.task_status = -1
         self.request_key = -1
         self.request_generation = -1
+        self.request_scope_id = -1
         self.pointer_id = 0
         self.buttons = 0
         self.drag_delta = Point(0.0, 0.0)
@@ -383,6 +388,7 @@ struct Event(ImplicitlyCopyable):
         self.text = event.payload
         self.request_key = event.request_key
         self.request_generation = event.request_generation
+        self.request_scope_id = event.request_scope_id
 
     def __init__(out self, event: DragEvent):
         self = Event()

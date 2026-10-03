@@ -422,6 +422,7 @@ from .tasks import (
     TaskScheduler,
     RequestHandle,
     RequestResult,
+    RequestScopeHandle,
     RequestScheduler,
 )
 from .resources import (

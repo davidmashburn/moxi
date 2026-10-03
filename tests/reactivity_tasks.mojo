@@ -169,6 +169,41 @@ def main():
     test_check(removed_result.matches(completed_then_removed))
     test_check(removed_result.status == TASK_COMPLETED)
 
+    var request_scope = requests.create_scope()
+    test_check(request_scope.is_valid())
+    test_check(requests.scope_is_active(request_scope))
+    var scoped_request = requests.request_in_scope(
+        request_scope,
+        66,
+        "scoped",
+        10.0,
+        "detached",
+    )
+    test_check(scoped_request.is_valid())
+    test_check(scoped_request.scope_id == request_scope.id)
+    test_check(requests.cancel_scope(request_scope))
+    test_check(not requests.scope_is_active(request_scope))
+    test_check(not requests.request_in_scope(
+        request_scope,
+        66,
+        "closed",
+        0.0,
+    ).is_valid())
+    var scoped_cancel_result = requests.pop_ready()
+    test_check(scoped_cancel_result.matches(scoped_request))
+    test_check(not requests.should_deliver(scoped_cancel_result))
+
+    var bounded_requests = RequestScheduler(2)
+    _ = bounded_requests.request(1, "one", 0.0, "one")
+    _ = bounded_requests.request(2, "two", 0.0, "two")
+    bounded_requests.advance(0.0)
+    _ = bounded_requests.request(3, "dropped", 0.0, "dropped")
+    bounded_requests.advance(0.0)
+    test_check(bounded_requests.retained_count() == 2)
+    _ = bounded_requests.pop_ready()
+    _ = bounded_requests.pop_ready()
+    test_check(bounded_requests.retained_count() == 0)
+
     var app = App[TaskState](TaskState(), Rect(0.0, 0.0, 520.0, 320.0))
     var handle = app.schedule_task("app task", 0.1, "payload")
     test_check(app.pending_task_count() == 1)
@@ -193,5 +228,20 @@ def main():
     test_check(app.component.request_completed == 2)
     test_check(app.component.request_key == 8)
     test_check(app.component.request_generation == external_handle.generation)
+
+    var app_scope = app.create_request_scope()
+    var detached_handle = app.schedule_scoped_request(
+        app_scope,
+        9,
+        "detached",
+        10.0,
+        "ignored",
+    )
+    test_check(detached_handle.is_valid())
+    test_check(app.request_scope_is_active(app_scope))
+    test_check(app.cancel_request_scope(app_scope))
+    test_check(not app.request_scope_is_active(app_scope))
+    test_check(not app.tick(0.0))
+    test_check(app.component.request_completed == 2)
 
     print("Moxi reactivity-tasks test passed")
