@@ -12,6 +12,11 @@ or Rust library is needed by either the macOS workbench or its consumers.
 The former Taffy bridge in `native/retained_layout` remains an experimental
 reference and is not linked by candidate builds.
 
+The optional [native-services package](../packages/moxi_layout_native/README.md)
+bundles Kiwi and CoreText/AppKit into an installed static archive for macOS arm64.
+`pixi run layout-package-consumer` verifies a fresh installed consumer without
+repository source includes or checkout-native object paths.
+
 The current profile supports nested rows, columns, greedy wrapping, a grid with
 fixed/auto/min-content/max-content/minmax/fraction tracks, numeric placement and
 spans, first baselines, stack participation, RTL, min/max clamping, explicit growth

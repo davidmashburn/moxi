@@ -20,6 +20,8 @@ constraint solver remains Kiwi commit `5e76d91fd77dc443cb0db36e7398fc13844a0524`
 | Native identity | Native probe passed ordered paint/custom canvas layering, clipped hit testing, stable accessibility objects and actual AppKit field-editor marked-range retention through offscreen clipping |
 | Independent authoring | `pixi run layout-consumer-check` passed an independently authored screen against precompiled `moxi.mojoc`, from a temporary directory without repository source includes; native sidecars are explicitly linked |
 | Existing installed package | `pixi run package-consumer` passed with moxi/moxi_plot 0.6.0 installed from a temporary local channel; this checks the existing package, not distribution of candidate native sidecars |
+| Installed native services | `pixi run layout-package-consumer` passed: a fresh environment installed Moxi and the optional `moxi_layout_native` archive from a temporary local channel, then compiled and ran the independent layout consumer with only installed Mojo modules and the installed native archive |
+| Hosted Mojo migration | [All five CI jobs](https://github.com/davidmashburn/moxi/actions/runs/37064134839) passed for `670175e`, completing at 2026-10-02 21:15:10 UTC; this includes Linux Mojo contracts and macOS candidate/precompiled-consumer checks |
 | Reference-host performance | All four workloads with the predeclared 16.67 ms warm-frame p95 budget passed; raw samples and growth/churn observations are recorded below |
 
 The rebuilt Mojo demo passed wide/narrow resizing, toolbar wrapping, RTL and
@@ -71,29 +73,31 @@ document is the recorded run, not an automatically updated claim.
 
 ## Remaining verification
 
-- Hosted macOS/Linux CI is configured for the Mojo engine but has not run for
-  these commits. Linux execution was not verified locally. The
-  [previous Taffy baseline CI](https://github.com/davidmashburn/moxi/actions/runs/37050637932)
-  passed all five jobs; that run does not validate the Mojo replacement.
+- The new installed-native-package CI gate is configured and passed locally;
+  its hosted result remains pending. The successful hosted migration run above
+  predates this packaging addition. Linux execution was not verified locally.
 - Android/iOS host checks were skipped because the required SDK/NDK and simulator
   SDK were unavailable. No mobile layout release is certified by these checks.
 - Live VoiceOver remains inconclusive. Its switch enabled, but no responsive
   VoiceOver process, cursor or caption feedback could be observed through this
   session. The switch was restored to off. Automated AX checks do not certify
   VoiceOver traversal, announcements or modal navigation.
-- Live Japanese IME remains unverified. The input-source sheet did not respond
-  reliably to selection/keyboard actions, so addition was canceled. U.S. remains
-  the sole source and the input-menu setting remains off. The native marked-text
+- Live Japanese IME remains unverified. On retry, filtering the chooser allowed
+  temporary addition of Japanese–Kana, but input-source switching shortcuts
+  continued to enter Latin text without observed composition. The source was
+  removed, U.S. restored as the sole source, the input menu turned off, and the
+  automatically added Japanese dictation language removed. The native marked-text
   probe does not replace composition with the real Japanese input method.
 - Horizontal scrolling through the live UI tools produced no observable movement
   in either direction. Portable two-axis collection offsets are covered by tests;
   native horizontal wheel delivery/direction still needs a direct manual check.
-- The precompiled consumer demonstrates explicit native linkage. A standalone
-  conda package containing the candidate Kiwi/macOS sidecars is not supplied
-  or certified by the existing package-consumer pass.
+- The [optional native archive recipe](../packages/moxi_layout_native/README.md)
+  is verified locally on macOS arm64 and requires macOS 14 or newer. It uses
+  the host Apple compiler/SDK, is not a hermetic build, and has not been uploaded
+  to a public channel. No Intel or non-macOS native-services package is certified.
 
-Confidence is high in the observed local candidate contracts and reference-host
-timings. Passing hosted CI and the live accessibility/input checks would change
+Confidence is high in the observed local candidate contracts, installed package
+consumer and reference-host timings. Passing the new packaging CI gate and the live accessibility/input checks would change
 the promotion assessment. Until then, this remains an optional candidate rather
 than a certified replacement for the legacy layout path. The
 [design acceptance requirements](design/layout-system.md#delivery-and-acceptance)
