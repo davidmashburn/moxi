@@ -97,6 +97,9 @@ def main() raises:
     assert_equal(narrow.hit_test(Point(-1,-1)),-1)
     var ax = narrow.accessibility()
     assert_equal(len(ax.nodes), narrow.count())
+    assert_true(ax.is_valid())
+    assert_equal(ax.node_for_id(1).parent_id,-1)
+    assert_equal(ax.node_for_id(6).parent_id,1)
     tree.remove(5)
     try:
         _ = tree.layout(1, Size(-1, 400))
