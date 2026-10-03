@@ -734,8 +734,17 @@ struct RequestScheduler:
         )
 
     def should_deliver(self, result: RequestResult) -> Bool:
-        """Reject completions belonging to a closed request scope."""
-        return self.scope_is_active(RequestScopeHandle(result.scope_id))
+        """Reject closed-scope and stale-generation completions."""
+        if not self.scope_is_active(RequestScopeHandle(result.scope_id)):
+            return False
+        for index in range(len(self.key_states)):
+            var key_state = self.key_states[index]
+            if (
+                key_state.scope_id == result.scope_id
+                and key_state.key == result.key
+            ):
+                return key_state.generation == result.generation
+        return False
 
     def retained_count(self) -> Int:
         """Return retained request metadata after bounded-queue pruning."""

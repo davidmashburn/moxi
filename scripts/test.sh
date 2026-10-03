@@ -56,6 +56,7 @@ tests=(
   tests/text_conformance.mojo
   tests/resources_scene.mojo
   tests/reactivity_tasks.mojo
+  tests/request_adapter.mojo
   tests/input_routing.mojo
   tests/control_state.mojo
   tests/interaction_foundation.mojo

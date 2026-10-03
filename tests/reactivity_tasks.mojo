@@ -156,10 +156,12 @@ def main():
     var stale_result = requests.pop_ready()
     test_check(stale_result.matches(ready_request))
     test_check(stale_result.payload == "stale")
+    test_check(not requests.should_deliver(stale_result))
     requests.advance(0.0)
     var fresh_result = requests.pop_ready()
     test_check(fresh_result.matches(ready_replacement))
     test_check(fresh_result.payload == "current")
+    test_check(requests.should_deliver(fresh_result))
 
     var keyed_cancel = requests.request(33, "cancel", 10.0, "ignored")
     test_check(requests.cancel_key(33))

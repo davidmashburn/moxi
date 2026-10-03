@@ -60,7 +60,8 @@ search query or resource slot); replacing that key cancels the old pending
 task, increments its generation, and marks any late result as stale through
 `RequestHandle`/`RequestResult`. `App.tick()` delivers request completions
 through the ordinary `Event` path, with `request_key` and
-`request_generation` on the event. The core still does not create threads or
+`request_generation` on the event; stale generations are rejected before that
+dispatch. The core still does not create threads or
 perform I/O: a host adapter owns transport and may use the same identity
 contract; `App.complete_request()` injects an adapter-owned completion into
 the same queue. `App.create_request_scope()` and
@@ -74,6 +75,15 @@ For keyed retained children, `RequestScheduler.mount_scope()` and
 `insert_scoped()` / `remove_scoped()` so the same key that mounts a child also
 closes its request lifetime. The bridge is explicit at the keyed host boundary
 and does not add lifecycle callbacks to `Component`.
+
+The effect policy is equally narrow: `build()` and view helpers are pure
+projections, `update()` consumes events and changes state, and an adapter or
+application command submits work through `App.schedule_request()`. Transport
+callbacks acknowledge completion with `App.complete_request()`; they do not
+call a component or mutate a view directly. See
+[`tests/request_adapter.mojo`](../tests/request_adapter.mojo) for the
+network-like contract test, including cancellation, timeout, and late-result
+rejection.
 
 Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
 then use [examples/form.mojo](../examples/form.mojo) for event routing and
