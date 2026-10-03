@@ -39,8 +39,11 @@ implemented contracts and lifecycle in full.
 - Stable action ids that decouple component handlers from view ids.
 - A high-level `App` lifecycle helper and a component example.
 - Keyed, generation-tagged request scheduling with explicit cancellation and
-  stale-result metadata on the normal event path, plus explicit lifetime
-  scopes that suppress detached completions and prune dropped records.
+  stale-result rejection on the normal event path, plus explicit lifetime
+  scopes that suppress detached completions and prune dropped records. Keyed
+  subtree executors can pair insertion/removal with those scopes without adding
+  lifecycle callbacks to `Component`; host adapters own transport and deadline
+  policy.
 - Canonical `App.run()` and `App.run_with_clipboard()` event-loop helpers.
 - Identity-based minimal reconciliation that reuses retained nodes across
   rebuilds while preserving declaration order.
