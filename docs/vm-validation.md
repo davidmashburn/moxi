@@ -123,18 +123,30 @@ The default-target compiler smoke and portable plot execution passed with this
 CPU setting. The broader rerun started at 2026-10-03 21:27:29 UTC against
 `e3e0a72`; its archive SHA-256 is
 `711bdb1be0bcab18b482a08dc7ea46eae5ad6e3bfcfd70423df279e60e91fed7`.
-The remaining guest checks are still running.
+The complete headless lane (including both source precompiles), retained engine,
+box layout, 100,000-row collection, overlay placement, request adapter and
+reactivity/tasks checks passed. Plot-view, execution and Node host checks are
+still running or queued. QEMU TCG compilation is slow; these observations do
+not establish native performance.
 
 The Kiwi build and constraint check now select `.dylib`/libc++ on macOS and
 `.so`/libstdc++ on Linux. The guest runner uses g++ for the C++ bridge, preserves
 assertions in its C ABI tests, and runs the existing Mojo constraint publication
 and rollback tests. This does not add a Linux window/text backend.
 The changed build/link path passed `constraint-layout-check` on the macOS host,
-including the C++ bridge and 1,000 Mojo staged rebuilds. Linux execution is
-pending a separate committed-source guest run.
+including the C++ bridge and 1,000 Mojo staged rebuilds. A separate Linux run
+started from a fresh snapshot of `60078ab`; its archive SHA-256 is
+`1cf57e545001a990a241e1d41408e2bcb166be99f82bb6d349cb2200586dd0ed`.
+It installs the locked environment within that snapshot and runs
+`CXX=g++ pixi run --locked constraint-layout-check`. Its result is pending.
+
+All five hosted CI jobs passed at `e3e0a72`, including the macOS candidate and
+installed package consumer. This is separate from the guest observations; CI
+for the later Kiwi portability commit is still pending.
 
 Local logs are `/tmp/moxi-rebase-check.log`, `/tmp/moxi-vm-linux-start.log`,
 `/tmp/moxi-vm-linux-bootstrap.log`, `/tmp/moxi-vm-linux-check-18f5a27.log`,
 `/tmp/moxi-vm-linux-cpu-smoke.log`, `/tmp/moxi-vm-linux-check-e3e0a72.log` and
-`/tmp/moxi-vm-kiwi-darwin-check.log`.
+`/tmp/moxi-vm-kiwi-darwin-check.log` and
+`/tmp/moxi-vm-linux-kiwi-60078ab.log`.
 Guest browser interaction, macOS VM and Windows VM checks have not started.
