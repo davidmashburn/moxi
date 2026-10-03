@@ -95,9 +95,26 @@ On 2026-10-03, `feat/data-workbench` was rebased onto `main` at `773682c`; all
 30 branch commits were retained. The additive support-matrix conflict preserved
 both the WebAssembly limitation and AppKit distribution note. The original tip
 is preserved locally as `backup/data-workbench-before-main-20261003` (`81dd247`).
-The post-rebase macOS layout candidate check passed, including the independent
-precompiled consumer. The broader macOS suite remains in progress.
+The post-rebase macOS `layout-candidate-check` and full `check` both passed at
+`116d20f`, including the independent precompiled consumer, upstream request and
+plot regressions, native accessibility/paragraph checks and the honest WASM gate.
+Android SDK/NDK and iPhone simulator SDK checks were skipped. Manual interaction
+and the frame benchmark were not repeated.
 The Ubuntu guest booted with kernel `6.8.0-134-generic`, glibc 2.39 and verified
-x86-64-v3 flags (`abm` is Linux's alias for LZCNT). Build-tool provisioning is in
-progress. No guest product checks, guest browser interaction, macOS VM or Windows
-VM results are claimed yet.
+x86-64-v3 flags (`abm` is Linux's alias for LZCNT). Build-tool provisioning passed:
+GCC 13.3.0, Node 18.19.1 and checksum-verified Pixi 0.81.0 execute in the guest.
+The guest reports `qemu` VM virtualization and `none` for container virtualization.
+
+The first product run started at 2026-10-03 21:23:11 UTC against source commit
+`18f5a27`. Its transferred archive has SHA-256
+`1b6bb6fbdf3ea34c431d1c441e014ddd877da474519ecdd48cc24f212957006b`;
+the runner used for that run has SHA-256
+`3ce7c2b879779a9a89041b629997df1b9d1e2113054da73c011e28a283f6bd36`.
+The runner subsequently gained explicit container rejection because
+`systemd-detect-virt --vm` alone can report an outer VM from inside a container.
+The first run's direct-guest identity was checked separately. Locked installation
+and guest product checks remain in progress; no pass is claimed yet.
+
+Local logs are `/tmp/moxi-rebase-check.log`, `/tmp/moxi-vm-linux-start.log`,
+`/tmp/moxi-vm-linux-bootstrap.log` and `/tmp/moxi-vm-linux-check-18f5a27.log`.
+Guest browser interaction, macOS VM and Windows VM checks have not started.
