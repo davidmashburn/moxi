@@ -4,7 +4,7 @@ from std.ffi import external_call
 from .retained_layout import RetainedLayout, RetainedStyle, RetainedSnapshot
 from .view_node import ViewNode, LABEL_KIND, BUTTON_KIND, TEXT_INPUT_VIEW_KIND, CANVAS_KIND
 from .paint import PaintCommand
-from .accessibility import ROLE_CONTAINER, ROLE_LABEL
+from .accessibility import AccessibilitySnapshot, ROLE_CONTAINER, ROLE_LABEL
 from .geometry import Point
 from .macos import MacOSRenderer
 
@@ -30,9 +30,13 @@ struct RetainedPresentation:
     var snapshot: RetainedSnapshot
     var commands: List[PaintCommand]
     var focused: Int
-    def __init__(out self, snapshot: RetainedSnapshot, leaves: List[ViewNode], focused: Int = -1) raises:
+    var accessibility_root: Int
+    def __init__(out self, snapshot: RetainedSnapshot, leaves: List[ViewNode], focused: Int = -1, accessibility_root: Int = -1) raises:
         self.snapshot = snapshot
         self.focused = focused
+        self.accessibility_root = accessibility_root
+        if accessibility_root >= 0:
+            _ = snapshot.output(accessibility_root)
         self.commands = List[PaintCommand]()
         var nodes = Dict[Int,ViewNode]()
         if len(snapshot._outputs[])>1024:
@@ -93,13 +97,35 @@ struct RetainedPresentation:
             if output.has_paragraph and command.kind == LABEL_KIND:
                 external_call["moxi_window_set_paragraph_at", NoneType](Int32(command.slot),output.paragraph._storage[].handle)
 
-    def draw_accessibility(self, mut renderer: MacOSRenderer) raises:
+    def accessibility(self) raises -> AccessibilitySnapshot:
+        """Publish only the active modal subtree while preserving all paint geometry."""
         var accessibility = self.snapshot.accessibility()
+        if self.accessibility_root >= 0:
+            var parents = Dict[Int,Int]()
+            for node in accessibility.nodes:
+                parents[node.id] = node.parent_id
+            var scoped = AccessibilitySnapshot()
+            for node in accessibility.nodes:
+                var ancestor = node.id
+                for _ in range(len(accessibility.nodes)):
+                    if ancestor == self.accessibility_root:
+                        var member = node
+                        if member.id == self.accessibility_root:
+                            member.parent_id = -1
+                        scoped.append(member)
+                        break
+                    if ancestor not in parents:
+                        break
+                    ancestor = parents[ancestor]
+            accessibility = scoped^
         for i in range(len(accessibility.nodes)):
             accessibility.nodes[i].focused = accessibility.nodes[i].id == self.focused
             if accessibility.nodes[i].role == ROLE_LABEL and accessibility.nodes[i].value == "":
                 accessibility.nodes[i].value = accessibility.nodes[i].label
-        renderer.update_accessibility(accessibility)
+        return accessibility^
+
+    def draw_accessibility(self, mut renderer: MacOSRenderer) raises:
+        renderer.update_accessibility(self.accessibility())
 
     def draw(self, mut renderer: MacOSRenderer, custom_layer: Int = -1) raises:
         self.draw_commands(renderer,custom_layer)

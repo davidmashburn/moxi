@@ -133,23 +133,8 @@ def main() raises:
                     dirty = screen.editor.handle_key(event.key,event.modifiers) or dirty
                 elif screen.focused>=1000:
                     dirty = screen.cell_editor.handle_key(event.key,event.modifiers) or dirty
-            elif event.kind==TEXT_INPUT_KIND:
-                if screen.focused==13:
-                    if event.replacement_start>=0:
-                        dirty = screen.editor.replace_text_range(event.text,event.replacement_start,event.replacement_end) or dirty
-                    else:
-                        dirty = screen.editor.insert_text(event.text) or dirty
-                elif screen.focused>=1000:
-                    if event.replacement_start>=0:
-                        dirty = screen.cell_editor.replace_text_range(event.text,event.replacement_start,event.replacement_end) or dirty
-                    else:
-                        dirty = screen.cell_editor.insert_text(event.text) or dirty
-            elif event.kind==COMPOSITION_UPDATE_KIND or event.kind==COMPOSITION_END_KIND:
-                if screen.focused==13:
-                    screen.editor.set_composition(event.text,event.selection_start,event.selection_end)
-                elif screen.focused>=1000:
-                    screen.cell_editor.set_composition(event.text,event.selection_start,event.selection_end)
-                dirty = True
+            elif event.kind==TEXT_INPUT_KIND or event.kind==COMPOSITION_UPDATE_KIND or event.kind==COMPOSITION_END_KIND:
+                dirty = screen.handle_text_input(event) or dirty
             if screen.popups.traps_focus() and (activate<92 or activate>94):
                 activate = -1
             if activate==40:

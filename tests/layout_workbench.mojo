@@ -1,6 +1,8 @@
 from std.testing import assert_true, assert_equal, assert_almost_equal
 from moxi.layout_workbench import LayoutWorkbench
 from moxi.geometry import Size, Point
+from moxi.event import Event, TextInputEvent, CompositionEvent
+from moxi.accessibility import ROLE_DIALOG, ROLE_MENU
 
 
 def main() raises:
@@ -61,18 +63,48 @@ def main() raises:
     assert_equal(popup.hit_test(Point(popup_button.x+4,popup_button.y+4)),92)
     assert_true(popup.snapshot.bounds(90).width<=540)
     assert_equal(screen.popups.top_bounds().y,popup.snapshot.bounds(90).y)
+    var menu_ax = popup.accessibility()
+    assert_true(menu_ax.is_valid())
+    assert_equal(menu_ax.node_for_id(90).role,ROLE_MENU)
+    assert_equal(menu_ax.node_for_id(13).label,String("Dataset"))
     var anchor_y = popup.snapshot.bounds(90).y
     screen.summary = False
     var moved = screen.frame(Size(1100,800))
     assert_true(moved.snapshot.bounds(90).y!=anchor_y)
     screen.close_popup()
     screen.open_popup(modal=True)
-    _ = screen.frame(Size(1100,800))
+    var dialog = screen.frame(Size(1100,800))
+    var dialog_ax = dialog.accessibility()
+    assert_true(dialog_ax.is_valid())
+    assert_equal(dialog_ax.count(),5)
+    assert_equal(dialog_ax.node_for_id(90).role,ROLE_DIALOG)
+    assert_true(dialog_ax.node_for_id(90).expanded)
+    assert_equal(dialog_ax.node_for_id(90).parent_id,-1)
+    assert_true(dialog_ax.node_for_id(92).focused)
+    assert_equal(dialog_ax.node_for_id(13).id,-1)
+    assert_equal(dialog_ax.node_for_id(46).id,-1)
+    # Modal AX scope leaves the background's geometry and paint intact.
+    assert_equal(dialog.snapshot.output(13).mount,editor_mount)
+    var background_painted = False
+    for command in dialog.commands:
+        background_painted = background_painted or command.id==13
+    assert_true(background_painted)
+    screen.focused = 93
+    var resized_dialog = screen.frame(Size(540,900))
+    var resized_dialog_ax = resized_dialog.accessibility()
+    assert_true(resized_dialog_ax.is_valid())
+    assert_equal(resized_dialog_ax.count(),5)
+    assert_true(resized_dialog_ax.node_for_id(93).focused)
     assert_true(screen.popups.traps_focus())
     assert_true(not screen.popups.allows_focus(13))
     screen.close_popup()
     assert_equal(screen.focused,cell)
     var published = screen.frame(Size(1100,800))
+    var restored_ax = published.accessibility()
+    assert_true(restored_ax.is_valid())
+    assert_equal(restored_ax.node_for_id(13).label,String("Dataset"))
+    assert_true(restored_ax.node_for_id(cell).focused)
+    assert_equal(restored_ax.node_for_id(90).id,-1)
     screen.conflict = True
     var rejected = False
     try:
@@ -146,4 +178,112 @@ def main() raises:
     assert_equal(bounded.table.created,created)
     var recovered = bounded.frame(Size(1100,800))
     assert_equal(recovered.snapshot.output(13).mount,accepted.snapshot.output(13).mount)
+    # Addressed AX edits follow their semantic target rather than keyboard focus.
+    var routed = LayoutWorkbench(4)
+    routed.edit_row(2)
+    var routed_cell = 1022
+    var original_cell_text = routed.cell_editor.text
+    var dataset_write = Event(TextInputEvent("Dataset 日本語",0,routed.editor.text.count_codepoints()))
+    dataset_write.set_target(13)
+    assert_true(routed.handle_text_input(dataset_write))
+    assert_equal(routed.editor.text,String("Dataset 日本語"))
+    assert_equal(routed.cell_editor.text,original_cell_text)
+    assert_equal(routed.focused,routed_cell)
+    for focus in [13,40]:
+        routed.focused = focus
+        var cell_write = Event(TextInputEvent(String("Cell ",focus),0,routed.cell_editor.text.count_codepoints()))
+        cell_write.set_target(routed_cell)
+        assert_true(routed.handle_text_input(cell_write))
+        assert_equal(routed.cell_editor.text,String("Cell ",focus))
+        assert_equal(routed.editor.text,String("Dataset 日本語"))
+        assert_equal(routed.focused,focus)
+    var composition = Event(CompositionEvent("かな",0,1))
+    composition.set_target(routed_cell)
+    assert_true(routed.handle_text_input(composition))
+    assert_equal(routed.cell_editor.composition,String("かな"))
+    assert_equal(routed.editor.composition,String(""))
+    var composition_end = Event(CompositionEvent())
+    composition_end.set_target(routed_cell)
+    assert_true(routed.handle_text_input(composition_end))
+    assert_equal(routed.cell_editor.composition,String(""))
+    var invalid_write = Event(TextInputEvent("Wrong editor"))
+    invalid_write.set_target(9999)
+    assert_true(not routed.handle_text_input(invalid_write))
+    routed.edit_row(3)
+    invalid_write.set_target(routed_cell)
+    assert_true(not routed.handle_text_input(invalid_write))
+    routed.focused = 13
+    assert_true(routed.handle_text_input(Event(TextInputEvent("!"))))
+    assert_equal(routed.editor.text,String("Dataset 日本語!"))
+    routed.focused = 1032
+    assert_true(routed.handle_text_input(Event(TextInputEvent("!"))))
+    assert_equal(routed.cell_editor.text,String("Cell 40!"))
+    routed.open_popup(modal=True)
+    assert_true(not routed.handle_text_input(dataset_write))
+    composition.set_target(13)
+    assert_true(not routed.handle_text_input(composition))
+    assert_equal(routed.editor.text,String("Dataset 日本語!"))
+    assert_equal(routed.editor.composition,String(""))
+    routed.close_popup()
+    routed.set_rows(0)
+    invalid_write.set_target(1032)
+    assert_true(not routed.handle_text_input(invalid_write))
+    assert_equal(routed.cell_editor.text,String("Cell 40!"))
+    # Rejected popup transitions recover the scope and focus actually painted.
+    var faulted = LayoutWorkbench(4)
+    var published_normal = faulted.frame(Size(1100,800))
+    faulted.conflict = True
+    faulted.open_popup(modal=True)
+    var rejected_open = False
+    try:
+        _ = faulted.frame(Size(1100,800))
+    except:
+        rejected_open = True
+    assert_true(rejected_open)
+    var recovered_normal = faulted.recovery()
+    var recovered_normal_ax = recovered_normal.accessibility()
+    assert_equal(recovered_normal.snapshot.generation,published_normal.snapshot.generation)
+    assert_equal(recovered_normal.snapshot.bounds(13).x,published_normal.snapshot.bounds(13).x)
+    assert_true(recovered_normal_ax.is_valid())
+    assert_equal(recovered_normal.accessibility_root,-1)
+    assert_equal(recovered_normal_ax.node_for_id(90).id,-1)
+    assert_true(recovered_normal_ax.node_for_id(13).focused)
+    assert_equal(recovered_normal.focused,published_normal.focused)
+    faulted.conflict = False
+    faulted.focused = 93
+    var published_dialog = faulted.frame(Size(1100,800))
+    faulted.conflict = True
+    faulted.close_popup()
+    var rejected_close = False
+    try:
+        _ = faulted.frame(Size(1100,800))
+    except:
+        rejected_close = True
+    assert_true(rejected_close)
+    var recovered_dialog = faulted.recovery()
+    var recovered_dialog_ax = recovered_dialog.accessibility()
+    assert_equal(recovered_dialog.snapshot.generation,published_dialog.snapshot.generation)
+    assert_equal(recovered_dialog.snapshot.bounds(90).x,published_dialog.snapshot.bounds(90).x)
+    assert_true(recovered_dialog_ax.is_valid())
+    assert_equal(recovered_dialog.accessibility_root,90)
+    assert_equal(recovered_dialog_ax.count(),5)
+    assert_equal(recovered_dialog_ax.node_for_id(90).role,ROLE_DIALOG)
+    assert_equal(recovered_dialog_ax.node_for_id(13).id,-1)
+    assert_true(recovered_dialog_ax.node_for_id(93).focused)
+    assert_equal(recovered_dialog.focused,published_dialog.focused)
+    # Source removal overrides cached focus even when the next solve is rejected.
+    faulted.conflict = False
+    faulted.edit_row(2)
+    _ = faulted.frame(Size(1100,800))
+    faulted.set_rows(0)
+    faulted.conflict = True
+    var rejected_remove = False
+    try:
+        _ = faulted.frame(Size(1100,800))
+    except:
+        rejected_remove = True
+    assert_true(rejected_remove)
+    var removed_focus = faulted.recovery()
+    assert_equal(removed_focus.focused,13)
+    assert_true(removed_focus.accessibility().node_for_id(13).focused)
     print("Composed layout workbench contracts passed")

@@ -8,9 +8,10 @@ from .collection_layout import CollectionViewport
 from .overlay_layout import place_overlay
 from .popup import PopupLayerState, POPUP_MENU, POPUP_DIALOG
 from .controls_text import TextInputControl, TextInputState
+from .event import Event, TEXT_INPUT_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND
 from .view_node import ViewNode, LABEL_KIND, BUTTON_KIND, CANVAS_KIND
 from .retained_leaf import declare_leaf, RetainedPresentation
-from .accessibility import Semantics, ROLE_CONTAINER
+from .accessibility import Semantics, ROLE_CONTAINER, ROLE_DIALOG, ROLE_MENU
 
 
 def _fixed(key: Int, axis: Int, value: Float64) raises -> LinearConstraint:
@@ -38,6 +39,8 @@ struct LayoutWorkbench:
     var _cells: Dict[Int,Bool]
     var _leaves: List[ViewNode]
     var _published_leaves: List[ViewNode]
+    var _published_focus: Int
+    var _published_accessibility_root: Int
     var _snapshot: RetainedSnapshot
     var _size: Size
     var _phase_ns: List[Int64]
@@ -63,6 +66,8 @@ struct LayoutWorkbench:
         self._cells = Dict[Int,Bool]()
         self._leaves = List[ViewNode]()
         self._published_leaves = List[ViewNode]()
+        self._published_focus = -1
+        self._published_accessibility_root = -1
         self._snapshot = RetainedSnapshot()
         self._size = Size(0,0)
         self._phase_ns = List[Int64]()
@@ -143,6 +148,9 @@ struct LayoutWorkbench:
         self._leaf(description,RetainedStyle(LEAF))
         self.tree.children(10,[11,12,13,14])
         self._leaf(ViewNode(CANVAS_KIND,90,"Popup background",160),RetainedStyle(STACK if self.popups.is_open() else COLLAPSED,overflow=1))
+        var popup_semantics = Semantics(90,ROLE_DIALOG if self.modal else ROLE_MENU,"Layout dialog" if self.modal else "Columns")
+        popup_semantics.expanded = self.popups.is_open()
+        self.tree.set_semantics(90,popup_semantics)
         if not self.popups.is_open():
             self.tree.clear_placement(90)
         self.tree.set_region(91,RetainedStyle(COLUMN,gap=8,padding=12))
@@ -247,7 +255,7 @@ struct LayoutWorkbench:
         self.form.validate(form_plan)
         self.table.validate(collection)
         # Capacity and adapter validation precede every publication.
-        _ = RetainedPresentation(ready.snapshot,self._leaves,self.focused)
+        _ = RetainedPresentation(ready.snapshot,self._leaves,self.focused,90 if self.popups.traps_focus() else -1)
         self._record_phase[profile]()
         var published = self.tree.commit(ready)
         self.form.commit(form_plan)
@@ -265,19 +273,27 @@ struct LayoutWorkbench:
         self._size = size
         self.error = ""
         self._record_phase[profile]()
-        var presentation = RetainedPresentation(published,self._leaves,self.focused)
+        var presentation = RetainedPresentation(published,self._leaves,self.focused,90 if self.popups.traps_focus() else -1)
+        self._published_focus = presentation.focused
+        self._published_accessibility_root = presentation.accessibility_root
         self._record_phase[profile]()
         return presentation^
 
     def recovery(self) raises -> RetainedPresentation:
         var snapshot = self.tree.snapshot()
         var leaves = List[ViewNode]()
+        var focus_present = False
+        var dataset_present = False
+        for output in snapshot._outputs[]:
+            focus_present = focus_present or output.key==self._published_focus
+            dataset_present = dataset_present or output.key==13
         for leaf in self._published_leaves:
             for output in snapshot._outputs[]:
                 if output.key == leaf.id:
                     leaves.append(leaf)
                     break
-        return RetainedPresentation(snapshot,leaves,self.focused)
+        var published_focus = self._published_focus if focus_present else (13 if dataset_present else -1)
+        return RetainedPresentation(snapshot,leaves,published_focus,self._published_accessibility_root)
 
     def open_popup(mut self, modal: Bool = False):
         self.modal = modal
@@ -299,3 +315,26 @@ struct LayoutWorkbench:
         self.table.pin_editor(row_key)
         self.editing_row = row_key
         self.focused = 1000+row_key*10+2
+
+    def handle_text_input(mut self, event: Event) -> Bool:
+        """Route addressed accessibility edits and focused keyboard/IME input."""
+        if event.kind!=TEXT_INPUT_KIND and event.kind!=COMPOSITION_UPDATE_KIND and event.kind!=COMPOSITION_END_KIND:
+            return False
+        var target = event.target if event.target>=0 else self.focused
+        if not self.popups.allows_focus(target):
+            return False
+        if target==13:
+            if event.kind==TEXT_INPUT_KIND:
+                if event.replacement_start>=0:
+                    return self.editor.replace_text_range(event.text,event.replacement_start,event.replacement_end)
+                return self.editor.insert_text(event.text)
+            self.editor.set_composition(event.text,event.selection_start,event.selection_end)
+            return True
+        if self.editing_row>0 and target==1000+self.editing_row*10+2:
+            if event.kind==TEXT_INPUT_KIND:
+                if event.replacement_start>=0:
+                    return self.cell_editor.replace_text_range(event.text,event.replacement_start,event.replacement_end)
+                return self.cell_editor.insert_text(event.text)
+            self.cell_editor.set_composition(event.text,event.selection_start,event.selection_end)
+            return True
+        return False

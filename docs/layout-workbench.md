@@ -45,6 +45,14 @@ clip-host identity, stable AX objects and a real AppKit field editor's marked ra
 across offscreen clipping. Native wheel scrolling uses the portable event delta;
 vertical direction was verified in the live demo. Tab and Shift-Tab traverse in
 both directions; modal activation is rejected for targets outside the popup.
+An open modal publishes only its dialog subtree for accessibility navigation;
+dismissal restores the full tree and the prior focused control. Newly appearing
+focused controls emit native focus-change notifications. Addressed accessibility
+text edits use their editor's semantic key, even when keyboard focus is elsewhere;
+background edits are rejected while a modal is active.
+If a popup transition's layout is rejected, recovery keeps the accessibility
+scope and focus from the frame still being painted. Authoritative source removal
+falls back to Dataset when the previously focused row no longer exists.
 These automated checks do not certify VoiceOver interaction or
 Japanese input-method composition; those require explicit native verification.
 

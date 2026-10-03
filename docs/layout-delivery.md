@@ -38,6 +38,24 @@ with their editable text still published as values. Regression checks preserve
 these semantics through resizing, composition state and offscreen retention.
 This verifies naming through AppKit, not VoiceOver speech or navigation.
 
+Later on 2026-10-03, candidate checks and the full repository suite passed after
+normalizing accessibility root parents, limiting modal accessibility to the
+dialog subtree, announcing newly mounted focused controls and routing addressed
+editor input by semantic key. The final recovery adjustment was rechecked with
+`pixi run layout-candidate-check`, including rejected dialog opening/dismissal,
+published focus retention and source-removal fallback; that rerun passed.
+The full repository suite was not repeated after that recovery-only adjustment.
+
+The rebuilt app's native accessibility tree exposed only the dialog and its
+controls while modal. Tab changed the focused dialog control; Escape restored
+the background tree and keyboard input to the prior cell editor. An AX value
+write addressed to Dataset changed Dataset while subsequent keyboard input still
+edited the cell. In the final build, opening a dialog during the deliberate
+constraint conflict preserved the painted background and its accessibility tree;
+clearing the conflict then allowed normal dialog publication and dismissal.
+These observations do not certify VoiceOver or Japanese IME behavior. No system
+settings changed during this pass, and the recorded timing run was not repeated.
+
 ## Frame cost
 
 [Recorded timings](layout-workbench-timings.json) preserve all 840 measured frames,
