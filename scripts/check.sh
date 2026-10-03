@@ -8,6 +8,7 @@ git diff --check
 git diff --cached --check
 bash -n scripts/record_demo.sh
 bash -n scripts/api_status_check.sh
+bash -n scripts/api_ergonomics.sh
 bash -n scripts/visual_check.sh
 bash -n scripts/browser_check.sh
 bash -n scripts/benchmark.sh
