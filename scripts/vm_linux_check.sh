@@ -15,6 +15,9 @@ fail() {
 for tool in cc node pixi systemd-detect-virt; do
   command -v "$tool" >/dev/null 2>&1 || fail "missing prerequisite: $tool"
 done
+if container_kind="$(systemd-detect-virt --container 2>/dev/null)"; then
+  fail "container detected: $container_kind; run directly in the guest OS"
+fi
 if ! vm_kind="$(systemd-detect-virt --vm 2>/dev/null)"; then
   fail "no virtual machine detected; containers and the host are outside this lane"
 fi
