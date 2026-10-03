@@ -232,7 +232,7 @@ struct RetainedLayout:
         result.generation = snapshot.generation
         for output in snapshot.outputs[]:
             var semantics = metadata.get(output.key,Semantics(output.key,ROLE_CONTAINER,""))
-            semantics.parent_id = output.parent
+            semantics.parent_id = output.parent if output.parent != 0 else -1
             result._outputs[].append(RetainedOutput(output.key,output.mount,output.rect,output.clip,output.hidden,output.payload,output.paragraph,semantics,fonts.get(output.key,Float32(16))))
         return result^
 
