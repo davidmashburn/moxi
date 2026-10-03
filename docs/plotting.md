@@ -86,19 +86,24 @@ patterns are inspired by Altair's declarative selections and linked-brush
 examples ([interaction guide](https://altair-viz.github.io/user_guide/interactions/index.html),
 [linked brush](https://altair-viz.github.io/gallery/scatter_linked_brush.html)).
 
-`PlotView` is the reactive boundary for a changing source. Its
-`replace_data()` method compares the source's monotonic version, snapshots
-only a changed source, recompiles the scene, and returns whether a refresh
-occurred. `replace_spec()` replaces the declarative grammar, while
-`reset_view()` and `clear_hover()` expose the small host controls used by the
-demo toolbar:
+`PlotView` is the reactive boundary for a changing source. It owns one
+`LocalizedExecution` dependency scope, so a host can separate source
+mutation from plot compilation: `request_data()` or `request_spec()` snapshots
+the new source and marks only that plot scope dirty; `rebuild_if_dirty()`
+consumes the dirty token and recompiles the retained plot. This is the same
+explicit invalidate/consume contract used by `TypedSubtreeExecutor`, adapted
+to a scene-producing child. `replace_data()` and `replace_spec()` remain
+eager compatibility methods: they invalidate and consume immediately without
+retaining a pending snapshot. `reset_view()` and
+`clear_hover()` expose the small host controls used by the demo toolbar:
 
 ```mojo
 var view = PlotView(spec, source, bounds)
 var previous_version = source.version
 _ = source.append(next_x, next_y)
 if source.version != previous_version:
-    _ = view.replace_data(source)
+    _ = view.request_data(source)
+    _ = view.rebuild_if_dirty()
 ```
 
 `PlotView` also implements the Moxi `Component` contract. Mounting it through
@@ -107,6 +112,12 @@ Moxi's normal `StateScope` invalidation path without rebuilding the stable
 one-canvas view for retained scene changes. The direct `dispatch()` API remains
 available for headless replay and hosts that already own their own event loop;
 it is the imperative escape hatch, not a second reactive model.
+
+`reactive_dirty()` and `reactive_work_counters()` let hosts and tests observe
+whether a plot is pending and how much localized invalidation work occurred.
+The interactive showcase queues its streaming sample during event handling
+and consumes the token at the scene boundary, keeping the source snapshot and
+scene rebuild ownership explicit.
 
 The standalone `plot-gallery` command replays the same hover, click, zoom,
 brush, and linked-selection events before patching a source field, so these

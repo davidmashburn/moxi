@@ -247,7 +247,11 @@ reset, and semantic selection state. `PlotSelection` stores stable row keys;
 `PlotLink` explicitly propagates a selection between runtimes, so linked views
 do not rely on hidden global state. `PlotView`/`PlotControl` compile a spec,
 retain its source snapshot, expose a CSV data-table fallback, and integrate
-runtime scene/accessibility methods.
+runtime scene/accessibility methods. `PlotView` also owns a localized
+`LocalizedExecution` scope: `request_data()`/`request_spec()` enqueue a
+snapshot, `reactive_dirty()` exposes the pending token, and
+`rebuild_if_dirty()` consumes it. `replace_data()`/`replace_spec()` preserve
+the eager compatibility path without retaining an idle pending snapshot.
 The software, Metal, and SVG scene paths consume the same plot output; native
 Metal covers geometry, printable ASCII glyphs, CoreText Unicode textures,
 registered images, curve/arc-flattened paths, and concave simple polygons, while

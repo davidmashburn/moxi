@@ -530,7 +530,7 @@ struct ShowcaseState(Component):
         return False
 
     def _append_stream_sample(mut self) -> Bool:
-        """Append one deterministic row and refresh the retained plot view."""
+        """Append one deterministic row and schedule a local plot refresh."""
         var sample = self.plot_stream_index
         var value = 1.0 + Float32((sample * 11) % 17) * 0.35
         var key = self.plot_data.append(Float32(sample), value)
@@ -559,15 +559,7 @@ struct ShowcaseState(Component):
             )
         self.plot_data.rollover(64)
         self.plot_stream_index += 1
-        var refreshed = self.plot_view.replace_data(self.plot_data)
-        if refreshed and not self.plot_points_visible:
-            if self.plot_view.runtime.plot.series_count() > 1:
-                var points_id = self.plot_view.runtime.plot.series[1].id
-                _ = self.plot_view.runtime.plot.set_series_visible(
-                    points_id,
-                    False,
-                )
-        return refreshed
+        return self.plot_view.request_data(self.plot_data)
 
     def scene(mut self, bounds: Rect) -> Scene:
         """Return the current scene for a component-owned canvas."""
@@ -577,6 +569,16 @@ struct ShowcaseState(Component):
 
         if _is_interactive_plot_mode(self.mode):
             self.plot_view.set_bounds(bounds)
+            # The event/update phase only queues source snapshots. The scene
+            # boundary is the host's explicit local dirty-token consumer.
+            var refreshed = self.plot_view.rebuild_if_dirty()
+            if refreshed and not self.plot_points_visible:
+                if self.plot_view.runtime.plot.series_count() > 1:
+                    var points_id = self.plot_view.runtime.plot.series[1].id
+                    _ = self.plot_view.runtime.plot.set_series_visible(
+                        points_id,
+                        False,
+                    )
             return self.plot_view.build_scene()
 
         if self.mode == SHOWCASE_PLOT_SVG:

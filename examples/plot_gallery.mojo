@@ -105,13 +105,18 @@ def main() raises:
     link.apply(linked_view.runtime)
     var linked_count = linked_view.selected_count()
 
-    # Mutating the source increments its version; replace_data() then rebuilds
-    # the retained scene from the new snapshot and invalidates render caches.
+    # Mutating the source increments its version. The localized path queues a
+    # snapshot first, then the host consumes the plot's dirty token to rebuild
+    # the retained scene and invalidate render caches.
     var reactive_data = data.clone()
     var source_version = reactive_data.version
     var next_value = reactive_data.float_field_at("value", 0) + 0.75
     _ = reactive_data.set_float_field("value", 0, next_value)
-    var data_refreshed = view.replace_data(reactive_data)
+    var data_requested = view.request_data(reactive_data)
+    var reactive_dirty_before_commit = view.reactive_dirty()
+    var data_refreshed = view.rebuild_if_dirty()
+    var reactive_dirty_after_commit = view.reactive_dirty()
+    var reactive_counters = view.reactive_work_counters()
     var refreshed_scene = view.build_scene()
     renderer.render_scene(refreshed_scene)
     var refreshed_checksum = renderer.checksum()
@@ -159,7 +164,9 @@ def main() raises:
     print("  replay hover/click/zoom: ", hover_changed, "/", click_changed, "/", zoom_changed, " (domain max changed: ", zoom_domain_changed, ")")
     print("  brush selected / linked: ", brushed_count, " / ", linked_count)
     print("  interactive checksum: ", interactive_checksum)
-    print("  reactive source version/refreshed/checksum: ", source_version, " -> ", reactive_data.version, " / ", data_refreshed, " / ", refreshed_checksum)
+    print("  reactive source version/requested/dirty/refreshed/clean: ", source_version, " -> ", reactive_data.version, " / ", data_requested, " / ", reactive_dirty_before_commit, " / ", data_refreshed, " / ", not reactive_dirty_after_commit)
+    print("  reactive invalidations/visits/consumed: ", reactive_counters.invalidation_count, " / ", reactive_counters.dependency_visits, " / ", reactive_counters.dirty_consumed)
+    print("  refreshed checksum: ", refreshed_checksum)
     print("  accessibility nodes: ", view.accessibility().count())
     print("  histogram rows/commands/checksum: ", histogram.point_count(1), "/", histogram.build_scene().count(), "/", histogram_checksum)
     print("  box rows/commands/checksum: ", boxes.point_count(1), "/", boxes.build_scene().count(), "/", box_checksum)

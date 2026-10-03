@@ -373,6 +373,9 @@ def main() raises:
         == rows_before_stream + 1
     )
     test_check(app.component.showcase.component.plot_update_count == 1)
+    test_check(app.component.showcase.component.plot_view.reactive_dirty())
+    test_check(app.component.selected_scene(app.view).count() > 0)
+    test_check(not app.component.showcase.component.plot_view.reactive_dirty())
     test_check(app.dispatch(stream_action))
 
     # The interaction lab mounts as a real child component and exposes the

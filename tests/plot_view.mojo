@@ -54,6 +54,39 @@ def main():
     test_check(view.runtime.plot.point_count(1) == 1)
     test_check(not view.replace_data(replacement))
 
+    # The localized path separates source mutation from plot compilation.
+    # Until the host consumes the dirty token, the retained plot still shows
+    # the previous snapshot.
+    var deferred = replacement.clone()
+    _ = deferred.append(11.0, 21.0)
+    var counters_before = view.reactive_work_counters()
+    test_check(view.request_data(deferred))
+    test_check(view.reactive_dirty())
+    test_check(
+        view.reactive_work_counters().invalidation_count
+        == counters_before.invalidation_count + 1
+    )
+    test_check(
+        view.reactive_work_counters().dependency_visits
+        == counters_before.dependency_visits + 1
+    )
+    test_check(view.runtime.plot.point_count(1) == 1)
+    test_check(view.rebuild_if_dirty())
+    test_check(not view.reactive_dirty())
+    test_check(view.runtime.plot.point_count(1) == 2)
+    test_check(
+        view.reactive_work_counters().dirty_consumed
+        == counters_before.dirty_consumed + 1
+    )
+    test_check(not view.rebuild_if_dirty())
+
+    var deferred_spec = spec.clone()
+    test_check(view.request_spec(deferred_spec, replacement))
+    test_check(view.reactive_dirty())
+    test_check(view.rebuild_if_dirty())
+    test_check(not view.reactive_dirty())
+    test_check(view.runtime.plot.point_count(1) == 1)
+
     var control = PlotControl(spec, data, Rect(0.0, 0.0, 320.0, 240.0))
     test_check(control.build_scene().count() > 0)
 

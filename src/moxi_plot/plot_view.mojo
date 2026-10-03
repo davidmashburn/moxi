@@ -19,6 +19,7 @@ from moxi.event import (
     Event,
 )
 from moxi.geometry import Rect
+from moxi.execution import ExecutionWorkCounters, LocalizedExecution
 from .plot_data import PlotDataSnapshot, PlotDataTable
 from .plot_runtime import PlotRuntime
 from moxi.plot_render import PlotRenderPacket
@@ -31,25 +32,55 @@ comptime PLOT_VIEW_CANVAS_ID = 1
 
 
 struct PlotView(Component):
-    """Compile a ``PlotSpec`` and own its interactive runtime state."""
+    """Compile a ``PlotSpec`` and own its interactive runtime state.
+
+    A plot is a scene-producing child rather than a ``ColumnView`` component,
+    so it cannot be put directly into ``TypedSubtreeExecutor``. It still uses
+    the same localized dependency scheduler: the view owns one execution
+    scope, source/spec changes enqueue a dirty token, and a host explicitly
+    consumes that token with ``rebuild_if_dirty()``. The existing
+    ``replace_*`` methods remain eager compatibility shims over that boundary.
+    """
 
     var runtime: PlotRuntime
     var data: PlotDataSnapshot
     var spec: PlotSpec
     var specification_version: Int
+    var execution: LocalizedExecution
+    var reactive_component_id: Int
+    var reactive_scope_id: Int
+    var pending_data: PlotDataSnapshot
+    var pending_spec: PlotSpec
+    var pending_data_valid: Bool
+    var pending_spec_valid: Bool
 
     def __init__(
         out self,
         spec: PlotSpec,
         data: PlotDataTable,
         bounds: Rect,
+        component_id: Int = 0,
+        scope_id: Int = 0,
     ):
         self.runtime = PlotRuntime(bounds)
         self.data = data.snapshot()
         self.spec = spec.clone()
-        self.runtime.plot = plot_from_spec(spec, data, bounds)
+        self.runtime.plot = plot_from_spec(self.spec, self.data.table, bounds)
         self.runtime.configure(self.spec)
         self.specification_version = spec.version
+        self.execution = LocalizedExecution()
+        self.reactive_component_id = component_id if component_id >= 0 else 0
+        self.reactive_scope_id = scope_id if scope_id >= 0 else 0
+        var empty_pending_data = PlotDataTable()
+        self.pending_data = PlotDataSnapshot(empty_pending_data)
+        self.pending_spec = PlotSpec()
+        self.pending_data_valid = False
+        self.pending_spec_valid = False
+        _ = self.execution.add_scope(self.reactive_scope_id)
+        _ = self.execution.add_dependency(
+            self.reactive_component_id,
+            self.reactive_scope_id,
+        )
 
     def __init__(out self, *, copy: Self):
         """Copy the declarative boundary without sharing mutable buffers."""
@@ -64,6 +95,25 @@ struct PlotView(Component):
         )
         self.runtime.configure(self.spec)
         self.specification_version = copy.specification_version
+        self.execution = LocalizedExecution()
+        self.reactive_component_id = copy.reactive_component_id
+        self.reactive_scope_id = copy.reactive_scope_id
+        var empty_pending_data = PlotDataTable()
+        self.pending_data = PlotDataSnapshot(empty_pending_data)
+        self.pending_spec = PlotSpec()
+        self.pending_data_valid = copy.pending_data_valid
+        self.pending_spec_valid = copy.pending_spec_valid
+        if self.pending_data_valid:
+            self.pending_data = copy.pending_data.clone()
+        if self.pending_spec_valid:
+            self.pending_spec = copy.pending_spec.clone()
+        _ = self.execution.add_scope(self.reactive_scope_id)
+        _ = self.execution.add_dependency(
+            self.reactive_component_id,
+            self.reactive_scope_id,
+        )
+        if self.pending_data_valid or self.pending_spec_valid:
+            _ = self.execution.invalidate_scope(self.reactive_scope_id)
 
     def dispatch(mut self, event: Event) -> Bool:
         """Forward a backend-neutral event and report whether state changed."""
@@ -141,11 +191,19 @@ struct PlotView(Component):
         self.runtime.plot.set_bounds(bounds)
 
     def replace_spec(mut self, spec: PlotSpec, data: PlotDataTable):
-        """Replace the declarative source and reset compiled plot state."""
+        """Eagerly replace the declarative source and reset plot state."""
+        self._clear_pending()
+        _ = self.invalidate_reactive()
+        _ = self.execution.take_dirty(self.reactive_component_id)
+        self._replace_compiled(spec, data)
+        _ = self.execution.clear_scope(self.reactive_scope_id)
+
+    def _replace_compiled(mut self, spec: PlotSpec, data: PlotDataTable):
+        """Commit a source/spec snapshot after scheduler dirty consumption."""
         self.data = data.snapshot()
         self.spec = spec.clone()
         var bounds = self.runtime.plot.bounds
-        self.runtime.plot = plot_from_spec(spec, data, bounds)
+        self.runtime.plot = plot_from_spec(self.spec, self.data.table, bounds)
         self.runtime.configure(self.spec)
         self.runtime.clear_selection()
         self.runtime.hovered = PlotHit()
@@ -154,13 +212,75 @@ struct PlotView(Component):
         self.runtime.cached_packet_revision = -1
         self.specification_version = spec.version
 
+    def _clear_pending(mut self):
+        """Release deferred snapshots after a local commit."""
+        var empty_pending_data = PlotDataTable()
+        self.pending_data = PlotDataSnapshot(empty_pending_data)
+        self.pending_spec = PlotSpec()
+        self.pending_data_valid = False
+        self.pending_spec_valid = False
+
+    def invalidate_reactive(mut self) -> Bool:
+        """Invalidate this plot's localized dependency scope."""
+        return self.execution.invalidate_scope(self.reactive_scope_id)
+
+    def reactive_dirty(self) -> Bool:
+        """Return whether the plot has an unconsumed local invalidation."""
+        return self.execution.component_is_dirty(self.reactive_component_id)
+
+    def request_spec(mut self, spec: PlotSpec, data: PlotDataTable) -> Bool:
+        """Queue a declarative source replacement for a later local rebuild."""
+        self.pending_spec = spec.clone()
+        self.pending_data = data.snapshot()
+        self.pending_spec_valid = True
+        self.pending_data_valid = True
+        return self.invalidate_reactive()
+
+    def request_data(mut self, data: PlotDataTable) -> Bool:
+        """Queue changed data and invalidate without compiling immediately."""
+        if self.data.version() == data.version and not self.pending_spec_valid:
+            return False
+        self.pending_data = data.snapshot()
+        self.pending_data_valid = True
+        return self.invalidate_reactive()
+
+    def rebuild_if_dirty(mut self) -> Bool:
+        """Consume this plot's dirty token and commit any queued snapshots."""
+        if not self.execution.take_dirty(self.reactive_component_id):
+            return False
+
+        var changed = False
+        if self.pending_spec_valid:
+            var next_spec = self.pending_spec.clone()
+            var next_data = self.pending_data.table
+            self._replace_compiled(next_spec, next_data)
+            changed = True
+        elif self.pending_data_valid:
+            if self.pending_data.version() != self.data.version():
+                var next_spec = self.spec.clone()
+                var next_data = self.pending_data.table
+                self._replace_compiled(next_spec, next_data)
+                changed = True
+
+        self._clear_pending()
+        _ = self.execution.clear_scope(self.reactive_scope_id)
+        return changed
+
     def replace_data(mut self, data: PlotDataTable) -> Bool:
-        """Recompile only when a reactive source version has changed."""
+        """Eagerly commit changed data without retaining a pending copy."""
         if self.data.version() == data.version:
             return False
+        self._clear_pending()
+        _ = self.invalidate_reactive()
+        _ = self.execution.take_dirty(self.reactive_component_id)
         var current_spec = self.spec.clone()
-        self.replace_spec(current_spec, data)
+        self._replace_compiled(current_spec, data)
+        _ = self.execution.clear_scope(self.reactive_scope_id)
         return True
+
+    def reactive_work_counters(self) -> ExecutionWorkCounters:
+        """Expose localized invalidation/build accounting for hosts and tests."""
+        return self.execution.work_counters()
 
     def reset_view(mut self):
         """Fit the current viewport to the current source data."""
@@ -223,3 +343,24 @@ struct PlotControl(Component):
 
     def accessibility(self) -> AccessibilitySnapshot:
         return self.view.accessibility()
+
+    def replace_spec(mut self, spec: PlotSpec, data: PlotDataTable):
+        self.view.replace_spec(spec, data)
+
+    def request_spec(mut self, spec: PlotSpec, data: PlotDataTable) -> Bool:
+        return self.view.request_spec(spec, data)
+
+    def replace_data(mut self, data: PlotDataTable) -> Bool:
+        return self.view.replace_data(data)
+
+    def request_data(mut self, data: PlotDataTable) -> Bool:
+        return self.view.request_data(data)
+
+    def rebuild_if_dirty(mut self) -> Bool:
+        return self.view.rebuild_if_dirty()
+
+    def reactive_dirty(self) -> Bool:
+        return self.view.reactive_dirty()
+
+    def reactive_work_counters(self) -> ExecutionWorkCounters:
+        return self.view.reactive_work_counters()
