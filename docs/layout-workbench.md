@@ -57,9 +57,46 @@ unresolved; the temporary system-setting attempts were canceled or restored.
 Run `pixi run layout-consumer-check` for an independently authored screen linked
 against a precompiled `moxi.mojoc` with no source-tree include path. This optional
 profile links the Kiwi and macOS sidecars explicitly; it does not ship
-a standalone conda package containing those sidecars.
+those sidecars as part of `moxi.mojoc`. The optional
+[native-services package](../packages/moxi_layout_native/README.md) supplies an
+installed static archive on macOS arm64. Run `pixi run layout-package-consumer`
+to build a temporary local channel and verify an independent consumer against
+installed Mojo modules and that archive, without checkout-native object paths.
 
 The candidate stays out of the root public exports until the promotion gates in
 [the delivery ledger](layout-delivery.md) are satisfied. Its current supported
 native host is macOS; the Mojo retained engine, collection, overlay and coordinate
 policies have portable contract tests.
+
+## Manual release checks
+
+Run `pixi run layout-candidate-check`, then `pixi run layout-workbench` on macOS.
+These checks require direct keyboard/trackpad use: the automation attempts have
+not established VoiceOver feedback, actual input-source switching or horizontal
+wheel delivery. Record the tested commit, macOS version, input device and observed
+result in the delivery ledger; an attempted check is not a pass.
+
+1. **VoiceOver:** note the original on/off setting, temporarily enable it and
+   dismiss its tutorial. Traverse the toolbar, dataset editor and results using
+   VoiceOver commands. Verify spoken names, roles and values identify the controls.
+   Activate Dialog, verify navigation stays within its controls, then dismiss it
+   with Escape and verify focus returns to the prior control. Repeat after wide/
+   narrow resizing. Restore the original VoiceOver setting.
+2. **Japanese composition:** note the original input sources, active source,
+   input-menu visibility and dictation languages. Temporarily add/select
+   Japanese–Romaji through the menu. Type `nihongo` in the dataset editor and
+   verify real marked text or conversion candidates appear before committing.
+   Resize across the 760-point breakpoint during composition. Repeat in a row
+   editor, wheel-scroll it offscreen and back without changing focus, then convert
+   and commit with Space/Return. Verify the same editor retains the composition
+   and committed text. Restore all original settings, including any dictation
+   language macOS added automatically.
+3. **Horizontal wheel:** narrow the window until the four result columns exceed
+   the viewport width. Use a physical horizontal trackpad gesture or horizontal
+   wheel in both directions. Verify the non-frozen columns move, the first column
+   stays pinned, and both ends clamp without blank overscroll. Repeat with RTL
+   enabled and record the observed direction. Verify vertical scrolling still
+   moves rows while the frozen first row stays pinned.
+
+Leave a failed or unavailable check open. Portable offset tests and the native
+marked-range probe provide supporting evidence but cannot replace these checks.
