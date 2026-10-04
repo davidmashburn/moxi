@@ -6,14 +6,14 @@ branch.
 
 The current planning baseline is:
 
-- implementation: `main` at `a34963f` (`fix: restore benchmark baseline
-  integrity and record the trait contract`), audited September 10, 2026, with
-  the three-package restructure, module splits, and the packaging/trait-contract
-  follow-on landed;
+- implementation: `main` at `e3be517` (`perf: refresh stable Mojo benchmark
+  baseline`), audited October 4, 2026, with upstream `canvas_mojo` v0.42.0,
+  released Mojo 1.1.0, the three-package restructure, module splits, and the
+  packaging/trait-contract follow-on landed;
 - research: [`docs/modular-ecosystem-research.md`](docs/modular-ecosystem-research.md),
   the Modular/Mojo ecosystem review captured September 6 and reconciled
   against the September 7 implementation; and
-- validation: the 70-program Mojo test suite passes; release validation covers
+- validation: the 71-program Mojo test suite passes; release validation covers
   API/scenario/software/native/browser gates, a 30-run full benchmark, the
   reviewed macOS baseline, and the host-independent quick contract.
 
@@ -28,6 +28,9 @@ The current planning baseline is:
 - [docs/modular-ecosystem-research.md](docs/modular-ecosystem-research.md)
   preserves the source research and records how its recommendations map to the
   current code.
+- [CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md)
+  records the proposed Moxi framework/runtime, host, renderer, and Linux
+  support boundaries for independent implementation review.
 
 ## Rules of record
 
