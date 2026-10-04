@@ -221,6 +221,11 @@ class Smoke:
         self.summary["checks"].append({"name": name, "status": "pass", **evidence})
         print(f"PASS {name}", flush=True)
 
+    def geometry(self):
+        geometry = self.command("getwindowgeometry", "--shell", self.window).stdout
+        fields = dict(line.split("=", 1) for line in geometry.splitlines() if "=" in line)
+        return {field: int(fields[field]) for field in ("WIDTH", "HEIGHT")}
+
     def start(self):
         require(os.environ.get("DISPLAY"), "DISPLAY is required for X11 automation")
         require(shutil.which("xdotool"), "xdotool is required")
@@ -335,19 +340,26 @@ class Smoke:
         frame = self.begin_preedit(frame)
         preedit = self.composition(frame)
         before = nodes(frame)[13]["value"]
-        self.command("windowsize", self.window, "540", "900")
-        frame = self.frame(frame["frame"], lambda current: current["width"] < 760 and
+        previous_width = frame["width"]
+        previous_geometry = self.geometry()
+        # Preserve a height that already fits this desktop's work area. Window
+        # decorations and panels can constrain a 900px client on a 900px screen.
+        requested = [540, previous_geometry["HEIGHT"]]
+        self.command("windowsize", self.window, *requested)
+        frame = self.frame(frame["frame"], lambda current:
+                           500 <= current["width"] < min(760, previous_width) and
+                           current["height"] >= 760 and
                            nodes(current)[20]["y"] >= nodes(current)[10]["y"] +
                            nodes(current)[10]["height"] - EPSILON,
                            "narrow stacked pane publication")
         require(focused(frame, 13) and self.composition(frame) == preedit,
                 "same-key resize lost Dataset preedit or focus")
         require(nodes(frame)[13]["value"] == before, "resize committed pending preedit")
-        geometry = self.command("getwindowgeometry", "--shell", self.window).stdout
-        actual = dict(line.split("=", 1) for line in geometry.splitlines() if "=" in line)
-        require(actual.get("WIDTH") == "540" and actual.get("HEIGHT") == "900",
-                "X11 window did not resize to 540x900")
-        self.passed(self.current_check, frame=frame["frame"], requested=[540, 900],
+        actual = self.geometry()
+        require(actual["WIDTH"] < previous_geometry["WIDTH"],
+                "X11 window width did not shrink")
+        self.passed(self.current_check, frame=frame["frame"], requested=requested,
+                    previous_geometry=previous_geometry, actual_geometry=actual,
                     canvas=[frame["width"], frame["height"]], preedit_preserved=preedit,
                     form_y=nodes(frame)[10]["y"], results_y=nodes(frame)[20]["y"])
         since = self.mark()
