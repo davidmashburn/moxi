@@ -27,7 +27,7 @@ namespace {
 
 constexpr const char *kNullSolverError = "layout_kiwi: null solver handle (id=-1)";
 
-bool finite(double value) noexcept
+bool is_finite_number(double value) noexcept
 {
     return std::isfinite(value) != 0;
 }
@@ -210,7 +210,7 @@ extern "C" int32_t layout_kiwi_add_constraint(layout_kiwi_solver *solver,
                     constraint_id,
                     "term arrays must be non-null when term_count is nonzero");
     }
-    if (!finite(constant) || !finite(strength)) {
+    if (!is_finite_number(constant) || !is_finite_number(strength)) {
         return fail(solver,
                     LAYOUT_KIWI_INVALID_ARGUMENT,
                     constraint_id,
@@ -238,7 +238,7 @@ extern "C" int32_t layout_kiwi_add_constraint(layout_kiwi_solver *solver,
                         variable_id,
                         "constraint references unknown variable");
         }
-        if (!finite(coefficient)) {
+        if (!is_finite_number(coefficient)) {
             return fail(solver,
                         LAYOUT_KIWI_INVALID_ARGUMENT,
                         constraint_id,
@@ -312,7 +312,7 @@ extern "C" int32_t layout_kiwi_add_edit_variable(layout_kiwi_solver *solver,
                     variable_id,
                     "variable id must be positive");
     }
-    if (!finite(strength)) {
+    if (!is_finite_number(strength)) {
         return fail(solver,
                     LAYOUT_KIWI_INVALID_ARGUMENT,
                     variable_id,
@@ -353,7 +353,7 @@ extern "C" int32_t layout_kiwi_suggest_value(layout_kiwi_solver *solver,
                     variable_id,
                     "variable id must be positive");
     }
-    if (!finite(value)) {
+    if (!is_finite_number(value)) {
         return fail(solver,
                     LAYOUT_KIWI_INVALID_ARGUMENT,
                     variable_id,
