@@ -7,6 +7,7 @@
 | Moxi Demo package | source-only | `pixi run demo`, `pixi run demo-browser` | Showcase sources are not part of the installable compatibility surface |
 | Mojo WebAssembly package | blocked by pinned compiler target set | `pixi run web-package-check`, `pixi run web-package-required` | The host lifecycle/ARIA harness is real; do not label it a Mojo Web runtime until a Mojo WASM target and package ABI are available |
 | macOS AppKit host distribution | source-only | Native demo build tasks compile `native/macos_window.m` | Installing the Mojo packages alone does not supply the Objective-C host; external native consumers must explicitly obtain and link a matching host source or object |
+| Linux GTK4 retained host | source-only, provisional | `pixi run --locked linux-layout-check`, `pixi run --locked linux-layout-workbench`; Ubuntu VM native contracts, app compilation and synthetic X11 interactions | GTK4/Cairo present retained labels, buttons, single-line editors and canvas leaves; Pango owns paragraph shaping/bidi while Mojo owns layout and retained state. Stable Mojo 1.1.0 VM GUI checks passed. AT-SPI, legacy widget parity, desktop clipboard integration, rich text, GPU acceleration and incremental rendering are unavailable |
 | Mojo scene IR | stable | `pixi run test`, typed scene contract | backend-neutral contract; version changes require migration notes |
 | Canvas raster/export | stable subset | `pixi run canvas-scene`, `pixi run canvas-benchmark` | typed paths and isolated layers are supported; text/images and legacy string paths report fallbacks |
 | Software renderer | stable oracle | `pixi run test`, visual corpus | deterministic bounds/path oracle; it does not invent glyph or image pixels |
@@ -19,4 +20,7 @@
 
 ## Version support
 
-The Python package supports CPython 3.9+ and is intentionally independent of the Mojo compiler runtime. The Mojo workspace resolves `osx-arm64` and `linux-64`; `pixi run headless-check` is the portable package lane, while native Linux host support remains unavailable. Mojo package consumers resolve the pinned upstream Canvas revision through Pixi; public-channel upload still requires a chosen channel and release credentials. `pixi run release-preflight` checks the core and plotting package publish plans without uploading. The demo package remains source-only.
+The Python package supports CPython 3.9+ and is intentionally independent of the Mojo compiler runtime. The Mojo workspace resolves `osx-arm64` and `linux-64`; `pixi run headless-check` is the portable package lane. The source-only Linux retained workbench uses GTK 4.14+ with Cairo/Pango and the pinned Kiwi solver. Its native contracts, app compilation and 15 synthetic X11 checks passed in an Ubuntu 24.04 x86-64 VM with stable Mojo 1.1.0. The GTK host supports X11/Wayland display selection, but the guest GUI lane targets X11 and does not establish Wayland acceptance. Mojo package consumers resolve the pinned upstream Canvas revision through Pixi; public-channel upload still requires a chosen channel and release credentials. `pixi run release-preflight` checks the core and plotting package publish plans without uploading. The demo package remains source-only.
+
+Linux setup, commands and guest evidence are recorded in
+[VM validation](vm-validation.md) and [the layout workbench guide](layout-workbench.md).
