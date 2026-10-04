@@ -60,16 +60,16 @@ def check_fixture(fixture_index: Int) raises -> Int:
     var expected_canvas = 0
     if fixture.id == 0:
         expected_software = 4260825
-        expected_canvas = 4055929
+        expected_canvas = 4055967
     elif fixture.id == 1:
         expected_software = 26255080
-        expected_canvas = 26209374
+        expected_canvas = 26210446
     elif fixture.id == 2:
         expected_software = 25434784
-        expected_canvas = 25720861
+        expected_canvas = 25721197
     elif fixture.id == 3:
         expected_software = 852464264
-        expected_canvas = 853855300
+        expected_canvas = 853858008
     test_check(software.checksum() == expected_software)
     test_check(canvas.checksum() == expected_canvas)
     test_check(svg.frame_count == 1)

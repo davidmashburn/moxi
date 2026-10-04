@@ -1,6 +1,6 @@
 [workspace]
 authors = ["David Mashburn <david.n.mashburn@gmail.com>"]
-channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
+channels = ["https://conda.modular.com/max", "conda-forge"]
 name = "moxi"
 platforms = ["osx-arm64", "linux-64"]
 preview = ["pixi-build"]
@@ -120,9 +120,9 @@ release-check = "bash scripts/release_check.sh"
 release-preflight = "bash scripts/public_release_preflight.sh"
 
 [dependencies]
-mojo = ">=1.1.0.dev2026082605,<2"
+mojo = ">=1.1.0,<2"
 ripgrep = ">=14,<15"
-canvas_mojo = { git = "https://github.com/davidmashburn/canvas_mojo.git", rev = "323154f9399f4ecfa6d5d2fb0fc7d87883fe3c1e" }
+canvas_mojo = { git = "https://github.com/randyzwitch/canvas_mojo.git", rev = "8fcb0c83966ef872248239f9dafd6baaba06204e" }
 
 [package]
 name = "moxi"
@@ -137,13 +137,13 @@ path = "src/moxi"
 name = "moxi"
 
 [package.host-dependencies]
-mojo-compiler = "==1.1.0.dev2026082605"
+mojo-compiler = "==1.1.0"
 canvas_mojo = { path = "packages/canvas_mojo" }
 
 [package.build-dependencies]
-mojo-compiler = "==1.1.0.dev2026082605"
+mojo-compiler = "==1.1.0"
 canvas_mojo = { path = "packages/canvas_mojo" }
 
 [package.run-dependencies]
-mojo-compiler = "==1.1.0.dev2026082605"
+mojo-compiler = "==1.1.0"
 canvas_mojo = { path = "packages/canvas_mojo" }

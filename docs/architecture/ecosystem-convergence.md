@@ -1,6 +1,6 @@
 # Ecosystem convergence boundary
 
-Status: provisional architecture record, audited September 7, 2026.
+Status: provisional architecture record, audited October 4, 2026.
 
 This document is the implementation-side companion to the
 [ecosystem convergence plan](../../../moxi-project-planning/ECOSYSTEM-CONVERGENCE-PLAN.md).
@@ -51,34 +51,28 @@ raw RGBA, PNG, and BMP export. Text, typed paths, images, and true offscreen
 layers need explicit follow-on contracts; string-path commands are reported as
 fallbacks rather than being rasterized from an untyped string.
 
-The exact compatibility experiment used upstream `canvas_mojo` revision
-`27401fe83c76488fe3b3ab2dcd12ad09333bba51` (`v0.21.0`, MIT). Its own Pixi
-environment runs the smoke example with Mojo `1.0.0`. Moxi's locked
-`1.1.0.dev2026082605` environment could not compile that source: the source
-package failed on `std.runtime.asyncrt`, `InlineArray`, and compile-time
-decorator syntax.
+The compatibility audit now uses upstream `canvas_mojo` revision
+`8fcb0c83966ef872248239f9dafd6baaba06204e` (`v0.42.0`, MIT), built with the
+released Mojo `1.1.0` toolchain. The upstream package precompiles cleanly,
+the Moxi suite passes all 71 files, and the published package-consumer test
+builds and imports `canvas_mojo`, `moxi`, and `moxi_plot` together. Upstream
+still keeps its task helper on the private `std.runtime._asyncrt` seam; that
+is now an upstream compatibility watchpoint rather than a Moxi-maintained
+fork patch.
 
-That blocker is now carried by the short-lived compatibility fork
-[`davidmashburn/canvas_mojo@moxi/mojo-nightly`](https://github.com/davidmashburn/canvas_mojo/tree/moxi/mojo-nightly)
-at immutable revision
-`323154f9399f4ecfa6d5d2fb0fc7d87883fe3c1e`. The patch is limited to the
-nightly API seam: it maps `parallelism_level` to public `std.runtime` and
-`TaskGroup` to private `std.runtime._asyncrt`, replaces removed
-`InlineArray` uses with `std.collections.Array`, changes `@parameter if` to
-`comptime if`, and pins the package's precompile compiler exactly to
-`1.1.0.dev2026082605` so its `.mojoc` is consumable by Moxi. Core buffer,
-JPEG, blur, golden, and package-export tests pass under Moxi's runtime, and
-the package precompiles and imports through Moxi's installed environment.
-
-Moxi pins that exact fork revision in `pixi.toml` and exposes the bounded
+The v0.42 rasterizer changes a small number of pixels in each reviewed
+fixture, so the four Canvas goldens were re-reviewed and recorded in
+[`tests/canvas_scene_checksums.tsv`](../../tests/canvas_scene_checksums.tsv).
+Moxi pins that immutable upstream revision and exposes the bounded
 `CanvasSceneRenderer` adapter from the package root. Focused tests cover pixel
 probes, clipping, transforms, deterministic repeat rendering, raw RGBA, PNG,
 BMP, stable input-error reporting, typed move/line/quad/cubic/close paths,
 explicit text style metadata, isolated offscreen layers, and structural
-comparison with the software and SVG renderers. `canonical_canvas_scene_fixtures()` and
-`make_canvas_scene()` now drive the compact primitive, dark/light theme, and
-plot line/point-overlap cases from one descriptor table; the reviewed values
-are checked in at [`tests/canvas_scene_checksums.tsv`](../../tests/canvas_scene_checksums.tsv).
+comparison with the software and SVG renderers. `canonical_canvas_scene_fixtures()`
+and `make_canvas_scene()` now drive the compact primitive, dark/light theme,
+and plot line/point-overlap cases from one descriptor table; the reviewed
+values are checked in at
+[`tests/canvas_scene_checksums.tsv`](../../tests/canvas_scene_checksums.tsv).
 The canonical plot scene is also exportable with `pixi run canvas-scene`, and
 `pixi run canvas-benchmark` checks its reviewed checksum while reporting wall
 time, peak RSS, PNG size, command count, and fallback count. The E3 scene
@@ -89,14 +83,11 @@ The workspace now publishes `canvas_mojo` and `moxi` together. The local
 indexed-channel package-consumer test resolves the normal `canvas_mojo` run
 dependency from that publish set and imports the installed Moxi package; the
 remaining release action is uploading both artifacts to the chosen public
-channel. One current macOS arm64 smoke measurement for the 640x420 canonical
-plot scene is 1.72 s wall time, 249,036,800 bytes peak RSS, a 28,974-byte PNG,
-checksum `853855300`, a 1,477,415-byte Canvas archive, and a 2,131,578-byte
-Moxi archive. These are nightly measurements, not cross-platform release
-limits.
-The fork relies on a private runtime module, so the follow-up is an upstream
-PR or a public async-runtime replacement, after which the pin should move back
-to an upstream revision. A floating checkout remains disallowed.
+channel. Three macOS arm64 smoke runs for the 640x420 canonical plot scene
+have a median of 2.12 s wall time and 298,582,016 bytes peak RSS; the PNG is
+29,294 bytes and the reviewed checksum is `853858008`. These are host-specific
+release measurements, not cross-platform limits. A floating checkout remains
+disallowed.
 
 ## Dataviz convergence
 

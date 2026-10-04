@@ -384,8 +384,8 @@ in one live component (`pixi run interaction-showcase-demo`, also available as
   expansion.
 
 The plotting contract is documented in [plotting.md](plotting.md); the
-ecosystem convergence boundary — the Python value-boundary package, the
-nightly-pinned `canvas_mojo` adapter, and the contract-driven `dataviz_mojo`
+ecosystem convergence boundary — the Python value-boundary package, the pinned
+upstream `canvas_mojo` adapter, and the contract-driven `dataviz_mojo`
 capability inventory — is recorded in
 [architecture/ecosystem-convergence.md](architecture/ecosystem-convergence.md).
 The support-matrix view of every plotting/rendering surface, its status, and
@@ -540,7 +540,7 @@ pixi publish --target-dir output/moxi
 ```
 
 The workspace publish produces both the compiled `moxi` Mojo package and its
-nightly-compatible `canvas_mojo` runtime dependency. The workspace resolves
+Mojo 1.1-compatible `canvas_mojo` runtime dependency. The workspace resolves
 `osx-arm64` and `linux-64`; `pixi run headless-check` is the portable Linux
 package lane, while the native AppKit demo remains a repository-level example
 and is not bundled into either library artifact. Use `pixi run

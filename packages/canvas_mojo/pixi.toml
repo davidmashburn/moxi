@@ -1,23 +1,23 @@
 [package]
 name = "canvas_mojo"
-version = "0.21.0"
+version = "0.42.0"
 publish = true
-description = "Nightly-compatible Canvas raster/export runtime for Moxi"
+description = "Mojo 1.1-compatible Canvas raster/export runtime for Moxi"
 license = "MIT"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "0.*" }
-source = { git = "https://github.com/davidmashburn/canvas_mojo.git", rev = "323154f9399f4ecfa6d5d2fb0fc7d87883fe3c1e" }
+source = { git = "https://github.com/randyzwitch/canvas_mojo.git", rev = "8fcb0c83966ef872248239f9dafd6baaba06204e" }
 
 [package.build.config.pkg]
 path = "canvas"
 name = "canvas"
 
 [package.host-dependencies]
-mojo-compiler = "==1.1.0.dev2026082605"
+mojo-compiler = "==1.1.0"
 
 [package.build-dependencies]
-mojo-compiler = "==1.1.0.dev2026082605"
+mojo-compiler = "==1.1.0"
 
 [package.run-dependencies]
-mojo-compiler = "==1.1.0.dev2026082605"
+mojo-compiler = "==1.1.0"

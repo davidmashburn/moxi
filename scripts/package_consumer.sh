@@ -47,7 +47,7 @@ pixi init \
     --format pixi \
     --platform osx-arm64 \
     --channel "file://$package_dir" \
-    --channel https://conda.modular.com/max-nightly \
+    --channel https://conda.modular.com/max \
     --channel conda-forge \
     "$consumer_dir"
 
