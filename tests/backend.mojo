@@ -30,7 +30,11 @@ def main():
 
     test_check(not backend_capabilities(BACKEND_GPU).available)
     test_check(not backend_capabilities(BACKEND_WINDOWS).available)
-    test_check(not backend_capabilities(BACKEND_LINUX).available)
+    var linux = backend_capabilities(BACKEND_LINUX)
+    test_check(linux.available)
+    test_check(linux.native_window)
+    test_check(linux.text_shaping and linux.bidi and linux.clipping)
+    test_check(not linux.accessibility)
     var ios = backend_capabilities(BACKEND_IOS)
     test_check(ios.name == "iOS UIKit + Metal")
     test_check(not ios.available)

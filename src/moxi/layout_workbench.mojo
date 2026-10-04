@@ -321,7 +321,9 @@ struct LayoutWorkbench:
         if event.kind!=TEXT_INPUT_KIND and event.kind!=COMPOSITION_UPDATE_KIND and event.kind!=COMPOSITION_END_KIND:
             return False
         var target = event.target if event.target>=0 else self.focused
-        if not self.popups.allows_focus(target):
+        # Cancellation belongs to the editor which owned the preedit, including
+        # one hidden behind a newly opened modal. Other input remains scoped.
+        if event.kind!=COMPOSITION_END_KIND and not self.popups.allows_focus(target):
             return False
         if target==13:
             if event.kind==TEXT_INPUT_KIND:

@@ -12,6 +12,7 @@ from .backend import (
     BACKEND_HEADLESS,
     BACKEND_IOS,
     BACKEND_MACOS_APPKIT,
+    BACKEND_LINUX,
     BACKEND_WEB,
 )
 
@@ -71,6 +72,17 @@ def host_contract(target: Int) -> HostContract:
             True,
             True,
             "Xcode Command Line Tools plus AppKit/Metal frameworks",
+        )
+    if target == BACKEND_LINUX:
+        return HostContract(
+            BACKEND_LINUX,
+            "Linux GTK4/Cairo/Pango",
+            HOST_NATIVE,
+            True,
+            True,
+            False,
+            False,
+            "Linux x86-64, GTK 4.14+ development libraries and an X11 or Wayland display; retained leaves only",
         )
     if target == BACKEND_IOS:
         return HostContract(
