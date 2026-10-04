@@ -123,11 +123,11 @@ The default-target compiler smoke and portable plot execution passed with this
 CPU setting. The broader rerun started at 2026-10-03 21:27:29 UTC against
 `e3e0a72`; its archive SHA-256 is
 `711bdb1be0bcab18b482a08dc7ea46eae5ad6e3bfcfd70423df279e60e91fed7`.
-The complete headless lane (including both source precompiles), retained engine,
-box layout, 100,000-row collection, overlay placement, request adapter and
-reactivity/tasks checks passed. Plot-view, execution and Node host checks are
-still running or queued. QEMU TCG compilation is slow; these observations do
-not establish native performance.
+The complete guest run passed: the headless lane (including both source
+precompiles), retained engine, box layout, 100,000-row collection, overlay
+placement, request adapter, reactivity/tasks, plot-view and execution checks,
+plus both Node host harnesses. No real browser was launched. QEMU TCG compilation
+is slow; these observations do not establish native performance.
 
 The Kiwi build and constraint check now select `.dylib`/libc++ on macOS and
 `.so`/libstdc++ on Linux. The guest runner uses g++ for the C++ bridge, preserves
@@ -137,12 +137,15 @@ The changed build/link path passed `constraint-layout-check` on the macOS host,
 including the C++ bridge and 1,000 Mojo staged rebuilds. A separate Linux run
 started from a fresh snapshot of `60078ab`; its archive SHA-256 is
 `1cf57e545001a990a241e1d41408e2bcb166be99f82bb6d349cb2200586dd0ed`.
-It installs the locked environment within that snapshot and runs
-`CXX=g++ pixi run --locked constraint-layout-check`. Its result is pending.
+It installed the locked environment within that snapshot and ran
+`CXX=g++ pixi run --locked constraint-layout-check`. GCC rejected the bridge's
+private `finite` helper because it conflicted with glibc's global `finite`
+declaration. The helper and its calls were renamed to `is_finite_number` without
+changing behavior or the external ABI. The macOS constraint check passed after
+this rename; a fresh Linux guest rerun is next.
 
-All five hosted CI jobs passed at `e3e0a72`, including the macOS candidate and
-installed package consumer. This is separate from the guest observations; CI
-for the later Kiwi portability commit is still pending.
+All five hosted CI jobs passed at `3dba206`, including the macOS candidate and
+installed package consumer. This is separate from the guest observations.
 
 Local logs are `/tmp/moxi-rebase-check.log`, `/tmp/moxi-vm-linux-start.log`,
 `/tmp/moxi-vm-linux-bootstrap.log`, `/tmp/moxi-vm-linux-check-18f5a27.log`,
@@ -150,3 +153,11 @@ Local logs are `/tmp/moxi-rebase-check.log`, `/tmp/moxi-vm-linux-start.log`,
 `/tmp/moxi-vm-kiwi-darwin-check.log` and
 `/tmp/moxi-vm-linux-kiwi-60078ab.log`.
 Guest browser interaction, macOS VM and Windows VM checks have not started.
+
+On the user's request for a screenshot, a separate Xfce desktop was installed
+inside the Ubuntu guest and started on TigerVNC display `:1`, listening only on
+guest loopback. The VM was not restarted and host system settings were not
+changed. `xfce4-screenshooter` captured the actual 1440×900 guest desktop to
+`dist/vm-artifacts/linux-vm-desktop.png`. This proves the guest graphical session
+is available; it does not establish Moxi native Linux window support or
+accessibility behavior.
