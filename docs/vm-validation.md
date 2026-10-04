@@ -12,7 +12,7 @@ browser interaction and physical input checks.
 | Ubuntu 24.04 x86-64, first | Exact `pixi.lock`; Mojo retained engine, box/collection/overlay policies, Kiwi constraints, portable plotting and precompilation; rebased request/runtime/plot regressions; Node host contracts | Portable checks and the Linux Pango/Cairo/layout contracts have passed in the guest. Node harnesses do not exercise a browser; headless native contracts do not verify a window or real input. |
 | Ubuntu native desktop, active | Compile the Mojo workbench with the GTK4/Cairo/Pango host; actual window screenshot, pointer/key/resize, RTL and scroll observations | GTK 4.14+ retained presenter implemented; stable Mojo 1.1.0 native build and 15 synthetic X11 checks passed. Wayland, real IME composition and physical scrolling are unverified; AT-SPI is unavailable. |
 | Ubuntu browser, separate | Actual guest browser rendering, pointer/key/resize, then a fixture for scroll, composition and ARIA | The browser demo is a JavaScript host demo, not the compiled Mojo layout app. The pinned compiler has no supported WASM package target. |
-| macOS ARM64, next | Clean native-services build, installed consumer and layout workbench in a GUI session | AppKit/CoreText checks apply to macOS. VoiceOver speech, real Japanese composition and physical horizontal input require separate observations. |
+| macOS 15 ARM64, active | Clean native-services build, installed consumer and layout workbench in a GUI session | Locked Mojo 1.1.0 installation, native layout candidate and installed consumer passed in a clean guest. First desktop login and visible workbench interaction remain pending; VoiceOver, real Japanese composition and physical horizontal input require separate observations. |
 | Windows 11 ARM64, later | Actual Edge/browser host and Python wheel consumption | Mojo has no native Windows support; WSL results must be reported as Linux. Moxi's Windows native backend is unavailable. Guest image/license and GUI provisioning are not established yet. |
 
 The active Linux slice adds the retained presenter and tests the compiled Mojo
@@ -189,7 +189,8 @@ Local logs are `/tmp/moxi-rebase-check.log`, `/tmp/moxi-vm-linux-start.log`,
 `/tmp/moxi-vm-linux-cpu-smoke.log`, `/tmp/moxi-vm-linux-check-e3e0a72.log` and
 `/tmp/moxi-vm-kiwi-darwin-check.log` and
 `/tmp/moxi-vm-linux-kiwi-60078ab.log`.
-Guest browser interaction, macOS VM and Windows VM checks have not started.
+At that point, guest browser interaction, macOS VM and Windows VM checks had not
+started. The subsequent native guest results are recorded below.
 
 On the user's request for a screenshot, a separate Xfce desktop was installed
 inside the Ubuntu guest and started on TigerVNC display `:1`, listening only on
@@ -311,5 +312,62 @@ match is Noto Sans CJK JP. The captured guest provenance is
 `/tmp/moxi-linux-stable-guest-provenance.log`.
 
 Wayland, Linux real IME composition, physical horizontal scrolling, the macOS
-manual release checks, macOS VM and Windows VM checks remain unverified. Linux
-AT-SPI support remains unavailable. No frame-performance claim is made for TCG.
+manual release checks and Windows VM checks remain unverified. Linux AT-SPI
+support remains unavailable. No frame-performance claim is made for TCG.
+
+## macOS native VM evidence
+
+The [macOS guest configuration](../scripts/vm/macos-15-arm64.yaml) pins the base
+restore image independently of Lima's installed templates. On an ARM64 Mac
+running macOS 15.6.1 or newer, validate and start it with Lima 2.2.0:
+
+```sh
+limactl validate scripts/vm/macos-15-arm64.yaml
+limactl start --tty=false --name=moxi-macos15-arm scripts/vm/macos-15-arm64.yaml
+```
+
+Choose an unused instance name for a clean reproduction; starting an existing
+instance reuses its disk. This configuration provisions the base VM. First
+desktop login, developer tools, Pixi and the project environment are separate
+steps. It does not reuse the host's build environment.
+
+On 2026-10-04, `moxi-macos15-arm` booted macOS 15.6.1 (`24G90`) under Lima 2.2.0's
+VZ driver on an ARM64 host. The guest has 4 CPUs, 8 GiB RAM and a 100 GiB disk,
+with no host mounts, extra host SSH keys, SSH agent forwarding or containerd.
+The official Apple restore image is pinned to SHA-256
+`3d87686b691ac765eb6a6b3082b2334e2af9710096a00432dd519af89ff2ea78`.
+The guest became SSH-ready at 22:10:03 UTC. Its captured login screen is
+`dist/vm-artifacts/macos-first-boot.png`; this is a guest boot observation,
+not a Moxi workbench screenshot.
+
+Source commit `291ac02` was transferred as a `git archive` with SHA-256
+`7ac52dcce28b31b0d7c8708ff2dde7566e2375b3f224609de8964103f7504be3` and extracted
+into the guest's own `$HOME/moxi`. No host build objects, environments or caches
+were copied. Pixi 0.81.0 was copied as a standalone ARM64 executable and its
+SHA-256 was verified as
+`e671115a49b9f886273a5d7ef19c2d4977e261d378e2340608658146eb2fb479`.
+The initial locked install stopped because Apple's Git launcher required
+developer tools. Installing only Apple's Command Line Tools 16.4 resolved that
+prerequisite; the locked retry passed with Mojo 1.1.0 (`8189361e`). The active
+macOS SDK is 15.5 and Apple clang is 17.0.0 (`clang-1700.0.13.5`).
+
+Both `pixi run --locked layout-candidate-check` and
+`pixi run --locked layout-package-consumer` passed in the clean guest. The
+candidate executed retained engine/native layout, Kiwi's 1,000 staged rebuilds,
+composed workbench, native AppKit paint/accessibility identity/field-editor
+marked-range retention, 100,000-row collection and overlay placement checks,
+plus an independent precompiled consumer. The separate consumer also installed
+and consumed the native archive from a temporary local package channel.
+The compiled workbench executable has SHA-256
+`edf3a15d27fe82e062711cda08f2c377b52f21716aa6625fbc7ea43fe9dd5b7d`.
+The host log is `/tmp/moxi-macos15-native-check-host.log`; copied guest logs are
+`dist/vm-artifacts/macos-layout-candidate.log` and
+`dist/vm-artifacts/macos-layout-consumer.log`. Only deprecation and documentation
+warnings were recorded; neither test log contains a failure or skip marker.
+
+First desktop login still requires user input. The computer-use connector rejects
+Lima's unbundled `limactl` GUI process, although SSH and Lima's screenshot command
+work. The native AppKit contract tests above do not establish visible workbench
+interaction, VoiceOver speech, real Japanese IME composition or physical
+horizontal scrolling. The full check suite and benchmarks were not repeated in
+this guest.
