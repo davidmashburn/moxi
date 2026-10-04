@@ -88,6 +88,46 @@ jobs:
           pixi run mojo run -I src tests/collection_layout.mojo
           pixi run mojo run -I src tests/overlay_layout.mojo
 
+  native-layout-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Install Linux native development libraries and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            build-essential pkg-config libgtk-4-dev fonts-dejavu-core fonts-noto-cjk \
+            xvfb xauth xdotool openbox dbus-x11
+      - name: Install Pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: v0.81.0
+          cache: true
+      - name: Install locked environment
+        run: pixi install --locked
+      - name: Check native Linux paragraphs and layout, then compile the workbench
+        env:
+          CC: gcc
+          CXX: g++
+        run: pixi run --locked linux-layout-check
+      - name: Exercise the compiled GTK workbench through X11
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1440x1000x24" \
+            dbus-run-session -- bash -c '
+              openbox > /tmp/moxi-openbox.log 2>&1 &
+              moxi_wm_pid=$!
+              trap "kill $moxi_wm_pid" EXIT
+              pixi run --locked linux-ui-smoke
+            '
+      - name: Upload Linux native interaction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-native-${{ github.run_id }}
+          path: dist/linux-native-artifacts
+          if-no-files-found: warn
+
   layout-candidate-macos:
     runs-on: macos-14
     steps:
