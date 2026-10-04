@@ -7,8 +7,9 @@ Xilem. Notably, Xilem is based on SwiftUI, another major Chris Lattner project.
 Moxi is broader than a UI toolkit: the surface also includes a full plotting
 library, an in-process capability bus for agent-safe mutation authorization,
 and host bridges for iOS, Android, and the Web, alongside the core view and
-render pipeline. macOS on Apple Silicon (`osx-arm64`) is the only supported
-demo target today.
+render pipeline. macOS on Apple Silicon (`osx-arm64`) provides the full demo
+catalog. Linux x86-64 (`linux-64`) has a provisional native retained layout
+workbench.
 
 Three ideas anchor the design:
 
@@ -76,7 +77,9 @@ full runtime and reconciliation contract.
 
 ## Quick start
 
-Install [Pixi](https://pixi.sh), then run:
+The pinned stable Mojo 1.1.0 compiler requires macOS 15+ on Apple silicon and
+Xcode or Command Line Tools 16+; see [Mojo system requirements](https://mojolang.org/docs/requirements/).
+Install [Pixi](https://pixi.sh), then run the macOS demo tasks:
 
 ```sh
 pixi run mojo --version
@@ -106,6 +109,12 @@ linked scatter/histogram views and a virtualized table. See
 [the workbench guide](docs/data-workbench.md) for CSV limits, controls,
 validation evidence, and performance measurements.
 
+For the Linux native retained layout workbench, install the GTK4/Pango/Cairo
+dependencies in [the layout workbench guide](docs/layout-workbench.md), then
+run `pixi run --locked linux-layout-check` and
+`pixi run --locked linux-layout-workbench`. The guide records the compiled
+slice, VM evidence, and pending accessibility and manual input checks.
+
 `pixi run workbench-release-gate` records the focused automated acceptance checks
 and their logs. See [the release gate](docs/workbench-release-gate.md) for optional
 package/benchmark checks and the separate manual checklist, and
@@ -127,6 +136,9 @@ runtime and reconciles the declarative tree into an ordered `PaintCommands`
 stream on every update. Native AppKit renders that stream directly, or it can
 be translated into the backend-neutral `Scene`/`SceneRenderer` path for the
 Metal and software backends.
+
+The Linux workbench shares the Mojo retained layout engine and uses GTK4 for
+the window and input, Cairo for drawing, and Pango for native paragraphs.
 
 [ARCHITECTURE.md](ARCHITECTURE.md) documents the implemented contracts and
 lifecycle in full. [SPEC.md](SPEC.md) is long-term design material and

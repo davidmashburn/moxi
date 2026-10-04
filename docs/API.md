@@ -180,8 +180,17 @@ Web host maps snapshots to ARIA, while the iOS and Android host artifacts
 expose virtual native accessibility nodes. See [accessibility.md](accessibility.md)
 for the platform mapping and current fidelity limits.
 
-`backend_capabilities(kind)` reports the shipped headless and AppKit targets
-and explicit contracts for GPU, Windows, Linux, iOS, Android, and Web.
+`backend_capabilities(kind)` reports the shipped headless, AppKit, and Linux
+retained presenter targets and explicit contracts for GPU, Windows, iOS,
+Android, and Web. `LinuxWindow`, `LinuxRenderer`, and `LinuxCanvasPainter`
+from `moxi.linux` provide a provisional GTK4/Cairo window for retained labels,
+buttons, single-line editors, and canvases, with Pango paragraph measurement
+and drawing. Mojo owns retained state and flow/grid layout. Linux
+accessibility remains unavailable without an AT-SPI tree, and legacy widget
+parity and desktop clipboard integration are pending.
+`pixi run --locked linux-layout-check` compiles and checks the native slice; `pixi run --locked linux-layout-workbench` builds and opens
+the demo. See [layout-workbench.md](layout-workbench.md) for dependencies,
+validation evidence, and remaining manual checks.
 `MacOSMetalRenderer` reports runtime readiness for the macOS GPU path, while
 `MacOSMetalWindow` presents scenes through a CAMetalLayer. The
 `MacOSMetalCanvasPainter` adapts the same Metal geometry path to a dense
@@ -201,10 +210,10 @@ normalize host input and expose deterministic software fallbacks;
 shims and local demo artifacts are provided under `native/hosts/`,
 `native/ios/`, `native/android/`, and `native/web/`. The workspace now resolves
 the portable package for `osx-arm64` and `linux-64`; `pixi run headless-check`
-is the Linux package/plot smoke lane. Native Linux, iOS, Android, and Web host
+is the Linux package/plot smoke lane. Native iOS, Android, and Web host
 adapters remain unavailable, and public package availability still depends on
 the release-channel preflight and upload step.
-`MacOSWindow` adds
+`MacOSWindow` and `LinuxWindow` expose
 native queue depth, dropped-event, and draw-command-overflow counters for
 adapter diagnostics.
 

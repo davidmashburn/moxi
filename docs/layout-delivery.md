@@ -1,6 +1,6 @@
 # Layout delivery evidence
 
-The optional candidate implements Mojo-owned retained flow/grid, shared CoreText
+The optional candidate implements Mojo-owned retained flow/grid, shared native paragraph
 measurement and painting, transactional Kiwi regions, variable extent collections,
 fitted overlays and a composed native workbench. Implementation and local checks
 are complete for the documented candidate profile. Public promotion remains
@@ -119,12 +119,20 @@ document is the recorded run, not an automatically updated claim.
   in either direction. Portable two-axis collection offsets are covered by tests;
   native horizontal wheel delivery/direction still needs a direct manual check.
 - The [optional native archive recipe](../packages/moxi_layout_native/README.md)
-  is verified locally on macOS arm64 and requires macOS 14 or newer. It uses
-  the host Apple compiler/SDK, is not a hermetic build, and has not been uploaded
-  to a public channel. No Intel or non-macOS native-services package is certified.
+  is verified locally on macOS arm64 with a macOS 14 archive deployment target.
+  The pinned stable Mojo 1.1.0 consumer requires macOS 15+ and Xcode or Command
+  Line Tools 16+ under the [compiler requirements](https://mojolang.org/docs/requirements/).
+  The recipe uses the host Apple compiler/SDK, is not a hermetic build, and has
+  not been uploaded to a public channel. No Intel or non-macOS native-services
+  package is certified.
 
-Linux contracts are verified by hosted CI, rather than local execution. The
-[direct manual steps](layout-workbench.md#manual-release-checks) identify the
+The Linux GTK4/Cairo/Pango retained presenter has also passed native contracts and
+synthetic X11 interaction checks in a real Ubuntu x86-64 VM. Linux remains a
+source-only provisional slice without AT-SPI, desktop clipboard integration or
+legacy widget parity. These observations do not establish Japanese IME, physical
+input, Wayland or performance acceptance. Source/toolchain provenance and current
+stable-toolchain verification are recorded in [VM validation](vm-validation.md).
+The [direct manual steps](layout-workbench.md#manual-release-checks) identify the
 remaining macOS interaction checks.
 
 Confidence is high in the observed local candidate contracts, installed package
