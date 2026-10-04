@@ -106,17 +106,17 @@ def backend_capabilities(kind: Int) -> BackendCapabilities:
     if kind == BACKEND_LINUX:
         return BackendCapabilities(
             BACKEND_LINUX,
-            "Linux backend",
+            "Linux GTK4 retained presenter",
+            True,
+            True,
             False,
-            False,
-            False,
-            False,
-            False,
+            True,
+            True,
             False,
             False,
             True,
             False,
-            "Backend contract reserved; native bridge is not shipped yet.",
+            "GTK4/Cairo window and Pango paragraphs for retained leaves; AT-SPI and legacy widget parity remain pending.",
         )
     if kind == BACKEND_IOS:
         return BackendCapabilities(

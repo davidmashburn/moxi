@@ -9,6 +9,7 @@ from .backend import (
     BACKEND_ANDROID,
     BACKEND_IOS,
     BACKEND_MACOS_APPKIT,
+    BACKEND_LINUX,
     BACKEND_WEB,
     BackendCapabilities,
     backend_capabilities,
@@ -38,6 +39,10 @@ struct PlatformTarget(ImplicitlyCopyable):
             self.ime = True
             self.device_pixels = True
             self.renderer_name = "appkit"
+        elif kind == BACKEND_LINUX:
+            self.ime = True
+            self.device_pixels = True
+            self.renderer_name = "gtk4/cairo"
         elif kind == BACKEND_IOS:
             self.touch_input = True
             self.ime = True

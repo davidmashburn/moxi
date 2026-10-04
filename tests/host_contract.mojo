@@ -4,6 +4,7 @@ from moxi import (
     BACKEND_ANDROID,
     BACKEND_IOS,
     BACKEND_MACOS_APPKIT,
+    BACKEND_LINUX,
     BACKEND_WEB,
     HOST_NATIVE,
     HOST_PORTABLE_BRIDGE,
@@ -17,6 +18,11 @@ def main():
     test_check(macos.status == HOST_NATIVE)
     test_check(macos.native_available())
     test_check(macos.gpu_surface)
+
+    var linux = host_contract(BACKEND_LINUX)
+    test_check(linux.native_available())
+    test_check(linux.lifecycle and linux.input)
+    test_check(not linux.accessibility)
 
     var ios = host_contract(BACKEND_IOS)
     test_check(ios.status == HOST_PORTABLE_BRIDGE)

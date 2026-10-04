@@ -3,6 +3,7 @@
 from moxi import (
     BACKEND_ANDROID,
     BACKEND_IOS,
+    BACKEND_LINUX,
     BACKEND_WEB,
     PlatformSurface,
     PlatformTarget,
@@ -12,6 +13,13 @@ from moxi import (
 
 
 def main():
+    var linux = PlatformTarget(BACKEND_LINUX)
+    test_check(not linux.is_planned_only())
+    test_check(linux.keyboard_input)
+    test_check(linux.ime)
+    test_check(linux.device_pixels)
+    test_check(linux.renderer_name == "gtk4/cairo")
+
     var ios = PlatformTarget(BACKEND_IOS)
     test_check(ios.touch_input)
     test_check(ios.ime)
