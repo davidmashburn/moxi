@@ -6,7 +6,7 @@ from .view_node import ViewNode, LABEL_KIND, BUTTON_KIND, TEXT_INPUT_VIEW_KIND, 
 from .paint import PaintCommand
 from .accessibility import AccessibilitySnapshot, ROLE_CONTAINER, ROLE_LABEL
 from .geometry import Point
-from .macos import MacOSRenderer
+from .native_window import NativeRenderer
 
 
 def declare_leaf(mut layout: RetainedLayout, node: ViewNode, style: RetainedStyle) raises:
@@ -14,7 +14,7 @@ def declare_leaf(mut layout: RetainedLayout, node: ViewNode, style: RetainedStyl
 
     Reject other legacy modes until they have an explicit adapter. Controls own
     their state; the retained tree supplies all geometry. Labels use the identical
-    CoreText payload for measurement and drawing. Fixed-allocation controls use
+    native paragraph payload for measurement and drawing. Fixed-allocation controls use
     their existing native rendering and text-editing implementation.
     """
     if node.kind == LABEL_KIND:
@@ -81,7 +81,7 @@ struct RetainedPresentation:
                 return self.commands[i].id
         return -1
 
-    def draw_commands(self, mut renderer: MacOSRenderer, custom_layer: Int = -1) raises:
+    def draw_commands[backend_kind: Int](self, mut renderer: NativeRenderer[backend_kind], custom_layer: Int = -1) raises:
         external_call["moxi_window_ordered_paint_begin", NoneType]()
         for command in self.commands:
             if command.kind == TEXT_INPUT_VIEW_KIND and command.focused:
@@ -124,9 +124,9 @@ struct RetainedPresentation:
                 accessibility.nodes[i].value = accessibility.nodes[i].label
         return accessibility^
 
-    def draw_accessibility(self, mut renderer: MacOSRenderer) raises:
+    def draw_accessibility[backend_kind: Int](self, mut renderer: NativeRenderer[backend_kind]) raises:
         renderer.update_accessibility(self.accessibility())
 
-    def draw(self, mut renderer: MacOSRenderer, custom_layer: Int = -1) raises:
+    def draw[backend_kind: Int](self, mut renderer: NativeRenderer[backend_kind], custom_layer: Int = -1) raises:
         self.draw_commands(renderer,custom_layer)
         self.draw_accessibility(renderer)
