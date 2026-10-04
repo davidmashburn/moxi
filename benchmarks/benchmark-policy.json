@@ -19,7 +19,7 @@
       "path": "benchmarks/results/macos-arm64-full.json",
       "os": "Darwin",
       "architecture": "arm64",
-      "mojo_version": "Mojo 1.1.0.dev2026082605 (dd957314)",
+      "mojo_version": "Mojo 1.1.0 (8189361e)",
       "status": "reviewed"
     },
     {
