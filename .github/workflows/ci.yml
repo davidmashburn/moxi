@@ -21,7 +21,7 @@ jobs:
         run: pixi run headless-check
 
   validate:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -56,7 +56,7 @@ jobs:
           if-no-files-found: warn
 
   package-consumer:
-    runs-on: macos-14
+    runs-on: macos-15
     needs: validate
     steps:
       - name: Check out source
@@ -148,7 +148,7 @@ jobs:
           if-no-files-found: warn
 
   layout-candidate-macos:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Check out source
         uses: actions/checkout@v4

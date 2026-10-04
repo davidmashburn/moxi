@@ -12,11 +12,14 @@ pixi publish --path packages/moxi_layout_native/recipe.yaml --target-dir dist/la
 ```
 
 The recipe pins Kiwi's commit and archive checksum, includes the Moxi and Kiwi
-licenses, and compiles for macOS 14 or newer. It uses the host Apple compiler/SDK;
-this is not a hermetic compiler distribution or an Intel/cross-platform package.
+licenses, and compiles the native archive with a macOS 14 deployment target. It
+uses the host Apple compiler/SDK; this is not a hermetic compiler distribution or
+an Intel/cross-platform package. The pinned stable Mojo 1.1.0 consumer requires
+macOS 15+ and Xcode or Command Line Tools 16+; the archive target does not lower
+those [compiler requirements](https://mojolang.org/docs/requirements/).
 
 After installing `moxi` and `moxi_layout_native` from the same candidate channel,
-declare `macos = "14.0"` under `[system-requirements]` in the consumer's Pixi
+declare `macos = "15.0"` under `[system-requirements]` in the consumer's Pixi
 manifest, then compile inside that environment:
 
 ```sh
