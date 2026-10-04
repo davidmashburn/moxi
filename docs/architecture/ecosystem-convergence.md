@@ -14,7 +14,7 @@ compatibility facts have been measured rather than assumed.
 | Product model | `PlotDataTable`, `PlotSpec`, `PlotRuntime`, stable row keys, selections, semantics, accessibility, and LOD policy | a foreign fluent plot object model |
 | Scene | ordered `Scene`/`SceneCommand` values and `SceneRenderer` lifecycle | canvas-specific structs or native handles |
 | Correctness renderer | deterministic software scene output and exact visual goldens | platform font pixels |
-| Export/backends | SVG, AppKit, Metal, and the canvas adapter | one backend as the scene contract |
+| Export/backends | SVG, AppKit, Metal, the GTK/Cairo retained presenter, and the canvas adapter | one backend as the scene contract |
 | Python | serialized specs and typed value/buffer inputs | borrowed Mojo object layout, windows, callbacks, or event-loop ownership |
 | Upstream dataviz | reference output, algorithm provenance, and capability inventory | wholesale source or fluent API compatibility |
 
@@ -134,6 +134,9 @@ evidence, not an absorbed Moxi feature.
 - the portable Plot API now has a dedicated source-precompile and software
   renderer smoke in `tests/portable_plot.mojo`; the GitHub Actions Linux lane
   runs `pixi install --locked` and `pixi run headless-check`.
-- `BACKEND_LINUX` still reports native-host unavailability: the Linux claim is
-  limited to the portable headless package until a native host adapter is
-  implemented and measured.
+- `BACKEND_LINUX` reports the provisional GTK4/Cairo retained presenter with
+  Pango paragraphs. Its compiled Mojo workbench passed native contracts and
+  synthetic X11 GUI checks in an Ubuntu x86-64 VM on stable Mojo 1.1.0; see
+  [VM validation](../vm-validation.md). AT-SPI, desktop clipboard integration and
+  legacy widget parity remain unavailable. Real IME, physical input and Wayland
+  acceptance remain unverified.
