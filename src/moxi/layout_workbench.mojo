@@ -310,6 +310,8 @@ struct LayoutWorkbench:
         self.focused = restored if restored>=0 else 13
 
     def edit_row(mut self, row_key: Int) raises:
+        if self.editing_row!=row_key:
+            self.cell_editor.set_composition("",0,0)
         if self.editing_row>0:
             self.table.unpin_editor(self.editing_row)
         self.table.pin_editor(row_key)

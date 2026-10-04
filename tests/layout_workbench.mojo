@@ -209,7 +209,11 @@ def main() raises:
     var invalid_write = Event(TextInputEvent("Wrong editor"))
     invalid_write.set_target(9999)
     assert_true(not routed.handle_text_input(invalid_write))
+    routed.cell_editor.set_composition("かな",0,1)
+    routed.edit_row(2)
+    assert_equal(routed.cell_editor.composition,String("かな"))
     routed.edit_row(3)
+    assert_equal(routed.cell_editor.composition,String(""))
     invalid_write.set_target(routed_cell)
     assert_true(not routed.handle_text_input(invalid_write))
     routed.focused = 13
