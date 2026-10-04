@@ -325,6 +325,18 @@ change. The runtime's structural identity diff is backend-neutral; the native
 renderer still repaints the complete command stream under the current renderer
 contract.
 
+`LinuxWindow` and `LinuxRenderer` expose a provisional GTK4/Cairo retained
+presenter through the shared Mojo `NativeWindow` transport. It presents labels,
+buttons, single-line editors and custom canvas leaves; retained Pango paragraphs
+supply the same payload for text measurement and paint. Mojo owns retained state,
+flow/grid layout, hit testing and editor state, while Kiwi remains the constraint
+solver. GTK supplies window/input-method services and both scroll axes. The
+Ubuntu x86-64 VM runs the compiled workbench, with native contracts and synthetic
+X11 interaction evidence in [docs/vm-validation.md](docs/vm-validation.md).
+Linux has no AT-SPI tree, desktop clipboard integration, legacy widget parity,
+rich text, GPU acceleration or incremental rendering. Real Japanese IME, physical
+input and Wayland acceptance remain unverified.
+
 `Scene` and `SceneRenderer` are a richer shape/resource boundary separate from
 the widget paint stream. `SceneRecorder` preserves commands for tests, and
 `SoftwareSceneRenderer` provides deterministic headless pixels for basic
@@ -367,9 +379,11 @@ for browser-compatible SVG and escapes arbitrary text labels.
 shipped `MacOSRenderer` reports native windowing, AppKit shaping/bidi,
 accessibility, and rectangle clipping; `MacOSMetalRenderer` reports readiness
 only after its device/pipeline is initialized; `TestRenderer` inherits the
-deterministic headless profile and opts into incremental dispatch. Generic GPU,
-Windows, and Linux descriptors are explicit contracts so callers can gate
-features without probing platform internals.
+deterministic headless profile and opts into incremental dispatch. The Linux
+profile reports the retained presenter's native windowing, Pango shaping/bidi,
+clipping and input-method support, with accessibility unavailable. Generic GPU
+and Windows descriptors remain explicit contracts so callers can gate features
+without probing platform internals.
 
 `PlatformTarget`, `SurfaceConfig`, `PlatformSurface`, `PlatformAdapter`, and
 `HostContract` define the common lifecycle/scale contract for macOS-style
@@ -389,11 +403,11 @@ component and event-loop tests to run deterministically in headless builds.
 for multiple window ids; native AppKit multi-window ownership is still a
 follow-up adapter.
 
-The package build target remains macOS on Apple Silicon, with native host
-source slices and build targets for iOS, Android, and Web documented
-separately. The capability
-bus is implemented as an in-process authorization/lease boundary; transport,
-serialization, and agent-session orchestration remain outside the core. The
+The portable package resolves macOS on Apple Silicon and Linux x86-64. The
+AppKit demo catalog and provisional GTK retained workbench are source-level
+native hosts; iOS, Android and Web host slices are documented separately. The
+capability bus is implemented as an in-process authorization/lease boundary;
+transport, serialization, and agent-session orchestration remain outside the core. The
 capability design note in
 [docs/capability-bus-design.md](docs/capability-bus-design.md)
 is maintained as a truthful future-adapter guide rather than an implementation
@@ -508,4 +522,5 @@ pixi run release-check
 ```
 
 The distributable package contains the core Mojo module. The native AppKit
-example remains a repository-level demo and is not bundled into the package.
+examples and Linux GTK workbench remain repository-level demos and are not
+bundled into the package.
