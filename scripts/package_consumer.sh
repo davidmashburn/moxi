@@ -79,7 +79,7 @@ if [[ "$layout_native" == 1 ]]; then
     cat >> "$consumer_dir/pixi.toml" <<'TOML'
 
 [system-requirements]
-macos = "14.0"
+macos = "15.0"
 TOML
 fi
 
