@@ -10,7 +10,7 @@ links=(
 )
 mojo build -I src "${links[@]}" tests/layout_workbench.mojo -o dist/moxi-layout-workbench-test
 dist/moxi-layout-workbench-test
-mojo build -I src "${links[@]}" examples/layout_workbench.mojo -o dist/moxi-layout-workbench
+mojo build -I src -I examples "${links[@]}" examples/layout_workbench.mojo -o dist/moxi-layout-workbench
 
 # A signed bundle makes the native acceptance screen available to LaunchServices.
 app="dist/Moxi Layout Workbench.app"

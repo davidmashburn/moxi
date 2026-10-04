@@ -1,13 +1,13 @@
-"""Optional macOS paragraph provider and committed-snapshot presenter.
+"""Native paragraph provider and committed-snapshot presenter.
 
-Link macos_text.o + CoreText; presentation also needs macos_window.o + Cocoa.
+Link the platform paragraph implementation; presentation also needs its window bridge.
 """
 from std.ffi import external_call
 from std.memory import ArcPointer
 from .box_layout import BoxMetrics, ParagraphPayload, GeometrySnapshot
 from .geometry import Size
 from .retained_engine import RetainedParagraph
-from .macos import MacOSRenderer
+from .native_window import NativeRenderer
 
 
 struct _NativeParagraphStorage:
@@ -74,8 +74,8 @@ struct NativeParagraph(ParagraphPayload, RetainedParagraph):
         return Int(self._metric(4))
 
 
-def draw_box_snapshot(mut renderer: MacOSRenderer, snapshot: GeometrySnapshot[NativeParagraph]) raises:
-    """Submit the committed geometry and exact retained paragraphs to AppKit.
+def draw_box_snapshot[backend_kind: Int](mut renderer: NativeRenderer[backend_kind], snapshot: GeometrySnapshot[NativeParagraph]) raises:
+    """Submit the committed geometry and exact retained paragraphs to the native window.
 
     Call begin_frame first; submit any chart scene before update_accessibility.
     """

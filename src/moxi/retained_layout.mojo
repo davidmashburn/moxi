@@ -9,7 +9,7 @@ from std.memory import ArcPointer
 from .geometry import Point, Rect, Size
 from .accessibility import AccessibilitySnapshot, Semantics, ROLE_CONTAINER, ROLE_LABEL, ROLE_CANVAS
 from .paint import PaintCommand, PANEL_KIND
-from .macos import MacOSRenderer
+from .native_window import NativeRenderer
 from .native_paragraph import NativeParagraph
 
 from .retained_engine import RetainedEngine, EnginePlan, EngineSnapshot, RetainedStyle, RetainedTrack, RetainedPlacement, CONTENT, FIXED, FILL, FRACTION, MIN_CONTENT, MAX_CONTENT, FIT_CONTENT, COLUMN, ROW, WRAP, GRID, STACK, LEAF, COLLAPSED
@@ -96,7 +96,7 @@ struct RetainedSnapshot(ImplicitlyCopyable):
         return result^
 
 
-def draw_retained_snapshot(mut renderer: MacOSRenderer, snapshot: RetainedSnapshot) raises:
+def draw_retained_snapshot[backend_kind: Int](mut renderer: NativeRenderer[backend_kind], snapshot: RetainedSnapshot) raises:
     var slot = 0
     for output in snapshot._outputs[]:
         if output.hidden or output.semantics.role == ROLE_CONTAINER:
