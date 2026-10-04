@@ -98,7 +98,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
             build-essential pkg-config libgtk-4-dev fonts-dejavu-core fonts-noto-cjk \
-            xvfb xauth xdotool openbox dbus-x11
+            xvfb xauth xdotool openbox dbus-x11 x11-utils
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
@@ -118,6 +118,25 @@ jobs:
               openbox > /tmp/moxi-openbox.log 2>&1 &
               moxi_wm_pid=$!
               trap "kill $moxi_wm_pid" EXIT
+              moxi_wm_ready=0
+              for moxi_wm_attempt in {1..100}; do
+                if ! kill -0 "$moxi_wm_pid" 2>/dev/null; then
+                  echo "Openbox exited before X11 window activation was ready" >&2
+                  cat /tmp/moxi-openbox.log >&2
+                  exit 1
+                fi
+                if xprop -root _NET_SUPPORTED 2>/dev/null | grep -qw _NET_ACTIVE_WINDOW; then
+                  moxi_wm_ready=1
+                  break
+                fi
+                sleep 0.1
+              done
+              if [ "$moxi_wm_ready" -ne 1 ]; then
+                echo "Openbox did not advertise _NET_ACTIVE_WINDOW within 10 seconds" >&2
+                xprop -root _NET_SUPPORTED _NET_SUPPORTING_WM_CHECK >&2 || true
+                cat /tmp/moxi-openbox.log >&2
+                exit 1
+              fi
               pixi run --locked linux-ui-smoke
             '
       - name: Upload Linux native interaction evidence
