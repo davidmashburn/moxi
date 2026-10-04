@@ -410,3 +410,167 @@ deterministic software-golden approach.
 - winit window/event substrate: <https://github.com/rust-windowing/winit/blob/master/FEATURES.md>
 - wgpu renderer substrate: <https://github.com/gfx-rs/wgpu>
 - egui immediate-mode contrast: <https://github.com/emilk/egui>
+
+## Appendix A — Full architecture handoff
+
+The `canvas_mojo` update is complete and pushed:
+
+- `81f7ae5` — upstream `canvas_mojo` v0.42 with released Mojo 1.1
+- `e3be517` — refreshed benchmark baseline
+- `pixi run check` passes; worktree is clean
+
+The architecture conclusion is:
+
+> Moxi should be a cross-platform UI framework/runtime with a backend-neutral semantic view tree and scene representation. It should not be a windowing toolkit, graphics library, or Qt/wx wrapper.
+
+## Recommended layers
+
+```text
+Application state / PlotSpec / Components
+                 ↓
+Moxi framework API
+  actions, effects, tasks, components, view descriptions
+                 ↓
+Moxi UI runtime
+  reconciliation, retained identity, layout, focus, hit testing,
+  scrolling, semantics, accessibility, invalidation
+                 ↓
+        ┌────────┴────────┐
+        │                 │
+  Semantic projection   Scene/frame projection
+  DOM/native widgets   PaintCommands/Scene/resources
+        │                 │
+   Web/GTK/Qt/wx       Software/canvas/Metal/wgpu
+        │                 │
+        └────────┬────────┘
+                 ↓
+        Moxi host adapter
+  window, event loop, DPI, IME, clipboard, timers, vsync,
+  accessibility bridge, render surface
+                 ↓
+        Wayland/X11/AppKit/Win32/UIKit/Android/browser
+```
+
+Moxi therefore sits roughly at the same conceptual level as Xilem plus its underlying Masonry engine:
+
+- Xilem’s view tree is short-lived and diffed into a retained element tree. Native Xilem targets Masonry; `xilem_web` targets the DOM. That is the most important architectural lesson for Moxi: the shared abstraction should be above both DOM/native widgets and custom rendering. [Xilem architecture](https://github.com/linebender/xilem/blob/main/xilem/ARCHITECTURE.md)
+- Masonry deliberately separates widget-tree passes, accessibility, painting, and the platform event loop. [Masonry architecture](https://github.com/linebender/xilem/blob/main/masonry/ARCHITECTURE.md)
+- React Native makes the analogous pipeline explicit: render → commit/layout → mount. Its immutable shadow tree is converted into host views only at the platform boundary. [React Native render pipeline](https://reactnative.dev/architecture/render-pipeline)
+- Flutter’s framework/engine/embedder/runner split is also very applicable: framework owns UI semantics, engine owns rendering/runtime, embedder owns the OS event loop and surfaces. [Flutter architecture](https://docs.flutter.dev/resources/architectural-overview)
+
+## What Moxi should own
+
+Moxi should own:
+
+- Component/view descriptions
+- Reconciliation and retained identity
+- Layout and measurement
+- Focus, hit testing, gestures, scrolling
+- Backend-neutral accessibility semantics
+- Invalidation and frame scheduling requests
+- A portable `Scene`/frame IR
+- Resource identifiers, not native resource handles
+- The application/task/action model
+
+Moxi should not own:
+
+- Wayland, X11, GTK, Qt, SDL, or AppKit types
+- Native window objects
+- GPU command buffers
+- Platform event-loop internals
+- Platform-specific accessibility object lifetimes
+- A particular graphics API
+
+The current code already points in this direction: `App`, `ColumnRuntime`, `Event`, `AccessibilitySnapshot`, `PaintCommands`, `Scene`, `WindowBackend`, and `PlatformAdapter` are the beginnings of these layers. The main architectural cleanup would be to make the boundaries more explicit:
+
+1. `WindowBackend` and `PlatformAdapter` should eventually converge into a clearer host contract.
+2. `PaintCommands` should be treated as a higher-level UI paint stream, while `Scene` is the lower-level render IR.
+3. `App.run()` should become host/frame driven, including timers, animation ticks, invalidation, and vsync—not only input-event driven.
+4. Accessibility should be published from Moxi’s semantic tree independently of the renderer.
+
+## How examples map
+
+| Project | useful boundary | implication |
+|---|---|---|
+| Xilem | shared view tree diffed into different retained targets | Moxi should own the view/reconcile layer and let hosts choose DOM, native widgets, or custom scene projection |
+| React Native | render/commit/mount around an immutable shadow tree | Moxi should make frame transactions explicit without copying the JavaScript bridge model |
+| Flutter | framework/engine/embedder/runner | Moxi should separate framework/runtime, renderer, host adapter, and application runner |
+| Qt | QPA host abstraction plus Qt Quick scene graph/RHI | Moxi needs independent host and renderer interfaces |
+| wxWidgets | native controls and platform utilities | native controls should be an optional Moxi projection, not the core representation |
+| Slint | selectable platform backend and renderer | validate that host and renderer choices can vary independently |
+| Iced | renderer-agnostic runtime plus windowing shell | keep runtime, renderer, and shell independently testable |
+| egui | immediate-mode frame generation | use as a contrast; Moxi’s retained runtime remains better suited to stable identity, accessibility, and large lists |
+
+## Linux host design
+
+I would define a Linux host adapter with these responsibilities:
+
+```text
+LinuxHostBackend
+  open_window(config)
+  pump_events()
+  normalize_event()
+  request_frame()
+  wait_for_event_or_frame()
+  expose_size_and_scale()
+  manage_clipboard/IME/cursor
+  publish_accessibility(snapshot)
+  create_render_surface()
+  present()
+```
+
+The event translation should produce Moxi events such as:
+
+- pointer/touch/mouse
+- keyboard and text input
+- IME composition
+- resize and scale-factor changes
+- focus changes
+- scroll/drag/drop
+- frame ticks
+- accessibility actions
+
+The host should never call application components directly. It should normalize native events into Moxi events, and Moxi should return state changes, invalidation, semantic updates, and render work.
+
+### Linux backend choices
+
+| Option | Best use | Assessment |
+|---|---|---|
+| SDL3 | First minimal custom-rendered desktop host | Strong candidate: C ABI, window/input/surface support, easy Mojo FFI. SDL3 is intentionally low-level, so accessibility and rich IME need separate work. [SDL3](https://wiki.libsdl.org/SDL3/FrontPage) |
+| GTK4 | Native Linux integration/accessibility | Strong if accessibility and desktop integration are first-class immediately. GTK controls are accessible by default, but a custom-rendered Moxi widget still needs an explicit accessibility implementation. [GTK accessibility](https://docs.gtk.org/gtk4/section-accessibility.html) |
+| Qt6 | Full desktop product integration | Excellent architecture, with QPA for window-system integration and Qt Quick’s scene graph/RHI split. Heavy C++ ABI and packaging cost for Mojo. [Qt QPA](https://doc.qt.io/qt-6/qpa.html), [Qt scene graph](https://doc.qt.io/qt-6.12/qtquick-visualcanvas-scenegraph.html) |
+| winit | Architectural reference or Rust bridge | Very good host abstraction, but it is Rust-native and intentionally only handles windows/events; Xilem uses it as a host layer, not as the UI framework. [winit scope](https://github.com/rust-windowing/winit/blob/master/FEATURES.md) |
+| Direct Wayland/X11 | Maximum control | Too much surface, input, clipboard, decoration, and compatibility work for the first implementation |
+| Slint-style selectable backend | Design reference | Especially relevant because Slint explicitly separates OS backends from renderers and supports combinations such as `winit-software`. [Slint backends/renderers](https://docs.slint.dev/latest/docs/slint/guide/backends-and-renderers/backends_and_renderers/) |
+
+My default recommendation:
+
+- Start with an SDL3-like minimal Linux host to prove the Moxi host contract.
+- Keep GTK4 or Qt6 as optional integration lanes if native accessibility/widgets become a requirement.
+- Use `canvas_mojo` or the software renderer first for deterministic Linux validation.
+- Add a GPU renderer later behind a separate `RenderSurface` contract. `wgpu-native`/`wgpu` is a reasonable long-term candidate, but its Rust/native bridge should not leak into Moxi core. [wgpu](https://github.com/gfx-rs/wgpu)
+
+## The key design decision
+
+Moxi should not choose between “native widgets” and “custom canvas” globally.
+
+It should support both projections:
+
+- Custom-rendered controls and plots → `Scene`/renderer backend
+- Accessibility- or platform-sensitive controls → native-widget/DOM host projection
+
+That is the combined lesson from Xilem, React Native, Qt, wxWidgets, Flutter, and Slint:
+
+- Xilem: shared view abstraction, different retained targets
+- React Native: shadow tree before host-view mounting
+- Flutter: framework separate from engine and embedder
+- Qt: platform abstraction separate from scene graph/rendering
+- wxWidgets: native controls are valuable, but they are a toolkit strategy rather than a universal scene model. [wxWidgets overview](https://wxwidgets.org/about/)
+- Slint/Iced: configurable runtime, renderer, and platform shell
+- egui: the immediate-mode model is simple, but Moxi’s retained runtime is a better fit for accessibility, large lists, stable identity, and localized invalidation. [Iced](https://github.com/iced-rs/iced), [egui](https://github.com/emilk/egui)
+
+So the clean abstraction level for Moxi is:
+
+> Above layout/rendering primitives, below application code, with host and renderer adapters beneath it.
+
+That gives the Linux thread a stable target without forcing Linux details into Moxi’s core.
