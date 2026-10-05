@@ -118,7 +118,7 @@ retained-layout-check = "bash scripts/retained_layout_check.sh"
 constraint-layout-check = "bash scripts/constraint_layout_check.sh"
 composed-layout-check = { cmd = "bash scripts/composed_layout_check.sh", depends-on = ["retained-layout-check", "constraint-layout-check"] }
 layout-candidate-check = "bash scripts/layout_candidate_check.sh"
-layout-workbench-benchmark = { cmd = "bash scripts/layout_workbench_benchmark.sh", depends-on = ["retained-layout-check", "constraint-layout-check"] }
+layout-workbench-benchmark = "bash scripts/layout_workbench_benchmark.sh"
 layout-consumer-check = { cmd = "bash scripts/layout_consumer_check.sh", depends-on = ["retained-layout-check", "constraint-layout-check"] }
 layout-workbench = { cmd = "./dist/moxi-layout-workbench", depends-on = ["composed-layout-check"] }
 linux-native-build = "bash scripts/linux_native_build.sh"
