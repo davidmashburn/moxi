@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+- Drain normalized input in standalone native window runners so queued events
+  cannot starve close handling or keep an idle loop spinning.
+- Flush live AppKit frame publication before idle and preserve Japanese
+  composition cancellation on IBus 1.5.29 with a process-local hybrid default.
+  Explicit `IBUS_ENABLE_SYNC_MODE` values remain authoritative.
+- Wake AppKit's idle event wait for asynchronous accessibility actions,
+  addressed Unicode edits and window closure.
+- Added portable `FramePacket`, separate host/renderer capabilities, exact
+  normalized event replay and a shared form/collection/chart controller.
+  Native hosts own presentation; legacy renderers now finish painted frames
+  explicitly with `end_frame()` after accessibility publication.
+- Changed `App` drivers to advance tasks from monotonic time, wait for the next
+  deadline and paint only invalidated frames. Animation users opt into periodic
+  frame ticks with `request_animation_frames()`.
+- Added Linux desktop clipboard snapshots and GTK AT-SPI publication/actions,
+  repaired selected-range IME previews and same-editor close/reopen, and added
+  external service checks. Native Linux support remains provisional; manual
+  macOS input/accessibility and Wayland acceptance remain open.
+- Added the production Linux bitmap benchmark alongside the macOS full profile,
+  with explicit smoke profiles, source hashes and separate VM budget policy.
 - Added `Component.update_retained`, a trait method for components that settle
   their own output without rebuilding a declarative view. It has a default
   implementation returning `False`, so existing implementers are unaffected.

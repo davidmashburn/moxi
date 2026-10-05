@@ -113,7 +113,8 @@ For the Linux native retained layout workbench, install the GTK4/Pango/Cairo
 dependencies in [the layout workbench guide](docs/layout-workbench.md), then
 run `pixi run --locked linux-layout-check` and
 `pixi run --locked linux-layout-workbench`. The guide records the compiled
-slice, VM evidence, and pending accessibility and manual input checks.
+slice, shared frame/replay contract, external accessibility/clipboard evidence,
+and pending manual input checks.
 
 `pixi run workbench-release-gate` records the focused automated acceptance checks
 and their logs. See [the release gate](docs/workbench-release-gate.md) for optional

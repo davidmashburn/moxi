@@ -57,6 +57,13 @@ Moxi resolves this trait footprint by leveraging Mojo 1.0's native compile-time 
 
 ## 4. Pure Mojo Screen and Graphic Interaction Layers
 Moxi separates layout and paint-command generation from the platform renderer. A backend may target a CPU rasterizer, native widgets, or a GPU command encoder. The core framework does not require a particular graphics API or an interpreted runtime.
+
+The current desktop implementation uses a portable `FramePacket` carrying paint,
+scene, resource identity and semantic projections. `WindowBackend` owns native
+lifecycle, events, deadline waits and presentation; renderers own pixels and
+pinned resources. [ADR-005](docs/architecture/adr-005-host-frame-contract.md)
+records the implemented contract. The deadline-driven AppKit/GTK loops are not
+hardware-vsync drivers; display-linked scheduling below remains a design target.
 ## Direct C-ABI Windowing Boundaries (abi("C"))
 The windowing layer uses narrow C-ABI or platform-native adapters where appropriate. Each adapter owns handle lifetimes, callback registration, error translation, and thread-affinity rules.
 

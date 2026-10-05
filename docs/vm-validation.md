@@ -10,7 +10,7 @@ browser interaction and physical input checks.
 | Guest | Checks | Current boundary |
 | --- | --- | --- |
 | Ubuntu 24.04 x86-64, first | Exact `pixi.lock`; Mojo retained engine, box/collection/overlay policies, Kiwi constraints, portable plotting and precompilation; rebased request/runtime/plot regressions; Node host contracts | Portable checks and the Linux Pango/Cairo/layout contracts have passed in the guest. Node harnesses do not exercise a browser; headless native contracts do not verify a window or real input. |
-| Ubuntu native desktop, active | Compile the Mojo workbench with the GTK4/Cairo/Pango host; actual window screenshot, pointer/key/resize, RTL and scroll observations | GTK 4.14+ retained presenter implemented; stable Mojo 1.1.0 native build and 15 synthetic X11 checks passed. Wayland, real IME composition and physical scrolling are unverified; AT-SPI is unavailable. |
+| Ubuntu native desktop, active | Compile the Mojo workbench with the GTK4/Cairo/Pango host; actual window screenshot, pointer/key/resize, RTL, scrolling and desktop services | GTK 4.14+ retained presenter implemented; stable Mojo 1.1.0 native build and synthetic X11 checks passed. External AT-SPI hierarchy/text/actions and cross-process clipboard checks pass. Spoken Orca, Wayland and physical scrolling remain unverified; real IME observations are recorded separately. |
 | Ubuntu browser, separate | Actual guest browser rendering, pointer/key/resize, then a fixture for scroll, composition and ARIA | The browser demo is a JavaScript host demo, not the compiled Mojo layout app. The pinned compiler has no supported WASM package target. |
 | macOS 15 ARM64, active | Clean native-services build, installed consumer and layout workbench in a GUI session | Locked Mojo 1.1.0 installation, native layout candidate and installed consumer passed in a clean guest. User completed desktop login and the compiled workbench was launched and visually captured. Interactive checks, VoiceOver, real Japanese composition and physical horizontal input require separate observations. |
 | Windows 11 ARM64, later | Actual Edge/browser host and Python wheel consumption | Mojo has no native Windows support; WSL results must be reported as Linux. Moxi's Windows native backend is unavailable. Guest image/license and GUI provisioning are not established yet. |
@@ -101,9 +101,10 @@ and custom canvas leaves using Cairo. Retained Pango paragraphs supply wrapping,
 shaping and bidi; measurement and paint use the same paragraph payload. Mojo owns
 the retained tree, flow/grid layout, hit testing, publication and editor state;
 Kiwi remains the pinned C++ constraint solver. GTK supplies the native window and
-input-method service. Legacy widget parity, desktop clipboard integration, rich
-text, GPU acceleration, incremental rendering and an AT-SPI semantic tree are
-unavailable.
+input-method service. Native desktop clipboard and GTK AT-SPI proxies now supply
+host services; external clients verify selected published semantics and actions.
+Legacy widget parity, rich text, GPU acceleration and incremental rendering remain
+unavailable. Spoken screen-reader navigation has not been certified.
 
 Install the native development libraries and fonts inside the guest:
 
@@ -115,7 +116,10 @@ pixi run --locked linux-layout-check
 ```
 
 This requires GTK 4.14+ and runs the native text/paint/event and Mojo layout
-contracts, then compiles `dist/layout-workbench-linux` without opening a display.
+contracts, then compiles `dist/layout-workbench-linux`. Lifecycle and clipboard
+regressions use a display or Xvfb when available and report skipped checks. Set
+`MOXI_LINUX_ATSPI_CHECK=1` in an X11/DBus/window-manager session to include the
+external service client; install `python3-pyatspi xclip xdotool dbus-x11` first.
 To build and launch the app from the guest desktop terminal:
 
 ```sh
@@ -311,9 +315,11 @@ Pango 1.52.1 and Cairo 1.18.0. DejaVu Sans is the default font; the Japanese fon
 match is Noto Sans CJK JP. The captured guest provenance is
 `/tmp/moxi-linux-stable-guest-provenance.log`.
 
-Wayland, Linux real IME composition, physical horizontal scrolling, the macOS
-manual release checks and Windows VM checks remain unverified. Linux AT-SPI
-support remains unavailable. No frame-performance claim is made for TCG.
+At this October 4 baseline, Wayland, Linux real IME composition, physical
+horizontal scrolling, the macOS manual release checks and Windows VM checks
+were unverified, and Linux AT-SPI was unavailable. The October 5 service
+implementation and observations below supersede that availability limit.
+No native frame-performance claim is made for TCG.
 
 ## macOS native VM evidence
 
@@ -376,3 +382,165 @@ The computer-use connector still rejects Lima's unbundled `limactl` GUI process,
 although SSH and Lima's screenshot command work. VoiceOver speech, real Japanese
 IME composition and physical horizontal scrolling remain unverified. The full
 check suite and benchmarks were not repeated in this guest.
+
+## October 5 host/frame validation
+
+The architecture slice adds portable frame/semantic publication, deadline-driven
+loops and lossless normalized replay. Mojo owns retained state/layout; Kiwi
+remains the constraint solver. [ADR-005](architecture/adr-005-host-frame-contract.md)
+records the accepted boundaries. H4 GPU work and H5 additional hosts remain
+deferred, and manual desktop acceptance remains separate.
+
+### macOS contracts and guest builds
+
+The host's full `pixi run --locked check` passed all 81 portable test files,
+native text/scene/accessibility/screenshot checks, package/host harnesses and API
+inventory checks. The reviewed inventory contains 977 exports and 98 trait
+methods. Android SDK/NDK and iPhone simulator checks remain skipped.
+`/tmp/moxi-final-check-rerun.log` captures this full run. Targeted native resource,
+clipboard-routing and semantic-only publication checks also pass. This full run
+preceded the final native-loop and AX-wake fixes; the final candidate and targeted
+regressions below cover those changes.
+
+The host candidate at `959477f` passed, including first and later frames painted
+before idle on the original AppKit canvas and the independent precompiled
+consumer (`/tmp/moxi-final-host-candidate.log`). A bounded standalone runner
+regression fails on the old loop and passes for both backend aliases at
+`bd16cde`: input is drained and close prevents another wait.
+
+An actual AX callback also reproduced an idle-wake defect: a press at 21 ms was
+delivered only after unrelated fallback input at 201 ms. After `16ea17c`, the same
+probe returns at 21 ms without fallback. The new bounded native regression checks
+AX actions, addressed Unicode edits and asynchronous close; its exact fixture
+fails against pre-fix source and passes after the fix. Logs are
+`/tmp/moxi-appkit-prewake-fixture.log`, `/tmp/moxi-appkit-ax-idle-probe-fixed.log`
+and `/tmp/moxi-appkit-wait-final.log`. These checks do not certify VoiceOver speech.
+
+The final host candidate at `16ea17c` passes, including the AX-wake regression,
+standalone runner checks, frame publication and independent precompiled consumer.
+Its log is `/tmp/moxi-final-wake-host-candidate.log`.
+
+An exact `959477f` archive was installed in the new empty guest directory
+`$HOME/moxi-frame-final-959477f`; SHA-256 is
+`e261fe2567b044a423716078089afa2a3ac6efb5bca27beec6b403807185ae04`.
+Locked install, `layout-candidate-check` and `layout-package-consumer` pass on
+macOS 15.6.1 ARM64, Mojo 1.1.0 and CLT 16.4, including installed native archive
+consumption. No host objects or environment were copied. The signed bundle's
+executable hash is
+`a972b6f25682697a962885739e48c703d55bc195b40896e567a556c8b3fd6389`.
+Copied logs are `dist/vm-artifacts/macos-frame-final-candidate.log` and
+`dist/vm-artifacts/macos-frame-final-consumer.log`. The outer capture exited 1
+only because its final hash command used the wrong executable name; both test
+commands passed, and the corrected hash was checked separately.
+
+The final exact `16ea17c` archive has SHA-256
+`ad4a752e618cf0ae5ffdf0959f0c0397ff0748eca33dcf40c450a4dde27f463b`.
+It was transferred into the new empty guest directory
+`$HOME/moxi-frame-final-16ea17c`. Fresh locked installation, the complete
+`layout-candidate-check` and `layout-package-consumer` all pass on the same macOS
+15.6.1 ARM64 guest. The outer run also exits successfully; the signed bundle's
+executable SHA-256 is
+`8a86de577cb40355897fcb866d4ac97266763d5a8a3575325cb309adca6fff78`.
+No host objects or environment were copied. The host capture is
+`/tmp/moxi-frame-wake-final-host.log`; combined guest check logs are copied to
+`dist/vm-artifacts/macos-frame-wake-final-checks.log`.
+
+A fresh Lima capture is black and does not establish visible launch for this
+snapshot. Guest `screencapture` excludes app windows;
+`CGPreflightScreenCaptureAccess` returns false. Screen-capture settings were not
+changed. The 03:22:14 UTC screenshot above remains historical evidence for its
+earlier binary; newer AppKit paint checks pass independently of this capture limit.
+
+### Ubuntu contracts and services
+
+The exact `7d9bbe3` archive has SHA-256
+`6ef9c3905e04bdba8d78145eb2382dbca4807e6a4d46147cf3f98c00850154b6`.
+The contract lane passed from 05:45:40 to 06:20:19 UTC: Pango/Cairo/event ABI;
+selected-range editor preview; same-ID close/reopen and stale input rejection;
+host scale/waits; bounded clipboard timeout, stable leases, deferral and overflow;
+external AT-SPI; portable retained/box/event replay; linked retained, Kiwi's
+1,000 staged rebuilds, workbench/replay and native resource contracts.
+The log is `/tmp/moxi-linux-final-7d9bbe3.log`.
+
+The new source directory `$HOME/moxi-linux-final-7d9bbe3` reused the guest's own
+locked environment rather than installing a fresh one; both lock hashes are
+`b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0`.
+No host environment or objects were copied. App/GUI orchestration was explicitly
+deferred to the later shipping source using temporary guest wrappers, then
+restored; those deferred steps are not app/GUI passes for `7d9bbe3`.
+
+The separate DBus/Xvfb/Openbox client checks AT-SPI hierarchy, roles, hints,
+GTK 4.14's sensitive/enabled mapping, checked/selected states, Unicode caret and
+selection, focus, window-relative bounds, addressed activation and focused-key
+routing. An external clipboard peer verifies Unicode text and stable leases.
+This service inspection does not establish spoken Orca acceptance.
+
+The final shipping Linux build uses exact `bd16cde` source, whose archive SHA-256
+is `0503a13e4d1541b5a3891f9f724b97947dbe0d7d1e57aa753cd2b4ceedacacba`.
+The new source directory `$HOME/moxi-linux-final-bd16cde` reuses the same
+guest-local locked environment. Its focused final build passes strict C, unset
+and explicit IBus-mode checks, actual `GDK_SCALE=2` GTK lifecycle checks and both
+standalone native runner aliases. It compiles the app once; the executable's
+SHA-256 is `5ca20e030f2303c0c64afa5764f2377be3227cc7db2deaae10108ad8f4b76a3c`.
+The build runs from 06:21:39 to 06:28:06 UTC; its log is
+`/tmp/moxi-linux-final-bd16cde-build.log`. The subsequent `16ea17c` code change is
+macOS-only and does not change these Linux sources.
+
+That same executable passes all 15 compiled X11 GUI checks from 06:31:00 to
+06:31:12 UTC on a separate Xvfb/Openbox/DBus session: visible drawing, reflow,
+RTL, rapid focus/action routing, Unicode/preedit, modal and cell cancellation,
+resize retention, horizontal/vertical scrolling, screenshot and clean close.
+Its trace contains 49 published frames and no native event drops or overflow.
+The host-inspected screenshot is `dist/vm-artifacts/linux-frame-final-workbench.png`;
+the copied summary and trace are beside it. These synthetic GUI checks do not
+exercise a real IME, spoken accessibility, physical input or Wayland; the real
+engine result below uses a separate session and the same executable.
+
+### Real Japanese input-method service
+
+GTK 4.14.5, IBus 1.5.29 and Mozc 2.28.4715.102 were exercised in the guest's
+Xfce/X11 session using synthetic X11 keys through actual GTK IBus transport,
+the Mozc engine and candidate renderer. Accessibility was disabled for this
+isolated IME probe and checked separately.
+
+Default synchronous mode reproduced a cancellation failure: Escape left `かな`
+marked, with a `Type 'h' is not supported` diagnostic. The
+[IBus 1.5.29 implementation](https://github.com/ibus/ibus/blob/1.5.29/src/ibusinputcontext.c)
+does not handle that hide-preedit response. Hybrid mode `2` passes preedit,
+Space conversion, selected-range commit, Escape cancellation and modal focus
+cancellation. The readable candidate popup sits below Dataset and anchors inside
+its width; exact caret x-coordinate placement was not asserted. This diagnostic
+run finished at 06:13:18 UTC (`/tmp/moxi-ime-hybrid-modal-restore.log`); final
+shipping-app observations remain separate.
+
+Commit `d644e3b` defaults only an unset `IBUS_ENABLE_SYNC_MODE` to `2`, before
+window or clipboard-first GTK initialization. Explicit `0`, `1`, `2` and empty
+values are preserved, with no desktop setting changes. Strict C, headless and
+real GTK lifecycle tests pass for unset and explicit-mode cases
+(`/tmp/moxi-ibus-fix-native-check.log`). Each real-engine probe backed up and
+restored dconf input-source settings and the full XKB map, used private
+configuration/cache directories and stopped only its temporary IBus processes.
+Restoration comparisons passed.
+
+The final shipping executable above passes all five actual-engine checks from
+06:31:00 to 06:31:39 UTC with `IBUS_ENABLE_SYNC_MODE` unset at launch and no probe
+override: preedit, conversion to `日本`, selected-range commit, Escape cancellation
+and modal focus-loss cancellation. Its log is `/tmp/moxi-ime-final-bd16cde.log`;
+the copied summary is `dist/vm-artifacts/linux-frame-final-ime-summary.json`.
+The host-inspected candidate screenshot shows a readable Japanese list below
+Dataset, anchored horizontally inside the editor; exact caret placement remains
+unasserted. Dconf and XKB restoration comparisons pass and no temporary IBus or
+Mozc processes remain. There is no unsupported hide-preedit diagnostic. This
+establishes the app's default behavior on the tested Ubuntu X11 stack, not
+physical-input or Wayland acceptance.
+
+### Performance and remaining acceptance
+
+[The delivery ledger](layout-delivery.md#frame-cost) records native
+macOS reference timings and a separate 56-frame Linux TCG smoke profile. The
+Linux run excludes live GTK proxy submission and enforces no native frame budget;
+its full timing profile was skipped to bound emulation cost.
+
+Spoken VoiceOver/Orca, macOS real Japanese composition, physical horizontal
+input, Wayland, Windows and mobile/browser linked runtimes remain unverified or
+deferred. Public layout promotion remains pending its manual macOS gates.

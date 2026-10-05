@@ -78,6 +78,25 @@ work. The contract tests assert portable state and native sources compile with
 warnings as errors; device-level screen-reader automation is still a release
 follow-up.
 
+## Linux GTK4 AT-SPI bridge
+
+The retained GTK presenter publishes the semantic hierarchy through invisible
+GTK accessibility proxies positioned at Moxi's published bounds. GTK owns the
+AT-SPI transport; Mojo owns layout, values and actions. The external client in
+`native/tests/linux_services_check.py` verifies parent relationships, roles,
+hints, enabled/checked/selected state, Unicode text, caret and selection,
+keyboard focus, window-relative bounds and activation through the desktop
+registry. Activation enqueues an addressed Mojo `ACTION` event.
+
+GTK 4.14 maps disabled state to AT-SPI `SENSITIVE` and supplies window-relative
+component coordinates; its backend returns zero origins for screen coordinates.
+These limits follow the upstream
+[state mapping](https://github.com/GNOME/gtk/blob/4.14.5/gtk/a11y/gtkatspicontext.c)
+and [coordinate conversion](https://github.com/GNOME/gtk/blob/4.14.5/gtk/a11y/gtkatspicomponent.c).
+The external checks establish transport and observable behavior, not spoken
+screen-reader traversal. Orca, Wayland and editable-text mutation through AT-SPI
+remain separate acceptance work.
+
 ## Browser ARIA bridge
 
 `native/hosts/moxi_web_host.mjs` exposes the same snapshot as
