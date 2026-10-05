@@ -113,10 +113,10 @@ def backend_capabilities(kind: Int) -> BackendCapabilities:
             True,
             True,
             False,
-            False,
+            True,
             True,
             False,
-            "GTK4/Cairo window and Pango paragraphs for retained leaves; AT-SPI and legacy widget parity remain pending.",
+            "GTK4/Cairo retained leaves, Pango paragraphs and AT-SPI proxies; legacy widget parity remains pending.",
         )
     if kind == BACKEND_IOS:
         return BackendCapabilities(

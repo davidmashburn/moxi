@@ -7,6 +7,8 @@ from .paint import PaintCommand
 from .accessibility import AccessibilitySnapshot, ROLE_CONTAINER, ROLE_LABEL
 from .geometry import Point
 from .native_window import NativeRenderer
+from .frame import FramePacket, FrameResource, SurfaceMetrics
+from .invalidation import INVALIDATE_ALL
 
 
 def declare_leaf(mut layout: RetainedLayout, node: ViewNode, style: RetainedStyle) raises:
@@ -81,6 +83,19 @@ struct RetainedPresentation:
                 return self.commands[i].id
         return -1
 
+    def packet(self, metrics: SurfaceMetrics) raises -> FramePacket:
+        """Project this publication into an IR that contains no native payloads."""
+        var packet = FramePacket(metrics, self.snapshot.generation)
+        packet.commands = self.commands.copy()
+        packet.semantics = self.accessibility()
+        packet.invalidation.invalidate(INVALIDATE_ALL, metrics.bounds())
+        for index in range(len(self.commands)):
+            var output = self.snapshot.output(self.commands[index].id)
+            if output.has_paragraph and self.commands[index].kind == LABEL_KIND:
+                packet.commands[index].resource_id = output.key
+                packet.resources.append(FrameResource(output.key, output.mount, index))
+        return packet^
+
     def draw_commands[backend_kind: Int](self, mut renderer: NativeRenderer[backend_kind], custom_layer: Int = -1) raises:
         external_call["moxi_window_ordered_paint_begin", NoneType]()
         for command in self.commands:
@@ -130,3 +145,4 @@ struct RetainedPresentation:
     def draw[backend_kind: Int](self, mut renderer: NativeRenderer[backend_kind], custom_layer: Int = -1) raises:
         self.draw_commands(renderer,custom_layer)
         self.draw_accessibility(renderer)
+        renderer.end_frame()

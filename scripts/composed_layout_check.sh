@@ -8,8 +8,10 @@ links=(
   -Xlinker experiments/layout-kiwi/build/liblayout_kiwi.a -Xlinker -lc++
   -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker CoreText
 )
-mojo build -I src "${links[@]}" tests/layout_workbench.mojo -o dist/moxi-layout-workbench-test
-dist/moxi-layout-workbench-test
+for test_name in layout_workbench layout_workbench_replay native_frame; do
+  mojo build -I src "${links[@]}" "tests/$test_name.mojo" -o "dist/moxi-$test_name-test"
+  "dist/moxi-$test_name-test"
+done
 mojo build -I src -I examples "${links[@]}" examples/layout_workbench.mojo -o dist/moxi-layout-workbench
 
 # A signed bundle makes the native acceptance screen available to LaunchServices.

@@ -94,6 +94,7 @@ def main() raises:
     var plot_output = PlotOutputCache()
     render_frame(app, renderer, scene_renderer, plot_output, False, False)
     while window.is_open():
+        window.wait_for_work(1.0 / 60.0)
         window.pump()
         var event = window.poll_event()
         var changed = app.tick(1.0 / 60.0)

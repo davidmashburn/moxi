@@ -2,7 +2,7 @@
 
 from std.ffi import external_call
 from .backend import BACKEND_MACOS_APPKIT
-from .clipboard import ClipboardBackend
+from .native_clipboard import NativeClipboard
 from .geometry import Rect
 from .native_window import (
     NativeCanvasPainter,
@@ -111,29 +111,7 @@ struct MacOSLiveScript:
         self.loaded = False
 
 
-struct MacOSClipboard(ClipboardBackend):
-    """Bridge portable clipboard commands to the active macOS pasteboard."""
-
-    def __init__(out self):
-        pass
-
-    def copy(mut self, text: String) raises:
-        var text_copy = text
-        var c_text = text_copy.as_c_string_slice()
-        external_call["moxi_clipboard_set", NoneType](c_text.ptr())
-
-    def paste(mut self) raises -> String:
-        var text = String("")
-        var index = 0
-        while True:
-            var codepoint = Int(
-                external_call["moxi_clipboard_codepoint_at", Int32](Int32(index))
-            )
-            if codepoint < 0:
-                break
-            text += chr(codepoint)
-            index += 1
-        return text
+comptime MacOSClipboard = NativeClipboard
 
 
 struct MacOSDemoRunner:

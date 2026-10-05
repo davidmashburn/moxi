@@ -225,6 +225,7 @@ static int moxi_marked_selection_end;
 
 static CGFloat moxi_last_canvas_width;
 static CGFloat moxi_last_canvas_height;
+static CGFloat moxi_last_canvas_scale;
 static NSString *moxi_clipboard_value;
 
 /*
@@ -1462,21 +1463,27 @@ void moxi_clipboard_set(const char *text) {
         NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
         [pasteboard clearContents];
         [pasteboard setString:value forType:NSPasteboardTypeString];
-        moxi_clipboard_value = value;
+    }
+}
+
+int moxi_clipboard_read_snapshot(void) {
+    @autoreleasepool {
+        moxi_clipboard_value = [[[NSPasteboard generalPasteboard]
+            stringForType:NSPasteboardTypeString] copy] ?: @"";
+        NSUInteger index = 0;
+        int count = 0;
+        while (index < moxi_clipboard_value.length) {
+            index = moxi_advance_codepoint(moxi_clipboard_value,index);
+            ++count;
+        }
+        return count;
     }
 }
 
 int moxi_clipboard_codepoint_at(int target) {
     @autoreleasepool {
-        if (target < 0) {
-            return -1;
-        }
-        NSString *value = [[NSPasteboard generalPasteboard]
-            stringForType:NSPasteboardTypeString];
-        if (value == nil) {
-            value = @"";
-        }
-        moxi_clipboard_value = value;
+        if (target < 0) return -1;
+        NSString *value = moxi_clipboard_value ?: @"";
 
         NSUInteger index = 0;
         int current = 0;
@@ -3588,6 +3595,7 @@ void moxi_window_open(
         moxi_event_modifiers = 0;
         moxi_last_canvas_width = width;
         moxi_last_canvas_height = height;
+        moxi_last_canvas_scale = moxi_window.backingScaleFactor;
         [moxi_window setContentView:moxi_canvas];
         [moxi_window center];
         [moxi_window makeKeyAndOrderFront:nil];
@@ -4708,28 +4716,54 @@ void moxi_window_set_text_input_at(
     }
 }
 
+static void moxi_update_surface_metrics(void) {
+    if (moxi_canvas == nil) return;
+    CGFloat width = NSWidth(moxi_canvas.bounds);
+    CGFloat height = NSHeight(moxi_canvas.bounds);
+    CGFloat scale = moxi_window.backingScaleFactor;
+    if (width != moxi_last_canvas_width || height != moxi_last_canvas_height ||
+        scale != moxi_last_canvas_scale) {
+        moxi_last_canvas_width = width;
+        moxi_last_canvas_height = height;
+        moxi_last_canvas_scale = scale;
+        moxi_queue_event(MOXI_EVENT_WINDOW_RESIZED);
+    }
+}
+
 void moxi_window_pump(void) {
     @autoreleasepool {
-        NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:0.016];
-        NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                            untilDate:deadline
-                                               inMode:NSDefaultRunLoopMode
-                                              dequeue:YES];
-        if (event != nil) {
+        while (moxi_window_opened && moxi_event_queue_count == 0) {
+            NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES];
+            if (event == nil) break;
             [NSApp sendEvent:event];
         }
         [NSApp updateWindows];
-
-        if (moxi_canvas != nil) {
-            CGFloat width = NSWidth(moxi_canvas.bounds);
-            CGFloat height = NSHeight(moxi_canvas.bounds);
-            if (width != moxi_last_canvas_width || height != moxi_last_canvas_height) {
-                moxi_last_canvas_width = width;
-                moxi_last_canvas_height = height;
-                moxi_queue_event(MOXI_EVENT_WINDOW_RESIZED);
-            }
-        }
+        moxi_update_surface_metrics();
     }
+}
+
+void moxi_window_wait(float timeout_seconds) {
+    @autoreleasepool {
+        moxi_update_surface_metrics();
+        if (!moxi_window_opened || moxi_event_queue_count > 0 || timeout_seconds == 0) return;
+        NSDate *deadline = timeout_seconds < 0 ? [NSDate distantFuture] :
+            [NSDate dateWithTimeIntervalSinceNow:timeout_seconds];
+        NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+            untilDate:deadline inMode:NSDefaultRunLoopMode dequeue:YES];
+        if (event != nil) [NSApp sendEvent:event];
+        [NSApp updateWindows];
+        moxi_update_surface_metrics();
+    }
+}
+
+float moxi_window_scale_factor(void) {
+    CGFloat scale = moxi_window.backingScaleFactor;
+    return scale > 0 ? (float)scale : 1.0f;
+}
+
+void moxi_window_close(void) {
+    if (moxi_window_opened) [moxi_window close];
 }
 
 int moxi_window_timing_enabled(void) {

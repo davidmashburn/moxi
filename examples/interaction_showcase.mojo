@@ -34,6 +34,7 @@ def main() raises:
     var scene_renderer = MacOSCanvasSceneRenderer()
     render_frame(app, renderer, scene_renderer)
     while window.is_open():
+        window.wait_for_work(1.0 / 60.0)
         window.pump()
         var event = window.poll_event()
         var changed = app.tick(1.0 / 60.0)

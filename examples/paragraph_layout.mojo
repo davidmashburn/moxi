@@ -46,7 +46,9 @@ def main() raises:
                     Color(0.35, 0.85, 0.75, 1), 2)
             painter.end()
             renderer.update_accessibility(snapshot.accessibility())
+            renderer.end_frame()
             dirty = False
+        window.wait_for_work(-1)
         window.pump()
         var event = window.poll_event()
         while event.kind != NONE_KIND:
