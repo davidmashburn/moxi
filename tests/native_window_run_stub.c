@@ -2,8 +2,6 @@
  * Each pump produces input that must be consumed before a subsequent wait or
  * pump can progress. The third pump closes the host without another wait.
  */
-#include <stdint.h>
-
 static int opened;
 static int phase;
 static int queued;
