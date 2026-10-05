@@ -60,6 +60,7 @@ def main() raises:
     renderer.begin_frame()
     draw_box_snapshot(renderer, saved)
     renderer.update_accessibility(saved.accessibility())
+    renderer.end_frame()
     test_check(external_call["moxi_test_paragraph_geometry", Int32](Int32(0), Int32(1), Float32(24), Float32(24), Float32(230), measured.metrics.size.height, measured._payload._storage[].handle) == 1)
     test_check(external_call["moxi_test_paragraph_pixels", Int32](Int32(0)) == 1)
     # Evict every cached width, replace content and retire the context's child.
@@ -73,12 +74,14 @@ def main() raises:
     renderer.begin_frame()
     draw_box_snapshot(renderer, saved)
     renderer.update_accessibility(saved.accessibility())
+    renderer.end_frame()
     test_check(external_call["moxi_test_paragraph_pixels", Int32](Int32(0)) == 1)
     test_check(external_call["moxi_test_paragraph_slot_lifetime", Int32]() == 1)
     var detached = detached_snapshot()
     renderer.begin_frame()
     draw_box_snapshot(renderer, detached)
     renderer.update_accessibility(detached.accessibility())
+    renderer.end_frame()
     test_check(external_call["moxi_test_paragraph_pixels", Int32](Int32(0)) == 1)
     # Compile and exercise the same author policy used by the live example.
     context.set_paragraph(1, "Dataset", 14)

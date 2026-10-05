@@ -6,6 +6,10 @@ bash scripts/retained_layout_check.sh
 bash scripts/constraint_layout_check.sh
 bash scripts/composed_layout_check.sh
 clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules \
+  native/tests/macos_clipboard_test.m native/macos_window.o native/macos_text.o \
+  -framework Cocoa -framework CoreText -o dist/moxi-macos-clipboard-test
+./dist/moxi-macos-clipboard-test
+clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules \
   tests/native_retained_presentation.m -framework Cocoa -o dist/moxi-native-retained-presentation
 ./dist/moxi-native-retained-presentation
 mojo run -I src tests/collection_layout.mojo

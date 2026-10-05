@@ -81,6 +81,65 @@ from .native_widgets import (
     NativeWidgetRegistry,
 )
 from .window import WindowBackend, WindowConfig
+from .frame import SurfaceMetrics
+from .backend import HostCapabilities
+
+
+def publish_native_accessibility(snapshot: AccessibilitySnapshot) raises:
+    """Publish the semantic projection without finishing or presenting paint."""
+    external_call["moxi_window_begin_accessibility", NoneType]()
+    for index in range(snapshot.count()):
+        var node = snapshot.node(index)
+        var label = node.label
+        var value = node.value
+        var hint = node.hint
+        var c_label = label.as_c_string_slice()
+        var c_value = value.as_c_string_slice()
+        var c_hint = hint.as_c_string_slice()
+        var enabled = 0
+        var focused = 0
+        var selected = 0
+        var checked = 0
+        var expanded = 0
+        var has_value_range = 0
+        if node.enabled:
+            enabled = 1
+        if node.focused:
+            focused = 1
+        if node.selected:
+            selected = 1
+        if node.checked:
+            checked = 1
+        if node.expanded:
+            expanded = 1
+        if node.has_value_range:
+            has_value_range = 1
+        external_call["moxi_window_set_accessibility_at", NoneType](
+            Int32(index),
+            Int32(node.id),
+            Int32(node.parent_id),
+            Int32(node.role),
+            c_label.ptr(),
+            c_value.ptr(),
+            c_hint.ptr(),
+            node.bounds.x,
+            node.bounds.y,
+            node.bounds.width,
+            node.bounds.height,
+            # C int arguments must stay 32-bit, including stack arguments.
+            # Mojo Int here corrupts later fields on Apple ARM64.
+            Int32(enabled),
+            Int32(focused),
+            Int32(selected),
+            Int32(checked),
+            Int32(expanded),
+            Int32(has_value_range),
+            node.value_min,
+            node.value_max,
+            node.value_now,
+            Int32(node.actions),
+        )
+    external_call["moxi_window_end_accessibility", NoneType]()
 
 
 struct NativeRenderer[backend_kind: Int](Renderer):
@@ -106,64 +165,13 @@ struct NativeRenderer[backend_kind: Int](Renderer):
     def begin_frame(mut self) raises:
         external_call["moxi_window_begin_frame", NoneType]()
 
-    def update_accessibility(
-        mut self,
-        snapshot: AccessibilitySnapshot,
-    ) raises:
+    def update_accessibility(mut self, snapshot: AccessibilitySnapshot) raises:
+        """Compatibility renderer facet; native hosts publish semantics directly."""
         self.native_widgets.sync(snapshot)
-        external_call["moxi_window_begin_accessibility", NoneType]()
-        for index in range(snapshot.count()):
-            var node = snapshot.node(index)
-            var label = node.label
-            var value = node.value
-            var hint = node.hint
-            var c_label = label.as_c_string_slice()
-            var c_value = value.as_c_string_slice()
-            var c_hint = hint.as_c_string_slice()
-            var enabled = 0
-            var focused = 0
-            var selected = 0
-            var checked = 0
-            var expanded = 0
-            var has_value_range = 0
-            if node.enabled:
-                enabled = 1
-            if node.focused:
-                focused = 1
-            if node.selected:
-                selected = 1
-            if node.checked:
-                checked = 1
-            if node.expanded:
-                expanded = 1
-            if node.has_value_range:
-                has_value_range = 1
-            external_call["moxi_window_set_accessibility_at", NoneType](
-                Int32(index),
-                Int32(node.id),
-                Int32(node.parent_id),
-                Int32(node.role),
-                c_label.ptr(),
-                c_value.ptr(),
-                c_hint.ptr(),
-                node.bounds.x,
-                node.bounds.y,
-                node.bounds.width,
-                node.bounds.height,
-                # C int arguments must stay 32-bit, including stack arguments.
-                # Mojo Int here corrupts later fields on Apple ARM64.
-                Int32(enabled),
-                Int32(focused),
-                Int32(selected),
-                Int32(checked),
-                Int32(expanded),
-                Int32(has_value_range),
-                node.value_min,
-                node.value_max,
-                node.value_now,
-                Int32(node.actions),
-            )
-        external_call["moxi_window_end_accessibility", NoneType]()
+        publish_native_accessibility(snapshot)
+
+    def end_frame(mut self) raises:
+        """Finish the legacy renderer API; FrameRenderer uses host.present()."""
         external_call["moxi_window_end_frame", NoneType]()
 
     def native_widget_count(self) -> Int:
@@ -854,6 +862,7 @@ struct NativeWindow[backend_kind: Int, invert_scroll_y: Bool = False](WindowBack
 
     def run(mut self) raises:
         while self.is_open():
+            self.wait_for_work(-1)
             self.pump()
 
     def pump(mut self) raises:
@@ -861,6 +870,24 @@ struct NativeWindow[backend_kind: Int, invert_scroll_y: Bool = False](WindowBack
 
     def is_open(self) raises -> Bool:
         return external_call["moxi_window_is_open", Int32]() != 0
+
+    def host_capabilities(self) -> HostCapabilities:
+        return HostCapabilities(Self.backend_kind)
+
+    def publish_accessibility(mut self, snapshot: AccessibilitySnapshot) raises:
+        publish_native_accessibility(snapshot)
+
+    def present(mut self) raises:
+        external_call["moxi_window_end_frame", NoneType]()
+
+    def metrics(self) raises -> SurfaceMetrics:
+        return SurfaceMetrics(self.size(), external_call["moxi_window_scale_factor", Float32]())
+
+    def wait_for_work(mut self, timeout_seconds: Float32) raises:
+        external_call["moxi_window_wait", NoneType](timeout_seconds)
+
+    def close(mut self) raises:
+        external_call["moxi_window_close", NoneType]()
 
     def event_queue_depth(self) raises -> Int:
         """Return queued native events waiting for the application loop."""

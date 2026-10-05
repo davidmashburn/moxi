@@ -27,9 +27,40 @@ dist/moxi-linux-text-test
   -o dist/moxi-linux-window-test
 dist/moxi-linux-window-test
 
+# Editor preview checks inspect the private presenter helpers, while the optional
+# display lane exercises the actual GTK close/reopen lifecycle and IM signals.
+"$cc_tool" -std=c11 -O3 -Wall -Wextra -Werror "${gtk_cflags[@]}" \
+  native/tests/linux_editor_test.c dist/native/linux_text.o "${gtk_libs[@]}" -lm \
+  -o dist/moxi-linux-editor-test
+dist/moxi-linux-editor-test
+
+"$cc_tool" -std=c11 -O3 -Wall -Wextra -Werror "${gtk_cflags[@]}" \
+  native/tests/linux_services_test.c dist/native/linux_text.o "${gtk_libs[@]}" -lm \
+  -o dist/moxi-linux-services-test
+dist/moxi-linux-services-test
+if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
+  dist/moxi-linux-editor-test --display
+  dist/moxi-linux-services-test --display
+elif command -v xvfb-run >/dev/null 2>&1; then
+  xvfb-run --auto-servernum dist/moxi-linux-editor-test --display
+  xvfb-run --auto-servernum dist/moxi-linux-services-test --display
+else
+  echo "SKIP: Linux GTK lifecycle/clipboard regressions require a display or xvfb-run (Ubuntu package: xvfb)."
+fi
+
+# The external AT-SPI client also verifies X11 activation, physical GTK focus,
+# hierarchy/bounds and clipboard exchange with xclip. The desktop CI lane can
+# opt in after starting its window manager inside a DBus/Xvfb session.
+if [[ "${MOXI_LINUX_ATSPI_CHECK:-0}" == 1 ]]; then
+  /usr/bin/python3 native/tests/linux_services_check.py dist/moxi-linux-services-test
+else
+  echo "SKIP: external AT-SPI desktop service check; run MOXI_LINUX_ATSPI_CHECK=1 in an X11/DBus session with a window manager. Ubuntu packages: python3-pyatspi xclip xdotool dbus-x11 xvfb openbox."
+fi
+
 experiments/layout-kiwi/build/bridge_test
 mojo run -I src tests/retained_engine.mojo
 mojo run -I src tests/box_layout.mojo
+mojo run -I src tests/event_replay.mojo
 
 links=(
   -Xlinker dist/native/linux_window.o -Xlinker dist/native/linux_text.o
@@ -39,7 +70,7 @@ links=(
 for flag in "${gtk_libs[@]}"; do
   links+=(-Xlinker "$flag")
 done
-for test_name in retained_layout constraint_layout layout_workbench; do
+for test_name in retained_layout constraint_layout layout_workbench layout_workbench_replay native_frame; do
   mojo build -I src "${links[@]}" "tests/$test_name.mojo" \
     -o "dist/moxi-linux-$test_name-test"
   "dist/moxi-linux-$test_name-test"

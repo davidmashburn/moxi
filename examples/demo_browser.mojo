@@ -107,6 +107,7 @@ def run_demo(automated: Bool = False) raises:
 
     render_frame(app, renderer, scene_renderer, live_script)
     while window.is_open():
+        window.wait_for_work(1.0 / 60.0)
         window.pump()
         var event = window.poll_event()
         var changed = app.tick(1.0 / 60.0)

@@ -25,4 +25,7 @@ def main() raises:
         test_check(external_call["moxi_test_accessibility_snapshot", Int32](
             Int32(pattern)
         ) == 1)
+        test_check(external_call["moxi_test_present_count", Int32]() == 0)
+    renderer.end_frame()
+    test_check(external_call["moxi_test_present_count", Int32]() == 1)
     print("Native accessibility ABI passed: all 64 flag combinations")

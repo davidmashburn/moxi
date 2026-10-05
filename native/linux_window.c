@@ -1,6 +1,6 @@
 /* GTK owns the surface and input service; Mojo owns all view/layout state.
- * This initial Linux presenter supports the retained workbench leaves. It does
- * not advertise an AT-SPI semantic tree or the legacy widget catalogue. */
+ * This Linux presenter supports the retained workbench leaves and exposes
+ * published semantics through GTK's AT-SPI service. */
 #include "linux_window.h"
 #include "linux_text.h"
 #include <gtk/gtk.h>
@@ -10,6 +10,7 @@
 
 #define SLOT_CAPACITY 1024
 #define EVENT_CAPACITY 64
+#define DEFERRED_EVENT_CAPACITY 256
 #define CUSTOM_CAPACITY 262144
 #define COLOR_ARGS(p) float p##_r, float p##_g, float p##_b, float p##_a
 #define COLOR(p) ((Color){p##_r, p##_g, p##_b, p##_a})
@@ -34,10 +35,17 @@ typedef struct {
     char *text;
 } Event;
 typedef struct {
-    int id, parent, role, focused, enabled;
+    int id, parent, role, focused, enabled, selected, checked, expanded, has_range, actions;
+    float minimum, maximum, now;
     Box box;
-    char *label, *value;
+    char *label, *value, *hint;
 } Semantic;
+typedef struct {
+    int id, role, container, seen;
+    GtkWidget *widget;
+    char *text;
+    unsigned int caret, start, end;
+} SemanticProxy;
 typedef struct {
     int kind;
     Box box;
@@ -46,7 +54,7 @@ typedef struct {
     char *text;
 } Custom;
 
-static GtkWidget *window, *canvas;
+static GtkWidget *window, *canvas, *semantic_root;
 static GtkIMContext *im;
 static gboolean opened, im_focused, resetting_im, im_has_preedit;
 static float window_width, window_height, window_scale = 1, pointer_x, pointer_y;
@@ -59,6 +67,12 @@ static Slot slots[25][SLOT_CAPACITY];
 static Order order[SLOT_CAPACITY + 1];
 static Semantic semantics[SLOT_CAPACITY];
 static Event queue[EVENT_CAPACITY], current;
+static GQueue deferred_events = G_QUEUE_INIT;
+static gboolean clipboard_reading;
+static gboolean clipboard_overflow;
+static GCancellable *clipboard_cancel;
+static char *clipboard_snapshot;
+static SemanticProxy proxies[SLOT_CAPACITY];
 static GArray *custom;
 static FILE *trace;
 static unsigned frame_number;
@@ -128,6 +142,27 @@ static Slot *put_slot(int kind, int index, const char *text, Box box,
     return slot;
 }
 static void push(Event event) {
+    /* A bounded synchronous clipboard read dispatches GTK asynchronously.
+     * Preserve excess input until Mojo can consume it, in original order. */
+    if (!g_queue_is_empty(&deferred_events) || (clipboard_reading && queue_count == EVENT_CAPACITY)) {
+        Event *last = g_queue_peek_tail(&deferred_events);
+        if (last && last->kind == event.kind && (event.kind == 6 || event.kind == 4 || event.kind == 11)) {
+            if (event.kind == 11) { event.dx += last->dx; event.dy += last->dy; }
+            g_free(last->text); *last = event;
+        } else {
+            if (g_queue_get_length(&deferred_events) == DEFERRED_EVENT_CAPACITY) {
+                ++dropped; g_free(event.text);
+                if (clipboard_reading) {
+                    clipboard_overflow = TRUE;
+                    if (clipboard_cancel) g_cancellable_cancel(clipboard_cancel);
+                }
+                return;
+            }
+            Event *saved = g_new(Event,1); *saved = event;
+            g_queue_push_tail(&deferred_events,saved);
+        }
+        return;
+    }
     /* Motion/resize/scroll floods must not evict a committed text event. */
     if (queue_count > 0 && (event.kind == 6 || event.kind == 4 || event.kind == 11)) {
         Event *last = &queue[(queue_head + queue_count - 1) % EVENT_CAPACITY];
@@ -144,6 +179,252 @@ static void push(Event event) {
 static Event new_event(int kind) {
     return (Event){.kind=kind, .target=-1, .start=-1, .end=-1,
                    .x=pointer_x, .y=pointer_y};
+}
+static void clear_events(void) {
+    while (queue_count) {
+        g_free(queue[queue_head].text);
+        memset(&queue[queue_head],0,sizeof(queue[queue_head]));
+        queue_head = (queue_head+1)%EVENT_CAPACITY; --queue_count;
+    }
+    queue_head = 0;
+    Event *saved;
+    while ((saved=g_queue_pop_head(&deferred_events))) { g_free(saved->text); g_free(saved); }
+    g_free(current.text); current = new_event(0);
+}
+/* An empty GTK widget supplies exact published geometry and native text
+ * accessibility without duplicating the Cairo presenter. GTK 4.14 is the
+ * minimum version providing GtkAccessibleText. */
+typedef struct { GtkWidget parent; SemanticProxy *proxy; } MoxiSemanticLeaf;
+typedef struct { GtkWidgetClass parent; } MoxiSemanticLeafClass;
+static void moxi_semantic_text_init(GtkAccessibleTextInterface *iface);
+G_DEFINE_TYPE_WITH_CODE(MoxiSemanticLeaf,moxi_semantic_leaf,GTK_TYPE_WIDGET,
+    G_IMPLEMENT_INTERFACE(GTK_TYPE_ACCESSIBLE_TEXT,moxi_semantic_text_init))
+static void moxi_semantic_leaf_class_init(MoxiSemanticLeafClass *klass) { (void)klass; }
+static void moxi_semantic_leaf_init(MoxiSemanticLeaf *leaf) { leaf->proxy = NULL; }
+static const char *accessible_text(GtkAccessibleText *self) {
+    SemanticProxy *proxy = ((MoxiSemanticLeaf *)self)->proxy;
+    return proxy && proxy->text ? proxy->text : "";
+}
+static GBytes *accessible_contents(GtkAccessibleText *self, unsigned int start, unsigned int end) {
+    const char *text = accessible_text(self);
+    unsigned int length = (unsigned int)g_utf8_strlen(text,-1);
+    start = MIN(start,length); end = CLAMP(end,start,length);
+    const char *first = g_utf8_offset_to_pointer(text,start);
+    const char *last = g_utf8_offset_to_pointer(text,end);
+    return g_bytes_new(first,(gsize)(last-first));
+}
+static gboolean text_boundary(const PangoLogAttr *attr, GtkAccessibleTextGranularity granularity) {
+    if (granularity == GTK_ACCESSIBLE_TEXT_GRANULARITY_WORD) return attr->is_word_start;
+    if (granularity == GTK_ACCESSIBLE_TEXT_GRANULARITY_SENTENCE) return attr->is_sentence_start;
+    return attr->is_mandatory_break;
+}
+static GBytes *accessible_contents_at(GtkAccessibleText *self, unsigned int offset,
+    GtkAccessibleTextGranularity granularity, unsigned int *start, unsigned int *end) {
+    const char *text = accessible_text(self);
+    unsigned int length = (unsigned int)g_utf8_strlen(text,-1);
+    *start = MIN(offset,length); *end = MIN(*start+1,length);
+    if (granularity != GTK_ACCESSIBLE_TEXT_GRANULARITY_CHARACTER && *start < length) {
+        PangoLogAttr *attrs = g_new0(PangoLogAttr,length+1);
+        pango_get_log_attrs(text,-1,-1,pango_language_get_default(),attrs,(int)length+1);
+        while (*start > 0 && !text_boundary(&attrs[*start],granularity)) --*start;
+        while (*end < length && !text_boundary(&attrs[*end],granularity)) ++*end;
+        g_free(attrs);
+    }
+    return accessible_contents(self,*start,*end);
+}
+static unsigned int accessible_caret(GtkAccessibleText *self) {
+    SemanticProxy *proxy = ((MoxiSemanticLeaf *)self)->proxy;
+    return proxy ? proxy->caret : 0;
+}
+static gboolean accessible_selection(GtkAccessibleText *self, gsize *count, GtkAccessibleTextRange **ranges) {
+    SemanticProxy *proxy = ((MoxiSemanticLeaf *)self)->proxy;
+    *count = 0; if (ranges) *ranges = NULL;
+    if (!proxy || proxy->start == proxy->end) return FALSE;
+    *count = 1;
+    if (ranges) {
+        *ranges = g_new(GtkAccessibleTextRange,1);
+        **ranges = (GtkAccessibleTextRange){proxy->start,proxy->end-proxy->start};
+    }
+    return TRUE;
+}
+static gboolean accessible_attributes(GtkAccessibleText *self, unsigned int offset,
+    gsize *count, GtkAccessibleTextRange **ranges, char ***names, char ***values) {
+    (void)self; (void)offset;
+    *count = 0; if (ranges) *ranges = NULL;
+    if (names) *names = g_new0(char *,1);
+    if (values) *values = g_new0(char *,1);
+    return FALSE;
+}
+static void accessible_default_attributes(GtkAccessibleText *self, char ***names, char ***values) {
+    (void)self;
+    if (names) *names = g_new0(char *,1);
+    if (values) *values = g_new0(char *,1);
+}
+static void moxi_semantic_text_init(GtkAccessibleTextInterface *iface) {
+    iface->get_contents = accessible_contents; iface->get_contents_at = accessible_contents_at;
+    iface->get_caret_position = accessible_caret; iface->get_selection = accessible_selection;
+    iface->get_attributes = accessible_attributes; iface->get_default_attributes = accessible_default_attributes;
+}
+static GtkAccessibleRole accessible_role(int role) {
+    switch (role) {
+        case 1: return GTK_ACCESSIBLE_ROLE_LABEL;
+        case 2: return GTK_ACCESSIBLE_ROLE_BUTTON;
+        case 3: case 12: return GTK_ACCESSIBLE_ROLE_TEXT_BOX;
+        case 5: return GTK_ACCESSIBLE_ROLE_GROUP;
+        case 6: return GTK_ACCESSIBLE_ROLE_CHECKBOX;
+        case 7: return GTK_ACCESSIBLE_ROLE_PROGRESS_BAR;
+        case 8: return GTK_ACCESSIBLE_ROLE_SLIDER;
+        case 9: return GTK_ACCESSIBLE_ROLE_SWITCH;
+        case 10: return GTK_ACCESSIBLE_ROLE_RADIO;
+        case 11: case 20: return GTK_ACCESSIBLE_ROLE_IMG;
+        case 13: return GTK_ACCESSIBLE_ROLE_COMBO_BOX;
+        case 14: return GTK_ACCESSIBLE_ROLE_LIST;
+        case 15: return GTK_ACCESSIBLE_ROLE_TABLE;
+        case 16: return GTK_ACCESSIBLE_ROLE_TREE;
+        case 17: return GTK_ACCESSIBLE_ROLE_MENU;
+        case 18: return GTK_ACCESSIBLE_ROLE_DIALOG;
+        case 19: return GTK_ACCESSIBLE_ROLE_TAB_LIST;
+        case 21: return GTK_ACCESSIBLE_ROLE_SEPARATOR;
+        default: return GTK_ACCESSIBLE_ROLE_NONE;
+    }
+}
+static void semantic_action(GSimpleAction *action, GVariant *parameter, gpointer data) {
+    (void)parameter;
+    SemanticProxy *proxy = data;
+    Event event = new_event(10);
+    event.target = proxy->id;
+    event.action = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(action),"moxi-action"));
+    push(event);
+}
+static void clear_proxy(SemanticProxy *proxy) {
+    if (!proxy->widget) return;
+    if (gtk_widget_get_parent(proxy->widget)) gtk_widget_unparent(proxy->widget);
+    g_object_unref(proxy->widget);
+    g_free(proxy->text);
+    memset(proxy,0,sizeof(*proxy));
+}
+static void clear_proxies(void) {
+    /* Stored references keep descendants alive until their own cleanup. */
+    for (int i=0;i<SLOT_CAPACITY;++i) clear_proxy(&proxies[i]);
+}
+static SemanticProxy *semantic_proxy(const Semantic *node, gboolean container) {
+    SemanticProxy *free_proxy = NULL;
+    for (int i=0;i<SLOT_CAPACITY;++i) {
+        SemanticProxy *proxy = &proxies[i];
+        if (proxy->widget && proxy->id == node->id) {
+            if (proxy->role == node->role && proxy->container == container) return proxy;
+            clear_proxy(proxy);
+        }
+        if (!proxy->widget && !free_proxy) free_proxy = proxy;
+    }
+    if (!free_proxy) { ++overflow; return NULL; }
+    free_proxy->id = node->id; free_proxy->role = node->role; free_proxy->container = container;
+    free_proxy->widget = g_object_new(container ? GTK_TYPE_FIXED : moxi_semantic_leaf_get_type(),
+        "accessible-role",accessible_role(node->role),NULL);
+    if (!container) ((MoxiSemanticLeaf *)free_proxy->widget)->proxy = free_proxy;
+    g_object_ref_sink(free_proxy->widget);
+    gtk_widget_set_can_target(free_proxy->widget,FALSE);
+    return free_proxy;
+}
+static void publish_semantics(void) {
+    if (!semantic_root) return; /* Headless Cairo tests do not initialize GTK. */
+    SemanticProxy *published[SLOT_CAPACITY] = {0};
+    for (int i=0;i<SLOT_CAPACITY;++i) {
+        SemanticProxy *proxy = &proxies[i];
+        gboolean retained = FALSE;
+        for (int node=0;node<semantic_count;++node)
+            if (semantics[node].id == proxy->id) retained = TRUE;
+        if (proxy->widget && !retained) clear_proxy(proxy);
+        proxy->seen = 0;
+    }
+    for (int i=0;i<semantic_count;++i) {
+        Semantic *node = &semantics[i];
+        gboolean container = FALSE;
+        for (int child=0;child<semantic_count;++child)
+            if (semantics[child].parent == node->id && child != i) container = TRUE;
+        SemanticProxy *proxy = semantic_proxy(node,container);
+        if (!proxy) continue;
+        published[i] = proxy; proxy->seen = 1;
+        GtkWidget *widget = proxy->widget;
+        if (!container) {
+            const char *text = node->value && *node->value ? node->value :
+                (node->role == 3 || node->role == 12 ? "" : node->label);
+            if (g_strcmp0(proxy->text,text) != 0) {
+                unsigned int old_length = proxy->text ? (unsigned int)g_utf8_strlen(proxy->text,-1) : 0;
+                if (old_length) gtk_accessible_text_update_contents(GTK_ACCESSIBLE_TEXT(widget),
+                    GTK_ACCESSIBLE_TEXT_CONTENT_CHANGE_REMOVE,0,old_length);
+                g_free(proxy->text); proxy->text = copy_text(text);
+                unsigned int length = (unsigned int)g_utf8_strlen(proxy->text,-1);
+                if (length) gtk_accessible_text_update_contents(GTK_ACCESSIBLE_TEXT(widget),
+                    GTK_ACCESSIBLE_TEXT_CONTENT_CHANGE_INSERT,0,length);
+            }
+            proxy->caret = proxy->start = proxy->end = 0;
+            if (node->id == next_editor_key && active_editor >= 0) {
+                Slot *editor = &slots[5][active_editor];
+                unsigned int length = (unsigned int)g_utf8_strlen(proxy->text,-1);
+                proxy->caret = (unsigned int)CLAMP(editor->cursor,0,(int)length);
+                proxy->start = (unsigned int)CLAMP(MIN(editor->start,editor->end),0,(int)length);
+                proxy->end = (unsigned int)CLAMP(MAX(editor->start,editor->end),0,(int)length);
+            }
+            gtk_accessible_text_update_caret_position(GTK_ACCESSIBLE_TEXT(widget));
+            gtk_accessible_text_update_selection_bound(GTK_ACCESSIBLE_TEXT(widget));
+        }
+        gtk_widget_set_size_request(widget,MAX(1,(int)ceilf(node->box.width)),MAX(1,(int)ceilf(node->box.height)));
+        gtk_widget_set_sensitive(widget,node->enabled != 0);
+        gtk_widget_set_focusable(widget,node->actions != 0 || node->role == 3 || node->role == 12);
+        gtk_accessible_update_property(GTK_ACCESSIBLE(widget),
+            GTK_ACCESSIBLE_PROPERTY_LABEL,node->label,
+            GTK_ACCESSIBLE_PROPERTY_DESCRIPTION,node->hint,
+            GTK_ACCESSIBLE_PROPERTY_VALUE_TEXT,node->value,-1);
+        gtk_accessible_update_state(GTK_ACCESSIBLE(widget),
+            GTK_ACCESSIBLE_STATE_DISABLED,!node->enabled,
+            GTK_ACCESSIBLE_STATE_SELECTED,node->selected,-1);
+        if (node->role == 6 || node->role == 9 || node->role == 10)
+            gtk_accessible_update_state(GTK_ACCESSIBLE(widget),GTK_ACCESSIBLE_STATE_CHECKED,
+                node->checked ? GTK_ACCESSIBLE_TRISTATE_TRUE : GTK_ACCESSIBLE_TRISTATE_FALSE,-1);
+        if (node->actions & (16|32))
+            gtk_accessible_update_state(GTK_ACCESSIBLE(widget),GTK_ACCESSIBLE_STATE_EXPANDED,node->expanded,-1);
+        if (node->has_range) gtk_accessible_update_property(GTK_ACCESSIBLE(widget),
+            GTK_ACCESSIBLE_PROPERTY_VALUE_MIN,(double)node->minimum,
+            GTK_ACCESSIBLE_PROPERTY_VALUE_MAX,(double)node->maximum,
+            GTK_ACCESSIBLE_PROPERTY_VALUE_NOW,(double)node->now,-1);
+        else {
+            gtk_accessible_reset_property(GTK_ACCESSIBLE(widget),GTK_ACCESSIBLE_PROPERTY_VALUE_MIN);
+            gtk_accessible_reset_property(GTK_ACCESSIBLE(widget),GTK_ACCESSIBLE_PROPERTY_VALUE_MAX);
+            gtk_accessible_reset_property(GTK_ACCESSIBLE(widget),GTK_ACCESSIBLE_PROPERTY_VALUE_NOW);
+        }
+        GSimpleActionGroup *group = g_simple_action_group_new();
+        const char *names[] = {"press","increment","decrement","select","expand","collapse"};
+        for (int action=0;action<6;++action) if (node->actions & (1<<action)) {
+            GSimpleAction *item = g_simple_action_new(names[action],NULL);
+            g_object_set_data(G_OBJECT(item),"moxi-action",GINT_TO_POINTER(1<<action));
+            g_simple_action_set_enabled(item,node->enabled != 0);
+            g_signal_connect(item,"activate",G_CALLBACK(semantic_action),proxy);
+            g_action_map_add_action(G_ACTION_MAP(group),G_ACTION(item)); g_object_unref(item);
+        }
+        gtk_widget_insert_action_group(widget,"moxi",G_ACTION_GROUP(group)); g_object_unref(group);
+    }
+    for (int i=0;i<semantic_count;++i) if (published[i]) {
+        Semantic *node = &semantics[i];
+        GtkWidget *parent = semantic_root;
+        float x = node->box.x, y = node->box.y;
+        for (int p=0;p<semantic_count;++p)
+            if (published[p] && published[p]->container && p != i && semantics[p].id == node->parent) {
+                parent = published[p]->widget; x -= semantics[p].box.x; y -= semantics[p].box.y; break;
+            }
+        GtkWidget *widget = published[i]->widget;
+        if (gtk_widget_get_parent(widget) != parent) {
+            if (gtk_widget_get_parent(widget)) gtk_widget_unparent(widget);
+            gtk_fixed_put(GTK_FIXED(parent),widget,x,y);
+        } else gtk_fixed_move(GTK_FIXED(parent),widget,x,y);
+        gtk_widget_set_visible(widget,TRUE);
+    }
+    for (int i=0;i<SLOT_CAPACITY;++i) if (proxies[i].widget && !proxies[i].seen) clear_proxy(&proxies[i]);
+    gboolean focused = FALSE;
+    for (int i=0;i<semantic_count;++i)
+        if (published[i] && semantics[i].focused && semantics[i].enabled)
+            focused = gtk_widget_grab_focus(published[i]->widget) || focused;
+    if (!focused && canvas) gtk_widget_grab_focus(canvas);
 }
 static int modifiers(GdkModifierType state) {
     return ((state & GDK_SHIFT_MASK) ? 1 : 0) |
@@ -487,6 +768,10 @@ void moxi_window_open(const char *title, float width, float height,
                       float max_height, int resizable, int fullscreen) {
     (void)max_width; (void)max_height; /* GTK4 has no portable maximum-size hint. */
     if (opened) return;
+    if (window) moxi_window_pump(); /* Finish a prior close before replacing it. */
+    /* A newly opened surface has a new input lifetime. Old pointer/text/action
+     * events must never address reused Mojo IDs in the new view tree. */
+    clear_events();
     resetting_im = im_has_preedit = im_focused = FALSE;
     editor_key = next_editor_key = active_editor = -1;
     if (!gtk_init_check()) g_error("Moxi Linux requires a working GTK display (X11 or Wayland)");
@@ -497,11 +782,17 @@ void moxi_window_open(const char *title, float width, float height,
     gtk_window_set_title(GTK_WINDOW(window),title ? title : "Moxi");
     gtk_window_set_default_size(GTK_WINDOW(window),(int)width,(int)height);
     gtk_window_set_resizable(GTK_WINDOW(window),resizable != 0);
-    canvas = gtk_drawing_area_new();
+    canvas = g_object_new(GTK_TYPE_DRAWING_AREA,"accessible-role",GTK_ACCESSIBLE_ROLE_PRESENTATION,NULL);
     window_scale = (float)gtk_widget_get_scale_factor(canvas);
     gtk_widget_set_focusable(canvas,TRUE);
     gtk_widget_set_size_request(canvas,(int)min_width,(int)min_height);
-    gtk_window_set_child(GTK_WINDOW(window),canvas);
+    GtkWidget *overlay = gtk_overlay_new();
+    gtk_overlay_set_child(GTK_OVERLAY(overlay),canvas);
+    semantic_root = gtk_fixed_new();
+    gtk_widget_set_can_target(semantic_root,FALSE);
+    gtk_overlay_add_overlay(GTK_OVERLAY(overlay),semantic_root);
+    gtk_overlay_set_measure_overlay(GTK_OVERLAY(overlay),semantic_root,FALSE);
+    gtk_window_set_child(GTK_WINDOW(window),overlay);
     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(canvas),draw,NULL,NULL);
     g_signal_connect(canvas,"resize",G_CALLBACK(resized),NULL);
     g_signal_connect(canvas,"notify::scale-factor",G_CALLBACK(scale_changed),NULL);
@@ -516,7 +807,8 @@ void moxi_window_open(const char *title, float width, float height,
     GtkEventController *keys = gtk_event_controller_key_new();
     g_signal_connect(keys,"key-pressed",G_CALLBACK(key_pressed),NULL);
     g_signal_connect(keys,"key-released",G_CALLBACK(key_released),NULL);
-    gtk_widget_add_controller(canvas,keys);
+    gtk_event_controller_set_propagation_phase(keys,GTK_PHASE_CAPTURE);
+    gtk_widget_add_controller(window,keys);
     GtkGesture *click = gtk_gesture_click_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click),GDK_BUTTON_PRIMARY);
     g_signal_connect(click,"pressed",G_CALLBACK(pointer_pressed),NULL);
@@ -596,7 +888,7 @@ void moxi_window_set_text_input_at(int index, const char *text, BOX_ARGS,
 }
 void moxi_window_begin_accessibility(void) {
     for (int i=0;i<semantic_count;++i) {
-        g_free(semantics[i].label); g_free(semantics[i].value);
+        g_free(semantics[i].label); g_free(semantics[i].value); g_free(semantics[i].hint);
         memset(&semantics[i],0,sizeof(semantics[i]));
     }
     semantic_count = 0;
@@ -605,13 +897,12 @@ void moxi_window_set_accessibility_at(int index, int id, int parent, int role,
     const char *label, const char *value, const char *hint, BOX_ARGS,
     int enabled, int focused, int selected, int checked, int expanded, int has_range,
     float minimum, float maximum, float now, int actions) {
-    /* Semantics currently scope native editor input only. A canvas is not an
-     * AT-SPI virtual tree; BACKEND_LINUX.accessibility therefore stays false. */
-    (void)hint; (void)selected; (void)checked;
-    (void)expanded; (void)has_range; (void)minimum; (void)maximum; (void)now; (void)actions;
     if (index < 0 || index >= SLOT_CAPACITY) { ++overflow; return; }
-    g_free(semantics[index].label); g_free(semantics[index].value);
-    semantics[index] = (Semantic){id,parent,role,focused,enabled,BOX,copy_text(label),copy_text(value)};
+    g_free(semantics[index].label); g_free(semantics[index].value); g_free(semantics[index].hint);
+    semantics[index] = (Semantic){.id=id,.parent=parent,.role=role,.focused=focused,
+        .enabled=enabled,.selected=selected,.checked=checked,.expanded=expanded,
+        .has_range=has_range,.actions=actions,.minimum=minimum,.maximum=maximum,.now=now,
+        .box=BOX,.label=copy_text(label),.value=copy_text(value),.hint=copy_text(hint)};
     semantic_count = MAX(semantic_count,index+1);
 }
 static void synchronize_editor(void) {
@@ -652,7 +943,7 @@ static void synchronize_editor(void) {
         retrieve_surrounding(im,NULL);
     }
 }
-void moxi_window_end_accessibility(void) { synchronize_editor(); }
+void moxi_window_end_accessibility(void) { publish_semantics(); synchronize_editor(); }
 void moxi_window_end_frame(void) {
     synchronize_editor();
     if (canvas) gtk_widget_queue_draw(canvas);
@@ -694,7 +985,7 @@ void moxi_window_set_custom_paint_cache_enabled(int enabled) { (void)enabled; }
 void moxi_window_pump(void) {
     /* Mojo publishes focus/selection after each event, before GTK filters the
      * next key. Waiting for new work is a separate, blocking host operation. */
-    while (opened && !queue_count && g_main_context_pending(NULL))
+    while (opened && !moxi_window_event_queue_depth() && g_main_context_pending(NULL))
         g_main_context_iteration(NULL,FALSE);
     if (!opened && window) {
         resetting_im = TRUE;
@@ -702,7 +993,8 @@ void moxi_window_pump(void) {
         g_clear_object(&im); im_focused = FALSE;
         editor_key = next_editor_key = active_editor = -1;
         im_has_preedit = resetting_im = FALSE;
-        gtk_window_destroy(GTK_WINDOW(window)); window = canvas = NULL;
+        clear_proxies();
+        gtk_window_destroy(GTK_WINDOW(window)); window = canvas = semantic_root = NULL;
         moxi_window_begin_frame(); clear_custom();
         moxi_window_begin_accessibility();
         if (trace) { fclose(trace); trace = NULL; }
@@ -712,9 +1004,74 @@ static gboolean wait_deadline(gpointer data) {
     *(gboolean *)data = TRUE;
     return G_SOURCE_REMOVE;
 }
+typedef struct {
+    int references;
+    gboolean done, succeeded;
+    GCancellable *cancel;
+    char *text;
+} ClipboardRead;
+static void clipboard_read_release(ClipboardRead *read) {
+    if (--read->references) return;
+    g_object_unref(read->cancel); g_free(read->text); g_free(read);
+}
+static void clipboard_ready(GObject *source, GAsyncResult *result, gpointer data) {
+    ClipboardRead *read = data;
+    GError *error = NULL;
+    read->text = gdk_clipboard_read_text_finish(GDK_CLIPBOARD(source),result,&error);
+    read->succeeded = !error && read->text && g_utf8_validate(read->text,-1,NULL);
+    read->done = TRUE;
+    g_clear_error(&error);
+    clipboard_read_release(read);
+}
+static GdkClipboard *native_clipboard(void) {
+    if (!gdk_display_get_default() && !gtk_init_check()) return NULL;
+    GdkDisplay *display = gdk_display_get_default();
+    return display ? gdk_display_get_clipboard(display) : NULL;
+}
+void moxi_clipboard_set(const char *text) {
+    GdkClipboard *clipboard = native_clipboard();
+    if (!clipboard) return;
+    char *valid = copy_text(text);
+    gdk_clipboard_set_text(clipboard,valid); g_free(valid);
+}
+int moxi_clipboard_read_snapshot(void) {
+    GdkClipboard *clipboard = native_clipboard();
+    if (!clipboard || clipboard_reading) return -1;
+    g_clear_pointer(&clipboard_snapshot,g_free);
+    gsize mime_count = 0;
+    gdk_content_formats_get_mime_types(gdk_clipboard_get_formats(clipboard),&mime_count);
+    if (!mime_count) { clipboard_snapshot = g_strdup(""); return 0; }
+    ClipboardRead *read = g_new0(ClipboardRead,1);
+    read->references = 2; read->cancel = g_cancellable_new();
+    gboolean expired = FALSE;
+    GSource *deadline = g_timeout_source_new(1000);
+    g_source_set_callback(deadline,wait_deadline,&expired,NULL);
+    g_source_attach(deadline,NULL);
+    clipboard_reading = TRUE; clipboard_overflow = FALSE; clipboard_cancel = read->cancel;
+    gdk_clipboard_read_text_async(clipboard,read->cancel,clipboard_ready,read);
+    while (!read->done && !expired && !clipboard_overflow) g_main_context_iteration(NULL,TRUE);
+    g_source_destroy(deadline); g_source_unref(deadline);
+    clipboard_reading = FALSE; clipboard_cancel = NULL;
+    int count = -1;
+    if (read->done && read->succeeded && !clipboard_overflow) {
+        glong length = g_utf8_strlen(read->text,-1);
+        if (length <= G_MAXINT) {
+            clipboard_snapshot = g_steal_pointer(&read->text);
+            count = (int)length;
+        }
+    } else g_cancellable_cancel(read->cancel);
+    /* Cancellation may complete later. Its callback owns the remaining
+     * reference, so no request state points into this stack frame. */
+    clipboard_read_release(read);
+    return count;
+}
+int moxi_clipboard_codepoint_at(int index) {
+    if (!clipboard_snapshot || index < 0 || index >= g_utf8_strlen(clipboard_snapshot,-1)) return -1;
+    return (int)g_utf8_get_char(g_utf8_offset_to_pointer(clipboard_snapshot,index));
+}
 void moxi_window_wait(float timeout_seconds) {
     moxi_window_pump();
-    if (!opened || queue_count || timeout_seconds == 0 || isnan(timeout_seconds)) return;
+    if (!opened || moxi_window_event_queue_depth() || timeout_seconds == 0 || isnan(timeout_seconds)) return;
     gboolean expired = FALSE;
     GSource *deadline = NULL;
     if (timeout_seconds > 0) {
@@ -724,7 +1081,7 @@ void moxi_window_wait(float timeout_seconds) {
         g_source_set_callback(deadline,wait_deadline,&expired,NULL);
         g_source_attach(deadline,NULL);
     }
-    while (opened && !queue_count && !expired) g_main_context_iteration(NULL,TRUE);
+    while (opened && !moxi_window_event_queue_depth() && !expired) g_main_context_iteration(NULL,TRUE);
     if (deadline) { g_source_destroy(deadline); g_source_unref(deadline); }
     moxi_window_pump();
 }
@@ -735,8 +1092,13 @@ void moxi_window_close(void) {
 int moxi_window_is_open(void) { return opened; }
 int moxi_window_poll_event(void) {
     g_free(current.text); memset(&current,0,sizeof(current));
-    if (!queue_count) return 0;
-    current = queue[queue_head]; queue_head = (queue_head+1)%EVENT_CAPACITY; --queue_count;
+    if (queue_count) {
+        current = queue[queue_head]; queue_head = (queue_head+1)%EVENT_CAPACITY; --queue_count;
+    } else {
+        Event *saved = g_queue_pop_head(&deferred_events);
+        if (!saved) return 0;
+        current = *saved; g_free(saved);
+    }
     if (trace) {
         fprintf(trace,"{\"type\":\"event\",\"kind\":%d,\"target\":%d,\"dx\":%g,\"dy\":%g,\"text\":",current.kind,current.target,current.dx,current.dy);
         json_string(current.text); fputs("}\n",trace); fflush(trace);
@@ -746,7 +1108,9 @@ int moxi_window_poll_event(void) {
 int moxi_window_poll_click(void) { return 0; } /* Retained loop consumes pointer events. */
 float moxi_window_click_x(void) { return current.x; }
 float moxi_window_click_y(void) { return current.y; }
-int moxi_window_event_queue_depth(void) { return queue_count; }
+int moxi_window_event_queue_depth(void) {
+    return queue_count + (int)MIN(g_queue_get_length(&deferred_events),(guint)(G_MAXINT-EVENT_CAPACITY));
+}
 int moxi_window_event_dropped_count(void) { return dropped; }
 int moxi_window_command_overflow_count(void) { return overflow; }
 int moxi_window_event_key(void) { return current.key; }

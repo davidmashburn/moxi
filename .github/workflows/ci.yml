@@ -98,7 +98,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
             build-essential pkg-config libgtk-4-dev fonts-dejavu-core fonts-noto-cjk \
-            xvfb xauth xdotool openbox dbus-x11 x11-utils
+            xvfb xauth xdotool openbox dbus-x11 x11-utils python3-pyatspi xclip
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
@@ -115,6 +115,7 @@ jobs:
         run: |
           xvfb-run --auto-servernum --server-args="-screen 0 1440x1000x24" \
             dbus-run-session -- bash -c '
+              set -euo pipefail
               openbox > /tmp/moxi-openbox.log 2>&1 &
               moxi_wm_pid=$!
               trap "kill $moxi_wm_pid" EXIT
@@ -137,6 +138,9 @@ jobs:
                 cat /tmp/moxi-openbox.log >&2
                 exit 1
               fi
+              mkdir -p dist/linux-native-artifacts
+              /usr/bin/python3 native/tests/linux_services_check.py \
+                dist/moxi-linux-services-test 2>&1 | tee dist/linux-native-artifacts/desktop-services.log
               pixi run --locked linux-ui-smoke
             '
       - name: Upload Linux native interaction evidence

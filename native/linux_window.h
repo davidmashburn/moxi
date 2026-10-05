@@ -482,6 +482,13 @@ float moxi_window_width(void);
 float moxi_window_height(void);
 
 float moxi_window_scale_factor(void);
+
+void moxi_clipboard_set(const char *text);
+
+/* A stable Unicode snapshot: negative count means unavailable/read failure. */
+int moxi_clipboard_read_snapshot(void);
+
+int moxi_clipboard_codepoint_at(int index);
 #ifdef __cplusplus
 }
 #endif

@@ -431,7 +431,7 @@ struct TextInputState(ImplicitlyCopyable):
             return self.move_end(extend)
         if key == KEY_SPACE and (modifiers & MOD_COMMAND) == 0:
             return self.insert_text(" ")
-        if key == KEY_A and (modifiers & MOD_COMMAND) != 0:
+        if key == KEY_A and clipboard_modifier:
             return self.select_all()
         return False
 

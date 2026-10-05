@@ -37,6 +37,7 @@ def run_loop[Painter: FractalCanvasPainter](
     repaint(app, painter)
 
     while window.is_open():
+        window.wait_for_work(1.0 / 60.0)
         window.pump()
         var changed = app.tick(1.0 / 60.0)
         var event = window.poll_event()

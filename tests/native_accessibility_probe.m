@@ -1,6 +1,15 @@
 // Test-only access to the native adapter's stored snapshot. This translation
 // unit replaces macos_window.o; no probe symbols ship in the application.
+#define moxi_window_end_frame moxi_probe_original_end_frame
 #include "../native/macos_window.m"
+#undef moxi_window_end_frame
+
+static int moxi_probe_presents;
+void moxi_window_end_frame(void) {
+    ++moxi_probe_presents;
+    moxi_probe_original_end_frame();
+}
+int moxi_test_present_count(void) { return moxi_probe_presents; }
 
 int moxi_test_accessibility_snapshot(int pattern) {
     if (moxi_accessibility_count != 1) return 0;
