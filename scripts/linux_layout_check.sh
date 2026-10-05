@@ -58,6 +58,7 @@ else
 fi
 
 experiments/layout-kiwi/build/bridge_test
+bash scripts/native_window_run_check.sh
 mojo run -I src tests/retained_engine.mojo
 mojo run -I src tests/box_layout.mojo
 mojo run -I src tests/event_replay.mojo

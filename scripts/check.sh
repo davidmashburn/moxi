@@ -44,6 +44,7 @@ pixi run data-workbench-build
 python3 tests/workbench_artifact_check.py
 python3 tests/workbench_release_gate.py
 bash scripts/test.sh
+bash scripts/native_window_run_check.sh
 bash scripts/canvas_benchmark.sh
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c native/macos_window.m -o native/macos_window.o
