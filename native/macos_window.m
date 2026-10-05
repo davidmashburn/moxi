@@ -203,6 +203,7 @@ static MoxiQueuedEvent moxi_event_queue[MOXI_EVENT_QUEUE_CAPACITY];
 static int moxi_event_queue_head;
 static int moxi_event_queue_tail;
 static int moxi_event_queue_count;
+static BOOL moxi_waiting_for_event;
 static int moxi_event_dropped_count;
 static int moxi_event_kind;
 static int moxi_event_key;
@@ -957,6 +958,16 @@ static BOOL moxi_has_pending_events(void) {
     return moxi_event_queue_count > 0;
 }
 
+static void moxi_wake_event_wait(void) {
+    if (!moxi_waiting_for_event) return;
+    /* AX and other run-loop callbacks can enqueue normalized input without
+     * an NSEvent. Wake nextEventMatchingMask so Mojo can drain that input. */
+    NSEvent *wake = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+        location:NSZeroPoint modifierFlags:0 timestamp:0 windowNumber:0
+        context:nil subtype:0 data1:0 data2:0];
+    [NSApp postEvent:wake atStart:NO];
+}
+
 static void moxi_reset_event_queue(void) {
     for (int i = 0; i < MOXI_EVENT_QUEUE_CAPACITY; i++) {
         moxi_event_queue[i].kind = MOXI_EVENT_NONE;
@@ -977,6 +988,7 @@ static void moxi_reset_event_queue(void) {
     moxi_event_queue_head = 0;
     moxi_event_queue_tail = 0;
     moxi_event_queue_count = 0;
+    moxi_waiting_for_event = NO;
     moxi_event_dropped_count = 0;
     moxi_event_kind = MOXI_EVENT_NONE;
     moxi_event_key = 0;
@@ -1032,6 +1044,7 @@ static BOOL moxi_enqueue_event(
     moxi_event_queue_tail =
         (moxi_event_queue_tail + 1) % MOXI_EVENT_QUEUE_CAPACITY;
     moxi_event_queue_count += 1;
+    if (moxi_event_queue_count == 1) moxi_wake_event_wait();
     return YES;
 }
 
@@ -1098,6 +1111,7 @@ static void moxi_queue_semantic_action(int target, int action) {
     moxi_event_queue_tail =
         (moxi_event_queue_tail + 1) % MOXI_EVENT_QUEUE_CAPACITY;
     moxi_event_queue_count += 1;
+    if (moxi_event_queue_count == 1) moxi_wake_event_wait();
 }
 
 static int moxi_event_modifiers_for_flags(NSEventModifierFlags flags) {
@@ -1743,6 +1757,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 
 - (void)windowWillClose:(NSNotification *)notification {
     moxi_window_opened = NO;
+    moxi_wake_event_wait();
     moxi_custom_paint_cache_enabled = NO;
     moxi_custom_paint_cache_discard();
     moxi_native_timing_reset();
@@ -4758,8 +4773,10 @@ void moxi_window_wait(float timeout_seconds) {
         if (!moxi_window_opened || moxi_event_queue_count > 0 || timeout_seconds == 0) return;
         NSDate *deadline = timeout_seconds < 0 ? [NSDate distantFuture] :
             [NSDate dateWithTimeIntervalSinceNow:timeout_seconds];
+        moxi_waiting_for_event = YES;
         NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
             untilDate:deadline inMode:NSDefaultRunLoopMode dequeue:YES];
+        moxi_waiting_for_event = NO;
         if (event != nil) [NSApp sendEvent:event];
         [NSApp updateWindows];
         moxi_update_surface_metrics();

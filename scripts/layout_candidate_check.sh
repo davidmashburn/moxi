@@ -14,6 +14,9 @@ clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules \
   native/tests/macos_frame_test.m -framework Cocoa -o dist/moxi-macos-frame-test
 ./dist/moxi-macos-frame-test
 clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules \
+  native/tests/macos_wait_test.m -framework Cocoa -o dist/moxi-macos-wait-test
+./dist/moxi-macos-wait-test
+clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules \
   tests/native_retained_presentation.m -framework Cocoa -o dist/moxi-native-retained-presentation
 ./dist/moxi-native-retained-presentation
 mojo run -I src tests/collection_layout.mojo
