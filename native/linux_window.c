@@ -77,6 +77,13 @@ static GArray *custom;
 static FILE *trace;
 static unsigned frame_number;
 
+static void configure_input_environment(void) {
+    /* IBus 1.5.29's GTK4 synchronous default loses hide-preedit responses.
+     * Hybrid mode preserves cancellation; respect an explicit caller choice. */
+    if (!g_getenv("IBUS_ENABLE_SYNC_MODE"))
+        g_setenv("IBUS_ENABLE_SYNC_MODE","2",FALSE);
+}
+
 /* Opt-in validation evidence, off in normal runs. These are published Mojo
  * semantics and native event payloads, not claims about physical input. */
 static void json_string(const char *text) {
@@ -774,6 +781,7 @@ void moxi_window_open(const char *title, float width, float height,
     clear_events();
     resetting_im = im_has_preedit = im_focused = FALSE;
     editor_key = next_editor_key = active_editor = -1;
+    configure_input_environment();
     if (!gtk_init_check()) g_error("Moxi Linux requires a working GTK display (X11 or Wayland)");
     const char *trace_path = g_getenv("MOXI_LINUX_TRACE_FILE");
     if (trace_path && *trace_path) trace = fopen(trace_path,"w");
@@ -1024,6 +1032,7 @@ static void clipboard_ready(GObject *source, GAsyncResult *result, gpointer data
     clipboard_read_release(read);
 }
 static GdkClipboard *native_clipboard(void) {
+    configure_input_environment();
     if (!gdk_display_get_default() && !gtk_init_check()) return NULL;
     GdkDisplay *display = gdk_display_get_default();
     return display ? gdk_display_get_clipboard(display) : NULL;

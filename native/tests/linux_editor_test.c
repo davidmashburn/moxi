@@ -3,6 +3,25 @@
 #include <assert.h>
 #include <stdlib.h>
 
+static void check_input_environment(void) {
+    char *original = g_strdup(g_getenv("IBUS_ENABLE_SYNC_MODE"));
+    g_unsetenv("IBUS_ENABLE_SYNC_MODE");
+    configure_input_environment();
+    assert(strcmp(g_getenv("IBUS_ENABLE_SYNC_MODE"),"2") == 0);
+    configure_input_environment();
+    assert(strcmp(g_getenv("IBUS_ENABLE_SYNC_MODE"),"2") == 0);
+    const char *choices[] = {"0","1","2",""};
+    for (size_t i=0;i<G_N_ELEMENTS(choices);++i) {
+        g_setenv("IBUS_ENABLE_SYNC_MODE",choices[i],TRUE);
+        configure_input_environment();
+        assert(strcmp(g_getenv("IBUS_ENABLE_SYNC_MODE"),choices[i]) == 0);
+    }
+    if (original) g_setenv("IBUS_ENABLE_SYNC_MODE",original,TRUE);
+    else g_unsetenv("IBUS_ENABLE_SYNC_MODE");
+    g_free(original);
+    puts("IBus process default and explicit caller overrides: pass");
+}
+
 static Slot *publish_text(const char *text, int cursor, int start, int end,
                           const char *composition, int marked_start, int marked_end,
                           float width) {
@@ -130,6 +149,7 @@ static void publish_active_editor(int id) {
 static void check_same_editor_reopen(void) {
     for (int cycle=0;cycle<2;++cycle) {
         moxi_window_open("Moxi lifecycle regression",200,100,0,0,0,0,1,0);
+        assert(g_getenv("IBUS_ENABLE_SYNC_MODE") != NULL);
         assert(current.text == NULL);
         int kind;
         while ((kind=moxi_window_poll_event())) assert(kind != 3 && kind != 10);
@@ -216,6 +236,7 @@ static void check_host_lifecycle(void) {
     puts("Host nonblocking pump, timed/event wait, scale, semantics focus and idempotent close: pass");
 }
 int main(int argc, char **argv) {
+    check_input_environment();
     if (argc == 2 && strcmp(argv[1],"--display") == 0) {
         check_same_editor_reopen();
         check_host_lifecycle();
