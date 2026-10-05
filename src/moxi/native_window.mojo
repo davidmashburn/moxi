@@ -7,6 +7,7 @@ from .backend import (
 )
 from .accessibility import AccessibilitySnapshot
 from .event import (
+    NONE_KIND,
     CLICK_KIND,
     COMPOSITION_END_KIND,
     COMPOSITION_UPDATE_KIND,
@@ -861,9 +862,21 @@ struct NativeWindow[backend_kind: Int, invert_scroll_y: Bool = False](WindowBack
         )
 
     def run(mut self) raises:
+        """Keep the standalone host responsive while discarding its input.
+
+        Application runners consume events themselves. This lifecycle-only
+        runner must also drain them so a queued event cannot starve the native
+        pump or turn an event-driven wait into a busy loop.
+        """
         while self.is_open():
-            self.wait_for_work(-1)
             self.pump()
+            if not self.is_open():
+                break
+            var event = self.poll_event()
+            while event.kind != NONE_KIND:
+                event = self.poll_event()
+            if self.is_open():
+                self.wait_for_work(-1)
 
     def pump(mut self) raises:
         external_call["moxi_window_pump", NoneType]()
