@@ -23,6 +23,7 @@ typedef struct {
     Color fill, ink;
     float radius, font, value;
     int present, clipped, focused, cursor, start, end, enabled;
+    int composition_start, composition_end;
     char *text, *composition;
     uintptr_t paragraph;
 } Slot;
@@ -48,7 +49,7 @@ typedef struct {
 static GtkWidget *window, *canvas;
 static GtkIMContext *im;
 static gboolean opened, im_focused, resetting_im, im_has_preedit;
-static float window_width, window_height, pointer_x, pointer_y;
+static float window_width, window_height, window_scale = 1, pointer_x, pointer_y;
 static int editor_key = -1, next_editor_key = -1, active_editor = -1;
 static int queue_head, queue_count, dropped, overflow, order_count, semantic_count;
 static int ordered, clipped, custom_clipped;
@@ -152,17 +153,18 @@ static int modifiers(GdkModifierType state) {
 }
 static int key_code(guint key) {
     switch (key) {
-        case GDK_KEY_Tab: case GDK_KEY_ISO_Left_Tab: return 9;
+        case GDK_KEY_Tab: case GDK_KEY_ISO_Left_Tab: case GDK_KEY_KP_Tab: return 9;
+        case GDK_KEY_KP_Space: return 32;
         case GDK_KEY_Return: case GDK_KEY_KP_Enter: return 13;
         case GDK_KEY_Escape: return 27;
         case GDK_KEY_BackSpace: return 8;
-        case GDK_KEY_Delete: return 127;
-        case GDK_KEY_Left: return 1000;
-        case GDK_KEY_Right: return 1001;
-        case GDK_KEY_Up: return 1002;
-        case GDK_KEY_Down: return 1003;
-        case GDK_KEY_Home: return 1004;
-        case GDK_KEY_End: return 1005;
+        case GDK_KEY_Delete: case GDK_KEY_KP_Delete: return 127;
+        case GDK_KEY_Left: case GDK_KEY_KP_Left: return 1000;
+        case GDK_KEY_Right: case GDK_KEY_KP_Right: return 1001;
+        case GDK_KEY_Up: case GDK_KEY_KP_Up: return 1002;
+        case GDK_KEY_Down: case GDK_KEY_KP_Down: return 1003;
+        case GDK_KEY_Home: case GDK_KEY_KP_Home: return 1004;
+        case GDK_KEY_End: case GDK_KEY_KP_End: return 1005;
         default: return (int)gdk_keyval_to_unicode(gdk_keyval_to_lower(key));
     }
 }
@@ -172,7 +174,7 @@ static gboolean key_pressed(GtkEventControllerKey *controller, guint key,
     GdkEvent *native = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(controller));
     /* The IM context consumes printable/preedit keys. Tab still reaches the
      * Mojo focus order, and shortcuts/navigation reach its editor state. */
-    if (im_focused && key != GDK_KEY_Tab && key != GDK_KEY_ISO_Left_Tab &&
+    if (im_focused && key != GDK_KEY_Tab && key != GDK_KEY_ISO_Left_Tab && key != GDK_KEY_KP_Tab &&
         native && gtk_im_context_filter_keypress(im, native)) return TRUE;
     Event event = new_event(2);
     event.key = key_code(key);
@@ -288,6 +290,14 @@ static void resized(GtkDrawingArea *area, int width, int height, gpointer data) 
     window_width = (float)width; window_height = (float)height;
     push(new_event(4));
 }
+static void scale_changed(GObject *object, GParamSpec *property, gpointer data) {
+    (void)property; (void)data;
+    float scale = (float)gtk_widget_get_scale_factor(GTK_WIDGET(object));
+    if (scale == window_scale) return;
+    window_scale = scale;
+    /* Logical dimensions can stay the same when moving between displays. */
+    push(new_event(4));
+}
 static void set_color(cairo_t *cr, Color color) {
     cairo_set_source_rgba(cr, color.r, color.g, color.b, color.a);
 }
@@ -306,8 +316,7 @@ static void box_path(cairo_t *cr, Box box, float radius) {
 static void fill_box(cairo_t *cr, Box box, Color color, float radius) {
     box_path(cr,box,radius); set_color(cr,color); cairo_fill(cr);
 }
-static PangoLayout *text_layout(cairo_t *cr, const char *text, float font, int width) {
-    PangoLayout *layout = pango_cairo_create_layout(cr);
+static void configure_text_layout(PangoLayout *layout, const char *text, float font, int width) {
     PangoFontDescription *desc = pango_font_description_from_string("Sans");
     pango_font_description_set_absolute_size(desc,font * PANGO_SCALE);
     pango_layout_set_font_description(layout,desc);
@@ -315,6 +324,10 @@ static PangoLayout *text_layout(cairo_t *cr, const char *text, float font, int w
     pango_layout_set_text(layout,text ? text : "",-1);
     pango_layout_set_width(layout,width);
     pango_layout_set_wrap(layout,PANGO_WRAP_WORD_CHAR);
+}
+static PangoLayout *text_layout(cairo_t *cr, const char *text, float font, int width) {
+    PangoLayout *layout = pango_cairo_create_layout(cr);
+    configure_text_layout(layout,text,font,width);
     return layout;
 }
 static void draw_text(cairo_t *cr, const char *text, Box box, Color color,
@@ -331,46 +344,83 @@ static void draw_text(cairo_t *cr, const char *text, Box box, Color color,
     cairo_restore(cr);
     g_object_unref(layout);
 }
-static void draw_editor(cairo_t *cr, Slot *slot) {
-    Box inset = {slot->box.x+8,slot->box.y+4,fmax(0,slot->box.width-16),fmax(0,slot->box.height-8)};
+typedef struct {
+    char *display;
+    int caret, marked_start, marked_end, selection_start, selection_end;
+    gboolean composing;
+} EditorText;
+typedef struct { Box inset; float origin, caret_x; } EditorGeometry;
+static EditorText editor_text(const Slot *slot) {
     const char *text = slot->text ? slot->text : "";
     int length = (int)g_utf8_strlen(text,-1);
     int cursor = CLAMP(slot->cursor,0,length);
-    const char *at = g_utf8_offset_to_pointer(text,cursor);
-    char *display = slot->focused && slot->composition && *slot->composition
-        ? g_strdup_printf("%.*s%s%s",(int)(at-text),text,slot->composition,at) : g_strdup(text);
-    PangoLayout *layout = text_layout(cr,display,slot->font,-1);
+    EditorText result = {.composing=slot->focused && slot->composition && *slot->composition};
+    if (result.composing) {
+        int start = CLAMP(MIN(slot->start,slot->end),0,length);
+        int end = CLAMP(MAX(slot->start,slot->end),0,length);
+        const char *before = g_utf8_offset_to_pointer(text,start);
+        const char *after = g_utf8_offset_to_pointer(text,end);
+        int marked_length = (int)g_utf8_strlen(slot->composition,-1);
+        int anchor = CLAMP(slot->composition_start,0,marked_length);
+        int marked_cursor = CLAMP(slot->composition_end,0,marked_length);
+        result.display = g_strdup_printf("%.*s%s%s",(int)(before-text),text,slot->composition,after);
+        result.marked_start = (int)(before-text);
+        result.marked_end = result.marked_start + (int)strlen(slot->composition);
+        result.caret = result.marked_start + (int)(g_utf8_offset_to_pointer(slot->composition,marked_cursor)-slot->composition);
+        result.selection_start = result.marked_start + (int)(g_utf8_offset_to_pointer(slot->composition,MIN(anchor,marked_cursor))-slot->composition);
+        result.selection_end = result.marked_start + (int)(g_utf8_offset_to_pointer(slot->composition,MAX(anchor,marked_cursor))-slot->composition);
+    } else {
+        result.display = g_strdup(text);
+        result.caret = (int)(g_utf8_offset_to_pointer(text,cursor)-text);
+        result.selection_start = (int)(g_utf8_offset_to_pointer(text,CLAMP(MIN(slot->start,slot->end),0,length))-text);
+        result.selection_end = (int)(g_utf8_offset_to_pointer(text,CLAMP(MAX(slot->start,slot->end),0,length))-text);
+    }
+    return result;
+}
+static EditorGeometry editor_geometry(const Slot *slot, PangoLayout *layout, const EditorText *text) {
+    EditorGeometry geometry = {.inset={slot->box.x+8,slot->box.y+4,
+        fmax(0,slot->box.width-16),fmax(0,slot->box.height-8)}};
     PangoRectangle caret;
-    pango_layout_get_cursor_pos(layout,(int)(at-text),&caret,NULL);
-    float caret_x = (float)caret.x/PANGO_SCALE;
-    float origin = inset.x - fmax(0,caret_x-inset.width+2);
+    pango_layout_get_cursor_pos(layout,text->caret,&caret,NULL);
+    geometry.caret_x = (float)caret.x/PANGO_SCALE;
+    geometry.origin = geometry.inset.x - fmax(0,geometry.caret_x-geometry.inset.width+2);
+    return geometry;
+}
+static void editor_selection(cairo_t *cr, PangoLayout *layout, EditorGeometry geometry,
+                             int start, int end, gboolean underline) {
+    if (start == end) return;
+    PangoLayoutLine *line = pango_layout_get_line_readonly(layout,0);
+    int *ranges = NULL, count = 0;
+    pango_layout_line_get_x_ranges(line,start,end,&ranges,&count);
+    for (int i=0;i<count;++i) {
+        float x = geometry.origin+(float)ranges[2*i]/PANGO_SCALE;
+        float width = (float)(ranges[2*i+1]-ranges[2*i])/PANGO_SCALE;
+        if (underline) {
+            cairo_move_to(cr,x,geometry.inset.y+geometry.inset.height-2);
+            cairo_line_to(cr,x+width,geometry.inset.y+geometry.inset.height-2);
+        } else fill_box(cr,(Box){x,geometry.inset.y,width,geometry.inset.height},
+                        (Color){0.18f,0.40f,0.60f,1},0);
+    }
+    g_free(ranges);
+    if (underline) { cairo_set_line_width(cr,1); cairo_stroke(cr); }
+}
+static void draw_editor(cairo_t *cr, Slot *slot) {
+    EditorText text = editor_text(slot);
+    PangoLayout *layout = text_layout(cr,text.display,slot->font,-1);
+    EditorGeometry geometry = editor_geometry(slot,layout,&text);
+    Box inset = geometry.inset;
     cairo_save(cr);
     cairo_rectangle(cr,inset.x,inset.y,inset.width,inset.height); cairo_clip(cr);
-    if (slot->focused && slot->start != slot->end && (!slot->composition || !*slot->composition)) {
-        int start = (int)(g_utf8_offset_to_pointer(text,CLAMP(slot->start,0,length))-text);
-        int end = (int)(g_utf8_offset_to_pointer(text,CLAMP(slot->end,0,length))-text);
-        PangoLayoutLine *line = pango_layout_get_line_readonly(layout,0);
-        int *ranges = NULL, count = 0;
-        pango_layout_line_get_x_ranges(line,MIN(start,end),MAX(start,end),&ranges,&count);
-        for (int i=0;i<count;++i) fill_box(cr,(Box){origin+(float)ranges[2*i]/PANGO_SCALE,inset.y,
-            (float)(ranges[2*i+1]-ranges[2*i])/PANGO_SCALE,inset.height},(Color){0.18f,0.40f,0.60f,1},0);
-        g_free(ranges);
-    }
-    cairo_move_to(cr,origin,inset.y); set_color(cr,slot->ink); pango_cairo_show_layout(cr,layout);
+    if (slot->focused) editor_selection(cr,layout,geometry,text.selection_start,text.selection_end,FALSE);
+    cairo_move_to(cr,geometry.origin,inset.y); set_color(cr,slot->ink); pango_cairo_show_layout(cr,layout);
     if (slot->focused) {
-        if (slot->composition && *slot->composition) {
-            PangoRectangle end;
-            pango_layout_get_cursor_pos(layout,(int)(at-text)+strlen(slot->composition),&end,NULL);
-            cairo_move_to(cr,origin+caret_x,inset.y+inset.height-2);
-            cairo_line_to(cr,origin+(float)end.x/PANGO_SCALE,inset.y+inset.height-2);
-        } else {
-            cairo_move_to(cr,origin+caret_x,inset.y+2);
-            cairo_line_to(cr,origin+caret_x,inset.y+inset.height-2);
-        }
+        if (text.composing) editor_selection(cr,layout,geometry,text.marked_start,text.marked_end,TRUE);
+        cairo_move_to(cr,geometry.origin+geometry.caret_x,inset.y+2);
+        cairo_line_to(cr,geometry.origin+geometry.caret_x,inset.y+inset.height-2);
         cairo_set_line_width(cr,1); cairo_stroke(cr);
     }
     cairo_restore(cr);
-    g_object_unref(layout); g_free(display);
+    g_object_unref(layout); g_free(text.display);
 }
 static void draw_slot(cairo_t *cr, int kind, int index) {
     if (kind < 0 || kind >= 25 || index < 0 || index >= SLOT_CAPACITY) return;
@@ -437,6 +487,8 @@ void moxi_window_open(const char *title, float width, float height,
                       float max_height, int resizable, int fullscreen) {
     (void)max_width; (void)max_height; /* GTK4 has no portable maximum-size hint. */
     if (opened) return;
+    resetting_im = im_has_preedit = im_focused = FALSE;
+    editor_key = next_editor_key = active_editor = -1;
     if (!gtk_init_check()) g_error("Moxi Linux requires a working GTK display (X11 or Wayland)");
     const char *trace_path = g_getenv("MOXI_LINUX_TRACE_FILE");
     if (trace_path && *trace_path) trace = fopen(trace_path,"w");
@@ -446,11 +498,13 @@ void moxi_window_open(const char *title, float width, float height,
     gtk_window_set_default_size(GTK_WINDOW(window),(int)width,(int)height);
     gtk_window_set_resizable(GTK_WINDOW(window),resizable != 0);
     canvas = gtk_drawing_area_new();
+    window_scale = (float)gtk_widget_get_scale_factor(canvas);
     gtk_widget_set_focusable(canvas,TRUE);
     gtk_widget_set_size_request(canvas,(int)min_width,(int)min_height);
     gtk_window_set_child(GTK_WINDOW(window),canvas);
     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(canvas),draw,NULL,NULL);
     g_signal_connect(canvas,"resize",G_CALLBACK(resized),NULL);
+    g_signal_connect(canvas,"notify::scale-factor",G_CALLBACK(scale_changed),NULL);
     g_signal_connect(window,"close-request",G_CALLBACK(close_request),NULL);
     g_signal_connect(window,"notify::is-active",G_CALLBACK(focus_changed),NULL);
     im = gtk_im_multicontext_new();
@@ -532,11 +586,12 @@ void moxi_window_set_text_input_at(int index, const char *text, BOX_ARGS,
     COLOR_ARGS(fill), COLOR_ARGS(ink), float radius, float font, int wrap,
     int focused, int cursor, int start, int end, const char *composition,
     int composition_start, int composition_end) {
-    (void)wrap; (void)composition_start; (void)composition_end;
+    (void)wrap;
     Slot *slot = put_slot(5,index,text,BOX,COLOR(fill),COLOR(ink),radius,font);
     if (!slot) return;
     slot->focused = focused; slot->cursor = cursor; slot->start = start; slot->end = end;
     slot->composition = copy_text(composition);
+    slot->composition_start = composition_start; slot->composition_end = composition_end;
     if (focused) active_editor = index;
 }
 void moxi_window_begin_accessibility(void) {
@@ -559,8 +614,7 @@ void moxi_window_set_accessibility_at(int index, int id, int parent, int role,
     semantics[index] = (Semantic){id,parent,role,focused,enabled,BOX,copy_text(label),copy_text(value)};
     semantic_count = MAX(semantic_count,index+1);
 }
-void moxi_window_end_accessibility(void) { }
-void moxi_window_end_frame(void) {
+static void synchronize_editor(void) {
     gboolean allowed = FALSE;
     for (int i=0;i<semantic_count;++i)
         if (semantics[i].id == next_editor_key && semantics[i].role == 3 &&
@@ -587,10 +641,20 @@ void moxi_window_end_frame(void) {
     if (editor_key >= 0 && im) {
         if (!im_focused) { gtk_im_context_focus_in(im); im_focused = TRUE; }
         Slot *slot = &slots[5][active_editor];
-        GdkRectangle rect = {(int)slot->box.x+8,(int)slot->box.y+4,1,(int)slot->box.height-8};
+        EditorText text = editor_text(slot);
+        PangoLayout *layout = pango_layout_new(gtk_widget_get_pango_context(canvas));
+        configure_text_layout(layout,text.display,slot->font,-1);
+        EditorGeometry geometry = editor_geometry(slot,layout,&text);
+        GdkRectangle rect = {(int)(geometry.origin+geometry.caret_x),(int)geometry.inset.y,
+                             1,MAX(1,(int)geometry.inset.height)};
         gtk_im_context_set_cursor_location(im,&rect);
+        g_object_unref(layout); g_free(text.display);
         retrieve_surrounding(im,NULL);
     }
+}
+void moxi_window_end_accessibility(void) { synchronize_editor(); }
+void moxi_window_end_frame(void) {
+    synchronize_editor();
     if (canvas) gtk_widget_queue_draw(canvas);
     trace_frame();
 }
@@ -628,27 +692,45 @@ void moxi_window_add_custom_text(const char *text, BOX_ARGS, COLOR_ARGS(ink), fl
 }
 void moxi_window_set_custom_paint_cache_enabled(int enabled) { (void)enabled; }
 void moxi_window_pump(void) {
-    gint64 deadline = g_get_monotonic_time()+10000;
-    do {
-        while (g_main_context_pending(NULL)) {
-            /* Mojo must publish focus/selection from this event before GTK
-             * filters another key against the active editor's IM context. */
-            if (queue_count) break;
-            g_main_context_iteration(NULL,FALSE);
-            if (g_get_monotonic_time() >= deadline) break;
-        }
-        if (!opened || queue_count || g_get_monotonic_time() >= deadline) break;
-        g_usleep(1000);
-    } while (TRUE);
+    /* Mojo publishes focus/selection after each event, before GTK filters the
+     * next key. Waiting for new work is a separate, blocking host operation. */
+    while (opened && !queue_count && g_main_context_pending(NULL))
+        g_main_context_iteration(NULL,FALSE);
     if (!opened && window) {
         resetting_im = TRUE;
         gtk_im_context_focus_out(im); gtk_im_context_set_client_widget(im,NULL);
         g_clear_object(&im); im_focused = FALSE;
+        editor_key = next_editor_key = active_editor = -1;
+        im_has_preedit = resetting_im = FALSE;
         gtk_window_destroy(GTK_WINDOW(window)); window = canvas = NULL;
         moxi_window_begin_frame(); clear_custom();
         moxi_window_begin_accessibility();
         if (trace) { fclose(trace); trace = NULL; }
     }
+}
+static gboolean wait_deadline(gpointer data) {
+    *(gboolean *)data = TRUE;
+    return G_SOURCE_REMOVE;
+}
+void moxi_window_wait(float timeout_seconds) {
+    moxi_window_pump();
+    if (!opened || queue_count || timeout_seconds == 0 || isnan(timeout_seconds)) return;
+    gboolean expired = FALSE;
+    GSource *deadline = NULL;
+    if (timeout_seconds > 0) {
+        double milliseconds = ceil((double)timeout_seconds*1000);
+        guint interval = (guint)fmin(milliseconds,G_MAXUINT);
+        deadline = g_timeout_source_new(MAX(1u,interval));
+        g_source_set_callback(deadline,wait_deadline,&expired,NULL);
+        g_source_attach(deadline,NULL);
+    }
+    while (opened && !queue_count && !expired) g_main_context_iteration(NULL,TRUE);
+    if (deadline) { g_source_destroy(deadline); g_source_unref(deadline); }
+    moxi_window_pump();
+}
+void moxi_window_close(void) {
+    opened = FALSE;
+    moxi_window_pump();
 }
 int moxi_window_is_open(void) { return opened; }
 int moxi_window_poll_event(void) {
@@ -684,6 +766,9 @@ int moxi_window_event_target(void) { return current.target; }
 int moxi_window_event_action(void) { return current.action; }
 float moxi_window_width(void) { return window_width; }
 float moxi_window_height(void) { return window_height; }
+float moxi_window_scale_factor(void) {
+    return canvas ? (float)gtk_widget_get_scale_factor(canvas) : 1;
+}
 
 /* The retained leaf adapter rejects these legacy kinds before publication.
  * Keep their shared ABI linkable, but fail explicitly if a caller bypasses it. */

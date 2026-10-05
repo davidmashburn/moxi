@@ -433,6 +433,10 @@ void moxi_window_set_text_input_at(
 
 void moxi_window_pump(void);
 
+void moxi_window_wait(float timeout_seconds);
+
+void moxi_window_close(void);
+
 int moxi_window_is_open(void);
 
 int moxi_window_poll_click(void);
@@ -476,6 +480,8 @@ int moxi_window_event_action(void);
 float moxi_window_width(void);
 
 float moxi_window_height(void);
+
+float moxi_window_scale_factor(void);
 #ifdef __cplusplus
 }
 #endif
