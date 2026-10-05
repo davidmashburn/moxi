@@ -130,6 +130,9 @@ static void publish_active_editor(int id) {
 static void check_same_editor_reopen(void) {
     for (int cycle=0;cycle<2;++cycle) {
         moxi_window_open("Moxi lifecycle regression",200,100,0,0,0,0,1,0);
+        assert(current.text == NULL);
+        int kind;
+        while ((kind=moxi_window_poll_event())) assert(kind != 3 && kind != 10);
         publish_active_editor(13);
         drain_events();
         g_signal_emit_by_name(im,"commit","reopen");
@@ -137,12 +140,25 @@ static void check_same_editor_reopen(void) {
         assert(moxi_window_event_target() == 13);
         assert(moxi_window_event_codepoint() == 'r');
         drain_events();
+        /* Leave committed input and an excess action pending at shutdown. */
+        g_signal_emit_by_name(im,"commit","stale");
+        clipboard_reading = TRUE;
+        for (int i=0;i<EVENT_CAPACITY;++i) {
+            Event action = new_event(10); action.target = 13; push(action);
+        }
+        clipboard_reading = FALSE;
+        assert(!g_queue_is_empty(&deferred_events));
         gtk_window_close(GTK_WINDOW(window));
         moxi_window_pump();
         assert(!moxi_window_is_open() && !window && !im);
-        drain_events();
     }
-    puts("Real GTK close/reopen accepts committed input for the same editor ID: pass");
+    moxi_window_open("Moxi lifecycle regression",200,100,0,0,0,0,1,0);
+    assert(current.text == NULL);
+    int kind;
+    while ((kind=moxi_window_poll_event())) assert(kind != 3 && kind != 10);
+    assert(g_queue_is_empty(&deferred_events));
+    moxi_window_close();
+    puts("Real GTK same-ID close/reopen accepts new IM input and discards stale queued/deferred input: pass");
 }
 static gboolean wake_with_event(gpointer data) {
     (void)data;
