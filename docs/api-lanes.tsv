@@ -82,3 +82,5 @@ metal	experimental	experimental or optional integration
 host_api	host-adapter	focused host/adapter import path
 experimental_api	experimental	focused optional integration path
 content_layout	provisional	explicit content and weighted fill layout
+frame	provisional	portable frame publication and host/renderer boundaries
+event_replay	provisional	bounded exact normalized event serialization

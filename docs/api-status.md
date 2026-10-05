@@ -58,6 +58,8 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `BACKEND_ANDROID` | `moxi.backend` | stable-core | backend capability profiles |
 | `BACKEND_WEB` | `moxi.backend` | stable-core | backend capability profiles |
 | `BackendCapabilities` | `moxi.backend` | stable-core | backend capability profiles |
+| `HostCapabilities` | `moxi.backend` | stable-core | backend capability profiles |
+| `RendererCapabilities` | `moxi.backend` | stable-core | backend capability profiles |
 | `backend_capabilities` | `moxi.backend` | stable-core | backend capability profiles |
 | `CLICK_KIND` | `moxi.event` | stable-core | normalized input events |
 | `COMPOSITION_END_KIND` | `moxi.event` | stable-core | normalized input events |
@@ -694,4 +696,14 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `LIVE_SCRIPT_STATUS_ID` | `moxi.live_script` | demo/support | examples, recipes, or validation support |
 | `LIVE_SCRIPT_TITLE_ID` | `moxi.live_script` | demo/support | examples, recipes, or validation support |
 | `LiveScriptState` | `moxi.live_script` | demo/support | examples, recipes, or validation support |
+| `SurfaceMetrics` | `moxi.frame` | provisional | portable frame publication and host/renderer boundaries |
+| `FrameResource` | `moxi.frame` | provisional | portable frame publication and host/renderer boundaries |
+| `FramePacket` | `moxi.frame` | provisional | portable frame publication and host/renderer boundaries |
+| `FrameHost` | `moxi.frame` | provisional | portable frame publication and host/renderer boundaries |
+| `FrameRenderer` | `moxi.frame` | provisional | portable frame publication and host/renderer boundaries |
+| `submit_frame` | `moxi.frame` | provisional | portable frame publication and host/renderer boundaries |
+| `EventReplay` | `moxi.event_replay` | provisional | bounded exact normalized event serialization |
+| `event_to_json` | `moxi.event_replay` | provisional | bounded exact normalized event serialization |
+| `event_from_json` | `moxi.event_replay` | provisional | bounded exact normalized event serialization |
+| `event_replay_from_json` | `moxi.event_replay` | provisional | bounded exact normalized event serialization |
 | `moxi_version` | `moxi.__init__` | stable-core | package version boundary |
