@@ -27,6 +27,13 @@ moxi	FractalCanvasPainter	fill_rect
 moxi	FractalCanvasPainter	line
 moxi	FractalCanvasPainter	line_batch
 moxi	FractalCanvasPainter	set_canvas_bounds
+moxi	FrameHost	host_capabilities
+moxi	FrameHost	metrics
+moxi	FrameHost	present
+moxi	FrameHost	publish_accessibility
+moxi	FrameRenderer	capabilities
+moxi	FrameRenderer	release_resources
+moxi	FrameRenderer	render
 moxi	ParagraphPayload	create
 moxi	ParagraphPayload	metrics
 moxi	PlatformAdapter	begin_frame
@@ -63,6 +70,7 @@ moxi	Renderer	draw_table
 moxi	Renderer	draw_tabs
 moxi	Renderer	draw_text_input
 moxi	Renderer	draw_tree
+moxi	Renderer	end_frame
 moxi	Renderer	supports_incremental
 moxi	Renderer	update_accessibility
 moxi	ResourceResolver	release_image
@@ -77,10 +85,15 @@ moxi	SceneRenderer	render_scene
 moxi	TextShaper	shape
 moxi	VirtualItemBuilder	build
 moxi	WindowBackend	click_position
+moxi	WindowBackend	clock_nanoseconds
+moxi	WindowBackend	close
+moxi	WindowBackend	frame_interval_seconds
 moxi	WindowBackend	is_open
+moxi	WindowBackend	metrics
 moxi	WindowBackend	open
 moxi	WindowBackend	poll_click
 moxi	WindowBackend	poll_event
 moxi	WindowBackend	pump
 moxi	WindowBackend	run
 moxi	WindowBackend	size
+moxi	WindowBackend	wait_for_work
