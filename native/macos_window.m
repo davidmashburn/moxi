@@ -1,5 +1,6 @@
 #import "macos_paragraph.h"
 #import <Cocoa/Cocoa.h>
+#import <QuartzCore/QuartzCore.h>
 #include <dlfcn.h>
 #include <mach/mach_time.h>
 #include <math.h>
@@ -3851,6 +3852,14 @@ void moxi_window_add_custom_text(
 void moxi_window_end_frame(void) {
     if (moxi_canvas != nil) {
         [moxi_canvas finishMoxiFrame];
+        // The caller may block indefinitely after publication. Flush the live
+        // window now rather than requiring another event to trigger AppKit's
+        // usual end-of-loop display pass. Bitmap-only renderers have no window.
+        if (moxi_canvas.window != nil) {
+            [NSApp updateWindows];
+            [moxi_canvas displayIfNeeded];
+            [CATransaction flush];
+        }
     }
 }
 
