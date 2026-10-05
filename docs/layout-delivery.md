@@ -4,7 +4,9 @@ The optional candidate implements Mojo-owned retained flow/grid, shared native p
 measurement and painting, transactional Kiwi regions, variable extent collections,
 fitted overlays and a composed native workbench. Implementation and local checks
 are complete for the documented candidate profile. Public promotion remains
-pending the verification listed below; the root public exports remain unchanged.
+pending the verification listed below; the retained layout modules remain outside
+the root exports. Portable frame contracts are exported independently of that
+candidate promotion.
 
 ## Local evidence
 
@@ -62,19 +64,24 @@ settings changed during this pass, and the recorded timing run was not repeated.
 phase costs, measurement/solver/engine-edit counters and bounded realization.
 Each of seven workloads has 10 complete warmup frames followed by 120 samples.
 The table reports milliseconds; the results describe this host and workload only.
-The artifact records the Mojo backend and a SHA-256 of the measured engine source.
+The October 5 artifact records the Mojo/native backend, host identity, explicit
+full profile and SHA-256 hashes of the measured frame/resource/host sources. The
+four reference workloads pass the declared 16.67 ms p95 budget on the native
+Apple M4; larger/churn workloads remain descriptive.
+The measured production source is commit `16ea17c`; the run finished at
+2026-10-05 06:24:42 UTC using stable Mojo 1.1.0 (`8189361e`).
 The [previous Taffy run](https://github.com/davidmashburn/moxi/blob/db605f6/docs/layout-workbench-timings.json)
 remains in Git history. These separate runs do not establish a causal speedup.
 
 | Workload | Median | p95 | Maximum | Maximum realized cells |
 | --- | ---: | ---: | ---: | ---: |
-| Unchanged | 1.364 | 1.846 | 2.371 | 68 |
-| Vertical scroll | 2.717 | 3.385 | 3.870 | 76 |
-| Resize | 1.705 | 2.652 | 3.179 | 72 |
-| Summary insertion/removal | 2.632 | 4.876 | 8.438 | 72 |
-| 1500 × 1000 viewport | 2.532 | 5.199 | 8.358 | 96 |
-| 2000 × 1400 viewport | 3.110 | 4.357 | 5.416 | 140 |
-| Mixed resize/scroll/RTL/summary churn | 6.312 | 9.792 | 10.806 | 88 |
+| Unchanged | 2.909 | 4.503 | 5.282 | 68 |
+| Vertical scroll | 4.231 | 5.350 | 5.917 | 76 |
+| Resize | 2.302 | 3.438 | 4.258 | 68 |
+| Summary insertion/removal | 3.969 | 5.487 | 6.628 | 68 |
+| 1500 × 1000 viewport | 4.877 | 10.542 | 21.991 | 92 |
+| 2000 × 1400 viewport | 3.637 | 6.305 | 9.436 | 140 |
+| Mixed resize/scroll/RTL/summary churn | 8.858 | 13.970 | 15.447 | 88 |
 
 The budget applies to the first four workloads. The last three provide additional
 observations, without a separately predeclared gate. All use a 100,000-row,
@@ -85,7 +92,8 @@ constant total source or track-metadata memory.
 
 Timing includes declaration synchronization, provider measurement, strategy
 staging/solve, validation, publication, paint commands, accessibility submission,
-chart commands and AppKit/CoreText bitmap painting at scale 1. Provider callback
+portable packet construction, measured paragraph resource binding, shared chart
+commands and AppKit/CoreText bitmap painting at scale 1. Provider callback
 time is a subset of allocation/arrangement, not an additional phase to sum.
 Compilation, source initialization, the event loop, compositor, scanout, NSWindow
 coordinate conversion, active native IME and VoiceOver are excluded. This is not
@@ -96,6 +104,29 @@ bottleneck before the Mojo migration.
 Reproduce with `pixi run layout-workbench-benchmark` after the candidate checks.
 The task writes fresh samples to `dist/layout-workbench-timings.json`; the linked
 document is the recorded run, not an automatically updated claim.
+
+## Linux exploratory timings
+
+[Linux VM timings](layout-workbench-linux-timings.json) record 56 complete frames:
+eight samples and two warmups for each of the seven workloads. The measured
+source is preserved in commit `504faef`; the artifact records hashes and the
+actual QEMU TCG/Haswell-v4 configuration on the physical ARM64 Apple M4. The
+shorter smoke profile is descriptive and does not enforce the native Mac budget.
+The full Linux profile was skipped to bound emulation cost.
+
+This pipeline includes portable semantics, paragraph bindings and the production
+Cairo/Pango bitmap painter. With no opened GTK surface, native semantic submission
+is a no-op: live accessibility proxy construction and AT-SPI updates are excluded.
+The external service check covers those behaviors separately. These timings do
+not establish native Linux 60 Hz performance or display latency.
+
+Reproduce inside the guest with:
+
+```sh
+MOXI_LAYOUT_BENCHMARK_PROFILE=smoke \
+MOXI_LAYOUT_BENCHMARK_ENVIRONMENT=lima-qemu-tcg-haswell-v4 \
+pixi run --locked layout-workbench-benchmark
+```
 
 ## Remaining verification
 
@@ -127,10 +158,13 @@ document is the recorded run, not an automatically updated claim.
   package is certified.
 
 The Linux GTK4/Cairo/Pango retained presenter has also passed native contracts and
-synthetic X11 interaction checks in a real Ubuntu x86-64 VM. Linux remains a
-source-only provisional slice without AT-SPI, desktop clipboard integration or
-legacy widget parity. These observations do not establish Japanese IME, physical
-input, Wayland or performance acceptance. Source/toolchain provenance and current
+synthetic X11 interaction checks in a real Ubuntu x86-64 VM. External AT-SPI
+hierarchy/text/focus/actions and cross-process Unicode clipboard checks also pass.
+Linux remains source-only and provisional without legacy widget parity. These
+observations do not establish spoken screen-reader, physical input or Wayland
+acceptance. Real IBus/Mozc composition, conversion, commit and cancellation pass
+in a separate X11 service probe; physical keyboard use and exact caret x-coordinate
+placement remain unverified. Source/toolchain provenance and current
 stable-toolchain verification are recorded in [VM validation](vm-validation.md).
 The [direct manual steps](layout-workbench.md#manual-release-checks) identify the
 remaining macOS interaction checks.

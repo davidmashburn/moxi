@@ -29,7 +29,7 @@ pixi run --locked linux-layout-workbench
 `linux-layout-check` runs the Pango and Cairo/event C contracts, Mojo retained
 engine/box/retained layout checks, the Kiwi bridge and 1,000 staged rebuilds,
 and the composed workbench contracts before compiling `dist/layout-workbench-linux`.
-It does not launch a window. `linux-layout-workbench` builds and launches the app;
+It does not launch the demo. Native lifecycle/clipboard regressions use a display or Xvfb when available; skipped service checks are reported. `linux-layout-workbench` builds and launches the app;
 run it from an X11 or Wayland desktop session. In the existing VM's Xfce session,
 an SSH shell can select the graphical display with `DISPLAY=:1`. Wayland has not
 been exercised. The Linux VM native contracts, app compilation and synthetic X11
@@ -56,11 +56,12 @@ canvas leaves. Other modes produce a diagnostic. Labels draw the identical
 retained paragraph that was measured: CoreText on macOS and Pango on Linux.
 AppKit controls retain their existing native implementation; Linux paints the
 retained controls on its GTK canvas and routes input/composition through GTK's
-input-method context to the Mojo editor. Linux accessibility remains unavailable:
-the semantic keys used for editor input do not constitute an AT-SPI tree. Legacy
-widget parity, desktop clipboard integration, rich text, GPU acceleration and
-incremental rendering are also outside this Linux slice. Copy/cut/paste currently
-uses each Mojo editor's in-memory clipboard. Native painting opts into submission
+input-method context to the Mojo editor. GTK accessibility proxies now publish
+the retained hierarchy through AT-SPI. Both native hosts use a desktop clipboard
+service for Command/Control-C/X/V; Linux reads have a one-second deadline, stable
+Unicode snapshots and bounded deferred input. Legacy widget parity, rich text,
+GPU acceleration and incremental rendering remain outside the Linux slice.
+Native painting opts into submission
 order so a later popup covers earlier cells and chart content. A single optional custom canvas
 layer is inserted at the caller-specified canvas key. The legacy host retains
 its existing painting order. Native slots are bounded at 1,024; presentation
@@ -101,7 +102,7 @@ installed static archive on macOS arm64. Run `pixi run layout-package-consumer`
 to build a temporary local channel and verify an independent consumer against
 installed Mojo modules and that archive, without checkout-native object paths.
 
-The candidate stays out of the root public exports until the promotion gates in
+The retained layout modules stay out of the root public exports until the promotion gates in
 [the delivery ledger](layout-delivery.md) are satisfied. Its current supported
 native host is macOS, with a provisional Linux retained presenter now implemented.
 The Mojo retained engine, collection, overlay and coordinate policies have portable
@@ -131,10 +132,34 @@ trace and app log are saved under `dist/linux-native-artifacts`. The optional
 `--screenshot PATH` argument requires `xfce4-screenshooter`. CI uses Xvfb/Openbox;
 that lane is separate from the real VM desktop observation.
 
-GTK-simple Unicode preedit/commit is synthetic input. A real Japanese input method,
-physical keyboard/trackpad use and Wayland remain unverified. No AT-SPI
-semantic tree is supplied, so Linux screen-reader acceptance remains unavailable.
-The separate macOS manual checks below remain open.
+GTK-simple Unicode preedit/commit is synthetic input. The separate real Japanese
+input-method run is recorded in [VM validation](vm-validation.md). Physical
+keyboard/trackpad use and Wayland remain unverified. An external AT-SPI client
+now checks the published hierarchy, roles, hints, state, Unicode text/caret/
+selection, focus, window-relative bounds and addressed activation. Spoken Orca
+navigation remains unverified. The separate macOS manual checks below remain open.
+
+On the recorded Ubuntu guest, real IBus/Mozc conversion, selected-range commit,
+Escape cancellation and modal focus cancellation pass. Candidate text is visible
+below the editor; exact caret x-coordinate placement was not asserted. Linux
+initialization defaults an unset `IBUS_ENABLE_SYNC_MODE` to `2` in the application
+process, preserving explicit caller values. IBus 1.5.29's synchronous default
+dropped hide-preedit responses during cancellation; the hybrid mode avoids that
+observed failure without changing desktop settings. This is a real input-method
+service check driven by synthetic X11 keys, with accessibility disabled for
+isolation, rather than a physical-input or screen-reader check.
+
+For the external service check, install `python3-pyatspi xclip xdotool dbus-x11`
+and run `/usr/bin/python3 native/tests/linux_services_check.py` from an X11/DBus
+session with a window manager after `linux-layout-check`. Alternatively set
+`MOXI_LINUX_ATSPI_CHECK=1` for the native task in that session. CI performs this
+check within its separate Xvfb/DBus/Openbox session.
+
+The demo, normalized replay and benchmark share `WorkbenchController`, the same
+form/collection state and `layout_workbench_chart()`. Replay tests compare every
+paint/semantic/resource publication and the software chart checksum. The native
+renderer pins measured paragraph payloads before consuming portable packets;
+semantic publication and host presentation have independent boundaries.
 
 ## Manual release checks
 

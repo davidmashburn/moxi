@@ -268,7 +268,9 @@ conservative path.
 `FrameEvent` and `App.tick(delta_seconds)` let a component advance its own
 animation state through the regular update path. `App.run()` and
 `App.run_with_clipboard()` centralize the standard window pump, event dispatch,
-and render loop.
+and render loop. They advance tasks and requests using monotonic elapsed time,
+wait for the earliest deadline, and paint only invalidated frames. Components
+request animation ticks explicitly with `request_animation_frames()`.
 
 The original `Runtime`, `CounterRuntime`, `Label`, and `Button` entry points
 remain available as compatibility helpers. New composed code should use
@@ -285,6 +287,16 @@ remain available as compatibility helpers. New composed code should use
   dispatch; `clear_region()` clears stale removed-command bounds.
 - `draw()` dispatches surface, panel, and every public catalog leaf command.
 - The draw methods translate backend-neutral geometry and style.
+- `end_frame()` completes a painted legacy frame; accessibility publication alone
+  does not present it.
+
+The canonical retained workbench uses `FramePacket` and `NativeFrameRenderer`.
+Its packet contains metrics, ordered paint commands, a canvas scene, semantics
+and paragraph identities, without native handles. `WindowBackend` owns native
+lifecycle, waiting, accessibility publication and presentation. The renderer
+pins exact measured paragraphs and rejects invalid resource leases before paint.
+[ADR-005](docs/architecture/adr-005-host-frame-contract.md) records this contract
+and its single-window, producer-scoped resource limits.
 
 `MacOSRenderer` sends commands across the narrow Objective-C C ABI. The AppKit
 shim currently supports up to 128 slots for each leaf kind per frame and draws
@@ -333,9 +345,12 @@ flow/grid layout, hit testing and editor state, while Kiwi remains the constrain
 solver. GTK supplies window/input-method services and both scroll axes. The
 Ubuntu x86-64 VM runs the compiled workbench, with native contracts and synthetic
 X11 interaction evidence in [docs/vm-validation.md](docs/vm-validation.md).
-Linux has no AT-SPI tree, desktop clipboard integration, legacy widget parity,
-rich text, GPU acceleration or incremental rendering. Real Japanese IME, physical
-input and Wayland acceptance remain unverified.
+GTK accessibility proxies expose the retained semantic hierarchy, text and
+actions through AT-SPI. `LinuxClipboard` exchanges Unicode text with the desktop;
+its one-second read deadline preserves queued input within a finite overflow
+contract. External AT-SPI/clipboard checks run separately from headless contracts.
+Legacy widget parity, rich text, GPU acceleration and incremental rendering remain
+unavailable. Physical input and Wayland acceptance remain unverified.
 
 `Scene` and `SceneRenderer` are a richer shape/resource boundary separate from
 the widget paint stream. `SceneRecorder` preserves commands for tests, and
@@ -381,7 +396,9 @@ accessibility, and rectangle clipping; `MacOSMetalRenderer` reports readiness
 only after its device/pipeline is initialized; `TestRenderer` inherits the
 deterministic headless profile and opts into incremental dispatch. The Linux
 profile reports the retained presenter's native windowing, Pango shaping/bidi,
-clipping and input-method support, with accessibility unavailable. Generic GPU
+clipping, input-method support and AT-SPI implementation. `HostCapabilities` and
+`RendererCapabilities` separate host services from pixel capabilities; neither
+certifies manual acceptance or dependency availability. Generic GPU
 and Windows descriptors remain explicit contracts so callers can gate features
 without probing platform internals.
 

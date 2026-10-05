@@ -630,3 +630,25 @@ Each milestone needs:
 The 0.5 worktree is intentionally preserved as-is while this plan is captured.
 Future implementation commits should be narrow, reviewable slices that can be
 compared cleanly against the existing 0.5 baseline.
+
+## October 5 desktop contract implementation
+
+The cross-platform host proposal uploaded to `project-planning` at `c443c3d`
+supplies the H0–H5 acceptance gates. The independent planning branch remains a
+proposal; [ADR-005](architecture/adr-005-host-frame-contract.md) records the
+implemented ownership decisions on the desktop branch.
+
+| Gate | Implementation | Verification and remaining work |
+| --- | --- | --- |
+| H0: boundaries and canonical scenario | `WindowBackend` owns host lifecycle/publication; `FramePacket` owns portable projections; native renderer owns pinned paragraphs. Demo/replay/benchmark share the form, collection and chart. | Packet order/rejection, exact JSON events, semantic/resource publication parity and software chart checksum pass. Build/link/GUI/accessibility statuses are separate in the support matrix. |
+| H1: host-neutral frame driver | Monotonic task/request deadlines, explicit animation cadence, invalidation-only paint, semantic-only publication and idle waits. | Headless driver tests exercise timers, resize/input, actions, idle waits and bounded child updates; the portable regression suite passes. Hardware-vsync scheduling is not implemented. |
+| H2: Linux software host | GTK4 window/IME/AT-SPI services, Cairo paint, Pango paragraphs, shared Mojo layout/state and Kiwi solving. GTK is selected for the required native input/accessibility services. | Real Ubuntu VM native and X11 lanes, clipboard/scale/close/reopen checks and external AT-SPI client. The benchmark records an explicit Linux smoke profile separately from native macOS release timings. |
+| H3: desktop host services | Stable Unicode clipboard snapshots, selected-range preedit/commit, caret anchoring, focus cancellation and native semantics/actions. | Native contracts and external clipboard/AT-SPI inspection pass. Real IME observations are recorded in VM validation. Spoken screen-reader and physical input acceptance remain open; passing replay or inspection does not certify them. |
+| H4: Linux GPU | Deferred by the proposal | The first software host does not depend on GPU implementation. |
+| H5: additional OS hosts | Deferred by the proposal | Windows licensing/VM setup and mobile/browser linked runtimes remain separate work. |
+
+Resource IDs are scoped to a retained producer and renderer, not global across
+windows. The C hosts remain single-window. `PlatformAdapter` remains the existing
+portable compatibility model, rather than a second authoritative native host.
+The retained layout candidate is not promoted by completing these automated
+contracts; the macOS manual release gates still apply.

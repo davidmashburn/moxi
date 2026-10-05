@@ -30,7 +30,9 @@ metadata.
 | `KeyedSubtreeDescriptor` | Stable child key, parent slot, execution scope, and private id namespace. |
 | `App[ComponentType]` | Mount, dispatch, resize, tick, paint, render, and clipboard-aware loops. |
 | `RequestScheduler` / `RequestScopeHandle` / `RequestHandle` | Keyed, generation-tagged request ownership with explicit scope cancellation. |
-| `WindowBackend` / `WindowConfig` | Backend-neutral window and event-pump boundary. |
+| `WindowBackend` / `WindowConfig` | Authoritative host lifecycle, normalized events, metrics and deadline waits. |
+| `FramePacket` / `FrameHost` / `FrameRenderer` | Portable paint/scene/semantic publication; the host owns presentation. |
+| `HostCapabilities` / `RendererCapabilities` | Separate implementation capability records; acceptance evidence remains in the support matrix. |
 | `WindowManager` / `WindowId` | Bounded portable multi-window ownership model. |
 | `Renderer` / `PaintCommands` | Backend-neutral complete-frame and optional incremental paint boundary. |
 | `TestWindow` / `TestRenderer` | Deterministic headless integration adapters. |
@@ -53,6 +55,20 @@ localized hooks (`supports_localized_execution()`, `localized_view()`, and
 parent is recomposed around the updated child and
 `ExecutionWorkCounters.root_fallbacks` stays at zero for child-local updates.
 Components using only `build()`/`update()` retain the root-wide fallback path.
+
+`App.run()` and `run_with_clipboard()` advance tasks and requests from monotonic
+elapsed time and wait until input or the next deadline. Components needing
+periodic animation call `app.request_animation_frames()`; disable it when the
+animation ends. `App.tick(delta)` remains the explicit deterministic tick API.
+An idle native host does not repaint, and accessibility-only invalidation does
+not begin or finish paint. Existing renderer consumers explicitly finish paint
+with `end_frame()`; publishing accessibility alone no longer finishes it.
+See the [host/frame decision](architecture/adr-005-host-frame-contract.md) for
+the portable packet and native resource boundaries.
+
+`NativeWindow.run()` is a lifecycle-only runner: it drains and discards normalized
+input before waiting, and stops without another wait after close. Use `App.run()`
+or an explicit event loop to dispatch input to application state.
 
 `App.schedule_request(key, label, delay, payload)` is the small async seam for
 component-owned work. A key identifies one logical request (for example, a
@@ -185,9 +201,12 @@ retained presenter targets and explicit contracts for GPU, Windows, iOS,
 Android, and Web. `LinuxWindow`, `LinuxRenderer`, and `LinuxCanvasPainter`
 from `moxi.linux` provide a provisional GTK4/Cairo window for retained labels,
 buttons, single-line editors, and canvases, with Pango paragraph measurement
-and drawing. Mojo owns retained state and flow/grid layout. Linux
-accessibility remains unavailable without an AT-SPI tree, and legacy widget
-parity and desktop clipboard integration are pending.
+and drawing. Mojo owns retained state and flow/grid layout. `LinuxClipboard`
+uses the desktop clipboard with a bounded asynchronous read and a stable Unicode
+snapshot. GTK accessibility proxies publish retained semantics through AT-SPI;
+the external client checks hierarchy, roles, state, text, focus and activation.
+Legacy widget parity remains pending. Capabilities describe implementation;
+screen-reader acceptance is recorded separately.
 `pixi run --locked linux-layout-check` compiles and checks the native slice; `pixi run --locked linux-layout-workbench` builds and opens
 the demo. See [layout-workbench.md](layout-workbench.md) for dependencies,
 validation evidence, and remaining manual checks.
