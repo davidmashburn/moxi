@@ -12,7 +12,7 @@ browser interaction and physical input checks.
 | Ubuntu 24.04 x86-64, first | Exact `pixi.lock`; Mojo retained engine, box/collection/overlay policies, Kiwi constraints, portable plotting and precompilation; rebased request/runtime/plot regressions; Node host contracts | Portable checks and the Linux Pango/Cairo/layout contracts have passed in the guest. Node harnesses do not exercise a browser; headless native contracts do not verify a window or real input. |
 | Ubuntu native desktop, active | Compile the Mojo workbench with the GTK4/Cairo/Pango host; actual window screenshot, pointer/key/resize, RTL and scroll observations | GTK 4.14+ retained presenter implemented; stable Mojo 1.1.0 native build and 15 synthetic X11 checks passed. Wayland, real IME composition and physical scrolling are unverified; AT-SPI is unavailable. |
 | Ubuntu browser, separate | Actual guest browser rendering, pointer/key/resize, then a fixture for scroll, composition and ARIA | The browser demo is a JavaScript host demo, not the compiled Mojo layout app. The pinned compiler has no supported WASM package target. |
-| macOS 15 ARM64, active | Clean native-services build, installed consumer and layout workbench in a GUI session | Locked Mojo 1.1.0 installation, native layout candidate and installed consumer passed in a clean guest. First desktop login and visible workbench interaction remain pending; VoiceOver, real Japanese composition and physical horizontal input require separate observations. |
+| macOS 15 ARM64, active | Clean native-services build, installed consumer and layout workbench in a GUI session | Locked Mojo 1.1.0 installation, native layout candidate and installed consumer passed in a clean guest. User completed desktop login and the compiled workbench was launched and visually captured. Interactive checks, VoiceOver, real Japanese composition and physical horizontal input require separate observations. |
 | Windows 11 ARM64, later | Actual Edge/browser host and Python wheel consumption | Mojo has no native Windows support; WSL results must be reported as Linux. Moxi's Windows native backend is unavailable. Guest image/license and GUI provisioning are not established yet. |
 
 The active Linux slice adds the retained presenter and tests the compiled Mojo
@@ -365,9 +365,14 @@ The host log is `/tmp/moxi-macos15-native-check-host.log`; copied guest logs are
 `dist/vm-artifacts/macos-layout-consumer.log`. Only deprecation and documentation
 warnings were recorded; neither test log contains a failure or skip marker.
 
-First desktop login still requires user input. The computer-use connector rejects
-Lima's unbundled `limactl` GUI process, although SSH and Lima's screenshot command
-work. The native AppKit contract tests above do not establish visible workbench
-interaction, VoiceOver speech, real Japanese IME composition or physical
-horizontal scrolling. The full check suite and benchmarks were not repeated in
-this guest.
+The user completed first desktop login. On 2026-10-05 at 03:22:14 UTC, the guest
+console user was confirmed as `davmash`, the compiled workbench was launched via
+SSH, and Lima captured `dist/vm-artifacts/macos-moxi-workbench.png`. Visual
+inspection confirmed the macOS desktop and drawn AppKit workbench, including
+its controls, dataset field, result grid and plot. This is visible launch
+evidence; interactive GUI checks have not been performed.
+
+The computer-use connector still rejects Lima's unbundled `limactl` GUI process,
+although SSH and Lima's screenshot command work. VoiceOver speech, real Japanese
+IME composition and physical horizontal scrolling remain unverified. The full
+check suite and benchmarks were not repeated in this guest.
