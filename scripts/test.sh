@@ -30,6 +30,9 @@ tests=(
   tests/diff.mojo
   tests/constraints.mojo
   tests/animation.mojo
+  tests/frame_driver.mojo
+  tests/frame_packet.mojo
+  tests/event_replay.mojo
   tests/wrapped.mojo
   tests/composed.mojo
   tests/clipping.mojo

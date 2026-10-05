@@ -1,7 +1,9 @@
 """Window lifecycle and input contracts with portable configuration."""
 
 from .event import Event
+from .frame import FrameHost, SurfaceMetrics
 from .geometry import Point, Size
+from std.time import perf_counter_ns, sleep
 
 
 struct WindowConfig(ImplicitlyCopyable):
@@ -43,7 +45,7 @@ struct WindowConfig(ImplicitlyCopyable):
         self.fullscreen = enabled
 
 
-trait WindowBackend:
+trait WindowBackend(FrameHost):
     """Owns a native window and its event-loop lifecycle."""
 
     def open(mut self, config: WindowConfig) raises:
@@ -73,7 +75,38 @@ trait WindowBackend:
         """Return the current content size."""
         return Size(0.0, 0.0)
 
+    def metrics(self) raises -> SurfaceMetrics:
+        """Return logical size and scale; native hosts override their scale."""
+        return SurfaceMetrics(self.size())
+
+    def close(mut self) raises:
+        """Release this host's window; adapters override their lifecycle."""
+        pass
+
+    def clock_nanoseconds(self) raises -> Int:
+        """Return monotonic time; headless hosts may supply a virtual clock."""
+        return perf_counter_ns()
+
+    def frame_interval_seconds(self) -> Float32:
+        """Return the requested animation cadence when animation is active."""
+        return 1.0 / 60.0
+
+    def wait_for_work(mut self, timeout_seconds: Float32) raises:
+        """Wait for input or a deadline; negative means no scheduled work.
+
+        Native hosts can wait on their event source. The portable fallback
+        sleeps for a bounded slice so a host without a wake primitive still
+        processes input without spinning or painting continuously.
+        """
+        var timeout = timeout_seconds
+        if timeout < 0.0 or timeout > 1.0 / 60.0:
+            timeout = 1.0 / 60.0
+        if timeout > 0.0:
+            sleep(Float64(timeout))
+
     def run(mut self) raises:
         """Pump native events until the window closes."""
         while self.is_open():
             self.pump()
+            if self.is_open():
+                self.wait_for_work(-1.0)

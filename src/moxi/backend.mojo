@@ -177,3 +177,43 @@ def backend_capabilities(kind: Int) -> BackendCapabilities:
         True,
         "Deterministic commands and semantics; text uses the estimate backend.",
     )
+
+
+struct HostCapabilities(ImplicitlyCopyable):
+    """Implemented host services; manual acceptance evidence lives in the matrix.
+
+    These describe this source implementation, not whether a display/SDK is
+    present, a binary is linked, or a screen-reader session has passed.
+    """
+    var kind: Int
+    var windowing: Bool
+    var text_input: Bool
+    var clipboard: Bool
+    var accessibility: Bool
+
+    def __init__(out self, kind: Int):
+        var legacy = backend_capabilities(kind)
+        self.kind = kind
+        self.windowing = legacy.native_window
+        self.text_input = kind == BACKEND_MACOS_APPKIT or kind == BACKEND_LINUX
+        self.clipboard = self.text_input
+        self.accessibility = legacy.accessibility
+
+
+struct RendererCapabilities(ImplicitlyCopyable):
+    """Pixel capabilities, independent of clipboard, IME and window lifecycle."""
+    var kind: Int
+    var text_shaping: Bool
+    var bidi: Bool
+    var clipping: Bool
+    var incremental: Bool
+    var gpu_acceleration: Bool
+
+    def __init__(out self, kind: Int):
+        var legacy = backend_capabilities(kind)
+        self.kind = kind
+        self.text_shaping = legacy.text_shaping
+        self.bidi = legacy.bidi
+        self.clipping = legacy.clipping
+        self.incremental = legacy.incremental
+        self.gpu_acceleration = legacy.gpu_acceleration

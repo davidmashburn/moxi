@@ -261,6 +261,19 @@ struct TaskScheduler:
     def has_ready(self) -> Bool:
         return self.ready_head < len(self.ready)
 
+    def next_wakeup_seconds(self) -> Float32:
+        """Return the earliest result deadline, or -1 when no work is pending."""
+        if self.has_ready():
+            return 0.0
+        var next: Float32 = -1.0
+        for index in range(len(self.tasks)):
+            if self.tasks[index].status != TASK_PENDING:
+                continue
+            var remaining = max(Float32(0.0), self.tasks[index].remaining_seconds)
+            if next < 0.0 or remaining < next:
+                next = remaining
+        return next
+
     def has_ready_task(self, task_id: Int) -> Bool:
         """Return whether a result for one task remains in the ready queue."""
         for index in range(self.ready_head, len(self.ready)):
@@ -704,6 +717,10 @@ struct RequestScheduler:
 
     def has_ready(self) -> Bool:
         return self.tasks.has_ready()
+
+    def next_wakeup_seconds(self) -> Float32:
+        """Return the next keyed request completion deadline."""
+        return self.tasks.next_wakeup_seconds()
 
     def pop_ready(mut self) -> RequestResult:
         """Pop one result and retain its logical key/generation metadata."""

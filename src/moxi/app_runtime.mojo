@@ -8,6 +8,7 @@ from .accessibility import AccessibilitySnapshot
 from .invalidation import (
     INVALIDATE_ALL,
     INVALIDATE_CONTENT,
+    INVALIDATE_LAYOUT,
     INVALIDATE_STRUCTURE,
     Invalidation,
 )
@@ -91,6 +92,8 @@ struct App[ComponentType: Component & Deinitable]:
     var scrollbar_dragging: Bool
     var localized_enabled: Bool
     var local_execution: LocalizedExecution
+    var animation_frames_requested: Bool
+    var force_repaint_requested: Bool
 
     def __init__(out self, component: Self.ComponentType, bounds: Rect):
         self.component = component
@@ -103,6 +106,8 @@ struct App[ComponentType: Component & Deinitable]:
         self.pending.invalidate(INVALIDATE_ALL, bounds)
         self.tasks = TaskScheduler()
         self.requests = RequestScheduler()
+        self.animation_frames_requested = False
+        self.force_repaint_requested = False
         self.scroll_ids = List[Int]()
         self.scroll_values = List[Float32]()
         self.scrollbar_pointer_id = -1
@@ -131,6 +136,11 @@ struct App[ComponentType: Component & Deinitable]:
     def tick(mut self, delta_seconds: Float32) -> Bool:
         """Deliver a frame tick and any task results ready at that time."""
         var changed = self.dispatch(Event(FrameEvent(delta_seconds)))
+        return self.advance_tasks(delta_seconds) or changed
+
+    def advance_tasks(mut self, delta_seconds: Float32) -> Bool:
+        """Advance work without asking an idle component to animate."""
+        var changed = False
         self.tasks.advance(delta_seconds)
         while self.tasks.has_ready():
             var result = self.tasks.pop_ready()
@@ -152,6 +162,74 @@ struct App[ComponentType: Component & Deinitable]:
                 )))
                 changed = changed or request_changed
         return changed
+
+    def request_animation_frames(mut self, enabled: Bool = True):
+        """Opt the host loop into periodic frame ticks until disabled.
+
+        Tasks always advance to their own deadlines. Components that animate
+        request this cadence explicitly so an otherwise idle app can wait.
+        """
+        self.animation_frames_requested = enabled
+
+    def needs_frame(self) -> Bool:
+        """Return whether an unconsumed invalidation needs publication."""
+        return not self.pending.is_empty()
+
+    def next_wakeup_seconds(self) -> Float32:
+        """Return the earliest task or request deadline, excluding animation."""
+        var next = self.tasks.next_wakeup_seconds()
+        var request = self.requests.next_wakeup_seconds()
+        if request >= 0.0 and (next < 0.0 or request < next):
+            next = request
+        return next
+
+    def frame_wait_seconds(
+        self, elapsed_since_tick: Float32, frame_interval: Float32
+    ) -> Float32:
+        """Merge invalidation, scheduler and animation wake requirements."""
+        if self.needs_frame():
+            return 0.0
+        var next = self.next_wakeup_seconds()
+        if self.animation_frames_requested:
+            var animation = max(Float32(0.0), frame_interval - elapsed_since_tick)
+            if next < 0.0 or animation < next:
+                next = animation
+        return next
+
+    def advance_driver_time(
+        mut self,
+        now: Int,
+        mut last_time: Int,
+        mut last_tick: Int,
+        frame_interval: Float32,
+    ) -> Bool:
+        """Advance work at every wake and animation only at its deadline."""
+        var delta = Float32(max(0, now - last_time)) / 1_000_000_000.0
+        last_time = now
+        var changed = self.advance_tasks(delta)
+        var tick_elapsed = Float32(max(0, now - last_tick)) / 1_000_000_000.0
+        if self.animation_frames_requested and tick_elapsed >= frame_interval:
+            changed = self.dispatch(Event(FrameEvent(tick_elapsed))) or changed
+            last_tick = now
+        return changed
+
+    def wait_for_host_work[WindowType: WindowBackend](
+        self,
+        mut window: WindowType,
+        last_time: Int,
+        last_tick: Int,
+        frame_interval: Float32,
+    ) raises:
+        """Subtract frame work from the next wake deadline before waiting."""
+        var now = window.clock_nanoseconds()
+        var elapsed = Float32(max(0, now - last_time)) / 1_000_000_000.0
+        var wait = self.frame_wait_seconds(
+            Float32(max(0, last_time - last_tick)) / 1_000_000_000.0,
+            frame_interval,
+        )
+        if wait >= 0.0:
+            wait = max(Float32(0.0), wait - elapsed)
+        window.wait_for_work(wait)
 
     def schedule_task(
         mut self,
@@ -928,18 +1006,34 @@ struct App[ComponentType: Component & Deinitable]:
     def render[RendererType: Renderer](mut self, mut renderer: RendererType) raises:
         """Paint the current frame through any Moxi renderer."""
         var commands = self.paint()
+        if not self.pending.is_empty() and not self.pending.has(
+            INVALIDATE_CONTENT | INVALIDATE_LAYOUT | INVALIDATE_STRUCTURE
+        ):
+            renderer.update_accessibility(self.accessibility())
+            self.clear_invalidation()
+            return
         renderer.begin_frame()
         if renderer.supports_incremental():
             for index in range(commands.removed_count()):
                 renderer.clear_region(commands.removed_region(index))
             for index in range(commands.count()):
                 var command = commands.command(index)
-                if command.is_changed():
+                var needs_draw = command.is_changed()
+                if self.force_repaint_requested and not needs_draw:
+                    var forced_region = command.bounds.intersection(self.pending.bounds)
+                    if command.has_clip:
+                        forced_region = forced_region.intersection(command.clip_bounds)
+                    needs_draw = forced_region.width > 0.0 and forced_region.height > 0.0
+                    if needs_draw:
+                        command.has_clip = True
+                        command.clip_bounds = forced_region
+                if needs_draw:
                     renderer.draw(command)
         else:
             for index in range(commands.count()):
                 renderer.draw(commands.command(index))
         renderer.update_accessibility(self.accessibility())
+        renderer.end_frame()
         self.clear_invalidation()
 
     def run[
@@ -950,17 +1044,26 @@ struct App[ComponentType: Component & Deinitable]:
         mut window: WindowType,
         mut renderer: RendererType,
     ) raises:
-        """Render once, then process backend events until the window closes."""
+        """Drive input, timers and requested animation without painting idle."""
+        var last_time = window.clock_nanoseconds()
+        var last_tick = last_time
+        _ = self.tick(0.0)
         self.render(renderer)
+        var interval = max(Float32(0.001), window.frame_interval_seconds())
         while window.is_open():
             window.pump()
+            if not window.is_open():
+                break
+            var now = window.clock_nanoseconds()
+            var changed = self.advance_driver_time(now, last_time, last_tick, interval)
             var event = window.poll_event()
-            var changed = False
             while event.kind != NONE_KIND:
                 changed = self.dispatch(event) or changed
                 event = window.poll_event()
-            if changed:
+            if changed or self.needs_frame():
                 self.render(renderer)
+            if window.is_open():
+                self.wait_for_host_work(window, last_time, last_tick, interval)
 
     def run_with_clipboard[
         WindowType: WindowBackend,
@@ -973,16 +1076,25 @@ struct App[ComponentType: Component & Deinitable]:
         mut clipboard: ClipboardType,
     ) raises:
         """Run the event loop while synchronizing clipboard shortcuts."""
+        var last_time = window.clock_nanoseconds()
+        var last_tick = last_time
+        _ = self.tick(0.0)
         self.render(renderer)
+        var interval = max(Float32(0.001), window.frame_interval_seconds())
         while window.is_open():
             window.pump()
+            if not window.is_open():
+                break
+            var now = window.clock_nanoseconds()
+            var changed = self.advance_driver_time(now, last_time, last_tick, interval)
             var event = window.poll_event()
-            var changed = False
             while event.kind != NONE_KIND:
                 changed = self.dispatch_with_clipboard(event, clipboard) or changed
                 event = window.poll_event()
-            if changed:
+            if changed or self.needs_frame():
                 self.render(renderer)
+            if window.is_open():
+                self.wait_for_host_work(window, last_time, last_tick, interval)
 
     def hit_test(self, position: Point) -> Int:
         """Return the focusable view id under a point, or -1."""
@@ -1019,7 +1131,10 @@ struct App[ComponentType: Component & Deinitable]:
     def clear_invalidation(mut self):
         """Mark the current invalidation as consumed by a renderer."""
         self.pending.clear()
+        self.force_repaint_requested = False
 
     def invalidate(mut self, flags: Int, bounds: Rect):
         """Request a redraw for a backend-neutral region and reason set."""
         self.pending.invalidate(flags, bounds)
+        if (flags & (INVALIDATE_CONTENT | INVALIDATE_LAYOUT | INVALIDATE_STRUCTURE)) != 0:
+            self.force_repaint_requested = True

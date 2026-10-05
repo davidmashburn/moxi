@@ -45,6 +45,8 @@ from .backend import (
     BACKEND_ANDROID,
     BACKEND_WEB,
     BackendCapabilities,
+    HostCapabilities,
+    RendererCapabilities,
     backend_capabilities,
 )
 from .event import (
@@ -738,3 +740,6 @@ from .live_script import (
 def moxi_version() -> String:
     """Return the package version embedded in this release."""
     return "0.6.0"
+
+from .frame import SurfaceMetrics, FrameResource, FramePacket, FrameHost, FrameRenderer, submit_frame
+from .event_replay import EventReplay, event_to_json, event_from_json, event_replay_from_json
