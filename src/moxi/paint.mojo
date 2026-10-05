@@ -428,6 +428,10 @@ trait Renderer:
     def begin_frame(mut self) raises:
         pass
 
+    def end_frame(mut self) raises:
+        """Finish legacy renderer submission independently of semantic updates."""
+        pass
+
     def update_accessibility(
         mut self,
         snapshot: AccessibilitySnapshot,

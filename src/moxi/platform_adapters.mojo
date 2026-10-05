@@ -10,7 +10,7 @@ from .platform import PlatformSurface, PlatformTarget, SurfaceConfig
 
 
 trait PlatformAdapter:
-    """Lifecycle seam for a host-owned native or browser surface."""
+    """Compatibility model for surface lifecycle; WindowBackend owns real hosts."""
 
     def kind(self) -> Int:
         ...
@@ -38,7 +38,7 @@ trait PlatformAdapter:
 
 
 struct ContractBackend(PlatformAdapter):
-    """A real lifecycle implementation backed by the portable surface state.
+    """A portable lifecycle model, without a native window or OS event source.
 
     For unavailable targets, calls fail closed. This makes it safe to share
     application code while a UIKit, Android, or browser host is being built.
