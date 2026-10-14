@@ -13,6 +13,34 @@ Attribution: the capability-bus concept is credited to David Ash and was seeded
 from [The Mythophor capability-bus article](https://www.mythophor.com/agent-ready-architecture-the-capability-bus-pattern/).
 Moxi adapts that seed into the in-process UI policy boundary described here.
 
+## Capability bus versus API
+
+An API defines how code requests an operation: its inputs, outputs, and behavior.
+It can expose a function such as `reset_counter()` or a network endpoint such as
+`POST /orders`. A capability bus is a way to organize and govern an API: callers
+submit named operations through a shared invocation and policy boundary.
+
+With a direct API call, the function or its surrounding middleware handles any
+required checks. Through a capability bus, the caller submits an operation such
+as `"counter.reset"` with arguments and caller metadata. The bus checks the
+registered operation's availability, approval policy, and concurrency rules
+before permitting or dispatching execution. Descriptors make the operations,
+their inputs, and their side effects discoverable through a manifest.
+
+An ordinary API can implement the same checks. The architectural distinction is
+the shared operation description and invocation path, which let UI controls,
+scripts, and agents use the same operations and policy. The bus itself also has
+an API; it does not replace APIs as a concept.
+
+In Moxi, `authorize()` grants permission while application code performs the
+mutation; `invoke_handler()` also executes a registered typed handler and retains
+successful results for bounded idempotent replay. The bus is synchronous and
+in-process, with transport and authentication owned by adapters.
+
+The bus only governs requests routed through it. Code with direct mutable access
+to application state can bypass its checks, so applications must keep agent
+adapters behind the invocation boundary rather than hand them mutable state.
+
 ## Purpose and topology
 
 An agent adapter may propose a tool call, but it never receives a direct mutable

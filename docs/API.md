@@ -294,6 +294,10 @@ fallback chains and full paragraph bidi remain host policy.
 
 ## Capability and agent boundary
 
+`CapabilityBus` organizes API operations behind a shared invocation and policy
+boundary. See [capability bus versus API](capability-bus-design.md#capability-bus-versus-api)
+for the distinction and the limits of that boundary.
+
 `CapabilityDescriptor` defines the fixed manifest entry, side-effect class,
 approval policy, availability, concurrency, input schema, and permissions.
 `CapabilityInvocation` carries the request id, caller, arguments, routing
