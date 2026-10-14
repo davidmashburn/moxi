@@ -35,6 +35,19 @@ The current planning baseline is:
 - [WORKBENCH-HARDENING-PLAN.md](WORKBENCH-HARDENING-PLAN.md) follows the workbench
   implementation at `c267311` with fresh-launch checks, native interaction fixes,
   performance attribution, and an independent authoring exercise.
+- [docs/not-implemented-pattern.md](docs/not-implemented-pattern.md) scopes the
+  reusable "Not implemented yet" UI pattern as a candidate follow-up.
+- [docs/post-0.5-roadmap.md](docs/post-0.5-roadmap.md) preserves historical
+  proposals moved out of the implementation branch. The
+  [execution-plan reconciliation](PROJECT-PLANNING.md#relocated-implementation-branch-proposals)
+  assigns their topics to existing gates and identifies superseded backlog
+  claims; this archive does not change implementation priority.
+
+Future proposals and execution priorities belong on this branch. Implemented
+contracts, usage guides, and validation evidence stay beside product code.
+The relocation above is a documentation reconciliation against
+`feat/data-workbench` at `c8c7cbb`; it does not refresh the historical baseline
+or validation results recorded elsewhere on this branch.
 
 ## Rules of record
 

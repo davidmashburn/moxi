@@ -38,6 +38,50 @@ Gate 4 slices can precede Gate 3. The numbered gates below remain capability
 boundaries, not a requirement to implement another platform before validating
 the existing application stack. Historical completion records are preserved.
 
+## Relocated implementation-branch proposals
+
+The proposal sections formerly kept in `docs/project-planning.md` on
+`feat/data-workbench` now live on this planning branch. Their source is
+implementation commit `c8c7cbb7741519c9796a02ffa25c02e701b2f58a`; the new
+`NotImplemented` scope was an uncommitted addition to that document.
+This is a documentation reconciliation, not a new implementation audit or a
+change to execution priority. The existing
+[workbench hardening plan](WORKBENCH-HARDENING-PLAN.md) continues to own the
+application follow-through. Historical validation claims elsewhere in this
+branch retain their original evidence dates.
+
+- [Not implemented pattern](docs/not-implemented-pattern.md) scopes a reusable
+  informational component for intentionally unfinished application features.
+  It is a candidate follow-up, not an implemented widget or an automatic
+  exception to the next gate's restriction on new public widget types.
+- [Historical post-0.5 roadmap and plotting design](docs/post-0.5-roadmap.md)
+  preserves the former version milestones, platform sequence, plot grammar,
+  interaction model, validation ideas, and non-goals. Its illustrative APIs
+  and old completion/deferment language are historical. The owning gates below
+  control future decisions; do not execute the archived checklist as a second
+  roadmap.
+
+| Relocated topic | Owning plan or gate | Reconciliation and remaining decision |
+| --- | --- | --- |
+| Portable font fallback, paragraph policy, native editing, menus/dialogs and drag/drop | Gate 2 below; workbench hardening for application acceptance | Retain the existing incremental ownership and native-evidence gates. Use the implementation support matrix and host ADR for current platform boundaries before selecting another slice. |
+| Localized execution and scrollbar/viewport interaction | Gate 1 localized-execution record and application validation | These are not wholly unimplemented. The current feature inventory documents localized execution and pointer-driven scrollbar input. Protect that behavior; scope only a demonstrated adoption, preservation, or viewport defect. |
+| Scoped request lifetime, async adapters, build purity and ergonomics | Contract decisions below; application validation for a concrete adapter consumer | The implementation document records shipped scoped-request and deterministic adapter seams. Transport, real executor ownership and deadline policy remain adapter responsibilities. Preserve those seams rather than reopening the component trait or adding a generic effect framework. |
+| Platform order and 0.9 host milestones | Gate 3 below | The older macOS/iOS/Android/Web sequence is historical. The implementation support matrix now records a linked provisional Linux retained host. Future target selection starts from that evidence; browser host artifacts still do not establish a Mojo WASM package. No new platform or production support claim is made by this move. |
+| Canonical fixtures, reference parity and performance gates | Gate 1 scenario/benchmark records; application validation | Reuse the existing registry and evidence policy. The archived proposal to create a registry is superseded; fixture metadata ownership and additional reviewed baselines remain decisions under the existing gates. |
+| Supported 2D plotting, streaming, interaction, export quality and release boundaries | Gate 4 below; ecosystem convergence E3–E8 where applicable | Harden the documented package and backend subset. Versioned spec serialization and Python PNG/SVG/PDF exports already have implementation documentation; their mention as future work in the archive is not evidence that they are absent. Do not equate Python export coverage with native/GPU parity. |
+| Extended encodings/transforms/scales/marks, polar/geographic/3D, function sampling and editing tools | Explicit non-goals below; ecosystem convergence capability waves for already-scoped overlap | Preserve the design vocabulary in the archive without scheduling its entire catalog. Any promotion needs a concrete consumer, a verified gap in the relevant package, and its own acceptance and performance evidence. |
+| Capability-bus platform executors, transport, persistence, deadlines and cancellation | Contract decisions and capability-runtime non-goals below | Keep the in-process authorization boundary distinct from host request scheduling. Existing request machinery is not evidence that every external capability executor or transport has been implemented. |
+| Earlier 0.6–1.0 release numbering | Existing gate exit criteria and support decisions | Preserve the original milestones as history; they no longer establish release dates, priority, or completion for every backend. |
+
+Evidence consulted for this reconciliation is the implementation checkout's
+`docs/features.md`, `docs/plotting.md`, `docs/python.md`,
+`docs/support-matrix.md`, `docs/architecture/adr-005-host-frame-contract.md`,
+the request-lifetime assertions in `tests/execution.mojo`, and this branch's
+existing gate/current-state records. No builds, runtime tests, benchmarks, or
+native acceptance checks were rerun. Code and current implementation docs
+remain the source of truth; select and verify an individual follow-up before
+changing its completion status or priority here.
+
 ## Contract decisions to hold
 
 1. **State source of truth:** application/component values own durable UI
