@@ -220,4 +220,6 @@ real browser; these are host validation artifacts rather than Mojo package
 targets. Full device/browser runtime integration and platform performance
 baselines remain open. See
 [ARCHITECTURE.md](../ARCHITECTURE.md) and
-[project-planning.md](project-planning.md) for the staged roadmap.
+[the planning branch execution plan](https://github.com/davidmashburn/moxi/blob/project-planning/PROJECT-PLANNING.md)
+for the staged roadmap. Historical implementation and validation policies are
+retained in [implementation records](implementation-records.md).
