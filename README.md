@@ -38,6 +38,10 @@ The current planning baseline is:
 - [WORKBENCH-HARDENING-PLAN.md](WORKBENCH-HARDENING-PLAN.md) follows the workbench
   implementation at `c267311` with fresh-launch checks, native interaction fixes,
   performance attribution, and an independent authoring exercise.
+- [Native math editing](docs/design/math-editing.md) proposes WYSIWYG typesetting
+  and structured editing with a lossless, human-editable text counterpart. Its
+  [backend experiment](docs/design/math-backend-experiment.md) compares SymEngine
+  and SymPy before selecting an initial adapter.
 - [docs/not-implemented-pattern.md](docs/not-implemented-pattern.md) scopes the
   reusable "Not implemented yet" UI pattern as a candidate follow-up.
 - [docs/post-0.5-roadmap.md](docs/post-0.5-roadmap.md) preserves historical

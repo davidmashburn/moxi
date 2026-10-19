@@ -4,6 +4,16 @@ This plan converts the implementation audited in [CURRENT-STATE.md](CURRENT-STAT
 into a supportable product boundary. It deliberately prioritizes contracts and
 evidence over more feature breadth.
 
+## Native math editing proposal
+
+The [native math editing plan](docs/design/math-editing.md) scopes a reusable
+WYSIWYG editor and typesetting library as a demanding interaction use case for
+moxi. Every 2D document state has a lossless, human-readable/editable text
+counterpart whose structure directly mirrors the visual slots; WYSIWYG remains
+the primary editing target. The [backend experiment](docs/design/math-backend-experiment.md)
+compares SymEngine and SymPy before choosing an initial adapter. These proposed
+workstreams do not supersede the execution priorities below.
+
 ## Product decision
 
 Position Moxi as a **Mojo-native, inspectable UI and visualization core with
