@@ -22,6 +22,11 @@ bounded import. The [canvas framework plan](docs/design/canvas-interaction.md)
 develops the reusable native interaction layer alongside it, with a freeform
 graph editor as a second consumer. The app owns hierarchy and tree layout;
 the framework owns viewport, selection, gestures, and graph interaction.
+The [reference assessment](docs/design/canvas-interaction.md#reference-assessment-and-native-design-decisions)
+captures which xyflow behaviors transfer and why browser-specific mechanisms do
+not. The first gate proves ordinary native controls under canvas transforms,
+including layout-driven port anchors, editing/focus preservation, and localized
+execution, before expanding graph features.
 Freeplane-compatible keyboard commands are the app default, and the framework
 supports application shortcut profiles. Both require responsive feedback,
 coherent undo, native input/accessibility

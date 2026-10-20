@@ -44,6 +44,58 @@ rendering, text, and accessibility checks. Touch-first interaction, rotation,
 freehand drawing, collaboration, execution engines, arbitrary graph layout
 solvers, and a general plugin system are outside the first release.
 
+### Reference assessment and native design decisions
+
+Source review on October 20, 2026 examined xyflow at
+[`654ba5a`](https://github.com/xyflow/xyflow/tree/654ba5a5e04f3404bc4db2eee88bfa15866d203d)
+and the moxi revision below. The strongest transferable idea is ordinary UI
+components composed into a spatial editor. The value lies in coordinating
+selection, viewport motion, manipulation, ports, and overlays around those
+components. Drawing connected rectangles alone would not establish that fit.
+The following decisions are native design conclusions from source inspection,
+not measured comparisons of the two frameworks.
+
+- **Keep component composition and interaction coordination.** xyflow's
+  [custom nodes](https://reactflow.dev/learn/customization/custom-nodes) remain
+  ordinary UI components inside an interactive wrapper. A moxi node should
+  likewise retain its controls, text editing, and local state when mounted on
+  the surface. Presenters add spatial behavior without requiring canvas-specific
+  replacements for normal controls.
+- **Replace browser measurement with published native geometry.** The shared
+  `@xyflow/system` layer is independent of React, but still uses browser APIs:
+  [node measurement](https://github.com/xyflow/xyflow/blob/654ba5a5e04f3404bc4db2eee88bfa15866d203d/packages/system/src/utils/store.ts)
+  reads DOM dimensions and CSS transforms, and
+  [connection handling](https://github.com/xyflow/xyflow/blob/654ba5a5e04f3404bc4db2eee88bfa15866d203d/packages/system/src/xyhandle/XYHandle.ts)
+  queries DOM elements and uses browser hit testing.
+  [Dragging](https://github.com/xyflow/xyflow/blob/654ba5a5e04f3404bc4db2eee88bfa15866d203d/packages/system/src/xydrag/XYDrag.ts)
+  also depends on D3. Do not port this system package as a native interaction
+  core. Moxi's layout publication must supply bounds and anchors directly.
+- **Make control ownership structural.** The web API uses
+  [utility classes](https://reactflow.dev/learn/customization/utility-classes)
+  such as `nodrag`, `nopan`, and `nowheel` to exempt controls from enclosing
+  gestures. Moxi controls must own their normal gestures by default, with
+  explicit drag regions and capture arbitration. Adding a button or slider
+  must not require remembering a canvas exclusion flag.
+- **Separate durable data from interaction and measurement state.** xyflow's
+  [node types](https://github.com/xyflow/xyflow/blob/654ba5a5e04f3404bc4db2eee88bfa15866d203d/packages/system/src/types/nodes.ts)
+  combine content, position, selection/dragging flags, measured dimensions, and
+  visual parenting. Keep the four ownership categories below explicit in moxi.
+  Preserve stable-ID access and narrow dependencies rather than making a
+  frequently replaced graph array the universal subscription boundary.
+  These choices require work-counter evidence; Mojo alone promises no savings.
+- **Extend the keyboard model beyond focus and nudging.** xyflow's
+  [accessibility baseline](https://reactflow.dev/learn/advanced-use/accessibility)
+  includes focusable nodes/edges, selection, arrow movement, and focus reveal.
+  The native framework also needs semantic navigation, entry into node controls,
+  and searchable manipulation destinations. Apps supply meaning and shortcut
+  profiles through shared commands, including the platform modifier policy.
+
+The browser-specific mechanisms are reasonable within their original host.
+The native design should preserve their useful behavior without importing the
+DOM lifecycle or React synchronization requirements. Graph layout, obstacle
+routing, and application execution remain separate integrations. In particular,
+an ordered mind-map tree is not a visual group hierarchy or a computation graph.
+
 ## Existing implementation evidence
 
 Inspected implementation: `feat/data-workbench` at `c8c7cbb`. These are reusable
@@ -70,6 +122,14 @@ foundations, not evidence that a complete graph editor already exists:
   [interaction showcase](https://github.com/davidmashburn/moxi/blob/c8c7cbb7741519c9796a02ffa25c02e701b2f58a/src/moxi/interaction_showcase.mojo)
   does substantial application-specific coordinate and hit-test work. The new
   surface should remove this repetition for its consumers.
+- [ComponentSlot](https://github.com/davidmashburn/moxi/blob/c8c7cbb7741519c9796a02ffa25c02e701b2f58a/src/moxi/component.mojo)
+  owns typed children and remaps event identities; component embedding currently
+  copies child nodes into a namespaced flat view tree. This is composition
+  machinery, not proof of a fully transformed interactive subtree.
+- [Localized execution](https://github.com/davidmashburn/moxi/blob/c8c7cbb7741519c9796a02ffa25c02e701b2f58a/src/moxi/execution.mojo)
+  provides dependency-scoped invalidation and counters for child builds, parent
+  composition, reconciliation, and root fallbacks. Use these to establish
+  actual work isolation; do not assume canvas nodes already have it.
 
 ## Ownership and application contract
 
@@ -136,6 +196,13 @@ provisional bounds and one scheduled correction; prevent measure/layout feedback
 loops. Layout requests include document, size, and constraint revisions. Reject
 stale asynchronous results. Changes affecting the actively dragged object defer
 or cancel layout adoption according to a declared policy.
+
+Declare stable ports against component layout anchors. When content changes size
+or moves an anchor, layout publication updates the node bounds and port positions
+together before dependent paths are published. Consumers must not mirror child
+geometry in a second coordinate store or issue manual handle-refresh calls after
+each content edit. Keep port identity and connection policy separate from the
+derived anchor position.
 
 Use indexed broad-phase hit queries, followed by shape/path-specific tests.
 Hit slop is measured in screen logical units so thin edges and small ports stay
@@ -400,11 +467,12 @@ Proposed task names below do not exist yet. Each milestone adds its task and
 fixture alongside implementation; passing a headless task does not certify
 native behavior.
 
-1. **C0: prove the seams.** Compile a custom node with text input and button
-   under pan/zoom; verify capture, IME placement, clipping, and semantic bounds.
-   Define coordinate types, snapshot ownership, and a standard transaction
-   path. Add `pixi run canvas-probe`. Exit with native evidence and a small
-   consumer, or an explicit host gap with a bounded remedy.
+1. **C0: prove native component composition.** Compile the rich-node probe
+   below using ordinary controls under pan/zoom. Define coordinate types,
+   snapshot ownership, layout anchors, and a standard transaction path.
+   Add `pixi run canvas-probe`. Exit with recorded native evidence, a small
+   consumer, and measured execution counters, or an explicit host gap with a
+   bounded remedy. Do not substitute a rectangle-only demo for this gate.
 2. **C1: reusable direct manipulation.** Implement selection, viewport,
    marquee, move, resize, preview/commit/cancel, history integration, and
    overlays. Add `pixi run canvas-contract` and deterministic replay. Exit:
@@ -428,6 +496,51 @@ native behavior.
 C0 precedes application node editing; C1 supports branch manipulation; C2
 supports crosslinks. C3/C4 complete the framework's initial scope. Do not delay
 the first useful mind map for all graph features. Calendar estimates follow C0.
+
+### C0 rich-node acceptance scenario
+
+Mount two nodes in a scrolled native parent. One contains an ordinary text editor,
+button, slider, and stable ports whose anchors move when its content changes
+size. Draw a simple connection to the second node. This is a bounded integration
+fixture: C0 proves anchor publication and path following; full connection gestures,
+routing, indexing, and graph policy remain C2 work.
+
+1. Edit text, including an actual IME composition at non-unit zoom. Resize the
+   content and verify that ports and the connection follow the published layout.
+   Unrelated node updates must preserve editor identity, selection, and focus.
+2. Use the slider and button, select text, and drag the declared node header.
+   Each action reaches its intended owner; control interaction never starts
+   node movement or background panning.
+3. Pan and zoom, including during a node drag according to the declared gesture
+   policy. Verify paint, hit targets, clipping, caret/IME placement, and native
+   accessibility bounds against the same coordinate mapping. Exercise an editor
+   at the viewport edge and preserve its session through visibility changes.
+4. Cancel a manipulation and verify restoration of committed placement with no
+   history entry. Commit a move and verify exactly one undoable operation.
+   Repeat through keyboard commands; editor keys and IME confirmation retain
+   their native meaning.
+5. Record content-build and measurement counts, parent recomposition, and root
+   fallbacks. Camera motion performs no node-text measurement; moving one node
+   does not rebuild the other's content. Record any required manual geometry
+   synchronization or event-routing glue as an API gap.
+
+Reuse the probe's component-hosting path in both N0's editable mind-map topic and
+the freeform graph fixture. A native overlay limitation may require the explicit
+anchored editing surface described above; document and review that user-visible
+compromise before treating inline transformed editing as supported. Failure of
+geometry agreement, preserved editing state, or localized execution changes the
+runtime work estimate and API before broader graph features proceed.
+
+### Interaction acceptance beyond C0
+
+Add replay cases at zoom extremes for screen-sized port/edge hit regions, snap
+hysteresis at adjacent target boundaries, and the grabbed point during bounded
+autopan. Cancellation must stop autopan and discard the preview immediately.
+Run keyboard destination changes through the same preview/validation/commit
+path and compare final commands with pointer actions. Native recordings must
+show stable targets and immediate feedback; passing numeric replay alone does
+not establish tactile quality. These checks belong to C1/C2 as the corresponding
+gestures arrive, before C3 adds minimap and group conveniences.
 
 Replay must cover pointer ownership, threshold crossing, Escape/capture loss,
 zoom during drag, scroll containment, text-edit arbitration, crossing edges,
@@ -459,5 +572,7 @@ Confidence is high in separating generic interaction from application layout
 and topology. Confidence is moderate in transformed native component/IME
 integration and the proposed performance budgets. C0 failures, excess consumer
 glue, or invalidation measurements showing unavoidable broad work would change
-the proposed API and delivery sequence. No native probes or benchmarks were
-run while drafting this plan.
+the proposed API and delivery sequence. The source review establishes plausible
+integration points, not end-to-end readiness or a performance advantage over
+xyflow. No native probes, runtime comparisons, or benchmarks were run while
+drafting this plan.

@@ -329,7 +329,12 @@ The [canvas plan](canvas-interaction.md) owns generic geometry and gestures.
 Keep one fixture set across model tests, replay, native demos, and benchmarks.
 
 1. **N0: validate boundaries and interaction.** With canvas C0, prototype a
-   measured/editable topic and a small ordered tree. Record reference keyboard
+   measured/editable topic and a small ordered tree using the
+   [rich-node probe's component-hosting path](canvas-interaction.md#c0-rich-node-acceptance-scenario).
+   Verify that topic resizing publishes new connector anchors without app-owned
+   geometry synchronization. Keep branch reparent/reorder as semantic tree
+   commands; canvas placement and visual group membership do not define ancestry.
+   Record reference keyboard
    and branch-move behavior using the pinned Freeplane release. Produce the
    platform-specific shortcut fixture and resolve host conflicts before setting
    defaults. Establish import
