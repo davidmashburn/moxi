@@ -5,6 +5,11 @@ Give mathematical structures precise visual handles with coordinated symbolic an
 Status: speculative product concept, captured October 20, 2026.
 Origin: First brainstorm, idea 2. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 A matrix exposes a coordinate frame: drag a basis vector to change its entries, or edit an entry to move the frame. Pin the determinant and explore allowed transformations. A derivative becomes a tangent probe, an integral a stretchable region, a complex number a rotation handle, and an eigenvector a direction to test. Snap feedback reveals meaningful mathematical states.
@@ -22,11 +27,11 @@ Start with a 2D matrix and basis vectors, exact numeric entry, keyboard movement
 
 Confidence: **Moderate**. A matrix prototype that remains predictable near singular cases would strengthen confidence; unexplained jumps or opaque constraint choices would weaken it.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **5/5** · Moxi fit **5/5** ·
 Feasibility **3/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Direct mathematical manipulation is an expressive showcase for reactive UI. A bounded matrix example is tractable even though general symbolic geometry is not.
 

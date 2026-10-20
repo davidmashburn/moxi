@@ -5,6 +5,11 @@ Turn equations, transformations, and recorded gestures into an expressive perfor
 Status: speculative product concept, captured October 20, 2026.
 Origin: Second brainstorm, idea 5. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 An equation defines a trajectory, a graph connects transformations, and an object follows it. Record a coefficient gesture, edit it as a curve, snap to meaningful mathematical states, and move between configurations. Keyboard actions latch parameters, hold constraints, step states, and enter exact values. A future audio adapter could add oscillators, tuning, rhythm, and spatial sound.
@@ -22,11 +27,11 @@ Animate a 2D trajectory with one recorded parameter curve and keyboard-controlle
 
 Confidence: **Moderate for visual motion; low for audio integration**. Responsive performance with predictable timing would support the visual product; audio feasibility needs an independent measured engine prototype.
 
-## Assessment
+## Historical assessment
 
 User value **3/5** · Distinctiveness **5/5** · Moxi fit **5/5** ·
 Feasibility **2/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 A distinctive tactile showcase with reusable animation instruments. Its audience is narrower and timing requirements more demanding than the data workbench.
 

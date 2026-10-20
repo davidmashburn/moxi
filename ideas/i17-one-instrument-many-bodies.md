@@ -5,6 +5,11 @@ Adapt an instrument's presentation to the person, input method, and device while
 Status: speculative product concept, captured October 20, 2026.
 Origin: Second brainstorm, idea 8. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 A workstation shows a full canvas; a smaller device shows task-specific controls; a keyboard view exposes searchable objects and commands; an accessible outline preserves relationships without spatial navigation. Eventually a physical knob or six-degree-of-freedom controller can bind to a parameter or transform.
@@ -22,11 +27,11 @@ Present one instrument as a graphical panel and a keyboard/accessible structural
 
 Confidence: **Moderate for local alternate views; low for distributed devices**. Equivalent task completion across local presentations would support the model; actual device reliability requires separate host and synchronization evidence.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **4/5** · Moxi fit **4/5** ·
 Feasibility **3/5** · Reuse **5/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Potentially broad reach and reuse. Feasibility scores the bounded local alternate-view experiment; the full cross-device experience has substantially greater dependency and synchronization risk.
 

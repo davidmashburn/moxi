@@ -1,69 +1,108 @@
-# Moxi ideas
+# Moxi ideas: expressive tools and new kinds of interaction
 
-Capture of both October 20, 2026 brainstorms: what becomes possible when
-existing Moxi implementations and plans compose with structured math, mind
-mapping, native canvases, and spatial interaction.
+What could people create, understand, or control if structured math, plotting,
+graphs, text, native controls, and spatial interaction were cleanly composable
+and felt immediate to use? This portfolio explores that question across art,
+programming, learning, design, mathematics, and collective decision-making.
+Moxi's purpose is to make highly reactive, interactive UI clean to author,
+smooth in use, and tactile in its response.
 
-The shared vision is a workspace where ideas acquire handles and become live
-instruments. People can think, calculate, investigate, design, explain, and
-reshape tools within a coherent interactive experience. Moxi's purpose remains
-clean application code and smooth, tactile interaction.
+Existing implementations and plans are ingredients for imagining possibilities.
+Their current demonstration applications do not set the product horizon.
+Plotting contributes an expressive medium: a curve might specify behavior,
+a distribution might be manipulated, or a trajectory might connect motion to
+sound. It also remains useful as observation and feedback. The
+[framework synthesis](FRAMEWORK.md) distinguishes these meanings and the
+contracts that could support them.
 
-This collection contains **21 small idea documents**: 17 product concepts,
-three framework concepts, and one concrete demonstrator. They are speculative,
-not scheduled work or new support claims. The
-[execution plan](../PROJECT-PLANNING.md) and
-[workbench hardening](../WORKBENCH-HARDENING-PLAN.md) retain their priorities.
-See [rankings](RANKINGS.md) for the comparative assessment and experiment order.
+## Product visions
 
-## Complete reference and conversation coverage
+These **12 speculative visions** are the active portfolio. Each has a small
+standalone brief describing the experience, the role of the combined media,
+a question a first experiment could answer, and evidence that would change
+confidence. The [rankings](RANKINGS.md) assess expressive potential separately
+from prototype cost. Neither is a release schedule or a measured market claim.
 
-IDs preserve capture order; they do not indicate priority. Each row maps a
-distinct proposal from the conversation to a small standalone document.
-Overlapping concepts stay separate so their distinctive interactions survive.
+| Vision | What someone could do |
+| --- | --- |
+| [V01 — Draw executable behavior](v01-draw-executable-behavior.md) | Author executable responses, transitions, and constraints through their behavior. |
+| [V02 — Compose worlds through rules](v02-compose-worlds.md) | Compose environments and emergent patterns by editing the rules that animate them. |
+| [V03 — Invent a notation that becomes a tool](v03-invent-notations.md) | Make a domain language whose symbols have editing behavior and live meaning. |
+| [V04 — Design across material, mechanism, and system](v04-design-across-scales.md) | Connect desired behavior to material response, geometry, and mechanisms. |
+| [V05 — Make arguments spatial and executable](v05-executable-arguments.md) | Let readers change assumptions and inspect which conclusions still hold. |
+| [V06 — Compose an experience across media](v06-compose-across-media.md) | Compose meaningful relationships among sound, motion, light, and interaction. |
+| [V07 — Learn by changing a system](v07-learn-by-changing-systems.md) | Learn through prediction and manipulation, then connect experience to formal notation. |
+| [V08 — Make invisible phenomena manipulable](v08-instruments-for-invisible-phenomena.md) | Give abstract mathematics precise perceptual handles and understandable constraints. |
+| [V09 — Compose how a space is experienced](v09-compose-lived-spaces.md) | Author journeys, reveals, and events across space and time. |
+| [V10 — Negotiate possible futures together](v10-negotiate-possible-futures.md) | Express competing goals and explore shared alternatives without hiding disagreement. |
+| [V11 — Turn patterns into structures](v11-patterns-become-structures.md) | Move between generative patterns, construction rules, and physical structures. |
+| [V12 — Make interfaces into personal instruments](v12-personal-instruments.md) | Author interaction mappings that fit an individual’s task and way of acting. |
 
-| ID and idea | Kind | Conversation origin |
-| --- | --- | --- |
-| [I01 — A sketch that gradually becomes an instrument](i01-progressively-executable-sketch.md) | Product | First brainstorm, idea 1 |
-| [I02 — Mathematics you can physically interrogate](i02-tangible-mathematics.md) | Product | First brainstorm, idea 2 |
-| [I03 — Design by pulling on consequences](i03-inverse-design.md) | Product | First brainstorm, idea 3 |
-| [I04 — Mind maps of possible worlds](i04-possible-worlds.md) | Product | First brainstorm, idea 4 |
-| [I05 — Instruments you can pick up and attach](i05-attachable-instruments.md) | Product | First brainstorm, idea 5 |
-| [I06 — Semantic zoom as a way of thinking](i06-semantic-zoom.md) | Product | First brainstorm, idea 6 |
-| [I07 — An explanation you can perform](i07-performed-explanations.md) | Product | First brainstorm, idea 7 |
-| [I08 — A debugger for your reasoning](i08-reasoning-debugger.md) | Product | First brainstorm, idea 8 |
-| [I09 — Make an instrument panel from what matters](i09-curated-instrument-panels.md) | Product | First brainstorm, idea 9 |
-| [I10 — A laboratory where observations become tools](i10-investigations-become-tools.md) | Product | Second brainstorm, idea 1; recommended data-workbench experiment |
-| [I11 — Agents that work visibly inside your tools](i11-visible-agent-work.md) | Product | Second brainstorm, idea 2 |
-| [I12 — An application that grows new instruments while you use it](i12-live-tool-authoring.md) | Product | Second brainstorm, idea 3 |
-| [I13 — A visual debugger you can climb inside](i13-visual-execution-debugger.md) | Product | Second brainstorm, idea 4 |
-| [I14 — A playable mathematics and motion studio](i14-mathematics-and-motion-studio.md) | Product | Second brainstorm, idea 5 |
-| [I15 — A flight recorder for experiments and incidents](i15-experiment-flight-recorder.md) | Product | Second brainstorm, idea 6 |
-| [I16 — An executable essay that becomes a workbench](i16-executable-essay.md) | Product | Second brainstorm, idea 7 |
-| [I17 — One instrument with several bodies](i17-one-instrument-many-bodies.md) | Product | Second brainstorm, idea 8 |
-| [I18 — Coordinated representations of the same object](i18-coordinated-representations.md) | Framework | Shared synthesis in both brainstorms |
-| [I19 — An interaction as an inspectable object](i19-inspectable-interactions.md) | Framework | First brainstorm's interaction synthesis; extended by replay and live instruments |
-| [I20 — Application operations across interaction styles](i20-reusable-application-operations.md) | Framework | Second brainstorm's framework synthesis |
-| [I21 — A living linkage sketch](i21-living-linkage-sketch.md) | Demonstrator | First brainstorm's proposed first demonstration |
+### Distinctions worth preserving
 
-The first brainstorm's nine numbered ideas are I01–I09. The second's eight are
-I10–I17. I18–I20 preserve the cross-cutting architectural ideas instead of
-burying them in product descriptions. I21 preserves the living-linkage demo;
-the data-workbench demonstration is the staged experiment in I10.
+- **V01 and V03:** author behavior in a supplied language versus author the
+  notation and editing rules of a language itself.
+- **V02 and V10:** compose a simulated world versus negotiate preferences and
+  alternatives among people. Simulation cannot decide a group's values.
+- **V04 and V11:** work across behavioral and mechanical scales versus move
+  between a generative craft pattern and its constructed form.
+- **V06 and V09:** compose across sensory media versus compose an experience
+  anchored to a spatial journey.
+- **V07 and V08:** author a learning experience versus build an instrument for
+  manipulating an abstract phenomenon. Either could use the other.
+- **V05 and V10:** inspect an argument's support versus make a shared decision
+  while preserving different goals.
+- **V03 and V12:** define a domain's expressive language versus adapt the way a
+  person operates an existing domain. Neither requires arbitrary hot reload.
 
-## Overlaps that are intentional
+Not every product needs every representation. A powerful 2D instrument can be
+more useful than adding 3D without a domain reason. The horizon stays broad
+while each experiment tests a specific interaction claim.
 
-- **I09 and I12:** selecting existing controls to package a panel versus
-  writing or replacing behavior while an application is running.
-- **I07 and I16:** performing an interruptible explanation versus authoring a
-  persistent narrative document with editable evidence.
-- **I08, I13, and I15:** reasoning provenance, software execution diagnostics,
-  and captured external episodes respectively.
-- **I01 and I10:** progressive formalization of a creative sketch versus a
-  data investigation grounded in the existing workbench.
-- **I18, I19, and I20:** coordinated identity and representations, interaction
-  transactions, and reusable operations. These are candidate contracts to
-  extract from consumers, not prerequisites to implement in full.
+## Earlier concepts and supporting mechanisms
+
+The **21 earlier briefs** remain available under their original filenames.
+They preserve useful experiences, implementation probes, and architectural
+ideas. Their former composite ranking is retained in
+[historical rankings](HISTORICAL-RANKINGS.md), explicitly superseded as portfolio
+guidance. It rewarded closeness to current work multiple times through fit,
+reuse, and feasibility, and mixed framework mechanisms with product ambitions.
+
+The table below records how those concepts contribute now. A contributor is
+not a required dependency; each product can discover a smaller solution.
+
+| Earlier idea | Current role |
+| --- | --- |
+| [I01 — A sketch that gradually becomes an instrument](i01-progressively-executable-sketch.md) | Progressive formalization in [V01](v01-draw-executable-behavior.md), [V03](v03-invent-notations.md), [V11](v11-patterns-become-structures.md) |
+| [I02 — Mathematics you can physically interrogate](i02-tangible-mathematics.md) | Mathematical interaction in [V07](v07-learn-by-changing-systems.md), [V08](v08-instruments-for-invisible-phenomena.md) |
+| [I03 — Design by pulling on consequences](i03-inverse-design.md) | Inverse-editing research for [V01](v01-draw-executable-behavior.md), [V04](v04-design-across-scales.md) |
+| [I04 — Mind maps of possible worlds](i04-possible-worlds.md) | Alternatives and branching in [V02](v02-compose-worlds.md), [V10](v10-negotiate-possible-futures.md) |
+| [I05 — Instruments you can pick up and attach](i05-attachable-instruments.md) | Composable instruments in [V08](v08-instruments-for-invisible-phenomena.md) |
+| [I06 — Semantic zoom as a way of thinking](i06-semantic-zoom.md) | Navigation across scale and meaning in [V02](v02-compose-worlds.md), [V07](v07-learn-by-changing-systems.md), [V09](v09-compose-lived-spaces.md) |
+| [I07 — An explanation you can perform](i07-performed-explanations.md) | Authored explanation and performance in [V05](v05-executable-arguments.md), [V06](v06-compose-across-media.md), [V07](v07-learn-by-changing-systems.md), [V09](v09-compose-lived-spaces.md) |
+| [I08 — A debugger for your reasoning](i08-reasoning-debugger.md) | Explicit reasoning in [V05](v05-executable-arguments.md), [V10](v10-negotiate-possible-futures.md) |
+| [I09 — Make an instrument panel from what matters](i09-curated-instrument-panels.md) | A smaller packaging mechanism within [V12](v12-personal-instruments.md) |
+| [I10 — A laboratory where observations become tools](i10-investigations-become-tools.md) | A narrower data-investigation opportunity; no privileged position in the broad portfolio |
+| [I11 — Agents that work visibly inside your tools](i11-visible-agent-work.md) | Optional agent interaction pattern across products; no product requires it |
+| [I12 — An application that grows new instruments while you use it](i12-live-tool-authoring.md) | Authoring mechanisms relevant to [V03](v03-invent-notations.md), [V12](v12-personal-instruments.md) |
+| [I13 — A visual debugger you can climb inside](i13-visual-execution-debugger.md) | Developer tooling; assessed through actual consumer debugging needs |
+| [I14 — A playable mathematics and motion studio](i14-mathematics-and-motion-studio.md) | Creative mathematical interaction in [V06](v06-compose-across-media.md), [V08](v08-instruments-for-invisible-phenomena.md) |
+| [I15 — A flight recorder for experiments and incidents](i15-experiment-flight-recorder.md) | Capture and reproducibility mechanism where a consumer needs it |
+| [I16 — An executable essay that becomes a workbench](i16-executable-essay.md) | Authored narrative in [V05](v05-executable-arguments.md), [V07](v07-learn-by-changing-systems.md) |
+| [I17 — One instrument with several bodies](i17-one-instrument-many-bodies.md) | Alternative input/output forms in [V06](v06-compose-across-media.md), [V12](v12-personal-instruments.md) |
+| [I18 — Coordinated representations of the same object](i18-coordinated-representations.md) | Supporting architecture: [identity and representations](FRAMEWORK.md#questions-that-recur-across-products) |
+| [I19 — An interaction as an inspectable object](i19-inspectable-interactions.md) | Supporting architecture: [interaction sessions](FRAMEWORK.md#questions-that-recur-across-products) |
+| [I20 — Application operations across interaction styles](i20-reusable-application-operations.md) | Supporting architecture: [domain operations](FRAMEWORK.md#questions-that-recur-across-products) |
+| [I21 — A living linkage sketch](i21-living-linkage-sketch.md) | A bounded mechanism probe for [V04](v04-design-across-scales.md), [V11](v11-patterns-become-structures.md) |
+
+The first brainstorm's nine ideas are I01–I09; the second's eight are I10–I17.
+I18–I20 capture shared architecture and I21 the living-linkage demonstration.
+The active visions broaden and recombine that material rather than deleting
+it or treating near-term demonstrations as the limits of the medium.
+
+The [execution plan](../PROJECT-PLANNING.md) governs scheduled work. This
+portfolio does not change its gates. Conversely, those gates do not determine
+which speculative product has the most potential.
 
 ## Evidence and shared requirements
 
@@ -73,8 +112,10 @@ The preceding investigation inspected the implementation checkout at
 implementation commit; planning links are local and evolve with their plans.
 The two modified implementation documents (`docs/API.md` and
 `docs/capability-bus-design.md`) are not treated as committed evidence here.
-No builds, benchmarks, native acceptance sessions, user studies, or market
-comparisons were run for this capture.
+This revision uses that earlier evidence only to identify possible ingredients;
+it does not refresh implementation support claims. No builds, benchmarks,
+native acceptance sessions, user studies, or market comparisons were run for
+this portfolio. All V01–V12 integrations are proposed.
 
 | Foundation | Evidence and boundary |
 | --- | --- |
@@ -115,5 +156,6 @@ All experiments inherit these requirements:
   transport dependencies require an explicit license and boundary assessment;
   no new dependency is selected by this collection.
 - A useful consumer precedes a new shared abstraction. Prototype failures,
-  glue-code volume, keyboard behavior, and measured latency should change
-  these rankings.
+  glue-code volume, keyboard behavior, and measured latency should inform
+  experiment cost and framework extraction. Product potential needs separate
+  evidence that people gain useful expressive or practical agency.

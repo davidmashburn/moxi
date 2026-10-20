@@ -46,14 +46,17 @@ not promote deferred 3D plotting features into the current plotting scope.
 
 ## Combined ideas and comparative rankings
 
-The [idea reference](ideas/README.md) captures both synthesis brainstorms as
-21 small documents, including the product experiences, shared framework
-concepts, and living-linkage demonstrator. The [comparative rankings](ideas/RANKINGS.md)
-record subjective scores for user value, distinctiveness, fit with Moxi,
-feasibility, and reuse, plus a dependency-aware experiment sequence. Existing
-implementation foundations are distinguished from proposed integrations.
-This collection does not change the workbench-hardening priority or schedule
-the broader visions as release requirements.
+The [idea reference](ideas/README.md) explores 12 broad product visions using
+plotting, structured math, graphs, native controls, and spatial interaction as
+creative ingredients. It retains the earlier 21 briefs while separating
+[framework questions](ideas/FRAMEWORK.md) from product opportunities. The
+[comparative rankings](ideas/RANKINGS.md) assess agency, expressive ambition,
+and transfer across domains independently from first-experiment cost. Current
+demonstration applications do not define the horizon of those visions.
+Existing implementation evidence remains distinct from proposed integrations.
+The collection does not change execution gates or schedule the broader visions
+as release requirements; the speculative ranking is not determined by proximity
+to the workbench.
 
 ## Product decision
 

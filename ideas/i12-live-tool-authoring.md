@@ -5,6 +5,11 @@ Extend an application at the moment a user discovers a missing instrument.
 Status: speculative product concept, captured October 20, 2026.
 Origin: Second brainstorm, idea 3. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 Capture five repeated operations, expose two parameters, and pin a new control. Open its implementation, change the calculation, preview it against current data, and explicitly replace the old instrument. Direct composition, handwritten Mojo, and generated components could offer different authoring routes.
@@ -22,11 +27,11 @@ Replace one calculation behind a fixed panel with a versioned value interface. P
 
 Confidence: **Low**. A safe replacement across one interface change would raise confidence; native lifetime hazards or unavoidable lost state would constrain the feature to development tools.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **5/5** · Moxi fit **5/5** ·
 Feasibility **1/5** · Reuse **5/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Very distinctive and potentially reusable, but live compilation and state evolution make it one of the riskiest integrations.
 

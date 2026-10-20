@@ -5,6 +5,11 @@ Represent an interaction with an origin, allowed changes, preview, constraints, 
 Status: speculative framework concept, captured October 20, 2026.
 Origin: First brainstorm's interaction synthesis; extended by replay and live instruments. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 A drag can also accept exact numeric entry, explain its active constraints, be cancelled, and commit as one undo unit. Its semantic result can be recorded, compared with alternatives, or shown as an agent proposal. Users can inspect what is changing before accepting it.
@@ -22,11 +27,11 @@ Implement one numeric/drag transform session with shared preview, Escape cancell
 
 Confidence: **Moderate**. The same session behavior working for a canvas move and a parameter edit would strengthen the contract; consumer-specific state machines may require narrower sharing.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **4/5** · Moxi fit **5/5** ·
 Feasibility **4/5** · Reuse **5/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 This directly supports tactile quality and many proposed products. Existing planned gesture contracts give a bounded experiment, though durable history remains new work.
 

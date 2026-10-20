@@ -5,6 +5,11 @@ Let users manipulate a desired result while explicitly choosing which inputs may
 Status: speculative product concept, captured October 20, 2026.
 Origin: First brainstorm, idea 3. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 Pull a trajectory peak upward while pinning its landing point. Stretch a mechanism's reach while preserving its footprint. Drag a response curve toward a target while locking coefficients. Candidate solutions appear as inspectable alternatives; impossible targets expose the conflicting constraints.
@@ -22,11 +27,11 @@ Use a low-dimensional trajectory with two adjustable parameters and one pinned c
 
 Confidence: **Low**. Raise confidence when a bounded solver gives continuous, understandable feedback across multiple solutions; discontinuity and unstable latency are decisive negative evidence.
 
-## Assessment
+## Historical assessment
 
 User value **5/5** · Distinctiveness **5/5** · Moxi fit **5/5** ·
 Feasibility **1/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Expressing intent against results has unusually high potential value and distinctiveness. Solver semantics and responsive feedback make feasibility the weakest dimension.
 

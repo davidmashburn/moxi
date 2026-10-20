@@ -5,6 +5,11 @@ Make delegated work inspectable in the same domain workspace the user manipulate
 Status: speculative product concept, captured October 20, 2026.
 Origin: Second brainstorm, idea 2. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 Select a troublesome model region and ask for investigation. Candidate fits, annotated plots, proposed parameter changes, and unresolved questions appear beside it. Delegate exploration of specific parameters under pinned constraints; inspect intermediate results and bring back three alternatives. Scope follows domain objects and allowed operations, not screen coordinates.
@@ -22,11 +27,11 @@ Use a deterministic fake worker to propose changes to two permitted parameters. 
 
 Confidence: **Moderate**. Understandable proposals and reliable scope enforcement would support real adapters; opaque edits or confusing conflict handling would weaken the direction.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **4/5** · Moxi fit **4/5** ·
 Feasibility **2/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Visible delegation could improve many workflows, but integration and trustworthy application boundaries dominate the first slice. Agent integration remains optional.
 

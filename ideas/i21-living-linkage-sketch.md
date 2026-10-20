@@ -5,6 +5,11 @@ Demonstrate coordinated math, geometry, alternatives, and reusable controls with
 Status: speculative demonstrator concept, captured October 20, 2026.
 Origin: First brainstorm's proposed first demonstration. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 Manipulate a few joints and bars, inspect editable equations and a trajectory trace, pin a length, and branch into another configuration. Keep alternatives in a mind map. Package the interesting controls into a small instrument panel. A kinetic sculpture supplies the motivating example.
@@ -22,11 +27,11 @@ Use a single planar linkage with one degree of freedom, one editable length, and
 
 Confidence: **Moderate**. A compelling small mechanism with understandable constraints would strengthen its showcase value; solver discontinuities would favor the simpler matrix demonstrator.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **4/5** · Moxi fit **5/5** ·
 Feasibility **3/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 A vivid end-to-end showcase for the new plans, but it requires more new surfaces than the existing workbench experiment. Its pieces are more reusable than its specific mechanism.
 

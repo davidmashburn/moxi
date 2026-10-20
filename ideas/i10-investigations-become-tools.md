@@ -3,7 +3,12 @@
 Let an investigation produce a reusable tool as a byproduct.
 
 Status: speculative product concept, captured October 20, 2026.
-Origin: Second brainstorm, idea 1; recommended data-workbench experiment. This is an idea brief, not an implementation commitment.
+Origin: Second brainstorm, idea 1; originally recommended data-workbench experiment. This is an idea brief, not an implementation commitment.
+
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
 
 ## Experience
 
@@ -22,11 +27,11 @@ Extend the workbench in stages: persistent named cohort first; then one explicit
 
 Confidence: **Moderate**. Confidence rises if users complete a real investigation and reuse its panel with less glue than a bespoke screen; poor state coherence would undermine the framework hypothesis.
 
-## Assessment
+## Historical assessment
 
 User value **5/5** · Distinctiveness **4/5** · Moxi fit **5/5** ·
 Feasibility **4/5** · Reuse **5/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 A concrete existing consumer supplies immediate utility and evidence. The staged cohort slice is feasible while later stages test nearly every major integration.
 

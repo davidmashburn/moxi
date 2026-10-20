@@ -5,6 +5,11 @@ Keep narrative, evidence, editable mathematics, and exploratory work connected.
 Status: speculative product concept, captured October 20, 2026.
 Origin: Second brainstorm, idea 7. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 Read a result with live figures, editable equations, and alternative branches. Pull a figure into a workspace, investigate it, and bring the changed result back with its provenance. Follow the author's path or explore independently. Research notes, tutorials, reviews, and proposals share this pattern.
@@ -22,11 +27,11 @@ Compose one narrative page with a linked plot and formula. Open an exploration c
 
 Confidence: **Moderate**. A round trip that preserves authorship, expression text, and evidence would strengthen confidence; hidden execution or broken exports would weaken it.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **4/5** · Moxi fit **4/5** ·
 Feasibility **2/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Broad communication value and strong compositional fit, offset by document editing and distribution work beyond current plots.
 

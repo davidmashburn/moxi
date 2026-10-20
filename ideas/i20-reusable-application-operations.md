@@ -5,6 +5,11 @@ Expose domain operations so controls, keyboard commands, scripts, agents, and re
 Status: speculative framework concept, captured October 20, 2026.
 Origin: Second brainstorm's framework synthesis. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 A parameter change or cohort creation can be invoked through several presentations, with application-owned validation, stable targets, and policy. Searchable operation descriptions improve discoverability. Scripts and agent adapters use explicit invocation paths rather than mutating component internals.
@@ -22,11 +27,11 @@ Route a button, keyboard command, and deterministic scripted invocation to one c
 
 Confidence: **Moderate**. A small shared handler that reduces duplicate behavior would support the direction; disproportionate envelope or policy plumbing would favor a narrower boundary.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **3/5** · Moxi fit **5/5** ·
 Feasibility **4/5** · Reuse **5/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 The concept builds on implemented action and capability seams and has broad reuse. Generalized automation still requires explicit application contracts.
 

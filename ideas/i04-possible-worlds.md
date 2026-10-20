@@ -5,6 +5,11 @@ Use branches to keep competing assumptions and parameter configurations alive to
 Status: speculative product concept, captured October 20, 2026.
 Origin: First brainstorm, idea 4. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 Create alternatives such as a lighter arm, a removed equation term, or a different joint. Each branch holds overrides and a small live preview. Scrub a shared parameter across the alternatives, compare pinned metrics, and promote a chosen result. Record why the alternative exists beside what changed.
@@ -22,11 +27,11 @@ Compare three parameter sets of one existing plot, with one shared input and one
 
 Confidence: **Moderate**. Confidence rises if users predict inheritance and promotion correctly; frequent accidental coupling would require a simpler branch model.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **4/5** · Moxi fit **5/5** ·
 Feasibility **3/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Alternative exploration serves many domains and fits maps plus reactive views. Explicit parameter overrides give it a smaller first slice than full document branching.
 

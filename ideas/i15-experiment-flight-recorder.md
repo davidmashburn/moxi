@@ -5,6 +5,11 @@ Capture a surprising episode as a reproducible investigation artifact.
 Status: speculative product concept, captured October 20, 2026.
 Origin: Second brainstorm, idea 6. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 A running program, machine, or experiment feeds linked plots, events, a structural map, and an optional spatial model. Freeze a bounded interval, rewind, follow an observation to its source, annotate hypotheses, and compare a counterfactual model. Another person can investigate the saved episode.
@@ -22,11 +27,11 @@ Record a deterministic synthetic stream plus one asynchronous result, reopen the
 
 Confidence: **Moderate**. Portable replay with clear missing-data behavior would strengthen confidence; uncontrolled external dependencies would narrow the supported recorder scope.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **4/5** · Moxi fit **4/5** ·
 Feasibility **2/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Useful for diagnosis across domains, with substantial reusable capture machinery. External-state completeness makes it more difficult than replaying an internal UI fixture.
 

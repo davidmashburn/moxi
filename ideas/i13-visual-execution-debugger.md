@@ -5,6 +5,11 @@ Make runtime behavior inspectable through coordinated graphs, timelines, plots, 
 Status: speculative product concept, captured October 20, 2026.
 Origin: Second brainstorm, idea 4. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 Show tasks, dependencies, and queues on a canvas; plot latency and allocations; select a spike to find the operation and affected subtree. Freeze a frame to inspect input, state changes, geometry, and rendering, then replay after a code change. Explore spatial ownership or memory views only when depth helps.
@@ -22,11 +27,11 @@ Correlate one recorded action with subtree rebuild counters and a frame preview 
 
 Confidence: **Moderate**. Actionable explanations at bounded overhead would strengthen the case; diagnostic work that materially changes the observed timing would require a narrower recorder.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **3/5** · Moxi fit **5/5** ·
 Feasibility **4/5** · Reuse **5/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Developer tooling is familiar, but moxi already exposes unusually relevant ingredients. It offers immediate internal use and reusable diagnostic components.
 

@@ -5,6 +5,11 @@ Record an explanation as meaningful, interruptible actions over an executable mo
 Status: speculative product concept, captured October 20, 2026.
 Origin: First brainstorm, idea 7. This is an idea brief, not an implementation commitment.
 
+Portfolio status: retained from the earlier brainstorm. Its assessment below
+uses the superseded implementation-oriented rubric. See the
+[current portfolio](README.md#product-visions) for broader product visions and
+[framework questions](FRAMEWORK.md) for supporting mechanisms.
+
 ## Experience
 
 Introduce an assumption, reveal a term, rotate the model, vary a parameter, and split into alternatives. During playback, the audience can inspect a dependency, change a value, or branch into another case, then return to the author's path. The same explanation can be presented as keyboard steps or a textual sequence.
@@ -22,11 +27,11 @@ Record five semantic actions over a deterministic model. Interrupt after action 
 
 Confidence: **Moderate**. A short explanation that survives layout changes and audience interruption would strengthen confidence; dependence on pixel coordinates would invalidate the approach.
 
-## Assessment
+## Historical assessment
 
 User value **4/5** · Distinctiveness **4/5** · Moxi fit **4/5** ·
 Feasibility **2/5** · Reuse **4/5**.
-These are subjective comparisons under the [ranking rubric](RANKINGS.md#criteria), not measurements.
+These are subjective comparisons under the [historical ranking rubric](HISTORICAL-RANKINGS.md#criteria), not measurements.
 
 Teaching and review benefit from executable explanations, but durable playback and branch restoration add substantial work beyond existing event fixtures.
 
