@@ -33,6 +33,17 @@ coherent undo, native input/accessibility
 evidence, and a small public application API. These proposals do not supersede
 the existing workbench hardening priority or require the math editor to ship.
 
+## 3D interfaces and spatial interaction proposal
+
+The [3D interface scope](docs/design/3d-interaction.md) explores embedded
+viewports, spatial workspaces, scientific probes, linked views, projected UI,
+world-space components, and future immersive input. The initial proposed path
+proves native viewport hosting, reactive inspection, and precise manipulation
+with two consumers. World-space text/UI and XR have separate evidence gates.
+Renderer selection remains open; current GPU support does not establish a 3D
+scene contract. This proposal preserves existing execution priorities and does
+not promote deferred 3D plotting features into the current plotting scope.
+
 ## Product decision
 
 Position Moxi as a **Mojo-native, inspectable UI and visualization core with

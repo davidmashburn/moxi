@@ -3,6 +3,10 @@
 Status: proposed architecture and delivery plan; no framework implementation is
 claimed. This is coordinated with the [mind-map application](mind-mapping.md)
 and does not override the [execution plan](../../PROJECT-PLANNING.md).
+The [3D interface scope](3d-interaction.md) explores related spatial components.
+Share proven command, capture, history, and resource contracts; 3D projection,
+picking, and constraints remain specialized rather than expanding this plan's
+2D coordinate model.
 
 Build a reusable Mojo framework for direct manipulation on a large 2D surface:
 pan, zoom, select, move, resize, connect, and edit objects using native moxi
