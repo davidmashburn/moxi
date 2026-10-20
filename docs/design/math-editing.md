@@ -44,7 +44,9 @@ The primary acceptance journey is:
 
 All ordinary editing works with no computation backend installed. Templates,
 keyboard shortcuts, and a searchable symbol palette expose the same commands.
-No task in this journey requires learning a markup language.
+No task in this journey requires learning a markup language. Ship the structured
+math keyboard profile below as the default for the 2D editor;
+familiar entry sequences must produce the expected structure and caret state.
 
 ## Initial scope and limits
 
@@ -203,10 +205,16 @@ make truncation policy explicit.
 
 ## Interaction behavior
 
+Throughout this plan, **Primary means Cmd on macOS and Ctrl on Windows/Linux**.
+Use the shared [platform modifier policy](canvas-interaction.md#platform-modifier-policy),
+including native editing conventions and explicitly justified exceptions.
+
 - Left/right traverse logical insertion positions. Up/down use geometry and
-  slot relationships, retaining a preferred horizontal position. Tab visits
-  template holes and then releases focus at the editor boundary; Escape exits
-  a nested selection or cancels an active gesture.
+  slot relationships, retaining a preferred horizontal position. Tab/Shift+Tab
+  visit placeholders according to the keyboard profile; provide an explicit
+  focus-exit command without changing their placeholder-navigation behavior.
+  Primary+Space leaves a nested expression. Escape participates in symbol entry
+  or cancels an active gesture according to the scoped routing rules below.
 - Pointer placement chooses the nearest valid caret stop from the published
   layout. Expanded hit targets around thin rules and small slots must resolve
   ties consistently. Drag selection and keyboard extension use the same
@@ -214,10 +222,12 @@ make truncation policy explicit.
 - Template insertion wraps the current valid selection where appropriate;
   otherwise it creates an empty template and focuses its first slot. Shortcut
   mappings are documented and remain equivalent to palette actions.
-- Backspace/Delete within tokens remove grapheme units. At a structural
-  boundary, the first action selects the affected structure; a subsequent
-  delete removes it and leaves a valid slot. Unwrapping a fraction or radical
-  is a separate reversible command, avoiding silent content loss.
+- Backspace/Delete within tokens remove grapheme units. Structural boundary
+  deletion follows the interaction fixture, including empty-slot removal and
+  destructuring. Do not impose a universal select-then-delete rule where it
+  changes expected behavior. Keep each structural change reversible, preserve
+  valid slots, and record any intentional exception explicitly. A named unwrap
+  command also exposes the operation through menus and the palette.
 - IME composition stays within a text leaf until commit. Structural commands
   resolve or cancel composition through the host contract before mutating the
   surrounding tree. Composition is never sent to a CAS.
@@ -236,6 +246,94 @@ orientation after structural changes, but input never waits for animation.
 If geometry is animated, painting and hit testing use the same sampled
 presentation transform. Reduced-motion mode applies changes immediately.
 Physical device vibration is outside the initial scope.
+
+### Structured math keyboard profile
+
+Ship the following bindings and entry semantics as the default 2D editing
+profile. These are direct requirements for the editor, independent of the
+computation backend and text serialization format. M0 records effective native
+bindings on each supported platform and keyboard layout. The table uses the
+platform Primary modifier, not literal Control on macOS. For example, fraction
+entry is Cmd+/ on macOS and Ctrl+/ on Windows/Linux. Host-conflicting chords
+require an explicit resolved alternative before release.
+
+| Input | Required action |
+| --- | --- |
+| Primary+/ | Form a fraction and enter its denominator |
+| Primary+6; Primary+^ alias | Enter a superscript |
+| Primary+-; Primary+_ alias | Enter a subscript |
+| Primary+2; Primary+@ alias | Insert a square root and enter its radicand |
+| Primary+5; Primary+% alias | Switch complementary slots, including script pairs and radical index/radicand |
+| Primary+7; Primary+& alias | Enter an overscript or supported upper-limit slot |
+| Primary+Shift+, | Enter an underscript or supported lower-limit slot |
+| Primary+Space | Leave one expression level; repeat to leave further levels |
+| Primary+. | Expand structural selection to the next enclosing expression |
+| Tab / Shift+Tab | Select next / previous placeholder |
+| Primary+Enter / Primary+, | Add a matrix row / column at the active matrix position |
+| Escape, abbreviation, Escape | Insert the corresponding symbol, such as `a` for alpha or `inf` for infinity |
+
+This is the minimum inventory. M0 also specifies ordinary arrows, selection
+extension, Home/End, deletion, clipboard, undo/redo, matrix creation from an
+ordinary row, and platform-specific aliases. Distinguish numeric-key bindings
+from shifted-symbol aliases. Start with Cmd on macOS and Ctrl on Windows/Linux;
+any literal-Control exception needs the shared policy's specific justification.
+Test actual native events on US and non-US layouts. Resolve host/app conflicts
+for Primary+Space and Primary+comma in M0, recording effective platform chords
+and visible alternatives. These entries are binding candidates until that check
+passes, not a requirement to intercept system shortcuts. Use the resolved exit
+binding in the replay examples below if Primary+Space is unavailable.
+
+Binding identity alone is insufficient. Capture what a template takes as its
+base or numerator with an empty selection, how a selected expression is wrapped,
+where the caret lands, and how repeated shortcuts behave. For example, typing
+`x`, Primary+/, `y`, Primary+Space must create a fraction and return the caret outside
+it without requiring a palette or a manually selected numerator. Check paired
+scripts, nested roots, operator limits, matrix insertion position, and selection
+expansion with replay fixtures. Every resulting structure must have a lossless
+text representation in the same milestone, including combined scripts and
+above/below placements. Unsupported notation cannot silently become another
+construct or trigger a different command.
+
+Symbol abbreviations are a transient input session with visible feedback and
+completion hints. A completed abbreviation inserts the same token as the
+palette, through the same undoable command. It is not a separate document
+syntax, and the abbreviation buffer is not an authoritative document mutation.
+Unknown abbreviations retain the pending input for correction or explicit
+cancellation; do not silently drop text. Specify completion and cancellation behavior in M0. Support the common aliases for the initial symbol vocabulary;
+deferred symbols remain visibly unsupported rather than being misinterpreted.
+
+Route keys through native composition/editor context, active symbol-entry or
+manipulation session, focused math commands, then outer application commands.
+An Escape closing a symbol abbreviation must not also dismiss the editor or
+clear selection. An Escape cancelling a drag or popup must not also start an
+abbreviation. At rest in the math editor it begins symbol entry; nested exit
+uses Primary+Space. Do not use a timing heuristic to distinguish these actions.
+The host owns IME composition until resolved; shortcuts must not mutate its
+surrounding structure mid-composition.
+
+Keep one remappable, scoped command table shared by key dispatch, menus, hints,
+and the palette. Embedded math gets its own focus scope: a mind-map's Space,
+Tab, or parent-insertion shortcuts cannot fire while editing math, and generic
+canvas shortcuts cannot steal the math profile. Share command-routing mechanisms
+with the [canvas framework](canvas-interaction.md#keyboard-command-and-navigation-contract)
+when available, without making the math release wait for that package.
+The secondary text editor retains ordinary text-editing behavior; 2D template
+shortcuts do not insert source-format punctuation into it implicitly.
+
+Reserve Shift+Enter for a future explicit evaluation capability. This profile does not add notebook evaluation or turn Shift+Enter
+into an arbitrary algebra operation. Unsupported actions show their status and
+are not reused for unrelated commands. New functionality uses verified unused
+bindings or explicit menu/palette invocation.
+
+Release acceptance includes a keyboard-only replay of the editing journey:
+fractions, nested scripts/roots, matrix growth, symbol abbreviations, structural
+selection, deletion, undo/redo, and a switch to text and back. Compare notation,
+caret/selection, and command results with the documented interaction contract
+for supported cases. Include held keys, incomplete abbreviation cancellation, IME commit,
+non-US layouts, host shortcut conflicts, and math embedded in another editor.
+An unresolved mismatch blocks acceptance for that operation. The bindings are
+specified; native dispatch and interaction behavior remain unverified until the
+recordings and replays exist.
 
 ## Typesetting and rendering
 
@@ -338,7 +436,9 @@ grammar and lossless parser/printer, math-font queries and glyph rendering,
 and the backend comparison. Establish a shared fixture corpus and baseline
 timing method. Choose a font, renderer seam, and
 initial backend, recording evidence and remaining limits. The editor work can
-proceed while the backend experiment runs.
+proceed while the backend experiment runs. Produce a platform/layout keyboard
+fixture covering the profile,
+symbol-entry routing, template operand capture, and structural deletion.
 
 Exit: a nested fraction with a radical is drawn from measured math glyphs;
 pointer probes hit its published slot geometry; text round trips preserve
@@ -353,7 +453,9 @@ layout. Add caret movement, structural selection, template insertion, deletion,
 transactions, and undo/redo. Deliver the secondary text view and lossless
 parser/printer for every construct in this slice. Publish a display component
 and editor using the same layout implementation. Introduce only the moxi rendering/input
-extensions needed by this slice.
+extensions needed by this slice. Deliver the corresponding default shortcut
+bindings, placeholder traversal, selection expansion, and expression-level exit
+with the same command path as palette actions.
 
 Exit: users construct and edit a nested fraction entirely through the UI;
 pointer and keyboard selection agree; edits in either representation round-trip
@@ -367,6 +469,9 @@ sums/integrals with limits, the symbol palette, structured clipboard,
 subtree drag/drop, and versioned save/load. Complete IME and accessibility
 integration. Test variable font sizes, display scales, zoom, and narrow viewports.
 Extend the text grammar and round-trip fixtures with every new construct.
+Complete the keyboard profile for radicals, paired/above/below slots,
+operator limits, matrix growth, and Escape-delimited symbol entry. Run the
+keyboard-only journey and native conflict/IME checks before acceptance.
 
 Exit: the acceptance journey works through matrix editing; files and structured
 clipboard fragments preserve notation; matrix navigation and focus escape are
@@ -461,8 +566,11 @@ the math editor usable with external computation throughout that evolution.
 ## Open decisions
 
 M0 must resolve the first backend, pinned font, positioned-glyph resource seam,
-text grammar, and practical document storage strategy. Later milestones settle
-detailed shortcut conventions and history limits through the shared interaction cases.
+text grammar, practical document storage strategy, and platform-specific
+keyboard dispatch evidence. The default keyboard profile is decided;
+remaining shortcut questions concern verified aliases, host conflicts, and new
+commands, not replacement conventions. Set history limits through the shared
+interaction cases.
 Supporting a second backend, automatic line breaking, mixed prose documents,
 and additional native hosts require separate scope decisions.
 

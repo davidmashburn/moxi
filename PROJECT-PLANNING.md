@@ -14,6 +14,20 @@ the primary editing target. The [backend experiment](docs/design/math-backend-ex
 compares SymEngine and SymPy before choosing an initial adapter. These proposed
 workstreams do not supersede the execution priorities below.
 
+## Mind mapping and canvas interaction proposals
+
+The [mind-map application plan](docs/design/mind-mapping.md) specifies rapid
+topic editing, folding, branch restructuring, crosslinks, persistence, and
+bounded import. The [canvas framework plan](docs/design/canvas-interaction.md)
+develops the reusable native interaction layer alongside it, with a freeform
+graph editor as a second consumer. The app owns hierarchy and tree layout;
+the framework owns viewport, selection, gestures, and graph interaction.
+Freeplane-compatible keyboard commands are the app default, and the framework
+supports application shortcut profiles. Both require responsive feedback,
+coherent undo, native input/accessibility
+evidence, and a small public application API. These proposals do not supersede
+the existing workbench hardening priority or require the math editor to ship.
+
 ## Product decision
 
 Position Moxi as a **Mojo-native, inspectable UI and visualization core with

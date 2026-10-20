@@ -42,6 +42,11 @@ The current planning baseline is:
   and structured editing with a lossless, human-editable text counterpart. Its
   [backend experiment](docs/design/math-backend-experiment.md) compares SymEngine
   and SymPy before selecting an initial adapter.
+- [Native mind mapping](docs/design/mind-mapping.md) scopes a keyboard-first,
+  tactile mind-map application and bounded Freeplane import. Its shared
+  [canvas interaction framework](docs/design/canvas-interaction.md) provides
+  reusable native navigation, direct manipulation, and graph editing, with a
+  second consumer to validate the public API.
 - [docs/not-implemented-pattern.md](docs/not-implemented-pattern.md) scopes the
   reusable "Not implemented yet" UI pattern as a candidate follow-up.
 - [docs/post-0.5-roadmap.md](docs/post-0.5-roadmap.md) preserves historical
