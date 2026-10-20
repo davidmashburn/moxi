@@ -51,6 +51,11 @@ The current planning baseline is:
   native viewports, manipulators, scientific probes, linked views, and spatial
   components. It separates an initial desktop path from world-space UI and XR
   experiments, with an open renderer decision and explicit validation gates.
+- [Idea collection](ideas/README.md) captures 21 product, framework, and
+  demonstration concepts combining existing implementations with the newer
+  plans. Its [rankings](ideas/RANKINGS.md) compare user value, distinctiveness,
+  fit, feasibility, and reuse; these are exploratory judgments, not scheduled
+  execution priorities.
 - [docs/not-implemented-pattern.md](docs/not-implemented-pattern.md) scopes the
   reusable "Not implemented yet" UI pattern as a candidate follow-up.
 - [docs/post-0.5-roadmap.md](docs/post-0.5-roadmap.md) preserves historical

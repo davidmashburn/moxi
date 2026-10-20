@@ -44,6 +44,17 @@ Renderer selection remains open; current GPU support does not establish a 3D
 scene contract. This proposal preserves existing execution priorities and does
 not promote deferred 3D plotting features into the current plotting scope.
 
+## Combined ideas and comparative rankings
+
+The [idea reference](ideas/README.md) captures both synthesis brainstorms as
+21 small documents, including the product experiences, shared framework
+concepts, and living-linkage demonstrator. The [comparative rankings](ideas/RANKINGS.md)
+record subjective scores for user value, distinctiveness, fit with Moxi,
+feasibility, and reuse, plus a dependency-aware experiment sequence. Existing
+implementation foundations are distinguished from proposed integrations.
+This collection does not change the workbench-hardening priority or schedule
+the broader visions as release requirements.
+
 ## Product decision
 
 Position Moxi as a **Mojo-native, inspectable UI and visualization core with
