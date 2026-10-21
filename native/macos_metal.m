@@ -710,9 +710,9 @@ static void moxi_append_rounded_rect(
     if (!moxi_metal_reserve_vertices(point_count * 3)) return;
     for (int index = 0; index < point_count; index++) {
         int next = (index + 1) % point_count;
-        moxi_metal_vertices[moxi_metal_vertex_count++] = center;
-        moxi_metal_vertices[moxi_metal_vertex_count++] = perimeter[index];
-        moxi_metal_vertices[moxi_metal_vertex_count++] = perimeter[next];
+        moxi_metal_vertices[moxi_metal_vertex_offset + moxi_metal_vertex_count++] = center;
+        moxi_metal_vertices[moxi_metal_vertex_offset + moxi_metal_vertex_count++] = perimeter[index];
+        moxi_metal_vertices[moxi_metal_vertex_offset + moxi_metal_vertex_count++] = perimeter[next];
     }
 }
 

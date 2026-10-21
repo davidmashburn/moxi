@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moxi — Draw a sound</title>
+<style>
+  :root{color-scheme:dark;font-family:system-ui,sans-serif;color:#e5edf8;background:#09101a}
+  *{box-sizing:border-box}body{margin:0}main{max-width:1120px;margin:auto;padding:24px 20px}
+  header{display:flex;gap:20px;justify-content:space-between;align-items:center;margin-bottom:18px}
+  h1{font-size:25px;margin:0;letter-spacing:-.7px}header p{color:#93abc2;margin:5px 0 0;font-size:14px}
+  .tag{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#73dac3;white-space:nowrap}
+  img{display:block;width:100%;border:1px solid #283b51;border-radius:10px;background:#0c1522}
+  .caption{min-height:102px;display:flex;gap:20px;padding:20px 0 10px}.count{color:#69cdf6;font-size:13px;white-space:nowrap;padding-top:4px}
+  h2{font-size:20px;margin:0 0 6px}.caption p{font-size:14px;line-height:1.5;color:#9fb3c8;margin:0;max-width:800px}
+  nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid #26374b;padding-top:14px}
+  button{font:inherit;font-size:13px;background:#17283d;color:#e5edf8;border:1px solid #38516c;border-radius:8px;padding:10px 16px;cursor:pointer}
+  button:disabled{opacity:.35;cursor:default}button:hover:not(:disabled){background:#223b55}
+  audio{height:36px;max-width:100%;margin-left:auto}footer{font-size:12px;color:#71899f;line-height:1.5;margin-top:18px}
+  a{color:#69cdf6}@media(max-width:600px){main{padding:15px 10px}.tag{display:none}.caption{min-height:155px;gap:12px}audio{margin:5px 0 0;width:100%}}
+</style>
+<main>
+  <header><div><h1>Draw a sound.</h1><p>One waveform. A changing spectrum. An audible difference.</p></div><span class="tag">Moxi native Metal output</span></header>
+  <img id="frame" src="01-sine.png" alt="Native Moxi window showing a sine waveform and one dominant harmonic">
+  <section class="caption" aria-live="polite"><div id="count" class="count">01 / 04</div><div><h2 id="heading">Start with a soft sine tone</h2><p id="description">The waveform is smooth and almost all its energy is in the fundamental. Listen to the 220 Hz tone, then move to the edited shape.</p></div></section>
+  <nav aria-label="Walkthrough controls"><button id="previous" disabled>← Previous</button><button id="next">Next →</button><audio id="sound" controls preload="metadata" src="01-sine.wav" aria-label="Listen to this waveform"></audio></nav>
+  <footer>Frames exported by the app’s Metal renderer after scripted pointer interactions. Each audio clip uses the corresponding waveform table. The live app starts muted; use Play and drag any dot.<br>Run <code>pixi run signal-playground</code> from the Moxi repository. <a href="walkthrough.mp4">Play the complete video</a> · <a href="README.md">Build and verification notes</a></footer>
+</main>
+<script>
+const frames=[
+ ['01-sine','Start with a soft sine tone','The waveform is smooth and almost all its energy is in the fundamental. Listen to the 220 Hz tone, then move to the edited shape.'],
+ ['02-drag','Pull one point down. Hear new harmonics.','The highlighted control point was dragged from the crest toward the bottom. That local edit reshapes the waveform and adds harmonic energy. Compare the sound: its pitch is still 220 Hz.'],
+ ['03-triangle','Compare a triangle','The triangle has a different shape and mostly odd harmonics. The spectrum is measured from the same samples used to synthesize the audio.'],
+ ['04-pulse','Switch to a brighter pulse','A narrower positive pulse produces a richer harmonic stack. Sine, triangle, pulse, and your custom edits all pass through the same model and renderer.']
+];
+let current=0;
+function show(index){current=Math.max(0,Math.min(frames.length-1,index));const [file,title,description]=frames[current];const sound=document.getElementById('sound');sound.pause();sound.src=file+'.wav';sound.load();document.getElementById('frame').src=file+'.png';document.getElementById('frame').alt=title+' — native Metal rendering';document.getElementById('heading').textContent=title;document.getElementById('description').textContent=description;document.getElementById('count').textContent=String(current+1).padStart(2,'0')+' / 04';document.getElementById('previous').disabled=current===0;document.getElementById('next').disabled=current===frames.length-1;}
+document.getElementById('previous').onclick=()=>show(current-1);document.getElementById('next').onclick=()=>show(current+1);
+document.addEventListener('keydown',event=>{if(event.target.tagName==='AUDIO')return;if(event.key==='ArrowLeft')show(current-1);if(event.key==='ArrowRight')show(current+1);});
+</script>
+</html>
