@@ -1,6 +1,6 @@
 # Product potential and experiment cost
 
-This is the active assessment of the [12 product visions](README.md#product-visions).
+This is the active assessment of the [15 product visions](README.md#product-visions).
 It asks what new agency and forms of expression Moxi might enable. Existing
 implementation proximity, code reuse, and prototype cost do **not** contribute
 to the potential order. Supporting architecture has its own
@@ -43,16 +43,19 @@ confidence and evidence that would change its assessment.
 | --- | --- | --- | --- | --- | --- |
 | 1 | [V03 — Invent a notation that becomes a tool](v03-invent-notations.md) | 5 | 5 | 5 | Lets people create new expressive languages and tools; unusually broad horizon, unusually uncertain usability. |
 | 2 | [V01 — Draw executable behavior](v01-draw-executable-behavior.md) | 5 | 4 | 5 | Makes behavioral intent directly executable across several domains; a clear change in what an author can control. |
-| 3 | [V08 — Make invisible phenomena manipulable](v08-instruments-for-invisible-phenomena.md) | 5 | 5 | 4 | Gives abstract relationships new perceptual handles; success depends on faithful, understandable metaphors. |
+| 3 | [V08 — Make invisible phenomena manipulable](v08-instruments-for-invisible-phenomena.md) | 5 | 5 | 4 | Gives abstract relationships and machine-sensed phenomena new perceptual handles; success depends on faithful, understandable mappings. |
 | 4 | [V12 — Make interfaces into personal instruments](v12-personal-instruments.md) | 5 | 4 | 5 | Gives people authorship over how they act across many kinds of tools; the expressive change centers on interaction mappings. |
-| 5 | [V02 — Compose worlds through rules](v02-compose-worlds.md) | 4 | 5 | 4 | Composes rules and space into authored emergence, with room for many kinds of world. |
-| 6 | [V06 — Compose an experience across media](v06-compose-across-media.md) | 4 | 5 | 4 | Treats relationships across sensory media as compositional material; intentional mapping is the central opportunity. |
-| 7 | [V04 — Design across material, mechanism, and system](v04-design-across-scales.md) | 5 | 4 | 4 | Connects behavioral intent to physical design across scales; its representations depend on the physical domain. |
-| 8 | [V07 — Learn by changing a system](v07-learn-by-changing-systems.md) | 4 | 4 | 5 | Has broad educational reach; understanding and transfer matter more than engaging demonstrations. |
-| 9 | [V10 — Negotiate possible futures together](v10-negotiate-possible-futures.md) | 4 | 4 | 4 | Expands how groups express tradeoffs; social interpretation and explicit values are central uncertainties. |
-| 10 | [V09 — Compose how a space is experienced](v09-compose-lived-spaces.md) | 4 | 4 | 3 | Unifies spatial and temporal authorship around a lived journey, with a more concentrated set of users. |
-| 11 | [V11 — Turn patterns into structures](v11-patterns-become-structures.md) | 4 | 4 | 3 | Connects generative rules to tangible craft; each material practice brings a substantial semantic boundary. |
-| 12 | [V05 — Make arguments spatial and executable](v05-executable-arguments.md) | 4 | 3 | 4 | Makes reasoning inspectable and revisable; a relatively smaller change in the authoring medium, still a significant product possibility. |
+| 5 | [V15 — Play a tool with the whole hand](v15-hand-pose-control.md) | 4 | 5 | 5 | Offers continuous embodied expression across media and tools; usable simultaneous control is the central unknown. |
+| 6 | [V02 — Compose worlds through rules](v02-compose-worlds.md) | 4 | 5 | 4 | Composes rules and space into authored emergence, with room for many kinds of world. |
+| 7 | [V06 — Compose an experience across media](v06-compose-across-media.md) | 4 | 5 | 4 | Treats relationships across sensory media as compositional material; intentional mapping is the central opportunity. |
+| 8 | [V04 — Design across material, mechanism, and system](v04-design-across-scales.md) | 5 | 4 | 4 | Connects behavioral intent to physical design across scales; its representations depend on the physical domain. |
+| 9 | [V07 — Learn by changing a system](v07-learn-by-changing-systems.md) | 4 | 4 | 5 | Has broad educational reach; understanding and transfer matter more than engaging demonstrations. |
+| 10 | [V10 — Negotiate possible futures together](v10-negotiate-possible-futures.md) | 4 | 4 | 4 | Expands how groups express tradeoffs; social interpretation and explicit values are central uncertainties. |
+| 11 | [V13 — Wire an executable instrument](v13-visual-instrumentation.md) | 4 | 3 | 5 | Makes mechanisms inspectable and operable across many domains; the medium is established, with expressive value in instrument authorship. |
+| 12 | [V09 — Compose how a space is experienced](v09-compose-lived-spaces.md) | 4 | 4 | 3 | Unifies spatial and temporal authorship around a lived journey, with a more concentrated set of users. |
+| 13 | [V14 — Give a robot predictive chemical perception](v14-robot-nose.md) | 4 | 4 | 3 | Could expose an unfamiliar machine sensory world and its predictive meaning; the opportunity is concentrated around chemical perception. |
+| 14 | [V11 — Turn patterns into structures](v11-patterns-become-structures.md) | 4 | 4 | 3 | Connects generative rules to tangible craft; each material practice brings a substantial semantic boundary. |
+| 15 | [V05 — Make arguments spatial and executable](v05-executable-arguments.md) | 4 | 3 | 4 | Makes reasoning inspectable and revisable; a relatively smaller change in the authoring medium, still a significant product possibility. |
 
 V03 leads because inventing a useful notation could change what people are
 able to express. It is also one of the least established propositions. Its
@@ -69,19 +72,19 @@ behind implementation cost.
 ### Agency gained
 
 - **5/5:** [V01](v01-draw-executable-behavior.md), [V03](v03-invent-notations.md), [V04](v04-design-across-scales.md), [V08](v08-instruments-for-invisible-phenomena.md), [V12](v12-personal-instruments.md).
-- **4/5:** [V02](v02-compose-worlds.md), [V05](v05-executable-arguments.md), [V06](v06-compose-across-media.md), [V07](v07-learn-by-changing-systems.md), [V09](v09-compose-lived-spaces.md), [V10](v10-negotiate-possible-futures.md), [V11](v11-patterns-become-structures.md).
+- **4/5:** [V02](v02-compose-worlds.md), [V05](v05-executable-arguments.md), [V06](v06-compose-across-media.md), [V07](v07-learn-by-changing-systems.md), [V09](v09-compose-lived-spaces.md), [V10](v10-negotiate-possible-futures.md), [V11](v11-patterns-become-structures.md), [V13](v13-visual-instrumentation.md), [V14](v14-robot-nose.md), [V15](v15-hand-pose-control.md).
 
 ### Expressive ambition
 
-- **5/5:** [V02](v02-compose-worlds.md), [V03](v03-invent-notations.md), [V06](v06-compose-across-media.md), [V08](v08-instruments-for-invisible-phenomena.md).
-- **4/5:** [V01](v01-draw-executable-behavior.md), [V04](v04-design-across-scales.md), [V07](v07-learn-by-changing-systems.md), [V09](v09-compose-lived-spaces.md), [V10](v10-negotiate-possible-futures.md), [V11](v11-patterns-become-structures.md), [V12](v12-personal-instruments.md).
-- **3/5:** [V05](v05-executable-arguments.md).
+- **5/5:** [V02](v02-compose-worlds.md), [V03](v03-invent-notations.md), [V06](v06-compose-across-media.md), [V08](v08-instruments-for-invisible-phenomena.md), [V15](v15-hand-pose-control.md).
+- **4/5:** [V01](v01-draw-executable-behavior.md), [V04](v04-design-across-scales.md), [V07](v07-learn-by-changing-systems.md), [V09](v09-compose-lived-spaces.md), [V10](v10-negotiate-possible-futures.md), [V11](v11-patterns-become-structures.md), [V12](v12-personal-instruments.md), [V14](v14-robot-nose.md).
+- **3/5:** [V05](v05-executable-arguments.md), [V13](v13-visual-instrumentation.md).
 
 ### Transfer breadth
 
-- **5/5:** [V01](v01-draw-executable-behavior.md), [V03](v03-invent-notations.md), [V07](v07-learn-by-changing-systems.md), [V12](v12-personal-instruments.md).
+- **5/5:** [V01](v01-draw-executable-behavior.md), [V03](v03-invent-notations.md), [V07](v07-learn-by-changing-systems.md), [V12](v12-personal-instruments.md), [V13](v13-visual-instrumentation.md), [V15](v15-hand-pose-control.md).
 - **4/5:** [V02](v02-compose-worlds.md), [V04](v04-design-across-scales.md), [V05](v05-executable-arguments.md), [V06](v06-compose-across-media.md), [V08](v08-instruments-for-invisible-phenomena.md), [V10](v10-negotiate-possible-futures.md).
-- **3/5:** [V09](v09-compose-lived-spaces.md), [V11](v11-patterns-become-structures.md).
+- **3/5:** [V09](v09-compose-lived-spaces.md), [V11](v11-patterns-become-structures.md), [V14](v14-robot-nose.md).
 
 ## First-experiment cost, assessed separately
 
@@ -108,11 +111,14 @@ the behavior they show is simulated.
 | Medium | [V08 — Make invisible phenomena manipulable](v08-instruments-for-invisible-phenomena.md) | Finite probability manipulation, constraint preservation, and faithful feedback. |
 | Medium | [V10 — Negotiate possible futures together](v10-negotiate-possible-futures.md) | Distinct preference ownership, finite alternatives, and interpretable group decisions. |
 | Medium | [V12 — Make interfaces into personal instruments](v12-personal-instruments.md) | A mapping editor, stable focus/modes, two input routes, and participant use. |
+| Medium | [V13 — Wire an executable instrument](v13-visual-instrumentation.md) | A bounded dataflow runtime, typed connections, execution inspection, and an operable panel. |
+| Medium | [V15 — Play a tool with the whole hand](v15-hand-pose-control.md) | A tracker adapter, calibration, clutch, editable mappings, and recovery from tracking loss. |
 | High | [V03 — Invent a notation that becomes a tool](v03-invent-notations.md) | A restricted grammar, editing behavior, meaning, and tools a second author can use. |
 | High | [V04 — Design across material, mechanism, and system](v04-design-across-scales.md) | A mechanical model, constrained alternatives, and intelligible behavior-to-geometry edits. |
 | High | [V06 — Compose an experience across media](v06-compose-across-media.md) | A motion path, sound envelope, timing discipline, and expressive mapping. |
 | High | [V09 — Compose how a space is experienced](v09-compose-lived-spaces.md) | A useful 3D scene, spatial tests, picking, and temporal editing. |
 | High | [V11 — Turn patterns into structures](v11-patterns-become-structures.md) | A credible fold model, linked flat/spatial editing, and a physical sample. |
+| High | [V14 — Give a robot predictive chemical perception](v14-robot-nose.md) | Sensor collection, outcome alignment, predictive evaluation, and faithful replay. |
 
 ## Choosing experiments without shrinking the horizon
 
@@ -135,6 +141,12 @@ mandatory implementation sequence:
 - **Test human interpretation:** V07, V10, or V12 with intended participants.
   Developer satisfaction alone cannot establish learning, deliberation, or
   personally useful adaptation.
+- **Test executable instrument authorship:** V13's bounded dataflow instrument.
+  Observe whether an author can trace a timing or state failure to its cause.
+- **Test unfamiliar sensory evidence:** V14's recorded chemical-input prediction
+  task. An attractive representation cannot substitute for held-out improvement.
+- **Test continuous embodied expression:** V15's hand control in one creative
+  task. Count repeatable intentional control, not available tracker landmarks.
 
 Select among these using an actual interested participant and the uncertainty
 worth resolving. The current execution plan remains separate. No workbench

@@ -27,6 +27,10 @@ Editing a target response requests a candidate implementation within a chosen
 model family. It does not silently rewrite an arbitrary program. Unsupported
 targets remain visible as unsatisfied requirements.
 
+[Visual instrumentation](v13-visual-instrumentation.md) offers a complementary
+workflow: assemble and operate the mechanism through an executable dataflow
+graph. Here, the emphasis is authoring desired behavior. A tool can support both.
+
 ## First question to test
 
 Can a person create and revise a response without repeatedly translating their

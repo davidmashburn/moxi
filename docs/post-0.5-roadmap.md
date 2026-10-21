@@ -201,8 +201,8 @@ wrapper around another renderer:
   and theme defaults rather than a closed list of monolithic chart types.
 - Plotly's practical trace/layout model, hover modes, subplots, and animated
   updates.
-- Wolfram's parameterized functions, locators, dynamic controls, bookmarks,
-  and exploratory manipulation.
+- Interactive mathematical tools with parameterized functions, locators,
+  dynamic controls, bookmarks, and exploratory manipulation.
 
 ### Implementation status of the current 2D slice
 
@@ -483,8 +483,8 @@ consumed by tests, examples, benchmarks, and reference comparisons:
 - 10,000, 100,000, and 1,000,000-row stress fixtures.
 
 Use real Vega-Lite/Altair, Bokeh, Observable Plot, ggplot2, Plotly, and
-Wolfram behavior as references where parity matters. Compare semantic output,
-interaction traces, scale domains, selections, and representative pixels;
+interactive mathematical tools as references where parity matters. Compare
+semantic output, interaction traces, scale domains, selections, and representative pixels;
 static hand-built imitations are documentation, not behavioral oracles.
 
 Plot tests must cover data replacement/append/patch, stable identity,

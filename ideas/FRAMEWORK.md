@@ -56,6 +56,29 @@ Sampled curves, spatial projections, simulation output, and aggregate plots
 may lose information. Their edit mappings need clear ownership and declared
 limits; matching their appearance does not establish semantic equivalence.
 
+## Bring sensing and continuous control into the contract
+
+[Visual instrumentation](v13-visual-instrumentation.md), the
+[robot nose](v14-robot-nose.md), and [hand control](v15-hand-pose-control.md)
+introduce different relationships to external input. Acquisition observes the
+world; estimation infers a state; a control mapping interprets intentional
+movement; an actuator changes the world. Keep these roles explicit even when
+they share timestamps, plots, or graph components.
+
+| Boundary | Question a consumer must answer |
+| --- | --- |
+| Samples and estimates | What are the acquisition time, display time, units, coordinate frame, calibration, and confidence? Which raw evidence and model revision produced an estimate? |
+| Stream execution | Who owns buffering, rate conversion, backpressure, cancellation, and stale results? Acquisition and processing clocks must not depend on UI redraw. |
+| Intent and engagement | When is input merely observed, when does it preview an edit, and when is it committed? How do clutching, loss, reacquisition, and keyboard alternatives behave? |
+| External actions | Which changes are local and undoable, and which commands already affected a device? UI undo cannot promise to reverse a physical action. |
+| Replay and provenance | Which sensor records, timing, model versions, and mapping settings are needed to reproduce a result? Which external effects must be replaced with simulation during replay? |
+
+The first consumer can use narrow application-owned adapters. A canvas does not
+imply a dataflow runtime; UI reactivity does not imply device timing guarantees;
+a camera tracker does not supply a usable control vocabulary. Extract shared
+contracts only after concrete instruments expose common needs. Dependency
+assessment includes model assets and device SDKs as well as code licenses.
+
 ## What a successful probe must show
 
 A domain task should expose both the user's experience and the application's

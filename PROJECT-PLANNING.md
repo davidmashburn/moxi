@@ -46,7 +46,7 @@ not promote deferred 3D plotting features into the current plotting scope.
 
 ## Combined ideas and comparative rankings
 
-The [idea reference](ideas/README.md) explores 12 broad product visions using
+The [idea reference](ideas/README.md) explores 15 broad product visions using
 plotting, structured math, graphs, native controls, and spatial interaction as
 creative ingredients. It retains the earlier 21 briefs while separating
 [framework questions](ideas/FRAMEWORK.md) from product opportunities. The

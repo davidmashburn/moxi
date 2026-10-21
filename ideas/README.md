@@ -17,7 +17,7 @@ contracts that could support them.
 
 ## Product visions
 
-These **12 speculative visions** are the active portfolio. Each has a small
+These **15 speculative visions** are the active portfolio. Each has a small
 standalone brief describing the experience, the role of the combined media,
 a question a first experiment could answer, and evidence that would change
 confidence. The [rankings](RANKINGS.md) assess expressive potential separately
@@ -32,11 +32,14 @@ from prototype cost. Neither is a release schedule or a measured market claim.
 | [V05 — Make arguments spatial and executable](v05-executable-arguments.md) | Let readers change assumptions and inspect which conclusions still hold. |
 | [V06 — Compose an experience across media](v06-compose-across-media.md) | Compose meaningful relationships among sound, motion, light, and interaction. |
 | [V07 — Learn by changing a system](v07-learn-by-changing-systems.md) | Learn through prediction and manipulation, then connect experience to formal notation. |
-| [V08 — Make invisible phenomena manipulable](v08-instruments-for-invisible-phenomena.md) | Give abstract mathematics precise perceptual handles and understandable constraints. |
+| [V08 — Make invisible phenomena manipulable](v08-instruments-for-invisible-phenomena.md) | Give abstract relationships and machine-sensed phenomena inspectable perceptual forms. |
 | [V09 — Compose how a space is experienced](v09-compose-lived-spaces.md) | Author journeys, reveals, and events across space and time. |
 | [V10 — Negotiate possible futures together](v10-negotiate-possible-futures.md) | Express competing goals and explore shared alternatives without hiding disagreement. |
 | [V11 — Turn patterns into structures](v11-patterns-become-structures.md) | Move between generative patterns, construction rules, and physical structures. |
 | [V12 — Make interfaces into personal instruments](v12-personal-instruments.md) | Author interaction mappings that fit an individual’s task and way of acting. |
+| [V13 — Wire an executable instrument](v13-visual-instrumentation.md) | Assemble acquisition, computation, controls, and outputs into an inspectable instrument. |
+| [V14 — Give a robot predictive chemical perception](v14-robot-nose.md) | Explore whether chemical sensor input helps a robot anticipate meaningful outcomes. |
+| [V15 — Play a tool with the whole hand](v15-hand-pose-control.md) | Author continuous multidimensional control through camera-estimated hand movement. |
 
 ### Distinctions worth preserving
 
@@ -49,11 +52,17 @@ from prototype cost. Neither is a release schedule or a measured market claim.
 - **V06 and V09:** compose across sensory media versus compose an experience
   anchored to a spatial journey.
 - **V07 and V08:** author a learning experience versus build an instrument for
-  manipulating an abstract phenomenon. Either could use the other.
+  exploring an abstract or machine-sensed phenomenon. Either could use the other.
 - **V05 and V10:** inspect an argument's support versus make a shared decision
   while preserving different goals.
 - **V03 and V12:** define a domain's expressive language versus adapt the way a
   person operates an existing domain. Neither requires arbitrary hot reload.
+- **V01 and V13:** author desired behavior versus assemble and operate its
+  mechanism. An instrument can offer both workflows.
+- **V08 and V14:** a broad family of perceptual instruments versus one concrete
+  chemical-sensing and prediction opportunity, with its own empirical burden.
+- **V12 and V15:** personal interaction authoring versus a specific continuous
+  hand-input medium. V14 senses the world; V15 expresses intentional control.
 
 Not every product needs every representation. A powerful 2D instrument can be
 more useful than adding 3D without a domain reason. The horizon stays broad
@@ -115,7 +124,7 @@ The two modified implementation documents (`docs/API.md` and
 This revision uses that earlier evidence only to identify possible ingredients;
 it does not refresh implementation support claims. No builds, benchmarks,
 native acceptance sessions, user studies, or market comparisons were run for
-this portfolio. All V01–V12 integrations are proposed.
+this portfolio. All V01–V15 integrations are proposed.
 
 | Foundation | Evidence and boundary |
 | --- | --- |

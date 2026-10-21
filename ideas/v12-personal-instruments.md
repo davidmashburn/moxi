@@ -15,7 +15,9 @@ and return to a known configuration without losing the composition.
 
 The horizon includes creative tools adapted to individual motor preferences,
 specialized expert workflows, and interfaces that can evolve as tasks or
-abilities change. Optional devices could add new input routes later.
+abilities change. A [camera-based hand instrument](v15-hand-pose-control.md)
+explores one concrete continuous input route; its tracking and motor-control
+questions have their own experiment.
 
 ## What the combination enables
 

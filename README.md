@@ -51,7 +51,7 @@ The current planning baseline is:
   native viewports, manipulators, scientific probes, linked views, and spatial
   components. It separates an initial desktop path from world-space UI and XR
   experiments, with an open renderer decision and explicit validation gates.
-- [Idea collection](ideas/README.md) explores 12 broad product visions across
+- [Idea collection](ideas/README.md) explores 15 broad product visions across
   programming, art, learning, mathematics, physical design, and collective
   decisions, with all 21 earlier concepts retained as references. Its
   [rankings](ideas/RANKINGS.md) separate expressive potential from prototype

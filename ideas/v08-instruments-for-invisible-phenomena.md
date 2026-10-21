@@ -1,8 +1,9 @@
 # V08 — Make invisible phenomena manipulable
 
-Build instruments that give probability, dynamical systems, optimization, and
-high-dimensional relationships useful perceptual forms. People could develop
-intuition by acting on mathematical objects rather than only reading results.
+Build instruments that give abstract relationships and machine-sensed phenomena
+useful perceptual forms. Probability, dynamical systems, optimization, and
+chemical sensor patterns could become objects of exploration. People could
+develop intuition by acting on models and inspecting evidence alongside them.
 
 ## Experience
 
@@ -13,9 +14,12 @@ an initial condition through a phase portrait and follow the resulting family
 of trajectories. Keyboard controls expose exact constraints and selected
 regions, so continuous gestures have precise, repeatable equivalents.
 
-The horizon is a family of mathematical instruments with distinct perceptual
-vocabularies: uncertainty as allocation, optimization as traversable terrain,
-and transformations as motion. Each metaphor earns its meaning separately.
+The horizon is a family of instruments with distinct perceptual vocabularies:
+uncertainty as allocation, optimization as traversable terrain, transformations
+as motion, and a robot's unfamiliar sensory patterns as inspectable relationships.
+The [robot nose](v14-robot-nose.md) makes this last possibility concrete: chemical
+input might support useful predictions even without naming a substance.
+Each metaphor earns its meaning separately.
 
 ## What the combination enables
 
@@ -26,6 +30,11 @@ and ghost alternatives. These are designed mappings, not literal physical
 properties of abstract mathematics. Projection, approximation, and hidden
 dimensions remain inspectable; a vivid surface must not imply information it
 cannot represent.
+
+For sensed phenomena, distinguish the physical world, measured response, learned
+representation, prediction, and action. A manipulable embedding is an exploratory
+view, not ground truth about chemistry. [Hand control](v15-hand-pose-control.md)
+could make exploration expressive without changing the underlying observations.
 
 ## First question to test
 
