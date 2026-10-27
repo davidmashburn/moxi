@@ -19,8 +19,16 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Composition authoring draft](docs/design/composition-authoring-draft.md) is
+  the latest source-first follow-up: complete independent and shared greeting
+  forms, assessed against adding a field, adding an instance and sharing one
+  value. Parent routing disappears from the proposed surface, but mounted child
+  ownership and the shared input/output interface remain unproven costs. These
+  are uncompiled API proposals; runtime implementation is deferred pending the
+  authoring-comfort decision.
+
 - [Child routing experiment](docs/design/child-routing-experiment.md) is the
-  latest authoring follow-up. Existing ComponentSlot routing removes per-field
+  preceding executable follow-up. Existing ComponentSlot routing removes per-field
   forwarding for independent forms. A shared-value test exposes eager-refresh
   cursor loss; settling before rendering fixes it with one render per affected
   child. Parent routing and settlement remain visible costs, so comfort is still

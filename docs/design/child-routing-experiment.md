@@ -122,3 +122,8 @@ would strengthen the recommendation. A broader composition example requiring
 repeated passes or losing editor state would weaken it. Broad framework research
 is not needed to recognize the current boundary; any further experiment should
 test that authoring bar rather than another spelling of individual controls.
+
+The subsequent [composition authoring draft](composition-authoring-draft.md)
+writes both complete forms before implementing another runtime. It assesses
+the three source edits and makes the proposed mounted-state ownership change
+explicit. Its examples are uncompiled; they do not extend these test results.
