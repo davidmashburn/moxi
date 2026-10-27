@@ -44,7 +44,11 @@ The current planning baseline is:
 
 - [Mojo and Moxi in Jupyter](docs/design/jupyter-integration.md) records the
   implemented Python launch/SVG bridge and proposes notebook verification, an
-  inline interactive FDG spike, and evidence gates for a reusable adapter.
+  inline interactive FDG spike, and evidence gates for a reusable adapter. The
+  [browser execution investigation](docs/design/browser-execution.md) and
+  [server-backed views](docs/design/server-backed-views.md) now advance as
+  complementary tracks: a full web target with local interaction can consume
+  reduced views of server-owned data. Each has independent acceptance gates.
 
 - [CURRENT-STATE.md](CURRENT-STATE.md) is the evidence-led implementation
   audit. It distinguishes shipped behavior, experimental slices, and genuine
