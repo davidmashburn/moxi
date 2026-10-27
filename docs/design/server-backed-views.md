@@ -1,6 +1,6 @@
 # Server-backed data with local Moxi interaction
 
-Status: proposed independent investigation. October 27, 2026.
+Status: initial in-process contract probe passed; browser/transport integration proposed. October 27, 2026.
 Implementation baseline: main `875f714`; no server data path is shipped.
 
 ## Direction and ownership
@@ -47,12 +47,43 @@ the FDG simulation by dropping nodes or edges, which changes its semantics.
    input-to-local-feedback and time-to-fresh-data separately. Sweep artificial
    delays before testing an actual authenticated transport and remote kernel.
 
-Initial command: `python3 experiments/server-backed-views/probe.py` (to be added).
+Command: `python3 experiments/server-backed-views/probe.py`.
 Acceptance for the first slice: exact counts, bounded payload and queue, stale
 responses rejected, camera changes independent of backend completion, and
 explicit failure/disposal behavior. An in-process simulation establishes these
 contract properties only; it cannot establish browser responsiveness, network
 latency, production throughput, or notebook compatibility.
+
+## First-slice evidence
+
+An uncommitted standard-library Python experiment now exists at the path above
+on main's `875f714` baseline. It generates one million deterministic points with
+stable IDs in compact arrays and produces a 64-by-64 density view. Exact small
+fixtures test half-open viewport/cell boundaries; the full query preserves the
+million-point total. Invalid dimensions, nonfinite/overflowed viewport spans,
+and unrepresentable grid edges are rejected.
+
+Observed source buffers: 20,000,000 bytes; compact JSON response: 17,554 bytes,
+below the 65,536-byte cap. This is a reduction in information as well as bytes:
+the response carries counts and cell edges, not individual records. It is not
+an equivalent-fidelity full-data comparison or a browser performance claim.
+The current reducer scans all source points; no index was introduced.
+
+The manually completed callback harness passes 40 rapid camera changes with
+one active request and one replaceable pending request. Local camera state
+changes before any backend completion. The previous result remains available
+and is marked non-current until the latest valid reply arrives. Stale generation,
+wrong session/revision, duplicate replies, backend failure/retry, and disposal
+checks pass. A fresh integration check feeds the actual reducer into the adapter,
+rejects a mismatched response with an error, and successfully retries. Review
+also caught and fixed an extreme-coordinate intermediate-overflow case.
+
+These are in-process contract tests, not a browser renderer or real transport.
+The test transport retains callback history for replay; it does not establish
+bounded long-session memory. Backend cancellation, real delays/disconnection,
+exact-record selection, full-data comparison, browser memory and interaction
+latency, and Jupyter are still unverified. The README and ignored result log live
+beside the experiment; no dependencies or product APIs were changed.
 
 ## Integration and remaining gates
 

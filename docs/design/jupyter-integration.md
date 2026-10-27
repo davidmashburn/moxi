@@ -98,14 +98,17 @@ other or for a notebook transport choice.
 ### 0A. Extend browser execution toward a complete web target
 
 Owner: a bounded implementation experiment under `experiments/browser-execution/`.
-The solver checksum probe has passed; complete the persistent-state, per-node
-parity, runtime/error-path, and minimal Moxi event-to-scene gates in the linked
-findings. Keep compiler experiments out of normal Moxi build dependencies.
+The checksum and persistent-state/per-node parity probes have passed in Node
+and Chromium. Complete the runtime/error-path and minimal Moxi event-to-scene
+gates in the linked findings. Keep compiler experiments out of normal Moxi
+build dependencies.
 This track advances independently of backend data-placement work.
 
 ### 0B. Establish server-owned data with browser-local feedback
 
 Owner: an independent experiment under `experiments/server-backed-views/`.
+The first Python reduction/coalescing contract probe passes; real browser and
+transport behavior remain unverified (see the linked evidence).
 Use a large synthetic spatial dataset and bounded viewport reductions. Verify
 query generations, coalescing, stale-result rejection, selection identity, and
 continued local pan/zoom while updates are outstanding. Measure bytes, reduction
