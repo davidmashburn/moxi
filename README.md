@@ -24,8 +24,11 @@ The current planning baseline is:
   their limits as evidence for authoring comfort. The follow-up
   [authoring comparison](docs/design/authoring-comfort-experiment.md) writes a
   complete form in Marko and two proposed Moxi surfaces, including reusable
-  fields, controlled state, validation, and conditional lifetime. These are
-  experiments, not changes to implementation priority or public API.
+  fields, controlled state, validation, and conditional lifetime. Its executable
+  follow-up now compiles a small real Marko subset to native Moxi: behavior and
+  source-change checks passed, with an unresolved native accessibility-focus
+  observation and authoring comfort still unmeasured. These are experiments,
+  not changes to implementation priority or public API.
 
 - Independent OSS application ports: [force-directed graphs](docs/design/fdg-port.md),
   [SeedWaterSegmenter](docs/design/sws-port.md), and [SWS4D](docs/design/sws4d-port.md).

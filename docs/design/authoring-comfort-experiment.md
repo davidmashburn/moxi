@@ -1,8 +1,9 @@
 # Authoring comfort: a form written three ways
 
-Status: authoring experiment, October 27, 2026. The two Moxi surfaces below are
-proposals, not implemented APIs or valid, compiler-checked Mojo. This is a source
-comparison, not a usability study or authorization to build a language.
+Status: executable subset experiment completed October 27, 2026; no public API
+adoption. The two earlier Moxi surface proposals remain unimplemented and were
+rejected in author feedback. The follow-up below uses familiar Marko syntax.
+Neither the source comparison nor the executable follow-up is a usability study.
 
 Implementation baseline: `feat/data-workbench` at
 [`c8c7cbb7741519c9796a02ffa25c02e701b2f58a`](https://github.com/davidmashburn/moxi/tree/c8c7cbb7741519c9796a02ffa25c02e701b2f58a).
@@ -11,7 +12,99 @@ The earlier uncommitted probes are described in the
 but do not establish a comfortable authoring surface. No product code changes
 are part of this experiment.
 
-## Current assessment after author feedback
+## Executable follow-up: observed results
+
+The author authorized committing the planning record and running the experiment.
+The pre-experiment record was committed as `e3c6eb0`. A new isolated directory,
+`experiments/tags-authoring/`, now contains a small Marko-AST-to-Mojo compiler,
+reusable counter and name-field sources, a greeting form, native demo, behavior
+checks, and source-change checks. It is **uncommitted implementation work** on
+`feat/data-workbench` at the baseline above, not available in that baseline's Git
+snapshot. No production Moxi APIs or existing source files were changed.
+
+The key authoring distinction is executable:
+
+```marko
+<Counter count=0/>
+<Counter count=0/>
+```
+
+These own independent values. To share, declare one value in the parent:
+
+```marko
+<let/shared=0>
+<Counter count:=shared/>
+<Counter count:=shared/>
+```
+
+The reusable counter uses `<let/count:=input.count>` and returns `<return:=count>`.
+A name field follows exactly the same rule for its string. A parent can read its
+returned value in an expression or assign to it in a handler. The compiler
+supplies the event routing and state bookkeeping; Moxi supplies layout, editing,
+focus routing, paint, and the native window.
+
+### Verification performed
+
+- `bash experiments/tags-authoring/check.sh` passed with exit 0. It runs eight
+  official Marko HTML/DOM compilations with zero diagnostics, eleven rejected
+  unsupported-source cases, generated Mojo behavior checks, and four authoring
+  variations. Exact output and source hashes are captured in the experiment's
+  `results.txt`.
+- Real Moxi `App` checks passed for independent/shared counters, fresh roots,
+  keyboard activation, child-return bindings, live trimmed preview, immediate
+  Save, disabled Save, reset, conditional mounting, and rejection of events sent
+  to removed controls.
+- Headless native-editor checks passed for Unicode deletion, composition/commit,
+  focus/cursor continuity across rebuild, Tab routing, and clipboard hooks.
+  Direct clipboard-hook checks are not OS clipboard verification.
+- Source variations passed without changing compiler or runtime: add a validation
+  rule once and affect both preview and Save; change one bound counter to an
+  independent counter; move a counter inside an `if` and observe local-state
+  reset on remount; share text between two fields with separate cursors.
+- `native.sh --build-only` passed. The macOS window was opened and interacted with:
+  typing/live preview, Save, blank nickname disabling Save, nickname editing,
+  text surviving hide/show, and Restore defaults worked. Builds emitted 14
+  existing native-window `as_c_string_slice` deprecation warnings.
+
+One native issue remains unresolved: an accessibility-targeted click on the
+nickname field did not move editing focus; subsequent typing went into the
+primary field. A pointer-coordinate click focused the nickname correctly. The
+cause was not isolated between automation and Moxi accessibility/focus handling.
+Do not report complete native interaction or accessibility coverage.
+
+### Assessment and limits
+
+**High confidence in narrow feasibility:** the supported authoring subset can
+produce working native Moxi controls without application-authored routing,
+binding objects, or editor bookkeeping. A mismatch on the verified programs
+would weaken that conclusion. This is a material advance over a syntax sketch.
+
+**Authoring comfort remains unmeasured.** The author's negative assessment of the
+prior candidates remains valid; this new implementation has not yet been judged
+through unassisted author changes. Familiar spelling is a hypothesis about
+comfort, not proof. Lists, async work, debugging, and real Mojo application-logic
+interop could expose much greater complexity and change the recommendation.
+There is still no recommendation to adopt a new public language/API.
+
+The experiment accepts static component instances and scalar state, a small
+expression set, bindings/returns, `if`, and basic controls in a vertical column.
+It expands derived expressions at their uses and rebuilds the whole view after
+successful events. It neither uses nor validates the earlier tracked-dependency
+runtime. Unsupported syntax is rejected; this is not full Marko compatibility
+or an HTML/CSS implementation. The form uses immediate validation: the original
+touched-on-blur requirement is **not implemented**, because the ordinary Moxi
+component event surface lacks blur.
+
+The full repository suite, performance benchmarks, Linux/native cross-platform
+checks, VoiceOver, an actual IME session, OS clipboard interaction, native counter
+interaction, and browser behavioral parity were not run. Reproduction commands,
+supported subset, implementation details, and further limits live beside the
+experiment in `experiments/tags-authoring/README.md`.
+
+The next decision should come from the author editing these actual sources and
+explaining the ownership changes, not from another invented syntax sketch.
+
+## Assessment before the executable follow-up
 
 The author found the proposed surfaces confusing and far from the comfort of
 Marko's Tags API. The preference for candidate B below is withdrawn. That is
