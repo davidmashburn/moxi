@@ -21,8 +21,12 @@ The current planning baseline is:
 
 - Independent OSS application ports: [force-directed graphs](docs/design/fdg-port.md),
   [SeedWaterSegmenter](docs/design/sws-port.md), and [SWS4D](docs/design/sws4d-port.md).
-  FDG is the authorized first implementation; the segmentation plans remain
-  proposals with their own validation gates and no dependency on FDG shipping.
+  FDG's first slice is implemented in `examples/fdg/` on `main` at `875f714`;
+  the segmentation plans remain proposals with their own validation gates.
+
+- [Mojo and Moxi in Jupyter](docs/design/jupyter-integration.md) records the
+  implemented Python launch/SVG bridge and proposes notebook verification, an
+  inline interactive FDG spike, and evidence gates for a reusable adapter.
 
 - [CURRENT-STATE.md](CURRENT-STATE.md) is the evidence-led implementation
   audit. It distinguishes shipped behavior, experimental slices, and genuine

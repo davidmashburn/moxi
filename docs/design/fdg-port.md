@@ -1,6 +1,7 @@
 # Native force-directed graph application
 
-Status: proposed; first implementation is authorized. Observed October 27, 2026.
+Status: first slice implemented as a Moxi example; follow-ups remain proposed.
+Reconciled October 27, 2026.
 
 ## Outcome and evidence
 
@@ -11,12 +12,13 @@ weighted edges, animated layout, node dragging, pan/zoom, selection, labels,
 search, and neighborhood exploration. Own simulation and snapshot export in
 the application rather than coordinating browser downloads and conversion tools.
 
-Moxi implementation inspected: `feat/data-workbench` at
+Original design baseline inspected: `feat/data-workbench` at
 [`c8c7cbb`](https://github.com/davidmashburn/moxi/tree/c8c7cbb7741519c9796a02ffa25c02e701b2f58a).
 The interactive fractal demonstrates the canvas/event foundation. Existing
 uncommitted API/capability documentation and scoped-binding experiments are
-unrelated and are not dependencies. Source inspection is not a native runtime
-or performance verification of this proposed application.
+unrelated and are not dependencies. The implementation and fresh verification
+record below supersede the initial proposal for the first slice; they do not
+refresh unrelated workbench evidence.
 
 ## Ownership decisions
 
@@ -35,25 +37,60 @@ or performance verification of this proposed application.
 - The proposed [canvas interaction framework](canvas-interaction.md) is related
   design work, not a prerequisite. Do not implement that framework to ship FDG.
 
-## Independent delivery slices
+## Implemented first slice
 
-1. Establish a separate `moxi-fdg` consumer with `src/layout.mojo`, graph loading,
-   `src/graph_app.mojo`, `src/main.mojo`, tests, build tasks, and sample input.
-   Preserve the original project's browser implementation. Use an explicit
-   Moxi source/revision during development; document source-based builds honestly.
-2. Implement deterministic initialization, link attraction, repulsion, centering,
-   damping/cooling, pin/unpin, restart, and pause. Begin with bounded exact
-   pairwise repulsion; measure before adding Barnes-Hut or parallelism.
-3. Render links/nodes with stable identity. Support node drag with temporary
+The standalone prototype is now `examples/fdg/` on `main` at
+[`875f714`](https://github.com/davidmashburn/moxi/commit/875f714bea2d27a8f00966dc3bd1bf024da281c1).
+The user chose to keep it as an example for now. Its solver remains
+application-owned, with no Moxi dependency; the original browser project is
+unchanged. The implementation uses main's host API without merging the
+workbench branch. Rendering submits controls and graph together, then uses a
+small native helper to flush the complete frame. The macOS custom-rectangle limit increases
+from 64 to 1,024 to accommodate node halos and fills at the documented capacity.
+
+Implemented: deterministic bounded layout, original nodes/links JSON, dragging,
+pan/zoom, selection, labels, search, neighbors, pause/restart, controls, and SVG
+export. Python `view_graph` and original-style `fdg(nodes, links)` launch the
+viewer directly via stdin; `render_svg` returns a static SVG snapshot. See the
+[usage and limits](https://github.com/davidmashburn/moxi/blob/875f714bea2d27a8f00966dc3bd1bf024da281c1/examples/fdg/README.md).
+
+Fresh verification on macOS ARM64 with Mojo 1.1.0:
+
+- `bash examples/fdg/scripts/check.sh`: layout, JSON, event routing, and SVG XML
+  checks passed.
+- `bash examples/fdg/scripts/build.sh`: executable and ad-hoc-signed app built.
+- `bash examples/fdg/scripts/check-native-frame.sh`: 60 draws, zero blank frames,
+  zero deferred frames, and no native command overflow.
+- `python3 examples/fdg/tests/test_python.py`: real executable SVG, Unicode,
+  validation, process failure, and async/blocking native launch checks passed.
+- `bash examples/fdg/scripts/integration-check.sh --native`: deterministic
+  256-node/1,024-link exports, oversized-file rejection, and native capacity
+  smoke check passed.
+
+The example README retains historical standalone manual-input/Save-dialog and
+benchmark observations against `c8c7cbb`; these were not repeated on main.
+The full Moxi suite, other platforms, screen-reader workflows, numerical D3
+parity, and notebook frontend rendering were not verified in this integration.
+
+## Delivery record and follow-ups
+
+1. Delivered initially as a separate `moxi-fdg` consumer, then incorporated
+   into `examples/fdg/` at the user's request. Keep the solver, graph loading,
+   application, tests, and sample input together in that example. Root tasks
+   `fdg-demo`, `fdg-demo-build`, and `fdg-check` support source-based use.
+2. Delivered deterministic initialization, link attraction, repulsion, centering,
+   damping/cooling, pin/unpin, restart, and pause. Bounded exact
+   pairwise repulsion is implemented; measure before adding Barnes-Hut or parallelism.
+3. Delivered links/nodes with stable identity. Includes node drag with temporary
    pinning, background pan, cursor-anchored zoom, fit/reset, labels, selection,
    search, and selected-node neighbor emphasis. Keep UI controls out of gestures.
-4. Accept the original nodes/links JSON shape with clear invalid-ID/edge errors.
-   Export a deterministic settled SVG from the same scene used by the app.
-   Add neighborhood filtering and parameter controls with explicit semantics;
+4. Delivered the original nodes/links JSON shape with clear invalid-ID/edge errors.
+   Deterministic settled SVG uses the same scene as the app. Neighborhood
+   filtering and parameter controls are included;
    distinguish first-slice omissions from compatibility claims.
-5. Validate native behavior, document limits and measured workload sizes, then
-   decide whether Python convenience wrappers, image formats, packaging, or
-   an extracted solver deserve subsequent slices.
+5. Python launch and SVG wrappers are delivered. Inline notebook interaction
+   remains a separate [Jupyter proposal](jupyter-integration.md). Additional image
+   formats, packaging, and an extracted solver require their own evidence.
 
 ## Acceptance and verification
 
@@ -65,8 +102,8 @@ or performance verification of this proposed application.
 - Build and launch on macOS ARM64. Observe real controls, dragging, zoom, resize,
   and close; report automated replay separately from physical input inspection.
 - Export parses as SVG and reflects the same graph geometry and selected state.
-- Proposed commands: `bash scripts/check.sh`, `bash scripts/build.sh`, and the
-  built executable's `--export` mode. Record actual commands after implementation.
+- Actual first-slice commands and results are recorded above; root
+  `pixi run fdg-demo` builds and launches the example.
 - Benchmark fixed node/edge counts with warmup, iterations, compiler/revision,
   and separate layout versus scene costs. Do not infer speed from Mojo alone.
 
@@ -76,5 +113,7 @@ No generic math framework, D3 API compatibility, graph editor, GPU solver,
 browser-runtime port, or million-node claim. Full original template/custom-JS
 compatibility is outside scope. Package-only installation and non-macOS native
 support require separate verification. Confidence is high in the ownership
-boundary, medium in initial workload capacity until measured. Nothing in this
-plan depends on either segmentation port shipping.
+boundary and the tested bounded workload, supported by the capacity and frame
+checks above. Larger graphs or an independent solver consumer would require
+new measurements and could change the implementation boundary. Nothing in
+this plan depends on either segmentation port shipping.
