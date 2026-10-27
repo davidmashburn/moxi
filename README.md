@@ -38,7 +38,7 @@ caveats, is in [docs/features.md](docs/features.md).
 - A first-class Plot library with statistical recipes, facets, linked selection, and SVG export.
 - Shared iOS, Android, and Web host bridges with deterministic fallbacks (not yet Mojo package targets).
 - A deterministic in-process capability bus for agent-safe mutation authorization.
-- A searchable Moxi Playground demo browser covering every checked-in example.
+- A searchable Moxi Playground demo browser covering the core demos.
 - Deterministic headless testing: golden-image corpora, text conformance fixtures, and CI-checked visual diffs.
 
 ## Example
@@ -103,6 +103,11 @@ output/moxi` followed by `pixi publish --path packages/moxi_plot/pixi.toml
 with `pixi run package-consumer` as the install-and-import smoke lane.
 
 [![10-second Moxi Playground walkthrough](docs/moxi-capability-bus-walkthrough-10s.gif)](docs/moxi-capability-bus-walkthrough-10s.mp4)
+
+The [force-directed graph example](examples/fdg/README.md) adds a native graph
+explorer, an application-owned force solver, SVG export, and a Python launcher.
+Run `pixi run fdg-demo` to build and open it. It runs in a separate window from
+the Playground.
 
 ## Architecture
 

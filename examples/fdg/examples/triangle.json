@@ -1,0 +1,13 @@
+{
+  "nodes": [
+    {"id": "alpha", "group": "one"},
+    {"id": "beta", "group": "one"},
+    {"id": "gamma", "group": "two"},
+    {"id": "isolated", "group": "three"}
+  ],
+  "links": [
+    {"source": "alpha", "target": "beta", "value": 1},
+    {"source": "beta", "target": "gamma", "value": 4},
+    {"source": "gamma", "target": "alpha", "value": 2}
+  ]
+}

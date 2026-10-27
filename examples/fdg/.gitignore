@@ -1,0 +1,4 @@
+dist/
+.pixi/
+__pycache__/
+moxi-fdg.svg

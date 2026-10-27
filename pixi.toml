@@ -7,6 +7,9 @@ preview = ["pixi-build"]
 version = "0.6.0"
 
 [tasks]
+fdg-demo-build = "bash examples/fdg/scripts/build.sh"
+fdg-demo = { cmd = "./examples/fdg/dist/moxi-fdg", depends-on = ["fdg-demo-build"] }
+fdg-check = "bash examples/fdg/scripts/check.sh"
 build = "mkdir -p dist && mojo precompile src/moxi -o dist/moxi.mojoc && mojo precompile -I src src/moxi_plot -o dist/moxi_plot.mojoc && mojo precompile -I src src/moxi_demo -o dist/moxi_demo.mojoc"
 native-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
 metal-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_metal.m -o native/macos_metal.o"
