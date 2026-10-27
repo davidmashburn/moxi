@@ -19,6 +19,14 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Scoped reactivity experiment](docs/design/scoped-reactivity-experiment.md)
+  records the binding and tracked-read results, a practical Mojo example, and
+  their limits as evidence for authoring comfort. The follow-up
+  [authoring comparison](docs/design/authoring-comfort-experiment.md) writes a
+  complete form in Marko and two proposed Moxi surfaces, including reusable
+  fields, controlled state, validation, and conditional lifetime. These are
+  experiments, not changes to implementation priority or public API.
+
 - Independent OSS application ports: [force-directed graphs](docs/design/fdg-port.md),
   [SeedWaterSegmenter](docs/design/sws-port.md), and [SWS4D](docs/design/sws4d-port.md).
   FDG's first slice is implemented in `examples/fdg/` on `main` at `875f714`;
