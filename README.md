@@ -19,6 +19,11 @@ The current planning baseline is:
 
 ## Planning record
 
+- Independent OSS application ports: [force-directed graphs](docs/design/fdg-port.md),
+  [SeedWaterSegmenter](docs/design/sws-port.md), and [SWS4D](docs/design/sws4d-port.md).
+  FDG is the authorized first implementation; the segmentation plans remain
+  proposals with their own validation gates and no dependency on FDG shipping.
+
 - [CURRENT-STATE.md](CURRENT-STATE.md) is the evidence-led implementation
   audit. It distinguishes shipped behavior, experimental slices, and genuine
   gaps.
