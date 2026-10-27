@@ -6,6 +6,11 @@ inspected on `feat/data-workbench` at
 `c8c7cbb7741519c9796a02ffa25c02e701b2f58a`, with its uncommitted experiments.
 The implementation checkout and unrelated edits are unchanged by this draft.
 
+Follow-up: the user remains unconvinced by this draft. The
+[UI pattern inventory](ui-pattern-inventory.md) widens the comparison to existing
+frameworks and recommends revisiting ownership and shared editing before any
+mounted-child runtime work. The examples below remain uncompiled candidates.
+
 The question is whether a complete application makes sense before adding more
 runtime machinery. Below are two complete proposed application files: independent
 forms, then forms sharing only their name. They include the existing nickname,

@@ -19,8 +19,16 @@ The current planning baseline is:
 
 ## Planning record
 
+- [UI pattern inventory](docs/design/ui-pattern-inventory.md) compares sixteen
+  framework entries, including Xilem, across ownership, update mechanisms,
+  shared editing, identity and effects, with primary sources and an
+  [interactive table](docs/design/ui-pattern-inventory.html). The composition
+  draft has not established authoring comfort. Reopen the shared editing
+  contract before investing in its mounted-child runtime; compare current-state
+  projection, observed models and controlled values using complete applications.
+
 - [Composition authoring draft](docs/design/composition-authoring-draft.md) is
-  the latest source-first follow-up: complete independent and shared greeting
+  the preceding source-first follow-up: complete independent and shared greeting
   forms, assessed against adding a field, adding an instance and sharing one
   value. Parent routing disappears from the proposed surface, but mounted child
   ownership and the shared input/output interface remain unproven costs. These
