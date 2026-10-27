@@ -19,8 +19,15 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Child routing experiment](docs/design/child-routing-experiment.md) is the
+  latest authoring follow-up. Existing ComponentSlot routing removes per-field
+  forwarding for independent forms. A shared-value test exposes eager-refresh
+  cursor loss; settling before rendering fixes it with one render per affected
+  child. Parent routing and settlement remain visible costs, so comfort is still
+  unproven and neither experimental API is ready for adoption.
+
 - [Ordinary Mojo handler experiment](docs/design/handler-api-experiment.md) is the
-  latest authoring follow-up. Stored methods separate event dispatch from one
+  preceding authoring follow-up. Stored methods separate event dispatch from one
   read-only render; App checks and bounded native interactions passed. Scoped
   identity works for keyed rows, but forwarding methods, explicit item context,
   and conditional scopes remain composition costs. Keep the architectural

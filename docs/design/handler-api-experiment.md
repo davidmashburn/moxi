@@ -163,3 +163,13 @@ history, has no virtualization, and caches application render output across boun
 changes. External state mutations require explicit refresh/rebuild. Read-only
 `self` does not prevent external I/O, and exactly-once means per accepted event,
 not durable delivery of effects.
+
+## Child routing follow-up
+
+The [child routing experiment](child-routing-experiment.md) now tests the existing
+ComponentSlot boundary. Independent forms need zero per-field forwarding
+handlers. Shared controlled inputs expose a cursor-loss bug when this host
+refreshes before the parent settles a change; a separate bounded host variant
+defers rendering and fixes it. The original experiment remains unchanged.
+The follow-up narrows the remaining problem to parent composition and settlement
+ergonomics; it does not establish a comfortable final API.
