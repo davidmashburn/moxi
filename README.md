@@ -19,8 +19,15 @@ The current planning baseline is:
 
 ## Planning record
 
-- [Ordinary Mojo render experiment](docs/design/render-api-experiment.md) is the
-  latest authoring follow-up: executable `render(mut self, mut ui: UI)` examples
+- [Ordinary Mojo handler experiment](docs/design/handler-api-experiment.md) is the
+  latest authoring follow-up. Stored methods separate event dispatch from one
+  read-only render; App checks and bounded native interactions passed. Scoped
+  identity works for keyed rows, but forwarding methods, explicit item context,
+  and conditional scopes remain composition costs. Keep the architectural
+  separation; neither experimental API is ready for adoption.
+
+- [Ordinary Mojo render experiment](docs/design/render-api-experiment.md) records
+  executable `render(mut self, mut ui: UI)` examples that
   use ordinary fields and borrowed values, with no parser or binding objects.
   App checks and native interaction passed within the documented scope. Stable
   keys and repeatable render bodies remain authoring rules; accessibility focus

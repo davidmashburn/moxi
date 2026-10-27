@@ -123,3 +123,13 @@ behavior, VoiceOver, actual IME input, OS clipboard integration, mouse caret/dra
 selection, or a user-comprehension study. This experiment does not resolve the
 earlier native accessibility observation or validate the earlier tracked-reactivity
 probes. The next authoring assessment should use these actual Mojo sources.
+
+## Handler follow-up
+
+The [handler experiment](handler-api-experiment.md) records the subsequent
+architectural assessment and executable comparison. Stable identity and explicit
+effects remain necessary, but global control keys and dispatch-time rendering
+were choices of this prototype. The follow-up preserves separate event handling
+and view construction; it demonstrates a cleaner execution model while exposing
+substantial forwarding and identity costs. Neither API is recommended for public
+adoption on the strength of these experiments.
