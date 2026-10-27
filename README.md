@@ -19,6 +19,13 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Ordinary Mojo render experiment](docs/design/render-api-experiment.md) is the
+  latest authoring follow-up: executable `render(mut self, mut ui: UI)` examples
+  use ordinary fields and borrowed values, with no parser or binding objects.
+  App checks and native interaction passed within the documented scope. Stable
+  keys and repeatable render bodies remain authoring rules; accessibility focus
+  remains unresolved and comfort has not been established by a usability study.
+
 - [Scoped reactivity experiment](docs/design/scoped-reactivity-experiment.md)
   records the binding and tracked-read results, a practical Mojo example, and
   their limits as evidence for authoring comfort. The follow-up

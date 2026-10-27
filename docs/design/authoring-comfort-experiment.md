@@ -5,6 +5,11 @@ adoption. The two earlier Moxi surface proposals remain unimplemented and were
 rejected in author feedback. The follow-up below uses familiar Marko syntax.
 Neither the source comparison nor the executable follow-up is a usability study.
 
+The latest follow-up is the [ordinary Mojo render experiment](render-api-experiment.md).
+It tests ordinary fields and controls that report interaction without a tags
+compiler. The Marko experiment below remains comparison evidence, not the selected
+authoring direction.
+
 Implementation baseline: `feat/data-workbench` at
 [`c8c7cbb7741519c9796a02ffa25c02e701b2f58a`](https://github.com/davidmashburn/moxi/tree/c8c7cbb7741519c9796a02ffa25c02e701b2f58a).
 The earlier uncommitted probes are described in the
