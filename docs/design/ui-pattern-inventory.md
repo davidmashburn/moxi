@@ -312,3 +312,12 @@ not a framework-selection scorecard. Source links can evolve after this snapshot
 The companion [interactive table](ui-pattern-inventory.html) contains the same
 framework inventory, with filters and expandable syntax, lifetime, effect and
 source notes. The Markdown document is the durable assessment.
+
+## Follow-up: complete form comparison
+
+The [three-form ownership comparison](form-ownership-comparison.md) carries out
+the source exercise above. It provisionally prefers shared observed properties
+for shared fields while retaining current-state callbacks for local state.
+Concrete Mojo field projection and shared storage passed narrow probes; full
+UI integration and authoring comfort remain unverified. This does not adopt a
+new public API or authorize a general runtime rewrite.

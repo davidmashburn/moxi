@@ -19,6 +19,14 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Three complete form ownership designs](docs/design/form-ownership-comparison.md)
+  compares current-state projection, shared observed properties and controlled
+  values against the same form and edit/lifetime exercises, with an
+  [interactive source comparison](docs/design/form-ownership-comparison.html).
+  Shared cells make the smallest sharing edit, but comfort remains unproven.
+  Small Mojo probes verify shared storage and concrete mutable field projection;
+  the UI APIs, observation and lifecycle integration remain proposals.
+
 - [UI pattern inventory](docs/design/ui-pattern-inventory.md) compares sixteen
   framework entries, including Xilem, across ownership, update mechanisms,
   shared editing, identity and effects, with primary sources and an
