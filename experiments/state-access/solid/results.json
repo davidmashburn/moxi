@@ -1,0 +1,2157 @@
+{
+  "assertionCount": 125,
+  "assertions": [
+    {
+      "label": "package and lockfile pin the same Solid version",
+      "passed": true
+    },
+    {
+      "label": "expected exact Solid version",
+      "passed": true,
+      "details": {
+        "packageJsonVersion": "1.9.17",
+        "lockfileVersion": 3,
+        "pinnedSolidVersion": "1.9.17",
+        "resolvedSolid": "/Users/davmash/code/moxi/experiments/state-access/solid/node_modules/solid-js/dist/solid.js",
+        "resolvedSolidStore": "/Users/davmash/code/moxi/experiments/state-access/solid/node_modules/solid-js/store/dist/store.js"
+      }
+    },
+    {
+      "label": "browser condition resolves the client Solid build",
+      "passed": true,
+      "details": "/Users/davmash/code/moxi/experiments/state-access/solid/node_modules/solid-js/dist/solid.js"
+    },
+    {
+      "label": "browser condition resolves the client Solid store build",
+      "passed": true,
+      "details": "/Users/davmash/code/moxi/experiments/state-access/solid/node_modules/solid-js/store/dist/store.js"
+    },
+    {
+      "label": "normalization counts Unicode code points",
+      "passed": true
+    },
+    {
+      "label": "document context is mandatory",
+      "passed": true
+    },
+    {
+      "label": "settings context is mandatory",
+      "passed": true
+    },
+    {
+      "label": "nested component path",
+      "passed": true
+    },
+    {
+      "label": "two reusable editors mounted",
+      "passed": true
+    },
+    {
+      "label": "initial document state",
+      "passed": true
+    },
+    {
+      "label": "current sink initializes",
+      "passed": true
+    },
+    {
+      "label": "apply enabled initializes",
+      "passed": true
+    },
+    {
+      "label": "editor A keeps its private draft",
+      "passed": true
+    },
+    {
+      "label": "editor B keeps its private draft",
+      "passed": true
+    },
+    {
+      "label": "local drafts do not commit automatically",
+      "passed": true
+    },
+    {
+      "label": "local note stays private",
+      "passed": true
+    },
+    {
+      "label": "successful shared rename",
+      "passed": true
+    },
+    {
+      "label": "rename updates name and revision",
+      "passed": true
+    },
+    {
+      "label": "rename updates commits and history",
+      "passed": true
+    },
+    {
+      "label": "sibling draft does not auto-sync after rename",
+      "passed": true
+    },
+    {
+      "label": "shared current label updates both live editors",
+      "passed": true
+    },
+    {
+      "label": "stale sibling rejects",
+      "passed": true
+    },
+    {
+      "label": "stale error reaches sibling sink",
+      "passed": true
+    },
+    {
+      "label": "reload reads current document",
+      "passed": true
+    },
+    {
+      "label": "reload replaces draft and clears error",
+      "passed": true
+    },
+    {
+      "label": "normalized unchanged name succeeds",
+      "passed": true
+    },
+    {
+      "label": "unchanged rename does not advance revision or history",
+      "passed": true
+    },
+    {
+      "label": "whitespace-only name rejects",
+      "passed": true
+    },
+    {
+      "label": "empty rejection does not mutate document",
+      "passed": true
+    },
+    {
+      "label": "codepoint length rejection",
+      "passed": true
+    },
+    {
+      "label": "permission-only apply allows validation errors to be shown",
+      "passed": true
+    },
+    {
+      "label": "read-only rejection",
+      "passed": true
+    },
+    {
+      "label": "read-only disables apply",
+      "passed": true
+    },
+    {
+      "label": "undo respects read-only permission",
+      "passed": true
+    },
+    {
+      "label": "read-only undo does not mutate document",
+      "passed": true
+    },
+    {
+      "label": "undo succeeds",
+      "passed": true
+    },
+    {
+      "label": "undo restores previous name",
+      "passed": true
+    },
+    {
+      "label": "undo increments revision",
+      "passed": true
+    },
+    {
+      "label": "undo does not increment rename commit count",
+      "passed": true
+    },
+    {
+      "label": "undo pops history back to initial state",
+      "passed": true
+    },
+    {
+      "label": "exhausted undo does not toggle history forward",
+      "passed": true
+    },
+    {
+      "label": "dynamic maxLength affects command validation",
+      "passed": true
+    },
+    {
+      "label": "maxLength is not an enabled-sink dependency",
+      "passed": true
+    },
+    {
+      "label": "writable apply stays enabled after maxLength change",
+      "passed": true
+    },
+    {
+      "label": "dynamic writable toggle disables apply",
+      "passed": true
+    },
+    {
+      "label": "dynamic writable toggle re-enables apply",
+      "passed": true
+    },
+    {
+      "label": "irrelevant settings do not change sinks",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": "Current: Base",
+          "draft": "LongName",
+          "note": "private",
+          "error": "The name is 8 code points; the limit is 5.",
+          "applyEnabled": true
+        },
+        "expected": {
+          "current": "Current: Base",
+          "draft": "LongName",
+          "note": "private",
+          "error": "The name is 8 code points; the limit is 5.",
+          "applyEnabled": true
+        }
+      }
+    },
+    {
+      "label": "nested provider shadows document",
+      "passed": true
+    },
+    {
+      "label": "nested provider shadows settings",
+      "passed": true
+    },
+    {
+      "label": "nested document does not replace root document",
+      "passed": true
+    },
+    {
+      "label": "shadow editor writes shadow document",
+      "passed": true
+    },
+    {
+      "label": "shadow write does not mutate root document",
+      "passed": true
+    },
+    {
+      "label": "editor removal returns disposed editor",
+      "passed": true
+    },
+    {
+      "label": "disposed editor leaves one live editor",
+      "passed": true
+    },
+    {
+      "label": "live sibling can write after removal",
+      "passed": true
+    },
+    {
+      "label": "disposed sink is not updated by shared write",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": "Current: Base",
+          "draft": "AfterRemoval",
+          "note": "",
+          "error": "",
+          "applyEnabled": true
+        },
+        "expected": {
+          "current": "Current: Base",
+          "draft": "AfterRemoval",
+          "note": "",
+          "error": "",
+          "applyEnabled": true
+        }
+      }
+    },
+    {
+      "label": "disposed sink has no further effect activity",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": {
+            "evaluations": 3,
+            "changedWrites": 3
+          },
+          "draft": {
+            "evaluations": 5,
+            "changedWrites": 5
+          },
+          "note": {
+            "evaluations": 1,
+            "changedWrites": 1
+          },
+          "error": {
+            "evaluations": 3,
+            "changedWrites": 3
+          },
+          "applyEnabled": {
+            "evaluations": 5,
+            "changedWrites": 5
+          }
+        },
+        "expected": {
+          "current": {
+            "evaluations": 3,
+            "changedWrites": 3
+          },
+          "draft": {
+            "evaluations": 5,
+            "changedWrites": 5
+          },
+          "note": {
+            "evaluations": 1,
+            "changedWrites": 1
+          },
+          "error": {
+            "evaluations": 3,
+            "changedWrites": 3
+          },
+          "applyEnabled": {
+            "evaluations": 5,
+            "changedWrites": 5
+          }
+        }
+      }
+    },
+    {
+      "label": "retained callback remains callable after disposal",
+      "passed": true
+    },
+    {
+      "label": "retained callback still performs its domain command",
+      "passed": true
+    },
+    {
+      "label": "retained callback does not revive UI sinks",
+      "passed": true
+    },
+    {
+      "label": "remount creates a fresh editor instance",
+      "passed": true
+    },
+    {
+      "label": "remount takes a clean draft from current document",
+      "passed": true
+    },
+    {
+      "label": "remount does not retain private note",
+      "passed": true
+    },
+    {
+      "label": "root document slot remains stable",
+      "passed": true
+    },
+    {
+      "label": "replacement keeps the same revision",
+      "passed": true
+    },
+    {
+      "label": "stable slot updates current readers",
+      "passed": true
+    },
+    {
+      "label": "replacement does not auto-sync local draft",
+      "passed": true
+    },
+    {
+      "label": "same-revision replacement rejects stale draft",
+      "passed": true
+    },
+    {
+      "label": "replacement guard prevents stale commit",
+      "passed": true
+    },
+    {
+      "label": "reload adopts replacement document",
+      "passed": true
+    },
+    {
+      "label": "reloaded editor can commit replacement",
+      "passed": true
+    },
+    {
+      "label": "repeated mount/dispose leaves only live editors",
+      "passed": true
+    },
+    {
+      "label": "repeated mount/dispose disposes each temporary editor",
+      "passed": true
+    },
+    {
+      "label": "shared write after mount/dispose cycles succeeds",
+      "passed": true
+    },
+    {
+      "label": "post-cycle write only evaluates live current sinks",
+      "passed": true
+    },
+    {
+      "label": "post-cycle write only changes live current sinks",
+      "passed": true
+    },
+    {
+      "label": "root disposal disposes remaining editors",
+      "passed": true
+    },
+    {
+      "label": "scale 2 counters reset after mount",
+      "passed": true
+    },
+    {
+      "label": "scale 2 draftEdit exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 2 draftEdit exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 2 noteEdit exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 2 noteEdit exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 2 sharedNameRename exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 2,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 2,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 2 sharedNameRename exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 2,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 2,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 2 writableToggle exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 2
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 2
+        }
+      }
+    },
+    {
+      "label": "scale 2 writableToggle exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 2
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 2
+        }
+      }
+    },
+    {
+      "label": "scale 2 irrelevantSettingsProperty exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 2 irrelevantSettingsProperty exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 2 current fanout measured",
+      "passed": true
+    },
+    {
+      "label": "scale 2 writable fanout measured",
+      "passed": true
+    },
+    {
+      "label": "scale 2 irrelevant setting has no evaluations",
+      "passed": true
+    },
+    {
+      "label": "scale 2 setup and live counts measured",
+      "passed": true
+    },
+    {
+      "label": "scale 2 root disposal clears live editors",
+      "passed": true
+    },
+    {
+      "label": "scale 100 counters reset after mount",
+      "passed": true
+    },
+    {
+      "label": "scale 100 draftEdit exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 100 draftEdit exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 100 noteEdit exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 100 noteEdit exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 100 sharedNameRename exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 100,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 100,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 100 sharedNameRename exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 100,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 100,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 100 writableToggle exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 100
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 100
+        }
+      }
+    },
+    {
+      "label": "scale 100 writableToggle exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 100
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 100
+        }
+      }
+    },
+    {
+      "label": "scale 100 irrelevantSettingsProperty exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 100 irrelevantSettingsProperty exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 100 current fanout measured",
+      "passed": true
+    },
+    {
+      "label": "scale 100 writable fanout measured",
+      "passed": true
+    },
+    {
+      "label": "scale 100 irrelevant setting has no evaluations",
+      "passed": true
+    },
+    {
+      "label": "scale 100 setup and live counts measured",
+      "passed": true
+    },
+    {
+      "label": "scale 100 root disposal clears live editors",
+      "passed": true
+    },
+    {
+      "label": "scale 1000 counters reset after mount",
+      "passed": true
+    },
+    {
+      "label": "scale 1000 draftEdit exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 1000 draftEdit exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 1,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 1000 noteEdit exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 1000 noteEdit exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 1,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 1000 sharedNameRename exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 1000,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 1000,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 1000 sharedNameRename exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 1000,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 1000,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 1000 writableToggle exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 1000
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 1000
+        }
+      }
+    },
+    {
+      "label": "scale 1000 writableToggle exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 1000
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 1000
+        }
+      }
+    },
+    {
+      "label": "scale 1000 irrelevantSettingsProperty exact evaluations",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 1000 irrelevantSettingsProperty exact writes",
+      "passed": true,
+      "details": {
+        "actual": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "expected": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        }
+      }
+    },
+    {
+      "label": "scale 1000 current fanout measured",
+      "passed": true
+    },
+    {
+      "label": "scale 1000 writable fanout measured",
+      "passed": true
+    },
+    {
+      "label": "scale 1000 irrelevant setting has no evaluations",
+      "passed": true
+    },
+    {
+      "label": "scale 1000 setup and live counts measured",
+      "passed": true
+    },
+    {
+      "label": "scale 1000 root disposal clears live editors",
+      "passed": true
+    }
+  ],
+  "experimentVersion": 2,
+  "generatedAt": "2026-10-30T19:28:24.502Z",
+  "version": {
+    "solidJs": "1.9.17",
+    "packageJsonRange": "1.9.17",
+    "lockfileVersion": 3
+  },
+  "execution": {
+    "mode": "headless-real-solid-client-runtime",
+    "command": "node --conditions=browser check.mjs",
+    "node": "v26.10.0",
+    "conditions": [
+      "browser"
+    ],
+    "domRequired": false,
+    "resolvedSolid": "/Users/davmash/code/moxi/experiments/state-access/solid/node_modules/solid-js/dist/solid.js",
+    "resolvedSolidStore": "/Users/davmash/code/moxi/experiments/state-access/solid/node_modules/solid-js/store/dist/store.js",
+    "instrumentation": "actual createRenderEffect callback evaluations and changed sink writes; inferred dependency counts are labeled separately"
+  },
+  "sequence": {
+    "finalDocument": {
+      "id": "replacement-document",
+      "name": "AfterCycles",
+      "revision": 6,
+      "commits": [
+        {
+          "kind": "rename",
+          "documentId": "replacement-document",
+          "from": "Replacement",
+          "to": "PostReplace",
+          "revision": 5
+        },
+        {
+          "kind": "rename",
+          "documentId": "replacement-document",
+          "from": "PostReplace",
+          "to": "AfterCycles",
+          "revision": 6
+        }
+      ],
+      "history": [
+        {
+          "kind": "initial",
+          "documentId": "replacement-document",
+          "name": "Replacement",
+          "revision": 4
+        },
+        {
+          "kind": "rename",
+          "documentId": "replacement-document",
+          "name": "PostReplace",
+          "revision": 5
+        },
+        {
+          "kind": "rename",
+          "documentId": "replacement-document",
+          "name": "AfterCycles",
+          "revision": 6
+        }
+      ]
+    },
+    "instrumentation": {
+      "evaluations": {
+        "current": 2,
+        "draft": 0,
+        "note": 0,
+        "error": 0,
+        "applyEnabled": 0
+      },
+      "changedWrites": {
+        "current": 2,
+        "draft": 0,
+        "note": 0,
+        "error": 0,
+        "applyEnabled": 0
+      },
+      "setupCount": 29,
+      "liveCount": 2,
+      "disposedCount": 27,
+      "peakLiveCount": 3
+    },
+    "retainedCallback": {
+      "resultCode": "ok",
+      "callableAfterDispose": true,
+      "disposedEditorSinkRemainedDetached": true
+    },
+    "repeatedMountDispose": {
+      "cycles": 25,
+      "setupDelta": 25,
+      "disposedDelta": 25,
+      "liveAfterCycles": 2,
+      "postCycleActivity": {
+        "evaluations": {
+          "current": 2,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "changedWrites": {
+          "current": 2,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "setupCount": 29,
+        "liveCount": 2,
+        "disposedCount": 27,
+        "peakLiveCount": 3
+      }
+    },
+    "assertions": [
+      {
+        "label": "document context is mandatory",
+        "passed": true
+      },
+      {
+        "label": "settings context is mandatory",
+        "passed": true
+      },
+      {
+        "label": "nested component path",
+        "passed": true
+      },
+      {
+        "label": "two reusable editors mounted",
+        "passed": true
+      },
+      {
+        "label": "initial document state",
+        "passed": true
+      },
+      {
+        "label": "current sink initializes",
+        "passed": true
+      },
+      {
+        "label": "apply enabled initializes",
+        "passed": true
+      },
+      {
+        "label": "editor A keeps its private draft",
+        "passed": true
+      },
+      {
+        "label": "editor B keeps its private draft",
+        "passed": true
+      },
+      {
+        "label": "local drafts do not commit automatically",
+        "passed": true
+      },
+      {
+        "label": "local note stays private",
+        "passed": true
+      },
+      {
+        "label": "successful shared rename",
+        "passed": true
+      },
+      {
+        "label": "rename updates name and revision",
+        "passed": true
+      },
+      {
+        "label": "rename updates commits and history",
+        "passed": true
+      },
+      {
+        "label": "sibling draft does not auto-sync after rename",
+        "passed": true
+      },
+      {
+        "label": "shared current label updates both live editors",
+        "passed": true
+      },
+      {
+        "label": "stale sibling rejects",
+        "passed": true
+      },
+      {
+        "label": "stale error reaches sibling sink",
+        "passed": true
+      },
+      {
+        "label": "reload reads current document",
+        "passed": true
+      },
+      {
+        "label": "reload replaces draft and clears error",
+        "passed": true
+      },
+      {
+        "label": "normalized unchanged name succeeds",
+        "passed": true
+      },
+      {
+        "label": "unchanged rename does not advance revision or history",
+        "passed": true
+      },
+      {
+        "label": "whitespace-only name rejects",
+        "passed": true
+      },
+      {
+        "label": "empty rejection does not mutate document",
+        "passed": true
+      },
+      {
+        "label": "codepoint length rejection",
+        "passed": true
+      },
+      {
+        "label": "permission-only apply allows validation errors to be shown",
+        "passed": true
+      },
+      {
+        "label": "read-only rejection",
+        "passed": true
+      },
+      {
+        "label": "read-only disables apply",
+        "passed": true
+      },
+      {
+        "label": "undo respects read-only permission",
+        "passed": true
+      },
+      {
+        "label": "read-only undo does not mutate document",
+        "passed": true
+      },
+      {
+        "label": "undo succeeds",
+        "passed": true
+      },
+      {
+        "label": "undo restores previous name",
+        "passed": true
+      },
+      {
+        "label": "undo increments revision",
+        "passed": true
+      },
+      {
+        "label": "undo does not increment rename commit count",
+        "passed": true
+      },
+      {
+        "label": "undo pops history back to initial state",
+        "passed": true
+      },
+      {
+        "label": "exhausted undo does not toggle history forward",
+        "passed": true
+      },
+      {
+        "label": "dynamic maxLength affects command validation",
+        "passed": true
+      },
+      {
+        "label": "maxLength is not an enabled-sink dependency",
+        "passed": true
+      },
+      {
+        "label": "writable apply stays enabled after maxLength change",
+        "passed": true
+      },
+      {
+        "label": "dynamic writable toggle disables apply",
+        "passed": true
+      },
+      {
+        "label": "dynamic writable toggle re-enables apply",
+        "passed": true
+      },
+      {
+        "label": "irrelevant settings do not change sinks",
+        "passed": true,
+        "details": {
+          "actual": {
+            "current": "Current: Base",
+            "draft": "LongName",
+            "note": "private",
+            "error": "The name is 8 code points; the limit is 5.",
+            "applyEnabled": true
+          },
+          "expected": {
+            "current": "Current: Base",
+            "draft": "LongName",
+            "note": "private",
+            "error": "The name is 8 code points; the limit is 5.",
+            "applyEnabled": true
+          }
+        }
+      },
+      {
+        "label": "nested provider shadows document",
+        "passed": true
+      },
+      {
+        "label": "nested provider shadows settings",
+        "passed": true
+      },
+      {
+        "label": "nested document does not replace root document",
+        "passed": true
+      },
+      {
+        "label": "shadow editor writes shadow document",
+        "passed": true
+      },
+      {
+        "label": "shadow write does not mutate root document",
+        "passed": true
+      },
+      {
+        "label": "editor removal returns disposed editor",
+        "passed": true
+      },
+      {
+        "label": "disposed editor leaves one live editor",
+        "passed": true
+      },
+      {
+        "label": "live sibling can write after removal",
+        "passed": true
+      },
+      {
+        "label": "disposed sink is not updated by shared write",
+        "passed": true,
+        "details": {
+          "actual": {
+            "current": "Current: Base",
+            "draft": "AfterRemoval",
+            "note": "",
+            "error": "",
+            "applyEnabled": true
+          },
+          "expected": {
+            "current": "Current: Base",
+            "draft": "AfterRemoval",
+            "note": "",
+            "error": "",
+            "applyEnabled": true
+          }
+        }
+      },
+      {
+        "label": "disposed sink has no further effect activity",
+        "passed": true,
+        "details": {
+          "actual": {
+            "current": {
+              "evaluations": 3,
+              "changedWrites": 3
+            },
+            "draft": {
+              "evaluations": 5,
+              "changedWrites": 5
+            },
+            "note": {
+              "evaluations": 1,
+              "changedWrites": 1
+            },
+            "error": {
+              "evaluations": 3,
+              "changedWrites": 3
+            },
+            "applyEnabled": {
+              "evaluations": 5,
+              "changedWrites": 5
+            }
+          },
+          "expected": {
+            "current": {
+              "evaluations": 3,
+              "changedWrites": 3
+            },
+            "draft": {
+              "evaluations": 5,
+              "changedWrites": 5
+            },
+            "note": {
+              "evaluations": 1,
+              "changedWrites": 1
+            },
+            "error": {
+              "evaluations": 3,
+              "changedWrites": 3
+            },
+            "applyEnabled": {
+              "evaluations": 5,
+              "changedWrites": 5
+            }
+          }
+        }
+      },
+      {
+        "label": "retained callback remains callable after disposal",
+        "passed": true
+      },
+      {
+        "label": "retained callback still performs its domain command",
+        "passed": true
+      },
+      {
+        "label": "retained callback does not revive UI sinks",
+        "passed": true
+      },
+      {
+        "label": "remount creates a fresh editor instance",
+        "passed": true
+      },
+      {
+        "label": "remount takes a clean draft from current document",
+        "passed": true
+      },
+      {
+        "label": "remount does not retain private note",
+        "passed": true
+      },
+      {
+        "label": "root document slot remains stable",
+        "passed": true
+      },
+      {
+        "label": "replacement keeps the same revision",
+        "passed": true
+      },
+      {
+        "label": "stable slot updates current readers",
+        "passed": true
+      },
+      {
+        "label": "replacement does not auto-sync local draft",
+        "passed": true
+      },
+      {
+        "label": "same-revision replacement rejects stale draft",
+        "passed": true
+      },
+      {
+        "label": "replacement guard prevents stale commit",
+        "passed": true
+      },
+      {
+        "label": "reload adopts replacement document",
+        "passed": true
+      },
+      {
+        "label": "reloaded editor can commit replacement",
+        "passed": true
+      },
+      {
+        "label": "repeated mount/dispose leaves only live editors",
+        "passed": true
+      },
+      {
+        "label": "repeated mount/dispose disposes each temporary editor",
+        "passed": true
+      },
+      {
+        "label": "shared write after mount/dispose cycles succeeds",
+        "passed": true
+      },
+      {
+        "label": "post-cycle write only evaluates live current sinks",
+        "passed": true
+      },
+      {
+        "label": "post-cycle write only changes live current sinks",
+        "passed": true
+      },
+      {
+        "label": "root disposal disposes remaining editors",
+        "passed": true
+      }
+    ],
+    "assertionCount": 72,
+    "afterRootDispose": {
+      "evaluations": {
+        "current": 2,
+        "draft": 0,
+        "note": 0,
+        "error": 0,
+        "applyEnabled": 0
+      },
+      "changedWrites": {
+        "current": 2,
+        "draft": 0,
+        "note": 0,
+        "error": 0,
+        "applyEnabled": 0
+      },
+      "setupCount": 29,
+      "liveCount": 0,
+      "disposedCount": 29,
+      "peakLiveCount": 3
+    }
+  },
+  "scale": {
+    "2": {
+      "editorCount": 2,
+      "countersResetAfterMount": true,
+      "afterMount": {
+        "setupCount": 2,
+        "liveCount": 2,
+        "disposedCount": 0,
+        "peakLiveCount": 2
+      },
+      "operations": {
+        "draftEdit": {
+          "evaluations": {
+            "current": 0,
+            "draft": 1,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 1,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 2,
+          "liveCount": 2,
+          "disposedCount": 0,
+          "peakLiveCount": 2
+        },
+        "noteEdit": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 1,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 1,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 2,
+          "liveCount": 2,
+          "disposedCount": 0,
+          "peakLiveCount": 2
+        },
+        "sharedNameRename": {
+          "evaluations": {
+            "current": 2,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 2,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 2,
+          "liveCount": 2,
+          "disposedCount": 0,
+          "peakLiveCount": 2
+        },
+        "writableToggle": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 2
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 2
+          },
+          "setupCount": 2,
+          "liveCount": 2,
+          "disposedCount": 0,
+          "peakLiveCount": 2
+        },
+        "irrelevantSettingsProperty": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 2,
+          "liveCount": 2,
+          "disposedCount": 0,
+          "peakLiveCount": 2
+        }
+      },
+      "inferred": {
+        "note": "Only evaluations and changed sink writes are instrumented. These derived expectations describe the dependency graph and are not runtime counters.",
+        "draftEdit": {
+          "evaluations": {
+            "draft": 1
+          },
+          "changedWrites": {
+            "draft": 1
+          }
+        },
+        "noteEdit": {
+          "evaluations": {
+            "note": 1
+          },
+          "changedWrites": {
+            "note": 1
+          }
+        },
+        "sharedNameRename": {
+          "evaluations": {
+            "current": 2
+          },
+          "changedWrites": {
+            "current": 2
+          }
+        },
+        "writableToggle": {
+          "evaluations": {
+            "applyEnabled": 2
+          },
+          "changedWrites": {
+            "applyEnabled": 2
+          }
+        },
+        "irrelevantSettingsProperty": {
+          "evaluations": {},
+          "changedWrites": {}
+        }
+      },
+      "afterOperations": {
+        "evaluations": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "changedWrites": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "setupCount": 2,
+        "liveCount": 2,
+        "disposedCount": 0,
+        "peakLiveCount": 2
+      },
+      "afterDispose": {
+        "evaluations": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "changedWrites": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "setupCount": 2,
+        "liveCount": 0,
+        "disposedCount": 2,
+        "peakLiveCount": 2
+      }
+    },
+    "100": {
+      "editorCount": 100,
+      "countersResetAfterMount": true,
+      "afterMount": {
+        "setupCount": 100,
+        "liveCount": 100,
+        "disposedCount": 0,
+        "peakLiveCount": 100
+      },
+      "operations": {
+        "draftEdit": {
+          "evaluations": {
+            "current": 0,
+            "draft": 1,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 1,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 100,
+          "liveCount": 100,
+          "disposedCount": 0,
+          "peakLiveCount": 100
+        },
+        "noteEdit": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 1,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 1,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 100,
+          "liveCount": 100,
+          "disposedCount": 0,
+          "peakLiveCount": 100
+        },
+        "sharedNameRename": {
+          "evaluations": {
+            "current": 100,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 100,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 100,
+          "liveCount": 100,
+          "disposedCount": 0,
+          "peakLiveCount": 100
+        },
+        "writableToggle": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 100
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 100
+          },
+          "setupCount": 100,
+          "liveCount": 100,
+          "disposedCount": 0,
+          "peakLiveCount": 100
+        },
+        "irrelevantSettingsProperty": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 100,
+          "liveCount": 100,
+          "disposedCount": 0,
+          "peakLiveCount": 100
+        }
+      },
+      "inferred": {
+        "note": "Only evaluations and changed sink writes are instrumented. These derived expectations describe the dependency graph and are not runtime counters.",
+        "draftEdit": {
+          "evaluations": {
+            "draft": 1
+          },
+          "changedWrites": {
+            "draft": 1
+          }
+        },
+        "noteEdit": {
+          "evaluations": {
+            "note": 1
+          },
+          "changedWrites": {
+            "note": 1
+          }
+        },
+        "sharedNameRename": {
+          "evaluations": {
+            "current": 100
+          },
+          "changedWrites": {
+            "current": 100
+          }
+        },
+        "writableToggle": {
+          "evaluations": {
+            "applyEnabled": 100
+          },
+          "changedWrites": {
+            "applyEnabled": 100
+          }
+        },
+        "irrelevantSettingsProperty": {
+          "evaluations": {},
+          "changedWrites": {}
+        }
+      },
+      "afterOperations": {
+        "evaluations": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "changedWrites": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "setupCount": 100,
+        "liveCount": 100,
+        "disposedCount": 0,
+        "peakLiveCount": 100
+      },
+      "afterDispose": {
+        "evaluations": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "changedWrites": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "setupCount": 100,
+        "liveCount": 0,
+        "disposedCount": 100,
+        "peakLiveCount": 100
+      }
+    },
+    "1000": {
+      "editorCount": 1000,
+      "countersResetAfterMount": true,
+      "afterMount": {
+        "setupCount": 1000,
+        "liveCount": 1000,
+        "disposedCount": 0,
+        "peakLiveCount": 1000
+      },
+      "operations": {
+        "draftEdit": {
+          "evaluations": {
+            "current": 0,
+            "draft": 1,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 1,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 1000,
+          "liveCount": 1000,
+          "disposedCount": 0,
+          "peakLiveCount": 1000
+        },
+        "noteEdit": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 1,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 1,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 1000,
+          "liveCount": 1000,
+          "disposedCount": 0,
+          "peakLiveCount": 1000
+        },
+        "sharedNameRename": {
+          "evaluations": {
+            "current": 1000,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 1000,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 1000,
+          "liveCount": 1000,
+          "disposedCount": 0,
+          "peakLiveCount": 1000
+        },
+        "writableToggle": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 1000
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 1000
+          },
+          "setupCount": 1000,
+          "liveCount": 1000,
+          "disposedCount": 0,
+          "peakLiveCount": 1000
+        },
+        "irrelevantSettingsProperty": {
+          "evaluations": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "changedWrites": {
+            "current": 0,
+            "draft": 0,
+            "note": 0,
+            "error": 0,
+            "applyEnabled": 0
+          },
+          "setupCount": 1000,
+          "liveCount": 1000,
+          "disposedCount": 0,
+          "peakLiveCount": 1000
+        }
+      },
+      "inferred": {
+        "note": "Only evaluations and changed sink writes are instrumented. These derived expectations describe the dependency graph and are not runtime counters.",
+        "draftEdit": {
+          "evaluations": {
+            "draft": 1
+          },
+          "changedWrites": {
+            "draft": 1
+          }
+        },
+        "noteEdit": {
+          "evaluations": {
+            "note": 1
+          },
+          "changedWrites": {
+            "note": 1
+          }
+        },
+        "sharedNameRename": {
+          "evaluations": {
+            "current": 1000
+          },
+          "changedWrites": {
+            "current": 1000
+          }
+        },
+        "writableToggle": {
+          "evaluations": {
+            "applyEnabled": 1000
+          },
+          "changedWrites": {
+            "applyEnabled": 1000
+          }
+        },
+        "irrelevantSettingsProperty": {
+          "evaluations": {},
+          "changedWrites": {}
+        }
+      },
+      "afterOperations": {
+        "evaluations": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "changedWrites": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "setupCount": 1000,
+        "liveCount": 1000,
+        "disposedCount": 0,
+        "peakLiveCount": 1000
+      },
+      "afterDispose": {
+        "evaluations": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "changedWrites": {
+          "current": 0,
+          "draft": 0,
+          "note": 0,
+          "error": 0,
+          "applyEnabled": 0
+        },
+        "setupCount": 1000,
+        "liveCount": 0,
+        "disposedCount": 1000,
+        "peakLiveCount": 1000
+      }
+    }
+  },
+  "sourceHashes": {
+    ".gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+    "README.md": "5b1add50f465b8caa6a8035e8694e7cce7f4df419473135e98cd06fb2713f39c",
+    "check.mjs": "971f6bd6cb3175f574d36e10198c0ce1fee623af1395ba65b33c3d73765bdf75",
+    "package-lock.json": "6f2516e443ca39ac81f57cd6262f1b544f19fb91fd8160892f3af9544ec3e78f",
+    "package.json": "047a5150063fa1a3665b9526bb47e6d3988791cbcd5fd2146270384ca2525222",
+    "src/app.mjs": "830c2fe776fcb4a53a32b9a544ca80353fa3c9e824f4e3e32eb7d2519253ef01"
+  }
+}

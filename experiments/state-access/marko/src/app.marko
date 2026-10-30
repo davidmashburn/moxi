@@ -1,0 +1,19 @@
+import Shell from './shell.marko';
+import { initial, rename, undo } from './domain.mjs';
+<let/document=initial()>
+<let/settings={ writable: true, maxLength: 24, irrelevant: 0 }>
+<let/items=Array.from({length: input.count}, (_, id) => ({id}))>
+<const/renameDocument(name, id, revision) {
+  const result = rename(document, settings, name, id, revision);
+  document = result.document;
+  return result;
+}>
+<Shell items=items document=document settings=settings rename=renameDocument/>
+<return={
+  document() { return document; },
+  rename: renameDocument,
+  undo() { document = undo(document, settings); },
+  replace(value) { document = value; },
+  configure(value) { settings = {...settings, ...value}; },
+  setItems(value) { items = value; }
+}>

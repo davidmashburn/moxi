@@ -1,0 +1,35 @@
+import { Code, Sink } from './domain.mjs';
+import { register } from './probe.mjs';
+<let/draft=input.document.name>
+<let/note="">
+<let/error="">
+<let/baseId=input.document.id>
+<let/baseRevision=input.document.revision>
+<const/setDraft(value) { draft = value; error = ""; }>
+<const/reload() {
+  draft = input.document.name;
+  baseId = input.document.id;
+  baseRevision = input.document.revision;
+  error = "";
+}>
+<const/apply() {
+  const result = input.rename(draft, baseId, baseRevision);
+  error = result.code === Code.OK ? "" : result.code;
+  if (result.code === Code.OK) {
+    draft = result.document.name;
+    baseId = result.document.id;
+    baseRevision = result.document.revision;
+  }
+  return result.code;
+}>
+<section data-editor=input.id>
+  <p data-sink=Sink.CURRENT>${"Current: " + input.document.name}</p>
+  <label>Name draft <input data-sink=Sink.DRAFT value:=draft onInput() { error = ""; }></label>
+  <label>Private note <input data-sink=Sink.NOTE value:=note></label>
+  <button data-sink=Sink.ENABLED disabled=!input.settings.writable onClick=apply>Apply</button>
+  <button data-reload onClick=reload>Reload</button>
+  <p data-sink=Sink.ERROR>${error}</p>
+</section>
+<script>
+  register(input.id, { apply, reload, setDraft }, $signal);
+</script>

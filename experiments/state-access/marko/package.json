@@ -1,0 +1,7 @@
+{
+  "name": "moxi-state-access-marko-experiment",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build.mjs", "serve": "node serve.mjs" },
+  "dependencies": { "marko": "6.4.7", "@marko/compiler": "5.42.13", "esbuild": "0.25.12" }
+}

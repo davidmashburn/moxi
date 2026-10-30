@@ -1,0 +1,5 @@
+mode,evaluations,independent_builds,frames,reconciled_nodes,tracked_read_calls,rewires,adapter_edge_visits,invalidation_edge_visits
+explicit_union,2044,123,819,89314,0,125,1313,3027
+explicit_precise,1639,123,736,80316,0,371,2795,2154
+tracked,1639,123,736,80316,3824,371,2795,2154
+full_recompute,4633,1008,1008,109942,0,0,0,0
