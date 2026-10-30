@@ -4,6 +4,15 @@ October 29, 2026. **Recommendation, not an adopted public API.** Follow-up to th
 [three complete forms](form-ownership-comparison.md) and
 [framework inventory](ui-pattern-inventory.md).
 
+Later October 29 follow-up: the [matched shared-document comparison](shared-document-comparison.md)
+now passes six real-App/ownership programs, including compiled extensions. It
+supports keeping current-state ownership as the working default for this
+single-owner workflow; handles save two adapters but leave the root route.
+The subsequent [direct-method-binding experiment](direct-method-binding.md)
+removes per-action adapters and is the leading authoring candidate, with runtime
+costs and reader comfort still unverified. Shared ownership and observation
+remain separate choices; the new handle experiment uses no observation engine.
+
 ## Recommendation
 
 Choose **A, current-state ownership and temporary projection, as the foundation**.

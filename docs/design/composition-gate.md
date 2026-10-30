@@ -1,8 +1,18 @@
 # Current-state composition gate
 
+Later follow-up: [direct method bindings](direct-method-binding.md) remove the
+per-action adapters and pass the matched behavior/extension checks. That is the
+current authoring candidate; its runtime allocation and safety costs remain
+explicit adoption gates.
+
 October 29, 2026. Follow-up to the [ownership recommendation](ownership-decision.md).
 Implementation experiment: `experiments/composition-gate/` in the Moxi development
 checkout. **Behavior passes; the comfort/adoption gate remains open.**
+
+Later October 29 follow-up: the [matched shared-document comparison](shared-document-comparison.md)
+is now implemented and checked, including compiled field/validation extensions.
+It keeps current-state ownership as the working default while leaving the
+callback-authoring gate open. The original run and reasoning below are retained.
 
 ## What ran
 
@@ -137,7 +147,9 @@ code. Compare the complete source needed to add a field, share a document, chang
 validation and remove an editor. If handles substantially simplify that source
 without moving the cost into cleanup or hidden mutation, prefer them at the
 application boundary; otherwise retain A and address its binding machinery.
-This comparison is proposed, not run, and does not call for an observation engine.
+That comparison was proposed at the time of this record. It has since
+[run without an observation engine](shared-document-comparison.md); both pass,
+but handles do not substantially simplify the complete authoring surface.
 
 ## Compiler finding and provenance
 

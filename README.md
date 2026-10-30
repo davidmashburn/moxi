@@ -19,6 +19,18 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Direct method bindings](docs/design/direct-method-binding.md) remove all eight
+  per-action adapters while preserving current-state ownership. Eight checks
+  pass, including nested reuse, copied-host routing and field extension. This is
+  the leading authoring candidate; callback allocation and erased-storage safety
+  remain implementation work, and reader comfort is unverified.
+
+- [Shared-document comparison](docs/design/shared-document-comparison.md) runs
+  matching behavior, extension and lifetime checks for both ownership choices.
+  Six programs pass. Handles save two adapters but retain root routing and add
+  sharing semantics; keep current-state ownership as the working default. The
+  remaining authoring problem is method binding, not further ownership inventory.
+
 - [Composition gate](docs/design/composition-gate.md) passes real-App checks for
   independent drafts over a shared document, owner policy, undo, reuse, and
   removal/remount. Eight adapters for four actions remain a visible authoring
