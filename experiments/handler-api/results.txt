@@ -1,0 +1,93 @@
+Handler API experiment — observed October 27, 2026
+Implementation branch: feat/data-workbench; HEAD c8c7cbb7741519c9796a02ffa25c02e701b2f58a
+Experiment source is uncommitted and is not part of that HEAD.
+Compiler: Mojo 1.1.0 (8189361e), repository locked pixi environment.
+
+COMMAND: bash experiments/handler-api/check.sh
+EXIT: 0
+PASS stored method handlers, independent/shared counters, keyboard, copy isolation
+PASS one handler then one render; earlier labels/branches settle; no replay on rebuild/resize/paint
+PASS form editing, validation, Save once, reset, conditional identity and stale remount events
+PASS Unicode, synthetic composition, App clipboard and Tab
+PASS shared editors, separate cursors; value handlers skip cursor/selection/composition-only changes
+PASS reusable form and independent nested state; duplicate local scope names across instances
+PASS keyed reorder/insertion/removal/remount, cursor/focus continuity and owned item context
+KNOWN LIMIT position-only identity transfers focus to another item after reorder
+All handler API checks passed
+PASS expected compiler rejection: invalid-handler
+PASS expected compiler rejection: render-mutation
+PASS expected compiler rejection: captured-handler
+PASS duplicate scope rejection
+
+COMMAND: bash experiments/handler-api/native.sh --build-only
+EXIT: 0
+14 existing native_window.mojo as_c_string_slice deprecation warnings.
+Native app opened: experiments/handler-api/generated/Moxi Handler Experiment.app
+Manual automation observations (not replayed by check.sh):
+- Keyboard edited first Name to Grace; live preview changed; Enter Save showed Saved: Grace.
+- Second form stayed Ada with no saved value.
+- Enter on second Use nickname revealed blank field and Name required / disabled Save.
+- Typing Mox then Enter Save showed Saved: Mox; first Saved: Grace persisted.
+- An automated lowercase space attempt did not visibly activate Save. Uppercase Space
+  was rejected by the tool: keyNotFound("Space"). Native Space is unresolved.
+- Demo left open showing independently saved Grace and Mox.
+
+DEVELOPMENT CORRECTIONS:
+- Struct parameter references in a thin-handler field needed Self.S.
+- Mojo 1.1 requires explicit String byte_length and list literal initialization.
+- The row cursor test exposed initial editor cursor placement; new editors now use
+  TextInputState(value), while surviving editors synchronize with set_text.
+- Value-change dispatch was separated from cursor/selection/composition-only updates
+  and verified by a handler invocation counter.
+- The captured-handler fixture correctly failed at line 11; the test harness
+  expectation was corrected from line 12 before the final successful run.
+
+COMPILER DIAGNOSTICS (paths normalized):
+
+invalid-handler:
+<repo>/experiments/handler-api/diagnostics/invalid-handler.mojo:10:46: error: invalid call to 'text_input': value passed to 'on_change' cannot be converted from 'def set_name(mut self: Invalid, value: Int) thin -> None' to 'def(mut Invalid, String) thin -> None'
+        ui.text_input("Name", self.name, Self.set_name)
+        ~~~~~~~~~~~~~                    ~~~~^~~~~~~~~
+Imported from <repo>/experiments/handler-api/diagnostics/invalid-handler.mojo:1:
+experiments/handler-api/runtime.mojo:216:9: note: function declared here
+    def text_input(mut self, label: String, value: String, on_change: def(mut Self.S, String) thin -> None):
+        ^
+<repo>/.pixi/envs/default/bin/mojo: error: failed to parse the provided Mojo source module
+
+render-mutation:
+<repo>/experiments/handler-api/diagnostics/render-mutation.mojo:8:13: error: expression must be mutable for in-place operator destination
+        self.count += 1
+        ~~~~^~~~~~
+<repo>/.pixi/envs/default/bin/mojo: error: failed to parse the provided Mojo source module
+
+captured-handler:
+<repo>/experiments/handler-api/diagnostics/captured-handler.mojo:11:32: error: invalid call to 'button': value passed to 'on_click' cannot be converted from 'def(mut state: Invalid) -> None' to 'def(mut Invalid) thin -> None'
+        ui.button("Increment", increment)
+        ~~~~~~~~~              ^~~~~~~~~
+Imported from <repo>/experiments/handler-api/diagnostics/captured-handler.mojo:1:
+experiments/handler-api/runtime.mojo:186:9: note: function declared here
+    def button(mut self, text: String, on_click: def(mut Self.S) thin -> None, enabled: Bool = True):
+        ^
+<repo>/.pixi/envs/default/bin/mojo: error: failed to parse the provided Mojo source module
+
+duplicate-scope:
+Handler API error: duplicate identity: /k4:same
+
+NOT RUN / UNRESOLVED:
+Full repository suite; performance/scalability benchmarks; non-macOS/browser;
+VoiceOver; real IME; OS clipboard; mouse caret/drag; native Space; earlier AX focus;
+async/request lifecycle; reentrancy/failure handling; independent authoring study.
+
+SOURCE SHA-256 (generated binaries/logs and this results file excluded):
+f5c10da83055c0c3e72f3167971d1916e443dc90390e32b42844552cc37b81e0  experiments/handler-api/.gitignore
+97aad47214b61f43662df4cc2284a7aff93da3bbca4c90c2a4acca19851d5735  experiments/handler-api/README.md
+b67ae468ec6656373816b4fc192f2638ab71d141842e0b4f823159ce61fba526  experiments/handler-api/check.mojo
+f9dd97e4c22b614f20cece910c623dedf41add9cece6d3ee407c742723d3055c  experiments/handler-api/check.sh
+bb11d82e6142647e8bd902d4c1e2d1fc6bfe57addebc8089fd70621395b6f3c9  experiments/handler-api/demo.mojo
+ebfbc231c2a682fdeeea59295e6e260b401a46406ae166b80b653873cade8159  experiments/handler-api/diagnostics/captured-handler.mojo
+9e47928fcacfd4fa3a6fdf92f1de901da37cd5bc56ad91db023be8e10c902ba5  experiments/handler-api/diagnostics/duplicate-scope.mojo
+4b81404343e6abd3914b3c487a858e290174f4812cd1b228ff2d8b2067c3f9eb  experiments/handler-api/diagnostics/invalid-handler.mojo
+8a8b469f4a5bf29ff51d0c5ba6812378c6febf8892da27eb11e29736837a0876  experiments/handler-api/diagnostics/render-mutation.mojo
+b772726e6c78fb4259384e64265eb80eaa982c855ae9e1e97bb2035878ab7423  experiments/handler-api/examples.mojo
+03f11e49aae35b0e41b58d61833cf5458fab29fe15b92e6aacb8283e519ad40b  experiments/handler-api/native.sh
+fecbfeb6d1a9046ea05c15612f61f7808c66542d78f3cc9e622e2ca99d31ef45  experiments/handler-api/runtime.mojo

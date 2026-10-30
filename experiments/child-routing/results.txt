@@ -1,0 +1,51 @@
+Child routing experiment — 2026-10-27
+Implementation: feat/data-workbench at c8c7cbb7741519c9796a02ffa25c02e701b2f58a
+Experiment source is uncommitted; production source unchanged.
+Compiler: locked Mojo 1.1.0 (8189361e), inherited environment.
+
+bash experiments/child-routing/check.sh — exit 0
+The eager shared comparison intentionally demonstrates an incorrect cursor;
+only the settled variant is asserted to meet the shared editing gates.
+
+PASS independent form state, child-local handlers, one changed-child render, no save replay
+PASS duplicate local conditional keys, namespaced clipboard, Unicode and keyboard routing
+PASS reordered children retain identity/focus/cursor; copies isolate state; unknown targets rejected
+OBSERVED eager shared edit: origin renders twice, sibling once; cursor 3 (expected 5)
+KNOWN FAILURE eager refresh restores old input before parent settlement and clamps the cursor
+PASS explicit shared ownership, changes from either child, empty values, clipboard and consumed requests
+PASS settled shared edits: one commit, one render per affected child, correct cursor and next keystroke
+PASS cursor-only update leaves sibling unrendered; Tab and edits from either child preserve independent cursors
+PASS shared empty value, App cut/paste, Unicode, synthetic composition and consumed requests
+PASS rebuild/resize/paint do not replay shared changes; copied components isolate parent and child state
+
+Native build — exit 0
+Existing as_c_string_slice deprecation warnings: 14
+Native observations through cua_repl:
+- Initial editor input replaced with Grace, then a separate ! keystroke.
+  Both editors and greetings showed Grace!.
+- Tab, replace with Moxi, then separate ! keystroke.
+  Both editors and greetings showed Moxi!.
+- Screenshot showed the second editor focused. App left open.
+- No OS clipboard, actual IME, mouse caret/selection or accessibility audit.
+
+Other checks: shell syntax and trailing whitespace; planning local links.
+Not run: full repository suite, performance benchmarks, browser/non-macOS,
+dynamic child mount/unmount, general nested settlement, async/request handling,
+independent usability study. See README for inherited runtime limits.
+Early compiler crashes were avoided by reading nested cursor state through
+a host-level helper; no compiler fix or general diagnosis is claimed.
+
+SHA256 of experiment sources and reused handler runtime:
+f5c10da83055c0c3e72f3167971d1916e443dc90390e32b42844552cc37b81e0  experiments/child-routing/.gitignore
+612be1d0a6f95cd1488fc7d247240bba26d32d2cab9d8708114d00f48ee75b77  experiments/child-routing/README.md
+848725b97c63bbea6b80ef36e0fe6ab32ded93f28acaf925c46f108c2b6a581a  experiments/child-routing/check.mojo
+493a208b171beba234b6ec35ff94297fd33e9f642165047ee97f808c5121ded8  experiments/child-routing/check.sh
+f4896e6106e047753f6cc866acdcf7ff5328af10051a39befd97c7951a6a9262  experiments/child-routing/check_settled.mojo
+fc490a25ee72210fa8ff9b1ee91c2ee17d06e5c692614f693f35c710a488291f  experiments/child-routing/deferred.mojo
+15b5d1659b135b528ef9048035f1ac759628300120b4762b2bf017f38e2627c7  experiments/child-routing/demo.mojo
+3cbd3fc960eb20044341bf242ba2176d2f39317b49a44ce27b18e8dbc297e9ed  experiments/child-routing/form.mojo
+b914e79a8b6577ddb83841d4cc83df9fc09b85017e97b119f5db629ed89772cd  experiments/child-routing/independent.mojo
+37f6eb1ec3f0e150e745479bb98bec6170196b0f2e06caa569a6384338f615b0  experiments/child-routing/native.sh
+8c35d8da7adfddc96ef0f9023879d07ea9787324e989936bb28ef219da2609b4  experiments/child-routing/settled.mojo
+7c36f34b8d07c7b063a11520893b6ccd6b57ac20dbd4d147f347773f6274ce48  experiments/child-routing/shared.mojo
+fecbfeb6d1a9046ea05c15612f61f7808c66542d78f3cc9e622e2ca99d31ef45  experiments/handler-api/runtime.mojo
