@@ -19,6 +19,19 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Composition gate](docs/design/composition-gate.md) passes real-App checks for
+  independent drafts over a shared document, owner policy, undo, reuse, and
+  removal/remount. Eight adapters for four actions remain a visible authoring
+  cost, so the comfortable-composition adoption gate stays open.
+
+- [Ownership decision](docs/design/ownership-decision.md) recommends current-state
+  ownership as the foundation, with controlled widget boundaries, revising the
+  earlier provisional preference for shared cells. All three transports pass a
+  common validation/history contract; the remaining adoption gate is comfortable
+  composition. Compiler probes also establish constructor inference and the
+  limits of read-only receivers around shared mutable handles. This is a
+  recommendation with bounded evidence, not an adopted API or performance result.
+
 - [Three complete form ownership designs](docs/design/form-ownership-comparison.md)
   compares current-state projection, shared observed properties and controlled
   values against the same form and edit/lifetime exercises, with an

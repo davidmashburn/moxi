@@ -8,6 +8,12 @@ existing uncommitted handler, child-routing and scoped-binding experiments.
 
 ## Finding
 
+**October 29 follow-up:** the [ownership decision](ownership-decision.md) revises
+the default recommendation after broader policy and compiler experiments. The
+source observations below remain valid; the provisional preference for observed
+cells is historical. Current-state ownership with controlled widget boundaries
+is now the recommended direction, with composition comfort still unproved.
+
 The observed shared-property variant has the smallest change from independent
 to shared forms in these examples. Its rule is understandable: give both forms
 the same cell; give them different cells for independence. That is a provisional
