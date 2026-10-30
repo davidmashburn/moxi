@@ -13,6 +13,12 @@ removes per-action adapters and is the leading authoring candidate, with runtime
 costs and reader comfort still unverified. Shared ownership and observation
 remain separate choices; the new handle experiment uses no observation engine.
 
+October 30 follow-up: [state access and update work](state-access-comparison.md)
+adds compiled field/keyed composition and actual Solid context/reactivity tests.
+The original ownership recommendation remains provisional. Context lookup,
+state lifetime and reactive scheduling can be chosen separately; the earlier
+handle comparison was not evidence against Solid's observation model.
+
 ## Recommendation
 
 Choose **A, current-state ownership and temporary projection, as the foundation**.

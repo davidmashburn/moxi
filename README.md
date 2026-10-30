@@ -19,6 +19,23 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Selective method updates](docs/design/selective-method-updates.md) keeps the
+  authoring files unchanged while rebuilding one editor for local input. Real
+  App checks and 36 scale cases pass. A new shared read exposes stale output
+  with manual dependency lists; keep conservative selectivity as the default
+  direction, with whole-frame costs and general composition still unproven.
+
+- [Marko 6 Tags API reactivity](docs/design/marko-tags-reactivity.md) adds actual
+  compiled browser execution: 375 assertions across three source variants.
+  Comfortable local bindings and selective updates coexist; callback capture
+  and prop granularity still affect work. No production API decision is implied.
+
+- [State access and update work](docs/design/state-access-comparison.md) compares
+  compiled Mojo field/keyed adapters with actual Solid contexts and reactive
+  stores. It separates ownership, dependency access and update scheduling;
+  current-state ownership remains provisional. Nested routing costs, identity
+  reuse and retained callbacks remain explicit adoption limits.
+
 - [Direct method bindings](docs/design/direct-method-binding.md) remove all eight
   per-action adapters while preserving current-state ownership. Eight checks
   pass, including nested reuse, copied-host routing and field extension. This is
@@ -29,7 +46,8 @@ The current planning baseline is:
   matching behavior, extension and lifetime checks for both ownership choices.
   Six programs pass. Handles save two adapters but retain root routing and add
   sharing semantics; keep current-state ownership as the working default. The
-  remaining authoring problem is method binding, not further ownership inventory.
+  comparison did not test scoped context or reactive observation; those are
+  addressed in the state-access follow-up above.
 
 - [Composition gate](docs/design/composition-gate.md) passes real-App checks for
   independent drafts over a shared document, owner policy, undo, reuse, and

@@ -133,12 +133,14 @@ local. The parent route still asks the reader to understand current-state action
 routing. That remaining concept must earn its place in a reader exercise.
 
 **High confidence in the bounded observed behavior; low confidence in universal
-comfort or production readiness.** Keep the current-state ownership decision;
-do not reopen the framework inventory. Do not merge this runtime into public
-Moxi yet. Next, measure and reduce callback allocation, audit/verify erased
-storage, bound retired state, and have an unfamiliar reader add a field, another
-instance and a nested component. Preserve the syntax while evaluating those
-implementation changes. Difficulty maintaining the route would weaken the API
+comfort or production readiness.** Keep current-state ownership as a working
+baseline, not a settled decision about context or observation. The October 30
+[state-access experiment](state-access-comparison.md) tests those missing axes
+and measures the cost of deeper composition. Do not merge this runtime into
+public Moxi yet. Reduce callback allocation, audit/verify erased storage, bound
+retired state, and have an unfamiliar reader add a field, another instance and a
+nested component. Preserve the syntax while evaluating those implementation
+changes. Difficulty maintaining the route would weaken the API
 recommendation; excessive measured costs would weaken this runtime implementation.
 
 ## Provenance

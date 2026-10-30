@@ -146,14 +146,14 @@ option, not an observed performance win or a completed multi-window feature.
 confidence: either current callback surface meets the desired comfort level.**
 Do not adopt EditorRoute as the public API just because the suite is green.
 
-The next bounded implementation problem is binding ordinary methods to reusable
-component state while preserving these regression scenarios. Ownership selection
-is settled as a working direction; another framework inventory or another
-cosmetic A/B example is unlikely to help. This comparison does not implement a
-new binding API. It also does not show that custom per-action bridges are
-intrinsic to current-state ownership. Any binding change must count its full
-machinery and avoid merely hiding the same work in another author-maintained
-layer.
+The next experiment addressed binding ordinary methods to reusable component
+state while preserving these regression scenarios. This comparison established
+a value-owned baseline; it did not settle dependency access or observation.
+Shared handles alone do not test Solid's context lookup or reactive tracking.
+The October 30 [state-access comparison](state-access-comparison.md) tests those
+missing mechanisms. Custom per-action bridges are not intrinsic to current-state
+ownership. Any binding change must count its full machinery and avoid merely
+hiding the same work in another author-maintained layer.
 
 Evidence that would change the default: a complete shared implementation that
 substantially reduces root/component wiring under the same assertions; actual
