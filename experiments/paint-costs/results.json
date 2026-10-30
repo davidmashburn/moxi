@@ -1,0 +1,2839 @@
+{
+  "timestamp": "2026-10-30T23:34:33.261028+00:00",
+  "implementation_head": "022209ff1dcc59715d800cc6ca53881c23302c5e",
+  "compiler": "Mojo 1.1.0 (8189361e)",
+  "machine": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "logs": "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl",
+  "source_hashes": {
+    "experiments/method-binding/application.mojo": "8720e35d71dffe9912b28a6036c20d1738ef0e73b8016df800d183c0bbf2dcbe",
+    "experiments/method-binding/bindings.mojo": "6f018b644e3375f50684b1e7ea6b64b541b1938877cec65ffe1bff1ed7b9d308",
+    "experiments/method-binding/check.mojo": "5eef72a523a09c85d2b1546a46030d1975520a374456b1668842a2b66875c83c",
+    "experiments/method-binding/editor.mojo": "7bd5a558e750e9b00ca1fc5e673ad4c59ba8b680727b77047e83985ed1b795f2",
+    "experiments/method-binding/lifetime.mojo": "90112dbf48ae2d5144fdeff91b103fc306636b218243a10ffefdfc49986359d7",
+    "experiments/method-binding/nested.mojo": "f9aa987976afe324669075b5a736b7d87b0ab31085e4d7fe1ade120579f79a96",
+    "experiments/method-binding/runtime.mojo": "609e4100bbbd6f29a6de0249a720418dd125fcfea05790080e221d0cde7047a2",
+    "experiments/paint-costs/frame.mojo": "cd1d49ef9e04dbad750d54c3ed50189c14cc383041a75cb1dfb98c0062f82c22",
+    "experiments/paint-costs/parity.mojo": "d3370689a6c798c5c6f0d02499af6913884a41f7a59d78616af36e7da330cf51",
+    "experiments/paint-costs/run.py": "b964c00bc37e7b68d36de435bc2cd1daa05ce2c1ea30c2a13bf44a885f34bc2c",
+    "experiments/paint-costs/value_equality.mojo": "92c0cc28741a147279493160bbb1dc5be5e2ef684ebb327a2dde5fdbb5cdcbbb",
+    "experiments/paint-costs/variants.py": "39167b48a364a329e8bb8a71d49d738711a3bef2a807a4e5310adab1b1e39f11",
+    "experiments/paint-costs/verify.py": "61eefbb604b2f7f071d83fe6bff5278a5ce27270f4835b40e85f2275bdc17307",
+    "experiments/selective-costs/benchmark.mojo": "08f092127eb2a3a652f81ca1a4a7966883086d55e30f7a66bdd1040de4251a93",
+    "experiments/selective-updates/check.mojo": "ebf839ad4ef1a8e4997d7f2ba29c936cfcaa8bc10123b737e32409c046287d25",
+    "experiments/selective-updates/extension.mojo": "78179f538c12b566430b2db3936653735a10477fb7d5691ca3c9a9052ef2ec97",
+    "experiments/selective-updates/selective.mojo": "8f133e824f08e318962e4c28aced2a7693456c367be5f1b56fa4326fe707aa92",
+    "experiments/state-access/adapters.mojo": "aec09d7dd03881397d0cf39891595dde73a4b3e0022efff439fba24f57702cd1",
+    "experiments/state-access/application.mojo": "db72ff85ce894f138f7c3d35398b440106dd8476e2733fa4fb461d5d136509d3",
+    "experiments/state-access/behavior.mojo": "942c540c157b7bd66e525452b897be152ba1300003d32d875bd7b3d65299cd14",
+    "experiments/state-access/domain.mojo": "2122909acc02a18fc4f9a326e0393f6f3f613a30bb31b5d1cd9d8ddba6c3c320",
+    "experiments/state-access/editor.mojo": "ed77a2c8e874521ea00c4525f5c3ec7fc5e4e80594e013dae419ad9f75d4502d",
+    "experiments/state-access/probe.mojo": "69da09eb207c8867277283c6464135e670d07c06295273a695af202f4b3b1775",
+    "experiments/state-access/update_work.mojo": "0c9e2c133e0cbb105588113d98c8e92dd82be09c165f57b1114897879fadaf02",
+    "experiments/typed-boundaries/boundary.mojo": "ef0925ad2502b54b4119c815b24873b6ac099d16305914c8c4eb57902361274f",
+    "experiments/typed-boundaries/check.mojo": "46aa9c7a2222fd242137d7620cae127918d248d06627dfcfe5541bec47d0a60d",
+    "experiments/typed-boundaries/cost.mojo": "23d4003f995db1907da04c250b80f9a79b6fd77fa56503e7659ded1a4a0fc24c",
+    "experiments/typed-boundaries/host.mojo": "b9c7a44da1902f9d3587b1be3ec8f77b2851cb525e8dcfe4fd11ed956002ca40",
+    "experiments/typed-boundaries/identity.mojo": "b4959ec9393953e31c41668d5aedd726d9199ada81fb1aaa4579fc614fd21cb8",
+    "experiments/typed-boundaries/overinvalidation.mojo": "0ebabb00cea82849b1217b232908eaf507b4b48998d744c62e2bad5e12682b1c",
+    "experiments/typed-boundaries/remount.mojo": "fedc489b6c414d726f9bb663e003b538fbe3424195fe051ca01d4ca6d02d8c35",
+    "experiments/typed-boundaries/smoke.mojo": "c24878eb482840364b8694b6af9236f55b1261a1c21cf2dde18f24d20bf9ebc7",
+    "experiments/typed-boundaries/workbench.mojo": "c7669b5b8dc67cbbb57bd0e56d6cfc3d2fe18c86a8853f005a3e01b2bd788e12",
+    "pixi.lock": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0",
+    "pixi.toml": "cd05c58ed96514d9f582c81bd21cddcda0da8541490c259d41e0ddfef7fef3f7",
+    "src/moxi/__init__.mojo": "0f56012fe275d0eab7374a6a30abd367b0eba4e2698f75e5fa13448d66d1a176",
+    "src/moxi/accessibility.mojo": "d29e1e34e9d095cbe76dddf4966b29f6ad939262a790cadad4acef6c5ece81a4",
+    "src/moxi/alignment.mojo": "5931badead771e2fa75a64d740270ca7fda2ea000ce6b7a0d89b670fd6596ee0",
+    "src/moxi/animation.mojo": "ea33f3dd8adee133ac8f275fc0190fccada373bc87f2d95f2b4d7c5976393f16",
+    "src/moxi/app.mojo": "fb435d4a1d2086335828449a1b7b21708ad4cd8d287594291303ea3064a6cf94",
+    "src/moxi/app_runtime.mojo": "03c39848610922e92fa4e91038d2ad89f6a943324152aabbb95f27800e2152e3",
+    "src/moxi/backend.mojo": "5e5a6274e6ef045277c707037c5a035570d3169de5e97b8d95f6d4ee22cc48e1",
+    "src/moxi/box_layout.mojo": "463462f5c6ce4e2492cae5c70b52bbe3742b7039645aec84e49618fad3d792ff",
+    "src/moxi/canvas_renderer.mojo": "f9d2e4999ebca1639ba2951e9edbceac1faf09ac6f6beae9f6434c1d93567a5e",
+    "src/moxi/capability_bus.mojo": "0d5fa801264905e71fb409ed9067fc5aada36d36eb3cce4c702501ecc6a1d828",
+    "src/moxi/capability_types.mojo": "09bac64889c7cb98c8926b14135768b8762e076a31b8bf82b6a2f02083aa8553",
+    "src/moxi/capability_walkthrough.mojo": "c43d2a1f7139bfcd1b89ebd99a6940e0656e3e9cec9e6bd0a9f09ed2bddaca5a",
+    "src/moxi/clipboard.mojo": "02a43b14fb863eeed539cd7ba84719f902a767fae015f5d70efb3bf3244ef2f9",
+    "src/moxi/collection_layout.mojo": "69d609055750c0251c5142ac534c0ff9b7a39154d781c467b428b027f021c0c3",
+    "src/moxi/collection_state.mojo": "494f09c4a2aaa0cdabb191f6ea117ce30fcd3af78d7872f705b2ba621bbbdbdd",
+    "src/moxi/column_runtime.mojo": "4ba38a70bc28596c1f2dc62d4d230d70298358d0b046c6f45d63d455d85242b0",
+    "src/moxi/column_view.mojo": "13fbe8e7dcb38059426edd5f5017f07c93d909e2d00a4ced7e0cc70e342ddfc9",
+    "src/moxi/component.mojo": "1536c9b3a83650b23435657617f27ecbdc18eb6c7610f3db015c576b888f0620",
+    "src/moxi/composed.mojo": "4756ad2546d119e31c99e064eec7ebedb8ed6caca2130a1b5c3512d53177cd1d",
+    "src/moxi/constraint_layout.mojo": "9ea65b40a11f94bda9a2d4407d49047dd83f7e8b1e9aedd44730e26ab18c1b30",
+    "src/moxi/content_layout.mojo": "ffcd4cc2a8429659862b9f44179e2f2666edeaf3716cb51ec0d6c12a5ce28255",
+    "src/moxi/control_state.mojo": "6b5eefeaab66479a3eba93a80e2311d987b4ade9c72f09609f55a71328f40627",
+    "src/moxi/controls_basic.mojo": "f95ce52a905a55eb4e104f0dcfac52f46058a83e1eb6e9de816a0fbe17e09969",
+    "src/moxi/controls_collection.mojo": "4c6efa43ec922257cc3886816d303d4ec70f651b59a91de298a91de0154ea5ef",
+    "src/moxi/controls_state.mojo": "c510d88923eddb9c53b6bd5d1ea0748f916120c521a1b619b74da9f4c4db1269",
+    "src/moxi/controls_text.mojo": "f78c4a6618560efbd012267edcf2330de65d8c89238b551fe60c943b96a87c61",
+    "src/moxi/conversation.mojo": "bb4cd611cd4c41a1598e04a0ccad955620b541d0b0dc3ef6f2d6d4222af12df5",
+    "src/moxi/coretext.mojo": "12b4199372b9f5c4a6193936b818660448eb68479b51203cd79f353cc2b319df",
+    "src/moxi/counter_view.mojo": "d81fec1dc82d52e10b006522bc0b09c514828254064a66f2c57741590c63c3ec",
+    "src/moxi/event.mojo": "1329492843970f37f3b7868f3d7f5ad08be6d01934418058cc820a2a3d81ce6b",
+    "src/moxi/event_replay.mojo": "18eae3850c56bebb6bc355cd12852a23a59341155295616b326c07dc23f1df36",
+    "src/moxi/execution.mojo": "5f9196f4f24f7295d23a4fd89a9eef5a31dab1b44362f11f7fc5f713eacb5a95",
+    "src/moxi/experimental_api.mojo": "28e07a142ae5ae84d90d998bce297974964655c96a2d067543d56ce9eda0d8d1",
+    "src/moxi/form.mojo": "2bb062b685ed697a7e7b0f6469edf28b504372aeadb0327ada4999996e729e17",
+    "src/moxi/fractal.mojo": "300178d3d733037190f0d4dae110404a3040ef3b933ef7228329db319e5d4e9a",
+    "src/moxi/frame.mojo": "6bd19bd7c66bb552efa5d57a54c4cb68ff370884a871b2aab13aa6f0c5a4d89e",
+    "src/moxi/geometry.mojo": "2687739f1fb85e27b1ec56c959cac28b01a665f045f469fb67d816bd390e9b0f",
+    "src/moxi/harfbuzz.mojo": "4aa41c5270813c23247fe6221022ad4aa9ea7f014413ade27f4f81694cba92b7",
+    "src/moxi/host_api.mojo": "3c8bf7fdde5694dc962f3d93edbf0246246ce3ea5af2b604cb21a21a78640334",
+    "src/moxi/host_contract.mojo": "c4b3f4c10e68a75ecf6d156d28ecf57fc286a29d6877cb6309620f96b48fec8a",
+    "src/moxi/interaction_showcase.mojo": "01f92027db964743645261a0c4e2063ff3c6ffe9f5b821f8b668f9697d09cdb5",
+    "src/moxi/invalidation.mojo": "fedb2fe4ff93a15d1708669ae88c76a9a1ea9b02bee526ae353f5ce1fdbdb970",
+    "src/moxi/json.mojo": "3afc7b5e1d018d2747423c5d2f17608db3e705753f228ce8663e8a8d9fb3da61",
+    "src/moxi/layout.mojo": "2e16b040c48bd899a3c27139a07c71433b3f8356bcb86c0bb57ca607517e050a",
+    "src/moxi/layout_primitives.mojo": "4458a815df8167b9108d255437a9c24170bef1f5c5319d3699629c3662f3b598",
+    "src/moxi/layout_workbench.mojo": "fe0ce5df3a7250069af93b4584beb0e5d4b4991f4f19b58f09db84dcec4037e1",
+    "src/moxi/layout_workbench_replay.mojo": "9ffa3db7cd02d18e02d56695b72e583b6eb91e69b6940e0d048e120ca4dfcdfb",
+    "src/moxi/legacy_runtime.mojo": "f7dd8a07fffa97d50e62abe0c7e8223d6d56873f7e794353ec771c8bfbcd5635",
+    "src/moxi/linux.mojo": "5cf2eab96d1c0e4f772e7a15e71fac3c324905932ad8dabaf2bf680abed4a000",
+    "src/moxi/live_script.mojo": "1ae52ef5171ea75621aeb3f1a539813a3ef35f1c3855645f1c575d4993fe95fe",
+    "src/moxi/macos.mojo": "b94effe2bc34bc8d14a045ca19fe1303cdaf77af7279e6dcdd6626c4804b6f9f",
+    "src/moxi/measure.mojo": "929c182664bcb735048fe30f33f2141f26d8bd64a1209e4bb593b78204ca4796",
+    "src/moxi/metal.mojo": "b04315f43b7783b88f616d5a81c1e40ae3f1cd79eeaecc4e3175d5ba56133aca",
+    "src/moxi/native_clipboard.mojo": "93e34963eb64ca3e919f99ce89e6e1c1e31190b98f13ac17c68708f82a07dfca",
+    "src/moxi/native_frame.mojo": "7889a52f5a5abd98746e5a484219515efbfc6511939dad73c658b907e75f441e",
+    "src/moxi/native_paragraph.mojo": "565a4bd98ea07eb433c6f7b7532e4e9e249b1b0c5a0d95345ae5e86ac0e7c90a",
+    "src/moxi/native_widgets.mojo": "fba58857891568cc7ed0743588eae27ef9aaee96d2db822e58ac0d78e18c21b4",
+    "src/moxi/native_window.mojo": "10f895e9e1221343380817117719f21d1f393aa2a69b5b6b99ac5f697a29a74e",
+    "src/moxi/nested.mojo": "0878f9224758826adc3dfcd69b1927826b459dad8371e0ffdd5a8a7cf6975387",
+    "src/moxi/overlay_layout.mojo": "5f1f8c60f0d5b11164e0cf0059f3117dbc0bc383fde93f74529ff73c94d422a5",
+    "src/moxi/paint.mojo": "d02b14de67409d7aff49d78458e93bc9ec5868fc35546ac52a537d97b833a780",
+    "src/moxi/performance.mojo": "45a68093995c3904bdaa5f3465d91956fe45497bbd96ef12fe1becbb89b83461",
+    "src/moxi/platform.mojo": "dd42aa869c3bed155876ac0e3cc8e832398c3299aa39acb2c198e0640460ac04",
+    "src/moxi/platform_adapters.mojo": "06c6126450a10ba46d2aba66b2a31248a55227688948c89b9b593bf02f2250c7",
+    "src/moxi/plot_render.mojo": "90695fc61fdeb167233793307f4d520a3033c80debb5a9f4ebef256c0960f3ac",
+    "src/moxi/plot_selection.mojo": "74cf545579729c07673bfd55a3867354f5df8c53d2cc66d944a4861e80de8952",
+    "src/moxi/popup.mojo": "092ea7a01496dc70997ffb2e357ea957ddfb0a6491c8054ef5ef63401e0d80bf",
+    "src/moxi/reactivity.mojo": "58c199692f507b678d74960230401d2970c8c51f85e2c344a5f99ac27435a926",
+    "src/moxi/recipes.mojo": "9e30c2a02eb9b846315bb08db28e52190f826693b26da6aa578deb12134bd527",
+    "src/moxi/reorder.mojo": "318527154d57fc012980008637436d9e8c45c6ab7e25d04f275dfccf99949dcd",
+    "src/moxi/resources.mojo": "804a878f32e78bc32f5db0f0b3ae7c7b7ddf3be4821ae75ab53892f06cee8047",
+    "src/moxi/retained_engine.mojo": "b1d408d2bca3402b221717414796d47b9846b9bcb81cd46d151c599e7563cd90",
+    "src/moxi/retained_layout.mojo": "ba1004f6eb3c12bb2dfb63539c68beead4c29babe619c24dadb0741b37f38e2e",
+    "src/moxi/retained_leaf.mojo": "4a1c2b1d292915d88ea4d1f49347be03cc298011bc1240cc56bb1026036b384e",
+    "src/moxi/row.mojo": "de5d0b1bab1918a6f6e8de69a7857fe48eb96ac853595994cf88861201138f74",
+    "src/moxi/scenarios.mojo": "1507e676001a385661d25cf53e5c5b311bbc737d50eacd36d4c88e004f5b8c59",
+    "src/moxi/scene.mojo": "a5cda5456f30dfb70e0befab7ca599963607169f5bfc65391ec267bdf0e85306",
+    "src/moxi/scene_path.mojo": "18d73d5e2dafbedb30eb9da16bdd07a47f0852fd656c1b6640c59d530fec0e39",
+    "src/moxi/scene_text.mojo": "b83fe59cd1c6afa8777426ba77173650a8edab90cc7954f60a6ab103e2730055",
+    "src/moxi/scrollbar.mojo": "e472137239113b7a641fd273b760e16dd95eb6c7b59cb64e62e41390b196ff25",
+    "src/moxi/software.mojo": "9651333f00080da46a691d5afa3befcb09903edd7adcf2ed252294fe6e69c75c",
+    "src/moxi/style.mojo": "93e03ba4150ea9a0a3067313f75899b97131b4fe6886e871d6d242f5333fdbd6",
+    "src/moxi/svg.mojo": "363dfe99eabdbab6aec7acb60d78c6acdfd462cd0d00c899b5d2a137b0002611",
+    "src/moxi/targets.mojo": "1917e2d85aaebfbd79294da564e363d26ae576dcd18ee44c77c92e784a4716d9",
+    "src/moxi/tasks.mojo": "10684dea2444949e12b4bcb05b26a5e3549c4e215eb6e79cf9b3f3aac27eabb8",
+    "src/moxi/testing.mojo": "2260cb8396f826a29a0b8d6772dbd07837c2bb3ce14109294c6aef01726d7e17",
+    "src/moxi/text_boundary.mojo": "4c50b87275fe9d40d7e74dff60f99760f3c29a869efdbcacf036e01951bec93f",
+    "src/moxi/text_layout.mojo": "0fe75f6844119eb16f9c45d17172520b5100937fde8f5f4347a871763efac28c",
+    "src/moxi/text_shaping.mojo": "9725ec3669216b8f79b699b9f604450b68cd8fe1f75356b3b43f578adfd7e9e8",
+    "src/moxi/theme_showcase.mojo": "013483c1d79d51ee86ab6117398a64a6e7b7c9fdd826020fa2f835e960b9ef9d",
+    "src/moxi/tokens.mojo": "4a5fdef543ce84867c750ae11d0a067b9dc48aa9ea8a43ed10f681e468dd6ed4",
+    "src/moxi/view_leaf.mojo": "c67c8788762bae97336eafcee0afd9fc923801549e3e59b141b8a0bb5e104551",
+    "src/moxi/view_node.mojo": "9a2c3b05a15605137c788d6c780825a706616f0d72e402a5a60562cf8586c12c",
+    "src/moxi/virtual_view.mojo": "9c2e95483e31789d6cf4062192d0ff27932847285b9d7783cfb22e5d3b5c2ef2",
+    "src/moxi/widget.mojo": "25197b679fc75187bbb53a3954bd0ac5dd5450ac3499f6fe045b6adbbf975448",
+    "src/moxi/window.mojo": "96f7a26c9ed1854681e3e381f0fece3923386bd8642ae96b1b282da276335ab2",
+    "src/moxi/windowing.mojo": "553bb95c77328a5a24db52164cb1f34cfe25d6fa1edcec361568d6471ea6c0c2",
+    "src/moxi/wrapped.mojo": "08fe3e6b65ec072061633b382137e127a4304c0ae9bf2f99471003d70eea3ea4",
+    "src/moxi/wxstyle.mojo": "496c4fbe5ccb5b61e0dc0bc5b1eb418a8c8c846a37c72d1d3d6e5775e5cf6b21",
+    "src/moxi_demo/__init__.mojo": "11608af6c5ce33ad7e0f94f9b0c630b513deb79c13f0f571b8420f6ea6e7b76b",
+    "src/moxi_demo/data_workbench.mojo": "1994c5fc128a288b090524c76c01abe2faeff6caa989f044a4290dc51b09c436",
+    "src/moxi_demo/demo_browser.mojo": "112b0bf2829ca25a5bdb4561501a80081d404aa4e7b89d7fe351a8b1bb477a57",
+    "src/moxi_demo/demo_entry.mojo": "1241dfd32f56751600086a7e7bc22c274c45d40ee348a6cdc04845674a2e45d4",
+    "src/moxi_demo/demo_style.mojo": "eacde088277a133e4be569f245a2cfc54e617cc69e24206abd8065acb9398abc",
+    "src/moxi_demo/demo_walkthrough.mojo": "c5185da36186eecb2eae01264cfa7082a21b453c662a6a21507cf7fcf7d4cb33",
+    "src/moxi_demo/showcase.mojo": "0d8188996e1a6be1a43e2e94c96b744001f5c4ac3d8f222c8eb04e882f3a063b",
+    "src/moxi_demo/workbench_data.mojo": "ed5c14a6a2aa74641b69c23b71f8b6816dd82e1670a82d04655b55a8f34e6c53",
+    "src/moxi_demo/workbench_files.mojo": "b06dc8b2dc2c62a562752bd7ff45a4d4279a89acdc016d8ab5b8bae4e59c8bfe",
+    "src/moxi_plot/__init__.mojo": "873bfc2034dde5d330376ec28ac0cedba4d95d70bdfebee85b9ee73f97020405",
+    "src/moxi_plot/fixtures.mojo": "01040a0a82c300d588a28a6454c013d7b71dccca650e02775246c3496eaa337c",
+    "src/moxi_plot/plot_api.mojo": "4b908f7797981e170343437d8540b69ed08b62792c432664528bd15b12b57af7",
+    "src/moxi_plot/plot_data.mojo": "b65d91ce2dd970e8f18311313afc5d2ff1aee27fb1d9643b3ece51c9c9b38aee",
+    "src/moxi_plot/plot_link.mojo": "0d4ac57a0682e1a608dfec77b50c5e84f12047b6b46936250d21e3fcf59fccfd",
+    "src/moxi_plot/plot_marks.mojo": "dd366e7b71fa49bc3b5ce9f3a10ee383c41c1e58ee8007ef176961b6bd21ee8c",
+    "src/moxi_plot/plot_point.mojo": "4f0a938a39da3662897286c03b744c9095d155fd306ef6f5ddbf25471498b561",
+    "src/moxi_plot/plot_render_bridge.mojo": "1596ad378aa0805e51e8c08197041a4e59fea88fb87428ab92f40d0a71f27971",
+    "src/moxi_plot/plot_runtime.mojo": "b52307b2ce08225bbca603ba54f621273520eea7e6e824bad9d17e0f6843d030",
+    "src/moxi_plot/plot_series.mojo": "d883613d64858fb901c97f8fe99c4cb8210351c94014210153db1794ad5d3504",
+    "src/moxi_plot/plot_spec.mojo": "720394fedce8742dc75498dbeca435e0017bac685379755f7a66f073e9493dd0",
+    "src/moxi_plot/plot_spec_json.mojo": "cec2d186f86c922738f5ed8dab20836c3768346e095980cdaafc9f1785bafe30",
+    "src/moxi_plot/plot_spec_names.mojo": "00500b4c82a44703b36bfcfcf8105bfaf4af29d567acf9f08102aec4f6c3a34c",
+    "src/moxi_plot/plot_spec_types.mojo": "8d789ff2171095789ba4dd227172a18c31c1eed102039d4db6e83042d2b1d252",
+    "src/moxi_plot/plot_view.mojo": "c8ec4de2201d9c67475e870284ec359046e4c74a4f353cf2c9283ee3882c01cd",
+    "src/moxi_plot/plotting.mojo": "f9924bbe804b5ec2cfde3705190220fe1fa517022445cccd40223f9247362734"
+  },
+  "protocol": "Mojo -O3; equivalent retained trees; local text and shared action events; two warmups/five samples; alternating cached/forced order; update/paint split in one frame; validation/setup/destruction outside timer; variants executed in enum order; headless CPU work, unisolated machine",
+  "variants": [
+    {
+      "variant": "baseline",
+      "build_command": [
+        "pixi",
+        "run",
+        "--locked",
+        "mojo",
+        "build",
+        "-O3",
+        "-I",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl/baseline/src",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/state-access",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/method-binding",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/selective-updates",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/selective-costs",
+        "/Users/davmash/code/moxi/experiments/paint-costs/frame.mojo",
+        "-o",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl/baseline/frame"
+      ],
+      "patch": "",
+      "runtime_sha256": "4ba38a70bc28596c1f2dc62d4d230d70298358d0b046c6f45d63d455d85242b0",
+      "raw_stdout": "FRAME 2 False 0 29000 40000 40000 40000 19 1 2\nFRAME 2 False 1 24000 34000 34000 35000 19 1 2\nFRAME 2 False 2 23000 35000 31000 33000 19 1 2\nFRAME 2 False 3 23000 33000 32000 33000 19 1 2\nFRAME 2 False 4 23000 34000 32000 33000 19 1 2\nFRAME 2 True 0 34000 33000 32000 33000 19 2 2\nFRAME 2 True 1 32000 34000 32000 33000 19 2 2\nFRAME 2 True 2 31000 33000 43000 33000 19 2 2\nFRAME 2 True 3 31000 33000 31000 34000 19 2 2\nFRAME 2 True 4 31000 33000 32000 33000 19 2 2\nFRAME 100 False 0 2745000 30566000 3127000 30767000 901 1 100\nFRAME 100 False 1 2721000 30632000 3125000 30694000 901 1 100\nFRAME 100 False 2 2671000 30589000 3072000 31180000 901 1 100\nFRAME 100 False 3 3049000 31607000 3321000 35359000 901 1 100\nFRAME 100 False 4 2704000 31035000 3072000 30643000 901 1 100\nFRAME 100 True 0 3099000 31410000 3180000 31640000 901 100 100\nFRAME 100 True 1 3055000 30601000 3091000 30769000 901 100 100\nFRAME 100 True 2 3035000 30248000 3051000 30607000 901 100 100\nFRAME 100 True 3 3057000 31045000 3066000 30796000 901 100 100\nFRAME 100 True 4 3126000 30435000 3105000 30708000 901 100 100\nFRAME 300 False 0 20132000 274789000 21321000 279652000 2701 1 300\nFRAME 300 False 1 19603000 274743000 21163000 288261000 2701 1 300\nFRAME 300 False 2 20001000 275852000 20696000 275216000 2701 1 300\nFRAME 300 False 3 19842000 275805000 20652000 305400000 2701 1 300\nFRAME 300 False 4 20268000 275232000 21747000 276099000 2701 1 300\nFRAME 300 True 0 20800000 275353000 21236000 274864000 2701 300 300\nFRAME 300 True 1 21232000 285175000 20787000 275313000 2701 300 300\nFRAME 300 True 2 20937000 276099000 20784000 274710000 2701 300 300\nFRAME 300 True 3 20849000 275866000 21225000 275288000 2701 300 300\nFRAME 300 True 4 20853000 276341000 21543000 277131000 2701 300 300\nPASS equivalent trees, domain effects, full commands and dirty metadata\n",
+      "samples": [
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 29000,
+          "cached_paint_ns": 40000,
+          "forced_update_ns": 40000,
+          "forced_paint_ns": 40000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 69000,
+          "forced_frame_ns": 80000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 24000,
+          "cached_paint_ns": 34000,
+          "forced_update_ns": 34000,
+          "forced_paint_ns": 35000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 58000,
+          "forced_frame_ns": 69000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 23000,
+          "cached_paint_ns": 35000,
+          "forced_update_ns": 31000,
+          "forced_paint_ns": 33000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 58000,
+          "forced_frame_ns": 64000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 23000,
+          "cached_paint_ns": 33000,
+          "forced_update_ns": 32000,
+          "forced_paint_ns": 33000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 56000,
+          "forced_frame_ns": 65000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 23000,
+          "cached_paint_ns": 34000,
+          "forced_update_ns": 32000,
+          "forced_paint_ns": 33000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 57000,
+          "forced_frame_ns": 65000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 34000,
+          "cached_paint_ns": 33000,
+          "forced_update_ns": 32000,
+          "forced_paint_ns": 33000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 67000,
+          "forced_frame_ns": 65000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 32000,
+          "cached_paint_ns": 34000,
+          "forced_update_ns": 32000,
+          "forced_paint_ns": 33000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 66000,
+          "forced_frame_ns": 65000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 31000,
+          "cached_paint_ns": 33000,
+          "forced_update_ns": 43000,
+          "forced_paint_ns": 33000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 64000,
+          "forced_frame_ns": 76000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 31000,
+          "cached_paint_ns": 33000,
+          "forced_update_ns": 31000,
+          "forced_paint_ns": 34000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 64000,
+          "forced_frame_ns": 65000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 31000,
+          "cached_paint_ns": 33000,
+          "forced_update_ns": 32000,
+          "forced_paint_ns": 33000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 64000,
+          "forced_frame_ns": 65000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 2745000,
+          "cached_paint_ns": 30566000,
+          "forced_update_ns": 3127000,
+          "forced_paint_ns": 30767000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 33311000,
+          "forced_frame_ns": 33894000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 2721000,
+          "cached_paint_ns": 30632000,
+          "forced_update_ns": 3125000,
+          "forced_paint_ns": 30694000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 33353000,
+          "forced_frame_ns": 33819000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 2671000,
+          "cached_paint_ns": 30589000,
+          "forced_update_ns": 3072000,
+          "forced_paint_ns": 31180000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 33260000,
+          "forced_frame_ns": 34252000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 3049000,
+          "cached_paint_ns": 31607000,
+          "forced_update_ns": 3321000,
+          "forced_paint_ns": 35359000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 34656000,
+          "forced_frame_ns": 38680000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 2704000,
+          "cached_paint_ns": 31035000,
+          "forced_update_ns": 3072000,
+          "forced_paint_ns": 30643000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 33739000,
+          "forced_frame_ns": 33715000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 3099000,
+          "cached_paint_ns": 31410000,
+          "forced_update_ns": 3180000,
+          "forced_paint_ns": 31640000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 34509000,
+          "forced_frame_ns": 34820000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 3055000,
+          "cached_paint_ns": 30601000,
+          "forced_update_ns": 3091000,
+          "forced_paint_ns": 30769000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 33656000,
+          "forced_frame_ns": 33860000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 3035000,
+          "cached_paint_ns": 30248000,
+          "forced_update_ns": 3051000,
+          "forced_paint_ns": 30607000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 33283000,
+          "forced_frame_ns": 33658000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 3057000,
+          "cached_paint_ns": 31045000,
+          "forced_update_ns": 3066000,
+          "forced_paint_ns": 30796000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 34102000,
+          "forced_frame_ns": 33862000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 3126000,
+          "cached_paint_ns": 30435000,
+          "forced_update_ns": 3105000,
+          "forced_paint_ns": 30708000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 33561000,
+          "forced_frame_ns": 33813000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 20132000,
+          "cached_paint_ns": 274789000,
+          "forced_update_ns": 21321000,
+          "forced_paint_ns": 279652000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 294921000,
+          "forced_frame_ns": 300973000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 19603000,
+          "cached_paint_ns": 274743000,
+          "forced_update_ns": 21163000,
+          "forced_paint_ns": 288261000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 294346000,
+          "forced_frame_ns": 309424000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 20001000,
+          "cached_paint_ns": 275852000,
+          "forced_update_ns": 20696000,
+          "forced_paint_ns": 275216000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 295853000,
+          "forced_frame_ns": 295912000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 19842000,
+          "cached_paint_ns": 275805000,
+          "forced_update_ns": 20652000,
+          "forced_paint_ns": 305400000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 295647000,
+          "forced_frame_ns": 326052000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 20268000,
+          "cached_paint_ns": 275232000,
+          "forced_update_ns": 21747000,
+          "forced_paint_ns": 276099000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 295500000,
+          "forced_frame_ns": 297846000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 20800000,
+          "cached_paint_ns": 275353000,
+          "forced_update_ns": 21236000,
+          "forced_paint_ns": 274864000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 296153000,
+          "forced_frame_ns": 296100000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 21232000,
+          "cached_paint_ns": 285175000,
+          "forced_update_ns": 20787000,
+          "forced_paint_ns": 275313000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 306407000,
+          "forced_frame_ns": 296100000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 20937000,
+          "cached_paint_ns": 276099000,
+          "forced_update_ns": 20784000,
+          "forced_paint_ns": 274710000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 297036000,
+          "forced_frame_ns": 295494000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 20849000,
+          "cached_paint_ns": 275866000,
+          "forced_update_ns": 21225000,
+          "forced_paint_ns": 275288000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 296715000,
+          "forced_frame_ns": 296513000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 20853000,
+          "cached_paint_ns": 276341000,
+          "forced_update_ns": 21543000,
+          "forced_paint_ns": 277131000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 297194000,
+          "forced_frame_ns": 298674000
+        }
+      ],
+      "summaries": [
+        {
+          "count": 2,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 23000,
+              "min": 23000,
+              "max": 29000
+            },
+            "cached_paint_ns": {
+              "median": 34000,
+              "min": 33000,
+              "max": 40000
+            },
+            "cached_frame_ns": {
+              "median": 58000,
+              "min": 56000,
+              "max": 69000
+            },
+            "forced_update_ns": {
+              "median": 32000,
+              "min": 31000,
+              "max": 40000
+            },
+            "forced_paint_ns": {
+              "median": 33000,
+              "min": 33000,
+              "max": 40000
+            },
+            "forced_frame_ns": {
+              "median": 65000,
+              "min": 64000,
+              "max": 80000
+            }
+          }
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 31000,
+              "min": 31000,
+              "max": 34000
+            },
+            "cached_paint_ns": {
+              "median": 33000,
+              "min": 33000,
+              "max": 34000
+            },
+            "cached_frame_ns": {
+              "median": 64000,
+              "min": 64000,
+              "max": 67000
+            },
+            "forced_update_ns": {
+              "median": 32000,
+              "min": 31000,
+              "max": 43000
+            },
+            "forced_paint_ns": {
+              "median": 33000,
+              "min": 33000,
+              "max": 34000
+            },
+            "forced_frame_ns": {
+              "median": 65000,
+              "min": 65000,
+              "max": 76000
+            }
+          }
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 2721000,
+              "min": 2671000,
+              "max": 3049000
+            },
+            "cached_paint_ns": {
+              "median": 30632000,
+              "min": 30566000,
+              "max": 31607000
+            },
+            "cached_frame_ns": {
+              "median": 33353000,
+              "min": 33260000,
+              "max": 34656000
+            },
+            "forced_update_ns": {
+              "median": 3125000,
+              "min": 3072000,
+              "max": 3321000
+            },
+            "forced_paint_ns": {
+              "median": 30767000,
+              "min": 30643000,
+              "max": 35359000
+            },
+            "forced_frame_ns": {
+              "median": 33894000,
+              "min": 33715000,
+              "max": 38680000
+            }
+          }
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 3057000,
+              "min": 3035000,
+              "max": 3126000
+            },
+            "cached_paint_ns": {
+              "median": 30601000,
+              "min": 30248000,
+              "max": 31410000
+            },
+            "cached_frame_ns": {
+              "median": 33656000,
+              "min": 33283000,
+              "max": 34509000
+            },
+            "forced_update_ns": {
+              "median": 3091000,
+              "min": 3051000,
+              "max": 3180000
+            },
+            "forced_paint_ns": {
+              "median": 30769000,
+              "min": 30607000,
+              "max": 31640000
+            },
+            "forced_frame_ns": {
+              "median": 33860000,
+              "min": 33658000,
+              "max": 34820000
+            }
+          }
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 20001000,
+              "min": 19603000,
+              "max": 20268000
+            },
+            "cached_paint_ns": {
+              "median": 275232000,
+              "min": 274743000,
+              "max": 275852000
+            },
+            "cached_frame_ns": {
+              "median": 295500000,
+              "min": 294346000,
+              "max": 295853000
+            },
+            "forced_update_ns": {
+              "median": 21163000,
+              "min": 20652000,
+              "max": 21747000
+            },
+            "forced_paint_ns": {
+              "median": 279652000,
+              "min": 275216000,
+              "max": 305400000
+            },
+            "forced_frame_ns": {
+              "median": 300973000,
+              "min": 295912000,
+              "max": 326052000
+            }
+          }
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 20853000,
+              "min": 20800000,
+              "max": 21232000
+            },
+            "cached_paint_ns": {
+              "median": 276099000,
+              "min": 275353000,
+              "max": 285175000
+            },
+            "cached_frame_ns": {
+              "median": 297036000,
+              "min": 296153000,
+              "max": 306407000
+            },
+            "forced_update_ns": {
+              "median": 21225000,
+              "min": 20784000,
+              "max": 21543000
+            },
+            "forced_paint_ns": {
+              "median": 275288000,
+              "min": 274710000,
+              "max": 277131000
+            },
+            "forced_frame_ns": {
+              "median": 296100000,
+              "min": 295494000,
+              "max": 298674000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "variant": "commands",
+      "build_command": [
+        "pixi",
+        "run",
+        "--locked",
+        "mojo",
+        "build",
+        "-O3",
+        "-I",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl/commands/src",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/state-access",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/method-binding",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/selective-updates",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/selective-costs",
+        "/Users/davmash/code/moxi/experiments/paint-costs/frame.mojo",
+        "-o",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl/commands/frame"
+      ],
+      "patch": "--- baseline\n+++ commands\n@@ -1,7 +1,7 @@\n \"\"\"`ColumnRuntime`: retained-children reconciliation for a declarative `ColumnView`.\"\"\"\n \n \n-from std.collections import List\n+from std.collections import List, Dict\n \n \n from .accessibility import (\n@@ -62,6 +62,11 @@\n from .widget import Widget\n \n \n+def _indexed_changed(prior: Dict[Tuple[Int, Int], Int], previous: List[PaintCommand], command: PaintCommand) -> Bool:\n+    var index = prior.get((command.kind, command.id), -1)\n+    return index == -1 or not previous[index].equivalent(command)\n+\n+\n struct ColumnRuntime:\n     \"\"\"Retained children reconciled from a declarative ColumnView.\n \n@@ -599,6 +604,12 @@\n         return -1\n \n     def paint(mut self) -> PaintCommands:\n+        var prior = Dict[Tuple[Int, Int], Int]()\n+        for i in range(len(self.previous_commands)):\n+            ref c = self.previous_commands[i]\n+            var key = (c.kind, c.id)\n+            if key not in prior:\n+                prior[key] = i\n         var commands = PaintCommands()\n         var surface = PaintCommand(\n             SURFACE_KIND,\n@@ -608,7 +619,7 @@\n             self.root_bounds,\n             self.surface_style,\n         )\n-        surface.set_changed(self.command_changed(surface))\n+        surface.set_changed(_indexed_changed(prior, self.previous_commands, surface))\n         commands.append(surface)\n         var panel_slot = 0\n         if self.has_panel:\n@@ -620,7 +631,7 @@\n                 self.panel.bounds,\n                 self.panel.style,\n             )\n-            panel.set_changed(self.command_changed(panel))\n+            panel.set_changed(_indexed_changed(prior, self.previous_commands, panel))\n             commands.append(panel)\n             panel_slot = 1\n         var label_slot = 0\n@@ -669,8 +680,8 @@\n                             break\n                     if clip_enabled:\n                         component_panel.set_clip(clip)\n-                    var previous_index = self.previous_command_index(component_panel)\n-                    var changed = self.command_changed(component_panel)\n+                    var previous_index = prior.get((component_panel.kind, component_panel.id), -1)\n+                    var changed = _indexed_changed(prior, self.previous_commands, component_panel)\n                     if previous_index != -1 and previous_index != commands.count():\n                         changed = True\n                     if previous_index != -1 and changed:\n@@ -777,8 +788,8 @@\n             semantics.enabled = widget.enabled\n             semantics.focused = widget.id == self.focused_id\n             command.semantics = semantics\n-            var previous_index = self.previous_command_index(command)\n-            var changed = self.command_changed(command)\n+            var previous_index = prior.get((command.kind, command.id), -1)\n+            var changed = _indexed_changed(prior, self.previous_commands, command)\n             # A retained command can move without changing its own fields.\n             # Incremental renderers still need to redraw it at the new stream\n             # position, and the old bounds must be invalidated as well.\n@@ -852,8 +863,8 @@\n             elif portal.clip_children or self._container_is_scrollable(portal):\n                 scrollbar_command.set_clip(portal.bounds)\n \n-            var previous_index = self.previous_command_index(scrollbar_command)\n-            var changed = self.command_changed(scrollbar_command)\n+            var previous_index = prior.get((scrollbar_command.kind, scrollbar_command.id), -1)\n+            var changed = _indexed_changed(prior, self.previous_commands, scrollbar_command)\n             if previous_index != -1 and previous_index != commands.count():\n                 changed = True\n             if previous_index != -1 and changed:\n@@ -911,8 +922,8 @@\n                         root_geometry.visible,\n                     )\n                     root_command.set_clip(self.root_bounds)\n-                    var previous_index = self.previous_command_index(root_command)\n-                    var changed = self.command_changed(root_command)\n+                    var previous_index = prior.get((root_command.kind, root_command.id), -1)\n+                    var changed = _indexed_changed(prior, self.previous_commands, root_command)\n                     if previous_index != -1 and previous_index != commands.count():\n                         changed = True\n                     if previous_index != -1 and changed:\n@@ -922,18 +933,13 @@\n \n         # A removed command leaves a stale region that an incremental backend\n         # must clear, even though there is no current draw command for it.\n+        var current_ids = Dict[Tuple[Int, Int], Bool]()\n+        for i in range(commands.count()):\n+            var current = commands.command(i)\n+            current_ids[(current.kind, current.id)] = True\n         for previous_index in range(len(self.previous_commands)):\n             var previous = self.previous_commands[previous_index]\n-            var found = False\n-            for current_index in range(commands.count()):\n-                var current = commands.command(current_index)\n-                if (\n-                    current.kind == previous.kind\n-                    and current.id == previous.id\n-                ):\n-                    found = True\n-                    break\n-            if not found:\n+            if (previous.kind, previous.id) not in current_ids:\n                 commands.mark_removed(previous.bounds)\n \n         self.previous_commands = List[PaintCommand](capacity=commands.count())\n",
+      "runtime_sha256": "a8918dad8ad9152236caa0bfcfb9b0f1e09000044e458171873a2d5eb0c52bd9",
+      "raw_stdout": "FRAME 2 False 0 15000 20000 20000 20000 19 1 2\nFRAME 2 False 1 15000 20000 21000 21000 19 1 2\nFRAME 2 False 2 14000 20000 20000 20000 19 1 2\nFRAME 2 False 3 15000 19000 20000 20000 19 1 2\nFRAME 2 False 4 15000 20000 19000 20000 19 1 2\nFRAME 2 True 0 20000 20000 19000 20000 19 2 2\nFRAME 2 True 1 20000 20000 19000 20000 19 2 2\nFRAME 2 True 2 20000 20000 19000 20000 19 2 2\nFRAME 2 True 3 20000 20000 19000 20000 19 2 2\nFRAME 2 True 4 20000 20000 19000 20000 19 2 2\nFRAME 100 False 0 2652000 24233000 3048000 24445000 901 1 100\nFRAME 100 False 1 2658000 24571000 3021000 23986000 901 1 100\nFRAME 100 False 2 2735000 24708000 3218000 28099000 901 1 100\nFRAME 100 False 3 2840000 25252000 3094000 25003000 901 1 100\nFRAME 100 False 4 2641000 24209000 2997000 24239000 901 1 100\nFRAME 100 True 0 3060000 24594000 3009000 24190000 901 100 100\nFRAME 100 True 1 3048000 23970000 3012000 24313000 901 100 100\nFRAME 100 True 2 3064000 24366000 3035000 24261000 901 100 100\nFRAME 100 True 3 3004000 24113000 2980000 23931000 901 100 100\nFRAME 100 True 4 3006000 24648000 3020000 24817000 901 100 100\nFRAME 300 False 0 20413000 214588000 21354000 216621000 2701 1 300\nFRAME 300 False 1 19776000 216853000 21035000 216376000 2701 1 300\nFRAME 300 False 2 19828000 216890000 21568000 214284000 2701 1 300\nFRAME 300 False 3 20065000 216877000 21854000 217038000 2701 1 300\nFRAME 300 False 4 19647000 215938000 21656000 215738000 2701 1 300\nFRAME 300 True 0 21721000 215861000 21123000 220758000 2701 300 300\nFRAME 300 True 1 21989000 220693000 23192000 223550000 2701 300 300\nFRAME 300 True 2 21830000 230776000 21622000 231140000 2701 300 300\nFRAME 300 True 3 21715000 215934000 21606000 216071000 2701 300 300\nFRAME 300 True 4 21706000 219101000 21590000 225901000 2701 300 300\nPASS equivalent trees, domain effects, full commands and dirty metadata\n",
+      "samples": [
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 15000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 20000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 35000,
+          "forced_frame_ns": 40000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 15000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 21000,
+          "forced_paint_ns": 21000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 35000,
+          "forced_frame_ns": 42000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 14000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 20000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 34000,
+          "forced_frame_ns": 40000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 15000,
+          "cached_paint_ns": 19000,
+          "forced_update_ns": 20000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 34000,
+          "forced_frame_ns": 40000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 15000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 19000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 35000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 20000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 19000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 40000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 20000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 19000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 40000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 20000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 19000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 40000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 20000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 19000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 40000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 20000,
+          "cached_paint_ns": 20000,
+          "forced_update_ns": 19000,
+          "forced_paint_ns": 20000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 40000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 2652000,
+          "cached_paint_ns": 24233000,
+          "forced_update_ns": 3048000,
+          "forced_paint_ns": 24445000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 26885000,
+          "forced_frame_ns": 27493000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 2658000,
+          "cached_paint_ns": 24571000,
+          "forced_update_ns": 3021000,
+          "forced_paint_ns": 23986000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 27229000,
+          "forced_frame_ns": 27007000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 2735000,
+          "cached_paint_ns": 24708000,
+          "forced_update_ns": 3218000,
+          "forced_paint_ns": 28099000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 27443000,
+          "forced_frame_ns": 31317000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 2840000,
+          "cached_paint_ns": 25252000,
+          "forced_update_ns": 3094000,
+          "forced_paint_ns": 25003000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 28092000,
+          "forced_frame_ns": 28097000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 2641000,
+          "cached_paint_ns": 24209000,
+          "forced_update_ns": 2997000,
+          "forced_paint_ns": 24239000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 26850000,
+          "forced_frame_ns": 27236000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 3060000,
+          "cached_paint_ns": 24594000,
+          "forced_update_ns": 3009000,
+          "forced_paint_ns": 24190000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 27654000,
+          "forced_frame_ns": 27199000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 3048000,
+          "cached_paint_ns": 23970000,
+          "forced_update_ns": 3012000,
+          "forced_paint_ns": 24313000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 27018000,
+          "forced_frame_ns": 27325000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 3064000,
+          "cached_paint_ns": 24366000,
+          "forced_update_ns": 3035000,
+          "forced_paint_ns": 24261000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 27430000,
+          "forced_frame_ns": 27296000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 3004000,
+          "cached_paint_ns": 24113000,
+          "forced_update_ns": 2980000,
+          "forced_paint_ns": 23931000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 27117000,
+          "forced_frame_ns": 26911000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 3006000,
+          "cached_paint_ns": 24648000,
+          "forced_update_ns": 3020000,
+          "forced_paint_ns": 24817000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 27654000,
+          "forced_frame_ns": 27837000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 20413000,
+          "cached_paint_ns": 214588000,
+          "forced_update_ns": 21354000,
+          "forced_paint_ns": 216621000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 235001000,
+          "forced_frame_ns": 237975000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 19776000,
+          "cached_paint_ns": 216853000,
+          "forced_update_ns": 21035000,
+          "forced_paint_ns": 216376000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 236629000,
+          "forced_frame_ns": 237411000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 19828000,
+          "cached_paint_ns": 216890000,
+          "forced_update_ns": 21568000,
+          "forced_paint_ns": 214284000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 236718000,
+          "forced_frame_ns": 235852000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 20065000,
+          "cached_paint_ns": 216877000,
+          "forced_update_ns": 21854000,
+          "forced_paint_ns": 217038000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 236942000,
+          "forced_frame_ns": 238892000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 19647000,
+          "cached_paint_ns": 215938000,
+          "forced_update_ns": 21656000,
+          "forced_paint_ns": 215738000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 235585000,
+          "forced_frame_ns": 237394000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 21721000,
+          "cached_paint_ns": 215861000,
+          "forced_update_ns": 21123000,
+          "forced_paint_ns": 220758000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 237582000,
+          "forced_frame_ns": 241881000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 21989000,
+          "cached_paint_ns": 220693000,
+          "forced_update_ns": 23192000,
+          "forced_paint_ns": 223550000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 242682000,
+          "forced_frame_ns": 246742000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 21830000,
+          "cached_paint_ns": 230776000,
+          "forced_update_ns": 21622000,
+          "forced_paint_ns": 231140000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 252606000,
+          "forced_frame_ns": 252762000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 21715000,
+          "cached_paint_ns": 215934000,
+          "forced_update_ns": 21606000,
+          "forced_paint_ns": 216071000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 237649000,
+          "forced_frame_ns": 237677000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 21706000,
+          "cached_paint_ns": 219101000,
+          "forced_update_ns": 21590000,
+          "forced_paint_ns": 225901000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 240807000,
+          "forced_frame_ns": 247491000
+        }
+      ],
+      "summaries": [
+        {
+          "count": 2,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 15000,
+              "min": 14000,
+              "max": 15000
+            },
+            "cached_paint_ns": {
+              "median": 20000,
+              "min": 19000,
+              "max": 20000
+            },
+            "cached_frame_ns": {
+              "median": 35000,
+              "min": 34000,
+              "max": 35000
+            },
+            "forced_update_ns": {
+              "median": 20000,
+              "min": 19000,
+              "max": 21000
+            },
+            "forced_paint_ns": {
+              "median": 20000,
+              "min": 20000,
+              "max": 21000
+            },
+            "forced_frame_ns": {
+              "median": 40000,
+              "min": 39000,
+              "max": 42000
+            }
+          }
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 20000,
+              "min": 20000,
+              "max": 20000
+            },
+            "cached_paint_ns": {
+              "median": 20000,
+              "min": 20000,
+              "max": 20000
+            },
+            "cached_frame_ns": {
+              "median": 40000,
+              "min": 40000,
+              "max": 40000
+            },
+            "forced_update_ns": {
+              "median": 19000,
+              "min": 19000,
+              "max": 19000
+            },
+            "forced_paint_ns": {
+              "median": 20000,
+              "min": 20000,
+              "max": 20000
+            },
+            "forced_frame_ns": {
+              "median": 39000,
+              "min": 39000,
+              "max": 39000
+            }
+          }
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 2658000,
+              "min": 2641000,
+              "max": 2840000
+            },
+            "cached_paint_ns": {
+              "median": 24571000,
+              "min": 24209000,
+              "max": 25252000
+            },
+            "cached_frame_ns": {
+              "median": 27229000,
+              "min": 26850000,
+              "max": 28092000
+            },
+            "forced_update_ns": {
+              "median": 3048000,
+              "min": 2997000,
+              "max": 3218000
+            },
+            "forced_paint_ns": {
+              "median": 24445000,
+              "min": 23986000,
+              "max": 28099000
+            },
+            "forced_frame_ns": {
+              "median": 27493000,
+              "min": 27007000,
+              "max": 31317000
+            }
+          }
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 3048000,
+              "min": 3004000,
+              "max": 3064000
+            },
+            "cached_paint_ns": {
+              "median": 24366000,
+              "min": 23970000,
+              "max": 24648000
+            },
+            "cached_frame_ns": {
+              "median": 27430000,
+              "min": 27018000,
+              "max": 27654000
+            },
+            "forced_update_ns": {
+              "median": 3012000,
+              "min": 2980000,
+              "max": 3035000
+            },
+            "forced_paint_ns": {
+              "median": 24261000,
+              "min": 23931000,
+              "max": 24817000
+            },
+            "forced_frame_ns": {
+              "median": 27296000,
+              "min": 26911000,
+              "max": 27837000
+            }
+          }
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 19828000,
+              "min": 19647000,
+              "max": 20413000
+            },
+            "cached_paint_ns": {
+              "median": 216853000,
+              "min": 214588000,
+              "max": 216890000
+            },
+            "cached_frame_ns": {
+              "median": 236629000,
+              "min": 235001000,
+              "max": 236942000
+            },
+            "forced_update_ns": {
+              "median": 21568000,
+              "min": 21035000,
+              "max": 21854000
+            },
+            "forced_paint_ns": {
+              "median": 216376000,
+              "min": 214284000,
+              "max": 217038000
+            },
+            "forced_frame_ns": {
+              "median": 237411000,
+              "min": 235852000,
+              "max": 238892000
+            }
+          }
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 21721000,
+              "min": 21706000,
+              "max": 21989000
+            },
+            "cached_paint_ns": {
+              "median": 219101000,
+              "min": 215861000,
+              "max": 230776000
+            },
+            "cached_frame_ns": {
+              "median": 240807000,
+              "min": 237582000,
+              "max": 252606000
+            },
+            "forced_update_ns": {
+              "median": 21606000,
+              "min": 21123000,
+              "max": 23192000
+            },
+            "forced_paint_ns": {
+              "median": 223550000,
+              "min": 216071000,
+              "max": 231140000
+            },
+            "forced_frame_ns": {
+              "median": 246742000,
+              "min": 237677000,
+              "max": 252762000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "variant": "facts",
+      "build_command": [
+        "pixi",
+        "run",
+        "--locked",
+        "mojo",
+        "build",
+        "-O3",
+        "-I",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl/facts/src",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/state-access",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/method-binding",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/selective-updates",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/selective-costs",
+        "/Users/davmash/code/moxi/experiments/paint-costs/frame.mojo",
+        "-o",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl/facts/frame"
+      ],
+      "patch": "--- baseline\n+++ facts\n@@ -1,7 +1,7 @@\n \"\"\"`ColumnRuntime`: retained-children reconciliation for a declarative `ColumnView`.\"\"\"\n \n \n-from std.collections import List\n+from std.collections import List, Dict\n \n \n from .accessibility import (\n@@ -599,6 +599,14 @@\n         return -1\n \n     def paint(mut self) -> PaintCommands:\n+        var root_scrollable = self._root_is_scrollable()\n+        var parents = Dict[Int, Int]()\n+        var scrollable = Dict[Int, Bool]()\n+        for i in range(self.widget_count()):\n+            var w = self.widget(i)\n+            if w.id not in parents:\n+                parents[w.id] = i\n+            scrollable[w.id] = self._container_is_scrollable(w)\n         var commands = PaintCommands()\n         var surface = PaintCommand(\n             SURFACE_KIND,\n@@ -643,24 +651,23 @@\n                         widget.style,\n                     )\n                     var clip = self.root_bounds\n-                    var clip_enabled = self.clip_to_bounds or self._root_is_scrollable()\n+                    var clip_enabled = self.clip_to_bounds or root_scrollable\n                     var parent_id = widget.parent_id\n                     var clip_hops = 0\n                     while parent_id != -1:\n                         var parent_found = False\n                         var next_parent = -1\n-                        for parent_index in range(self.widget_count()):\n+                        var parent_index = parents.get(parent_id, -1)\n+                        if parent_index != -1:\n                             var parent = self.widget(parent_index)\n-                            if parent.id == parent_id:\n-                                parent_found = True\n-                                next_parent = parent.parent_id\n-                                if parent.clip_children or self._container_is_scrollable(parent):\n-                                    if clip_enabled:\n-                                        clip = clip.intersection(parent.bounds)\n-                                    else:\n-                                        clip = parent.bounds\n-                                        clip_enabled = True\n-                                break\n+                            parent_found = True\n+                            next_parent = parent.parent_id\n+                            if parent.clip_children or scrollable.get(parent.id, False):\n+                                if clip_enabled:\n+                                    clip = clip.intersection(parent.bounds)\n+                                else:\n+                                    clip = parent.bounds\n+                                    clip_enabled = True\n                         if not parent_found:\n                             break\n                         parent_id = next_parent\n@@ -746,24 +753,23 @@\n             command.set_progress(widget.progress)\n             command.set_resource_id(widget.resource_id)\n             var clip = self.root_bounds\n-            var clip_enabled = self.clip_to_bounds or self._root_is_scrollable()\n+            var clip_enabled = self.clip_to_bounds or root_scrollable\n             var parent_id = widget.parent_id\n             var clip_hops = 0\n             while parent_id != -1:\n                 var parent_found = False\n                 var next_parent = -1\n-                for parent_index in range(self.widget_count()):\n+                var parent_index = parents.get(parent_id, -1)\n+                if parent_index != -1:\n                     var parent = self.widget(parent_index)\n-                    if parent.id == parent_id:\n-                        parent_found = True\n-                        next_parent = parent.parent_id\n-                        if parent.clip_children or self._container_is_scrollable(parent):\n-                            if clip_enabled:\n-                                clip = clip.intersection(parent.bounds)\n-                            else:\n-                                clip = parent.bounds\n-                                clip_enabled = True\n-                        break\n+                    parent_found = True\n+                    next_parent = parent.parent_id\n+                    if parent.clip_children or scrollable.get(parent.id, False):\n+                        if clip_enabled:\n+                            clip = clip.intersection(parent.bounds)\n+                        else:\n+                            clip = parent.bounds\n+                            clip_enabled = True\n                 if not parent_found:\n                     break\n                 parent_id = next_parent\n@@ -794,7 +800,7 @@\n         # only the final track/thumb pixels; offset and geometry stay portable.\n         for index in range(self.widget_count()):\n             var portal = self.widget(index)\n-            if not self._container_is_scrollable(portal):\n+            if not scrollable.get(portal.id, False):\n                 continue\n \n             var orientation = SCROLLBAR_VERTICAL\n@@ -845,11 +851,11 @@\n                 geometry.thumb,\n                 geometry.visible,\n             )\n-            if self.clip_to_bounds or self._root_is_scrollable():\n+            if self.clip_to_bounds or root_scrollable:\n                 scrollbar_command.set_clip(\n                     self.root_bounds.intersection(portal.bounds)\n                 )\n-            elif portal.clip_children or self._container_is_scrollable(portal):\n+            elif portal.clip_children or scrollable.get(portal.id, False):\n                 scrollbar_command.set_clip(portal.bounds)\n \n             var previous_index = self.previous_command_index(scrollbar_command)\n@@ -865,7 +871,7 @@\n         # A ColumnView root is itself a viewport. Keep its bar in the same\n         # command stream so standalone components get the same affordance as\n         # content mounted inside an explicit portal.\n-        if self._root_is_scrollable():\n+        if root_scrollable:\n             var root_orientation = SCROLLBAR_VERTICAL\n             var root_viewport_extent = self.root_bounds.height\n             var root_track = Rect(\n",
+      "runtime_sha256": "f09c8cdb9e7a0d105b9a55f1349222affb9de248d5fb1c1c2d6559ba9637d63b",
+      "raw_stdout": "FRAME 2 False 0 18000 15000 25000 15000 19 1 2\nFRAME 2 False 1 19000 15000 26000 17000 19 1 2\nFRAME 2 False 2 19000 15000 25000 14000 19 1 2\nFRAME 2 False 3 18000 15000 25000 15000 19 1 2\nFRAME 2 False 4 18000 15000 25000 14000 19 1 2\nFRAME 2 True 0 26000 14000 25000 14000 19 2 2\nFRAME 2 True 1 26000 15000 25000 14000 19 2 2\nFRAME 2 True 2 26000 14000 25000 14000 19 2 2\nFRAME 2 True 3 25000 15000 25000 14000 19 2 2\nFRAME 2 True 4 25000 14000 25000 14000 19 2 2\nFRAME 100 False 0 2597000 7611000 3070000 7930000 901 1 100\nFRAME 100 False 1 2666000 7598000 3090000 7642000 901 1 100\nFRAME 100 False 2 2670000 7619000 3100000 7599000 901 1 100\nFRAME 100 False 3 2651000 7600000 3085000 7620000 901 1 100\nFRAME 100 False 4 2705000 7642000 3066000 7610000 901 1 100\nFRAME 100 True 0 3024000 7666000 3003000 7602000 901 100 100\nFRAME 100 True 1 3044000 7602000 3037000 7639000 901 100 100\nFRAME 100 True 2 3013000 7655000 2998000 7605000 901 100 100\nFRAME 100 True 3 3057000 7629000 3151000 7876000 901 100 100\nFRAME 100 True 4 3048000 7666000 3147000 7730000 901 100 100\nFRAME 300 False 0 19775000 88267000 21222000 69328000 2701 1 300\nFRAME 300 False 1 19711000 69289000 21082000 69020000 2701 1 300\nFRAME 300 False 2 19593000 69277000 21570000 71479000 2701 1 300\nFRAME 300 False 3 19885000 69569000 21306000 69710000 2701 1 300\nFRAME 300 False 4 20082000 70667000 21418000 69518000 2701 1 300\nFRAME 300 True 0 21893000 70838000 21315000 69365000 2701 300 300\nFRAME 300 True 1 20826000 69696000 20514000 69912000 2701 300 300\nFRAME 300 True 2 21134000 69161000 21130000 69231000 2701 300 300\nFRAME 300 True 3 21497000 69171000 21399000 70315000 2701 300 300\nFRAME 300 True 4 21111000 69438000 20914000 69427000 2701 300 300\nPASS equivalent trees, domain effects, full commands and dirty metadata\n",
+      "samples": [
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 18000,
+          "cached_paint_ns": 15000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 15000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 33000,
+          "forced_frame_ns": 40000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 19000,
+          "cached_paint_ns": 15000,
+          "forced_update_ns": 26000,
+          "forced_paint_ns": 17000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 34000,
+          "forced_frame_ns": 43000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 19000,
+          "cached_paint_ns": 15000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 14000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 34000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 18000,
+          "cached_paint_ns": 15000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 15000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 33000,
+          "forced_frame_ns": 40000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 18000,
+          "cached_paint_ns": 15000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 14000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 33000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 26000,
+          "cached_paint_ns": 14000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 14000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 40000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 26000,
+          "cached_paint_ns": 15000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 14000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 41000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 26000,
+          "cached_paint_ns": 14000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 14000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 40000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 25000,
+          "cached_paint_ns": 15000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 14000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 40000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 25000,
+          "cached_paint_ns": 14000,
+          "forced_update_ns": 25000,
+          "forced_paint_ns": 14000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 39000,
+          "forced_frame_ns": 39000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 2597000,
+          "cached_paint_ns": 7611000,
+          "forced_update_ns": 3070000,
+          "forced_paint_ns": 7930000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 10208000,
+          "forced_frame_ns": 11000000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 2666000,
+          "cached_paint_ns": 7598000,
+          "forced_update_ns": 3090000,
+          "forced_paint_ns": 7642000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 10264000,
+          "forced_frame_ns": 10732000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 2670000,
+          "cached_paint_ns": 7619000,
+          "forced_update_ns": 3100000,
+          "forced_paint_ns": 7599000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 10289000,
+          "forced_frame_ns": 10699000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 2651000,
+          "cached_paint_ns": 7600000,
+          "forced_update_ns": 3085000,
+          "forced_paint_ns": 7620000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 10251000,
+          "forced_frame_ns": 10705000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 2705000,
+          "cached_paint_ns": 7642000,
+          "forced_update_ns": 3066000,
+          "forced_paint_ns": 7610000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 10347000,
+          "forced_frame_ns": 10676000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 3024000,
+          "cached_paint_ns": 7666000,
+          "forced_update_ns": 3003000,
+          "forced_paint_ns": 7602000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 10690000,
+          "forced_frame_ns": 10605000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 3044000,
+          "cached_paint_ns": 7602000,
+          "forced_update_ns": 3037000,
+          "forced_paint_ns": 7639000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 10646000,
+          "forced_frame_ns": 10676000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 3013000,
+          "cached_paint_ns": 7655000,
+          "forced_update_ns": 2998000,
+          "forced_paint_ns": 7605000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 10668000,
+          "forced_frame_ns": 10603000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 3057000,
+          "cached_paint_ns": 7629000,
+          "forced_update_ns": 3151000,
+          "forced_paint_ns": 7876000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 10686000,
+          "forced_frame_ns": 11027000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 3048000,
+          "cached_paint_ns": 7666000,
+          "forced_update_ns": 3147000,
+          "forced_paint_ns": 7730000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 10714000,
+          "forced_frame_ns": 10877000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 19775000,
+          "cached_paint_ns": 88267000,
+          "forced_update_ns": 21222000,
+          "forced_paint_ns": 69328000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 108042000,
+          "forced_frame_ns": 90550000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 19711000,
+          "cached_paint_ns": 69289000,
+          "forced_update_ns": 21082000,
+          "forced_paint_ns": 69020000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 89000000,
+          "forced_frame_ns": 90102000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 19593000,
+          "cached_paint_ns": 69277000,
+          "forced_update_ns": 21570000,
+          "forced_paint_ns": 71479000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 88870000,
+          "forced_frame_ns": 93049000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 19885000,
+          "cached_paint_ns": 69569000,
+          "forced_update_ns": 21306000,
+          "forced_paint_ns": 69710000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 89454000,
+          "forced_frame_ns": 91016000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 20082000,
+          "cached_paint_ns": 70667000,
+          "forced_update_ns": 21418000,
+          "forced_paint_ns": 69518000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 90749000,
+          "forced_frame_ns": 90936000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 21893000,
+          "cached_paint_ns": 70838000,
+          "forced_update_ns": 21315000,
+          "forced_paint_ns": 69365000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 92731000,
+          "forced_frame_ns": 90680000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 20826000,
+          "cached_paint_ns": 69696000,
+          "forced_update_ns": 20514000,
+          "forced_paint_ns": 69912000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 90522000,
+          "forced_frame_ns": 90426000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 21134000,
+          "cached_paint_ns": 69161000,
+          "forced_update_ns": 21130000,
+          "forced_paint_ns": 69231000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 90295000,
+          "forced_frame_ns": 90361000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 21497000,
+          "cached_paint_ns": 69171000,
+          "forced_update_ns": 21399000,
+          "forced_paint_ns": 70315000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 90668000,
+          "forced_frame_ns": 91714000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 21111000,
+          "cached_paint_ns": 69438000,
+          "forced_update_ns": 20914000,
+          "forced_paint_ns": 69427000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 90549000,
+          "forced_frame_ns": 90341000
+        }
+      ],
+      "summaries": [
+        {
+          "count": 2,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 18000,
+              "min": 18000,
+              "max": 19000
+            },
+            "cached_paint_ns": {
+              "median": 15000,
+              "min": 15000,
+              "max": 15000
+            },
+            "cached_frame_ns": {
+              "median": 33000,
+              "min": 33000,
+              "max": 34000
+            },
+            "forced_update_ns": {
+              "median": 25000,
+              "min": 25000,
+              "max": 26000
+            },
+            "forced_paint_ns": {
+              "median": 15000,
+              "min": 14000,
+              "max": 17000
+            },
+            "forced_frame_ns": {
+              "median": 40000,
+              "min": 39000,
+              "max": 43000
+            }
+          }
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 26000,
+              "min": 25000,
+              "max": 26000
+            },
+            "cached_paint_ns": {
+              "median": 14000,
+              "min": 14000,
+              "max": 15000
+            },
+            "cached_frame_ns": {
+              "median": 40000,
+              "min": 39000,
+              "max": 41000
+            },
+            "forced_update_ns": {
+              "median": 25000,
+              "min": 25000,
+              "max": 25000
+            },
+            "forced_paint_ns": {
+              "median": 14000,
+              "min": 14000,
+              "max": 14000
+            },
+            "forced_frame_ns": {
+              "median": 39000,
+              "min": 39000,
+              "max": 39000
+            }
+          }
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 2666000,
+              "min": 2597000,
+              "max": 2705000
+            },
+            "cached_paint_ns": {
+              "median": 7611000,
+              "min": 7598000,
+              "max": 7642000
+            },
+            "cached_frame_ns": {
+              "median": 10264000,
+              "min": 10208000,
+              "max": 10347000
+            },
+            "forced_update_ns": {
+              "median": 3085000,
+              "min": 3066000,
+              "max": 3100000
+            },
+            "forced_paint_ns": {
+              "median": 7620000,
+              "min": 7599000,
+              "max": 7930000
+            },
+            "forced_frame_ns": {
+              "median": 10705000,
+              "min": 10676000,
+              "max": 11000000
+            }
+          }
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 3044000,
+              "min": 3013000,
+              "max": 3057000
+            },
+            "cached_paint_ns": {
+              "median": 7655000,
+              "min": 7602000,
+              "max": 7666000
+            },
+            "cached_frame_ns": {
+              "median": 10686000,
+              "min": 10646000,
+              "max": 10714000
+            },
+            "forced_update_ns": {
+              "median": 3037000,
+              "min": 2998000,
+              "max": 3151000
+            },
+            "forced_paint_ns": {
+              "median": 7639000,
+              "min": 7602000,
+              "max": 7876000
+            },
+            "forced_frame_ns": {
+              "median": 10676000,
+              "min": 10603000,
+              "max": 11027000
+            }
+          }
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 19775000,
+              "min": 19593000,
+              "max": 20082000
+            },
+            "cached_paint_ns": {
+              "median": 69569000,
+              "min": 69277000,
+              "max": 88267000
+            },
+            "cached_frame_ns": {
+              "median": 89454000,
+              "min": 88870000,
+              "max": 108042000
+            },
+            "forced_update_ns": {
+              "median": 21306000,
+              "min": 21082000,
+              "max": 21570000
+            },
+            "forced_paint_ns": {
+              "median": 69518000,
+              "min": 69020000,
+              "max": 71479000
+            },
+            "forced_frame_ns": {
+              "median": 90936000,
+              "min": 90102000,
+              "max": 93049000
+            }
+          }
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 21134000,
+              "min": 20826000,
+              "max": 21893000
+            },
+            "cached_paint_ns": {
+              "median": 69438000,
+              "min": 69161000,
+              "max": 70838000
+            },
+            "cached_frame_ns": {
+              "median": 90549000,
+              "min": 90295000,
+              "max": 92731000
+            },
+            "forced_update_ns": {
+              "median": 21130000,
+              "min": 20514000,
+              "max": 21399000
+            },
+            "forced_paint_ns": {
+              "median": 69427000,
+              "min": 69231000,
+              "max": 70315000
+            },
+            "forced_frame_ns": {
+              "median": 90426000,
+              "min": 90341000,
+              "max": 91714000
+            }
+          }
+        }
+      ]
+    },
+    {
+      "variant": "combined",
+      "build_command": [
+        "pixi",
+        "run",
+        "--locked",
+        "mojo",
+        "build",
+        "-O3",
+        "-I",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl/combined/src",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/state-access",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/method-binding",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/selective-updates",
+        "-I",
+        "/Users/davmash/code/moxi/experiments/selective-costs",
+        "/Users/davmash/code/moxi/experiments/paint-costs/frame.mojo",
+        "-o",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-paint-costs-e7k1h2hl/combined/frame"
+      ],
+      "patch": "--- baseline\n+++ combined\n@@ -1,7 +1,7 @@\n \"\"\"`ColumnRuntime`: retained-children reconciliation for a declarative `ColumnView`.\"\"\"\n \n \n-from std.collections import List\n+from std.collections import List, Dict\n \n \n from .accessibility import (\n@@ -62,6 +62,11 @@\n from .widget import Widget\n \n \n+def _indexed_changed(prior: Dict[Tuple[Int, Int], Int], previous: List[PaintCommand], command: PaintCommand) -> Bool:\n+    var index = prior.get((command.kind, command.id), -1)\n+    return index == -1 or not previous[index].equivalent(command)\n+\n+\n struct ColumnRuntime:\n     \"\"\"Retained children reconciled from a declarative ColumnView.\n \n@@ -599,6 +604,20 @@\n         return -1\n \n     def paint(mut self) -> PaintCommands:\n+        var prior = Dict[Tuple[Int, Int], Int]()\n+        for i in range(len(self.previous_commands)):\n+            ref c = self.previous_commands[i]\n+            var key = (c.kind, c.id)\n+            if key not in prior:\n+                prior[key] = i\n+        var root_scrollable = self._root_is_scrollable()\n+        var parents = Dict[Int, Int]()\n+        var scrollable = Dict[Int, Bool]()\n+        for i in range(self.widget_count()):\n+            var w = self.widget(i)\n+            if w.id not in parents:\n+                parents[w.id] = i\n+            scrollable[w.id] = self._container_is_scrollable(w)\n         var commands = PaintCommands()\n         var surface = PaintCommand(\n             SURFACE_KIND,\n@@ -608,7 +627,7 @@\n             self.root_bounds,\n             self.surface_style,\n         )\n-        surface.set_changed(self.command_changed(surface))\n+        surface.set_changed(_indexed_changed(prior, self.previous_commands, surface))\n         commands.append(surface)\n         var panel_slot = 0\n         if self.has_panel:\n@@ -620,7 +639,7 @@\n                 self.panel.bounds,\n                 self.panel.style,\n             )\n-            panel.set_changed(self.command_changed(panel))\n+            panel.set_changed(_indexed_changed(prior, self.previous_commands, panel))\n             commands.append(panel)\n             panel_slot = 1\n         var label_slot = 0\n@@ -643,24 +662,23 @@\n                         widget.style,\n                     )\n                     var clip = self.root_bounds\n-                    var clip_enabled = self.clip_to_bounds or self._root_is_scrollable()\n+                    var clip_enabled = self.clip_to_bounds or root_scrollable\n                     var parent_id = widget.parent_id\n                     var clip_hops = 0\n                     while parent_id != -1:\n                         var parent_found = False\n                         var next_parent = -1\n-                        for parent_index in range(self.widget_count()):\n+                        var parent_index = parents.get(parent_id, -1)\n+                        if parent_index != -1:\n                             var parent = self.widget(parent_index)\n-                            if parent.id == parent_id:\n-                                parent_found = True\n-                                next_parent = parent.parent_id\n-                                if parent.clip_children or self._container_is_scrollable(parent):\n-                                    if clip_enabled:\n-                                        clip = clip.intersection(parent.bounds)\n-                                    else:\n-                                        clip = parent.bounds\n-                                        clip_enabled = True\n-                                break\n+                            parent_found = True\n+                            next_parent = parent.parent_id\n+                            if parent.clip_children or scrollable.get(parent.id, False):\n+                                if clip_enabled:\n+                                    clip = clip.intersection(parent.bounds)\n+                                else:\n+                                    clip = parent.bounds\n+                                    clip_enabled = True\n                         if not parent_found:\n                             break\n                         parent_id = next_parent\n@@ -669,8 +687,8 @@\n                             break\n                     if clip_enabled:\n                         component_panel.set_clip(clip)\n-                    var previous_index = self.previous_command_index(component_panel)\n-                    var changed = self.command_changed(component_panel)\n+                    var previous_index = prior.get((component_panel.kind, component_panel.id), -1)\n+                    var changed = _indexed_changed(prior, self.previous_commands, component_panel)\n                     if previous_index != -1 and previous_index != commands.count():\n                         changed = True\n                     if previous_index != -1 and changed:\n@@ -746,24 +764,23 @@\n             command.set_progress(widget.progress)\n             command.set_resource_id(widget.resource_id)\n             var clip = self.root_bounds\n-            var clip_enabled = self.clip_to_bounds or self._root_is_scrollable()\n+            var clip_enabled = self.clip_to_bounds or root_scrollable\n             var parent_id = widget.parent_id\n             var clip_hops = 0\n             while parent_id != -1:\n                 var parent_found = False\n                 var next_parent = -1\n-                for parent_index in range(self.widget_count()):\n+                var parent_index = parents.get(parent_id, -1)\n+                if parent_index != -1:\n                     var parent = self.widget(parent_index)\n-                    if parent.id == parent_id:\n-                        parent_found = True\n-                        next_parent = parent.parent_id\n-                        if parent.clip_children or self._container_is_scrollable(parent):\n-                            if clip_enabled:\n-                                clip = clip.intersection(parent.bounds)\n-                            else:\n-                                clip = parent.bounds\n-                                clip_enabled = True\n-                        break\n+                    parent_found = True\n+                    next_parent = parent.parent_id\n+                    if parent.clip_children or scrollable.get(parent.id, False):\n+                        if clip_enabled:\n+                            clip = clip.intersection(parent.bounds)\n+                        else:\n+                            clip = parent.bounds\n+                            clip_enabled = True\n                 if not parent_found:\n                     break\n                 parent_id = next_parent\n@@ -777,8 +794,8 @@\n             semantics.enabled = widget.enabled\n             semantics.focused = widget.id == self.focused_id\n             command.semantics = semantics\n-            var previous_index = self.previous_command_index(command)\n-            var changed = self.command_changed(command)\n+            var previous_index = prior.get((command.kind, command.id), -1)\n+            var changed = _indexed_changed(prior, self.previous_commands, command)\n             # A retained command can move without changing its own fields.\n             # Incremental renderers still need to redraw it at the new stream\n             # position, and the old bounds must be invalidated as well.\n@@ -794,7 +811,7 @@\n         # only the final track/thumb pixels; offset and geometry stay portable.\n         for index in range(self.widget_count()):\n             var portal = self.widget(index)\n-            if not self._container_is_scrollable(portal):\n+            if not scrollable.get(portal.id, False):\n                 continue\n \n             var orientation = SCROLLBAR_VERTICAL\n@@ -845,15 +862,15 @@\n                 geometry.thumb,\n                 geometry.visible,\n             )\n-            if self.clip_to_bounds or self._root_is_scrollable():\n+            if self.clip_to_bounds or root_scrollable:\n                 scrollbar_command.set_clip(\n                     self.root_bounds.intersection(portal.bounds)\n                 )\n-            elif portal.clip_children or self._container_is_scrollable(portal):\n+            elif portal.clip_children or scrollable.get(portal.id, False):\n                 scrollbar_command.set_clip(portal.bounds)\n \n-            var previous_index = self.previous_command_index(scrollbar_command)\n-            var changed = self.command_changed(scrollbar_command)\n+            var previous_index = prior.get((scrollbar_command.kind, scrollbar_command.id), -1)\n+            var changed = _indexed_changed(prior, self.previous_commands, scrollbar_command)\n             if previous_index != -1 and previous_index != commands.count():\n                 changed = True\n             if previous_index != -1 and changed:\n@@ -865,7 +882,7 @@\n         # A ColumnView root is itself a viewport. Keep its bar in the same\n         # command stream so standalone components get the same affordance as\n         # content mounted inside an explicit portal.\n-        if self._root_is_scrollable():\n+        if root_scrollable:\n             var root_orientation = SCROLLBAR_VERTICAL\n             var root_viewport_extent = self.root_bounds.height\n             var root_track = Rect(\n@@ -911,8 +928,8 @@\n                         root_geometry.visible,\n                     )\n                     root_command.set_clip(self.root_bounds)\n-                    var previous_index = self.previous_command_index(root_command)\n-                    var changed = self.command_changed(root_command)\n+                    var previous_index = prior.get((root_command.kind, root_command.id), -1)\n+                    var changed = _indexed_changed(prior, self.previous_commands, root_command)\n                     if previous_index != -1 and previous_index != commands.count():\n                         changed = True\n                     if previous_index != -1 and changed:\n@@ -922,18 +939,13 @@\n \n         # A removed command leaves a stale region that an incremental backend\n         # must clear, even though there is no current draw command for it.\n+        var current_ids = Dict[Tuple[Int, Int], Bool]()\n+        for i in range(commands.count()):\n+            var current = commands.command(i)\n+            current_ids[(current.kind, current.id)] = True\n         for previous_index in range(len(self.previous_commands)):\n             var previous = self.previous_commands[previous_index]\n-            var found = False\n-            for current_index in range(commands.count()):\n-                var current = commands.command(current_index)\n-                if (\n-                    current.kind == previous.kind\n-                    and current.id == previous.id\n-                ):\n-                    found = True\n-                    break\n-            if not found:\n+            if (previous.kind, previous.id) not in current_ids:\n                 commands.mark_removed(previous.bounds)\n \n         self.previous_commands = List[PaintCommand](capacity=commands.count())\n",
+      "runtime_sha256": "d56773a8085ea699f4711d4080c017b062b219234cfb41a7010f9f2e2c5e71a8",
+      "raw_stdout": "FRAME 2 False 0 11000 8000 14000 8000 19 1 2\nFRAME 2 False 1 11000 8000 15000 8000 19 1 2\nFRAME 2 False 2 11000 8000 14000 8000 19 1 2\nFRAME 2 False 3 10000 8000 14000 8000 19 1 2\nFRAME 2 False 4 11000 8000 14000 8000 19 1 2\nFRAME 2 True 0 14000 8000 15000 7000 19 2 2\nFRAME 2 True 1 15000 8000 14000 10000 19 2 2\nFRAME 2 True 2 16000 7000 14000 8000 19 2 2\nFRAME 2 True 3 14000 8000 14000 8000 19 2 2\nFRAME 2 True 4 14000 8000 14000 8000 19 2 2\nFRAME 100 False 0 2634000 1438000 3037000 1405000 901 1 100\nFRAME 100 False 1 2668000 1502000 3024000 1359000 901 1 100\nFRAME 100 False 2 2687000 1411000 3130000 1430000 901 1 100\nFRAME 100 False 3 2601000 1367000 3006000 1367000 901 1 100\nFRAME 100 False 4 2592000 1374000 3032000 1383000 901 1 100\nFRAME 100 True 0 2976000 1353000 2985000 1367000 901 100 100\nFRAME 100 True 1 2972000 1362000 2954000 1357000 901 100 100\nFRAME 100 True 2 2964000 1352000 2935000 1356000 901 100 100\nFRAME 100 True 3 2996000 1363000 2968000 1357000 901 100 100\nFRAME 100 True 4 2949000 1365000 2964000 1355000 901 100 100\nFRAME 300 False 0 19888000 10599000 20680000 10592000 2701 1 300\nFRAME 300 False 1 20417000 10694000 21526000 10601000 2701 1 300\nFRAME 300 False 2 19884000 11014000 21756000 10967000 2701 1 300\nFRAME 300 False 3 20126000 10682000 21084000 10677000 2701 1 300\nFRAME 300 False 4 20330000 10712000 20926000 10735000 2701 1 300\nFRAME 300 True 0 20921000 10606000 20636000 10688000 2701 300 300\nFRAME 300 True 1 21254000 10724000 20709000 10592000 2701 300 300\nFRAME 300 True 2 21321000 10649000 21658000 10582000 2701 300 300\nFRAME 300 True 3 22225000 11048000 21227000 11127000 2701 300 300\nFRAME 300 True 4 21315000 10605000 21730000 10898000 2701 300 300\nPASS equivalent trees, domain effects, full commands and dirty metadata\n",
+      "samples": [
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 11000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 14000,
+          "forced_paint_ns": 8000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 19000,
+          "forced_frame_ns": 22000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 11000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 15000,
+          "forced_paint_ns": 8000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 19000,
+          "forced_frame_ns": 23000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 11000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 14000,
+          "forced_paint_ns": 8000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 19000,
+          "forced_frame_ns": 22000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 10000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 14000,
+          "forced_paint_ns": 8000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 18000,
+          "forced_frame_ns": 22000
+        },
+        {
+          "count": 2,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 11000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 14000,
+          "forced_paint_ns": 8000,
+          "commands": 19,
+          "cached_renders": 1,
+          "forced_renders": 2,
+          "cached_frame_ns": 19000,
+          "forced_frame_ns": 22000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 14000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 15000,
+          "forced_paint_ns": 7000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 22000,
+          "forced_frame_ns": 22000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 15000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 14000,
+          "forced_paint_ns": 10000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 23000,
+          "forced_frame_ns": 24000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 16000,
+          "cached_paint_ns": 7000,
+          "forced_update_ns": 14000,
+          "forced_paint_ns": 8000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 23000,
+          "forced_frame_ns": 22000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 14000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 14000,
+          "forced_paint_ns": 8000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 22000,
+          "forced_frame_ns": 22000
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 14000,
+          "cached_paint_ns": 8000,
+          "forced_update_ns": 14000,
+          "forced_paint_ns": 8000,
+          "commands": 19,
+          "cached_renders": 2,
+          "forced_renders": 2,
+          "cached_frame_ns": 22000,
+          "forced_frame_ns": 22000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 2634000,
+          "cached_paint_ns": 1438000,
+          "forced_update_ns": 3037000,
+          "forced_paint_ns": 1405000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 4072000,
+          "forced_frame_ns": 4442000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 2668000,
+          "cached_paint_ns": 1502000,
+          "forced_update_ns": 3024000,
+          "forced_paint_ns": 1359000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 4170000,
+          "forced_frame_ns": 4383000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 2687000,
+          "cached_paint_ns": 1411000,
+          "forced_update_ns": 3130000,
+          "forced_paint_ns": 1430000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 4098000,
+          "forced_frame_ns": 4560000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 2601000,
+          "cached_paint_ns": 1367000,
+          "forced_update_ns": 3006000,
+          "forced_paint_ns": 1367000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 3968000,
+          "forced_frame_ns": 4373000
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 2592000,
+          "cached_paint_ns": 1374000,
+          "forced_update_ns": 3032000,
+          "forced_paint_ns": 1383000,
+          "commands": 901,
+          "cached_renders": 1,
+          "forced_renders": 100,
+          "cached_frame_ns": 3966000,
+          "forced_frame_ns": 4415000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 2976000,
+          "cached_paint_ns": 1353000,
+          "forced_update_ns": 2985000,
+          "forced_paint_ns": 1367000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 4329000,
+          "forced_frame_ns": 4352000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 2972000,
+          "cached_paint_ns": 1362000,
+          "forced_update_ns": 2954000,
+          "forced_paint_ns": 1357000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 4334000,
+          "forced_frame_ns": 4311000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 2964000,
+          "cached_paint_ns": 1352000,
+          "forced_update_ns": 2935000,
+          "forced_paint_ns": 1356000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 4316000,
+          "forced_frame_ns": 4291000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 2996000,
+          "cached_paint_ns": 1363000,
+          "forced_update_ns": 2968000,
+          "forced_paint_ns": 1357000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 4359000,
+          "forced_frame_ns": 4325000
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 2949000,
+          "cached_paint_ns": 1365000,
+          "forced_update_ns": 2964000,
+          "forced_paint_ns": 1355000,
+          "commands": 901,
+          "cached_renders": 100,
+          "forced_renders": 100,
+          "cached_frame_ns": 4314000,
+          "forced_frame_ns": 4319000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 0,
+          "cached_update_ns": 19888000,
+          "cached_paint_ns": 10599000,
+          "forced_update_ns": 20680000,
+          "forced_paint_ns": 10592000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 30487000,
+          "forced_frame_ns": 31272000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 1,
+          "cached_update_ns": 20417000,
+          "cached_paint_ns": 10694000,
+          "forced_update_ns": 21526000,
+          "forced_paint_ns": 10601000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 31111000,
+          "forced_frame_ns": 32127000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 2,
+          "cached_update_ns": 19884000,
+          "cached_paint_ns": 11014000,
+          "forced_update_ns": 21756000,
+          "forced_paint_ns": 10967000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 30898000,
+          "forced_frame_ns": 32723000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 3,
+          "cached_update_ns": 20126000,
+          "cached_paint_ns": 10682000,
+          "forced_update_ns": 21084000,
+          "forced_paint_ns": 10677000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 30808000,
+          "forced_frame_ns": 31761000
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "sample": 4,
+          "cached_update_ns": 20330000,
+          "cached_paint_ns": 10712000,
+          "forced_update_ns": 20926000,
+          "forced_paint_ns": 10735000,
+          "commands": 2701,
+          "cached_renders": 1,
+          "forced_renders": 300,
+          "cached_frame_ns": 31042000,
+          "forced_frame_ns": 31661000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 0,
+          "cached_update_ns": 20921000,
+          "cached_paint_ns": 10606000,
+          "forced_update_ns": 20636000,
+          "forced_paint_ns": 10688000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 31527000,
+          "forced_frame_ns": 31324000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 1,
+          "cached_update_ns": 21254000,
+          "cached_paint_ns": 10724000,
+          "forced_update_ns": 20709000,
+          "forced_paint_ns": 10592000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 31978000,
+          "forced_frame_ns": 31301000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 2,
+          "cached_update_ns": 21321000,
+          "cached_paint_ns": 10649000,
+          "forced_update_ns": 21658000,
+          "forced_paint_ns": 10582000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 31970000,
+          "forced_frame_ns": 32240000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 3,
+          "cached_update_ns": 22225000,
+          "cached_paint_ns": 11048000,
+          "forced_update_ns": 21227000,
+          "forced_paint_ns": 11127000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 33273000,
+          "forced_frame_ns": 32354000
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "sample": 4,
+          "cached_update_ns": 21315000,
+          "cached_paint_ns": 10605000,
+          "forced_update_ns": 21730000,
+          "forced_paint_ns": 10898000,
+          "commands": 2701,
+          "cached_renders": 300,
+          "forced_renders": 300,
+          "cached_frame_ns": 31920000,
+          "forced_frame_ns": 32628000
+        }
+      ],
+      "summaries": [
+        {
+          "count": 2,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 11000,
+              "min": 10000,
+              "max": 11000
+            },
+            "cached_paint_ns": {
+              "median": 8000,
+              "min": 8000,
+              "max": 8000
+            },
+            "cached_frame_ns": {
+              "median": 19000,
+              "min": 18000,
+              "max": 19000
+            },
+            "forced_update_ns": {
+              "median": 14000,
+              "min": 14000,
+              "max": 15000
+            },
+            "forced_paint_ns": {
+              "median": 8000,
+              "min": 8000,
+              "max": 8000
+            },
+            "forced_frame_ns": {
+              "median": 22000,
+              "min": 22000,
+              "max": 23000
+            }
+          }
+        },
+        {
+          "count": 2,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 14000,
+              "min": 14000,
+              "max": 16000
+            },
+            "cached_paint_ns": {
+              "median": 8000,
+              "min": 7000,
+              "max": 8000
+            },
+            "cached_frame_ns": {
+              "median": 22000,
+              "min": 22000,
+              "max": 23000
+            },
+            "forced_update_ns": {
+              "median": 14000,
+              "min": 14000,
+              "max": 15000
+            },
+            "forced_paint_ns": {
+              "median": 8000,
+              "min": 7000,
+              "max": 10000
+            },
+            "forced_frame_ns": {
+              "median": 22000,
+              "min": 22000,
+              "max": 24000
+            }
+          }
+        },
+        {
+          "count": 100,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 2634000,
+              "min": 2592000,
+              "max": 2687000
+            },
+            "cached_paint_ns": {
+              "median": 1411000,
+              "min": 1367000,
+              "max": 1502000
+            },
+            "cached_frame_ns": {
+              "median": 4072000,
+              "min": 3966000,
+              "max": 4170000
+            },
+            "forced_update_ns": {
+              "median": 3032000,
+              "min": 3006000,
+              "max": 3130000
+            },
+            "forced_paint_ns": {
+              "median": 1383000,
+              "min": 1359000,
+              "max": 1430000
+            },
+            "forced_frame_ns": {
+              "median": 4415000,
+              "min": 4373000,
+              "max": 4560000
+            }
+          }
+        },
+        {
+          "count": 100,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 2972000,
+              "min": 2949000,
+              "max": 2996000
+            },
+            "cached_paint_ns": {
+              "median": 1362000,
+              "min": 1352000,
+              "max": 1365000
+            },
+            "cached_frame_ns": {
+              "median": 4329000,
+              "min": 4314000,
+              "max": 4359000
+            },
+            "forced_update_ns": {
+              "median": 2964000,
+              "min": 2935000,
+              "max": 2985000
+            },
+            "forced_paint_ns": {
+              "median": 1357000,
+              "min": 1355000,
+              "max": 1367000
+            },
+            "forced_frame_ns": {
+              "median": 4319000,
+              "min": 4291000,
+              "max": 4352000
+            }
+          }
+        },
+        {
+          "count": 300,
+          "shared": false,
+          "stats": {
+            "cached_update_ns": {
+              "median": 20126000,
+              "min": 19884000,
+              "max": 20417000
+            },
+            "cached_paint_ns": {
+              "median": 10694000,
+              "min": 10599000,
+              "max": 11014000
+            },
+            "cached_frame_ns": {
+              "median": 30898000,
+              "min": 30487000,
+              "max": 31111000
+            },
+            "forced_update_ns": {
+              "median": 21084000,
+              "min": 20680000,
+              "max": 21756000
+            },
+            "forced_paint_ns": {
+              "median": 10677000,
+              "min": 10592000,
+              "max": 10967000
+            },
+            "forced_frame_ns": {
+              "median": 31761000,
+              "min": 31272000,
+              "max": 32723000
+            }
+          }
+        },
+        {
+          "count": 300,
+          "shared": true,
+          "stats": {
+            "cached_update_ns": {
+              "median": 21315000,
+              "min": 20921000,
+              "max": 22225000
+            },
+            "cached_paint_ns": {
+              "median": 10649000,
+              "min": 10605000,
+              "max": 11048000
+            },
+            "cached_frame_ns": {
+              "median": 31970000,
+              "min": 31527000,
+              "max": 33273000
+            },
+            "forced_update_ns": {
+              "median": 21227000,
+              "min": 20636000,
+              "max": 21730000
+            },
+            "forced_paint_ns": {
+              "median": 10688000,
+              "min": 10582000,
+              "max": 11127000
+            },
+            "forced_frame_ns": {
+              "median": 32240000,
+              "min": 31301000,
+              "max": 32628000
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
