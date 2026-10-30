@@ -1,0 +1,24 @@
+import NameField from "./name-field.marko";
+
+<let/nickname="">
+<let/useNickname=false>
+<let/saved="">
+
+<NameField/name label="Name" value="Ada"/>
+<input type="checkbox" checked:=useNickname aria-label="Use nickname">
+<label>Use nickname</label>
+<if=useNickname>
+  <NameField label="Nickname" value:=nickname/>
+</if>
+
+<const/selected=(useNickname ? nickname : name).trim()>
+<const/valid=selected !== "">
+<p>${valid ? `Hello, ${selected}` : "Name required"}</p>
+<button disabled=!valid onClick() { saved = selected; }>Save</button>
+<button onClick() {
+  name = "Ada";
+  nickname = "";
+  useNickname = false;
+  saved = "";
+}>Restore defaults</button>
+<if=saved><p>Saved: ${saved}</p></if>

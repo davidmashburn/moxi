@@ -1,0 +1,6 @@
+{
+  "name": "moxi-tags-authoring-experiment",
+  "private": true,
+  "scripts": {"generate": "node compile.cjs", "check": "node compiler-check.cjs"},
+  "dependencies": {"@marko/compiler": "5.42.12", "marko": "6.4.6"}
+}

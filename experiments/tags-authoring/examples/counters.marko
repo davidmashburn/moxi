@@ -1,0 +1,10 @@
+import Counter from "./counter.marko";
+
+<p>Each counter owns its count</p>
+<Counter/first count=0/>
+<Counter/second count=0/>
+
+<p>These two share a count</p>
+<let/shared=0>
+<Counter count:=shared/>
+<Counter count:=shared/>

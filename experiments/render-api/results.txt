@@ -1,0 +1,34 @@
+Ordinary Mojo render API experiment — 2026-10-27
+Implementation baseline: feat/data-workbench @ c8c7cbb7741519c9796a02ffa25c02e701b2f58a
+Experiment files are uncommitted.
+
+$ bash experiments/render-api/check.sh
+PASS independent/shared counters, earlier sibling refresh, keyboard, fresh root
+PASS action exactly once, earlier label/branch refresh, rebuild/resize/paint do not replay
+PASS trim/validation/Save, cursor/focus, hidden state, stale-event rejection, late reset
+PASS Unicode, composition/commit, App clipboard commands, Tab
+PASS shared editors, independent cursors, reordered keys, conditional field lifetime
+All render API checks passed
+PASS duplicate-key rejection with a specific diagnostic
+EXIT=0
+
+$ bash experiments/render-api/native.sh --build-only
+EXIT=0
+14 existing native_window.mojo as_c_string_slice deprecation warnings.
+
+Native observations:
+PASS independent/shared counters; keyboard focus and text input/live preview;
+PASS Save, nickname validation/editing, Restore defaults.
+UNRESOLVED accessibility-targeted activation did not transfer focus; keyboard navigation worked.
+
+Not run: full suite, benchmarks, cross-platform/browser, actual IME, OS clipboard,
+VoiceOver, mouse caret/drag selection, user-comprehension study.
+
+SHA-256 of tested source/scripts:
+8ae9cd1f79720b7adb9e96f1abc867e1094bccbc8466268910490581aea4b329  check.mojo
+9cf88f801dc7107c72c119d29fb02ce070719265d8b8945658f33f4605e85d15  check.sh
+23d6fc303a73ebd7d9106e7723b3cedd25d60e22b9a1016b114e6ee67f59e11a  demo.mojo
+209a2d0728728dbed1fb04026d7dcaf79e7cb0bd44d3d67b1ce03b4010c4fcd1  duplicate-key.mojo
+679c10b94e34bbd200e3813e2b4b7ff6c516e5d0f15a20f9094f1fad998608f0  examples.mojo
+22430dd94036f9fca8550480b02c1b73438fe550563fc4f2a7e91e2fe6521908  native.sh
+f168d52518fc78b3260905c2e12aa696c959962dc01652da02e95d36c3eb1b3a  runtime.mojo

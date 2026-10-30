@@ -1,0 +1,4 @@
+import Editor from './editor.marko';
+<for|item| of=input.items by="id">
+  <Editor id=item.id document=input.document settings=input.settings rename=input.rename/>
+</for>

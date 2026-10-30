@@ -1,0 +1,161 @@
+{
+  "scope": "Matched five-output projection work, not total runtime or latency. Memo scans all editors. Solid uses actual client tracking; Mojo projection is separate from App.",
+  "input_result_hashes": {
+    "results.json": "2c520161a17be07d91633f204e07c580c03cb4cba055c15f20912941ecc03871",
+    "solid/results.json": "69fb616108149a33166209800d1763c14f2b535e625c379ae7110e244c298bea"
+  },
+  "mojo_checks": 9,
+  "solid_assertions": 125,
+  "rows": [
+    {
+      "editors": 2,
+      "operation": "draft",
+      "solid_evaluations": 1,
+      "sink_writes": 1,
+      "full_evaluations": 10,
+      "full_key_checks": 0,
+      "memo_evaluations": 5,
+      "memo_key_checks": 2
+    },
+    {
+      "editors": 2,
+      "operation": "note",
+      "solid_evaluations": 1,
+      "sink_writes": 1,
+      "full_evaluations": 10,
+      "full_key_checks": 0,
+      "memo_evaluations": 5,
+      "memo_key_checks": 2
+    },
+    {
+      "editors": 2,
+      "operation": "name",
+      "solid_evaluations": 2,
+      "sink_writes": 2,
+      "full_evaluations": 10,
+      "full_key_checks": 0,
+      "memo_evaluations": 10,
+      "memo_key_checks": 2
+    },
+    {
+      "editors": 2,
+      "operation": "writable",
+      "solid_evaluations": 2,
+      "sink_writes": 2,
+      "full_evaluations": 10,
+      "full_key_checks": 0,
+      "memo_evaluations": 10,
+      "memo_key_checks": 2
+    },
+    {
+      "editors": 2,
+      "operation": "unrelated",
+      "solid_evaluations": 0,
+      "sink_writes": 0,
+      "full_evaluations": 10,
+      "full_key_checks": 0,
+      "memo_evaluations": 0,
+      "memo_key_checks": 2
+    },
+    {
+      "editors": 100,
+      "operation": "draft",
+      "solid_evaluations": 1,
+      "sink_writes": 1,
+      "full_evaluations": 500,
+      "full_key_checks": 0,
+      "memo_evaluations": 5,
+      "memo_key_checks": 100
+    },
+    {
+      "editors": 100,
+      "operation": "note",
+      "solid_evaluations": 1,
+      "sink_writes": 1,
+      "full_evaluations": 500,
+      "full_key_checks": 0,
+      "memo_evaluations": 5,
+      "memo_key_checks": 100
+    },
+    {
+      "editors": 100,
+      "operation": "name",
+      "solid_evaluations": 100,
+      "sink_writes": 100,
+      "full_evaluations": 500,
+      "full_key_checks": 0,
+      "memo_evaluations": 500,
+      "memo_key_checks": 100
+    },
+    {
+      "editors": 100,
+      "operation": "writable",
+      "solid_evaluations": 100,
+      "sink_writes": 100,
+      "full_evaluations": 500,
+      "full_key_checks": 0,
+      "memo_evaluations": 500,
+      "memo_key_checks": 100
+    },
+    {
+      "editors": 100,
+      "operation": "unrelated",
+      "solid_evaluations": 0,
+      "sink_writes": 0,
+      "full_evaluations": 500,
+      "full_key_checks": 0,
+      "memo_evaluations": 0,
+      "memo_key_checks": 100
+    },
+    {
+      "editors": 1000,
+      "operation": "draft",
+      "solid_evaluations": 1,
+      "sink_writes": 1,
+      "full_evaluations": 5000,
+      "full_key_checks": 0,
+      "memo_evaluations": 5,
+      "memo_key_checks": 1000
+    },
+    {
+      "editors": 1000,
+      "operation": "note",
+      "solid_evaluations": 1,
+      "sink_writes": 1,
+      "full_evaluations": 5000,
+      "full_key_checks": 0,
+      "memo_evaluations": 5,
+      "memo_key_checks": 1000
+    },
+    {
+      "editors": 1000,
+      "operation": "name",
+      "solid_evaluations": 1000,
+      "sink_writes": 1000,
+      "full_evaluations": 5000,
+      "full_key_checks": 0,
+      "memo_evaluations": 5000,
+      "memo_key_checks": 1000
+    },
+    {
+      "editors": 1000,
+      "operation": "writable",
+      "solid_evaluations": 1000,
+      "sink_writes": 1000,
+      "full_evaluations": 5000,
+      "full_key_checks": 0,
+      "memo_evaluations": 5000,
+      "memo_key_checks": 1000
+    },
+    {
+      "editors": 1000,
+      "operation": "unrelated",
+      "solid_evaluations": 0,
+      "sink_writes": 0,
+      "full_evaluations": 5000,
+      "full_key_checks": 0,
+      "memo_evaluations": 0,
+      "memo_key_checks": 1000
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+Observed 2026-10-27 on macOS arm64
+Implementation baseline: c8c7cbb7741519c9796a02ffa25c02e701b2f58a plus uncommitted experiment
+Node: 26.10.0; Marko: 6.4.6; @marko/compiler: 5.42.12; Mojo: 1.1.0 (8189361e)
+check.sh exit: 0
+native.sh --build-only exit: 0 (14 existing native_window.mojo deprecation warnings)
+
+counters.marko -> Counters.mojo (6 native controls)
+greeting-form.marko -> GreetingForm.mojo (10 native controls)
+PASS 8 reference compilations with the official Marko translator
+PASS generated four independent source variations
+PASS 11 unsupported cases rejected with source locations
+PASS independent counters, shared bindings, keyboard activation, fresh root
+PASS child return, derived preview, trim, immediate Save, focus/cursor on rebuild
+PASS disabled Save, conditional mount, parent state survives hiding, reset, stale-event rejection
+PASS Unicode editing, composition/commit, clipboard hooks, Tab focus
+All tags authoring behavior checks passed
+PASS change validation once: preview and Save both follow it
+PASS change one prop from binding to initial value: counters become independent
+PASS move reusable counter into conditional: child local state resets on remount
+PASS share one text value between two child fields: text syncs, editor cursors stay separate
+All authoring variation checks passed
+
+Source SHA-256 at the recorded run:
+636bf98a2ae415ceab4d491af692eba2281450439085e903629998c1f737a997  compile.cjs
+d7098e0f1ac3866b984b86eeb98143e836fabb246553c2d99b7ea248706db917  runtime.mojo
+169401a94c8324031029f8a95d95b3bd830c7ae2334f7217e1611aa7d304408a  check.mojo
+a59b7bd297724df164bec0c088100fc08c8e3fd69fdd9dbc06d874abac183604  compiler-check.cjs
+b2dfa87b5b7c6292c8d257e3f39aeb202aa4a157bf79a6cb278beccbae81fba4  variations.mojo
+d99f0f65fba1ae81984af00457270de9f39314063e95e7cd8fce42fc603edd19  demo.mojo
+a051e729935cc481069aa94523e0aaf900d7f06bc8a0acce8a32ebacc66452ad  native.sh
+bc9f3aace0016d81281a0d45edd5c87ca7a8a0ca476dc895eb87b141f4395157  check.sh
+16bd94b1934195a23f7c673e062b8ea30e28d9fd7354732047916041c869b314  examples/counter.marko
+a1d170d68ce56244b07e8caadb221d94e6ca81747242793d638d1f51eab1f14b  examples/counters.marko
+a2c975c56bdbd61184a9d6cf865d2830bd02c59131be1bf8a9f549804a1cb992  examples/greeting-form.marko
+c8a34283759a7364996f2d30f5d8e8e8fe1d9192e8ff9733e9c834ae5b723c9f  examples/name-field.marko

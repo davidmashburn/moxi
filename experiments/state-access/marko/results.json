@@ -1,0 +1,1204 @@
+{
+  "scope": "Compiled Marko client runtime in Chromium. Five instrumented leaf evaluations and changed DOM values; not total CPU, DOM write count, allocation or latency. Input value changes may originate in native editing.",
+  "manifest": {
+    "generatedAt": "2026-10-30T20:34:14.332Z",
+    "node": "v26.10.0",
+    "versions": {
+      "marko": "6.4.7",
+      "@marko/compiler": "5.42.13",
+      "esbuild": "0.25.12"
+    },
+    "sourceHashes": {
+      ".gitignore": "b37d691e6ad3eb4471ac4d1538448c51b41ca0d2b85cd7a82a8dfc21fc530529",
+      "README.md": "1a35a9321a36ca27dc28d5bf3633e2c182e5857bd0a7c1801679ecc12b2158e9",
+      "build.mjs": "dc1e7ac92595451f4a6d4cfba842638cb9ac2792716dd0afd66629613677fe19",
+      "check.mjs": "760bec2016fdb5b22d3bf6654613d24e79fa0b877121c5bdd81bad5b7a12e2c2",
+      "finalize.mjs": "829ac7c193fd1322f82bf36a151542184718f83d0428c148554021a1cec3a37d",
+      "package-lock.json": "3735aa0e530770cac9c9290f7f272e2f080f35baa0380026cccde5cbead0ecf1",
+      "package.json": "50d3611ae67502e5701755e642ec2134281830375fa97bb9c503c7044da9ca46",
+      "provenance.mjs": "367d38eedaa103c8e3edaf995aa114b59a96d11e928d3df6aae2faefcbd5f1b6",
+      "serve.mjs": "77f16937a13faf139028dbdfbbc32f9b83ac8863259e856e85984b4191b222c0",
+      "src/app.marko": "937d600943cbf3266173e8043990a720dddd112fdfd3d931a2b4b0cfaa7853e1",
+      "src/domain.mjs": "6bfa123a5ed7f63fe25898927ed2d6e6ecf3779b3068d777f30e6962797e7cfe",
+      "src/editor.marko": "941b550cb82f3c6921a2a7833b1e07d42db720e690d8472f6806766fd5210e80",
+      "src/group.marko": "f9f7377d59819f7447502df41450ed4e9231e4f5e6b73b4be5fad30f322e867a",
+      "src/probe.mjs": "d24039ccbb2a067e14bef6f4b3daf0bd50041f017d50bf787b667f26a4306d67",
+      "src/shell.marko": "76cf7575a0089a89bf1d0597d0a8dc49d232b90f8b87b9da4f2281d84973d64b",
+      "src/workspace.marko": "28e18653a3064f263bac0596d045a81bbee1ce7ca6223eaaa508a3de13507c88"
+    },
+    "artifactHashes": {
+      "dist/baseline/check.js": "a71e9831611867d383c5185b730b4feb0869bed84147559cccd1973c521da413",
+      "dist/baseline/compiler.json": "6c9a140cf4677530ad963286711e2061ee153003f435cc975593dc4b76166dee",
+      "dist/baseline/compiled/editor.marko.js": "b61cc3998a2a25a955bc0f807a4c3261725c997ecc4c658a1c5279d870d46d6d",
+      "dist/baseline/compiled/editor.instrumented.js": "2453a3427c2ad1d5914680c02d2143caba8a608dca878f14b6d33ebb657ad9bf",
+      "dist/narrow/check.js": "5558f195d3672267dc8a7225b9dd90f0dec7e8fe41ad49c7047714fdd88a7a9b",
+      "dist/narrow/compiler.json": "6c9a140cf4677530ad963286711e2061ee153003f435cc975593dc4b76166dee",
+      "dist/narrow/compiled/editor.marko.js": "ed51a9e9d1c6240467b9b0a3ca54c902ad207824fceb9ad184efc96c66f1559c",
+      "dist/narrow/compiled/editor.instrumented.js": "de675beb0ea0bd3609466c31d239907004a66f8475f539dd9459a30348036470",
+      "dist/projected/check.js": "774a3eaa67924b25e75c509ef2cdad77fc4c25836d7519e31991b119ea92b053",
+      "dist/projected/compiler.json": "6c9a140cf4677530ad963286711e2061ee153003f435cc975593dc4b76166dee",
+      "dist/projected/compiled/editor.marko.js": "11afa2c7a45892d5d0c264e246e1b5110cc0717804a5382fd0224d6f715f7aea",
+      "dist/projected/compiled/editor.instrumented.js": "04c6afc3c6859bea0422516c454b3c67f4f2c4e270c23ade85baaa2fbf3fffed"
+    }
+  },
+  "variants": {
+    "baseline": {
+      "ok": true,
+      "variant": "baseline",
+      "assertionCount": 125,
+      "assertions": [
+        "mount 2 editors",
+        "DOM Apply normalizes and commits once",
+        "independent drafts and notes survive shared write",
+        "stale editor rejected",
+        "explicit reload synchronizes draft",
+        "normalized no-op leaves revision and history unchanged",
+        "empty name rejected",
+        "long name rejected",
+        "Unicode code points and normalization",
+        "read-only disables both Apply buttons",
+        "command checks permission even outside disabled button",
+        "read-only undo rejected",
+        "undo changes revision without new rename commit",
+        "same-revision replacement rejected by identity",
+        "keyed reorder preserves DOM and private draft",
+        "removed editor registration disposed",
+        "live sibling reflects any retained command result",
+        "remove then reuse key creates fresh state and DOM",
+        "registration count bounded after cycle 1",
+        "registration count bounded after cycle 2",
+        "registration count bounded after cycle 3",
+        "registration count bounded after cycle 4",
+        "registration count bounded after cycle 5",
+        "registration count bounded after cycle 6",
+        "registration count bounded after cycle 7",
+        "registration count bounded after cycle 8",
+        "registration count bounded after cycle 9",
+        "registration count bounded after cycle 10",
+        "registration count bounded after cycle 11",
+        "registration count bounded after cycle 12",
+        "registration count bounded after cycle 13",
+        "registration count bounded after cycle 14",
+        "registration count bounded after cycle 15",
+        "registration count bounded after cycle 16",
+        "registration count bounded after cycle 17",
+        "registration count bounded after cycle 18",
+        "registration count bounded after cycle 19",
+        "registration count bounded after cycle 20",
+        "registration count bounded after cycle 21",
+        "registration count bounded after cycle 22",
+        "registration count bounded after cycle 23",
+        "registration count bounded after cycle 24",
+        "registration count bounded after cycle 25",
+        "destroy clears registrations and DOM",
+        "mount 2 editors",
+        "2/draft/current changed output",
+        "2/draft/draft changed output",
+        "2/draft/note changed output",
+        "2/draft/error changed output",
+        "2/draft/applyEnabled changed output",
+        "2/note/current changed output",
+        "2/note/draft changed output",
+        "2/note/note changed output",
+        "2/note/error changed output",
+        "2/note/applyEnabled changed output",
+        "2/name/current changed output",
+        "2/name/draft changed output",
+        "2/name/note changed output",
+        "2/name/error changed output",
+        "2/name/applyEnabled changed output",
+        "2/writable/current changed output",
+        "2/writable/draft changed output",
+        "2/writable/note changed output",
+        "2/writable/error changed output",
+        "2/writable/applyEnabled changed output",
+        "2/unrelated/current changed output",
+        "2/unrelated/draft changed output",
+        "2/unrelated/note changed output",
+        "2/unrelated/error changed output",
+        "2/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM",
+        "mount 100 editors",
+        "100/draft/current changed output",
+        "100/draft/draft changed output",
+        "100/draft/note changed output",
+        "100/draft/error changed output",
+        "100/draft/applyEnabled changed output",
+        "100/note/current changed output",
+        "100/note/draft changed output",
+        "100/note/note changed output",
+        "100/note/error changed output",
+        "100/note/applyEnabled changed output",
+        "100/name/current changed output",
+        "100/name/draft changed output",
+        "100/name/note changed output",
+        "100/name/error changed output",
+        "100/name/applyEnabled changed output",
+        "100/writable/current changed output",
+        "100/writable/draft changed output",
+        "100/writable/note changed output",
+        "100/writable/error changed output",
+        "100/writable/applyEnabled changed output",
+        "100/unrelated/current changed output",
+        "100/unrelated/draft changed output",
+        "100/unrelated/note changed output",
+        "100/unrelated/error changed output",
+        "100/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM",
+        "mount 1000 editors",
+        "1000/draft/current changed output",
+        "1000/draft/draft changed output",
+        "1000/draft/note changed output",
+        "1000/draft/error changed output",
+        "1000/draft/applyEnabled changed output",
+        "1000/note/current changed output",
+        "1000/note/draft changed output",
+        "1000/note/note changed output",
+        "1000/note/error changed output",
+        "1000/note/applyEnabled changed output",
+        "1000/name/current changed output",
+        "1000/name/draft changed output",
+        "1000/name/note changed output",
+        "1000/name/error changed output",
+        "1000/name/applyEnabled changed output",
+        "1000/writable/current changed output",
+        "1000/writable/draft changed output",
+        "1000/writable/note changed output",
+        "1000/writable/error changed output",
+        "1000/writable/applyEnabled changed output",
+        "1000/unrelated/current changed output",
+        "1000/unrelated/draft changed output",
+        "1000/unrelated/note changed output",
+        "1000/unrelated/error changed output",
+        "1000/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM"
+      ],
+      "sequence": {
+        "retainedCode": "ok",
+        "retainedCommitted": true,
+        "cycles": 25
+      },
+      "scale": {
+        "2": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 2,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            },
+            "changedValues": {
+              "current": 2,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        },
+        "100": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 100,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            },
+            "changedValues": {
+              "current": 100,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        },
+        "1000": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 1000,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            },
+            "changedValues": {
+              "current": 1000,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        }
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36"
+    },
+    "narrow": {
+      "ok": true,
+      "variant": "narrow",
+      "assertionCount": 125,
+      "assertions": [
+        "mount 2 editors",
+        "DOM Apply normalizes and commits once",
+        "independent drafts and notes survive shared write",
+        "stale editor rejected",
+        "explicit reload synchronizes draft",
+        "normalized no-op leaves revision and history unchanged",
+        "empty name rejected",
+        "long name rejected",
+        "Unicode code points and normalization",
+        "read-only disables both Apply buttons",
+        "command checks permission even outside disabled button",
+        "read-only undo rejected",
+        "undo changes revision without new rename commit",
+        "same-revision replacement rejected by identity",
+        "keyed reorder preserves DOM and private draft",
+        "removed editor registration disposed",
+        "live sibling reflects any retained command result",
+        "remove then reuse key creates fresh state and DOM",
+        "registration count bounded after cycle 1",
+        "registration count bounded after cycle 2",
+        "registration count bounded after cycle 3",
+        "registration count bounded after cycle 4",
+        "registration count bounded after cycle 5",
+        "registration count bounded after cycle 6",
+        "registration count bounded after cycle 7",
+        "registration count bounded after cycle 8",
+        "registration count bounded after cycle 9",
+        "registration count bounded after cycle 10",
+        "registration count bounded after cycle 11",
+        "registration count bounded after cycle 12",
+        "registration count bounded after cycle 13",
+        "registration count bounded after cycle 14",
+        "registration count bounded after cycle 15",
+        "registration count bounded after cycle 16",
+        "registration count bounded after cycle 17",
+        "registration count bounded after cycle 18",
+        "registration count bounded after cycle 19",
+        "registration count bounded after cycle 20",
+        "registration count bounded after cycle 21",
+        "registration count bounded after cycle 22",
+        "registration count bounded after cycle 23",
+        "registration count bounded after cycle 24",
+        "registration count bounded after cycle 25",
+        "destroy clears registrations and DOM",
+        "mount 2 editors",
+        "2/draft/current changed output",
+        "2/draft/draft changed output",
+        "2/draft/note changed output",
+        "2/draft/error changed output",
+        "2/draft/applyEnabled changed output",
+        "2/note/current changed output",
+        "2/note/draft changed output",
+        "2/note/note changed output",
+        "2/note/error changed output",
+        "2/note/applyEnabled changed output",
+        "2/name/current changed output",
+        "2/name/draft changed output",
+        "2/name/note changed output",
+        "2/name/error changed output",
+        "2/name/applyEnabled changed output",
+        "2/writable/current changed output",
+        "2/writable/draft changed output",
+        "2/writable/note changed output",
+        "2/writable/error changed output",
+        "2/writable/applyEnabled changed output",
+        "2/unrelated/current changed output",
+        "2/unrelated/draft changed output",
+        "2/unrelated/note changed output",
+        "2/unrelated/error changed output",
+        "2/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM",
+        "mount 100 editors",
+        "100/draft/current changed output",
+        "100/draft/draft changed output",
+        "100/draft/note changed output",
+        "100/draft/error changed output",
+        "100/draft/applyEnabled changed output",
+        "100/note/current changed output",
+        "100/note/draft changed output",
+        "100/note/note changed output",
+        "100/note/error changed output",
+        "100/note/applyEnabled changed output",
+        "100/name/current changed output",
+        "100/name/draft changed output",
+        "100/name/note changed output",
+        "100/name/error changed output",
+        "100/name/applyEnabled changed output",
+        "100/writable/current changed output",
+        "100/writable/draft changed output",
+        "100/writable/note changed output",
+        "100/writable/error changed output",
+        "100/writable/applyEnabled changed output",
+        "100/unrelated/current changed output",
+        "100/unrelated/draft changed output",
+        "100/unrelated/note changed output",
+        "100/unrelated/error changed output",
+        "100/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM",
+        "mount 1000 editors",
+        "1000/draft/current changed output",
+        "1000/draft/draft changed output",
+        "1000/draft/note changed output",
+        "1000/draft/error changed output",
+        "1000/draft/applyEnabled changed output",
+        "1000/note/current changed output",
+        "1000/note/draft changed output",
+        "1000/note/note changed output",
+        "1000/note/error changed output",
+        "1000/note/applyEnabled changed output",
+        "1000/name/current changed output",
+        "1000/name/draft changed output",
+        "1000/name/note changed output",
+        "1000/name/error changed output",
+        "1000/name/applyEnabled changed output",
+        "1000/writable/current changed output",
+        "1000/writable/draft changed output",
+        "1000/writable/note changed output",
+        "1000/writable/error changed output",
+        "1000/writable/applyEnabled changed output",
+        "1000/unrelated/current changed output",
+        "1000/unrelated/draft changed output",
+        "1000/unrelated/note changed output",
+        "1000/unrelated/error changed output",
+        "1000/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM"
+      ],
+      "sequence": {
+        "retainedCode": "ok",
+        "retainedCommitted": true,
+        "cycles": 25
+      },
+      "scale": {
+        "2": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 2,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 2,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        },
+        "100": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 100,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 100,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        },
+        "1000": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 1000,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 1000,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        }
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36"
+    },
+    "projected": {
+      "ok": true,
+      "variant": "projected",
+      "assertionCount": 125,
+      "assertions": [
+        "mount 2 editors",
+        "DOM Apply normalizes and commits once",
+        "independent drafts and notes survive shared write",
+        "stale editor rejected",
+        "explicit reload synchronizes draft",
+        "normalized no-op leaves revision and history unchanged",
+        "empty name rejected",
+        "long name rejected",
+        "Unicode code points and normalization",
+        "read-only disables both Apply buttons",
+        "command checks permission even outside disabled button",
+        "read-only undo rejected",
+        "undo changes revision without new rename commit",
+        "same-revision replacement rejected by identity",
+        "keyed reorder preserves DOM and private draft",
+        "removed editor registration disposed",
+        "live sibling reflects any retained command result",
+        "remove then reuse key creates fresh state and DOM",
+        "registration count bounded after cycle 1",
+        "registration count bounded after cycle 2",
+        "registration count bounded after cycle 3",
+        "registration count bounded after cycle 4",
+        "registration count bounded after cycle 5",
+        "registration count bounded after cycle 6",
+        "registration count bounded after cycle 7",
+        "registration count bounded after cycle 8",
+        "registration count bounded after cycle 9",
+        "registration count bounded after cycle 10",
+        "registration count bounded after cycle 11",
+        "registration count bounded after cycle 12",
+        "registration count bounded after cycle 13",
+        "registration count bounded after cycle 14",
+        "registration count bounded after cycle 15",
+        "registration count bounded after cycle 16",
+        "registration count bounded after cycle 17",
+        "registration count bounded after cycle 18",
+        "registration count bounded after cycle 19",
+        "registration count bounded after cycle 20",
+        "registration count bounded after cycle 21",
+        "registration count bounded after cycle 22",
+        "registration count bounded after cycle 23",
+        "registration count bounded after cycle 24",
+        "registration count bounded after cycle 25",
+        "destroy clears registrations and DOM",
+        "mount 2 editors",
+        "2/draft/current changed output",
+        "2/draft/draft changed output",
+        "2/draft/note changed output",
+        "2/draft/error changed output",
+        "2/draft/applyEnabled changed output",
+        "2/note/current changed output",
+        "2/note/draft changed output",
+        "2/note/note changed output",
+        "2/note/error changed output",
+        "2/note/applyEnabled changed output",
+        "2/name/current changed output",
+        "2/name/draft changed output",
+        "2/name/note changed output",
+        "2/name/error changed output",
+        "2/name/applyEnabled changed output",
+        "2/writable/current changed output",
+        "2/writable/draft changed output",
+        "2/writable/note changed output",
+        "2/writable/error changed output",
+        "2/writable/applyEnabled changed output",
+        "2/unrelated/current changed output",
+        "2/unrelated/draft changed output",
+        "2/unrelated/note changed output",
+        "2/unrelated/error changed output",
+        "2/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM",
+        "mount 100 editors",
+        "100/draft/current changed output",
+        "100/draft/draft changed output",
+        "100/draft/note changed output",
+        "100/draft/error changed output",
+        "100/draft/applyEnabled changed output",
+        "100/note/current changed output",
+        "100/note/draft changed output",
+        "100/note/note changed output",
+        "100/note/error changed output",
+        "100/note/applyEnabled changed output",
+        "100/name/current changed output",
+        "100/name/draft changed output",
+        "100/name/note changed output",
+        "100/name/error changed output",
+        "100/name/applyEnabled changed output",
+        "100/writable/current changed output",
+        "100/writable/draft changed output",
+        "100/writable/note changed output",
+        "100/writable/error changed output",
+        "100/writable/applyEnabled changed output",
+        "100/unrelated/current changed output",
+        "100/unrelated/draft changed output",
+        "100/unrelated/note changed output",
+        "100/unrelated/error changed output",
+        "100/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM",
+        "mount 1000 editors",
+        "1000/draft/current changed output",
+        "1000/draft/draft changed output",
+        "1000/draft/note changed output",
+        "1000/draft/error changed output",
+        "1000/draft/applyEnabled changed output",
+        "1000/note/current changed output",
+        "1000/note/draft changed output",
+        "1000/note/note changed output",
+        "1000/note/error changed output",
+        "1000/note/applyEnabled changed output",
+        "1000/name/current changed output",
+        "1000/name/draft changed output",
+        "1000/name/note changed output",
+        "1000/name/error changed output",
+        "1000/name/applyEnabled changed output",
+        "1000/writable/current changed output",
+        "1000/writable/draft changed output",
+        "1000/writable/note changed output",
+        "1000/writable/error changed output",
+        "1000/writable/applyEnabled changed output",
+        "1000/unrelated/current changed output",
+        "1000/unrelated/draft changed output",
+        "1000/unrelated/note changed output",
+        "1000/unrelated/error changed output",
+        "1000/unrelated/applyEnabled changed output",
+        "destroy clears registrations and DOM"
+      ],
+      "sequence": {
+        "retainedCode": "ok",
+        "retainedCommitted": true,
+        "cycles": 25
+      },
+      "scale": {
+        "2": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 2,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 2,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 2
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        },
+        "100": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 100,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 100,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 100
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        },
+        "1000": {
+          "draft": {
+            "evaluations": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 1,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "note": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 1,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "name": {
+            "evaluations": {
+              "current": 1000,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 1000,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          },
+          "writable": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 1000
+            }
+          },
+          "unrelated": {
+            "evaluations": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            },
+            "changedValues": {
+              "current": 0,
+              "draft": 0,
+              "note": 0,
+              "error": 0,
+              "applyEnabled": 0
+            }
+          }
+        }
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36"
+    }
+  }
+}

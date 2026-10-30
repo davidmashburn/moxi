@@ -1,0 +1,11 @@
+{
+  "name": "moxi-state-access-solid-experiment",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --conditions=browser check.mjs"
+  },
+  "dependencies": {
+    "solid-js": "1.9.17"
+  }
+}
