@@ -6,12 +6,13 @@ and retained controls, without changing its fields, setters, commands or
 `render`. It also exposes a concrete reason not to make hand-written render
 input lists the default: a new shared read silently outgrows an old list.
 
-**Recommendation, moderate confidence:** keep ordinary fields and methods;
-continue with conservative component-level selectivity under them. Treat
-narrow dependency projections as optional, tested optimizations. This is a
-working direction, not an adopted public API or a claim that the frame pipeline
-is already selective. A heterogeneous workbench that requires repeated input
-bookkeeping, or unacceptable shared-snapshot/frame costs, would change it.
+**Follow-up:** [Typed-boundary confidence](typed-boundary-confidence.md) now
+covers the heterogeneous workbench and timings proposed below. It strengthens
+the recommendation to retain ordinary fields and methods, but supersedes this
+round's provisional preference for conservative selectivity as the default:
+whole-context comparisons and retained composition overhead have measured
+whole-frame counterexamples. The results below remain the original experiment's
+record; render counts alone do not establish a performance win.
 
 ## Scope and provenance
 
@@ -153,10 +154,10 @@ provider overrides, conditional mounted subtrees, async races, accessibility
 audit, generalized runtime integration and human usability testing. Passing
 these tests does not establish universal ease or application-scale performance.
 
-The next gate should use a heterogeneous workbench and measure snapshot,
-routing, parent composition and frame costs separately. First try coarse typed
-ownership/input boundaries; do not require users to maintain per-field dependency
-lists merely to obtain the local editor benefit already demonstrated here.
+The proposed heterogeneous-workbench and cost gate is now executed in the
+[follow-up](typed-boundary-confidence.md). It retains the no-dependency-list
+authoring benefit while rejecting unconditional whole-context equality as a
+default optimization. Routing, identity and composition still need integration.
 
 An [interactive result table](selective-method-updates.html) switches the measured
 editor count and mutation while keeping the two input policies side by side.

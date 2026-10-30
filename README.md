@@ -19,11 +19,16 @@ The current planning baseline is:
 
 ## Planning record
 
-- [Selective method updates](docs/design/selective-method-updates.md) keeps the
-  authoring files unchanged while rebuilding one editor for local input. Real
-  App checks and 36 scale cases pass. A new shared read exposes stale output
-  with manual dependency lists; keep conservative selectivity as the default
-  direction, with whole-frame costs and general composition still unproven.
+- [Typed-boundary confidence](docs/design/typed-boundary-confidence.md) tests an
+  eight-region workbench and whole-frame costs. Ordinary fields and methods
+  survive the larger correctness test, but whole-context comparisons and the
+  earlier selective host both have measured performance counterexamples.
+  Keep the authoring foundation; the cache and composition API remain research.
+
+- [Selective method updates](docs/design/selective-method-updates.md) preserves
+  the preceding 36 scale cases and missing-dependency failure. The follow-up
+  above supersedes its provisional recommendation to make conservative
+  selectivity the default direction.
 
 - [Marko 6 Tags API reactivity](docs/design/marko-tags-reactivity.md) adds actual
   compiled browser execution: 375 assertions across three source variants.
