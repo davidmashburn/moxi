@@ -19,10 +19,15 @@ read and prevent an undeclared input from silently entering that cache. They
 still compare and copy more state than a component may display. Coarse input
 boundaries are not automatic read tracking, and their cost must remain visible.
 
+The [paint cost isolation follow-up](paint-cost-isolation.md) tests equivalent
+retained trees and disposable runtime optimizations. It also probes a collection
+equality limit; the results and verification status are recorded there.
+
 ## Executed evidence
 
 The October 30 follow-up uses implementation `feat/data-workbench` at `e66cdd9`
-plus new uncommitted research under `experiments/typed-boundaries`. It imports the
+plus research under `experiments/typed-boundaries`, subsequently committed in
+`022209f`. It imports the
 prior domain and editor unchanged. `results.json` records exact source hashes,
 commands, generated source and output; no implementation tree is copied here.
 Reproduce with `python3 experiments/typed-boundaries/check.py`.

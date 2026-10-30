@@ -19,6 +19,12 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Paint cost isolation](docs/design/paint-cost-isolation.md) compares identical
+  retained trees and temporary runtime optimizations. At 100 editors, the
+  combined changes reduce a local cached frame from 33.35 to 4.07 ms without
+  changing application code; forced declarations take 4.42 ms. Ten checks pass.
+  Prioritize runtime scans while retaining the broad-equality and comfort limits.
+
 - [Typed-boundary confidence](docs/design/typed-boundary-confidence.md) tests an
   eight-region workbench and whole-frame costs. Ordinary fields and methods
   survive the larger correctness test, but whole-context comparisons and the
