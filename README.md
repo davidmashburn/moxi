@@ -19,6 +19,12 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Simple composition](docs/design/simple-composition.md) records production paint
+  integration (82 tests plus paint/native parity) and the simpler eight-pane
+  reference: 131 to 85 root/composition lines, five practical edit/identity tasks,
+  and 500 differential transactions. Keep ordinary fields/methods; explicit
+  routes and lifetime policy remain, and human comfort is still unverified.
+
 - [Paint cost isolation](docs/design/paint-cost-isolation.md) compares identical
   retained trees and temporary runtime optimizations. At 100 editors, the
   combined changes reduce a local cached frame from 33.35 to 4.07 ms without

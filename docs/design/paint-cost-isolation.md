@@ -145,8 +145,10 @@ The [compact comparison](paint-cost-isolation.html) shows the 100-editor result.
 
 ## Where performance and authoring comfort stand
 
-Performance has stronger evidence than universal comfort. The latest gain is
-confined to disposable runtime copies; it has not shipped in production Moxi.
+Performance has stronger evidence than universal comfort. The ablation gain
+was initially confined to disposable runtime copies. The [integration and
+simpler-composition follow-up](simple-composition.md) now validates it in the
+production runtime on the implementation branch; this is not a release claim.
 It buys room to choose a straightforward authoring model without treating every
 avoided declaration as essential. It does not establish fast scaling for all
 applications: 300 fully composed editors still take about 31 ms in this probe,
@@ -191,3 +193,9 @@ repeating its registration through several host methods. An unfamiliar reader
 should be able to predict state ownership, update behavior and lifetime without
 reading runtime internals. Failure on those tasks would weaken the comfort
 recommendation even if the resulting source is shorter.
+
+
+The [simple-composition follow-up](simple-composition.md) executes the production
+slice and all five acceptance tasks above. It removes repeated host registration,
+but retains explicit routes, identity and remount rules. Human comprehension and
+large/churning composition remain open gates.
