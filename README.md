@@ -19,6 +19,11 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Explicit assignment and reset contract](docs/design/explicit-lifetime-contract.md)
+  tests collection/root reset and host delivery provenance. Independent host-copy
+  scopes address allocator divergence. Stable dynamic identity and atomic model
+  publication remain required; native integration and an author trial are open.
+
 - [Scoped identity and retained storage](docs/design/scoped-identity-retention.md)
   removes the demonstrated sibling collision and bounds retained records at 32
   after 1,000 remounts. Minimal 1,000-pane update+paint drops from 22.072 to

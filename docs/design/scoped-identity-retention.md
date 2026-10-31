@@ -104,3 +104,11 @@ Define and test that distinction before adding another authoring abstraction.
 Remaining scans merit representative workload measurements, but do not require
 reopening the framework inventory now. Whole-branch merge readiness remains
 separate from these successful experiments.
+
+
+## Lifetime follow-up
+
+The [explicit lifetime contract experiment](explicit-lifetime-contract.md) tests
+assignment versus reset and discovers an independent-host-copy requirement. It
+preserves this result as the earlier performance/identity baseline; native queue
+integration and author comfort remain open.
