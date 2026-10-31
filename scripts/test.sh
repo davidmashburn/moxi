@@ -68,6 +68,7 @@ tests=(
   tests/resources_scene.mojo
   tests/reactivity_tasks.mojo
   tests/request_adapter.mojo
+  tests/request_scope_retention.mojo
   tests/input_routing.mojo
   tests/control_state.mojo
   tests/interaction_foundation.mojo

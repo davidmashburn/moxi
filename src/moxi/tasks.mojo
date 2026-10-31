@@ -637,10 +637,16 @@ struct RequestScheduler:
 
         for index in range(len(self.scopes)):
             if self.scopes[index].id == scope.id:
-                var scope_record = self.scopes[index]
-                scope_record.active = False
-                self.scopes[index] = scope_record
+                # Scope IDs are never reused. Absence already means closed, so
+                # retaining an inactive record would grow storage on every mount.
+                _ = self.scopes.pop(index)
                 break
+
+        var retained_bindings = List[RequestScopeBinding]()
+        for binding in self.scope_bindings:
+            if binding.scope.id != scope.id:
+                retained_bindings.append(binding)
+        self.scope_bindings = retained_bindings^
 
         var retained_states = List[RequestKeyState]()
         for index in range(len(self.key_states)):
