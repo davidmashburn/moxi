@@ -1,0 +1,1041 @@
+{
+  "status": "measured",
+  "measured_at": "2026-10-31T03:20:18.184920+00:00",
+  "manifest": "/Users/davmash/code/moxi/experiments/bounded-retention/prepared.json",
+  "logs": "/tmp/moxi-bounded-retention-measure-0khyw26j",
+  "protocol": {
+    "optimization": "O3",
+    "warmups": 2,
+    "samples": 5,
+    "visible_counts": [
+      10,
+      100,
+      300,
+      1000
+    ],
+    "churn_cycles": [
+      0,
+      100,
+      1000
+    ],
+    "variants": [
+      "baseline",
+      "candidate"
+    ],
+    "timeout_seconds": 240,
+    "serial": true,
+    "visible_timer": "App.update followed by App.paint; update and paint are separate ns intervals",
+    "churn_timer": "hide/refresh/rebuild and remount/refresh/rebuild intervals versus two corresponding App.paint calls per cycle",
+    "setup_excluded": true,
+    "diagnostic_only": true
+  },
+  "variants": {
+    "baseline": {
+      "timing_log": "/tmp/moxi-bounded-retention-measure-0khyw26j/timing-baseline.log",
+      "timing_binary": "/tmp/moxi-bounded-retention-uj30jzbq/baseline-timing",
+      "timing_binary_sha256": "1ac35c464eb5d0c812388ce58be5ae16e769e2d4b9b05e0cb160f44a4de54c49",
+      "raw_stdout": "TIMING visible 10 0 30000 15000 40 40 41 30\nTIMING visible 10 1 31000 16000 40 40 41 30\nTIMING visible 10 2 29000 15000 40 40 41 30\nTIMING visible 10 3 29000 15000 40 40 41 30\nTIMING visible 10 4 29000 16000 40 40 41 30\nTIMING visible 100 0 447000 122000 400 400 401 300\nTIMING visible 100 1 447000 110000 400 400 401 300\nTIMING visible 100 2 443000 109000 400 400 401 300\nTIMING visible 100 3 453000 104000 400 400 401 300\nTIMING visible 100 4 423000 105000 400 400 401 300\nTIMING visible 300 0 2519000 315000 1200 1200 1201 900\nTIMING visible 300 1 2431000 313000 1200 1200 1201 900\nTIMING visible 300 2 2356000 300000 1200 1200 1201 900\nTIMING visible 300 3 2353000 384000 1200 1200 1201 900\nTIMING visible 300 4 2315000 341000 1200 1200 1201 900\nTIMING visible 1000 0 20740000 922000 4000 4000 4001 3000\nTIMING visible 1000 1 21566000 902000 4000 4000 4001 3000\nTIMING visible 1000 2 21199000 873000 4000 4000 4001 3000\nTIMING visible 1000 3 20921000 897000 4000 4000 4001 3000\nTIMING visible 1000 4 21588000 1018000 4000 4000 4001 3000\nTIMING churn 0 0 0 0 32 32 33 24\nTIMING churn 0 1 0 0 32 32 33 24\nTIMING churn 0 2 0 0 32 32 33 24\nTIMING churn 0 3 0 0 32 32 33 24\nTIMING churn 0 4 0 0 32 32 33 24\nTIMING churn 100 0 3847000 1587000 32 432 433 24\nTIMING churn 100 1 3877000 1595000 32 432 433 24\nTIMING churn 100 2 3816000 1581000 32 432 433 24\nTIMING churn 100 3 3816000 1587000 32 432 433 24\nTIMING churn 100 4 3818000 1595000 32 432 433 24\nTIMING churn 1000 0 78690000 15982000 32 4032 4033 24\nTIMING churn 1000 1 77276000 15952000 32 4032 4033 24\nTIMING churn 1000 2 77946000 16065000 32 4032 4033 24\nTIMING churn 1000 3 77529000 16036000 32 4032 4033 24\nTIMING churn 1000 4 75801000 15818000 32 4032 4033 24\nPASS timing probe; warmups 2 samples 5\n",
+      "samples": [
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 0,
+          "update_ns": 30000,
+          "paint_ns": 15000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 1,
+          "update_ns": 31000,
+          "paint_ns": 16000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 2,
+          "update_ns": 29000,
+          "paint_ns": 15000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 3,
+          "update_ns": 29000,
+          "paint_ns": 15000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 4,
+          "update_ns": 29000,
+          "paint_ns": 16000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 0,
+          "update_ns": 447000,
+          "paint_ns": 122000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 1,
+          "update_ns": 447000,
+          "paint_ns": 110000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 2,
+          "update_ns": 443000,
+          "paint_ns": 109000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 3,
+          "update_ns": 453000,
+          "paint_ns": 104000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 4,
+          "update_ns": 423000,
+          "paint_ns": 105000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 0,
+          "update_ns": 2519000,
+          "paint_ns": 315000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 1,
+          "update_ns": 2431000,
+          "paint_ns": 313000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 2,
+          "update_ns": 2356000,
+          "paint_ns": 300000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 3,
+          "update_ns": 2353000,
+          "paint_ns": 384000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 4,
+          "update_ns": 2315000,
+          "paint_ns": 341000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 0,
+          "update_ns": 20740000,
+          "paint_ns": 922000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 1,
+          "update_ns": 21566000,
+          "paint_ns": 902000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 2,
+          "update_ns": 21199000,
+          "paint_ns": 873000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 3,
+          "update_ns": 20921000,
+          "paint_ns": 897000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 4,
+          "update_ns": 21588000,
+          "paint_ns": 1018000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 0,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 1,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 2,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 3,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 4,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 0,
+          "update_ns": 3847000,
+          "paint_ns": 1587000,
+          "active": 32,
+          "total": 432,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 1,
+          "update_ns": 3877000,
+          "paint_ns": 1595000,
+          "active": 32,
+          "total": 432,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 2,
+          "update_ns": 3816000,
+          "paint_ns": 1581000,
+          "active": 32,
+          "total": 432,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 3,
+          "update_ns": 3816000,
+          "paint_ns": 1587000,
+          "active": 32,
+          "total": 432,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 4,
+          "update_ns": 3818000,
+          "paint_ns": 1595000,
+          "active": 32,
+          "total": 432,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 0,
+          "update_ns": 78690000,
+          "paint_ns": 15982000,
+          "active": 32,
+          "total": 4032,
+          "next_id": 4033,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 1,
+          "update_ns": 77276000,
+          "paint_ns": 15952000,
+          "active": 32,
+          "total": 4032,
+          "next_id": 4033,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 2,
+          "update_ns": 77946000,
+          "paint_ns": 16065000,
+          "active": 32,
+          "total": 4032,
+          "next_id": 4033,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 3,
+          "update_ns": 77529000,
+          "paint_ns": 16036000,
+          "active": 32,
+          "total": 4032,
+          "next_id": 4033,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 4,
+          "update_ns": 75801000,
+          "paint_ns": 15818000,
+          "active": 32,
+          "total": 4032,
+          "next_id": 4033,
+          "tree": 24
+        }
+      ],
+      "summaries": [
+        {
+          "kind": "visible",
+          "case": 10,
+          "samples": 5,
+          "update_ns": {
+            "median": 29000,
+            "min": 29000,
+            "max": 31000
+          },
+          "paint_ns": {
+            "median": 15000,
+            "min": 15000,
+            "max": 16000
+          }
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "samples": 5,
+          "update_ns": {
+            "median": 447000,
+            "min": 423000,
+            "max": 453000
+          },
+          "paint_ns": {
+            "median": 109000,
+            "min": 104000,
+            "max": 122000
+          }
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "samples": 5,
+          "update_ns": {
+            "median": 2356000,
+            "min": 2315000,
+            "max": 2519000
+          },
+          "paint_ns": {
+            "median": 315000,
+            "min": 300000,
+            "max": 384000
+          }
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "samples": 5,
+          "update_ns": {
+            "median": 21199000,
+            "min": 20740000,
+            "max": 21588000
+          },
+          "paint_ns": {
+            "median": 902000,
+            "min": 873000,
+            "max": 1018000
+          }
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "samples": 5,
+          "update_ns": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "paint_ns": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          }
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "samples": 5,
+          "update_ns": {
+            "median": 3818000,
+            "min": 3816000,
+            "max": 3877000
+          },
+          "paint_ns": {
+            "median": 1587000,
+            "min": 1581000,
+            "max": 1595000
+          }
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "samples": 5,
+          "update_ns": {
+            "median": 77529000,
+            "min": 75801000,
+            "max": 78690000
+          },
+          "paint_ns": {
+            "median": 15982000,
+            "min": 15818000,
+            "max": 16065000
+          }
+        }
+      ]
+    },
+    "candidate": {
+      "timing_log": "/tmp/moxi-bounded-retention-measure-0khyw26j/timing-candidate.log",
+      "timing_binary": "/tmp/moxi-bounded-retention-uj30jzbq/candidate-timing",
+      "timing_binary_sha256": "4549ff4ab53cc1fda8b7da5047f28285ecead37c9c311c220a68a971bee8fa1b",
+      "raw_stdout": "TIMING visible 10 0 24000 12000 40 40 41 30\nTIMING visible 10 1 29000 12000 40 40 41 30\nTIMING visible 10 2 25000 12000 40 40 41 30\nTIMING visible 10 3 25000 12000 40 40 41 30\nTIMING visible 10 4 25000 12000 40 40 41 30\nTIMING visible 100 0 251000 86000 400 400 401 300\nTIMING visible 100 1 246000 86000 400 400 401 300\nTIMING visible 100 2 243000 86000 400 400 401 300\nTIMING visible 100 3 238000 84000 400 400 401 300\nTIMING visible 100 4 236000 84000 400 400 401 300\nTIMING visible 300 0 1033000 339000 1200 1200 1201 900\nTIMING visible 300 1 1021000 252000 1200 1200 1201 900\nTIMING visible 300 2 933000 260000 1200 1200 1201 900\nTIMING visible 300 3 990000 265000 1200 1200 1201 900\nTIMING visible 300 4 1075000 325000 1200 1200 1201 900\nTIMING visible 1000 0 6785000 850000 4000 4000 4001 3000\nTIMING visible 1000 1 6512000 835000 4000 4000 4001 3000\nTIMING visible 1000 2 6503000 814000 4000 4000 4001 3000\nTIMING visible 1000 3 6479000 816000 4000 4000 4001 3000\nTIMING visible 1000 4 6965000 915000 4000 4000 4001 3000\nTIMING churn 0 0 0 0 32 32 33 24\nTIMING churn 0 1 0 0 32 32 33 24\nTIMING churn 0 2 0 0 32 32 33 24\nTIMING churn 0 3 0 0 32 32 33 24\nTIMING churn 0 4 0 0 32 32 33 24\nTIMING churn 100 0 3828000 1530000 32 32 433 24\nTIMING churn 100 1 3541000 1470000 32 32 433 24\nTIMING churn 100 2 3496000 1464000 32 32 433 24\nTIMING churn 100 3 3629000 1492000 32 32 433 24\nTIMING churn 100 4 3792000 1497000 32 32 433 24\nTIMING churn 1000 0 38347000 15367000 32 32 4033 24\nTIMING churn 1000 1 38115000 15187000 32 32 4033 24\nTIMING churn 1000 2 38315000 15296000 32 32 4033 24\nTIMING churn 1000 3 37562000 15089000 32 32 4033 24\nTIMING churn 1000 4 35766000 14769000 32 32 4033 24\nPASS timing probe; warmups 2 samples 5\n",
+      "samples": [
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 0,
+          "update_ns": 24000,
+          "paint_ns": 12000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 1,
+          "update_ns": 29000,
+          "paint_ns": 12000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 2,
+          "update_ns": 25000,
+          "paint_ns": 12000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 3,
+          "update_ns": 25000,
+          "paint_ns": 12000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 10,
+          "sample": 4,
+          "update_ns": 25000,
+          "paint_ns": 12000,
+          "active": 40,
+          "total": 40,
+          "next_id": 41,
+          "tree": 30
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 0,
+          "update_ns": 251000,
+          "paint_ns": 86000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 1,
+          "update_ns": 246000,
+          "paint_ns": 86000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 2,
+          "update_ns": 243000,
+          "paint_ns": 86000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 3,
+          "update_ns": 238000,
+          "paint_ns": 84000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "sample": 4,
+          "update_ns": 236000,
+          "paint_ns": 84000,
+          "active": 400,
+          "total": 400,
+          "next_id": 401,
+          "tree": 300
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 0,
+          "update_ns": 1033000,
+          "paint_ns": 339000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 1,
+          "update_ns": 1021000,
+          "paint_ns": 252000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 2,
+          "update_ns": 933000,
+          "paint_ns": 260000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 3,
+          "update_ns": 990000,
+          "paint_ns": 265000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "sample": 4,
+          "update_ns": 1075000,
+          "paint_ns": 325000,
+          "active": 1200,
+          "total": 1200,
+          "next_id": 1201,
+          "tree": 900
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 0,
+          "update_ns": 6785000,
+          "paint_ns": 850000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 1,
+          "update_ns": 6512000,
+          "paint_ns": 835000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 2,
+          "update_ns": 6503000,
+          "paint_ns": 814000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 3,
+          "update_ns": 6479000,
+          "paint_ns": 816000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "sample": 4,
+          "update_ns": 6965000,
+          "paint_ns": 915000,
+          "active": 4000,
+          "total": 4000,
+          "next_id": 4001,
+          "tree": 3000
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 0,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 1,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 2,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 3,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "sample": 4,
+          "update_ns": 0,
+          "paint_ns": 0,
+          "active": 32,
+          "total": 32,
+          "next_id": 33,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 0,
+          "update_ns": 3828000,
+          "paint_ns": 1530000,
+          "active": 32,
+          "total": 32,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 1,
+          "update_ns": 3541000,
+          "paint_ns": 1470000,
+          "active": 32,
+          "total": 32,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 2,
+          "update_ns": 3496000,
+          "paint_ns": 1464000,
+          "active": 32,
+          "total": 32,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 3,
+          "update_ns": 3629000,
+          "paint_ns": 1492000,
+          "active": 32,
+          "total": 32,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "sample": 4,
+          "update_ns": 3792000,
+          "paint_ns": 1497000,
+          "active": 32,
+          "total": 32,
+          "next_id": 433,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 0,
+          "update_ns": 38347000,
+          "paint_ns": 15367000,
+          "active": 32,
+          "total": 32,
+          "next_id": 4033,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 1,
+          "update_ns": 38115000,
+          "paint_ns": 15187000,
+          "active": 32,
+          "total": 32,
+          "next_id": 4033,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 2,
+          "update_ns": 38315000,
+          "paint_ns": 15296000,
+          "active": 32,
+          "total": 32,
+          "next_id": 4033,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 3,
+          "update_ns": 37562000,
+          "paint_ns": 15089000,
+          "active": 32,
+          "total": 32,
+          "next_id": 4033,
+          "tree": 24
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "sample": 4,
+          "update_ns": 35766000,
+          "paint_ns": 14769000,
+          "active": 32,
+          "total": 32,
+          "next_id": 4033,
+          "tree": 24
+        }
+      ],
+      "summaries": [
+        {
+          "kind": "visible",
+          "case": 10,
+          "samples": 5,
+          "update_ns": {
+            "median": 25000,
+            "min": 24000,
+            "max": 29000
+          },
+          "paint_ns": {
+            "median": 12000,
+            "min": 12000,
+            "max": 12000
+          }
+        },
+        {
+          "kind": "visible",
+          "case": 100,
+          "samples": 5,
+          "update_ns": {
+            "median": 243000,
+            "min": 236000,
+            "max": 251000
+          },
+          "paint_ns": {
+            "median": 86000,
+            "min": 84000,
+            "max": 86000
+          }
+        },
+        {
+          "kind": "visible",
+          "case": 300,
+          "samples": 5,
+          "update_ns": {
+            "median": 1021000,
+            "min": 933000,
+            "max": 1075000
+          },
+          "paint_ns": {
+            "median": 265000,
+            "min": 252000,
+            "max": 339000
+          }
+        },
+        {
+          "kind": "visible",
+          "case": 1000,
+          "samples": 5,
+          "update_ns": {
+            "median": 6512000,
+            "min": 6479000,
+            "max": 6965000
+          },
+          "paint_ns": {
+            "median": 835000,
+            "min": 814000,
+            "max": 915000
+          }
+        },
+        {
+          "kind": "churn",
+          "case": 0,
+          "samples": 5,
+          "update_ns": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "paint_ns": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          }
+        },
+        {
+          "kind": "churn",
+          "case": 100,
+          "samples": 5,
+          "update_ns": {
+            "median": 3629000,
+            "min": 3496000,
+            "max": 3828000
+          },
+          "paint_ns": {
+            "median": 1492000,
+            "min": 1464000,
+            "max": 1530000
+          }
+        },
+        {
+          "kind": "churn",
+          "case": 1000,
+          "samples": 5,
+          "update_ns": {
+            "median": 38115000,
+            "min": 35766000,
+            "max": 38347000
+          },
+          "paint_ns": {
+            "median": 15187000,
+            "min": 14769000,
+            "max": 15367000
+          }
+        }
+      ]
+    }
+  },
+  "limits": [
+    "The current HandlerHost rebuilds all declarations on handled updates.",
+    "This experiment changes only the copied runtime; App and production remain unchanged.",
+    "Route guards remain necessary for retained callback descriptor safety; the runtime does not infer application lifetime.",
+    "The scale model uses Int child keys and the existing shared bindings; it is not a claim about arbitrary key or native lifetime policies.",
+    "The machine is not isolated and timings are local diagnostics only."
+  ]
+}
