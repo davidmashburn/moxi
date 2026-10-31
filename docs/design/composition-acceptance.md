@@ -125,3 +125,13 @@ Those checks were not refreshed here. Main integration, CI repair/rerun, the ful
 production suite, native event queues/pixel tests, and a human usability study
 were skipped in this bounded evaluation. Earlier 82-test/paint results remain
 inherited evidence. The evidence is published separately from any implementation fix. No merge was performed.
+
+
+## Follow-up
+
+The [scoped identity and retained storage experiment](scoped-identity-retention.md)
+addresses sibling range collisions and retained-record growth. Seven typed-key
+checks and five combined checks pass; the retention candidate keeps 32 records
+after 1,000 remounts and improves the new same-workload large-tree timing from
+22.072 to 7.347 ms. Root/collection/session lifetime policy remains unresolved.
+The findings above preserve the original acceptance baseline.

@@ -19,6 +19,12 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Scoped identity and retained storage](docs/design/scoped-identity-retention.md)
+  removes the demonstrated sibling collision and bounds retained records at 32
+  after 1,000 remounts. Minimal 1,000-pane update+paint drops from 22.072 to
+  7.347 ms; typed and combined checks pass. Application routing/reset ceremony
+  remains; session/replacement policy and merge/CI gates are still open.
+
 - [Composition acceptance evaluation](docs/design/composition-acceptance.md)
   completes the smaller-model author, scale/churn, and replacement probes. Keep
   fields/methods; fix hand-managed identity/lifetime and retained-slot growth
