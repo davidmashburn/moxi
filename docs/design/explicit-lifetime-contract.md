@@ -105,3 +105,13 @@ and the scoped control. These constraints narrow the claim; they do not establis
 universal comfort. The reviewer performed source inspection, not an independent
 Mojo run. Parent verification is recorded in the runner output; no second review
 round was run after these changes.
+
+## Integration follow-up (2026-10-31)
+
+[Lifetime integration decision](lifetime-integration-decision.md) reconciles the
+next gates against `58ef995` and the production scheduler fix `becd2ba`. The request,
+scroll, native queue/poll, move/copy and fresh-model-author experiments now pass.
+The earlier gate list is historical; production native reset, real OS IME/AX behavior,
+Linux execution, final API extraction and human comfort remain separate limits.
+The earlier helper now clears App scroll/capture; it still does not by itself own
+native ingress or request cancellation.

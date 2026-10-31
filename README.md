@@ -19,10 +19,18 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Lifetime integration decision](docs/design/lifetime-integration-decision.md)
+  checks actual App requests and native queue/poll, root scroll/gesture reset,
+  move/copy ownership and a fresh model author. Request-scope reclamation is fixed
+  in production; integrated reset remains a prototype. Twenty-one executable
+  checks pass. High confidence in tested mechanics; human comfort and production
+  extraction remain separate decisions.
+
 - [Explicit assignment and reset contract](docs/design/explicit-lifetime-contract.md)
   tests collection/root reset and host delivery provenance. Independent host-copy
   scopes address allocator divergence. Stable dynamic identity and atomic model
-  publication remain required; native integration and an author trial are open.
+  publication remain required; the integration and author-trial follow-up above
+  records the subsequent evidence and production limits.
 
 - [Scoped identity and retained storage](docs/design/scoped-identity-retention.md)
   removes the demonstrated sibling collision and bounds retained records at 32
