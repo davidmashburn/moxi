@@ -14,7 +14,8 @@ Proposed contract:
 - `host.reset(root)` creates a fresh delivery scope, clears retained controls,
   preserves the control-ID allocator, and renders the replacement root. The outer
   App must rebuild afterward so focus tracks the new view. `reset(app, root)`
-  performs both steps and retains Moxi's normal first-focusable-control policy.
+  performs both steps, clears App scroll records/scrollbar capture, and retains
+  Moxi's normal first-focusable-control policy.
 - External model commands use `update_model(app, Root.reset_editors)` to mutate,
   render, and reconcile synchronously before queued delivery resumes. Ordinary UI
   handlers already have this lifecycle. Raw field mutation plus later refresh is
@@ -116,15 +117,33 @@ lets Beta inherit its ID; an old captured action increments Alpha while an old
 queued event increments Beta. Explicit stable scopes prevent both deliveries.
 This was inherited behavior, not fixed by a host envelope. Stable structure/keys
 are now a hard precondition. The reviewer inspected source and parent results;
-the parent added and ran the counterexample/regression probes. No second model
-review round or fresh-author usability trial was performed.
+the parent added and ran the counterexample/regression probes. That slice included no second model
+review round or fresh-author usability trial; see the integration follow-up below.
 
 High confidence in the targeted-delivery checks under these preconditions. Moderate
 confidence in explicit reset as the right public contract; a fresh author trial
 and native queue integration could change that judgment. No new performance
-claim: scope allocation/refcount and envelope overhead were not measured. Reset
-also does not cancel App tasks/requests, reset scroll state, or establish behavior
-for native accessibility/keyboard/pointer queues. Those need integration with the
+claim: scope allocation/refcount and envelope overhead were not measured. This reset helper
+still does not cancel App tasks/requests or establish behavior
+for native accessibility/keyboard/pointer queues. The integration follow-up added
+scroll reset here and tests the other boundaries in adapter scaffolding. Those need integration with the
 existing App/request lifetime machinery before production use. Control/key integer
 exhaustion and concurrent delivery are outside the checks. Full production tests,
 CI, native event/pixel validation, human usability and merge readiness were skipped.
+
+## Integration follow-up
+
+The [integration experiment](../lifetime-integration/README.md) exercises App request
+scopes, the real native queue/poll adapter with a generated lifetime prototype,
+scroll reset, App moves, and a fresh smaller-model author trial. It supersedes the
+pending evaluation list above; native/request integration is still adapter scaffolding.
+
+A host copy means copied values in a new owner, not an implicitly copied App:
+
+```mojo
+var duplicate = App(HandlerHost[Workspace](copy=source.component), Rect(0, 0, 640, 900))
+```
+
+`var moved = source^` transfers the same App owner and preserves pending deliveries.
+The copy spelling is primarily a host/tooling concern. Ordinary application callbacks
+continue to mutate model fields through methods.

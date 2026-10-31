@@ -1,0 +1,67 @@
+// The runner includes a generated copy of the real backend with a two-field
+// lifetime prototype. No Cocoa window is opened. Queue and poll functions are real.
+#include "native_lifetime_backend.m"
+#include <assert.h>
+
+static MoxiAccessibilityElement *probe_button;
+static MoxiAccessibilityElement *probe_editor;
+
+void moxi_probe_capture_ax(int button, int editor) {
+    // Publish actual native snapshot entries, then retain the callback objects.
+    moxi_window_begin_accessibility();
+    moxi_window_set_accessibility_at(0, button, -1, MOXI_ROLE_BUTTON,
+        "Button", "", "", 0, 0, 100, 30,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, MOXI_ACTION_PRESS);
+    moxi_window_set_accessibility_at(1, editor, -1, MOXI_ROLE_TEXT_INPUT,
+        "Editor", "fresh", "", 0, 30, 100, 30,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+    probe_button = [[MoxiAccessibilityElement alloc] init];
+    probe_button.moxiIdentifier = button;
+    probe_button.accessibilityEnabled = YES;
+    probe_editor = [[MoxiAccessibilityElement alloc] init];
+    probe_editor.moxiIdentifier = editor;
+    probe_editor.accessibilityEnabled = YES;
+}
+
+void moxi_probe_late_ax_callbacks(void) {
+    assert([probe_button accessibilityPerformPress]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [probe_editor accessibilitySetValue:@"late AX" forAttribute:NSAccessibilityValueAttribute];
+#pragma clang diagnostic pop
+}
+
+void moxi_probe_init(void) {
+    moxi_reset_event_queue();
+    moxi_canvas = [[MoxiCanvasView alloc] initWithFrame:NSMakeRect(0, 0, 600, 900)];
+}
+void moxi_probe_enqueue(int kind, int key, int target, float x, float y) {
+    if (kind == MOXI_EVENT_ACTION) {
+        moxi_queue_semantic_action(target, MOXI_ACTION_PRESS);
+    } else if (kind == MOXI_EVENT_TEXT_INPUT || kind == MOXI_EVENT_COMPOSITION_UPDATE) {
+        if (target >= 0) moxi_queue_text_event_for_target(target, kind, @"queued", 0, 1000000);
+        else moxi_queue_text_event(kind, @"queued", 0, 1000000);
+    } else if (kind == MOXI_EVENT_KEY_DOWN) {
+        moxi_queue_key_event(key);
+    } else {
+        moxi_enqueue_event(kind, key, 0, -1, nil, -1, -1, x, y, 0, 0);
+    }
+}
+int moxi_probe_current(void) {
+    if (moxi_event_queue_count == 0) return 0;
+    return moxi_event_queue[moxi_event_queue_head].lifetime == moxi_probe_lifetime;
+}
+void moxi_probe_reset_lifetime(void) {
+    ++moxi_probe_lifetime;
+    moxi_clear_marked_text();
+    moxi_mouse_is_down = NO;
+    moxi_mouse_dragging = NO;
+}
+void moxi_probe_seed_gesture(void) {
+    moxi_marked_text = @"old IME";
+    moxi_mouse_is_down = YES;
+    moxi_mouse_dragging = YES;
+}
+int moxi_probe_gesture_clear(void) {
+    return moxi_marked_text == nil && !moxi_mouse_is_down && !moxi_mouse_dragging;
+}

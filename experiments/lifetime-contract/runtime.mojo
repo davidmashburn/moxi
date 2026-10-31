@@ -425,6 +425,14 @@ def deliver[R: Screen & Deinitable](mut app: App[HandlerHost[R]], packet: Captur
 
 def reset[R: Screen & Deinitable](mut app: App[HandlerHost[R]], root: R):
     app.component.reset(root)
+    # These live on App, outside the model and retained declarations. A new
+    # root lifetime must not inherit its predecessor's root scrollbar gesture.
+    app.scroll_ids = List[Int]()
+    app.scroll_values = List[Float32]()
+    app.scrollbar_pointer_id = -1
+    app.scrollbar_target_id = -1
+    app.scrollbar_grab_offset = 0.0
+    app.scrollbar_dragging = False
     app.rebuild()
 
 

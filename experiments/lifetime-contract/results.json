@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-10-31T11:11:30.250715+00:00",
+  "timestamp": "2026-10-31T22:01:49.252491+00:00",
   "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
-  "baseline": "3d261048f294ff04a2a9dd6360851b695b004e31",
+  "baseline": "becd2ba4c4a76f6bdd0116f50eeda4adc03b5686",
   "compiler": "Mojo 1.1.0 (8189361e)",
-  "temporary_directory": "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+  "temporary_directory": "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
   "source_hashes": {
     "experiments/composition-evaluation/replacement.mojo": "f87ec3c62e57b751f2281a989ff13a913a939bad9003244a02c20164c0c0f190",
     "experiments/lifetime-contract/adapters.mojo": "9e7789798a5f5477f7fdf5985282866b9152a8c3019a0dd6ac6dfc4568140f63",
@@ -12,7 +12,7 @@
     "experiments/lifetime-contract/lifetime_check.mojo": "bfaef1590127f7bcca9ed8b879937ee0c3ed209977b83855751f50c9d6f14023",
     "experiments/lifetime-contract/retired_scope.mojo": "edf7c50904a3aaa27b6f876ccbeaf3e805219a191cff3bfd804a924cb05bcb13",
     "experiments/lifetime-contract/run.py": "051de3715e215773673342583498dcbe3410127a99aa93280e9b3ca9679a2c06",
-    "experiments/lifetime-contract/runtime.mojo": "311842f999eec2dc08a42341923d8184cca7e4ceb6a2312717e55146f0e8cf83",
+    "experiments/lifetime-contract/runtime.mojo": "cdf9f239d9d9690c671cacd1e6ceab083f20587362c216302470bf0b013e38fd",
     "experiments/lifetime-contract/structure.mojo": "6be26d8d8f4f4744e0d1351a874e7abc88ac363b2c48de3bee09371e53d58b71",
     "experiments/lifetime-contract/unpublished_reset.mojo": "252a30d2622d7c27270b55e901391742a53aceb4b391b380ec1138ec015c8fe9",
     "experiments/scoped-identity/bindings.mojo": "5cbede1f5f32ab53ff94a046b33953e9e79d5b8c998f125832f9d2f477671dcd",
@@ -125,7 +125,7 @@
     "src/moxi/style.mojo": "93e03ba4150ea9a0a3067313f75899b97131b4fe6886e871d6d242f5333fdbd6",
     "src/moxi/svg.mojo": "363dfe99eabdbab6aec7acb60d78c6acdfd462cd0d00c899b5d2a137b0002611",
     "src/moxi/targets.mojo": "1917e2d85aaebfbd79294da564e363d26ae576dcd18ee44c77c92e784a4716d9",
-    "src/moxi/tasks.mojo": "10684dea2444949e12b4bcb05b26a5e3549c4e215eb6e79cf9b3f3aac27eabb8",
+    "src/moxi/tasks.mojo": "ea71d2fa5db96ef371ec729c66c6c8a55fba283dd8b106d89bba0140e700456d",
     "src/moxi/testing.mojo": "2260cb8396f826a29a0b8d6772dbd07837c2bb3ce14109294c6aef01726d7e17",
     "src/moxi/text_boundary.mojo": "4c50b87275fe9d40d7e74dff60f99760f3c29a869efdbcacf036e01951bec93f",
     "src/moxi/text_layout.mojo": "0fe75f6844119eb16f9c45d17172520b5100937fde8f5f4347a871763efac28c",
@@ -178,7 +178,7 @@
     "replacement.mojo": "f87ec3c62e57b751f2281a989ff13a913a939bad9003244a02c20164c0c0f190",
     "retention_edges.mojo": "49ad5e4fec61c7e7fcc4478c91129b9907a9c70eb10d678e514778a97839f8a5",
     "retired_scope.mojo": "edf7c50904a3aaa27b6f876ccbeaf3e805219a191cff3bfd804a924cb05bcb13",
-    "runtime.mojo": "311842f999eec2dc08a42341923d8184cca7e4ceb6a2312717e55146f0e8cf83",
+    "runtime.mojo": "cdf9f239d9d9690c671cacd1e6ceab083f20587362c216302470bf0b013e38fd",
     "screen.mojo": "7f99f92a22ae344c1ed8c9759dfcd437e27d0b24b0eb03bfb146f513ede7600b",
     "stress.mojo": "986c6616a5483cfc7d3b9434072f5f5a18da4aa2cc3d2d72e8a251cb24ff5952",
     "structure.mojo": "6be26d8d8f4f4744e0d1351a874e7abc88ac363b2c48de3bee09371e53d58b71",
@@ -194,14 +194,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/lifetime_check.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/lifetime_check.mojo"
       ],
       "exit_code": 0,
       "output": "PASS assignment preserves current-owner delivery, focus, selection and IME\nPASS collection reset allocates fresh keys; assignment retains same identity\nPASS root reset rejects stale work, clears editing state, bounds records\nPASS host provenance, deliberate ID reuse, independent copy reset; raw event limit visible\n"
@@ -215,14 +215,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/copy_divergence.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/copy_divergence.mojo"
       ],
       "exit_code": 0,
       "output": "PASS divergent host copies isolate fresh work despite equal keys and IDs\n"
@@ -236,14 +236,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/retired_scope.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/retired_scope.mojo"
       ],
       "exit_code": 0,
       "output": "PASS retired hosts and copied envelopes retain non-reusable scope identity\n"
@@ -257,14 +257,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/unpublished_reset.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/unpublished_reset.mojo"
       ],
       "exit_code": 0,
       "output": "PASS negative control: raw mutation without publication can accept stale work; use update_model\n"
@@ -278,14 +278,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/structure.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/structure.mojo"
       ],
       "exit_code": 0,
       "output": "PASS positional-alias counterexample retained; stable scopes reject removed-control work\n"
@@ -299,14 +299,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/check.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/check.mojo"
       ],
       "exit_code": 0,
       "output": "PASS composition: private third editor, shared settings, hide/show remount, stale callback and event rejection\n"
@@ -320,14 +320,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/nested.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/nested.mojo"
       ],
       "exit_code": 0,
       "output": "PASS typed key encoding, both route overloads, nested reuse, reorder, current-owner copy, stale action/event rejection\n"
@@ -341,14 +341,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/stress.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/stress.mojo"
       ],
       "exit_code": 0,
       "output": "PASS 110 equal-generation sibling remounts, stale deliveries, focus, nonempty selection, IME and focused-child reorder\n"
@@ -362,14 +362,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/retention_edges.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/retention_edges.mojo"
       ],
       "exit_code": 0,
       "output": "PASS empty reclamation, removed focus, same-path fresh ID, IME reset, copied index isolation\n"
@@ -383,14 +383,14 @@
         "mojo",
         "run",
         "-I",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi",
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1",
         "-I",
         "src",
         "-I",
         "experiments/typed-boundaries",
         "-I",
         "experiments/state-access",
-        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-1hvxrovi/replacement.mojo"
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-lifetime-contract-x23bvvh1/replacement.mojo"
       ],
       "exit_code": 0,
       "output": "CASE same-owner-update callback_rejected False event_rejected False\nCASE remove-append callback_rejected True event_rejected True\nCASE replace-collection-reused-keys callback_rejected False event_rejected False\nCASE replace-root-reused-generation callback_rejected False event_rejected False\nCASE replace-root-fresh-generation-same-host callback_rejected True event_rejected True\nCASE replace-entire-host-reuses-event-id callback_rejected True event_rejected False\nPASS 6 lifetime observations; unsafe cases remain explicit counterexamples\n"
