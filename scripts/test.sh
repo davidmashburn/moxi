@@ -29,6 +29,7 @@ tests=(
   tests/fractal.mojo
   tests/diff.mojo
   tests/constraints.mojo
+  tests/paint_index.mojo
   tests/animation.mojo
   tests/frame_driver.mojo
   tests/frame_packet.mojo
