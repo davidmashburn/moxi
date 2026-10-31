@@ -1,7 +1,7 @@
 """`ColumnRuntime`: retained-children reconciliation for a declarative `ColumnView`."""
 
 
-from std.collections import List
+from std.collections import Dict, List
 
 
 from .accessibility import (
@@ -60,6 +60,15 @@ from .view_node import (
     ROOT_SCROLL_ID,
 )
 from .widget import Widget
+
+
+def _indexed_changed(
+    prior: Dict[Tuple[Int, Int], Int],
+    previous: List[PaintCommand],
+    command: PaintCommand,
+) -> Bool:
+    var index = prior.get((command.kind, command.id), -1)
+    return index == -1 or not previous[index].equivalent(command)
 
 
 struct ColumnRuntime:
@@ -599,6 +608,25 @@ struct ColumnRuntime:
         return -1
 
     def paint(mut self) -> PaintCommands:
+        # Kind is part of identity: a panel and scrollbar can share an id.
+        # Preserve the first match, as previous_command_index does.
+        var prior = Dict[Tuple[Int, Int], Int]()
+        for i in range(len(self.previous_commands)):
+            ref c = self.previous_commands[i]
+            var key = (c.kind, c.id)
+            if key not in prior:
+                prior[key] = i
+        # These facts are stable during one paint, but rebuilt after reconcile.
+        # Container extent calculation still scans descendants; this is not a
+        # claim that the entire paint algorithm is linear.
+        var root_scrollable = self._root_is_scrollable()
+        var parents = Dict[Int, Int]()
+        var scrollable = Dict[Int, Bool]()
+        for i in range(self.widget_count()):
+            var w = self.widget(i)
+            if w.id not in parents:
+                parents[w.id] = i
+            scrollable[w.id] = self._container_is_scrollable(w)
         var commands = PaintCommands()
         var surface = PaintCommand(
             SURFACE_KIND,
@@ -608,7 +636,7 @@ struct ColumnRuntime:
             self.root_bounds,
             self.surface_style,
         )
-        surface.set_changed(self.command_changed(surface))
+        surface.set_changed(_indexed_changed(prior, self.previous_commands, surface))
         commands.append(surface)
         var panel_slot = 0
         if self.has_panel:
@@ -620,7 +648,7 @@ struct ColumnRuntime:
                 self.panel.bounds,
                 self.panel.style,
             )
-            panel.set_changed(self.command_changed(panel))
+            panel.set_changed(_indexed_changed(prior, self.previous_commands, panel))
             commands.append(panel)
             panel_slot = 1
         var label_slot = 0
@@ -643,24 +671,23 @@ struct ColumnRuntime:
                         widget.style,
                     )
                     var clip = self.root_bounds
-                    var clip_enabled = self.clip_to_bounds or self._root_is_scrollable()
+                    var clip_enabled = self.clip_to_bounds or root_scrollable
                     var parent_id = widget.parent_id
                     var clip_hops = 0
                     while parent_id != -1:
                         var parent_found = False
                         var next_parent = -1
-                        for parent_index in range(self.widget_count()):
+                        var parent_index = parents.get(parent_id, -1)
+                        if parent_index != -1:
                             var parent = self.widget(parent_index)
-                            if parent.id == parent_id:
-                                parent_found = True
-                                next_parent = parent.parent_id
-                                if parent.clip_children or self._container_is_scrollable(parent):
-                                    if clip_enabled:
-                                        clip = clip.intersection(parent.bounds)
-                                    else:
-                                        clip = parent.bounds
-                                        clip_enabled = True
-                                break
+                            parent_found = True
+                            next_parent = parent.parent_id
+                            if parent.clip_children or scrollable.get(parent.id, False):
+                                if clip_enabled:
+                                    clip = clip.intersection(parent.bounds)
+                                else:
+                                    clip = parent.bounds
+                                    clip_enabled = True
                         if not parent_found:
                             break
                         parent_id = next_parent
@@ -669,8 +696,8 @@ struct ColumnRuntime:
                             break
                     if clip_enabled:
                         component_panel.set_clip(clip)
-                    var previous_index = self.previous_command_index(component_panel)
-                    var changed = self.command_changed(component_panel)
+                    var previous_index = prior.get((component_panel.kind, component_panel.id), -1)
+                    var changed = _indexed_changed(prior, self.previous_commands, component_panel)
                     if previous_index != -1 and previous_index != commands.count():
                         changed = True
                     if previous_index != -1 and changed:
@@ -746,24 +773,23 @@ struct ColumnRuntime:
             command.set_progress(widget.progress)
             command.set_resource_id(widget.resource_id)
             var clip = self.root_bounds
-            var clip_enabled = self.clip_to_bounds or self._root_is_scrollable()
+            var clip_enabled = self.clip_to_bounds or root_scrollable
             var parent_id = widget.parent_id
             var clip_hops = 0
             while parent_id != -1:
                 var parent_found = False
                 var next_parent = -1
-                for parent_index in range(self.widget_count()):
+                var parent_index = parents.get(parent_id, -1)
+                if parent_index != -1:
                     var parent = self.widget(parent_index)
-                    if parent.id == parent_id:
-                        parent_found = True
-                        next_parent = parent.parent_id
-                        if parent.clip_children or self._container_is_scrollable(parent):
-                            if clip_enabled:
-                                clip = clip.intersection(parent.bounds)
-                            else:
-                                clip = parent.bounds
-                                clip_enabled = True
-                        break
+                    parent_found = True
+                    next_parent = parent.parent_id
+                    if parent.clip_children or scrollable.get(parent.id, False):
+                        if clip_enabled:
+                            clip = clip.intersection(parent.bounds)
+                        else:
+                            clip = parent.bounds
+                            clip_enabled = True
                 if not parent_found:
                     break
                 parent_id = next_parent
@@ -777,8 +803,8 @@ struct ColumnRuntime:
             semantics.enabled = widget.enabled
             semantics.focused = widget.id == self.focused_id
             command.semantics = semantics
-            var previous_index = self.previous_command_index(command)
-            var changed = self.command_changed(command)
+            var previous_index = prior.get((command.kind, command.id), -1)
+            var changed = _indexed_changed(prior, self.previous_commands, command)
             # A retained command can move without changing its own fields.
             # Incremental renderers still need to redraw it at the new stream
             # position, and the old bounds must be invalidated as well.
@@ -794,7 +820,7 @@ struct ColumnRuntime:
         # only the final track/thumb pixels; offset and geometry stay portable.
         for index in range(self.widget_count()):
             var portal = self.widget(index)
-            if not self._container_is_scrollable(portal):
+            if not scrollable.get(portal.id, False):
                 continue
 
             var orientation = SCROLLBAR_VERTICAL
@@ -845,15 +871,15 @@ struct ColumnRuntime:
                 geometry.thumb,
                 geometry.visible,
             )
-            if self.clip_to_bounds or self._root_is_scrollable():
+            if self.clip_to_bounds or root_scrollable:
                 scrollbar_command.set_clip(
                     self.root_bounds.intersection(portal.bounds)
                 )
-            elif portal.clip_children or self._container_is_scrollable(portal):
+            elif portal.clip_children or scrollable.get(portal.id, False):
                 scrollbar_command.set_clip(portal.bounds)
 
-            var previous_index = self.previous_command_index(scrollbar_command)
-            var changed = self.command_changed(scrollbar_command)
+            var previous_index = prior.get((scrollbar_command.kind, scrollbar_command.id), -1)
+            var changed = _indexed_changed(prior, self.previous_commands, scrollbar_command)
             if previous_index != -1 and previous_index != commands.count():
                 changed = True
             if previous_index != -1 and changed:
@@ -865,7 +891,7 @@ struct ColumnRuntime:
         # A ColumnView root is itself a viewport. Keep its bar in the same
         # command stream so standalone components get the same affordance as
         # content mounted inside an explicit portal.
-        if self._root_is_scrollable():
+        if root_scrollable:
             var root_orientation = SCROLLBAR_VERTICAL
             var root_viewport_extent = self.root_bounds.height
             var root_track = Rect(
@@ -911,8 +937,8 @@ struct ColumnRuntime:
                         root_geometry.visible,
                     )
                     root_command.set_clip(self.root_bounds)
-                    var previous_index = self.previous_command_index(root_command)
-                    var changed = self.command_changed(root_command)
+                    var previous_index = prior.get((root_command.kind, root_command.id), -1)
+                    var changed = _indexed_changed(prior, self.previous_commands, root_command)
                     if previous_index != -1 and previous_index != commands.count():
                         changed = True
                     if previous_index != -1 and changed:
@@ -922,18 +948,13 @@ struct ColumnRuntime:
 
         # A removed command leaves a stale region that an incremental backend
         # must clear, even though there is no current draw command for it.
+        var current_ids = Dict[Tuple[Int, Int], Bool]()
+        for i in range(commands.count()):
+            var current = commands.command(i)
+            current_ids[(current.kind, current.id)] = True
         for previous_index in range(len(self.previous_commands)):
             var previous = self.previous_commands[previous_index]
-            var found = False
-            for current_index in range(commands.count()):
-                var current = commands.command(current_index)
-                if (
-                    current.kind == previous.kind
-                    and current.id == previous.id
-                ):
-                    found = True
-                    break
-            if not found:
+            if (previous.kind, previous.id) not in current_ids:
                 commands.mark_removed(previous.bounds)
 
         self.previous_commands = List[PaintCommand](capacity=commands.count())

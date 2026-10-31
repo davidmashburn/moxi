@@ -115,3 +115,19 @@ composition mechanism with robust measured selectivity, would change priorities.
 
 No production source changed. The full repository suite, native renderer/GPU,
 allocation profiling, async behavior and human usability were not tested.
+
+## Production integration follow-up
+
+The combined variant is now integrated into `src/moxi/column_runtime.mojo` on
+the implementation branch. `integrate.py` compares the production runtime with
+frozen commit `247cad2`, runs the independent `tests/paint_index.mojo` against
+both versions, runs the existing native scene replay contract, and repeats the
+original equivalent-tree frame probe. It preserves the historical ablation
+reports. Run `python3 experiments/paint-costs/integrate.py` with competing builds
+and tests stopped; see `integration.json` for fresh results.
+
+The new regression is registered in `scripts/test.sh`; `pixi run --locked test`
+passed all **82** files after integration. Native scene parity is a structural
+backend replay check, not pixel equality or end-to-end latency measurement.
+Command/ancestor indexing removes repeated lookups, but computing overflow
+extents still scans descendants. The whole algorithm is not claimed linear.
