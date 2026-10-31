@@ -121,3 +121,20 @@ recommendation.
 Reproduce with `python3 experiments/simple-composition/run.py`; preparation and
 measurement can be separated using `--prepare` / `--measure <prepared.json>`.
 Both source and binary hashes are checked before delayed measurement.
+
+
+## Follow-up acceptance evaluation — 2026-10-31 UTC
+
+The [composition acceptance evaluation](composition-acceptance.md) completes the
+three proposed gates against `af3b547`, with experiment artifacts committed in
+`c4f259d`. An unfamiliar smaller-model author succeeds at ordinary composition,
+but the parent's held-out test exposes colliding mount-key ranges. An assisted
+negative-key repair passes for the two siblings without solving general key
+coordination. Whole-root/collection replacement retains semantic stale-delivery
+counterexamples. At 1,000 minimal panes, update+paint is 21.327 ms; 1,000 remounts
+with eight live panes leave 4,032 retained slots (32 active).
+
+Keep the fields/methods reference; do not stabilize its current identity/lifetime
+conventions unchanged. The next work is bounded identity/session and retained
+storage/update-cost fixes, followed by these regressions and another author task.
+The previous paragraphs remain the historical small-application assessment.

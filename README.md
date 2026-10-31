@@ -19,6 +19,13 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Composition acceptance evaluation](docs/design/composition-acceptance.md)
+  completes the smaller-model author, scale/churn, and replacement probes. Keep
+  fields/methods; fix hand-managed identity/lifetime and retained-slot growth
+  before stabilizing the prototype. One author succeeds ordinarily but fails a
+  held-out key-collision test; 1,000 minimal panes take 21.327 ms update+paint.
+  Experiment evidence is committed in `c4f259d`; merge/CI gates remain separate.
+
 - [Simple composition](docs/design/simple-composition.md) records production paint
   integration (82 tests plus paint/native parity) and the simpler eight-pane
   reference: 131 to 85 root/composition lines, five practical edit/identity tasks,
