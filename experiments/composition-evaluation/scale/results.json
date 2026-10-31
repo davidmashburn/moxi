@@ -1,0 +1,532 @@
+{
+  "status": "measured",
+  "measured_at": "2026-10-31T02:48:14.265124+00:00",
+  "manifest": "/Users/davmash/code/moxi/experiments/composition-evaluation/scale/prepared.json",
+  "logs": "/tmp/moxi-handler-host-scale-measure-nx33s3_m",
+  "timing_log": "/tmp/moxi-handler-host-scale-measure-nx33s3_m/timing.log",
+  "timing_binary": "/tmp/moxi-handler-host-scale-2_7_e0gn/timing",
+  "timing_binary_sha256": "1f4c92fdcbc3eaae61b6810309d0ece91325102fe83cd2638916d13cd843a92f",
+  "protocol": {
+    "optimization": "O3",
+    "warmups": 2,
+    "samples": 5,
+    "visible_counts": [
+      10,
+      100,
+      300,
+      1000
+    ],
+    "churn_cycles": [
+      0,
+      100,
+      1000
+    ],
+    "timeout_seconds": 240,
+    "serial": true,
+    "visible_timer": "real App.update followed by App.paint; update and paint are separate ns intervals",
+    "churn_timer": "hide/refresh/rebuild and remount/refresh/rebuild intervals versus two corresponding App.paint calls per cycle",
+    "setup_excluded": true,
+    "diagnostic_only": true
+  },
+  "raw_stdout": "TIMING visible 10 0 28000 14000 40 40 41 30\nTIMING visible 10 1 29000 15000 40 40 41 30\nTIMING visible 10 2 27000 14000 40 40 41 30\nTIMING visible 10 3 26000 13000 40 40 41 30\nTIMING visible 10 4 26000 14000 40 40 41 30\nTIMING visible 100 0 415000 108000 400 400 401 300\nTIMING visible 100 1 426000 108000 400 400 401 300\nTIMING visible 100 2 398000 98000 400 400 401 300\nTIMING visible 100 3 397000 98000 400 400 401 300\nTIMING visible 100 4 396000 97000 400 400 401 300\nTIMING visible 300 0 2252000 286000 1200 1200 1201 900\nTIMING visible 300 1 2230000 281000 1200 1200 1201 900\nTIMING visible 300 2 2200000 277000 1200 1200 1201 900\nTIMING visible 300 3 2181000 293000 1200 1200 1201 900\nTIMING visible 300 4 2213000 280000 1200 1200 1201 900\nTIMING visible 1000 0 20412000 844000 4000 4000 4001 3000\nTIMING visible 1000 1 20301000 827000 4000 4000 4001 3000\nTIMING visible 1000 2 21490000 862000 4000 4000 4001 3000\nTIMING visible 1000 3 20794000 834000 4000 4000 4001 3000\nTIMING visible 1000 4 20493000 834000 4000 4000 4001 3000\nTIMING churn 0 0 0 0 32 32 33 24\nTIMING churn 0 1 0 0 32 32 33 24\nTIMING churn 0 2 0 0 32 32 33 24\nTIMING churn 0 3 0 0 32 32 33 24\nTIMING churn 0 4 0 0 32 32 33 24\nTIMING churn 100 0 3782000 1558000 32 432 433 24\nTIMING churn 100 1 3784000 1556000 32 432 433 24\nTIMING churn 100 2 3785000 1564000 32 432 433 24\nTIMING churn 100 3 3778000 1557000 32 432 433 24\nTIMING churn 100 4 3773000 1561000 32 432 433 24\nTIMING churn 1000 0 76514000 15971000 32 4032 4033 24\nTIMING churn 1000 1 76658000 15965000 32 4032 4033 24\nTIMING churn 1000 2 76913000 16032000 32 4032 4033 24\nTIMING churn 1000 3 115907000 18047000 32 4032 4033 24\nTIMING churn 1000 4 80348000 16679000 32 4032 4033 24\nPASS timing probe; warmups 2 samples 5\n",
+  "samples": [
+    {
+      "kind": "visible",
+      "case": 10,
+      "sample": 0,
+      "update_ns": 28000,
+      "paint_ns": 14000,
+      "active": 40,
+      "total": 40,
+      "next_id": 41,
+      "tree": 30
+    },
+    {
+      "kind": "visible",
+      "case": 10,
+      "sample": 1,
+      "update_ns": 29000,
+      "paint_ns": 15000,
+      "active": 40,
+      "total": 40,
+      "next_id": 41,
+      "tree": 30
+    },
+    {
+      "kind": "visible",
+      "case": 10,
+      "sample": 2,
+      "update_ns": 27000,
+      "paint_ns": 14000,
+      "active": 40,
+      "total": 40,
+      "next_id": 41,
+      "tree": 30
+    },
+    {
+      "kind": "visible",
+      "case": 10,
+      "sample": 3,
+      "update_ns": 26000,
+      "paint_ns": 13000,
+      "active": 40,
+      "total": 40,
+      "next_id": 41,
+      "tree": 30
+    },
+    {
+      "kind": "visible",
+      "case": 10,
+      "sample": 4,
+      "update_ns": 26000,
+      "paint_ns": 14000,
+      "active": 40,
+      "total": 40,
+      "next_id": 41,
+      "tree": 30
+    },
+    {
+      "kind": "visible",
+      "case": 100,
+      "sample": 0,
+      "update_ns": 415000,
+      "paint_ns": 108000,
+      "active": 400,
+      "total": 400,
+      "next_id": 401,
+      "tree": 300
+    },
+    {
+      "kind": "visible",
+      "case": 100,
+      "sample": 1,
+      "update_ns": 426000,
+      "paint_ns": 108000,
+      "active": 400,
+      "total": 400,
+      "next_id": 401,
+      "tree": 300
+    },
+    {
+      "kind": "visible",
+      "case": 100,
+      "sample": 2,
+      "update_ns": 398000,
+      "paint_ns": 98000,
+      "active": 400,
+      "total": 400,
+      "next_id": 401,
+      "tree": 300
+    },
+    {
+      "kind": "visible",
+      "case": 100,
+      "sample": 3,
+      "update_ns": 397000,
+      "paint_ns": 98000,
+      "active": 400,
+      "total": 400,
+      "next_id": 401,
+      "tree": 300
+    },
+    {
+      "kind": "visible",
+      "case": 100,
+      "sample": 4,
+      "update_ns": 396000,
+      "paint_ns": 97000,
+      "active": 400,
+      "total": 400,
+      "next_id": 401,
+      "tree": 300
+    },
+    {
+      "kind": "visible",
+      "case": 300,
+      "sample": 0,
+      "update_ns": 2252000,
+      "paint_ns": 286000,
+      "active": 1200,
+      "total": 1200,
+      "next_id": 1201,
+      "tree": 900
+    },
+    {
+      "kind": "visible",
+      "case": 300,
+      "sample": 1,
+      "update_ns": 2230000,
+      "paint_ns": 281000,
+      "active": 1200,
+      "total": 1200,
+      "next_id": 1201,
+      "tree": 900
+    },
+    {
+      "kind": "visible",
+      "case": 300,
+      "sample": 2,
+      "update_ns": 2200000,
+      "paint_ns": 277000,
+      "active": 1200,
+      "total": 1200,
+      "next_id": 1201,
+      "tree": 900
+    },
+    {
+      "kind": "visible",
+      "case": 300,
+      "sample": 3,
+      "update_ns": 2181000,
+      "paint_ns": 293000,
+      "active": 1200,
+      "total": 1200,
+      "next_id": 1201,
+      "tree": 900
+    },
+    {
+      "kind": "visible",
+      "case": 300,
+      "sample": 4,
+      "update_ns": 2213000,
+      "paint_ns": 280000,
+      "active": 1200,
+      "total": 1200,
+      "next_id": 1201,
+      "tree": 900
+    },
+    {
+      "kind": "visible",
+      "case": 1000,
+      "sample": 0,
+      "update_ns": 20412000,
+      "paint_ns": 844000,
+      "active": 4000,
+      "total": 4000,
+      "next_id": 4001,
+      "tree": 3000
+    },
+    {
+      "kind": "visible",
+      "case": 1000,
+      "sample": 1,
+      "update_ns": 20301000,
+      "paint_ns": 827000,
+      "active": 4000,
+      "total": 4000,
+      "next_id": 4001,
+      "tree": 3000
+    },
+    {
+      "kind": "visible",
+      "case": 1000,
+      "sample": 2,
+      "update_ns": 21490000,
+      "paint_ns": 862000,
+      "active": 4000,
+      "total": 4000,
+      "next_id": 4001,
+      "tree": 3000
+    },
+    {
+      "kind": "visible",
+      "case": 1000,
+      "sample": 3,
+      "update_ns": 20794000,
+      "paint_ns": 834000,
+      "active": 4000,
+      "total": 4000,
+      "next_id": 4001,
+      "tree": 3000
+    },
+    {
+      "kind": "visible",
+      "case": 1000,
+      "sample": 4,
+      "update_ns": 20493000,
+      "paint_ns": 834000,
+      "active": 4000,
+      "total": 4000,
+      "next_id": 4001,
+      "tree": 3000
+    },
+    {
+      "kind": "churn",
+      "case": 0,
+      "sample": 0,
+      "update_ns": 0,
+      "paint_ns": 0,
+      "active": 32,
+      "total": 32,
+      "next_id": 33,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 0,
+      "sample": 1,
+      "update_ns": 0,
+      "paint_ns": 0,
+      "active": 32,
+      "total": 32,
+      "next_id": 33,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 0,
+      "sample": 2,
+      "update_ns": 0,
+      "paint_ns": 0,
+      "active": 32,
+      "total": 32,
+      "next_id": 33,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 0,
+      "sample": 3,
+      "update_ns": 0,
+      "paint_ns": 0,
+      "active": 32,
+      "total": 32,
+      "next_id": 33,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 0,
+      "sample": 4,
+      "update_ns": 0,
+      "paint_ns": 0,
+      "active": 32,
+      "total": 32,
+      "next_id": 33,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 100,
+      "sample": 0,
+      "update_ns": 3782000,
+      "paint_ns": 1558000,
+      "active": 32,
+      "total": 432,
+      "next_id": 433,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 100,
+      "sample": 1,
+      "update_ns": 3784000,
+      "paint_ns": 1556000,
+      "active": 32,
+      "total": 432,
+      "next_id": 433,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 100,
+      "sample": 2,
+      "update_ns": 3785000,
+      "paint_ns": 1564000,
+      "active": 32,
+      "total": 432,
+      "next_id": 433,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 100,
+      "sample": 3,
+      "update_ns": 3778000,
+      "paint_ns": 1557000,
+      "active": 32,
+      "total": 432,
+      "next_id": 433,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 100,
+      "sample": 4,
+      "update_ns": 3773000,
+      "paint_ns": 1561000,
+      "active": 32,
+      "total": 432,
+      "next_id": 433,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 1000,
+      "sample": 0,
+      "update_ns": 76514000,
+      "paint_ns": 15971000,
+      "active": 32,
+      "total": 4032,
+      "next_id": 4033,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 1000,
+      "sample": 1,
+      "update_ns": 76658000,
+      "paint_ns": 15965000,
+      "active": 32,
+      "total": 4032,
+      "next_id": 4033,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 1000,
+      "sample": 2,
+      "update_ns": 76913000,
+      "paint_ns": 16032000,
+      "active": 32,
+      "total": 4032,
+      "next_id": 4033,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 1000,
+      "sample": 3,
+      "update_ns": 115907000,
+      "paint_ns": 18047000,
+      "active": 32,
+      "total": 4032,
+      "next_id": 4033,
+      "tree": 24
+    },
+    {
+      "kind": "churn",
+      "case": 1000,
+      "sample": 4,
+      "update_ns": 80348000,
+      "paint_ns": 16679000,
+      "active": 32,
+      "total": 4032,
+      "next_id": 4033,
+      "tree": 24
+    }
+  ],
+  "summaries": [
+    {
+      "kind": "visible",
+      "case": 10,
+      "samples": 5,
+      "update_ns": {
+        "median": 27000,
+        "min": 26000,
+        "max": 29000
+      },
+      "paint_ns": {
+        "median": 14000,
+        "min": 13000,
+        "max": 15000
+      }
+    },
+    {
+      "kind": "visible",
+      "case": 100,
+      "samples": 5,
+      "update_ns": {
+        "median": 398000,
+        "min": 396000,
+        "max": 426000
+      },
+      "paint_ns": {
+        "median": 98000,
+        "min": 97000,
+        "max": 108000
+      }
+    },
+    {
+      "kind": "visible",
+      "case": 300,
+      "samples": 5,
+      "update_ns": {
+        "median": 2213000,
+        "min": 2181000,
+        "max": 2252000
+      },
+      "paint_ns": {
+        "median": 281000,
+        "min": 277000,
+        "max": 293000
+      }
+    },
+    {
+      "kind": "visible",
+      "case": 1000,
+      "samples": 5,
+      "update_ns": {
+        "median": 20493000,
+        "min": 20301000,
+        "max": 21490000
+      },
+      "paint_ns": {
+        "median": 834000,
+        "min": 827000,
+        "max": 862000
+      }
+    },
+    {
+      "kind": "churn",
+      "case": 0,
+      "samples": 5,
+      "update_ns": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "paint_ns": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "kind": "churn",
+      "case": 100,
+      "samples": 5,
+      "update_ns": {
+        "median": 3782000,
+        "min": 3773000,
+        "max": 3785000
+      },
+      "paint_ns": {
+        "median": 1558000,
+        "min": 1556000,
+        "max": 1564000
+      }
+    },
+    {
+      "kind": "churn",
+      "case": 1000,
+      "samples": 5,
+      "update_ns": {
+        "median": 76913000,
+        "min": 76514000,
+        "max": 115907000
+      },
+      "paint_ns": {
+        "median": 16032000,
+        "min": 15965000,
+        "max": 18047000
+      }
+    }
+  ],
+  "limits": [
+    "The current HandlerHost rebuilds all declarations on handled updates.",
+    "RetainedUI.claim and RetainedUI.index linearly scan retained controls; retired records remain in the list.",
+    "UI.child renders each child and prefixes its paths; this probe does not claim universal asymptotic or native latency behavior.",
+    "The machine is not isolated and timings are local diagnostics only."
+  ]
+}
