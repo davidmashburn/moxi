@@ -107,9 +107,9 @@ in application-scale comfort. Frequent manual generation management, confusing
 assignment/reset semantics, or repeated broad context plumbing in real applications
 would change the recommendation. This extraction makes no new performance claim.
 
-Status: documentation and production extraction committed and pushed; local
-validation complete, independent review and remaining CI pending. Main remains
-unchanged.
+At the extraction checkpoint, documentation and production code were pushed,
+local validation was complete, and independent review and CI were pending.
+The follow-ups below supersede that checkpoint; main remains unchanged.
 
 
 ## Marko translator follows the production API — November 1
@@ -152,6 +152,39 @@ The independent production review has completed and identified two follow-ups:
 reset cancellation can consume shared queue capacity, and underlying request task
 records outlive pruned request metadata. Both were independently reproduced:
 one unrelated completion dropped under 32-slot pressure, and 1,000 task records
-after 1,000 reset cycles. A separate production fix is being validated. The
-reviewer's earlier authoring-test parse errors were from concurrent edits; the
-final committed test and subsequent label tests passed locally.
+after 1,000 reset cycles. The resolution is recorded below. The reviewer's
+earlier authoring-test parse errors were from concurrent edits; the final
+committed test and subsequent label tests passed locally.
+
+
+## Production review resolution — November 1
+
+Fixed separately in
+[`f8b0e17`](https://github.com/davidmashburn/moxi/commit/f8b0e17).
+`RequestScheduler.discard_scope` closes a non-global owner and releases its pending
+work and already-queued results without generating cancellation notifications.
+The authoring host uses it for removed controls and root reset. It can also
+reclaim results left by external scope cancellation. Unrelated results retain
+their order, payload, status, and queue capacity. Ordinary `cancel_scope` still
+produces its existing cancellation results; standalone task history still uses
+explicit `forget_task`.
+
+Request-owned task records are now released when results are consumed or their
+metadata is pruned after queue overflow. The independent reproductions now show
+zero dropped unrelated completions at 32-slot capacity, and zero task/request
+records after 1,000 schedule/reset/advance cycles. Regression checks also cover
+consumed queue prefixes, superseded requests, queued and pending owner work,
+external cancellation, stale completion rejection, and a surviving sibling scope.
+
+The complete 84-file suite passes. Final focused authoring and request-retention
+checks, the production macOS synthetic native reset probe, API inventory, prose,
+local links, and whitespace checks pass. Existing native deprecation warnings
+remain. The full local benchmark/release chain, physical input, OS IME, VoiceOver,
+and browser runtime equivalence were not rerun. The fixes were independently
+reproduced and verified by the parent; a second delegated review was not run.
+
+Status: documentation, production extraction, translator migration, and both
+review fixes are committed and pushed. Full GitHub CI is still pending; local
+validation is not a claim that CI passed. Main remains unchanged. Confidence is
+high in the corrected bounded-lifetime behavior and moderate in application-scale
+authoring comfort. No new performance or human-usability conclusion follows.
