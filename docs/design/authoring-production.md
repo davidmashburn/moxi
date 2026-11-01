@@ -263,3 +263,58 @@ agent-only ownership probe; a representative native screen and end-to-end timing
 would be required before generalizing to application-scale performance. The next
 product step should choose such a screen and its required controls, rather than
 expand the Marko subset or redesign the state model speculatively.
+
+## Native workspace smoke and scroll regression
+
+Implemented in `9f97bcf` on `feat/data-workbench`. A 14-line
+`examples/authoring/workspace_window.mojo` connects the unchanged workspace model
+and production `HandlerHost` to `MacOSWindow`, `MacOSRenderer`, and `App.run`.
+`pixi run --locked authoring-workspace-build` builds it; run
+`./dist/moxi-authoring-workspace`. The normal macOS check lane now builds this
+entry point. No production runtime or authoring API changes were required.
+
+On November 1, 2026, a real AppKit window was exercised through UI automation.
+Pointer focus, select-all, and typing updated Alpha's first local draft while
+Saved stayed unchanged. Apply updated the shared title. Reversing drafts and
+groups preserved that edited draft and its control identity. Scrolling reached
+the moved draft; resetting its collection replaced the two drafts with a fresh
+reset draft and kept the shared title. Screenshots showed the scrolled controls
+and reduced content after reset. An ignored local app bundle wrapped the built
+binary for automation; it is not a new packaging API or committed artifact.
+
+The portable workspace check now also dispatches scroll and pointer events to
+an initially offscreen Beta editor. Untargeted text input reaches that editor,
+leaves the other group and shared document alone, and preserves scroll across
+rebuild. A pointer click on Apply saves the edited value. Removing a group then
+reduces and clamps the scroll offset. These are headless App routing assertions,
+not substitutes for the native smoke observation.
+
+Validation passed: native workspace build, focused workspace regression, complete
+portable headless lane (including production authoring checks and package
+precompilation), shell syntax, prose-artifact and whitespace checks. Staged files,
+content, commit message, and outgoing implementation diff were reviewed for
+secrets and unrelated private material. The two pre-existing unrelated document
+edits were left untouched. Existing native string-conversion deprecation
+warnings remain. The complete local suite, physical IME, window resizing,
+end-to-end timing, and an unassisted human authoring trial were not run.
+
+Two limits became concrete. The default vertical form works but repeats controls
+and labels across a long scroll; it is not a finished workspace layout. An
+accessibility-driven click on the text field did not focus it, while a coordinate
+pointer click did; accessibility button activation worked. The cause of the text
+focus difference has not been isolated, so this is neither a backend diagnosis
+nor an accessibility conformance claim. The example instructions record both.
+
+Confidence is high in the exercised pointer/scroll/ownership behavior and remains
+moderate in general authoring comfort. The native wrapper adds no state/routing
+ceremony, but it supplies no new performance evidence. A human change exercise
+or a representative compact screen could change the comfort assessment. The next
+bounded engineering investigation is to isolate accessibility text-field focus
+against the native bridge and its existing tests before choosing a fix. A layout
+composition change needs an explicit representative screen and acceptance
+criteria; this smoke check alone does not justify another authoring abstraction.
+
+At the last check, CI for `07d377a` had passed four jobs while `validate` was still
+running. That is partial evidence, not a completed CI pass. [CI for `9f97bcf`](https://github.com/davidmashburn/moxi/actions/runs/41341882191)
+was in progress after push. Its completed result remains unverified. No main
+merge or pull request was performed.
