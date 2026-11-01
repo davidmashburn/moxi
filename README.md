@@ -45,6 +45,15 @@ caveats, is in [docs/features.md](docs/features.md).
 - A searchable Moxi Playground demo browser covering the core demos.
 - Deterministic headless testing: golden-image corpora, text conformance fixtures, and CI-checked visual diffs.
 
+## Authoring strategy
+
+The [authoring guide](docs/authoring/README.md) introduces ordinary fields and
+methods, keyed child models, and explicit reset lifetimes through three runnable
+examples. It includes an [application how-to](docs/authoring/application-guide.md)
+and [framework comparisons](docs/authoring/comparisons.md). These examples currently
+use the experimental authoring runtime; the `Component` API below is the existing
+production entry point.
+
 ## Example
 
 Components own state and produce lightweight views; `App` owns the current
