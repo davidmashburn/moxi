@@ -1,7 +1,7 @@
 """Two local drafts edit one parent-owned document through explicit routes."""
-from bindings import Action
+from moxi.authoring import Action
 from moxi import App, Rect
-from runtime import HandlerHost, Pane, Screen, UI
+from moxi.authoring import HandlerHost, Pane, Screen, UI
 
 comptime LEFT = 1
 comptime RIGHT = 2

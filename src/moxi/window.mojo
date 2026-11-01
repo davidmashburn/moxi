@@ -67,6 +67,17 @@ trait WindowBackend(FrameHost):
         """Consume one pending backend-neutral input event."""
         return Event()
 
+    def supports_input_reset(self) -> Bool:
+        """Whether reset_input retires queued input and native editing gestures."""
+        return False
+
+    def reset_input(mut self) raises:
+        """Retire old input while preserving window resize/close lifecycle.
+
+        A backend must opt in; a no-op cannot satisfy a session reset contract.
+        """
+        raise Error("Window backend does not implement input reset")
+
     def click_position(self) raises -> Point:
         """Return the last click position in content coordinates."""
         return Point(0.0, 0.0)

@@ -14,6 +14,7 @@ trap cleanup EXIT
 # host demos.  The focused import path and a source precompile are the package
 # boundary that Linux and other future headless targets must carry.
 mojo run -I src tests/portable_plot.mojo
+mojo run -I src tests/authoring.mojo
 mojo precompile src/moxi -o "$tmp_dir/moxi.mojoc"
 mojo precompile -I src src/moxi_plot -o "$tmp_dir/moxi_plot.mojoc"
 

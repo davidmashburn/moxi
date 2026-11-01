@@ -59,6 +59,8 @@ pixi run native-workbench-capacity
 pixi run native-custom-rect-equivalence
 pixi run native-custom-paint-cache
 pixi run native-accessibility-abi
+pixi run native-authoring
+pixi run authoring-counter-build
 mkdir -p dist
 mojo precompile src/moxi -o dist/moxi.mojoc
 mojo doc src/moxi -I src -o dist/moxi-api.json

@@ -50,9 +50,8 @@ caveats, is in [docs/features.md](docs/features.md).
 The [authoring guide](docs/authoring/README.md) introduces ordinary fields and
 methods, keyed child models, and explicit reset lifetimes through three runnable
 examples. It includes an [application how-to](docs/authoring/application-guide.md)
-and [framework comparisons](docs/authoring/comparisons.md). These examples currently
-use the experimental authoring runtime; the `Component` API below is the existing
-production entry point.
+and [framework comparisons](docs/authoring/comparisons.md). These examples use
+`moxi.authoring`; the `Component` API below remains available for lower-level use.
 
 ## Example
 

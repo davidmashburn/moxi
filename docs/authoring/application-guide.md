@@ -1,9 +1,8 @@
 # Building an application
 
 This guide applies the [authoring strategy](README.md) to a document editor,
-dashboard, or multi-pane tool. The runnable examples use the experimental runtime;
-the lifecycle requirements below also define what production integration must
-preserve.
+dashboard, or multi-pane tool. The runnable examples use `moxi.authoring`;
+the host integrates with the existing `App` event loop.
 
 ## Choose the owner before the control
 
@@ -14,7 +13,7 @@ controls own interaction state such as caret position and active composition.
 
 Put shared application state in the nearest owner that must coordinate its users.
 Two drafts editing one document need one document owner, as in
-[shared.mojo](../../experiments/authoring-guide/shared.mojo). Keeping a second
+[shared.mojo](../../examples/authoring/shared.mojo). Keeping a second
 independent document copy in each pane would require a synchronization policy.
 Copying a value for display is different from creating another authoritative owner.
 
@@ -37,7 +36,7 @@ it does not implement conflict detection. Two long-lived drafts usually need a
 base revision and an explicit policy for stale Apply operations.
 
 State outside normal control dispatch must enter through a publishing boundary.
-The prototype's `update_model(app, command)` runs a synchronous command, refreshes
+`update_model(app, command)` runs a synchronous command, refreshes
 declarations, and rebuilds the view. This ensures removed controls are retired
 before queued work can be delivered. Directly mutating `app.component.root` and
 later delivering queued work skips that guarantee.
@@ -52,7 +51,7 @@ and cost are visible.
 
 Prefer a document or focused service context to the entire application. This
 reduces coupling and makes permission boundaries easier to review. Context in this
-prototype is a value passed during declarations and a current mutable owner
+API is a value passed during declarations and a current mutable owner
 supplied during action dispatch; it is not dependency injection with automatic
 ancestor lookup, nor a fine-grained subscription.
 
@@ -101,11 +100,25 @@ A full root reset must be one host transaction:
 4. Publish the new layout, text-input state, and accessibility snapshot before
    accepting new work.
 
-The current integration experiment implements and tests these pieces through
-adapters. The short `reset(app, root)` in the headless example implements only the
-App/model portion. Do not wire that function alone to a native “New session” menu
-and assume requests and OS input are covered. Production promotion must provide
-one supported integrated entry point and one request-queue consumer.
+Use the supported entry point at the UI-thread host boundary, between dispatches:
+
+```mojo
+from moxi.authoring import reset
+
+reset(app, Workspace(), window, renderer)
+```
+
+The supported backend clears queued input and native interaction state first.
+The host then cancels its request scopes, replaces the root, clears retained
+interaction/scroll state, and renders the replacement, including accessibility.
+Do not deliver an event you polled before this transaction. Continue using the
+same `App` and window binding; constructing another `App` is not a session reset.
+
+Use `reset_headless(app, Workspace())` only without native input. It cancels owned
+requests and resets App/model state, but does not flush a window or publish a
+native snapshot. macOS AppKit and `TestWindow` implement the reset capability.
+Linux and other backends reject native `reset` before changing the root until
+they implement and validate that capability.
 
 Within a session, native keyboard and pointer input follows sequential dispatch:
 click or Tab first, then typing uses the resulting focus. Explicitly targeted
@@ -113,10 +126,39 @@ delayed work must additionally reject retired targets. A late accessibility
 callback from an old retained object can arrive in a new native queue, so clearing
 the queue alone is insufficient.
 
-The prototype's request bridge delivers a bounded kind of action completion; it
-is not a general payload, error, progress, or network store API. Those adapters
-need the same lifetime rules. Real OS IME behavior and cross-platform input must
-be tested separately from injected queue tests.
+### Schedule a bounded action completion
+
+The initial request adapter runs a parameterless button action when work succeeds:
+
+```mojo
+from moxi.authoring import schedule_action, complete_action
+
+# The adapter obtains a live button target from its host binding.
+var request = schedule_action(app, button_target, 1, "Refresh", 60.0)
+# Check request.handle.is_valid(): capacity limits can reject scheduling.
+# A worker adapter returns to the UI thread before completing:
+_ = complete_action(app, request)
+# App.run advances tasks normally. A headless driver can advance explicitly:
+_ = app.advance_tasks(0.0)
+```
+
+`delay_seconds` is a deterministic completion timer; completion may be supplied
+earlier. The same target/key supersedes earlier work. Removed controls and root
+reset cancel their owned scopes, while unrelated App requests remain current.
+`App.advance_tasks` is the only ready-queue consumer. Do not pop `app.requests`
+from a second bridge. Failed/cancelled results retire the pending callback without
+running its success action. Scheduling requires a live button target; other
+control kinds are not supported by this adapter.
+
+This is not a general payload, error, progress, or network store API. An application
+with those needs must add an adapter with equivalent owner and ordering checks;
+do not squeeze a payload into a parameterless action. Model handlers can record
+intent for such an adapter without starting side effects in `render`.
+
+Production tests exercise the actual macOS queue, renderer, late accessibility
+callbacks, sequential input, request delivery, and reset. They inject events; they
+do not establish physical keyboard/IME behavior or GTK parity. Real OS composition,
+Linux input, and human authoring feedback remain separate validation work.
 
 ## Preserve the distinction between data and a running host
 
@@ -137,7 +179,7 @@ that matter: editing one draft leaves another alone; reordering preserves the
 intended editor; closing a child rejects its pending work; root reset rejects old
 work and accepts new work; a shared save obeys the domain's conflict policy.
 
-The guide's [behavior checks](../../experiments/authoring-guide/check.mojo) exercise
+The guide's [behavior checks](../../examples/authoring/check.mojo) exercise
 real captured actions and targeted text delivery. Their control lookup by kind and
 ordinal is test scaffolding, not application authoring code.
 
@@ -147,7 +189,23 @@ ordinary fields do not automatically create a dependency graph. Cache or narrow
 expensive boundaries only with a clear invalidation rule. The runtime must handle
 selection, focus, and composition changes even when domain values look unchanged.
 
-Confidence is high in the bounded lifetime cases exercised by the experiments,
+Confidence is high in the bounded lifetime cases exercised by the production tests and experiments,
 and moderate in the authoring strategy's comfort at application scale. Human
 authors repeatedly needing manual generations, confusing assignment with reset,
 or passing large contexts through every pane would be evidence to revise the API.
+
+
+To run the production contract checks from this repository:
+
+```sh
+pixi run --locked mojo run -I src tests/authoring.mojo
+pixi run --locked native-authoring  # macOS: real backend with injected events
+MOXI_AUTHORING_OPEN_WINDOW=1 pixi run --locked native-authoring  # attached-window smoke
+python3 examples/authoring/run.py
+```
+
+The portable test also drives timers and input through `App.run`, so the API is
+checked against the normal event loop. By default the native test checks the
+backend queue and publication ABI without opening a window. The optional smoke
+opens and closes a real AppKit window to exercise attached input-context cleanup.
+Both modes inject events; neither verifies physical input or a real IME session.

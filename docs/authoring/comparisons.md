@@ -1,8 +1,7 @@
 # Authoring and update mechanics: Moxi in context
 
-> Status: Moxi’s current authoring strategy is an experimental working baseline,
-> not yet a promoted production API. This comparison explains mechanisms; it is
-> not a performance ranking.
+> Status: `moxi.authoring` implements the selected, bounded authoring API.
+> This comparison explains mechanisms; it is not a performance ranking.
 
 Moxi separates the authoring surface from the update machinery. Authors keep
 ordinary value-owned fields and methods. A pure render describes controls from
@@ -11,7 +10,7 @@ keys, and child actions are routed through the current parent/child owner with a
 delivery scope. The runtime retains control identity and editing state by
 explicit paths, then rebuilds the declaration list after an event or synchronous
 model update. An assignment alone does not create field-level dependency edges:
-the current prototype has no automatic field tracking. Selective-update probes
+the current API has no automatic field tracking. Selective-update probes
 are separate experiments beneath this surface.
 
 ## The Moxi contract
@@ -20,17 +19,17 @@ The practical rule is “same owner unless reset is explicit.” Replacing a roo
 value within its owner preserves the logical lifetime: existing actions resolve
 against current values, and unchanged text preserves selection/IME state. A
 collection reset remains in the same owner but allocates fresh child keys. By
-contrast, `reset(app, root)` creates a new root lifetime: it installs a fresh
-delivery scope, clears retained controls, resets application scroll capture, and
+contrast, `reset(app, root, window, renderer)` creates a new root lifetime: it
+installs a fresh delivery scope, clears retained controls, resets application scroll capture, and
 rejects queued or captured work from the previous scope. This is a correctness
 boundary, not shorthand for ordinary assignment.
 
 That contract is why keys and scopes are author-visible concepts even though the
 runtime owns the bookkeeping. A keyed collection looks up current membership
 when routing an action; removed children do not remain reachable through normal
-UI delivery. Native ingress and request cancellation still need one supported
-production host boundary. The strategy combines ordinary methods with explicit
-identity; how comfortable that feels needs human application-author feedback.
+UI delivery. Native ingress and request cancellation share the supported
+`reset` boundary; `App` remains the request-delivery owner. The strategy combines
+ordinary methods with explicit identity; how comfortable that feels needs human application-author feedback.
 
 ## Xilem/Raph, React context, and Redux
 

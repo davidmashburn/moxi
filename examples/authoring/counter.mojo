@@ -1,6 +1,6 @@
 """A model owns values and methods; render describes its controls."""
 from moxi import App, Rect
-from runtime import HandlerHost, Screen, UI, update_model
+from moxi.authoring import HandlerHost, Screen, UI, update_model
 
 
 struct Counter(Screen):

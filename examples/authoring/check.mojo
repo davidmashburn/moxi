@@ -1,9 +1,16 @@
 """Exercise the guide's promises through captured actions and targeted input."""
+from moxi import test_check
 from counter import Counter
 from editors import Workspace
 from shared import Desk
 from moxi import App, Event, Rect, TextInputEvent, BUTTON_KIND, TEXT_INPUT_VIEW_KIND
-from runtime import HandlerHost, Screen, deliver, require, reset, update_model
+from moxi.authoring import HandlerHost, Screen, deliver, reset_headless, update_model
+
+
+def require(condition: Bool, message: String):
+    if not condition:
+        print("FAIL:", message)
+    test_check(condition)
 
 
 def control[R: Screen & Deinitable](app: App[HandlerHost[R]], kind: Int, ordinal: Int) -> Int:
@@ -29,7 +36,7 @@ def main():
     update_model(counter, replace_values)
     require(deliver(counter, increment), "assignment preserves lifetime")
     require(counter.component.root.count == 1, "old action uses current values")
-    reset(counter, Counter())
+    reset_headless(counter, Counter())
     require(not deliver(counter, increment), "root reset rejects previous action")
     require(counter.component.root.count == 0, "rejected action cannot mutate new root")
 

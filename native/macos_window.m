@@ -1682,8 +1682,11 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 - (void)accessibilitySetValue:(id)value
                   forAttribute:(NSAccessibilityAttributeName)attribute {
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
-    if (index < 0 ||
-        moxi_accessibility_roles[index] != MOXI_ROLE_TEXT_INPUT ||
+    // Retained accessibility clients may call an element after root reset.
+    // It no longer belongs to the published tree; do not invoke superclass
+    // attribute mutation for this retired target.
+    if (index < 0) return;
+    if (moxi_accessibility_roles[index] != MOXI_ROLE_TEXT_INPUT ||
         ![attribute isEqualToString:NSAccessibilityValueAttribute] ||
         !self.accessibilityEnabled) {
         [super accessibilitySetValue:value forAttribute:attribute];
@@ -4866,6 +4869,67 @@ float moxi_window_click_x(void) {
 
 float moxi_window_click_y(void) {
     return moxi_last_click_y;
+}
+
+// Called on the UI thread between dispatches, before publishing a new root.
+// Close is window state, not an input packet; resize packets remain ordered.
+void moxi_window_reset_input(void) {
+    moxi_event_kind = MOXI_EVENT_NONE;
+    moxi_event_text_value = nil;
+    moxi_event_target = -1;
+    moxi_event_action = -1;
+    moxi_click_pending = NO;
+    moxi_mouse_is_down = NO;
+    moxi_mouse_dragging = NO;
+    moxi_interpreting_modifiers = 0;
+    moxi_clear_marked_text();
+    moxi_retained_text_editor_key = -1;
+    if (moxi_canvas != nil) {
+        moxi_canvas.synchronizingNativeTextEditor = YES;
+        if (moxi_canvas.window != nil) {
+            [moxi_canvas.inputContext discardMarkedText];
+            [moxi_canvas.nativeTextEditor.inputContext discardMarkedText];
+            NSText *editor = [moxi_canvas.window fieldEditor:NO forObject:moxi_canvas.nativeTextEditor];
+            if ([editor respondsToSelector:@selector(unmarkText)]) {
+                [(NSTextView *)editor unmarkText];
+            }
+        }
+        moxi_canvas.nativeTextEditorValue = nil;
+        moxi_canvas.synchronizingNativeTextEditor = NO;
+    }
+    // AppKit may still own input that has not reached our queue. Keep window
+    // lifecycle events (including close/resize) by discarding only input masks.
+    NSEventMask input = NSEventMaskKeyDown | NSEventMaskKeyUp | NSEventMaskFlagsChanged |
+        NSEventMaskLeftMouseDown | NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged |
+        NSEventMaskRightMouseDown | NSEventMaskRightMouseUp | NSEventMaskRightMouseDragged |
+        NSEventMaskOtherMouseDown | NSEventMaskOtherMouseUp | NSEventMaskOtherMouseDragged |
+        NSEventMaskMouseMoved | NSEventMaskScrollWheel;
+    [NSApp discardEventsMatchingMask:input beforeEvent:nil];
+    // Native editor cleanup above may enqueue final composition callbacks.
+    // Flush those too before the replacement model can receive input.
+    int read = moxi_event_queue_head;
+    int write = read;
+    int retained = 0;
+    const int count = moxi_event_queue_count;
+    for (int i = 0; i < count; ++i) {
+        if (moxi_event_queue[read].kind == MOXI_EVENT_WINDOW_RESIZED) {
+            if (write != read) {
+                moxi_event_queue[write] = moxi_event_queue[read];
+            }
+            write = (write + 1) % MOXI_EVENT_QUEUE_CAPACITY;
+            ++retained;
+        }
+        read = (read + 1) % MOXI_EVENT_QUEUE_CAPACITY;
+    }
+    int clear = write;
+    for (int i = retained; i < count; ++i) {
+        moxi_event_queue[clear].text = nil;
+        moxi_event_queue[clear].kind = MOXI_EVENT_NONE;
+        moxi_event_queue[clear].receivedAtNs = 0;
+        clear = (clear + 1) % MOXI_EVENT_QUEUE_CAPACITY;
+    }
+    moxi_event_queue_tail = write;
+    moxi_event_queue_count = retained;
 }
 
 int moxi_window_poll_event(void) {

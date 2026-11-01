@@ -9,6 +9,7 @@ cd "$repo_dir"
 # (e.g. `moxi_version`); it is empty for packages with no such helper.
 packages=(
   "moxi:src/moxi/__init__.mojo:docs/api-lanes.tsv:docs/api-surface.tsv:docs/api-status.md:moxi_version"
+  "moxi.authoring:src/moxi/authoring/__init__.mojo:docs/authoring/api-lanes.tsv:docs/authoring/api-surface.tsv:docs/authoring/api-status.md:"
   "moxi_plot:src/moxi_plot/__init__.mojo:docs/plot-api-lanes.tsv:docs/plot-api-surface.tsv:docs/plot-api-status.md:"
   "moxi_demo:src/moxi_demo/__init__.mojo:docs/demo-api-lanes.tsv:docs/demo-api-surface.tsv:docs/demo-api-status.md:"
 )
@@ -17,7 +18,7 @@ compatibility_file="docs/api-compatibility.tsv"
 # a promise to every implementer, and adding or removing one is invisible to
 # the export surface. This inventory makes those changes reviewable too.
 trait_surface_file="docs/trait-surface.tsv"
-trait_sources=(src/moxi src/moxi_plot src/moxi_demo)
+trait_sources=(src/moxi src/moxi/authoring src/moxi_plot src/moxi_demo)
 
 write_file=false
 if [ "${1:-}" = "--write" ]; then
@@ -209,7 +210,8 @@ tmp_traits="$tmp_dir/trait-surface.tsv"
 {
   printf '# package\ttrait\tmethod\n'
   for source_dir in "${trait_sources[@]}"; do
-    package="$(basename "$source_dir")"
+    package="${source_dir#src/}"
+    package="${package//\//.}"
     for module in "$source_dir"/*.mojo; do
       awk -v package="$package" '
       /^trait [A-Za-z_][A-Za-z0-9_]*/ {

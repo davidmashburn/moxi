@@ -149,6 +149,7 @@ struct App[ComponentType: Component & Deinitable]:
             ))
             changed = changed or task_changed
         self.requests.advance(delta_seconds)
+        self.component.reconcile_requests(self.requests)
         while self.requests.has_ready():
             var result = self.requests.pop_ready()
             if self.requests.should_deliver(result):
@@ -161,6 +162,7 @@ struct App[ComponentType: Component & Deinitable]:
                     result.scope_id,
                 )))
                 changed = changed or request_changed
+        self.component.reconcile_requests(self.requests)
         return changed
 
     def request_animation_frames(mut self, enabled: Bool = True):
@@ -866,6 +868,7 @@ struct App[ComponentType: Component & Deinitable]:
         self.view = self.component.build(self.root_bounds)
         self.apply_scroll_offsets()
         self.runtime.reconcile(self.view)
+        self.component.reconcile_requests(self.requests)
         if (
             self.scrollbar_pointer_id >= 0
             and self.view.scroll_max_offset(self.scrollbar_target_id) <= 0.0

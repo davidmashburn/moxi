@@ -4,7 +4,7 @@ from std.ffi import external_call
 from std.collections import List
 
 from .accessibility import AccessibilitySnapshot, Semantics
-from .event import Event
+from .event import Event, WINDOW_RESIZED_KIND
 from .geometry import Point, Rect, Size
 from .paint import PaintCommand, PaintCommands, Renderer
 from .window import WindowBackend, WindowConfig
@@ -123,6 +123,17 @@ struct TestWindow(WindowBackend):
         var event = self.events[self.cursor]
         self.cursor += 1
         return event
+
+    def supports_input_reset(self) -> Bool:
+        return True
+
+    def reset_input(mut self):
+        var retained = List[Event]()
+        for index in range(self.cursor, len(self.events)):
+            if self.events[index].kind == WINDOW_RESIZED_KIND:
+                retained.append(self.events[index])
+        self.events = retained^
+        self.cursor = 0
 
     def size(self) raises -> Size:
         return Size(self.config.width, self.config.height)

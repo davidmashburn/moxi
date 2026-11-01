@@ -2,6 +2,7 @@
 
 from std.ffi import external_call
 from .backend import (
+    BACKEND_MACOS_APPKIT,
     BackendCapabilities,
     backend_capabilities,
 )
@@ -845,6 +846,15 @@ struct NativeWindow[backend_kind: Int, invert_scroll_y: Bool = False](WindowBack
 
     def __init__(out self):
         pass
+
+    def supports_input_reset(self) -> Bool:
+        return Self.backend_kind == BACKEND_MACOS_APPKIT
+
+    def reset_input(mut self) raises:
+        comptime if Self.backend_kind == BACKEND_MACOS_APPKIT:
+            external_call["moxi_window_reset_input", NoneType]()
+        else:
+            raise Error("Native input reset is currently supported on macOS only")
 
     def open(mut self, config: WindowConfig) raises:
         var title = config.title

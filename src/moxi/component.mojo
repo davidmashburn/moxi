@@ -5,6 +5,7 @@ from .geometry import Rect
 from .layout import ROW_AXIS
 from .column_view import ColumnView
 from .view_node import CONTAINER_KIND, ViewNode
+from .tasks import RequestScheduler
 
 
 trait Component(ImplicitlyCopyable):
@@ -42,6 +43,13 @@ trait Component(ImplicitlyCopyable):
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         """Handle an event and report whether the view needs rebuilding."""
         return False
+
+    def reconcile_requests(mut self, mut requests: RequestScheduler):
+        """Retire component-owned requests after publication and before draining.
+
+        Do not consume the ready queue here; App owns request-result dispatch.
+        """
+        pass
 
     def update_retained(mut self, event: Event, view: ColumnView) -> Bool:
         """Handle retained output without rebuilding the declarative view."""

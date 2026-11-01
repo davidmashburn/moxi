@@ -14,6 +14,7 @@ moxi	Component	localized_dispatch
 moxi	Component	localized_last_child_commands
 moxi	Component	localized_last_child_nodes
 moxi	Component	localized_view
+moxi	Component	reconcile_requests
 moxi	Component	scroll_reset_target
 moxi	Component	supports_localized_execution
 moxi	Component	update
@@ -94,6 +95,10 @@ moxi	WindowBackend	open
 moxi	WindowBackend	poll_click
 moxi	WindowBackend	poll_event
 moxi	WindowBackend	pump
+moxi	WindowBackend	reset_input
 moxi	WindowBackend	run
 moxi	WindowBackend	size
+moxi	WindowBackend	supports_input_reset
 moxi	WindowBackend	wait_for_work
+moxi.authoring	Pane	render
+moxi.authoring	Screen	render

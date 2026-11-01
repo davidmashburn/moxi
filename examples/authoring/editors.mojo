@@ -1,7 +1,7 @@
 """Collection keys belong to entries, so they travel with reordered drafts."""
-from adapters import Keyed, field
+from moxi.authoring import Keyed, field
 from moxi import App, Rect
-from runtime import HandlerHost, Pane, Screen, UI
+from moxi.authoring import HandlerHost, Pane, Screen, UI
 
 comptime EDITORS = 1
 
