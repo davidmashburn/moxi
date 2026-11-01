@@ -213,3 +213,53 @@ establish large-tree performance, native input quality, or a general application
 architecture. Existing data-workbench migration and extending the Marko language
 subset are outside this check. Confidence in broader comfort remains moderate;
 new runtime ceremony or substantial source-reading would lower that assessment.
+
+
+## Nested workspace result
+
+Implemented in `07d377a` on `feat/data-workbench`. The
+[workspace](https://github.com/davidmashburn/moxi/blob/07d377a/examples/authoring/workspace.mojo)
+uses one shared document, keyed groups, and keyed drafts. It reuses the existing
+`Document` and `Draft` types. There is one handwritten root route; the collection
+and `field` routes handle the remaining levels. No production runtime or public
+API changes were needed.
+
+The smaller-model author produced an 81-line model and 167-line check. It needed
+to inspect the production composition/routing source and the reused draft's
+control order. An omitted `Pane` import and initially incorrect test control
+positions required corrections before its focused checks passed. This was an
+agent author working from the published material, not an unassisted human trial.
+
+Parent review found that Reverse swapped only the first two entries, which was
+misleading after Add, and that whole-group removal was not covered. The final
+88-line model reverses all entries and adds Close first group. The 206-line check
+also verifies three-entry reorder, whole-group retirement and reopening with
+reused child-local keys, previously captured surviving sibling actions, and an
+old Apply reading current text after an edit. Counts include blank lines and
+comments and exclude the reused `Document`/`Draft` definitions; they are not a
+framework code-size comparison. Internal control-path selectors make up test
+scaffolding, not application code.
+
+Parent verification passed all four examples and both behavior checks with
+`python3 examples/authoring/run.py`. The updated `pixi run --locked headless-check`
+also passed, including production authoring tests and package precompilation.
+Shell syntax, documentation links, prose-artifact, whitespace, and staged/outgoing
+content checks passed. Existing native string-conversion deprecation warnings
+remain. Both example checks now run in the standard suite and Linux headless CI
+lane. [CI for `07d377a`](https://github.com/davidmashburn/moxi/actions/runs/41340698355)
+was queued when checked on November 1, 2026; a passing run is not yet verified.
+
+The complete local suite, native layout/input, physical IME, accessibility,
+large-tree timing, and human usability were not rerun. The previous six-job CI
+pass belongs to `f8b0e17`, not this change. No merge to main was performed.
+
+Assessment: high confidence that the tested nested ownership and action routing
+compose under the production contract; moderate confidence in authoring comfort.
+The application needs little bespoke routing, but typed context propagation,
+field projections, keys, and test selectors remain explicit. This does not
+justify a new abstraction or a fine-grained performance claim. A human change
+exercise on this runnable source would be stronger comfort evidence than another
+agent-only ownership probe; a representative native screen and end-to-end timing
+would be required before generalizing to application-scale performance. The next
+product step should choose such a screen and its required controls, rather than
+expand the Marko subset or redesign the state model speculatively.
