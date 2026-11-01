@@ -41,6 +41,14 @@ declarations, and rebuilds the view. This ensures removed controls are retired
 before queued work can be delivered. Directly mutating `app.component.root` and
 later delivering queued work skips that guarantee.
 
+## Keep controls named
+
+`ui.text_input("Name", self.name, Self.rename)` draws a label and gives the
+editor that accessible name. If the layout already declares a visible label,
+use `show_label=False` to keep the accessible name without drawing it twice.
+`ui.checkbox` supports the same option. Keep the text input's `show_label`
+setting fixed within a mount: its visible label occupies a declaration slot.
+
 ## Compose with the smallest useful context
 
 A pane declares the type of shared data it needs. A parent routes its actions into

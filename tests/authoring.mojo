@@ -370,10 +370,57 @@ def existing_app_loop_and_editing_state() raises:
     test_check(app.component.ui.index(editor_target) < 0)
     test_check(not app.update(composition))
 
+struct LabelPane(Pane):
+    comptime Context = NoneType
+
+    def __init__(out self):
+        pass
+
+    def edit(mut self, value: String):
+        pass
+
+    def toggle(mut self, value: Bool):
+        pass
+
+    def render(self, mut ui: UI[Self, Self.Context], context: NoneType):
+        ui.text_input("Visible editor", "one", Self.edit)
+        ui.text_input("Named editor", "two", Self.edit, show_label=False)
+        ui.checkbox("Visible check", True, Self.toggle)
+        ui.checkbox("Named check", False, Self.toggle, show_label=False)
+
+struct LabelRoot(Screen):
+    def __init__(out self):
+        pass
+
+    def route(mut self, key: Int, action: Action[LabelPane]):
+        pass
+
+    def route_context(mut self, mut context: NoneType, key: Int, action: Action[LabelPane]):
+        pass
+
+    def render(self, mut ui: UI[Self]):
+        ui.child(LabelPane(), NoneType(), Self.route, key=1)
+        ui.child(LabelPane(), NoneType(), Self.route_context, key=2)
+
+def visible_and_accessible_labels():
+    var app = App(HandlerHost(LabelRoot()), Rect(0, 0, 520, 600))
+    # Both child-routing overloads preserve visible text and accessible names.
+    test_check(app.view.child_count() == 10)
+    for offset in range(0, 10, 5):
+        test_check(app.view.child(offset).text == "Visible editor")
+        test_check(app.view.child(offset + 1).semantics.label == "Visible editor")
+        test_check(app.view.child(offset + 2).text == "two")
+        test_check(app.view.child(offset + 2).semantics.label == "Named editor")
+        test_check(app.view.child(offset + 3).text == "Visible check")
+        test_check(app.view.child(offset + 3).semantics.label == "Visible check")
+        test_check(app.view.child(offset + 4).text == "")
+        test_check(app.view.child(offset + 4).semantics.label == "Named check")
+
 def main() raises:
     root_and_copy_lifetimes()
     collection_lifetimes_and_reorder()
     request_statuses_and_bounded_storage()
     integrated_reset_and_backend_guard()
     existing_app_loop_and_editing_state()
+    visible_and_accessible_labels()
     print("PASS authoring lifetimes, request delivery, and reset contracts")

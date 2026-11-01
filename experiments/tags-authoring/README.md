@@ -1,13 +1,13 @@
 # Tags authoring experiment
 
 A small subset of real Marko syntax now drives native Moxi controls. The counter
-and greeting form run through Moxi's existing `App`, layout, event routing,
-text editor, and renderer. No production Moxi API was changed.
+and greeting form compile to ordinary `Screen` models, methods, and `UI` calls
+from the production [`moxi.authoring` API](../../docs/authoring/README.md).
+`HandlerHost` owns event routing, native editor state, and control lifetimes.
 
 This is an executable feasibility experiment, not a complete Marko backend or
-an adopted Moxi language. Results were observed on October 27, 2026, against
-`feat/data-workbench` at `c8c7cbb7741519c9796a02ffa25c02e701b2f58a`, plus this
-uncommitted experiment directory.
+an adopted Moxi language. The production-target migration was checked on
+November 1, 2026. The supported Marko syntax and example sources are unchanged.
 
 ## What you write
 
@@ -63,49 +63,100 @@ The last command builds and opens **Moxi Tags Experiment** on macOS. Edit the
 reload. `native.sh --build-only` builds without opening a window.
 
 The official Marko parser supplies the AST. `compile.cjs` lowers the supported
-subset into ordinary Mojo components in ignored `generated/`; it also writes
-control-ID/source manifests. The generated component handles ownership, event
-routing, derived expressions, conditional mounting, and native editor state.
-The application author supplies none of that machinery. Unsupported constructs
-produce errors rather than falling back to a web view.
+subset into ordinary Mojo models in ignored `generated/`; it also writes
+source-key/location manifests. Source keys identify declaration sites, not native
+control IDs. They are stable within a compiled program, not across source edits
+or hot reload. Unsupported constructs produce errors rather than a fallback.
+
+## What the new target looks like
+
+A simplified single-counter equivalent is ordinary Mojo:
+
+```mojo
+from moxi.authoring import Screen, UI
+
+struct Counter(Screen):
+    var count: Int
+
+    def __init__(out self):
+        self.count = 0
+
+    def increment(mut self):
+        self.count += 1
+
+    def render(self, mut ui: UI[Self]):
+        ui.button("Clicked " + String(self.count) + " times", Self.increment)
+```
+
+The actual generator additionally wraps each source site in a stable `begin_scope`
+/ `end_scope` pair. Conditional siblings can disappear without changing the
+identity of their neighbors. A removed and remounted control gets a fresh host ID,
+so delayed events cannot target its replacement. Start the generated form with
+`App(HandlerHost(GreetingForm()), bounds)`; [demo.mojo](demo.mojo) runs it natively.
+
+| Concern | Translator responsibility | Production runtime responsibility |
+| --- | --- | --- |
+| Values and bindings | Ordinary fields; shared bindings refer to the same field | Route handlers to the current owner |
+| Changes | Methods assign values and settle conditional model state | Dispatch input and refresh declarations |
+| Conditional local values | Initialize them on a new conditional mount | Retire removed controls and their editor state |
+| Editing and clipboard | Declare a text value and change handler | Selection, composition, focus, clipboard hooks |
+| Root replacement | Construct a fresh generated model | `reset` / `reset_headless` reject the previous owner's work |
+
+The generated `settle` method only initializes model values on conditional mounts.
+`render` reads the resulting state. The form's **Restore defaults** button changes
+values; it does not replace the root lifetime. A real session replacement uses the
+production reset API. Reusable Marko components are still flattened into root
+fields: this experiment does not test reusable `Pane` composition or context routing.
+
+Marko can supply a separate visible label and `aria-label`. The migration adds
+`show_label=False` to production text inputs and checkboxes to preserve the
+accessible name without duplicating visible text. Existing API defaults remain
+visible. No private editor/event/clipboard adapter remains in this experiment.
 
 ## Observed results
 
-`check.sh` passed, exit 0. The captured output is in [results.txt](results.txt).
+On November 1, `check.sh` passed. Output is in [results.txt](results.txt).
 
-- All four example files compiled with the official Marko HTML and DOM
-  translators: eight compilations, zero diagnostics. This verifies Marko syntax;
-  it is not a browser/runtime equivalence test.
-- Generated Mojo passed real `App` interaction checks for independent/shared
-  counters, keyboard activation, fresh-root state, child returns, trimmed
-  preview, disabled Save, immediate Save after edits, reset, conditional
-  lifetime, and stale events targeting removed controls.
-- Native editor state passed headless checks for focus/cursor continuity across
-  rebuild, Unicode deletion, composition and committed text, Tab focus, and
-  clipboard hooks. Clipboard hooks were checked directly; OS copy/cut/paste
-  and an actual IME session were not exercised.
-- Four source variations passed without compiler/runtime edits: add a validation
-  rule once; change a shared counter to an independent one; put a counter inside
-  a conditional; share text between two fields with separate editor cursors.
-- Eleven unsupported-source cases were rejected with file/line/column errors.
-- The macOS app built and opened. Native interaction verified typing and live
-  preview, Save, an empty nickname disabling Save, nickname editing, persistence
-  across hide/show, and Restore defaults. The final window was left at defaults.
+- All four examples pass the official Marko HTML and DOM translators: eight
+  compilations, zero diagnostics. This verifies syntax, not browser equivalence.
+- Real `App` routing preserves independent/shared counters, keyboard activation,
+  child returns, derived validation, immediate Save, conditional local reset,
+  parent state across hiding, selection, Unicode, simulated composition, clipboard
+  hooks, and Tab focus.
+- Added checks reject an old editor ID after remount, a captured button action
+  after remount, and an action captured before production root reset.
+- Four source variations still pass. A static model without fields also compiles
+  and runs. Twelve unsupported cases fail with source locations, including empty
+  handlers (already unsupported before this migration).
+- Separate production tests verify accessible names with visible labels suppressed
+  through both child-routing overloads. The generated form also checks its names
+  and unchanged visible node count.
+- The migrated macOS app builds. This run did not open it or repeat physical input,
+  OS clipboard, VoiceOver, or a real IME session. Existing native-window
+  `as_c_string_slice` deprecation warnings remain.
 
-**Unresolved native observation:** an accessibility-targeted click on the nickname
-field did not move editing focus, so subsequent typing went to the primary field.
-A pointer-coordinate click focused the nickname correctly. The cause was not
-isolated between automation and Moxi accessibility/focus handling. This prevents
-claiming complete native interaction/accessibility coverage.
+| Maintained/generated code | Previous target | Production target |
+| --- | ---: | ---: |
+| Generated counters | 55 lines | 38 lines |
+| Generated greeting form | 121 lines | 75 lines |
+| Private runtime adapter | 43 lines | 0 lines |
+| Compiler | 292 lines | 268 lines |
 
-Native builds emitted 14 existing `as_c_string_slice` deprecation warnings from
-`src/moxi/native_window.mojo`. No production sources were edited to address them.
+The generated examples are 36% shorter (176 to 113 lines). These counts include
+blank/comment lines and are a maintenance indicator, not a usability or speed
+measurement. The host already exists; these reductions do not mean the underlying
+editing machinery disappeared from Moxi.
+
+Historical native interaction on October 27 verified typing, preview, validation,
+Save and hide/show. An accessibility-targeted click failed to move focus while a
+coordinate click worked; the cause was not isolated. That observation has not been
+retested here, so complete native accessibility coverage remains unclaimed.
 
 ## What this does and does not establish
 
 **High confidence:** these small declarative programs can run on Moxi with state
 ownership and native editing hidden from application source. The generated
-programs, interaction checks, and native window support this narrow conclusion.
+programs and interaction checks support this narrow conclusion.
 A behavioral mismatch on the supported examples would weaken it.
 
 **Comfort remains unmeasured.** The experiment preserves familiar Marko spelling
@@ -132,6 +183,10 @@ whole view. This does not use the earlier dependency-tracking probe and makes no
 performance claim. The full repository suite, Linux/native cross-platform runs,
 VoiceOver, native counter interaction, and browser behavioral parity were skipped.
 
-The compiler and adapter absorb the complexity; they do not remove it from the
-system. A larger language needs a credible plan for debugging, tooling, typed
-application logic, and the unsupported cases before adoption.
+**Moderate confidence: keep this as a compatibility probe and teaching example.**
+It removes duplicated runtime behavior and makes the translation to ordinary Mojo
+inspectable. That is real value without adopting another application language.
+Repeated pressure for translator-only runtime hooks, difficult generated-code
+debugging, or unsupported constructs dominating real applications would weaken
+that recommendation. A larger language still needs a credible plan for tooling,
+typed application logic, and the unsupported cases before adoption.

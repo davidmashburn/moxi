@@ -97,9 +97,10 @@ struct Declaration[S: ImplicitlyCopyable, C: ImplicitlyCopyable](ImplicitlyCopya
     var value: String
     var enabled: Bool
     var checked: Bool
+    var show_label: Bool
     var action: Action[Self.S, Self.C]
 
-    def __init__(out self, path: String, kind: Int, label: String = "", value: String = "", action: Action[Self.S, Self.C] = Action[Self.S, Self.C](), enabled: Bool = True, checked: Bool = False):
+    def __init__(out self, path: String, kind: Int, label: String = "", value: String = "", action: Action[Self.S, Self.C] = Action[Self.S, Self.C](), enabled: Bool = True, checked: Bool = False, show_label: Bool = True):
         self.path = path
         self.kind = kind
         self.label = label
@@ -107,6 +108,7 @@ struct Declaration[S: ImplicitlyCopyable, C: ImplicitlyCopyable](ImplicitlyCopya
         self.action = action
         self.enabled = enabled
         self.checked = checked
+        self.show_label = show_label
 
 
 trait Pane(ImplicitlyCopyable):
@@ -158,12 +160,18 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
     def button(mut self, text: String, on_click: def(mut Self.S, mut Self.C) thin -> None, enabled: Bool = True):
         self.declarations.append(Declaration[Self.S, Self.C](self.path(), BUTTON_KIND, text, action=Action[Self.S, Self.C](payload=on_click, invoke=_write_context[Self.S, Self.C]), enabled=enabled))
 
-    def text_input(mut self, label: String, value: String, on_change: def(mut Self.S, String) thin -> None):
-        self.label(label)
+    def text_input(mut self, label: String, value: String, on_change: def(mut Self.S, String) thin -> None, *, show_label: Bool = True):
+        """Declare an editor; show_label=False keeps only its accessible name.
+
+        Keep show_label fixed within a mount: the visible label occupies a slot.
+        """
+        if show_label:
+            self.label(label)
         self.declarations.append(Declaration[Self.S, Self.C](self.path(), TEXT_INPUT_VIEW_KIND, label, value, Action[Self.S, Self.C](payload=on_change, invoke=_text[Self.S, Self.C])))
 
-    def checkbox(mut self, label: String, checked: Bool, on_change: def(mut Self.S, Bool) thin -> None):
-        self.declarations.append(Declaration[Self.S, Self.C](self.path(), CHECKBOX_KIND, label, action=Action[Self.S, Self.C](payload=on_change, invoke=_toggle[Self.S, Self.C]), checked=checked))
+    def checkbox(mut self, label: String, checked: Bool, on_change: def(mut Self.S, Bool) thin -> None, *, show_label: Bool = True):
+        """Declare a checkbox, optionally hiding its text but keeping its name."""
+        self.declarations.append(Declaration[Self.S, Self.C](self.path(), CHECKBOX_KIND, label, action=Action[Self.S, Self.C](payload=on_change, invoke=_toggle[Self.S, Self.C]), checked=checked, show_label=show_label))
 
     def child[Child: Pane, K: ImplicitlyCopyable & Deinitable = Int](mut self, child: Child, context: Child.Context, route: def(mut Self.S, K, Action[Child, Child.Context]) thin -> None, *, key: K):
         var ui = UI[Child, Child.Context]()
@@ -175,7 +183,7 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
             var action = Action[Self.S, Self.C]()
             if item.action._storage:
                 action = child_action[Self.S, Self.C, Child, Child.Context, K](key, route, item.action)
-            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked))
+            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label))
         self.end_scope()
 
 
@@ -189,7 +197,7 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
             var action = Action[Self.S, Self.C]()
             if item.action._storage:
                 action = child_action[Self.S, Self.C, Child, Child.Context, K](key, route, item.action)
-            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked))
+            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label))
         self.end_scope()
 
 
@@ -284,7 +292,8 @@ struct RetainedUI[S: ImplicitlyCopyable](ImplicitlyCopyable):
                 self.view.add_button_enabled(self.controls[i].id, item.label, 36, item.enabled)
             elif item.kind == CHECKBOX_KIND:
                 self.controls[i].checked = item.checked
-                self.view.add_checkbox(self.controls[i].id, item.label, item.checked, 28)
+                self.view.add_checkbox(self.controls[i].id, item.label if item.show_label else "", item.checked, 28)
+                self.view.set_accessibility_label(self.controls[i].id, item.label)
             elif item.kind == TEXT_INPUT_VIEW_KIND:
                 self.add_editor(i, item.label, item.value)
         self.finish()

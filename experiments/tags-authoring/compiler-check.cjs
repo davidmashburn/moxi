@@ -42,7 +42,11 @@ fs.writeFileSync(path.join(fixtures, 'editors.marko'), `import NameField from ".
 `);
 compile(path.join(fixtures, 'editors.marko'), 'Editors', out);
 console.log('PASS generated four independent source variations');
+// Static programs need a valid Mojo constructor without model fields.
+fs.writeFileSync(path.join(fixtures, 'static.marko'), '<p>Ready</p>');
+compile(path.join(fixtures, 'static.marko'), 'Static', out);
 const cases = [
+  ['<button onClick() {}>No change</button>', /Empty handlers/],
   ['<let/x=0><button onClick(){ x = missing; }>X</button>', /Unknown value/],
   ['<const/x=0><button onClick(){ x++; }>X</button>', /writable/],
   ['<let/x=""><input value=x>', /writable/],
