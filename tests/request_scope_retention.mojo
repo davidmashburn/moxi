@@ -1,8 +1,54 @@
 """Closing request scopes reclaims metadata without accepting stale results."""
-from moxi import RequestScheduler, TASK_COMPLETED, test_check
+from moxi import RequestScheduler, RequestScopeHandle, TASK_COMPLETED, TASK_FAILED, test_check
+from moxi.tasks import REQUEST_GLOBAL_SCOPE
+
+
+def discard_only_owned_results():
+    var scheduler = RequestScheduler()
+    var prefix = scheduler.request(1, "consumed prefix", 0.0)
+    var before = scheduler.request(2, "before", 0.0)
+    var owner = scheduler.mount_scope(99)
+    var queued = scheduler.request_in_scope(owner, 1, "queued", 60.0)
+    var pending = scheduler.request_in_scope(owner, 2, "pending", 60.0)
+    var superseded = scheduler.request_in_scope(owner, 3, "old", 60.0)
+    _ = scheduler.request_in_scope(owner, 3, "new", 60.0)
+    test_check(scheduler.complete(prefix, TASK_COMPLETED))
+    test_check(scheduler.complete(before, TASK_COMPLETED, "first"))
+    test_check(scheduler.complete(queued, TASK_COMPLETED))
+    var after = scheduler.request(3, "after", 60.0)
+    test_check(scheduler.complete(after, TASK_FAILED, "second"))
+    # Consume the supersession cancellation and a prefix, leaving a nonzero head.
+    test_check(scheduler.pop_ready().matches(superseded))
+    test_check(scheduler.pop_ready().matches(prefix))
+    test_check(scheduler.discard_scope(owner))
+    test_check(not scheduler.discard_scope(owner))
+    test_check(not scheduler.complete(pending, TASK_COMPLETED))
+    test_check(not scheduler.complete(queued, TASK_COMPLETED))
+    test_check(scheduler.ready_count() == 2)
+    test_check(scheduler.dropped_count() == 0)
+    var first = scheduler.pop_ready()
+    var second = scheduler.pop_ready()
+    test_check(first.matches(before) and first.payload == "first")
+    test_check(second.matches(after) and second.payload == "second")
+    test_check(second.status == TASK_FAILED)
+    test_check(scheduler.should_deliver(first) and scheduler.should_deliver(second))
+    test_check(len(scheduler.tasks.tasks) == 0)
+    test_check(len(scheduler.scopes) == 0 and len(scheduler.scope_bindings) == 0)
+
+    var external = scheduler.create_scope()
+    _ = scheduler.request_in_scope(external, 1, "externally closed", 60.0)
+    test_check(scheduler.cancel_scope(external))
+    test_check(scheduler.ready_count() == 1)
+    test_check(scheduler.discard_scope(external))
+    test_check(scheduler.ready_count() == 0)
+    test_check(len(scheduler.tasks.tasks) == 0)
+    test_check(not scheduler.discard_scope(RequestScopeHandle()))
+    # The global scope cannot be retired with the owner-specific operation.
+    test_check(not scheduler.discard_scope(RequestScopeHandle(REQUEST_GLOBAL_SCOPE)))
 
 
 def main():
+    discard_only_owned_results()
     var scheduler = RequestScheduler()
     var survivor = scheduler.mount_scope(42)
     var live = scheduler.request_in_scope(survivor, 7, "survivor", 60.0)
@@ -27,10 +73,12 @@ def main():
         test_check(len(scheduler.scope_bindings) == 1)
         test_check(len(scheduler.key_states) == 1)
         test_check(scheduler.is_current(live))
+        test_check(len(scheduler.tasks.tasks) == 1)
         test_check(not scheduler.should_deliver(old_result))
     test_check(scheduler.complete(live, TASK_COMPLETED))
     var live_result = scheduler.pop_ready()
     test_check(live_result.matches(live) and scheduler.should_deliver(live_result))
+    test_check(len(scheduler.tasks.tasks) == 0)
     test_check(scheduler.cancel_scope(survivor))
     test_check(len(scheduler.scopes) == 0)
     test_check(not scheduler.should_deliver(live_result))

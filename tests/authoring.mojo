@@ -235,6 +235,7 @@ def request_statuses_and_bounded_storage():
         _ = app.advance_tasks(0.0)
     test_check(app.requests.mounted_scope_count() == 0)
     test_check(app.requests.retained_count() == 0)
+    test_check(len(app.requests.tasks.tasks) == 0)
     test_check(len(app.component._request_scopes) == 0)
     test_check(len(app.component._pending_requests) == 0)
 
@@ -251,6 +252,7 @@ def request_statuses_and_bounded_storage():
     _ = app.advance_tasks(0.0)
     test_check(app.pending_request_count() == 0)
     test_check(app.retained_request_count() == 0)
+    test_check(len(app.requests.tasks.tasks) == 0)
     test_check(len(app.component._pending_requests) == 0)
 
     # A caller can close a scope using the existing App scheduler API. A later
@@ -416,6 +418,23 @@ def visible_and_accessible_labels():
         test_check(app.view.child(offset + 4).text == "")
         test_check(app.view.child(offset + 4).semantics.label == "Named check")
 
+def reset_preserves_unrelated_queue_capacity():
+    var app = App(HandlerHost(Root()), Rect(0, 0, 520, 320))
+    var owned = schedule_action(app, root_button_id(app), 1, "owned", 60.0)
+    # Reset must not leave a cancellation result occupying the shared queue.
+    reset_headless(app, Root())
+    test_check(not complete_action(app, owned))
+    test_check(app.requests.ready_count() == 0)
+    for key in range(app.requests.capacity()):
+        var unrelated = app.schedule_request(key, "unrelated", 60.0)
+        test_check(app.complete_request(unrelated, TASK_COMPLETED))
+    test_check(app.requests.ready_count() == app.requests.capacity())
+    test_check(app.requests.dropped_count() == 0)
+    for key in range(app.requests.capacity()):
+        var result = app.requests.pop_ready()
+        test_check(result.key == key and app.requests.should_deliver(result))
+    test_check(len(app.requests.tasks.tasks) == 0)
+
 def main() raises:
     root_and_copy_lifetimes()
     collection_lifetimes_and_reorder()
@@ -423,4 +442,5 @@ def main() raises:
     integrated_reset_and_backend_guard()
     existing_app_loop_and_editing_state()
     visible_and_accessible_labels()
+    reset_preserves_unrelated_queue_capacity()
     print("PASS authoring lifetimes, request delivery, and reset contracts")

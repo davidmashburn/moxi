@@ -394,7 +394,7 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
             if self.ui.index(owner.target) >= 0 and requests.scope_is_active(owner.handle):
                 owners.append(owner)
             else:
-                _ = requests.cancel_scope(owner.handle)
+                _ = requests.discard_scope(owner.handle)
         self._request_scopes = owners^
         var pending = List[ActionRequest[Self.Root]]()
         for item in self._pending_requests:
@@ -402,9 +402,9 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
                 pending.append(item)
         self._pending_requests = pending^
 
-    def _cancel_requests(mut self, mut requests: RequestScheduler):
+    def _discard_requests(mut self, mut requests: RequestScheduler):
         for owner in self._request_scopes:
-            _ = requests.cancel_scope(owner.handle)
+            _ = requests.discard_scope(owner.handle)
         self._request_scopes = List[_OwnedRequestScope]()
         self._pending_requests = List[ActionRequest[Self.Root]]()
 
@@ -516,7 +516,7 @@ def deliver[R: Screen & Deinitable](mut app: App[HandlerHost[R]], packet: Captur
 
 def reset_headless[R: Screen & Deinitable](mut app: App[HandlerHost[R]], root: R):
     """Start a fresh root without a native backend. Native callers use reset."""
-    app.component._cancel_requests(app.requests)
+    app.component._discard_requests(app.requests)
     app.component._reset(root)
     # These live on App, outside the model and retained declarations. A new
     # root lifetime must not inherit its predecessor's root scrollbar gesture.

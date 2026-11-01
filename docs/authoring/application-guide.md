@@ -152,8 +152,13 @@ _ = app.advance_tasks(0.0)
 
 `delay_seconds` is a deterministic completion timer; completion may be supplied
 earlier. The same target/key supersedes earlier work. Removed controls and root
-reset cancel their owned scopes, while unrelated App requests remain current.
-`App.advance_tasks` is the only ready-queue consumer. Do not pop `app.requests`
+reset discard their owned scopes and queued results, while unrelated App requests
+remain current and keep their queue slots. Retirement does not enqueue cancellation
+notifications for a vanished owner. `RequestScheduler.discard_scope` implements
+this behavior; ordinary `cancel_scope` retains its cancellation-result behavior.
+Consumed or overflow-dropped request results release their underlying task records.
+Standalone tasks retain their explicit `forget_task` history contract.
+`App.advance_tasks` is the only result-delivery consumer. Do not pop `app.requests`
 from a second bridge. Failed/cancelled results retire the pending callback without
 running its success action. Scheduling requires a live button target; other
 control kinds are not supported by this adapter.

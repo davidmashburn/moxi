@@ -346,6 +346,20 @@ struct TaskScheduler:
             self.tasks = retained^
         return found
 
+    def _discard(mut self, handle: TaskHandle):
+        """Release owner-retired work without generating a cancellation result."""
+        var retained_tasks = List[TaskRecord]()
+        for task in self.tasks:
+            if task.id != handle.id:
+                retained_tasks.append(task)
+        self.tasks = retained_tasks^
+        var retained_ready = List[TaskResult]()
+        for index in range(self.ready_head, len(self.ready)):
+            if self.ready[index].task_id != handle.id:
+                retained_ready.append(self.ready[index])
+        self.ready = retained_ready^
+        self.ready_head = 0
+
     def dropped_count(self) -> Int:
         return self.dropped_value
 
@@ -412,6 +426,8 @@ struct RequestScheduler:
     threads. A host adapter may use the handle and generation to connect real
     work to the normal event path. Submitting a new request for an existing key
     cancels the previous pending task and makes the new generation current.
+    Consuming or dropping a result releases its underlying task record; unlike
+    standalone TaskScheduler tasks, requests need no separate history cleanup.
     """
 
     var tasks: TaskScheduler
@@ -501,6 +517,8 @@ struct RequestScheduler:
                 or self.tasks.has_ready_task(record.handle.task_id)
             ):
                 retained.append(record)
+            else:
+                _ = self.tasks.forget(task)
         self.requests = retained^
 
     def request(
@@ -656,6 +674,26 @@ struct RequestScheduler:
         self._prune_records()
         return True
 
+    def discard_scope(mut self, scope: RequestScopeHandle) -> Bool:
+        """Close a non-global owner and release its work without result delivery.
+
+        Unlike cancel_scope, this also discards already queued results. It can
+        reclaim results of a previously closed scope. Unrelated work is preserved.
+        """
+        if not scope.is_valid() or scope.id == REQUEST_GLOBAL_SCOPE:
+            return False
+        var discarded = False
+        var retained = List[RequestRecord]()
+        for record in self.requests:
+            if record.handle.scope_id == scope.id:
+                self.tasks._discard(TaskHandle(record.handle.task_id))
+                discarded = True
+            else:
+                retained.append(record)
+        self.requests = retained^
+        var closed = self.cancel_scope(scope)
+        return discarded or closed
+
     def complete(
         mut self,
         handle: RequestHandle,
@@ -733,6 +771,8 @@ struct RequestScheduler:
         if not self.tasks.has_ready():
             return RequestResult()
         var result = self.tasks.pop_ready()
+        # Request metadata owns this task; no separate history API needs it.
+        _ = self.tasks.forget(TaskHandle(result.task_id))
         for index in range(len(self.requests)):
             var record = self.requests[index]
             if record.handle.task_id != result.task_id:
