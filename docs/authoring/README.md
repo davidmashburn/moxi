@@ -142,8 +142,12 @@ ordinary model methods. One root route supplies the shared document; `field`
 and the two keyed collections handle the remaining routing.
 
 Read [the application guide's walkthrough](application-guide.md#combine-shared-context-with-dynamic-children)
-to trace Apply through the current owners. The headless example and its checks
-are runnable; they do not demonstrate a native workspace layout.
+to trace Apply through the current owners. The headless checks cover ownership
+and scrolled pointer input. To try the same model in a native macOS window, follow
+the
+[workspace run instructions](../../examples/authoring/README.md). It uses the
+current vertical layout; it is a composition example, not a finished workspace
+design.
 
 ## Updating values versus starting over
 

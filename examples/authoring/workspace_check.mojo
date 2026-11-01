@@ -1,6 +1,7 @@
 """Exercise workspace ownership, reorder, close, reset, and root lifetimes."""
 from workspace import Workspace, GROUPS, DRAFTS
 from moxi import App, BUTTON_KIND, Event, Rect, TEXT_INPUT_VIEW_KIND, TextInputEvent, test_check
+from moxi import Point, PointerEvent, ScrollEvent, ROOT_SCROLL_ID, POINTER_DOWN_KIND, POINTER_UP_KIND
 from moxi.authoring import HandlerHost, deliver, reset_headless
 from moxi.authoring import Screen
 
@@ -197,10 +198,40 @@ def check_root_reset():
     require(app.component.root.document.title == "Shared title", "root reset installs fresh document")
 
 
+def click_control(mut app: App[HandlerHost[Workspace]], control_id: Int):
+    var bounds = app.view.bounds_for(control_id)
+    require(bounds.y >= 0 and bounds.y + bounds.height <= 720, "clicked control is visible")
+    var point = Point(bounds.x + 20, bounds.y + bounds.height / 2)
+    _ = app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, point)))
+    _ = app.dispatch(Event(PointerEvent(POINTER_UP_KIND, point)))
+
+
+def check_scrolled_pointer_input():
+    var app = App(HandlerHost(Workspace()), Rect(0, 0, 640, 720))
+    require(app.view.scroll_max_offset(ROOT_SCROLL_ID) > 0, "workspace overflows native viewport")
+    var editor = draft_text_id(app, 2, 2)
+    var editor_bounds = app.view.bounds_for(editor)
+    require(editor_bounds.y > 720, "last draft starts outside viewport")
+    require(app.dispatch(Event(ScrollEvent(Point(100, 100), Point(0, 100000)))), "scroll to last draft")
+    var offset = app.view.scroll_offset_for(ROOT_SCROLL_ID)
+    click_control(app, editor)
+    require(app.dispatch(Event(TextInputEvent("Beta pointer edit", 0, 1000000))), "untargeted input reaches focused scrolled editor")
+    require(app.component.root.groups.entries[1].value.drafts.entries[1].value.text == "Beta pointer edit", "pointer chooses correct nested draft")
+    require(app.component.root.groups.entries[0].value.drafts.entries[0].value.text == "Alpha first", "other group remains unchanged")
+    require(app.component.root.document.title == "Shared title", "native-style edit stays local")
+    require(app.view.scroll_offset_for(ROOT_SCROLL_ID) == offset, "edit rebuild preserves scroll")
+    click_control(app, draft_apply_id(app, 2, 2))
+    require(app.component.root.document.title == "Beta pointer edit", "scrolled pointer Apply uses edited draft")
+    require(deliver(app, app.component.capture(root_button_id(app, ROOT_CLOSE_FIRST))), "remove group while scrolled")
+    require(app.view.scroll_offset_for(ROOT_SCROLL_ID) <= app.view.scroll_max_offset(ROOT_SCROLL_ID), "shrinking content clamps scroll")
+    require(app.view.scroll_offset_for(ROOT_SCROLL_ID) < offset, "removed content reduces scroll offset")
+
+
 def main():
     check_add_operations()
     check_local_apply_and_nested_reorder()
     check_close_reset_and_reopen()
     check_group_removal()
     check_root_reset()
-    print("PASS: workspace ownership, nested reorder, close, reset, reopen, and root reset")
+    check_scrolled_pointer_input()
+    print("PASS: workspace ownership, nested reorder, close, reset, reopen, root reset, and scrolled pointer input")
