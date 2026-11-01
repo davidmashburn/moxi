@@ -19,6 +19,10 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Authoring documentation and production extraction](docs/design/authoring-production.md)
+  records the accepted strategy, runnable guide, and authorized production scope.
+  Documentation is pushed; package and native lifecycle integration is in progress.
+
 - [Lifetime integration decision](docs/design/lifetime-integration-decision.md)
   checks actual App requests and native queue/poll, root scroll/gesture reset,
   move/copy ownership and a fresh model author. Request-scope reclamation is fixed
