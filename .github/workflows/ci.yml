@@ -13,7 +13,7 @@ jobs:
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: latest
+          pixi-version: v0.81.0
           cache: true
       - name: Install locked environment
         run: pixi install --locked
@@ -28,7 +28,7 @@ jobs:
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: latest
+          pixi-version: v0.81.0
           cache: true
       - name: Install locked environment
         run: pixi install --locked
@@ -64,7 +64,7 @@ jobs:
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: latest
+          pixi-version: v0.81.0
           cache: true
       - name: Install locked environment
         run: pixi install --locked
@@ -79,7 +79,7 @@ jobs:
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: latest
+          pixi-version: v0.81.0
           cache: true
       - name: Check portable Mojo layout policies
         run: |
@@ -159,7 +159,7 @@ jobs:
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: latest
+          pixi-version: v0.81.0
           cache: true
       - name: Check mixed layout and independent precompiled consumer
         run: |
