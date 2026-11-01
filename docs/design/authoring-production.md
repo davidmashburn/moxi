@@ -110,3 +110,48 @@ would change the recommendation. This extraction makes no new performance claim.
 Status: documentation and production extraction committed and pushed; local
 validation complete, independent review and remaining CI pending. Main remains
 unchanged.
+
+
+## Marko translator follows the production API — November 1
+
+Implemented and pushed in
+[`b7cb576`](https://github.com/davidmashburn/moxi/commit/b7cb576). The existing
+`experiments/tags-authoring` subset now emits ordinary `Screen` fields, handlers,
+and `UI` declarations hosted by `HandlerHost`. Its private event/editor/clipboard
+adapter is deleted. Syntax and source examples remain unchanged. Source sites
+become stable declaration keys; host-assigned control IDs change on remount.
+
+The compiler retains the language-specific binding and conditional model
+initialization rules. It still flattens imported components into root fields;
+this does not validate reusable `Pane` composition, context routing, or Marko's
+fine-grained runtime. Derived expressions are expanded at their uses, and
+successful events refresh the full declaration set.
+
+Measured maintenance change: the two generated examples shrink from 176 to 113
+lines, the private runtime from 43 to zero, and the compiler from 292 to 268.
+Production text inputs and checkboxes gain `show_label=False` to keep accessible
+names without duplicating separately declared labels. Defaults are unchanged;
+both child-routing overloads have focused coverage.
+
+The existing behavior suite, four source variations, a new static-model case,
+eight official Marko syntax compilations, twelve unsupported-input cases,
+production authoring tests/examples, API/prose checks, and native build pass.
+New checks reject stale editor IDs and captured actions after remount and root
+reset. No physical native interaction, real IME, browser behavior equivalence,
+human authoring study, or performance measurement was performed for the migration.
+The historical accessibility-focus observation remains unresolved.
+
+Moderate confidence: maintain the translator as an executable compatibility probe
+and teaching comparison. Eliminating duplicate runtime behavior is practical
+value; it does not establish a reason to adopt another primary authoring language.
+Repeated translator-specific runtime requirements or difficult generated-code
+debugging in larger examples would weaken this recommendation. See the
+[implementation explanation](https://github.com/davidmashburn/moxi/blob/b7cb576/experiments/tags-authoring/README.md).
+
+The independent production review has completed and identified two follow-ups:
+reset cancellation can consume shared queue capacity, and underlying request task
+records outlive pruned request metadata. Both were independently reproduced:
+one unrelated completion dropped under 32-slot pressure, and 1,000 task records
+after 1,000 reset cycles. A separate production fix is being validated. The
+reviewer's earlier authoring-test parse errors were from concurrent edits; the
+final committed test and subsequent label tests passed locally.
