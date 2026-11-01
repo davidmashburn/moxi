@@ -186,7 +186,30 @@ reproduced and verified by the parent; a second delegated review was not run.
 Status: documentation, production extraction, translator migration, and both
 review fixes are committed and pushed. The extraction baseline CI passed;
 [CI for the final lifecycle fix](https://github.com/davidmashburn/moxi/actions/runs/41287313179)
-is still pending. Local validation is not a claim that this latest run passed.
+passed all six jobs at `f8b0e17`, verified November 1, 2026.
 Main remains unchanged. Confidence is
 high in the corrected bounded-lifetime behavior and moderate in application-scale
 authoring comfort. No new performance or human-usability conclusion follows.
+
+
+## Next application-author check
+
+Exercise the production API with a shared document, keyed groups, and keyed
+local drafts inside each group. The small published examples separate shared
+context from dynamic collections; this check combines them through several
+ownership levels. Reuse the documented API without runtime changes, generated
+application code, a global store, or a new composition helper.
+
+Acceptance: edit locally and Apply explicitly; queued input and captured Apply
+follow the original draft through both group and draft reorder; removing or
+resetting a group/draft rejects its old work while a surviving sibling stays
+usable; reopening allocates a fresh lifetime; root reset rejects old work.
+Sibling groups intentionally reuse their local draft keys. Run the example and
+checks, retain the actual source, and record authoring friction and code size.
+
+A bounded `gpt-5.6-luna` author task starts from the production guide and examples.
+This provides agent-author evidence, not human-usability evidence. It does not
+establish large-tree performance, native input quality, or a general application
+architecture. Existing data-workbench migration and extending the Marko language
+subset are outside this check. Confidence in broader comfort remains moderate;
+new runtime ceremony or substantial source-reading would lower that assessment.
