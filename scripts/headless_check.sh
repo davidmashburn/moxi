@@ -15,6 +15,8 @@ trap cleanup EXIT
 # boundary that Linux and other future headless targets must carry.
 mojo run -I src tests/portable_plot.mojo
 mojo run -I src tests/authoring.mojo
+mojo run -I src examples/authoring/check.mojo
+mojo run -I src examples/authoring/workspace_check.mojo
 mojo precompile src/moxi -o "$tmp_dir/moxi.mojoc"
 mojo precompile -I src src/moxi_plot -o "$tmp_dir/moxi_plot.mojoc"
 

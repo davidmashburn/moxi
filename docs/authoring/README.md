@@ -55,7 +55,7 @@ controls and action routing. `App` provides layout, focus, scrolling, and event
 dispatch. You construct these once at the application boundary; ordinary model
 methods do not need to mention them.
 
-From the repository root, run all three examples and their behavior checks:
+From the repository root, run all four examples and their behavior checks:
 
 ```sh
 python3 examples/authoring/run.py
@@ -132,6 +132,18 @@ The read context describes the current document. At dispatch, the route passes t
 actual current parent-owned document for mutation. Applying the left draft changes
 the saved title visible to both panes; the right draft keeps its unsaved text.
 There is no ambient global store or hidden subscription in this example.
+
+## A workspace with nested collections
+
+[workspace.mojo](../../examples/authoring/workspace.mojo) puts these patterns
+together. A workspace owns one document and a `Keyed[Group]`; each group owns a
+`Keyed[Draft]`. Drafts reuse the pane above. Add, close, reverse, and reset are
+ordinary model methods. One root route supplies the shared document; `field`
+and the two keyed collections handle the remaining routing.
+
+Read [the application guide's walkthrough](application-guide.md#combine-shared-context-with-dynamic-children)
+to trace Apply through the current owners. The headless example and its checks
+are runnable; they do not demonstrate a native workspace layout.
 
 ## Updating values versus starting over
 

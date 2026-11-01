@@ -7,7 +7,7 @@ INCLUDES = ["src"]
 
 
 def main():
-    for name in ("counter", "editors", "shared", "check"):
+    for name in ("counter", "editors", "shared", "workspace", "check", "workspace_check"):
         command = ["pixi", "run", "--locked", "mojo", "run"]
         for include in INCLUDES:
             command += ["-I", str(ROOT / include)]

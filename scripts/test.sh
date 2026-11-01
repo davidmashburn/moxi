@@ -14,6 +14,8 @@ tests=(
   tests/content_layout_view.mojo
   tests/layout_primitives.mojo
   tests/authoring.mojo
+  examples/authoring/check.mojo
+  examples/authoring/workspace_check.mojo
   tests/component.mojo
   tests/counter.mojo
   tests/form.mojo

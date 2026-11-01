@@ -6,10 +6,23 @@ Read the [guide](../../docs/authoring/README.md), then run from the repository r
 python3 examples/authoring/run.py
 ```
 
-`counter.mojo`, `editors.mojo`, and `shared.mojo` are small headless applications.
-`check.mojo` verifies action delivery, keyed reorder, local versus shared state,
-and assignment versus reset. The runner compiles and executes all four against
-the production `moxi.authoring` package. It does not benchmark rendering.
+`counter.mojo`, `editors.mojo`, and `shared.mojo` introduce individual patterns.
+`workspace.mojo` combines them: a shared document, keyed groups, and keyed drafts
+inside each group. Add, close, reverse, and reset operate through ordinary methods;
+the workspace needs one handwritten route to supply the shared document.
+
+`check.mojo` verifies the introductory examples. `workspace_check.mojo` checks
+nested reorder, current-value action dispatch, retirement of whole groups and
+individual drafts, surviving sibling actions, and root reset. The runner compiles
+and executes all four applications and both checks against production
+`moxi.authoring`. Both checks also run in the standard test and portable headless
+CI lanes.
+
+The workspace check locates controls by internal structural paths and declaration
+positions. That is test scaffolding, not code application authors need to write;
+changing the example's control order can require updating those selectors. The
+applications are headless: these checks do not establish native visual fit, human
+usability, or rendering performance.
 
 For an interactive macOS window using the same counter model:
 

@@ -69,6 +69,32 @@ function. Introduce a shared access mechanism only after a real application expo
 the repetition. A global object with every service makes short examples easier but
 does not establish scalable ownership.
 
+### Combine shared context with dynamic children
+
+The [workspace example](../../examples/authoring/workspace.mojo) combines the
+smaller examples: one saved document, several groups, and several local drafts
+per group. All drafts use the existing `Draft` pane from `shared.mojo`.
+
+The root owns the document and routes actions into its current groups and
+document. Below that boundary, each group passes the same `Document` context
+to its keyed drafts with `field`. `Keyed` routes by entry key at each level;
+the application does not write a route for every draft or reserve globally
+unique integer ranges. Two groups may both have a draft with local key 1.
+
+Follow an Apply action from the outside in: the root selects its current
+document and groups; the outer collection selects the group; the field route
+selects that group's drafts; the inner collection selects the draft; the draft's
+method writes its text into the document. Reordering moves entries, so these
+selections still reach the same owners. Removal retires that path after
+publication. The runtime checks the captured control's lifetime before invoking
+the route.
+
+This reduces repeated routing code while keeping ownership explicit. It still
+requires `Pane.Context`, typed `UI` parameters, field names, and stable sibling
+keys. Context flows through declarations even if an intermediate group does not
+read the document. The example uses last-write-wins and full declaration
+refresh; it does not add revision checks or fine-grained subscriptions.
+
 ## Give dynamic children durable identity
 
 Use `Keyed` when children are inserted, removed, or reordered. Keep its entries
