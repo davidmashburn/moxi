@@ -99,8 +99,8 @@ commit. The existing Linux native job pinned to 0.81.0 passed, and local
 [`f7b8769`](https://github.com/davidmashburn/moxi/commit/f7b8769) pins the other jobs
 to that same validated version without changing dependencies or the lockfile.
 The [follow-up CI run](https://github.com/davidmashburn/moxi/actions/runs/41286233459)
-passes Linux headless authoring/package checks and retained-layout checks;
-macOS core/native validation and the remaining jobs are still running.
+has now passed all jobs, including macOS core/native validation and the package
+consumer. Later translator and lifecycle-fix commits have separate CI runs.
 
 Confidence is high in the exercised ownership and delivery mechanics and moderate
 in application-scale comfort. Frequent manual generation management, confusing
@@ -184,7 +184,9 @@ and browser runtime equivalence were not rerun. The fixes were independently
 reproduced and verified by the parent; a second delegated review was not run.
 
 Status: documentation, production extraction, translator migration, and both
-review fixes are committed and pushed. Full GitHub CI is still pending; local
-validation is not a claim that CI passed. Main remains unchanged. Confidence is
+review fixes are committed and pushed. The extraction baseline CI passed;
+[CI for the final lifecycle fix](https://github.com/davidmashburn/moxi/actions/runs/41287313179)
+is still pending. Local validation is not a claim that this latest run passed.
+Main remains unchanged. Confidence is
 high in the corrected bounded-lifetime behavior and moderate in application-scale
 authoring comfort. No new performance or human-usability conclusion follows.
