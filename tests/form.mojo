@@ -8,6 +8,7 @@ from moxi import (
     CompositionEvent,
     Event,
     FormState,
+    FocusEvent,
     KEY_BACKSPACE,
     KEY_C,
     KEY_DELETE,
@@ -35,6 +36,28 @@ from moxi import (
 
 
 def main() raises:
+    var focus_app = App[FormState](FormState(), Rect(0, 0, 520, 320))
+    test_check(not focus_app.dispatch(Event(FocusEvent(-1))))
+    test_check(not focus_app.dispatch(Event(FocusEvent(999))))
+    test_check(not focus_app.dispatch(Event(FocusEvent(1)))) # Label cannot receive focus.
+    test_check(focus_app.dispatch(Event(CompositionEvent("かな", 1, 2))))
+    test_check(focus_app.dispatch(Event(FocusEvent(4))))
+    test_check(focus_app.focus_id() == 4 and focus_app.component.submissions == 0)
+    test_check(not focus_app.component.input.has_composition())
+    test_check(not focus_app.dispatch(Event(FocusEvent(2, False))))
+    test_check(focus_app.focus_id() == 4)
+    test_check(focus_app.dispatch(Event(FocusEvent(2))))
+    test_check(focus_app.dispatch(Event(CompositionEvent("ni", 0, 2))))
+    test_check(focus_app.dispatch(Event(FocusEvent(2, False))))
+    test_check(focus_app.focus_id() == -1 and not focus_app.component.input.has_composition())
+
+    focus_app.rebuild()
+    test_check(focus_app.focus_id() == -1)
+    test_check(focus_app.dispatch(Event(KeyEvent(KEY_TAB))))
+    test_check(focus_app.focus_id() == 2)
+    focus_app.rebuild()
+    test_check(focus_app.focus_id() == 2)
+
     var composition_app = App[FormState](FormState(), Rect(0.0, 0.0, 520.0, 320.0))
     var update_event = Event(CompositionEvent("ni", 1, 2))
     test_check(update_event.kind == COMPOSITION_UPDATE_KIND)

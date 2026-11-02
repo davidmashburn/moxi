@@ -82,6 +82,7 @@ TOUCH_UPDATE_KIND	moxi.event	stable-core	normalized input events
 TOUCH_END_KIND	moxi.event	stable-core	normalized input events
 POINTER_CANCEL_KIND	moxi.event	stable-core	normalized input events
 ACTION_KIND	moxi.event	stable-core	normalized input events
+FOCUS_KIND	moxi.event	stable-core	normalized input events
 KEY_DOWN_KIND	moxi.event	stable-core	normalized input events
 MOD_COMMAND	moxi.event	stable-core	normalized input events
 MOD_CONTROL	moxi.event	stable-core	normalized input events
@@ -105,6 +106,7 @@ TaskEvent	moxi.event	stable-core	normalized input events
 DragEvent	moxi.event	stable-core	normalized input events
 ActionEvent	moxi.event	stable-core	normalized input events
 SemanticActionEvent	moxi.event	stable-core	normalized input events
+FocusEvent	moxi.event	stable-core	normalized input events
 TextInputEvent	moxi.event	stable-core	normalized input events
 Component	moxi.component	stable-core	value-owned component contracts
 ComponentSlot	moxi.component	stable-core	value-owned component contracts

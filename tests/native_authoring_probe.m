@@ -82,3 +82,54 @@ void moxi_probe_queue_wrap(void) {
 int moxi_probe_open_requested(void) {
     return getenv("MOXI_AUTHORING_OPEN_WINDOW") != NULL;
 }
+
+// Invoke the same modern/legacy focus setters used by accessibility clients.
+void moxi_probe_ax_focus(int target, int focused, int legacy) {
+    MoxiAccessibilityElement *element = [[MoxiAccessibilityElement alloc] init];
+    element.moxiIdentifier = target;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    if (legacy) {
+        [element accessibilitySetValue:@(focused != 0) forAttribute:NSAccessibilityFocusedAttribute];
+    } else {
+        [element setAccessibilityFocused:focused != 0];
+    }
+#pragma clang diagnostic pop
+}
+
+void moxi_probe_ax_focus_contract(void) {
+    moxi_reset_event_queue();
+    moxi_probe_capture_ax(101, 102);
+    moxi_accessibility_focused[1] = NO;
+    moxi_accessibility_build_elements();
+    assert(moxi_event_queue_count == 0); // Publication is not input.
+    assert(![probe_editor accessibilityPerformPress]);
+    assert(moxi_event_queue_count == 0); // Fields are not pressable buttons.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    assert([probe_editor accessibilityIsAttributeSettable:NSAccessibilityFocusedAttribute]);
+    assert(![probe_button accessibilityIsAttributeSettable:NSAccessibilityFocusedAttribute]);
+    assert(![probe_editor accessibilityIsAttributeSettable:NSAccessibilityTitleAttribute]);
+    [probe_editor accessibilitySetValue:@"ignored" forAttribute:NSAccessibilityTitleAttribute];
+    [probe_editor setAccessibilityFocused:YES];
+    assert(![probe_editor isAccessibilityFocused]); // Model hasn't accepted it yet.
+    assert(moxi_window_poll_event() == MOXI_EVENT_FOCUS);
+    assert(moxi_event_target == 102 && moxi_event_key == 1);
+    [probe_editor accessibilitySetValue:@NO forAttribute:NSAccessibilityFocusedAttribute];
+    assert(moxi_window_poll_event() == MOXI_EVENT_FOCUS);
+    assert(moxi_event_target == 102 && moxi_event_key == 0);
+    moxi_accessibility_focused[1] = YES;
+    moxi_accessibility_build_elements();
+    assert([probe_editor isAccessibilityFocused] && moxi_event_queue_count == 0);
+    moxi_accessibility_enabled[1] = NO;
+    assert(![probe_editor accessibilityIsAttributeSettable:NSAccessibilityFocusedAttribute]);
+    [probe_editor setAccessibilityFocused:YES];
+    [probe_editor accessibilitySetValue:@YES forAttribute:NSAccessibilityFocusedAttribute];
+    [probe_editor accessibilitySetValue:@"ignored" forAttribute:NSAccessibilityValueAttribute];
+    assert(moxi_event_queue_count == 0);
+    moxi_window_begin_accessibility(); // Retire both captured objects.
+    [probe_editor setAccessibilityFocused:YES];
+    [probe_editor accessibilitySetValue:@YES forAttribute:NSAccessibilityFocusedAttribute];
+    assert(![probe_editor isAccessibilityFocused] && moxi_event_queue_count == 0);
+#pragma clang diagnostic pop
+}

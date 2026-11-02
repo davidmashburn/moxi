@@ -22,6 +22,7 @@ from .event import (
     DROP_KIND,
     POINTER_CANCEL_KIND,
     ACTION_KIND,
+    FOCUS_KIND,
     TEXT_INPUT_KIND,
     WINDOW_RESIZED_KIND,
     ClickEvent,
@@ -33,6 +34,7 @@ from .event import (
     ScrollEvent,
     DragEvent,
     SemanticActionEvent,
+    FocusEvent,
     TextInputEvent,
 )
 from .fractal import FractalCanvasPainter
@@ -1021,6 +1023,11 @@ struct NativeWindow[backend_kind: Int, invert_scroll_y: Bool = False](WindowBack
             )
         elif kind == WINDOW_RESIZED_KIND:
             return Event(ResizeEvent(self.size()))
+        elif kind == FOCUS_KIND:
+            return Event(FocusEvent(
+                Int(external_call["moxi_window_event_target", Int32]()),
+                external_call["moxi_window_event_key", Int32]() != 0,
+            ))
         elif kind == ACTION_KIND:
             return Event(
                 SemanticActionEvent(

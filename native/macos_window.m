@@ -65,6 +65,7 @@ static int moxi_ordered_paint_slots[MOXI_MAX_DRAW_COMMANDS + 1];
 #define MOXI_EVENT_DROP 14
 #define MOXI_EVENT_POINTER_CANCEL 19
 #define MOXI_EVENT_ACTION 20
+#define MOXI_EVENT_FOCUS 21
 
 #define MOXI_MOD_SHIFT 1
 #define MOXI_MOD_COMMAND 2
@@ -807,8 +808,8 @@ static void moxi_accessibility_build_elements(void) {
             element.accessibilityLabel = label;
         if (!reused || element.accessibilityEnabled != moxi_accessibility_enabled[i])
             element.accessibilityEnabled = moxi_accessibility_enabled[i];
-        if (!reused || element.accessibilityFocused != moxi_accessibility_focused[i])
-            element.accessibilityFocused = moxi_accessibility_focused[i];
+        // Focus getters read the published snapshot. Do not call the external
+        // focus setter here: publication must never enqueue input feedback.
         if (!reused || element.accessibilitySelected != moxi_accessibility_selected[i])
             element.accessibilitySelected = moxi_accessibility_selected[i];
         NSString *value = moxi_accessibility_values[i] ?: @"";
@@ -1532,6 +1533,22 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     return [self accessibilityChildren];
 }
 
+- (BOOL)isAccessibilityFocused {
+    int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
+    return index >= 0 && moxi_accessibility_focused[index];
+}
+
+- (void)setAccessibilityFocused:(BOOL)focused {
+    int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
+    if (index < 0 || !moxi_accessibility_enabled[index] ||
+        moxi_accessibility_roles[index] != MOXI_ROLE_TEXT_INPUT) return;
+    int queuedIndex = moxi_event_queue_tail;
+    if (moxi_enqueue_event(MOXI_EVENT_FOCUS, focused ? 1 : 0, 0, -1,
+        nil, -1, -1, 0, 0, 0, 0)) {
+        moxi_event_queue[queuedIndex].target = self.moxiIdentifier;
+    }
+}
+
 - (NSArray *)accessibilityAttributeNames {
     NSMutableArray *names = [[super accessibilityAttributeNames] mutableCopy];
     if (names == nil) {
@@ -1562,6 +1579,9 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (id)accessibilityAttributeValue:(NSAccessibilityAttributeName)attribute {
+    if ([attribute isEqualToString:NSAccessibilityFocusedAttribute]) {
+        return @([self isAccessibilityFocused]);
+    }
     if ([attribute isEqualToString:NSAccessibilityChildrenAttribute] ||
         [attribute isEqualToString:MoxiAccessibilityChildrenInNavigationOrderAttribute]) {
         return [self accessibilityChildren];
@@ -1673,10 +1693,12 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     if (index >= 0 &&
         moxi_accessibility_roles[index] == MOXI_ROLE_TEXT_INPUT &&
-        [attribute isEqualToString:NSAccessibilityValueAttribute]) {
-        return self.accessibilityEnabled;
+        ([attribute isEqualToString:NSAccessibilityValueAttribute] ||
+         [attribute isEqualToString:NSAccessibilityFocusedAttribute])) {
+        return moxi_accessibility_enabled[index];
     }
-    return [super accessibilityIsAttributeSettable:attribute];
+    // NSAccessibilityElement does not implement this legacy setter query.
+    return NO;
 }
 
 - (void)accessibilitySetValue:(id)value
@@ -1686,10 +1708,15 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     // It no longer belongs to the published tree; do not invoke superclass
     // attribute mutation for this retired target.
     if (index < 0) return;
+    if ([attribute isEqualToString:NSAccessibilityFocusedAttribute]) {
+        [self setAccessibilityFocused:[value boolValue]];
+        return;
+    }
     if (moxi_accessibility_roles[index] != MOXI_ROLE_TEXT_INPUT ||
         ![attribute isEqualToString:NSAccessibilityValueAttribute] ||
-        !self.accessibilityEnabled) {
-        [super accessibilitySetValue:value forAttribute:attribute];
+        !moxi_accessibility_enabled[index]) {
+        // Unsupported or disabled setters are no-ops; the superclass has no
+        // implementation of the legacy attribute setter.
         return;
     }
 

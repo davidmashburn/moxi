@@ -24,6 +24,7 @@ comptime TOUCH_UPDATE_KIND = 17
 comptime TOUCH_END_KIND = 18
 comptime POINTER_CANCEL_KIND = 19
 comptime ACTION_KIND = 20
+comptime FOCUS_KIND = 21
 comptime NO_ACTION = -1
 
 comptime MOD_SHIFT = 1
@@ -242,6 +243,17 @@ struct DragEvent(ImplicitlyCopyable):
         self.payload = payload
 
 
+struct FocusEvent(ImplicitlyCopyable):
+    """Request keyboard focus (or blur) for a concrete, still-live view."""
+
+    var target: Int
+    var focused: Bool
+
+    def __init__(out self, target: Int, focused: Bool = True):
+        self.target = target
+        self.focused = focused
+
+
 struct ActionEvent(ImplicitlyCopyable):
     """An explicit application action with a stable id and payload."""
 
@@ -296,8 +308,10 @@ struct Event(ImplicitlyCopyable):
     var pointer_id: Int
     var buttons: Int
     var drag_delta: Point
+    var focused: Bool
 
     def __init__(out self):
+        self.focused = False
         self.kind = NONE_KIND
         self.target = -1
         self.action_id = NO_ACTION
@@ -396,6 +410,12 @@ struct Event(ImplicitlyCopyable):
         self.position = event.position
         self.drag_delta = event.delta
         self.text = event.payload
+
+    def __init__(out self, event: FocusEvent):
+        self = Event()
+        self.kind = FOCUS_KIND
+        self.target = event.target
+        self.focused = event.focused
 
     def __init__(out self, event: ActionEvent):
         self = Event()

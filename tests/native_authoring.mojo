@@ -2,7 +2,7 @@
 from std.ffi import external_call
 from moxi import App, Rect, WindowConfig, KEY_ENTER, KEY_TAB, TEXT_INPUT_VIEW_KIND, BUTTON_KIND
 from moxi.event import (KEY_DOWN_KIND, POINTER_DOWN_KIND, POINTER_UP_KIND, TEXT_INPUT_KIND,
-                        COMPOSITION_UPDATE_KIND, ACTION_KIND, WINDOW_RESIZED_KIND)
+                        COMPOSITION_UPDATE_KIND, ACTION_KIND, WINDOW_RESIZED_KIND, FOCUS_KIND)
 from moxi.macos import MacOSWindow, MacOSRenderer
 from moxi.authoring import Screen, UI, HandlerHost, reset, reset_headless, schedule_action, complete_action
 from moxi import test_check
@@ -54,6 +54,46 @@ def drain(mut app: App[HandlerHost[Page]], mut window: MacOSWindow) raises -> In
     return accepted
 
 
+def check_accessibility_focus(mut window: MacOSWindow, mut renderer: MacOSRenderer) raises:
+    external_call["moxi_probe_ax_focus_contract", NoneType]()
+    var app = App(HandlerHost(Page()), Rect(0, 0, 600, 900))
+    app.render(renderer)
+    require(window.event_queue_depth() == 0, "initial publication creates no input")
+    var first = target(app, TEXT_INPUT_VIEW_KIND)
+    var second = -1
+    for item in app.component.ui.controls:
+        if item.kind == TEXT_INPUT_VIEW_KIND and item.id != first:
+            second = item.id
+    require(second >= 0, "second editor exists")
+    external_call["moxi_probe_ax_focus", NoneType](Int32(second), Int32(1), Int32(0))
+    enqueue(TEXT_INPUT_KIND)
+    require(drain(app, window) == 2, "focus then type queue drains")
+    require(app.focus_id() == second and app.component.root.extra == "queued", "native focus routes same-batch keyboard text")
+    require(app.component.root.text == "fresh" and app.component.root.clicks == 0, "focus does not activate or edit sibling")
+    app.render(renderer)
+    require(window.event_queue_depth() == 0, "focus publication creates no feedback")
+    # Both requests precede the next render: do not deduplicate against a stale snapshot.
+    external_call["moxi_probe_ax_focus", NoneType](Int32(first), Int32(1), Int32(1))
+    external_call["moxi_probe_ax_focus", NoneType](Int32(first), Int32(0), Int32(0))
+    require(drain(app, window) == 2 and app.focus_id() == -1, "focus then blur preserves FIFO")
+    # A late blur for another editor must not steal current focus.
+    external_call["moxi_probe_ax_focus", NoneType](Int32(second), Int32(1), Int32(0))
+    external_call["moxi_probe_ax_focus", NoneType](Int32(first), Int32(0), Int32(1))
+    require(drain(app, window) == 2 and app.focus_id() == second, "blur applies only to its target")
+    external_call["moxi_probe_ax_focus", NoneType](Int32(first), Int32(1), Int32(0))
+    reset_headless(app, Page()) # Deliberately retain queued ingress to test dispatch validation.
+    var stale = window.poll_event()
+    require(stale.kind == FOCUS_KIND and stale.target == first, "native focus preserves addressed identity")
+    require(not app.update(stale) and app.focus_id() != first, "retired focus packet is rejected")
+    # Queued while enabled, disabled before dispatch: validate again at delivery.
+    app.render(renderer)
+    first = target(app, TEXT_INPUT_VIEW_KIND)
+    external_call["moxi_probe_ax_focus", NoneType](Int32(first), Int32(1), Int32(0))
+    app.view.set_enabled(first, False)
+    app.runtime.reconcile(app.view)
+    require(not app.update(window.poll_event()) and app.focus_id() != first, "disabled focus packet is rejected at dispatch")
+
+
 def main() raises:
     external_call["moxi_probe_init", NoneType]()
     external_call["moxi_probe_queue_wrap", NoneType]()
@@ -62,6 +102,7 @@ def main() raises:
     var real_window = external_call["moxi_probe_open_requested", Int32]() != 0
     if real_window:
         window.open(WindowConfig("Authoring reset smoke", 600, 900))
+    check_accessibility_focus(window, renderer)
     var app = App(HandlerHost(Page()), Rect(0, 0, 600, 900))
     app.render(renderer)
     var input = target(app, TEXT_INPUT_VIEW_KIND)
@@ -76,12 +117,13 @@ def main() raises:
     enqueue(POINTER_DOWN_KIND, x=bounds.x + 8, y=bounds.y + 8)
     enqueue(POINTER_UP_KIND, x=bounds.x + 8, y=bounds.y + 8)
     enqueue(ACTION_KIND, target=button)
+    external_call["moxi_probe_ax_focus", NoneType](Int32(input), Int32(1), Int32(0))
     enqueue(WINDOW_RESIZED_KIND)
     external_call["moxi_probe_seed_gesture", NoneType]()
     # Supported host transaction: invalidate native ingress and state, then reset.
     reset(app, Page(), window, renderer)
     require(external_call["moxi_probe_gesture_clear", Int32]() != 0, "native IME and pointer gesture cleared")
-    require(drain(app, window) == 1, "reject seven old input packets; preserve resize")
+    require(drain(app, window) == 1, "reject eight old input packets; preserve resize")
     require(app.component.root.text == "fresh" and app.component.root.clicks == 0, "old queue cannot alter fresh root")
     require(not complete_action(app, pending), "same transaction rejects old asynchronous completion")
     require(app.request_is_current(background), "same transaction preserves unrelated App work")
@@ -141,4 +183,4 @@ def main() raises:
     if real_window:
         window.close()
         require(not window.is_open(), "close real smoke window")
-    print("PASS production native queue reset, gesture reset, resize preservation, fresh delivery, targeted stale IDs, sequential Tab/click/type batches, App pointer capture, late AX callbacks")
+    print("PASS production native queue reset, gesture reset, resize preservation, fresh delivery, targeted stale IDs, sequential Tab/click/type batches, App pointer capture, late AX callbacks, addressed AX focus/blur and FIFO typing")

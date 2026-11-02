@@ -92,6 +92,8 @@ struct ColumnRuntime:
     var panel: Panel
     var has_panel: Bool
     var focused_id: Int
+    # Explicit blur survives rebuild; initial/removed focus still uses fallback.
+    var _focus_cleared: Bool
     var hovered_id: Int
     var pressed_id: Int
     var last_created_count: Int
@@ -118,6 +120,7 @@ struct ColumnRuntime:
         self.panel = Panel(0, Rect(0.0, 0.0, 0.0, 0.0), default_panel_style())
         self.has_panel = False
         self.focused_id = -1
+        self._focus_cleared = False
         self.hovered_id = -1
         self.pressed_id = -1
         self.last_created_count = 0
@@ -265,7 +268,9 @@ struct ColumnRuntime:
                 self.last_removed_count += 1
 
         self.active_indices = next_indices^
-        if previous_focus != -1 and view.is_focusable(previous_focus):
+        if self._focus_cleared:
+            self.focused_id = -1
+        elif previous_focus != -1 and view.is_focusable(previous_focus):
             self.focused_id = previous_focus
         else:
             self.focused_id = view.first_focusable_id()
@@ -323,6 +328,7 @@ struct ColumnRuntime:
             return False
         if id == -1:
             self.focused_id = -1
+            self._focus_cleared = True
             return True
         for index in range(self.widget_count()):
             var widget = self.widget(index)
@@ -332,6 +338,7 @@ struct ColumnRuntime:
                 and widget.enabled
             ):
                 self.focused_id = id
+                self._focus_cleared = False
                 return True
         return False
 

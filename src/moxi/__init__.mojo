@@ -82,6 +82,7 @@ from .event import (
     TOUCH_END_KIND,
     POINTER_CANCEL_KIND,
     ACTION_KIND,
+    FOCUS_KIND,
     KEY_DOWN_KIND,
     MOD_COMMAND,
     MOD_CONTROL,
@@ -105,6 +106,7 @@ from .event import (
     DragEvent,
     ActionEvent,
     SemanticActionEvent,
+    FocusEvent,
     TextInputEvent,
 )
 from .component import Component, ComponentSlot, KeyedSubtreeDescriptor

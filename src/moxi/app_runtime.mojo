@@ -43,6 +43,7 @@ from .event import (
     DRAG_UPDATE_KIND,
     DROP_KIND,
     ACTION_KIND,
+    FOCUS_KIND,
     Event,
     FrameEvent,
     TaskEvent,
@@ -410,6 +411,19 @@ struct App[ComponentType: Component & Deinitable]:
                     event.size.height,
                 )
             )
+
+        if event.kind == FOCUS_KIND:
+            # Focus is runtime state, never a component action or pointer press.
+            if event.target < 0:
+                return False
+            var previous_focus = self.runtime.focus_id()
+            if not event.focused and previous_focus != event.target:
+                return False
+            var changed = self.runtime.set_focus(event.target if event.focused else -1)
+            if changed and previous_focus != -1:
+                if self.end_composition(previous_focus):
+                    self.rebuild()
+            return changed
 
         if event.kind == KEY_DOWN_KIND and self.is_clipboard_command(event):
             return self.dispatch_clipboard(event)

@@ -2,7 +2,7 @@
 
 from std.memory import bitcast
 from std.testing import assert_equal, assert_true
-from moxi.event import Event, KEY_RIGHT
+from moxi.event import Event, FocusEvent, KEY_RIGHT
 from moxi.event_replay import EventReplay, event_to_json, event_from_json, event_replay_from_json
 from moxi.geometry import Point, Size
 
@@ -13,6 +13,7 @@ def _bits(value: Float32) -> Int:
 
 def _assert_event(actual: Event, expected: Event) raises:
     assert_equal(actual.kind,expected.kind)
+    assert_equal(actual.focused,expected.focused)
     assert_equal(actual.target,expected.target)
     assert_equal(actual.action_id,expected.action_id)
     assert_equal(_bits(actual.position.x),_bits(expected.position.x))
@@ -65,13 +66,14 @@ def _codec_contract() raises:
     record.pointer_id = 25
     record.buttons = 7
     record.drag_delta = Point(-19.75,41.875)
+    record.focused = True
     var replay = EventReplay()
-    for kind in range(21):
+    for kind in range(22):
         record.kind = kind
         replay.append(record)
         _assert_event(event_from_json(event_to_json(record)),record)
     var restored = event_replay_from_json(replay.to_json())
-    assert_equal(len(restored.events),21)
+    assert_equal(len(restored.events),22)
     for index in range(len(replay.events)):
         _assert_event(restored.events[index],replay.events[index])
     assert_equal(len(event_replay_from_json(" [] ").events),0)
@@ -79,21 +81,30 @@ def _codec_contract() raises:
     record.action_id = 9223372036854775807
     _assert_event(event_from_json(event_to_json(record)),record)
 
+    # Existing version-1 fixture rows remain readable with no focus payload.
+    var legacy = event_from_json('[1,0,-1,-1,0,0,0,0,"",0,0,-1,-1,0,0,0,0,0,-1,0,-1,0,-1,0,0,0,0]')
+    assert_equal(legacy.kind, 0)
+    assert_equal(legacy.target, -1)
+    assert_equal(legacy.focused, False)
+    for focused in [True, False]:
+        var focus = Event(FocusEvent(102, focused))
+        _assert_event(event_from_json(event_to_json(focus)), focus)
+
     # JSON readers used by other hosts may escape Unicode rather than emit it.
     var simple = Event()
     var encoded = event_to_json(simple)
     var escaped = encoded.replace(String("\"\""),String("\"",chr(92),"u65e5",chr(92),"u672c",chr(92),"ud83d",chr(92),"ude00\""))
     assert_equal(event_from_json(escaped).text,String("日本😀"))
     var unpaired = encoded.replace(String("\"\""),String("\"",chr(92),"ud800\""))
-    var invalid_bits = encoded.replace("[1,0,-1,-1,0,","[1,0,-1,-1,2147483648,")
-    for malformed in ["", "[]", "[2]", "[1,01]", "[1,9223372036854775808]", "[1,-9223372036854775809]", "[1,0.0]", encoded+"null", encoded+",", encoded.replace("[1,","[1,0,")]:
+    var invalid_bits = encoded.replace("[2,0,-1,-1,0,","[2,0,-1,-1,2147483648,")
+    for malformed in ["", "[]", "[2]", "[1,01]", "[1,9223372036854775808]", "[1,-9223372036854775809]", "[1,0.0]", encoded+"null", encoded+",", encoded.replace("[2,","[2,0,")]:
         var rejected = False
         try:
             _ = event_from_json(malformed)
         except:
             rejected = True
         assert_true(rejected)
-    for malformed in [unpaired,invalid_bits]:
+    for malformed in [unpaired, invalid_bits, encoded.replace("]", ",0]"), encoded.replace(",0]", ",2]"), encoded.replace(",0]", ",-1]"), encoded.replace("[2,", "[3,")]:
         var rejected = False
         try:
             _ = event_from_json(malformed)

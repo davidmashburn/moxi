@@ -3,7 +3,8 @@
 Each JSON row is a version followed by every ``Event`` field in declaration
 order. Float32 fields use signed 32-bit IEEE bits, avoiding decimal rounding,
 including signed zero. Text is a JSON string, never a diagnostic trace. The
-bounded reader accepts the same format from native recording tools.
+bounded reader accepts the same format from native recording tools. Version 2
+adds the focus flag; version 1 rows remain readable with that flag false.
 """
 
 from std.collections import List
@@ -14,7 +15,8 @@ from .geometry import Point, Size
 from .json import json_char, json_quote, json_skip_whitespace
 
 
-comptime EVENT_REPLAY_VERSION = 1
+comptime EVENT_REPLAY_VERSION = 2
+comptime EVENT_REPLAY_LEGACY_VERSION = 1
 comptime EVENT_REPLAY_MAX_EVENTS = 4096
 comptime EVENT_REPLAY_MAX_CODEPOINTS = 1048576
 
@@ -44,7 +46,7 @@ def event_to_json(event: Event) -> String:
         event.task_status, ",", event.request_key, ",", event.request_generation,
         ",", event.request_scope_id, ",", event.pointer_id, ",", event.buttons,
         ",", _float_bits(event.drag_delta.x), ",", _float_bits(event.drag_delta.y),
-        "]",
+        ",", Int(event.focused), "]",
     )
 
 
@@ -164,7 +166,8 @@ struct _ReplayReader:
 
     def event(mut self) raises -> Event:
         self.expect("[")
-        if self.integer()!=EVENT_REPLAY_VERSION:
+        var version = self.integer()
+        if version != EVENT_REPLAY_VERSION and version != EVENT_REPLAY_LEGACY_VERSION:
             raise Error("Unsupported event replay version")
         var event = Event()
         event.kind = self.next_integer()
@@ -194,6 +197,11 @@ struct _ReplayReader:
         event.buttons = self.next_integer()
         event.drag_delta.x = _float_from_bits(self.next_integer())
         event.drag_delta.y = _float_from_bits(self.next_integer())
+        if version == EVENT_REPLAY_VERSION:
+            var focused = self.next_integer()
+            if focused != 0 and focused != 1:
+                raise Error("Event replay focus flag must be 0 or 1")
+            event.focused = focused == 1
         self.expect("]")
         return event
 
