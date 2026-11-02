@@ -6,29 +6,32 @@ branch.
 
 The current planning baseline is:
 
-- implementation: `main` at `e3be517` (`perf: refresh stable Mojo benchmark
-  baseline`), audited October 4, 2026, with upstream `canvas_mojo` v0.42.0,
-  released Mojo 1.1.0, the three-package restructure, module splits, and the
-  packaging/trait-contract follow-on landed;
+- implementation: `main` at `19d149c`, integrated November 2, 2026 by rebasing
+  and fast-forwarding the workbench and authoring changes onto `875f714`. The
+  production authoring API, workspace example, graph example, and capability-bus
+  documentation are included;
 - research: [`docs/modular-ecosystem-research.md`](docs/modular-ecosystem-research.md),
   the Modular/Mojo ecosystem review captured September 6 and reconciled
   against the September 7 implementation; and
-- validation: the 71-program Mojo test suite passes; release validation covers
-  API/scenario/software/native/browser gates, a 30-run full benchmark, the
-  reviewed macOS baseline, and the host-independent quick contract.
+- validation: the full local `pixi run --locked check` suite and all six CI jobs
+  pass on `19d149c`; graph layout, I/O, application, build, capacity, and export
+  checks also pass. The earlier 30-run benchmark and reviewed macOS baseline
+  remain historical performance evidence; this integration adds benchmark smoke
+  coverage, not a new performance study.
 
 ## Planning record
 
 - [Authoring documentation and production extraction](docs/design/authoring-production.md)
   records the accepted strategy, runnable guide, and authorized production scope.
-  Package/native lifecycle integration and the runnable workspace are on the
-  implementation branch. The November 2 three-cycle evaluation fixes addressed
-  accessibility focus and verifies an uncoached dirty/Revert extension. Tested
+  Package/native lifecycle integration and the runnable workspace are on `main`.
+  The November 2 three-cycle evaluation addressed accessibility focus and verified
+  an uncoached dirty/Revert extension. Tested
   mechanics have high confidence; human comfort and new performance measurements
   remain open. The three-cycle experiment is complete. A separately authorized
   human group-action trial produced a brief assisted attempt, not a usability
   result. Current-value group actions pass targeted regression checks. Proceed
-  with the API direction; latest-head CI remains a merge gate.
+  with the API direction. The rebased head passed all six CI jobs and was
+  fast-forwarded to `main` at `19d149c`; no merge commit was introduced.
 
 - [Lifetime integration decision](docs/design/lifetime-integration-decision.md)
   checks actual App requests and native queue/poll, root scroll/gesture reset,

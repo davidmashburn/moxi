@@ -542,3 +542,42 @@ hosted runner; its package-consumer job was skipped. Four other jobs passed. Thi
 is an infrastructure failure, not evidence of a code assertion failure or a full
 pass. The subsequent `fb844a6` run was queued when inspected. The earlier
 `f98ae21` six-job pass remains valid only for that revision. No merge was performed.
+
+### November 2: rebase onto current main
+
+The user authorized integration, then specified rebase rather than merge. The
+provisional merge was aborted before any merge commit or push. All 83 feature
+commits were replayed onto `main` at `875f714`, retaining its graph example,
+capability-bus documentation, and removal of the old planning document. The new
+feature head is `19d149c`; the previous head was `4f23fc6`. A local backup branch
+retains the old history, and the feature branch was updated with an explicit
+force-with-lease against the previous head. After all six CI jobs passed, `main`
+was fast-forwarded to `19d149c` without a merge commit or a force push.
+
+Conflict resolutions retain the workbench's 262,144 rectangle slots (also enough
+for the graph example), both sets of Pixi tasks, and the planning-document
+deletion. The desktop contract appendix was copied exactly into the existing
+implementation records. Range comparison covers all replayed commits; final
+runtime, native, and test source matches the previously validated feature head.
+The two local documentation edits were confirmed byte-for-byte present in the
+rebased tree through the earlier main commit `aa53a28`. They clarify the distinction
+between the public API and the capability bus in `docs/API.md` and
+`docs/capability-bus-design.md`. The original checkout is now on the integrated
+`main` branch and clean; those edits are preserved as committed content.
+
+The graph example's layout, I/O, and application checks pass; its native bundle
+builds, and deterministic capacity export verifies 256 labels and 1,024 edges.
+The oversized-input integration check passes. This is not a new manual graph UI
+or accessibility acceptance run. Full local validation and
+[CI for the rebased head](https://github.com/davidmashburn/moxi/actions/runs/41522799356)
+passed before advancing main. All six jobs succeeded: core/native validation,
+package consumer, macOS layout candidate, and Linux headless, retained-layout,
+and native-layout checks. The old head's green CI was not substituted for those
+integration checks. The validation job also passed its quick benchmark smoke
+and host-independent benchmark contract; this is not a new performance study.
+
+The complete local `pixi run --locked check` suite passed on `19d149c`, including
+native authoring, package compilation, screenshots, and the live-reload contract.
+Existing native string-conversion deprecation warnings remain. This repeats
+automated integration coverage; it does not add physical IME, spoken screen-reader,
+or unassisted human comfort evidence.
