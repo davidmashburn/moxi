@@ -38,12 +38,17 @@ struct Group(Pane):
         self.drafts.reset()
         _ = self.drafts.append(Draft(self.name + " reset draft"))
 
+    def revert_group(mut self, document: Document):
+        for ref entry in self.drafts.entries:
+            entry.value.revert(document)
+
     def render(self, mut ui: UI[Self, Self.Context], context: Document):
         ui.label(self.name)
         ui.button("Add draft", Self.add_draft)
         ui.button("Close first draft", Self.close_first_draft)
         ui.button("Reverse drafts", Self.reverse_drafts)
         ui.button("Reset drafts", Self.reset_drafts)
+        ui.button("Revert group", Self.revert_group)
         field["drafts"](ui, self, context, key=DRAFTS)
 
 
