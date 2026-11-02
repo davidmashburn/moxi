@@ -21,7 +21,11 @@ The current planning baseline is:
 
 - [Authoring documentation and production extraction](docs/design/authoring-production.md)
   records the accepted strategy, runnable guide, and authorized production scope.
-  Documentation is pushed; package and native lifecycle integration is in progress.
+  Package/native lifecycle integration and the runnable workspace are on the
+  implementation branch. The November 2 three-cycle evaluation fixes addressed
+  accessibility focus and verifies an uncoached dirty/Revert extension. Tested
+  mechanics have high confidence; human comfort and new performance measurements
+  remain open. The experiment budget is exhausted; no fourth cycle is active.
 
 - [Lifetime integration decision](docs/design/lifetime-integration-decision.md)
   checks actual App requests and native queue/poll, root scroll/gesture reset,

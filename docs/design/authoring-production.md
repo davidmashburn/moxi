@@ -318,3 +318,144 @@ At the last check, CI for `07d377a` had passed four jobs while `validate` was st
 running. That is partial evidence, not a completed CI pass. [CI for `9f97bcf`](https://github.com/davidmashburn/moxi/actions/runs/41341882191)
 was in progress after push. Its completed result remains unverified. No main
 merge or pull request was performed.
+
+## Try-science continuation — November 2, 2026
+
+Contract: use at most three cycles to decide whether current friction requires a
+backend correction, clearer examples, or an authoring API change. Implementation,
+focused regression tests, documentation, commits and pushes remain authorized;
+no main merge, new language, or broad layout redesign is implied. Baseline is
+`9f97bcf`; its six CI jobs have now all passed (run `41341882191`). Existing
+unrelated document edits remain outside scope. No prior worker is outstanding.
+
+Cycle 1 question: is the text-field accessibility focus failure in the native
+bridge, the automation action's semantics, or authoring dispatch? Compare direct
+AX focus/set-value/press behavior with pointer focus, then trace queue ingress and
+App routing. A direct native focus request failing independently of the authoring
+host supports a backend fix; failure confined to an unsupported automation press
+would instead narrow the smoke claim. Preserve retired-target rejection, disabled
+control behavior, publication without queued feedback, and ordinary text editing.
+Enough evidence for a fix requires a reproducer on the old path and passing
+focused regressions after the smallest change. UI automation alone will not prove
+accessibility conformance or human comfort. A bounded independent reader examines
+the frozen baseline while the parent prepares the discriminating probe. Raw logs
+stay in temporary files. Budget: cycle 1 active, two further cycles available;
+choose later questions from its result rather than fill a fixed test quota.
+
+Cycle 1 parent probe (`/tmp/moxi_ax_focus_diag.m`, log
+`/tmp/moxi-ax-focus-diag.log`) found: AXPress returns false and queues nothing for
+a text field; AXValue queues addressed text input; legacy focus-settable/query
+and setter paths throw in unsupported superclass methods; modern focus setter
+changes the Cocoa property while the published focus remains false and the queue
+stays empty. This reproduces a bridge gap without HandlerHost. It does not prove
+which AX operation the automation tool used. Apple documents AXPress for elements
+that behave like buttons, and accessibilityFocused as keyboard focus:
+https://developer.apple.com/documentation/appkit/nsaccessibilityprotocol/accessibilityperformpress()
+https://developer.apple.com/documentation/appkit/nsaccessibilityprotocol/setaccessibilityfocused(_:)
+
+Cycle 2 criteria (fixed before implementation): route explicit native text-field
+focus requests through App without activating controls or changing text; focus
+then typing in a single queued batch must reach the requested field. Reject
+retired and disabled targets at ingress and again at dispatch; publishing focus
+must not enqueue feedback. Check composition cleanup and blur target identity.
+Retain AXPress semantics and existing authoring signatures. Independent baseline
+review remains active; production source stays frozen until that reader finishes.
+
+Cycle 3 is an independent authoring trial against the committed baseline in an
+isolated worktree: add a dirty indicator derived from current shared title and
+Revert to that current title. Applying a sibling changes comparison status without
+replacing local text; reorder must retain the owner. Worker may read only public
+authoring docs and examples, plus compiler diagnostics, and must log corrections
+and help. No runtime or documentation edits, commits, or pushes are delegated.
+Acceptance requires parent verification through real routed actions, not just
+calling model methods. This supplies agent evidence only. This dispatch uses the
+third and final cycle; no additional cycle is authorized by this budget.
+
+### Three-cycle outcome
+
+The independent baseline reader completed before production edits. Its source
+review agreed with the direct probe: AXPress rejection on a field is expected;
+missing focus input is a native bridge defect. The reader ran no native tests.
+The parent independently reproduced the distinction and integrated the fix.
+Both delegated tasks are terminal with no pending child runs or questions.
+
+Cycle 2 adopted an addressed `FocusEvent` through the existing native queue and
+App. Native text-field focus/blur uses current snapshot identity and enabled
+state; App validates focusability again at delivery. Publication reads model
+focus without calling the input setter. This avoids both feedback and conflating
+focus with activation. A new regression initially failed because composition
+cleanup rebuilt the view and restored first-control focus after explicit blur.
+The retained runtime now remembers explicit blur across rebuilds until a later
+focus operation; initial focus and removed-control fallback remain unchanged.
+The updated regression passes. This is a bounded backend/runtime correction,
+not an authoring API redesign.
+
+Integration review also found that a new Event payload must survive normalized
+recordings. The writer now emits replay version 2 with a focus flag; the reader
+accepts version 1 with that flag false. Older readers cannot consume new version
+2 recordings. Tests cover both focus values, all normalized fields, legacy input,
+invalid flags, and unknown versions. This format change is called out in the
+implementation commit's breaking-change footer and application guide.
+
+Cycle 3 used an uncoached `gpt-5.6-luna` author at max effort in an isolated
+checkout of `9f97bcf`. Its allowed reading was public authoring docs and examples;
+no runtime, experiments, planning, web, or history. The author added an `is_dirty`
+comparison, a `revert` method and control, and a status label: 11 net application
+lines, no stored dirty flag, no additional route, and no runtime change. It
+reported no compiler errors, corrections, or requests for help. Its executable
+checks route captured actions through shared documents and nested reorder;
+Revert reads the current saved title even when captured before a sibling Apply.
+Existing introductory and workspace checks also passed in its checkout.
+
+The parent inspected the actual implementation and test artifact, imported them,
+and added assertions for rendered status after local editing, sibling Apply and
+Revert. Those passed, addressing the author's explicit limit that it had checked
+state predicates but not rendered text. The new check runs in both standard and
+headless lanes and the example runner. Application examples and guide now explain
+current-value comparison versus opening-revision conflict detection. Structural
+path/ordinal selectors remain substantial test scaffolding (157 lines in the
+integrated check), so the small application edit must not be described as equally
+small testing effort. Public behavioral-test ergonomics remain unevaluated.
+
+Implementation: [focus correction `2937717`](https://github.com/davidmashburn/moxi/commit/2937717)
+and [example/guide `f98ae21`](https://github.com/davidmashburn/moxi/commit/f98ae21)
+on `feat/data-workbench`. No merge to main or PR was performed.
+
+Verified locally: native authoring regressions with a real AppKit window opened
+and closed; form focus/composition; identity diff; accessibility contract;
+interaction foundation; frame publication; event replay including the final
+strict-flag checks; portable headless lane including rendered dirty/Revert
+checks and package precompilation; native workspace build; API inventory (997
+exports, 103 trait methods); whitespace checks. Existing deprecated native string
+conversion warnings remain. The complete `scripts/check.sh` suite, physical IME,
+screen-reader conformance, Linux native behavior, resized-window visual fit,
+post-change manual workspace interaction, and performance timings were not run
+locally. The native test injects actual Objective-C callbacks but does not prove
+what CUA's original accessibility click invoked. Baseline CI passed all six
+jobs; latest implementation CI must be assessed separately after push.
+
+Assessment: **high confidence in the tested focus and ownership mechanics**;
+**moderate confidence in keeping ordinary fields/methods as the authoring
+surface**. A fresh constrained agent completed a useful extension without
+coaching, but this is neither a human trial nor evidence of universal ease.
+**Performance confidence is unchanged**: no new benchmark was run, and shared
+commands still refresh declarations. Selective paint behavior must not be sold
+as fine-grained application dependency tracking. Human confusion about context,
+identity, or handlers; repeated routing ceremony in a larger real application;
+or measured declaration-refresh costs could change the recommendation.
+
+Budget disposition: three of three cycles used, none remaining; stop this round.
+No worker remains active. The next discriminating comfort evaluation is an
+unassisted human application task using the guide, with misunderstandings and
+interventions recorded. A separate larger-application performance trial could
+measure declaration refresh, but neither is silently appended as a fourth cycle.
+Raw probe and worker notes are temporary local evidence; durable findings,
+reproduction tests, limitations, and source links are captured here and beside
+implementation. No token-savings or human-time claim is made.
+
+Delivery: both implementation commits are pushed. Latest
+[CI for `f98ae21`](https://github.com/davidmashburn/moxi/actions/runs/41409481088)
+was in progress at the post-push check; a completed pass is not yet claimed.
+Staged and outgoing content review covered all new implementation/example files,
+commit messages and intermediate versions, plus this planning update. Unrelated
+local documentation edits were preserved outside the commits.
