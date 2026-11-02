@@ -25,7 +25,8 @@ The current planning baseline is:
   implementation branch. The November 2 three-cycle evaluation fixes addressed
   accessibility focus and verifies an uncoached dirty/Revert extension. Tested
   mechanics have high confidence; human comfort and new performance measurements
-  remain open. The experiment budget is exhausted; no fourth cycle is active.
+  remain open. The three-cycle experiment is complete. A separately authorized
+  human group-action trial is prepared; the human attempt is pending.
 
 - [Lifetime integration decision](docs/design/lifetime-integration-decision.md)
   checks actual App requests and native queue/poll, root scroll/gesture reset,

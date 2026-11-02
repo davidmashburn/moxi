@@ -459,3 +459,47 @@ was in progress at the post-push check; a completed pass is not yet claimed.
 Staged and outgoing content review covered all new implementation/example files,
 commit messages and intermediate versions, plus this planning update. Unrelated
 local documentation edits were preserved outside the commits.
+
+### November 2: human group-action trial prepared
+
+The user's subsequent "go" authorized preparing the recommended human trial.
+This is one bounded preparation pass, not a fourth automated research cycle or a
+claim that a human trial has happened. All six jobs in the previously pending
+[CI run for `f98ae21`](https://github.com/davidmashburn/moxi/actions/runs/41409481088)
+have now passed: validation, portable headless, native Linux layout, candidate
+macOS layout, retained Linux layout, and package consumer.
+
+Implementation-branch commit
+[`4b1be26`](https://github.com/davidmashburn/moxi/commit/4b1be26) adds the
+[participant brief](https://github.com/davidmashburn/moxi/blob/4b1be26/examples/authoring/human-trial.md)
+beside the existing example. The task is to add Revert group: update every local
+draft in one group from the current shared saved title, preserve identities and
+order, and leave other groups and the saved document unchanged. No solution is
+included. Public documentation and examples are allowed; runtime-source lookups,
+help, errors, and misunderstandings should be recorded. Any implementation help
+changes the remaining attempt from unassisted to assisted.
+
+The brief contains a sequential manual acceptance checklist covering shared
+values, nested reorder, sibling isolation, added drafts, and empty groups. After
+the human attempt, the maintainer must independently check captured actions
+against current values and identities, including rejection after group removal.
+Those checks are specified, not executed against an implementation that does not
+yet exist. Existing selector maintenance is recorded separately from application
+authoring friction.
+
+Preparation verification: the existing `workspace_check.mojo` and
+`draft_revert_check.mojo` pass, and `authoring-workspace-build` succeeds on macOS.
+The build still emits existing deprecated native string-conversion warnings.
+The new visible checklist was reviewed against the starter's controls and state;
+it has not been run on a completed group action. No new interactive native pass,
+performance measurement, full local suite, or human attempt was performed.
+
+Decision criteria: a successful feature plus an accurate explanation of current
+owner/context dispatch supports this narrow pattern's learnability. Needing
+runtime internals, repeated confusion about ownership or signatures, or unrelated
+routing machinery would justify revising the public examples or API. Compile
+success and line count alone do not raise comfort confidence. One familiar human
+cannot establish universal ease or application-scale behavior. Confidence remains
+high for the previously tested mechanics and moderate for the authoring strategy.
+The next evidence is the participant's diff and observations, followed by targeted
+independent regression checks; no further automated comfort trial is active.
