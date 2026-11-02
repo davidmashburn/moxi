@@ -1,5 +1,10 @@
 # Try building a group action
 
+Status: the author made a brief attempt, then received implementation help. The
+current workspace includes the resulting reference-iteration solution; use the
+baseline below for a fresh attempt. This was not a completed unassisted usability
+trial, and the author's stated preference is to avoid indexing where reasonable.
+
 This is a small authoring trial, not a tutorial with a supplied solution. It asks
 whether Moxi's ordinary methods and shared context are understandable when you
 extend an application. A successful compile alone cannot answer that question.

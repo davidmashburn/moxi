@@ -67,6 +67,20 @@ The [routed check](../../examples/authoring/draft_revert_check.mojo) exercises
 sibling Apply, Revert captured before that save, nested reordering, and rendered
 Clean/Dirty status.
 
+A group can apply the same command to its drafts without indexing:
+
+```mojo
+def revert_group(mut self, document: Document):
+    for ref entry in self.drafts.entries:
+        entry.value.revert(document)
+```
+
+Declare `ui.button("Revert group", Self.revert_group)` in the group's `render`.
+The handler's second parameter receives the current shared context at delivery.
+Each keyed entry contains an identity (`key`) and a draft (`value`); `for ref`
+lets the method mutate that draft in place while preserving its identity. Prefer
+direct or reference iteration when positions are not part of the operation.
+
 ## Keep controls named
 
 `ui.text_input("Name", self.name, Self.rename)` draws a label and gives the

@@ -6,7 +6,12 @@ from moxi.authoring import HandlerHost, Screen, deliver
 
 
 comptime ROOT_REVERSE_GROUPS = 2
+comptime ROOT_ADD_GROUP = 1
+comptime ROOT_CLOSE_FIRST = 3
+comptime GROUP_ADD_DRAFT = 1
+comptime GROUP_CLOSE_FIRST = 2
 comptime GROUP_REVERSE_DRAFTS = 3
+comptime GROUP_REVERT = 5
 comptime DRAFT_TEXT = 2
 comptime DRAFT_APPLY = 3
 comptime DRAFT_REVERT = 4
@@ -151,7 +156,56 @@ def check_nested_reorder():
     require(not app.component.root.groups.entries[1].value.drafts.entries[1].value.is_dirty(app.component.root.document), "nested reverted draft is clean")
 
 
+def check_group_revert():
+    var app = App(HandlerHost(Workspace()), Rect(0, 0, 560, 700))
+    var revert = app.component.capture(group_button_id(app, 1, GROUP_REVERT))
+    var draft_apply = app.component.capture(draft_apply_id(app, 1, 1))
+    require(deliver(app, app.component.capture(draft_apply_id(app, 2, 2))), "save after capturing group revert")
+    require(deliver(app, app.component.capture(group_button_id(app, 1, GROUP_REVERSE_DRAFTS))), "reverse group drafts")
+    require(deliver(app, app.component.capture(root_button_id(app, ROOT_REVERSE_GROUPS))), "reverse groups before revert")
+    require(deliver(app, revert), "captured revert follows original group")
+    require(app.component.root.document.title == "Beta second", "group revert preserves saved title")
+    for group in app.component.root.groups.entries:
+        if group.key == 1:
+            require(len(group.value.drafts.entries) == 2, "revert preserves draft count")
+            var expected_key = 2
+            for draft in group.value.drafts.entries:
+                require(draft.key == expected_key, "revert preserves reordered keys")
+                require(draft.value.text == "Beta second", "all target drafts use current title")
+                expected_key -= 1
+        else:
+            for draft in group.value.drafts.entries:
+                var expected = "Beta first" if draft.key == 1 else "Beta second"
+                require(draft.value.text == expected, "other group keeps its draft text")
+    require(deliver(app, draft_apply), "revert preserves captured draft action identity")
+    require(app.component.root.document.title == "Beta second", "surviving draft action reads reverted text")
+    require_status(app, "Saved: Beta second | Status: Clean", 3)
+    require_status(app, "Saved: Beta second | Status: Dirty", 1)
+
+    require(deliver(app, app.component.capture(group_button_id(app, 1, GROUP_ADD_DRAFT))), "add draft after capture")
+    require(deliver(app, revert), "captured revert includes current added drafts")
+    for group in app.component.root.groups.entries:
+        if group.key == 1:
+            require(len(group.value.drafts.entries) == 3, "added draft survives revert")
+            for draft in group.value.drafts.entries:
+                require(draft.value.text == "Beta second", "current drafts all revert")
+    var close_draft = app.component.capture(group_button_id(app, 1, GROUP_CLOSE_FIRST))
+    for _ in range(3):
+        require(deliver(app, close_draft), "close target draft")
+    require(deliver(app, revert), "empty group revert is valid")
+    for group in app.component.root.groups.entries:
+        if group.key == 1:
+            require(len(group.value.drafts.entries) == 0, "revert leaves empty group empty")
+
+    require(deliver(app, app.component.capture(root_button_id(app, ROOT_REVERSE_GROUPS))), "move original group first for removal")
+    require(deliver(app, app.component.capture(root_button_id(app, ROOT_CLOSE_FIRST))), "remove original group")
+    require(not deliver(app, revert), "removed group rejects captured revert")
+    require(deliver(app, app.component.capture(root_button_id(app, ROOT_ADD_GROUP))), "add replacement group")
+    require(not deliver(app, revert), "captured revert cannot reach replacement group")
+
+
 def main():
     check_shared_desk()
     check_nested_reorder()
-    print("PASS: shared dirty status, current-title revert, and nested reorder")
+    check_group_revert()
+    print("PASS: shared dirty status, current-title draft/group revert, nested reorder, and retirement")
