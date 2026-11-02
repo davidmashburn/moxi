@@ -13,6 +13,42 @@ model update. An assignment alone does not create field-level dependency edges:
 the current API has no automatic field tracking. Selective-update probes
 are separate experiments beneath this surface.
 
+## Which comparisons matter most?
+
+For evaluating Moxi's current direction, use these references in order:
+
+1. **Xilem for architecture.** Raph's [architecture article](https://raphlinus.github.io/rust/gui/2022/05/07/ui-architecture.html)
+   is the starting point for understanding descriptions rebuilt over retained
+   widgets and events routed back to application state. Compare ownership,
+   composition, and identity before comparing surface syntax.
+2. **Marko 6 for authoring comfort; Solid for fine-grained updates.**
+   [Marko tracks reactive dependencies in its compiler](https://markojs.com/docs/reference/reactivity);
+   [Solid uses signals and observers](https://docs.solidjs.com/advanced-concepts/fine-grained-reactivity).
+   Both help us ask how little authors should write and how little work an
+   update should do. Those are two separate goals: Moxi's fields and methods
+   provide neither system's dependency tracking by themselves.
+3. **SwiftUI and Flutter for native application structure.** Their state and
+   declarative-view models provide useful context for Moxi's model ownership
+   and pure `render`. The detailed table below distinguishes their update
+   mechanisms; similar-looking declarations do not imply identical lifetimes
+   or invalidation rules.
+4. **React context and Redux for shared state.** These help frame prop drilling,
+   scoped access, and centralized mutations. Choosing where state lives does
+   not, by itself, decide whether updates rebuild declarations or notify
+   individual dependent computations.
+
+Svelte and Vue broaden the compiler/proxy-based reactivity comparison. Qt
+Quick/QML and Enaml show what dedicated declarative languages and bindings can
+offer. Qt Widgets and wxPython provide the retained-widget, event-handler
+baseline. They remain in the inventory because each exposes a different
+tradeoff; they are not all equally close architectural models for Moxi.
+
+The [Marko translator experiment](../../experiments/tags-authoring/README.md)
+already emits production `Screen` models, methods, and `UI` calls for its
+supported syntax subset. It tests a route from concise source to the current
+Moxi runtime; it does not reproduce Marko's fine-grained update machinery or
+establish that Moxi needs another authoring language.
+
 ## The Moxi contract
 
 The practical rule is “same owner unless reset is explicit.” Replacing a root
@@ -40,7 +76,7 @@ frames UI as tree transformations and discusses React’s `useState` and
 Redux-style reducers. His later [Xilem architecture](https://raphlinus.github.io/rust/gui/2022/05/07/ui-architecture.html)
 generates a short-lived view tree, diffs it into a retained widget tree, routes
 events by an ID path with mutable app state, and uses Adapt/lensing for
-composition. Xilem’s current [lens](https://docs.rs/xilem_core/0.4.0/xilem_core/fn.lens.html)
+composition. Xilem 0.4.0's [lens](https://docs.rs/xilem_core/0.4.0/xilem_core/fn.lens.html)
 and [memoize](https://docs.rs/xilem_core/0.4.0/xilem_core/fn.memoize.html)
 APIs make those composition and update choices explicit.
 

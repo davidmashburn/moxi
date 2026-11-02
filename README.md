@@ -55,7 +55,34 @@ methods, keyed child models, and explicit reset lifetimes through four runnable
 examples. It includes an [application how-to](docs/authoring/application-guide.md)
 and [framework comparisons](docs/authoring/comparisons.md). These examples use
 `moxi.authoring`; run them with `python3 examples/authoring/run.py`. The
-`Component` API below remains available for lower-level use.
+`Component` API below remains available for lower-level use. Adoption is not
+repository-wide: the four authoring examples and the
+[Marko translator experiment](experiments/tags-authoring/README.md) use the new
+API, while demos such as [Data Workbench](src/moxi_demo/data_workbench.mojo)
+and the [graph app](examples/fdg/src/graph_app.mojo) still implement `Component`
+directly. `HandlerHost` itself implements `Component`, connecting the authoring
+API to the same application runtime.
+
+## Comparison with other frameworks
+
+The [framework comparison](docs/authoring/comparisons.md) explains Moxi's choices
+alongside Xilem, Marko, Solid, React, Svelte, Vue, SwiftUI, Flutter, Qt Widgets,
+Qt Quick/QML, wxPython, and Enaml, with a separate discussion of Redux.
+Start with the comparison that answers your question:
+
+- **Xilem:** how declarative descriptions, retained UI state, and event routing
+  fit together. This is Moxi's closest architectural reference.
+- **Marko 6 and Solid:** how concise authoring relates to fine-grained updates.
+  These are useful comfort and update-mechanism references; Moxi's ordinary
+  fields do not automatically track dependencies.
+- **SwiftUI and Flutter:** how state ownership and declarative view descriptions
+  fit native applications.
+- **React context and Redux:** how shared state reaches children and where
+  mutations belong. State organization is a separate decision from how much UI
+  work an update performs.
+
+The comparison separates authoring ergonomics, ownership, and update mechanics.
+It does not claim a cross-framework performance ranking.
 
 ## Recommended authoring example
 
