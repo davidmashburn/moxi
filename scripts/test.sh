@@ -16,6 +16,7 @@ tests=(
   tests/authoring.mojo
   examples/authoring/check.mojo
   examples/authoring/workspace_check.mojo
+  examples/authoring/draft_revert_check.mojo
   tests/component.mojo
   tests/counter.mojo
   tests/form.mojo

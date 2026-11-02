@@ -41,6 +41,32 @@ declarations, and rebuilds the view. This ensures removed controls are retired
 before queued work can be delivered. Directly mutating `app.component.root` and
 later delivering queued work skips that guarantee.
 
+### Derive status from current values
+
+The shared-draft example needs no extra dirty flag or synchronization callback:
+
+```mojo
+def is_dirty(self, document: Document) -> Bool:
+    return self.text != document.title
+
+def revert(mut self, document: Document):
+    self.text = document.title
+```
+
+`render` reads `is_dirty(document)` for the status label and declares
+`ui.button("Revert", Self.revert)`. Apply writes the shared title; Revert reads
+that title and replaces only this draft. If a sibling saves, a draft can become
+dirty without changing its own text. This definition compares against the
+**current saved value**, not the value when the pane opened. Products needing
+conflict detection should model that original revision separately.
+
+The host refreshes declarations after commands, so shared readers see the new
+title. This is not a fine-grained subscription: the example demonstrates simple
+ownership and derived values, without claiming constant-time shared updates.
+The [routed check](../../examples/authoring/draft_revert_check.mojo) exercises
+sibling Apply, Revert captured before that save, nested reordering, and rendered
+Clean/Dirty status.
+
 ## Keep controls named
 
 `ui.text_input("Name", self.name, Self.rename)` draws a label and gives the
@@ -155,8 +181,18 @@ Linux and other backends reject native `reset` before changing the root until
 they implement and validate that capability.
 
 Within a session, native keyboard and pointer input follows sequential dispatch:
-click or Tab first, then typing uses the resulting focus. Explicitly targeted
-delayed work must additionally reject retired targets. A late accessibility
+click or Tab first, then typing uses the resulting focus. macOS accessibility
+focus setters also enter this ordered stream as addressed `FocusEvent`s. Focus
+changes neither activate a button nor edit a field. Explicit blur applies only
+to its currently focused target and survives a view rebuild; Tab, pointer input,
+or a new focus request can focus a control again. Native focus ingress currently
+supports text fields. This is separate from AXPress, which fields do not expose.
+
+Normalized event recordings now emit version 2 to preserve the focus flag. The
+reader still accepts version 1 recordings; older readers must be upgraded before
+consuming newly recorded events.
+
+Explicitly targeted delayed work must additionally reject retired targets. A late accessibility
 callback from an old retained object can arrive in a new native queue, so clearing
 the queue alone is insufficient.
 

@@ -24,13 +24,23 @@ struct Draft(Pane):
     def change(mut self, text: String):
         self.text = text
 
+    def is_dirty(self, document: Document) -> Bool:
+        return self.text != document.title
+
     def apply(mut self, mut document: Document):
         document.title = self.text
 
+    def revert(mut self, document: Document):
+        self.text = document.title
+
     def render(self, mut ui: UI[Self, Document], document: Document):
-        ui.label("Saved: " + document.title)
+        var status = "Clean"
+        if self.is_dirty(document):
+            status = "Dirty"
+        ui.label("Saved: " + document.title + " | Status: " + status)
         ui.text_input("Local draft", self.text, Self.change)
         ui.button("Apply", Self.apply)
+        ui.button("Revert", Self.revert)
 
 
 struct Desk(Screen):

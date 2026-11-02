@@ -14,9 +14,10 @@ the workspace needs one handwritten route to supply the shared document.
 `check.mojo` verifies the introductory examples. `workspace_check.mojo` checks
 nested reorder, current-value action dispatch, retirement of whole groups and
 individual drafts, surviving sibling actions, root reset, and pointer editing
-after scrolling. The runner compiles and executes all four applications and both checks against production
-`moxi.authoring`. Both checks also run in the standard test and portable headless
-CI lanes.
+after scrolling. `draft_revert_check.mojo` checks dirty status after a sibling
+save and Revert through nested reordering. The runner compiles and executes all
+four applications and all three checks against production `moxi.authoring`.
+The checks also run in the standard test and portable headless CI lanes.
 
 The workspace check locates controls by internal structural paths and declaration
 positions. That is test scaffolding, not code application authors need to write;
@@ -46,7 +47,10 @@ The ordinary column scrolls automatically; there is no example-specific scroll
 state. Try this sequence:
 
 1. Click inside Alpha's first draft, select its text, and type a new title. The
-   saved title stays unchanged until you click Apply.
+   saved title stays unchanged until you click Apply. Status becomes Dirty when
+   local text differs from the saved title. Apply can make another draft dirty
+   without changing that draft's text; Revert copies the current saved title into
+   just the selected draft.
 2. Reverse drafts, then reverse groups. Scroll to Alpha and find the edited text
    still attached to its original draft.
 3. Add a draft, close the first draft, and reset drafts. Reset creates a fresh
@@ -59,6 +63,10 @@ reorder, scrolling, and draft reset. The layout is deliberately a long form,
 not a finished workspace design: repeated actions and labels use considerable
 vertical space. An accessibility-driven click on a text field did not focus it
 in this check; a coordinate pointer click did. Button accessibility activation
-worked. The cause of that focus difference is not yet isolated, and this is not
-an accessibility conformance claim. Physical IME, window resizing, performance,
-and unassisted human authoring were not evaluated in this smoke check.
+worked. A subsequent native probe isolated a missing accessibility-focus input
+path: focus setters now queue an addressed `FocusEvent`, while fields continue
+to reject button-style AXPress. Regression checks cover focus/blur, same-batch
+typing, retired/disabled targets, and publication without input feedback. The
+exact operation behind the automation tool's original click remains unknown;
+this is not an accessibility conformance claim. Physical IME, window resizing,
+performance, and unassisted human authoring were not evaluated in this smoke check.
