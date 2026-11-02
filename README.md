@@ -21,6 +21,13 @@ The current planning baseline is:
 
 ## Planning record
 
+- [Example authoring migration](docs/design/example-authoring-migration.md)
+  proposes a per-example style choice against `main` at `ba8fc93`. Preserve the
+  wxPython-inspired central launcher; embed the new authoring lessons, migrate
+  Counter and parity-gated Form, and retain layout/rendering/mechanism examples.
+  Nested-host lifetime and editing checks are the first implementation gate.
+  This is a plan; no examples were migrated by this planning pass.
+
 - [Authoring documentation and production extraction](docs/design/authoring-production.md)
   records the accepted strategy, runnable guide, and authorized production scope.
   Package/native lifecycle integration and the runnable workspace are on `main`.
