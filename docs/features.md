@@ -29,7 +29,25 @@ window and translates paint commands across a narrow C ABI boundary; a
 `Scene`/`SceneRenderer` path. [ARCHITECTURE.md](../ARCHITECTURE.md) documents the
 implemented contracts and lifecycle in full.
 
+## Recommended application authoring
+
+For new application code, use the supported [`moxi.authoring`](authoring/README.md)
+API. Models keep ordinary state and behavior in fields and methods; pure
+`render` methods declare controls; `Keyed` and stable keys preserve logical child
+identity across reorder; and typed owner/context routing sends actions to the
+current model. `HandlerHost` connects that model to the existing `App` loop.
+The `Component`/`App` data flow above remains supported for lower-level view-tree
+and lifecycle control.
+
+The [authoring examples](../examples/authoring/README.md) run headlessly with
+`python3 examples/authoring/run.py`; the authoring guide records reset semantics,
+backend limits, and the distinction between contract checks and human/native
+acceptance.
+
 ## Runtime, components, and reconciliation
+
+The following inventory describes the supported lower-level `Component`/`App`
+runtime.
 
 - Mojo package precompilation through Pixi.
 - Retained runtime state for the declarative control catalog.
@@ -135,11 +153,13 @@ synchronization, pass a `MacOSClipboard` to
 `MemoryClipboard` with the same API.
 
 The compatibility root remains broad for existing 0.5 callers. New code can
-use `moxi_plot.plot_api`, `moxi.host_api`, or `moxi.experimental_api` as
-focused import paths, and `docs/api-lanes.tsv` (`moxi`), `docs/plot-api-lanes.tsv`
+use `moxi.authoring` for supported model/method authoring, `moxi_plot.plot_api`,
+`moxi.host_api`, or `moxi.experimental_api` as focused import paths, and
+`docs/api-lanes.tsv` (`moxi`), `docs/plot-api-lanes.tsv`
 (`moxi_plot`), and `docs/demo-api-lanes.tsv` (`moxi_demo`) record the support
 lane for every public module. The API check rejects an unclassified re-export
-instead of silently treating it as experimental.
+instead of silently treating it as experimental. The authoring package has its
+own focused support lane in [`authoring/api-lanes.tsv`](authoring/api-lanes.tsv).
 
 ## Layout
 
@@ -533,6 +553,21 @@ under `dist/benchmark-results/`; see [benchmarking.md](benchmarking.md).
 Reviewed release references and the host/dispersion policy plus clean-tree
 refresh command live under [`../benchmarks/results/`](../benchmarks/results/).
 
+The supported authoring workflow has a headless runner and explicit macOS
+tasks:
+
+```sh
+python3 examples/authoring/run.py
+pixi run --locked native-authoring
+pixi run --locked authoring-counter-build
+pixi run --locked authoring-workspace-build
+```
+
+`native-authoring` uses injected events by default; set
+`MOXI_AUTHORING_OPEN_WINDOW=1` for the optional attached-window smoke. These
+checks do not establish physical input, IME, human usability, or rendering
+performance.
+
 To build the distributable Pixi package:
 
 ```sh
@@ -557,7 +592,7 @@ methodology and comparison caveats are in [performance.md](performance.md).
 
 ## Demos
 
-The full `pixi run` task list (build, test, and demo/benchmark tasks):
+The common `pixi run` task list (build, test, and demo/benchmark tasks):
 
 ```sh
 pixi run mojo --version

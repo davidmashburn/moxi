@@ -131,7 +131,8 @@ ui.child(self.left, self.document, Self.route_left, key=LEFT)
 The read context describes the current document. At dispatch, the route passes the
 actual current parent-owned document for mutation. Applying the left draft changes
 the saved title visible to both panes; the right draft keeps its unsaved text.
-There is no ambient global store or hidden subscription in this example.
+Revert reads that same current document and changes only the draft. There is no
+ambient global store or hidden subscription in this example.
 
 ## A workspace with nested collections
 
@@ -139,7 +140,9 @@ There is no ambient global store or hidden subscription in this example.
 together. A workspace owns one document and a `Keyed[Group]`; each group owns a
 `Keyed[Draft]`. Drafts reuse the pane above. Add, close, reverse, and reset are
 ordinary model methods. One root route supplies the shared document; `field`
-and the two keyed collections handle the remaining routing.
+and the two keyed collections handle the remaining routing. Group Revert receives
+that same current document context and uses reference iteration to update each
+live draft without changing its key.
 
 Read [the application guide's walkthrough](application-guide.md#combine-shared-context-with-dynamic-children)
 to trace Apply through the current owners. The headless checks cover ownership
@@ -157,7 +160,7 @@ design.
 | Change state from outside control dispatch | `update_model(app, command)` | Run a synchronous command and publish before draining queued work |
 | Replace values of an existing owner | Assignment inside a command | Existing queued work can still address that owner |
 | Discard a collection's children | `editors.reset()` inside a command | Fresh entries receive fresh keys |
-| Start a new native root session | `reset(app, Root(), window, renderer)` | Clear old input and owned requests, replace the root, and publish output |
+| Start a new native root session | `reset(app, Root(), window, renderer)` | Retire old user input/IME state and owned requests, preserve window lifecycle events, replace the root, and publish output |
 | Start a new headless root session | `reset_headless(app, Root())` | Retire owned requests and the old root/retained UI lifetime without a native backend |
 
 For example, assigning a fresh `Counter()` resets the number but keeps the logical
@@ -170,13 +173,16 @@ constructed collection into an existing owner: restarting its allocator could
 reuse identities. At a whole-root reset, fresh collection allocators are safe
 because the host lifetime changes too.
 
-Call native `reset` on the UI thread between event dispatches. It currently
-supports macOS AppKit and `TestWindow`; other backends reject it before changing
-the application. `reset_headless` does not clear native input or publish a native
-snapshot. See the [application guide](application-guide.md#requests-and-native-input)
-for request scheduling, supported boundaries, and validation limits. The
-[API inventory](api-status.md) lists the supported exports; internal retained
-control records and erased callback storage are implementation details.
+Call native `reset` on the UI thread between event dispatches. The built-in
+macOS AppKit window and `TestWindow` currently support it; a backend that does
+not opt in rejects it before changing the application. The integrated reset
+retires queued user input and marked-text state while preserving window
+lifecycle events such as resize. `reset_headless` does not clear native input or
+publish a native snapshot. See the
+[application guide](application-guide.md#requests-and-native-input) for request
+scheduling, supported boundaries, and validation limits. The [API inventory](api-status.md)
+lists the supported exports; internal retained control records and erased
+callback storage are implementation details.
 
 ## What this promises
 

@@ -34,6 +34,9 @@ caveats, is in [docs/features.md](docs/features.md).
 - Provisional [native paragraph layout](docs/native-paragraph-layout.md) with a compiled custom policy and shared CoreText measurement/drawing (`pixi run paragraph-layout`).
 - Optional [composed layout candidate](docs/layout-workbench.md) with Mojo-owned retained flow/grid, staged Kiwi forms, variable-height collections and fitted overlays (`pixi run layout-workbench`).
 - Identity-based reconciliation with observable create/reuse/update/remove/move counters.
+- Supported `moxi.authoring` application API for ordinary fields and methods,
+  pure render declarations, stable keyed child identity, and typed current-owner
+  context routing.
 - A typed `Component`/`App` lifecycle with subtree and keyed-subtree execution for localized updates.
 - Backend-neutral events, focus, and keyboard navigation, including native macOS IME composition.
 - Semantic spacing/typography/color tokens with theme presets and reusable recipes.
@@ -48,15 +51,47 @@ caveats, is in [docs/features.md](docs/features.md).
 ## Authoring strategy
 
 The [authoring guide](docs/authoring/README.md) introduces ordinary fields and
-methods, keyed child models, and explicit reset lifetimes through three runnable
+methods, keyed child models, and explicit reset lifetimes through four runnable
 examples. It includes an [application how-to](docs/authoring/application-guide.md)
 and [framework comparisons](docs/authoring/comparisons.md). These examples use
-`moxi.authoring`; the `Component` API below remains available for lower-level use.
+`moxi.authoring`; run them with `python3 examples/authoring/run.py`. The
+`Component` API below remains available for lower-level use.
 
-## Example
+## Recommended authoring example
 
-Components own state and produce lightweight views; `App` owns the current
-view and retained runtime:
+The supported authoring API keeps application state in ordinary model fields and
+methods. `render` declares controls from the current values and must remain a
+pure projection; `HandlerHost` connects the model to the existing `App` loop:
+
+```mojo
+from moxi import App, Rect
+from moxi.authoring import HandlerHost, Screen, UI
+
+struct Counter(Screen):
+    var count: Int
+
+    def __init__(out self):
+        self.count = 0
+
+    def increment(mut self):
+        self.count += 1
+
+    def render(self, mut ui: UI[Self]):
+        ui.label("Count: " + String(self.count))
+        ui.button("Increment", Self.increment)
+
+def main():
+    var app = App(HandlerHost(Counter()), Rect(0, 0, 320, 200))
+```
+
+See the [authoring guide](docs/authoring/README.md) for keyed child identity,
+typed context routing, reset lifetimes, and the host/backend boundaries.
+
+## Lower-level Component example
+
+The lower-level `Component`/`App` contract remains supported for applications
+that manage view trees and lifecycle directly. Components own state and produce
+lightweight views; `App` owns the current view and retained runtime:
 
 ```mojo
 from moxi import App, CounterState, Event, Rect
@@ -101,6 +136,22 @@ pixi run interactive-fractal-demo
 pixi run data-workbench
 ```
 
+To run the supported authoring examples and checks, start with the
+[authoring examples](examples/authoring/README.md):
+
+```sh
+python3 examples/authoring/run.py
+pixi run --locked authoring-counter-build
+./dist/moxi-authoring-counter
+pixi run --locked authoring-workspace-build
+./dist/moxi-authoring-workspace
+```
+
+On macOS, `pixi run --locked native-authoring` runs the native contract checks
+with injected events. Set `MOXI_AUTHORING_OPEN_WINDOW=1` for the optional
+attached-window smoke. These checks do not establish physical input, IME, human
+usability, or rendering-performance acceptance.
+
 `pixi run demo` opens the Moxi Playground: search or filter the catalog, read
 an example's overview/source, and mount its real component page in the same
 window. `pixi run counter-demo` opens the interactive counter from the example
@@ -143,6 +194,12 @@ Run `pixi run fdg-demo` to build and open it. It runs in a separate window from
 the Playground.
 
 ## Architecture
+
+For new application code, the recommended surface is `moxi.authoring`: ordinary
+model fields and methods declare controls through pure `render` methods, while
+stable keys and typed owner/context routing preserve logical state through
+changes. The lower-level `Component`/`App` lifecycle described here remains
+available when an application needs direct view-tree control.
 
 Views are Mojo value types. A component owns application state, builds a
 lightweight declarative view, and handles events; `App` owns the retained

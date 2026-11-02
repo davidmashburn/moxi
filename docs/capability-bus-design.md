@@ -5,9 +5,9 @@ the boundary that is shipped today and the seams reserved for a future agent
 bridge. It is not a promise that Moxi includes a network client, an LLM runtime,
 or a general-purpose JSON Schema implementation.
 
-The source of truth for the UI lifecycle is [ARCHITECTURE.md](ARCHITECTURE.md).
-The executable contract examples are in [tests/capability.mojo](tests/capability.mojo)
-and [tests/conversation.mojo](tests/conversation.mojo).
+The source of truth for the UI lifecycle is [ARCHITECTURE.md](../ARCHITECTURE.md).
+The executable contract examples are in [tests/capability.mojo](../tests/capability.mojo)
+and [tests/conversation.mojo](../tests/conversation.mojo).
 
 Attribution: the capability-bus concept is credited to David Ash and was seeded
 from [The Mythophor capability-bus article](https://www.mythophor.com/agent-ready-architecture-the-capability-bus-pattern/).

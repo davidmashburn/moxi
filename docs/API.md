@@ -21,7 +21,23 @@ source files and Mojo compiler remain the normative API definition; the
 release gate also emits `dist/moxi-api.json` with compiler-generated API
 metadata.
 
+## Recommended authoring API
+
+For new application code, start with the supported [`moxi.authoring`](authoring/README.md)
+API. `Screen` and `Pane` models use ordinary Mojo fields and methods; `render`
+is a pure control declaration; `Keyed` and stable keys preserve logical child
+identity across reorder; and typed child/context routing delivers actions to the
+current owner. `HandlerHost` connects the model to `App`, while `update_model`,
+`reset`, and `reset_headless` cover synchronous external changes and new root
+lifetimes. The [`Component`/`App`](#application-lifecycle) surface below remains
+supported for lower-level view-tree and lifecycle control. See the [authoring API
+status](authoring/api-status.md) and [application guide](authoring/application-guide.md)
+for the focused surface and host/backend boundaries.
+
 ## Application lifecycle
+
+The following inventory covers the supported lower-level `Component`/`App`
+surface.
 
 | API | Purpose |
 | --- | --- |
@@ -101,9 +117,12 @@ call a component or mutate a view directly. See
 network-like contract test, including cancellation, timeout, and late-result
 rejection.
 
-Start with [examples/hello_component.mojo](../examples/hello_component.mojo),
-then use [examples/form.mojo](../examples/form.mojo) for event routing and
-text editing.
+For the supported authoring workflow, start with the [authoring guide](authoring/README.md)
+and run [the authoring examples](../examples/authoring/README.md) with
+`python3 examples/authoring/run.py`. For lower-level `Component` examples,
+start with [examples/hello_component.mojo](../examples/hello_component.mojo),
+then use [examples/form.mojo](../examples/form.mojo) for event routing and text
+editing.
 
 `DemoEntry`, `DemoCatalog`, and `DemoBrowserState` provide the searchable
 wxPython-style example browser. The catalog exposes real source paths, Pixi
@@ -117,14 +136,16 @@ separate companion entrypoints. The core `App` remains process-neutral.
 ## Focused import paths
 
 The compatibility root remains available for existing 0.5 callers, while new
-code can opt into smaller support surfaces: `moxi_plot.plot_api` for
-provisional plot data/spec/runtime types, `moxi.host_api` for portable and
-macOS host adapters, and `moxi.experimental_api` for capability, text-engine,
-fractal, and Metal integrations. The checked-in `docs/api-lanes.tsv`,
+code can opt into smaller support surfaces: `moxi.authoring` for supported
+ordinary-model authoring, `moxi_plot.plot_api` for provisional plot
+data/spec/runtime types, `moxi.host_api` for portable and macOS host adapters,
+and `moxi.experimental_api` for capability, text-engine, fractal, and Metal
+integrations. The checked-in `docs/api-lanes.tsv`,
 `docs/plot-api-lanes.tsv`, and `docs/demo-api-lanes.tsv` policies make every
 re-exported module explicit for `moxi`, `moxi_plot`, and `moxi_demo`
 respectively; adding a new public module without a lane fails
-`pixi run api-status-check`.
+`pixi run api-status-check`. The authoring package has its own focused support
+lane in [`authoring/api-lanes.tsv`](authoring/api-lanes.tsv).
 
 ## View and layout
 
@@ -351,6 +372,7 @@ the complete visible approval flow.
 | Area | Source |
 | --- | --- |
 | Public exports | [`src/moxi/__init__.mojo`](../src/moxi/__init__.mojo) |
+| Application authoring | [`src/moxi/authoring/__init__.mojo`](../src/moxi/authoring/__init__.mojo), [`docs/authoring/README.md`](authoring/README.md), [`examples/authoring/README.md`](../examples/authoring/README.md) |
 | Views and layout | [`src/moxi/view_leaf.mojo`](../src/moxi/view_leaf.mojo), [`src/moxi/view_node.mojo`](../src/moxi/view_node.mojo), [`src/moxi/column_view.mojo`](../src/moxi/column_view.mojo), [`src/moxi/counter_view.mojo`](../src/moxi/counter_view.mojo), [`src/moxi/layout.mojo`](../src/moxi/layout.mojo) |
 | Controls and editing | [`src/moxi/controls_basic.mojo`](../src/moxi/controls_basic.mojo), [`src/moxi/controls_text.mojo`](../src/moxi/controls_text.mojo), [`src/moxi/controls_collection.mojo`](../src/moxi/controls_collection.mojo), [`src/moxi/controls_state.mojo`](../src/moxi/controls_state.mojo), [`src/moxi/control_state.mojo`](../src/moxi/control_state.mojo) |
 | Runtime and invalidation | [`src/moxi/widget.mojo`](../src/moxi/widget.mojo), [`src/moxi/column_runtime.mojo`](../src/moxi/column_runtime.mojo), [`src/moxi/legacy_runtime.mojo`](../src/moxi/legacy_runtime.mojo), [`src/moxi/invalidation.mojo`](../src/moxi/invalidation.mojo) |

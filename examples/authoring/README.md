@@ -19,8 +19,10 @@ and prompts for recording confusion; human comfort has not yet been evaluated.
 nested reorder, current-value action dispatch, retirement of whole groups and
 individual drafts, surviving sibling actions, root reset, and pointer editing
 after scrolling. `draft_revert_check.mojo` checks dirty status after a sibling
-save and Revert through nested reordering. The runner compiles and executes all
-four applications and all three checks against production `moxi.authoring`.
+save, draft and group Revert through nested reordering, preserved keys and order
+for added and empty drafts, and rejection after group removal and replacement.
+The runner compiles and executes all four applications and all three checks
+against production `moxi.authoring`.
 The checks also run in the standard test and portable headless CI lanes.
 
 The workspace check locates controls by internal structural paths and declaration

@@ -20,15 +20,17 @@ value within its owner preserves the logical lifetime: existing actions resolve
 against current values, and unchanged text preserves selection/IME state. A
 collection reset remains in the same owner but allocates fresh child keys. By
 contrast, `reset(app, root, window, renderer)` creates a new root lifetime: it
-installs a fresh delivery scope, clears retained controls, resets application scroll capture, and
-rejects queued or captured work from the previous scope. This is a correctness
-boundary, not shorthand for ordinary assignment.
+installs a fresh delivery scope, clears retained controls, resets application
+scroll capture, retires queued user input/IME state while preserving window
+lifecycle events, and rejects queued or captured work from the previous scope.
+This is a correctness boundary, not shorthand for ordinary assignment.
 
 That contract is why keys and scopes are author-visible concepts even though the
 runtime owns the bookkeeping. A keyed collection looks up current membership
 when routing an action; removed children do not remain reachable through normal
-UI delivery. Native ingress and request cancellation share the supported
-`reset` boundary; `App` remains the request-delivery owner. The strategy combines
+UI delivery. For a backend that opts in, native ingress cleanup and request
+cancellation share the supported `reset` boundary; `App` remains the
+request-delivery owner. The strategy combines
 ordinary methods with explicit identity; how comfortable that feels needs human application-author feedback.
 
 ## Xilem/Raph, React context, and Redux

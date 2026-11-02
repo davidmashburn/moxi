@@ -26,10 +26,14 @@ record why rather than working around it silently.
 
 ## Start here
 
-The baseline is commit `f98ae21` on `feat/data-workbench`; this exercise adds no
-solution code. Run these commands from the repository root on macOS:
+The unsolved baseline is commit `eb26fb6` in `main` history (the rebased equivalent
+of the original `f98ae21`). The current checkout contains an assisted reference
+implementation. For a fresh attempt, create a separate worktree from the repository
+root, then build there on macOS:
 
 ```sh
+git worktree add --detach ../moxi-group-action-trial eb26fb6
+cd ../moxi-group-action-trial
 pixi run --locked authoring-workspace-build
 ./dist/moxi-authoring-workspace
 ```
@@ -79,9 +83,15 @@ pixi run --locked mojo run -I src examples/authoring/workspace_check.mojo
 pixi run --locked mojo run -I src examples/authoring/draft_revert_check.mojo
 ```
 
-They do not test the new group action. Their structural control selectors may
-need adjustment if you change declaration order; record that friction separately
-from application implementation effort.
+At the baseline, these checks cover workspace lifetimes, pointer input, dirty
+status, and individual draft Revert; they do not test your new group action.
+Their structural control selectors may need adjustment if you change declaration
+order; record that friction separately from application implementation effort.
+
+Current `main` also has maintainer regressions in `draft_revert_check.mojo` for
+group Revert after nested reorder, added and empty drafts, and rejection after
+group removal and replacement. Review those after the attempt; they accompany
+the reference implementation and are not part of the unsolved baseline.
 
 ## What to bring back
 

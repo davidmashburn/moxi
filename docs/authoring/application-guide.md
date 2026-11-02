@@ -168,7 +168,8 @@ still open. Cancellation alone is not proof that a completion cannot arrive.
 
 A full root reset must be one host transaction:
 
-1. Invalidate old native ingress, including queued input and marked-text state.
+1. Invalidate old native input/IME state, including queued user input and
+   marked-text state; preserve window lifecycle events such as resize.
 2. Cancel and retire request scopes belonging to the old session.
 3. Replace the root lifetime and clear its retained interaction/scroll state.
 4. Publish the new layout, text-input state, and accessibility snapshot before
@@ -182,17 +183,18 @@ from moxi.authoring import reset
 reset(app, Workspace(), window, renderer)
 ```
 
-The supported backend clears queued input and native interaction state first.
-The host then cancels its request scopes, replaces the root, clears retained
-interaction/scroll state, and renders the replacement, including accessibility.
-Do not deliver an event you polled before this transaction. Continue using the
-same `App` and window binding; constructing another `App` is not a session reset.
+The supported backend clears queued user input and native interaction state
+first, while preserving window lifecycle events such as resize. The host then
+cancels its request scopes, replaces the root, clears retained interaction/scroll
+state, and renders the replacement, including accessibility. Do not deliver an
+event you polled before this transaction. Continue using the same `App` and
+window binding; constructing another `App` is not a session reset.
 
 Use `reset_headless(app, Workspace())` only without native input. It cancels owned
 requests and resets App/model state, but does not flush a window or publish a
-native snapshot. macOS AppKit and `TestWindow` implement the reset capability.
-Linux and other backends reject native `reset` before changing the root until
-they implement and validate that capability.
+native snapshot. The built-in macOS AppKit window and `TestWindow` implement the
+reset capability. A backend that does not opt in, including the built-in
+non-macOS native variants, rejects native `reset` before changing the root.
 
 Within a session, native keyboard and pointer input follows sequential dispatch:
 click or Tab first, then typing uses the resulting focus. macOS accessibility
@@ -268,9 +270,12 @@ that matter: editing one draft leaves another alone; reordering preserves the
 intended editor; closing a child rejects its pending work; root reset rejects old
 work and accepts new work; a shared save obeys the domain's conflict policy.
 
-The guide's [behavior checks](../../examples/authoring/check.mojo) exercise
-real captured actions and targeted text delivery. Their control lookup by kind and
-ordinal is test scaffolding, not application authoring code.
+The [authoring behavior checks](../../examples/authoring/README.md) include
+[`check.mojo`](../../examples/authoring/check.mojo),
+[`workspace_check.mojo`](../../examples/authoring/workspace_check.mojo), and
+[`draft_revert_check.mojo`](../../examples/authoring/draft_revert_check.mojo).
+They exercise real captured actions and targeted text delivery. Their control
+lookup by kind and ordinal is test scaffolding, not application authoring code.
 
 Measure model work, declaration work, layout, paint generation, and native drawing
 separately before optimizing. A small state change can still trigger broad work;
@@ -278,10 +283,12 @@ ordinary fields do not automatically create a dependency graph. Cache or narrow
 expensive boundaries only with a clear invalidation rule. The runtime must handle
 selection, focus, and composition changes even when domain values look unchanged.
 
-Confidence is high in the bounded lifetime cases exercised by the production tests and experiments,
-and moderate in the authoring strategy's comfort at application scale. Human
-authors repeatedly needing manual generations, confusing assignment with reset,
-or passing large contexts through every pane would be evidence to revise the API.
+Confidence is high for bounded lifetime cases covered by the production contract
+tests. The separate experiments and human trial are research and feedback
+artifacts, not additional production API contracts; confidence in the authoring
+strategy's comfort at application scale remains moderate. Human authors
+repeatedly needing manual generations, confusing assignment with reset, or
+passing large contexts through every pane would be evidence to revise the API.
 
 
 To run the production contract checks from this repository:
