@@ -26,7 +26,9 @@ The current planning baseline is:
   accessibility focus and verifies an uncoached dirty/Revert extension. Tested
   mechanics have high confidence; human comfort and new performance measurements
   remain open. The three-cycle experiment is complete. A separately authorized
-  human group-action trial is prepared; the human attempt is pending.
+  human group-action trial produced a brief assisted attempt, not a usability
+  result. Current-value group actions pass targeted regression checks. Proceed
+  with the API direction; latest-head CI remains a merge gate.
 
 - [Lifetime integration decision](docs/design/lifetime-integration-decision.md)
   checks actual App requests and native queue/poll, root scroll/gesture reset,

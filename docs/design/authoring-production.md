@@ -503,3 +503,42 @@ cannot establish universal ease or application-scale behavior. Confidence remain
 high for the previously tested mechanics and moderate for the authoring strategy.
 The next evidence is the participant's diff and observations, followed by targeted
 independent regression checks; no further automated comfort trial is active.
+
+### November 2: assisted attempt and proceed recommendation
+
+The author supplied a quick group-action sketch and explicitly said they had not
+tried very hard. The button placement was correct; the sketch assigned a group
+name to a keyed entry rather than updating its draft from shared context. The
+parent explained the context parameter and tested mutable reference iteration.
+The author requested avoiding indexing where reasonable. This is preference and
+discoverability feedback from a brief assisted attempt, not a failed or completed
+unassisted trial. Do not infer general usability from it.
+
+Commit `fb844a6` implements the action as an ordinary method taking the current
+document and calling `entry.value.revert(document)` through `for ref` iteration.
+No new setter API, language layer, runtime tracking, or index loop was required.
+The application guide now explains the entry/value distinction and how context
+reaches the handler. The human trial brief identifies the assisted outcome and
+retains its original baseline for future independent attempts.
+
+The extended `examples/authoring/draft_revert_check.mojo` passes through production
+dispatch: capture before a sibling save; reorder groups and drafts; deliver using
+current title; preserve draft keys, order, and a captured child action; include
+new drafts; tolerate an empty group; reject the retired group's action before and
+after replacement. It also checks sibling isolation and rendered Clean/Dirty
+status. No new native interaction pass, full local suite, human trial, or
+performance measurement was run in this follow-up.
+
+Recommendation: proceed with the current authoring strategy and use it in real
+applications; another abstraction experiment is not justified by this result.
+Confidence remains high in these tested mechanics and moderate in general
+developer comfort. Repeated ownership confusion or significant routing ceremony
+in larger applications would reopen that assessment. Performance conclusions
+are unchanged; this extension supplies no new timing evidence.
+
+Merge readiness still requires successful CI on the final head. The docs-only
+`4b1be26` run ended with `validate` cancelled because GitHub could not acquire a
+hosted runner; its package-consumer job was skipped. Four other jobs passed. This
+is an infrastructure failure, not evidence of a code assertion failure or a full
+pass. The subsequent `fb844a6` run was queued when inspected. The earlier
+`f98ae21` six-job pass remains valid only for that revision. No merge was performed.
