@@ -11,6 +11,10 @@ python3 examples/authoring/run.py
 inside each group. Add, close, reverse, and reset operate through ordinary methods;
 the workspace needs one handwritten route to supply the shared document.
 
+To try extending it without a supplied solution, use the
+[group-action authoring trial](human-trial.md). It includes a behavior checklist
+and prompts for recording confusion; human comfort has not yet been evaluated.
+
 `check.mojo` verifies the introductory examples. `workspace_check.mojo` checks
 nested reorder, current-value action dispatch, retirement of whole groups and
 individual drafts, surviving sibling actions, root reset, and pointer editing
