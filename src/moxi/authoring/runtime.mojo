@@ -420,7 +420,13 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
                 return False
         return False
 
-    def _reset(mut self, root: Self.Root):
+    def reset_model(mut self, root: Self.Root):
+        """Replace an embedded model, retiring its controls and captured actions.
+
+        The parent must rebuild and forward reconcile_requests before delivering
+        more events. Retired IDs are never reused. This does not drain native
+        input; whole-window callers must use reset(app, root, window, renderer).
+        """
         # Keep the allocator outside replaced model values. Do not recycle IDs.
         var next_id = self.ui.next_id
         self.root = root
@@ -517,7 +523,7 @@ def deliver[R: Screen & Deinitable](mut app: App[HandlerHost[R]], packet: Captur
 def reset_headless[R: Screen & Deinitable](mut app: App[HandlerHost[R]], root: R):
     """Start a fresh root without a native backend. Native callers use reset."""
     app.component._discard_requests(app.requests)
-    app.component._reset(root)
+    app.component.reset_model(root)
     # These live on App, outside the model and retained declarations. A new
     # root lifetime must not inherit its predecessor's root scrollbar gesture.
     app.scroll_ids = List[Int]()

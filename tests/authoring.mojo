@@ -435,6 +435,29 @@ def reset_preserves_unrelated_queue_capacity():
         test_check(result.key == key and app.requests.should_deliver(result))
     test_check(len(app.requests.tasks.tasks) == 0)
 
+def embedded_model_reset():
+    # A parent can retire one host without replacing App's shared scheduler.
+    var app = App(HandlerHost(Root()), Rect(0, 0, 520, 320))
+    var target = root_button_id(app)
+    var action = app.component.capture(target)
+    var event = Event(SemanticActionEvent(target, ACTION_PRESS))
+    var queued = app.component.queue(event)
+    var owned = schedule_action(app, target, 91, "owned", 60.0)
+    var sibling = app.schedule_request(92, "sibling", 60.0)
+    test_check(app.complete_request(owned.handle, TASK_COMPLETED))
+    test_check(app.complete_request(sibling, TASK_COMPLETED))
+    app.component.reset_model(Root())
+    app.rebuild()
+    test_check(root_button_id(app) > target)
+    test_check(not app.component.accepts(queued))
+    test_check(not app.component.deliver_action(action))
+    test_check(not app.dispatch(event))
+    test_check(app.component.root.count == 0)
+    test_check(not complete_action(app, owned))
+    test_check(app.requests.ready_count() == 1)
+    var result = app.requests.pop_ready()
+    test_check(result.key == 92 and app.requests.should_deliver(result))
+
 def main() raises:
     root_and_copy_lifetimes()
     collection_lifetimes_and_reorder()
@@ -443,4 +466,5 @@ def main() raises:
     existing_app_loop_and_editing_state()
     visible_and_accessible_labels()
     reset_preserves_unrelated_queue_capacity()
+    embedded_model_reset()
     print("PASS authoring lifetimes, request delivery, and reset contracts")
