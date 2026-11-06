@@ -199,10 +199,14 @@
     {
       "id": "P07",
       "scope": "[SeedWaterSegmenter](docs/design/sws-port.md): reproducible reference fixtures, native stack/label viewer, generation-safe watershed, seed/polygon editing, undo/redo, persistence, cancellation and recovery. Preserve scientific algorithms first.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
-      "verification": [],
-      "remaining_gates": [],
+      "verification": [
+        "Initial worktree was clean when interrupted; no delivered implementation from r1."
+      ],
+      "remaining_gates": [
+        "Initial worker stopped when workspace credits were exhausted. Separate Astra High r2 worker restarted at user request; parent review/integration deferred to resume."
+      ],
       "slideshows": []
     },
     {
@@ -311,11 +315,21 @@
     {
       "id": "D04",
       "scope": "[Mind map N0\u2013N4](docs/design/mind-mapping.md): keyboard-first ordered tree/layout, branch movement/reparenting, folds/search/outline, crosslinks/notes/style metadata, local save/recovery, bounded Freeplane import and visible loss report.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "bd3cccd"
+      ],
+      "verification": [
+        "Parent: model/layout/failure/application contracts, 69-entry shortcut inventory, native storage/import, clean precompiled consumer, shared canvas/native layers and F02 lifecycle passed.",
+        "Parent: neighbor reflow, reduced motion, exact final bounds tests and native executable build passed; CPU benchmark samples recorded in docs/mindmap.md."
+      ],
+      "remaining_gates": [
+        "Fresh post-integration native replay and 20-frame slideshow capture; native/manual, live Freeplane, IME, VoiceOver and independent usability acceptance.",
+        "8 ms interaction budget unmet; full visible native capacity and GPU/display/allocation evidence remain open."
+      ],
+      "slideshows": [
+        "mindmap (worker capture only; fresh parent capture pending)"
+      ]
     },
     {
       "id": "D05",
@@ -365,19 +379,33 @@
     {
       "id": "D07",
       "scope": "[Spatial S3](docs/design/3d-interaction.md): second application with hierarchy, linked perspective/orthographic views, shared selection, measurement/clipping and resource/work reuse evidence.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "d08538e"
+      ],
+      "verification": [
+        "Parent: 1,832 D06 and 2,522 D07 portable assertions, 143 D06 and 140 D07 native assertions, clean packaged consumers and both complete source-free application replays passed.",
+        "D07 portable AddressSanitizer/UndefinedBehaviorSanitizer passed; shared geometry and camera-only reuse assertions passed."
+      ],
+      "remaining_gates": [
+        "Fresh committed-source 14-frame slideshow capture, timing/provenance evidence and visual review.",
+        "D05 production renderer gate, native sanitizer coverage, physical input, human/assistive technology and controlled performance acceptance remain open."
+      ],
+      "slideshows": [
+        "spatial-assembly (worker capture only; fresh parent capture pending)"
+      ]
     },
     {
       "id": "D08",
       "scope": "[Spatial S4](docs/design/3d-interaction.md): planar world-space ordinary controls, ray/local mapping, occlusion/clip/capture/focus/IME/semantics; compare screen-space editing before promoting the API.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
-      "verification": [],
-      "remaining_gates": [],
+      "verification": [
+        "Initial worktree was clean when interrupted; no delivered implementation from r1."
+      ],
+      "remaining_gates": [
+        "Initial worker stopped when workspace credits were exhausted. Separate Astra High r2 worker restarted at user request; parent review/integration deferred to resume."
+      ],
       "slideshows": []
     },
     {
@@ -411,29 +439,47 @@
     {
       "id": "E02",
       "scope": "[Specialized Wave B](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-b): pie/donut, radar, gauge, polar/radial bar, beeswarm, violin, ridgeline, Nightingale, streamgraph, contour; richer distributions/grids as needed.",
-      "state": "pending",
+      "state": "partial",
       "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "verification": [
+        "Worker report only, not parent-verified: 196 Python tests, 89 native boundary cases, 14 Python/Mojo fixture families, affected regressions, clean consumers and 98 slideshow frames."
+      ],
+      "remaining_gates": [
+        "Review and integrate uncommitted t3/wave-b-specialized-geometry; regenerate evidence after integration.",
+        "Contour reference APIs absent at pinned upstream; full parity, scientific/human/native acceptance and controlled performance remain open."
+      ],
+      "slideshows": [
+        "14 e02-* worker galleries; not integrated"
+      ]
     },
     {
       "id": "E03",
       "scope": "[Specialized Wave C](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-c): treemap, sunburst, tree, Sankey, chord, graph, calendar, corrplot, punchcard, Marimekko, barbs, tricontour.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
-      "verification": [],
-      "remaining_gates": [],
+      "verification": [
+        "Partial uncommitted r1 code preserved on t3/wave-c-specialized-geometry; no completion claim."
+      ],
+      "remaining_gates": [
+        "Initial worker stopped when workspace credits were exhausted. Separate Astra High r2 worker restarted at user request; parent review/integration deferred to resume."
+      ],
       "slideshows": []
     },
     {
       "id": "E04",
       "scope": "[Native Mojo/CPython extension](ECOSYSTEM-CONVERGENCE-PLAN.md#gate-e4-python-binding-proof-and-package-skeleton): clean-environment native import/render probe, typed-buffer lifetime/copy policy, stable failures, wheel/dependency inspection and deployment decision. Preserve existing compiler-independent facade.",
-      "state": "pending",
+      "state": "partial",
       "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "verification": [
+        "Worker report only, not parent-verified: 43 native tests, 85 facade regressions, clean wheel consumer, dependency inspection and slideshow schema checks."
+      ],
+      "remaining_gates": [
+        "Review uncommitted t3/native-mojo-extension-proof; integrate and rebuild after E02/E03.",
+        "Experimental only: runtime redistribution, supported ABI/hosts, sanitizer coverage and native raster text/vector PDF gaps remain open."
+      ],
+      "slideshows": [
+        "e04-python-native worker gallery; not integrated"
+      ]
     },
     {
       "id": "E05",
