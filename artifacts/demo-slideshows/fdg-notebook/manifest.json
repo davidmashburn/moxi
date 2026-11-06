@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "demo_id": "fdg-notebook",
+  "title": "One graph in Jupyter and native Moxi",
+  "scenario": "P03 local Python notebook: graph/SVG, nonblocking native viewer, actionable error, close/reopen and kernel restart. Native frames are live content-view captures with test-only injection, not desktop/compositor or physical-input acceptance.",
+  "revision": "7f8bc7de6e944a53b648f52d8f547d84b13c3c5a",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "backend": "JupyterLab 4.4.10 / Chrome 156.0.8078.81; AppKit cacheDisplay content view",
+  "scale": 1,
+  "fixture": "Five nodes: Data, Python, Mojo, Moxi, SVG & μ; five links; source SHA-256 fdec292be3e32e519a98e6f5b3b667b981304dce8e897cbcf3e97064c6883941",
+  "reproduce": "From repository root: bash examples/fdg/scripts/build.sh; install optional notebook/requirements-capture.txt; run examples/fdg/.venv-notebook/bin/python examples/fdg/notebook/verify.py, capture_frontend.py, then gallery.py (each at that same notebook/ path). See README.md for exact commands.",
+  "source_provenance": {
+    "base_revision": "7f8bc7de6e944a53b648f52d8f547d84b13c3c5a",
+    "uncommitted_changes": true,
+    "source_sha256": "fdec292be3e32e519a98e6f5b3b667b981304dce8e897cbcf3e97064c6883941",
+    "binary_sha256": "7b5d6cab1c1618db46b92150e3088e57c558dfcffdce53d1e78c1a01c77d78ce",
+    "note": "Working-tree capture with uncommitted P03 additions; base revision is not a claim that the notebook is committed. Parent owns integration, commit and recapture."
+  },
+  "versions": {
+    "Python": "3.13.11",
+    "JupyterLab": "4.4.10",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "Moxi": "0.6.0",
+    "binary source revision": "7f8bc7de6e944a53b648f52d8f547d84b13c3c5a",
+    "Mojo": "Mojo 1.1.0 (8189361e)"
+  },
+  "verification": {
+    "kernel_rounds": [
+      {
+        "kernel_pid": 39690,
+        "code_cells": 8,
+        "responsive_cell_seconds": 0.0262,
+        "desktop_window_lookup_exit": 1,
+        "desktop_window_lookup_output": "",
+        "normal_close_codes": [
+          0,
+          0
+        ],
+        "missing_binary_and_async_invalid_graph": "passed"
+      },
+      {
+        "kernel_pid": 39761,
+        "code_cells": 8,
+        "responsive_cell_seconds": 0.0258,
+        "normal_close_codes": [
+          0,
+          0
+        ],
+        "missing_binary_and_async_invalid_graph": "passed"
+      }
+    ],
+    "frontend": {
+      "browser": "156.0.8078.81",
+      "viewport": {
+        "width": 1600,
+        "height": 1200
+      },
+      "scale": 1,
+      "labels": [
+        "Data",
+        "Python",
+        "Mojo",
+        "Moxi",
+        "SVG & μ"
+      ],
+      "frontend_run_all": "8 code cells passed",
+      "frontend_restart_run_all": "8 code cells passed via Kernel menu",
+      "kernel_pids": [
+        48599,
+        48640
+      ],
+      "notebook": "frontend-capture.ipynb",
+      "notebook_sha256": "1a8bf8f97b23909a532d8a3b74ca12ba92781d4243e75329190891be02b985c6",
+      "capture_script_sha256": "b1ecefd630eb51c31746ef744e8fe09a36abb4e72dd2cd4fded0db672bf6af25"
+    },
+    "skipped": [
+      "actual remote kernel",
+      "VoiceOver (paused)",
+      "physical input",
+      "independent human usability",
+      "desktop compositor/window chrome",
+      "other platforms/frontends"
+    ]
+  },
+  "slides": [
+    {
+      "image": "00-graph.png",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "One graph defined in JupyterLab",
+      "action": "Run all cells in a fresh local Python kernel",
+      "expected": "Five synthetic nodes and five links feed both helpers"
+    },
+    {
+      "image": "01-svg.png",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Actual JupyterLab static SVG output",
+      "action": "Render the graph with render_svg and IPython.display.SVG",
+      "expected": "All five labels are readable, including SVG & μ"
+    },
+    {
+      "image": "02-native.png",
+      "phase": "interaction",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2200,
+        1600
+      ],
+      "scale": 2,
+      "caption": "Live native content view; excludes window chrome",
+      "action": "Launch twice; execute the computation cell while both viewers remain open",
+      "expected": "The same five-node graph renders in the compiled AppKit viewer"
+    },
+    {
+      "image": "03-error.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Compiled diagnostic with an actionable repair",
+      "action": "Try a link whose target is missing",
+      "expected": "Unknown link endpoint: Data -> missing; replace it with an existing ID"
+    },
+    {
+      "image": "04-reopen-native.png",
+      "phase": "result",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2200,
+        1600
+      ],
+      "scale": 2,
+      "caption": "Reopened native content view",
+      "action": "Close both viewers through performClose, verify exit 0, then reopen",
+      "expected": "The original valid graph renders again in a fresh process"
+    },
+    {
+      "image": "05-restart-native.png",
+      "phase": "recovery",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2200,
+        1600
+      ],
+      "scale": 2,
+      "caption": "Native content view after kernel restart",
+      "action": "Restart the test kernel, verify old globals are absent, and rerun every cell",
+      "expected": "A new viewer renders the reconstructed graph; final cleanup reaps it"
+    },
+    {
+      "image": "06-restart.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "JupyterLab restart and Run All completed",
+      "action": "Use Kernel → Restart Kernel and Run All Cells and confirm Restart",
+      "expected": "Eight code cells finish in a new kernel PID, including reopen and final cleanup"
+    }
+  ]
+}

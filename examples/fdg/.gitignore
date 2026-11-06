@@ -2,3 +2,6 @@ dist/
 .pixi/
 __pycache__/
 moxi-fdg.svg
+.venv-notebook/
+.ipynb_checkpoints/
+notebook/.ipynb_checkpoints/

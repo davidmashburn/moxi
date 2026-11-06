@@ -1,0 +1,3 @@
+# Optional example validation/frontend dependencies; never part of Moxi's build.
+jupyterlab==4.4.10
+nbclient==0.10.2

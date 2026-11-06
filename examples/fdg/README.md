@@ -34,6 +34,11 @@ Moxi revision in `dist/moxi-revision.txt`; it does not change that checkout.
 
 ## From Python and Jupyter
 
+The [entry-point notebook](entrypoints.ipynb) uses one graph for inline static SVG
+and a separate nonblocking native viewer. See the [local Jupyter setup and
+verification recipe](notebook/README.md); optional dependencies stay outside the
+normal build. Native windows open on the kernel machine, including remote kernels.
+
 After building, add this example directory to your Python path (or run Python
 from it).
 The wrapper uses only Python's standard library and launches the compiled
