@@ -21,6 +21,12 @@ The November 2 integration record is:
 
 ## Active implementation follow-through — November 6, 2026
 
+The requested deferred-proposal expansion is now inventoried in the
+[implementation master list](DEFERRED-IMPLEMENTATION-MASTER.md), including
+demo screenshot storyboards, proposed branches, dependencies and scope limits.
+It is awaiting user confirmation before implementation starts; the existing
+active-plan status below is unchanged.
+
 The current local implementation baseline is `fa42b6f` on
 `feat/playground-authoring`, based on the last fetched `origin/main` at
 `ba8fc93`. The authoring migration's full local check passed; the November 2 CI
