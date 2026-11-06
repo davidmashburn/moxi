@@ -200,18 +200,19 @@
       "id": "P07",
       "scope": "[SeedWaterSegmenter](docs/design/sws-port.md): reproducible reference fixtures, native stack/label viewer, generation-safe watershed, seed/polygon editing, undo/redo, persistence, cancellation and recovery. Preserve scientific algorithms first.",
       "state": "partial",
-      "commits": [],
+      "commits": [
+        "dbd145e"
+      ],
       "verification": [
-        "Worker r2 report only, not parent-verified: native stack/label viewer, seed/polygon editing, generation-safe watershed, semantic undo/redo, atomic save/reopen and explicit recovery; 23 contract/history/persistence/failure tests and 18 pinned-original comparisons with partition equality and exact stable IDs.",
-        "Worker reports source-free precompiled consumer, 168 pixel-alignment checks, native ownership/lifecycle/sampling regressions and unchanged source hashes after replay. Parent checked Git status, notes and gallery/reproduction presence only."
+        "Moxi sampling hooks integrated; separate moxi-sws repository checkpoint 440abc2 and fixes 3ac37ef are committed locally.",
+        "33 app tests pass, including startup recovery/new-destination saves and accepted labels across both history stacks. Native build and 18 pinned-original partition/stable-ID scientific comparisons pass."
       ],
       "remaining_gates": [
-        "Review entirely uncommitted moxi-sws application on feat/sws-native-port (new repository with no commits) and Moxi t3/native-seed-watershed-viewer (t3-983abb96, base bd3cccd). Reconcile native composition/sampling hooks with D08/D04, independently verify and commit before integration.",
-        "Full Moxi/D04 suites, physical editing, human scientific acceptance, IME, VoiceOver, external stacks, other hosts, power-loss durability and sustained performance remain open. Worker timings cover only a synthetic 3x93x157 stack.",
-        "Pinned scientific reference is 45bd4bf22184f3daae3add27f7b2d2136c1573de; upstream license text is only BSD and no upstream code was vendored. Review dependency and distribution details before publication."
+        "Native app smoke/replay after recovery fix, physical editing, human scientific acceptance, IME, VoiceOver, external stacks, other hosts, power-loss durability and sustained performance remain open.",
+        "Pinned scientific reference is 45bd4bf22184f3daae3add27f7b2d2136c1573de; no upstream code vendored. Separate app publication is not part of Moxi branch publication."
       ],
       "slideshows": [
-        "sws-native worker gallery; not integrated"
+        "sws-native manifest/reproduction notes integrated; original captures retained in worker worktree"
       ]
     },
     {
@@ -299,13 +300,15 @@
       "scope": "[Canvas C0\u2013C4](docs/design/canvas-interaction.md): transformed ordinary components, shared geometry/input/semantics, pan/zoom/select/move/resize/history, ports/edges/reconnect, groups/minimap/culling and public consumers.",
       "state": "partial",
       "commits": [
-        "5db9a01"
+        "5db9a01",
+        "3c288b9"
       ],
       "verification": [
         "Parent reviewed and corrected native edge/control/overlay layering, per-slice clips and owner restoration; negative edge IDs and no-op ungroup are rejected.",
         "Four canvas contracts, clean precompiled-package consumer, strict native pixel-layer test and F02 ownership/lifecycle regressions passed. Both real native demo replays passed editor identity/frame/clip/font assertions.",
         "Twenty-two AppKit offscreen renders visually reviewed; source/PNG hashes and dimensions verified; both galleries load all images and navigate.",
-        "Parent CPU benchmark: 100-node pan p95 2.067 ms; 1,000-visible-node pan p95 24.982 ms, before native submission. See docs/canvas-interaction-evidence.md."
+        "Parent CPU benchmark: 100-node pan p95 2.067 ms; 1,000-visible-node pan p95 24.982 ms, before native submission. See docs/canvas-interaction-evidence.md.",
+        "Review fix: canvas Create allocates beyond retained mount identities; create/delete/create and delete/undo/redo/create regressions pass with retained content/history."
       ],
       "remaining_gates": [
         "The 8 ms large-graph budget fails before native submission; native 1,024 ordinary-slot capacity cannot present the 3,015-view workload. Allocation/GPU/input-to-presentation costs remain unmeasured.",
@@ -322,11 +325,13 @@
       "scope": "[Mind map N0\u2013N4](docs/design/mind-mapping.md): keyboard-first ordered tree/layout, branch movement/reparenting, folds/search/outline, crosslinks/notes/style metadata, local save/recovery, bounded Freeplane import and visible loss report.",
       "state": "partial",
       "commits": [
-        "bd3cccd"
+        "bd3cccd",
+        "3c288b9"
       ],
       "verification": [
         "Parent: model/layout/failure/application contracts, 69-entry shortcut inventory, native storage/import, clean precompiled consumer, shared canvas/native layers and F02 lifecycle passed.",
-        "Parent: neighbor reflow, reduced motion, exact final bounds tests and native executable build passed; CPU benchmark samples recorded in docs/mindmap.md."
+        "Parent: neighbor reflow, reduced motion, exact final bounds tests and native executable build passed; CPU benchmark samples recorded in docs/mindmap.md.",
+        "Review fix: transactional Save/Save As and independent draft recovery pass native-storage regressions for first-save failure, cancellation, replacement, stale revisions and alternate-destination escape; 70-command inventory and native app build pass."
       ],
       "remaining_gates": [
         "Fresh post-integration native replay and 20-frame slideshow capture; native/manual, live Freeplane, IME, VoiceOver and independent usability acceptance.",
@@ -404,18 +409,19 @@
       "id": "D08",
       "scope": "[Spatial S4](docs/design/3d-interaction.md): planar world-space ordinary controls, ray/local mapping, occlusion/clip/capture/focus/IME/semantics; compare screen-space editing before promoting the API.",
       "state": "partial",
-      "commits": [],
+      "commits": [
+        "511b60b"
+      ],
       "verification": [
-        "Worker r2 report only, not parent-verified: runnable world-space ordinary-control plane and equivalent screen editor; portable edge cases, native ownership/focus/semantic/text protocols, packaged consumers, source-free panel/explorer/assembly replays and D06/D07 regressions passed.",
-        "Worker reports six offscreen-render slides with matching pre-build/post-replay source and PNG hashes; three cold and 90 warm draws. Parent checked preserved worktree, notes and gallery presence only."
+        "Parent reran integrated world-panel checks: portable/native contracts, source-free public consumers and D06/D07 native replays passed.",
+        "World semantics remain suppressed and the equivalent screen-space editor remains the supported route."
       ],
       "remaining_gates": [
-        "Review uncommitted t3/spatial-world-panel-1 (t3-40ab68f6, base bd3cccd), integrate narrow shared/native changes, run affected D04/full regressions as appropriate and recapture.",
-        "Worker rejects world-panel promotion: native IME/semantic geometry remains source-local; world semantics suppressed, screen-space route retained. Independent parent verification and coherent transformed native geometry required before reconsideration.",
-        "Physical IME, human/assistive-tech acceptance, compositor/sustained-performance evidence and D05 production decision remain open."
+        "World-panel promotion rejected until transformed native IME/semantic geometry is coherent.",
+        "Fresh integrated gallery review, physical IME, human/assistive-tech acceptance, sustained performance and D05 production decision remain open."
       ],
       "slideshows": [
-        "spatial-world-panel worker gallery; not integrated"
+        "spatial-world-panel manifest integrated; original captures retained in worker worktree"
       ]
     },
     {
@@ -423,12 +429,14 @@
       "scope": "[Specialized Wave A](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-a): upstream-shaped layouts/fixtures for lollipop, waterfall, candlestick, bullet, grouped/stacked bar, Gantt/span, population pyramid.",
       "state": "partial",
       "commits": [
-        "4706b42"
+        "4706b42",
+        "95d6615"
       ],
       "verification": [
         "Parent: 85 Python tests, five focused Mojo regressions, nine layout/event/export parity replays, PlotSpec contract and API inventory passed.",
         "Pinned dataviz v0.8.0 reference output hashes verified; nine six-frame galleries generated from clean source 4706b42 and scoped source hash 6031303e65b3f7feb8191c377487468bf8a30c73c04e8aaaba72b46ab4e5c895.",
-        "All 54 PNGs decoded and hashed; updates change output and recovery is pixel-exact. All nine slideshow pages loaded 12 images and passed navigation. Comparison, selection and update views visually inspected."
+        "All 54 PNGs decoded and hashed; updates change output and recovery is pixel-exact. All nine slideshow pages loaded 12 images and passed navigation. Comparison, selection and update views visually inspected.",
+        "Review fix: facade wheel and source distribution retain the exact pinned dataviz_mojo MIT notice; artifact inspection and clean installed consumer pass."
       ],
       "remaining_gates": [
         "Canvas text labels and series legends absent; theme, margins, palette, domain fitting and some primitive/order differences remain. No pixel or full upstream parity claim.",
@@ -450,49 +458,63 @@
       "id": "E02",
       "scope": "[Specialized Wave B](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-b): pie/donut, radar, gauge, polar/radial bar, beeswarm, violin, ridgeline, Nightingale, streamgraph, contour; richer distributions/grids as needed.",
       "state": "partial",
-      "commits": [],
+      "commits": [
+        "45cc7cf",
+        "9664137",
+        "6a8b784"
+      ],
       "verification": [
-        "Worker report only, not parent-verified: 196 Python tests, 89 native boundary cases, 14 Python/Mojo fixture families, affected regressions, clean consumers and 98 slideshow frames."
+        "Integrated with Wave C using typed contributor keys and distinct glyph identities; Wave A compatibility preserved.",
+        "315 combined Python tests; 14 native Wave B family contracts and 89 boundary cases passed. Stable-key resize regression passes with viewport/visibility preservation."
       ],
       "remaining_gates": [
-        "Review and integrate uncommitted t3/wave-b-specialized-geometry; regenerate evidence after integration.",
-        "Contour reference APIs absent at pinned upstream; full parity, scientific/human/native acceptance and controlled performance remain open."
+        "Fresh integrated-source galleries and human/native/scientific acceptance remain open.",
+        "Contour reference APIs absent at pinned upstream; full parity and controlled performance remain open."
       ],
       "slideshows": [
-        "14 e02-* worker galleries; not integrated"
+        "14 e02-* manifests integrated; original captures retained in worker worktree"
       ]
     },
     {
       "id": "E03",
       "scope": "[Specialized Wave C](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-c): treemap, sunburst, tree, Sankey, chord, graph, calendar, corrplot, punchcard, Marimekko, barbs, tricontour.",
       "state": "partial",
-      "commits": [],
+      "commits": [
+        "9664137",
+        "6a8b784"
+      ],
       "verification": [
-        "Worker r2 report only, not parent-verified: all 12 Wave C families; 204 source/installed Python tests, 12 rendering/interaction contracts, 91 invalid and 10 degenerate boundary cases, nine Wave A cases, affected Mojo regressions, clean consumer and inventories.",
-        "Worker reports 12 genuine galleries with 72 frames, including 37 T3 browser captures. Parent checked preserved worktree, implementation notes and gallery index only."
+        "Integrated with Wave B; typed provenance preserves C primary selection and B contributor selection.",
+        "315 combined Python tests; 12 native family contracts, 91 negative and 10 positive boundaries passed. Legacy spec/view/runtime/selection, API and scenario checks pass."
       ],
       "remaining_gates": [
-        "Review uncommitted t3/implement-wave-c-specialized (t3-1bf5b67f, base bd3cccd); reconcile E02 shared dispatcher, PlotSpec/parser, glyph, PlotView and registry changes before integration.",
-        "Pinned upstream tricontour is absent. Full repository/host suites, native windows, VoiceOver, human usability, large-data performance and E6 acceptance remain open."
+        "Fresh integrated-source gallery review, VoiceOver, human usability and large-data performance remain open.",
+        "Pinned upstream tricontour is absent; E6 acceptance remains open."
       ],
       "slideshows": [
-        "12 e03-* worker galleries; not integrated"
+        "12 e03-* manifests integrated; original captures retained in worker worktree"
       ]
     },
     {
       "id": "E04",
       "scope": "[Native Mojo/CPython extension](ECOSYSTEM-CONVERGENCE-PLAN.md#gate-e4-python-binding-proof-and-package-skeleton): clean-environment native import/render probe, typed-buffer lifetime/copy policy, stable failures, wheel/dependency inspection and deployment decision. Preserve existing compiler-independent facade.",
       "state": "partial",
-      "commits": [],
+      "commits": [
+        "f68c965",
+        "6a8b784",
+        "95d6615"
+      ],
       "verification": [
-        "Worker report only, not parent-verified: 43 native tests, 85 facade regressions, clean wheel consumer, dependency inspection and slideshow schema checks."
+        "Integrated and rebuilt after E02/E03. All compiled source hashes match the integrated source.",
+        "46 native tests and 315 facade tests pass in an isolated installed-wheel consumer; independent dependency and exact runtime-notice inspection passes.",
+        "Facade wheel and source distribution retain the exact pinned MIT notice; missing installed runtime notices fail the native build."
       ],
       "remaining_gates": [
-        "Review uncommitted t3/native-mojo-extension-proof; integrate and rebuild after E02/E03.",
-        "Experimental only: runtime redistribution, supported ABI/hosts, sanitizer coverage and native raster text/vector PDF gaps remain open."
+        "Experimental only: production runtime redistribution, supported ABI/hosts, sanitizers and native raster text/vector PDF gaps remain open.",
+        "Fresh integrated-source slideshow capture and visual review remain pending; previous manifest retains original provenance."
       ],
       "slideshows": [
-        "e04-python-native worker gallery; not integrated"
+        "e04-python-native manifest integrated; original captures retained in worker worktree"
       ]
     },
     {
