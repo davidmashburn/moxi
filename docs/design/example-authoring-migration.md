@@ -1,7 +1,7 @@
 # Example authoring migration, preserving Moxi Playground
 
-Status: proposed implementation plan. No example migration has been performed
-for this plan.
+Status: implemented locally on `feat/playground-authoring` through `fa42b6f`.
+Manual launcher acceptance and CI remain unverified; see the reconciliation below.
 
 Observed November 2, 2026 against implementation `main` at
 [`ba8fc93`](https://github.com/davidmashburn/moxi/tree/ba8fc93e3a16b4113bec4f2c9adc8e5713aa1fc2).
@@ -29,7 +29,7 @@ fixtures merely because a teaching entrypoint now uses an authoring model.
 Retain backend and platform scope; this work does not promise new platform
 support or make every standalone example embeddable.
 
-## Evidence and the first technical gate
+## Original evidence and the first technical gate
 
 - [The launcher contract](https://github.com/davidmashburn/moxi/blob/ba8fc93/docs/demo-browser.md)
   requires real in-process previews, not substitute screenshots or sibling
@@ -220,7 +220,7 @@ every current top-level Mojo example is accounted for.
   coherent slices under the standing authorization, and check CI after the
   latest implementation push before calling the migration verified.
 
-## Confidence and current verification limits
+## Original confidence and verification limits
 
 High confidence in preserving the launcher and in retaining specialized
 lower-level examples: the current code establishes both needs. Moderate
@@ -235,3 +235,83 @@ the authoring declaration surface, and existing documentation. No builds,
 runtime tests, GUI checks, performance measurements, or CI runs were performed
 for the plan. Earlier production validation remains historical evidence, not
 validation of these proposed migrations.
+
+
+## November 5 implementation reconciliation
+
+The implementation branch starts from `main` at `ba8fc93` and contains these
+local commits; none has been pushed:
+
+- `122d13c`: public embedded model reset, with retired actions, controls,
+  delivery scopes, and owned requests tested independently of sibling work.
+- `e9d6130`: shared Counter model mounted through `ComponentSlot[HandlerHost]`.
+- `777ed3c`: authoring editor hints and disjoint ID strides for embedded hosts.
+- `529f479`: shared Editors, Shared document, and Workspace models with thin
+  standalone runners.
+- `fa42b6f`: authoring Form, the three additional Playground pages, deferred
+  native-batch resets, clipboard/event forwarding, responsive previews,
+  catalog/source updates, regression tests, and the revised learning path.
+
+The fetched `origin/main` remained `ba8fc93` on November 5 and is an ancestor
+of the implementation head; no rebase was necessary. Planning history stays
+separate from implementation.
+
+### Delivered scope and decisions
+
+The Counter and Form gate passed local behavior checks. All five authoring
+pages share their model implementation with standalone examples and preserve
+state across navigation. Reset replaces the selected model after the native
+input batch drains, retaining unrelated navigation, resize, and ready results.
+Monotonic IDs in disjoint residue classes prevent old controls from addressing
+another embedded host after repeated reset or child replacement.
+
+Form retains its name/hint, submission count, Unicode editor, selection,
+clipboard, composition, and keyboard activation. Its visible presentation
+intentionally adopts the authoring column's 16-pixel padding and standard
+control heights. Native-rendered fixtures were inspected at 1180 and 900 pixels;
+the narrow layout stacks source below the preview, and Workspace uses the outer
+portal without an additional clipped scrollbar.
+
+The existing launcher, specialized pages, lower-level public components, and
+fixtures remain. Data Workbench's toolbar/filter/import region was inspected
+and left unchanged: its parsing, filtering, table reset, plot refresh, clipboard,
+and compact row layout would require a new adapter without a simpler ownership
+boundary. The graph app also remains unchanged. These are completed assessment
+decisions, not unfinished conversions.
+
+Embedded asynchronous completion delivery is **not** claimed. Host reconciliation
+retires stale owned requests, but the current target-based page route does not
+route live task results by owner. The migrated lessons schedule no requests.
+Adding asynchronous work to a lesson requires an explicit completion route that
+works independently of focused or visible controls. See the implemented
+[embedding contract](https://github.com/davidmashburn/moxi/blob/fa42b6f/docs/authoring/application-guide.md#mounting-a-model-inside-a-component-application).
+
+### Validation and remaining acceptance
+
+The shared example runners/checks and standalone Form/Playground builds pass
+locally. The complete `pixi run check` suite passed on the final implementation
+sources with a clean implementation checkout. This includes catalog/API checks,
+portable/headless tests, embedded editing/layout regressions, scenario mapping,
+the deterministic walkthrough, native screenshot tolerances, authoring lifecycle
+and page-lifetime probes, package builds, and live reload. The native page probe
+covers queued reset/text/composition/click ordering, retired accessibility
+callbacks, navigation/resize preservation, and unrelated ready results.
+The run emitted existing `as_c_string_slice` deprecation warnings.
+
+The new tests are
+[embedded authoring](https://github.com/davidmashburn/moxi/blob/fa42b6f/tests/demo_authoring.mojo)
+and [native page lifetimes](https://github.com/davidmashburn/moxi/blob/fa42b6f/tests/native_demo_authoring.mojo).
+The retained lower-level examples and Workbench decision are documented in the
+[lesson guide](https://github.com/davidmashburn/moxi/blob/fa42b6f/examples/authoring/README.md).
+
+Computer-use attachment to the launched native window failed with
+`cgWindowNotFound`. Offscreen AppKit rendering and injected native queue probes
+provide useful evidence but do not replace interactive launcher acceptance,
+physical IME, or VoiceOver checks. No performance study, graph benchmark rerun,
+human readability evaluation, push, or CI verification was performed. Publication
+and CI are outside the current local-commit request.
+
+Confidence is high in the locally tested model, routing, and reset behavior;
+manual accessibility/input acceptance remains unverified. A failing real IME,
+VoiceOver, or launcher navigation/reset session would change that assessment
+and should be resolved before calling the migration fully verified.
