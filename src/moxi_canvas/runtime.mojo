@@ -59,11 +59,11 @@ def dispatch_canvas[Child: Component & Deinitable](mut app: App[CanvasView[Child
             if changed:
                 app.rebuild_localized()
             return changed
-        if app.component.state.session == SessionKind.IDLE and not app.component.searching:
+        if app.component.state.session == SessionKind.IDLE and not app.component.searching and not app.component.is_toolbar_target(focus):
             var application = app.component.application_command(event, host)
             if application != CanvasCommand.NONE:
                 return invoke_canvas(app, application)
-        if event.key == KEY_TAB or (focus >= TOOLBAR_BASE and focus < TOOLBAR_BASE + 50 and (event.key == KEY_ENTER or event.key == KEY_SPACE)):
+        if event.key == KEY_TAB or (app.component.is_toolbar_target(focus) and (event.key == KEY_ENTER or event.key == KEY_SPACE)):
             return app.dispatch(event)
         var command = app.component.key_command(event, host)
         if command != CanvasCommand.NONE:

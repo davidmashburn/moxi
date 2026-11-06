@@ -22,6 +22,7 @@ struct ShortcutModifier(Equatable, ImplicitlyCopyable):
     comptime COMMAND = Self(4)
     comptime SHIFT = Self(5)
     comptime PRIMARY_OPTION = Self(6)
+    comptime OPTION = Self(7)
 
 
 def resolve_modifier(modifier: ShortcutModifier, host: HostPlatform) -> Int:
@@ -38,6 +39,8 @@ def resolve_modifier(modifier: ShortcutModifier, host: HostPlatform) -> Int:
         return MOD_SHIFT
     if modifier == ShortcutModifier.PRIMARY_OPTION:
         return primary | MOD_OPTION
+    if modifier == ShortcutModifier.OPTION:
+        return MOD_OPTION
     return 0
 
 

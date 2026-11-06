@@ -1,0 +1,3 @@
+These small XML maps are original synthetic fixtures authored for Moxi D04 and dedicated to CC0-1.0. They contain no Freeplane source, distributed examples, user maps, or private data. The format and action inventory are independently interpreted from the pinned upstream documentation and configuration; Freeplane's GPL implementation is not included or linked.
+
+`supported.mm` covers ordered plain topics, left/right, folds, inert hyperlink, icon name, and crosslink. `loss.mm` demonstrates visible omissions and inert untrusted content. Failure fixtures are generated into temporary directories by the tests.

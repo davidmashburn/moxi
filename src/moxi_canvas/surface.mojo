@@ -18,6 +18,8 @@ comptime ROOT_ID = 1
 comptime VIEWPORT_ID = 2
 comptime SURFACE_FOCUS_ID = 3
 comptime STATUS_ID = 4
+comptime SEARCH_LABEL_ID = 5
+comptime SEARCH_PANEL_ID = 7
 comptime TOOLBAR_BASE = 100
 comptime CONTROL_BASE = 10000
 comptime ID_STRIDE = 1000
@@ -94,6 +96,11 @@ struct CanvasView[Child: Component & Deinitable](Component):
     var has_destination: Bool
     var destination_title: String
     var bindings: List[CanvasBinding]
+    # Consumer profile: default behavior is unchanged for existing canvases.
+    var default_commands: Bool
+    var toolbar: List[CanvasBinding]
+    var surface_hint: String
+    var search_entries: List[String]
     var pending_command: CanvasCommand
     var publication: CanvasSnapshot
     var geometry_cache: GeometryCache
@@ -120,6 +127,10 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.has_destination = False
         self.destination_title = ""
         self.bindings = List[CanvasBinding]()
+        self.default_commands = True
+        self.toolbar = List[CanvasBinding]()
+        self.surface_hint = "Canvas. Arrows navigate; M move; R resize; C connect; slash search; Enter edit."
+        self.search_entries = List[String]()
         self.pending_command = CanvasCommand.NONE
         self.geometry_cache = GeometryCache()
         self.publication = CanvasSnapshot(document, Camera(viewport))
@@ -146,6 +157,10 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.has_destination = copy.has_destination
         self.destination_title = copy.destination_title
         self.bindings = copy.bindings.copy()
+        self.default_commands = copy.default_commands
+        self.toolbar = copy.toolbar.copy()
+        self.surface_hint = copy.surface_hint
+        self.search_entries = copy.search_entries.copy()
         self.pending_command = copy.pending_command
         self.geometry_cache = copy.geometry_cache
         self.publication = copy.publication
@@ -239,7 +254,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         surface.parent_id = VIEWPORT_ID
         surface.style.fill = Color(0.075, 0.10, 0.15, 1)
         surface.style.border_width = 0
-        surface.semantics.label = "Canvas. Arrows navigate; M move; R resize; C connect; slash search; Enter edit."
+        surface.semantics.label = self.surface_hint
         root.add(surface)
         var preview = self.presentation_document()
         var snapshot = self.snapshot()
@@ -289,9 +304,16 @@ struct CanvasView[Child: Component & Deinitable](Component):
                 projected.focusable = child.focusable and self.editor == object.id
                 root.add(projected)
         var toolbar = List[CanvasCommand]([CanvasCommand.UNDO, CanvasCommand.REDO, CanvasCommand.MOVE, CanvasCommand.RESIZE, CanvasCommand.CONNECT, CanvasCommand.RECONNECT, CanvasCommand.DELETE, CanvasCommand.FIT_ALL, CanvasCommand.ZOOM_IN, CanvasCommand.ZOOM_OUT])
-        var width = (bounds.width - 40) / Float32(len(toolbar))
+        if not self.default_commands:
+            toolbar = List[CanvasCommand]()
+        for entry in self.toolbar:
+            toolbar.append(entry.command)
+        var width = (bounds.width - 40) / Float32(max(1, len(toolbar)))
         for i in range(len(toolbar)):
             var button = ViewNode(BUTTON_KIND, TOOLBAR_BASE + toolbar[i].value, command_title(toolbar[i]), 30)
+            for entry in self.toolbar:
+                if entry.command == toolbar[i]:
+                    button.text = entry.title
             button.bounds = Rect(20 + Float32(i) * width, 16, width - 5, 30)
             button.parent_id = ROOT_ID
             button.style.font_size = 10
@@ -309,10 +331,18 @@ struct CanvasView[Child: Component & Deinitable](Component):
             var text = String("Search: ", self.search, "   ↑↓ choose · Enter run · Esc close\n")
             for i in range(min(len(results), 9)):
                 text += String("› " if i == self.search_index else "  ", results[i], "\n")
-            var search = ViewNode(LABEL_KIND, 5, text, 240)
-            search.bounds = Rect(80, 110, min(Float32(650), bounds.width - 160), 240)
-            search.parent_id = ROOT_ID
-            search.style.fill = Color(0.1, 0.12, 0.2, 1)
+            var panel = ViewNode(CONTAINER_KIND, SEARCH_PANEL_ID, "Search and command results", 360)
+            panel.bounds = Rect(60, 100, bounds.width - 120, min(Float32(360), bounds.height - 120))
+            panel.parent_id = ROOT_ID
+            panel.container_layout_kind = LAYOUT_STACK
+            panel.component_surface = True
+            panel.clip_children = True
+            panel.style.fill = Color(0.1, 0.12, 0.2, 1)
+            root.add(panel)
+            var search = ViewNode(LABEL_KIND, SEARCH_LABEL_ID, text, panel.bounds.height - 24)
+            search.bounds = Rect(panel.bounds.x + 12, panel.bounds.y + 12, panel.bounds.width - 24, panel.bounds.height - 24)
+            search.parent_id = SEARCH_PANEL_ID
+            search.style.font_size = 16
             search.style.text = Color(1, 1, 1, 1)
             search.wrap_text = True
             root.add(search)
@@ -366,6 +396,9 @@ struct CanvasView[Child: Component & Deinitable](Component):
             self.content_dirty = False
 
     def command(mut self, command: CanvasCommand) -> Bool:
+        if command.value >= 1000:
+            self.pending_command = command
+            return True
         self.flush_content()
         var before = self.mounts.copy()
         var cursor = self.state.history.cursor
@@ -396,6 +429,17 @@ struct CanvasView[Child: Component & Deinitable](Component):
             return 2
         return 0
 
+    def is_toolbar_target(self, id: Int) -> Bool:
+        if self.default_commands and id >= TOOLBAR_BASE and id < TOOLBAR_BASE + 50:
+            return True
+        for entry in self.toolbar:
+            if id == TOOLBAR_BASE + entry.command.value:
+                return True
+        return False
+
+    def toolbar_target(self, command: CanvasCommand) -> Int:
+        return TOOLBAR_BASE + command.value
+
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         if event.kind == POINTER_CANCEL_KIND:
             self.state.cancel()
@@ -418,6 +462,10 @@ struct CanvasView[Child: Component & Deinitable](Component):
             else:
                 self.state.camera.pan(event.scroll_delta.x, -event.scroll_delta.y)
             return True
+        for entry in self.toolbar:
+            if event.target == TOOLBAR_BASE + entry.command.value and (event.kind == CLICK_KIND or (event.kind == KEY_DOWN_KIND and (event.key == KEY_ENTER or event.key == KEY_SPACE))):
+                var chosen = entry.command
+                return self.command(chosen)
         if event.target >= TOOLBAR_BASE and event.target < TOOLBAR_BASE + 30 and event.kind == CLICK_KIND:
             return self.command(CanvasCommand(event.target - TOOLBAR_BASE))
         var target = event.target
@@ -512,6 +560,8 @@ struct CanvasView[Child: Component & Deinitable](Component):
         return False
 
     def search_results(self) -> List[String]:
+        if not self.default_commands:
+            return self.search_entries.copy()
         var result = List[String]()
         for i in range(1, 34):
             var title = command_title(CanvasCommand(i))
@@ -762,6 +812,8 @@ struct CanvasView[Child: Component & Deinitable](Component):
             var application = self.application_command(event, host)
             if application != CanvasCommand.NONE:
                 return application
+        if not self.default_commands and self.state.session == SessionKind.IDLE:
+            return CanvasCommand.NONE
         if event.key == KEY_ENTER:
             return CanvasCommand.COMMIT if self.state.session != SessionKind.IDLE else CanvasCommand.ENTER_CONTROLS
         if event.key == KEY_LEFT or event.key == KEY_RIGHT or event.key == KEY_UP or event.key == KEY_DOWN:
@@ -799,11 +851,14 @@ struct CanvasView[Child: Component & Deinitable](Component):
             return self.destination
         return self.state.preview(self.document)
 
-    def propose_destination(mut self, proposal: CanvasDocument, title: String, expected_revision: Int) -> Bool:
+    def propose_destination(mut self, proposal: CanvasDocument, title: String, expected_revision: Int, *, semantic_graph: Bool = False) -> Bool:
         """Consumer semantic move/reparent hook. Canvas owns preview/cancel/history.
 
         The consumer owns domain validation and supplies a complete proposed store;
-        stable identities and graph policy remain checked here. No view geometry
+        stable identities and graph policy remain checked here. semantic_graph
+        additionally permits edge rerouting, normalized port anchors and visibility
+        for a tree consumer's reparent/side/reveal preview. Counts, IDs, content and
+        port ownership/type/direction remain immutable. No view geometry
         synchronization is needed. Publish again after proposing a destination.
         """
         if self.state.session != SessionKind.MOVE or expected_revision != self.document.revision or self.state.base_revision != expected_revision:
@@ -812,22 +867,25 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.has_destination = False
         if len(proposal.objects) != len(self.document.objects) or len(proposal.ports) != len(self.document.ports) or len(proposal.edges) != len(self.document.edges):
             return False
-        # This hook changes placement/parentage; graph edits use graph commands.
+        # Stable edge rerouting is opt-in for semantic tree moves. Ordinary
+        # consumers retain the geometry-only contract; graph policy is checked below.
         for i in range(len(proposal.ports)):
             var a = proposal.ports[i]
             var b = self.document.ports[i]
-            if a.id != b.id or a.object != b.object or a.direction != b.direction or a.x != b.x or a.y != b.y or a.type_id != b.type_id or a.capacity != b.capacity:
+            if a.id != b.id or a.object != b.object or a.direction != b.direction or a.type_id != b.type_id or a.capacity != b.capacity or (not semantic_graph and (a.x != b.x or a.y != b.y)):
+                return False
+            if not isfinite(a.x) or not isfinite(a.y) or a.x < 0 or a.x > 1 or a.y < 0 or a.y > 1:
                 return False
         for i in range(len(proposal.edges)):
             var a = proposal.edges[i]
             var b = self.document.edges[i]
-            if a.id != b.id or a.source != b.source or a.target != b.target or a.label != b.label or a.path != b.path:
+            if a.id != b.id or a.label != b.label or a.path != b.path or (not semantic_graph and (a.source != b.source or a.target != b.target)):
                 return False
         var changed = False
         for i in range(len(proposal.objects)):
             var object = proposal.objects[i]
             var prior = self.document.objects[i]
-            if object.id != prior.id or object.title != prior.title or object.kind != prior.kind or object.hidden != prior.hidden:
+            if object.id != prior.id or object.title != prior.title or object.kind != prior.kind or (not semantic_graph and object.hidden != prior.hidden):
                 return False
             changed = changed or object.parent != prior.parent or object.bounds.x != prior.bounds.x or object.bounds.y != prior.bounds.y or object.bounds.width != prior.bounds.width or object.bounds.height != prior.bounds.height
             if object.id not in self.document.object_index or not valid_bounds(object.bounds):
@@ -839,6 +897,13 @@ struct CanvasView[Child: Component & Deinitable](Component):
         for edge in proposal.edges:
             if self.policy.rejection(proposal, edge.source, edge.target, edge.id) != "":
                 return False
+        if semantic_graph:
+            for i in range(len(proposal.objects)):
+                changed = changed or proposal.objects[i].hidden != self.document.objects[i].hidden
+            for i in range(len(proposal.ports)):
+                changed = changed or proposal.ports[i].x != self.document.ports[i].x or proposal.ports[i].y != self.document.ports[i].y
+            for i in range(len(proposal.edges)):
+                changed = changed or proposal.edges[i].source != self.document.edges[i].source or proposal.edges[i].target != self.document.edges[i].target
         if not changed:
             return False
         self.destination = proposal

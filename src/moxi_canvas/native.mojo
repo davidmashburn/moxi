@@ -12,7 +12,7 @@ comptime NATIVE_TEXT_CAPACITY = 256
 from moxi.accessibility import AccessibilitySnapshot
 from moxi.macos import MacOSRenderer, MacOSCanvasSceneRenderer
 from moxi.view_node import TEXT_INPUT_VIEW_KIND, SLIDER_KIND
-from .surface import CanvasView, CONTROL_BASE, ID_STRIDE
+from .surface import CanvasView, CONTROL_BASE, ID_STRIDE, SEARCH_PANEL_ID, SEARCH_LABEL_ID
 from .model import ObjectKind
 
 
@@ -111,6 +111,8 @@ def render_canvas[Child: Component & Deinitable](mut app: App[CanvasView[Child]]
     # Populate ordinary slots once; ordering below does not recreate editors.
     for i in range(commands.count()):
         var command = commands.command(i)
+        if command.id == SEARCH_PANEL_ID or command.id == SEARCH_LABEL_ID:
+            continue
         var background = command.id < CONTROL_BASE
         if not background:
             var object_index = app.component.document.object_index.get((command.id - CONTROL_BASE) // ID_STRIDE, -1)
@@ -170,6 +172,12 @@ def render_canvas[Child: Component & Deinitable](mut app: App[CanvasView[Child]]
     graph.end_scene()
     if external_call["moxi_window_ordered_custom_slice", Int32]() != 1:
         raise Error("Canvas native overlay slice capacity exceeded")
+    # Search/report controls are ordinary foreground UI, above graph and ports.
+    # Reuse their populated slots; do not add a parallel text or panel renderer.
+    for i in range(commands.count()):
+        var command = commands.command(i)
+        if command.id == SEARCH_PANEL_ID or command.id == SEARCH_LABEL_ID:
+            external_call["moxi_window_ordered_paint", NoneType](Int32(command.kind), Int32(command.slot))
     paint.update_accessibility(canvas_accessibility(app))
     paint.end_frame()
     app.clear_invalidation()

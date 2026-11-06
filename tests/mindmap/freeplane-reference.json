@@ -1,0 +1,1326 @@
+{
+  "version": 1,
+  "reference": {
+    "name": "Freeplane",
+    "version": "1.13.3",
+    "commit": "3a76de18523993a55bf885190438bffef38662a5",
+    "download": "https://github.com/freeplane/freeplane/releases/download/release-1.13.3/Freeplane-1.13.3-apple.dmg",
+    "dmg_sha256": "f6c8639cbe91ca431c84b44eb64ab0b3f984454ec0203e1132e49586265a2347",
+    "inspection": "Bundle Info.plist=1.13.3 and gitinfo match pinned commit. Official bundled runtime launched with isolated /tmp profile and original synthetic fixture; log reached MindMap mode. Native inspection returned cgWindowNotFound. No live shortcut/drag parity is claimed."
+  },
+  "modifier_policy": "Primary=Command macOS, Control Windows/Linux. Official accelerator manager converts ordinary control chords to meta with explicit Alt/Tab/Escape exceptions. Cmd+Space remains host-reserved: Fold children has an explicit Commands entry, no silent Ctrl substitution.",
+  "evidence": [
+    "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+    "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties",
+    "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators.properties",
+    "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/core/ui/ActionAcceleratorManager.java",
+    "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java",
+    "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/features/map/ShowNextChildAction.java",
+    "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/features/map/ToggleChildrenFoldedAction.java",
+    "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/features/map/MapController.java"
+  ],
+  "reserved": [
+    {
+      "chord": "Primary+D",
+      "meaning": "Freeplane clone; not reassigned to duplicate"
+    },
+    {
+      "chord": "Primary+Space",
+      "meaning": "macOS Spotlight; palette alternative"
+    },
+    {
+      "chord": "Primary+Shift+Tab",
+      "meaning": "summary nodes excluded"
+    }
+  ],
+  "editor_contract": "F2 edits; Alt+Enter uses the same plain multiline ordinary editor. Enter commits, Shift+Enter inserts newline, Escape cancels. Marked composition owns Enter/Escape. Native text clipboard is separate from structured branch clipboard.",
+  "known_differences": [
+    "Full live reference key-repeat, selection direction, page navigation, branch-drag hit zones and side-dependent level parity await an inspectable reference UI.",
+    "Root folding is a local extension used by the large fixture.",
+    "Alt+Enter uses inline ordinary text controls rather than a separate Freeplane dialog.",
+    "Structured branch clipboard is application-local; it does not promise interprocess Freeplane clipboard compatibility.",
+    "Notes show/focus share the metadata editor; rich note/HTML formatting is excluded.",
+    "Home/End/Page navigation and Shift+Left/Right aliases are implemented from the reference listener inventory; page selection uses the local published viewport geometry. Exact live parity remains unverified."
+  ],
+  "commands": [
+    {
+      "command": "CHILD",
+      "id": 1000,
+      "reference_action": "NewChildAction",
+      "reference_source_chord": "TAB",
+      "reference_effective_macos": "TAB",
+      "target_definition": "KEY_TAB, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "child",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "SIBLING",
+      "id": 1001,
+      "reference_action": "NewSiblingAction",
+      "reference_source_chord": "ENTER",
+      "reference_effective_macos": "ENTER",
+      "target_definition": "KEY_ENTER, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "sibling",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "PREVIOUS",
+      "id": 1002,
+      "reference_action": "NewPreviousSiblingAction",
+      "reference_source_chord": "shift ENTER",
+      "reference_effective_macos": "shift ENTER",
+      "target_definition": "KEY_ENTER, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "previous",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "PARENT",
+      "id": 1003,
+      "reference_action": "NewParentNode",
+      "reference_source_chord": "shift TAB",
+      "reference_effective_macos": "shift TAB",
+      "target_definition": "KEY_TAB, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "parent",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "EDIT",
+      "id": 1004,
+      "reference_action": "EditAction",
+      "reference_source_chord": "F2",
+      "reference_effective_macos": "F2",
+      "target_definition": "KEY_F2, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "edit",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "MULTILINE",
+      "id": 1005,
+      "reference_action": "EditLongAction",
+      "reference_source_chord": "alt ENTER",
+      "reference_effective_macos": "alt ENTER",
+      "target_definition": "KEY_ENTER, M.OPTION",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "multiline",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "UP",
+      "id": 1006,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_UP, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "up",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected navigation"
+    },
+    {
+      "command": "DOWN",
+      "id": 1007,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_DOWN, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "down",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected navigation"
+    },
+    {
+      "command": "LEFT",
+      "id": 1008,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_LEFT, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "left",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected navigation"
+    },
+    {
+      "command": "RIGHT",
+      "id": 1009,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_RIGHT, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "right",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected navigation"
+    },
+    {
+      "command": "REORDER_UP",
+      "id": 1010,
+      "reference_action": "NodeUpAction",
+      "reference_source_chord": "control UP",
+      "reference_effective_macos": "meta UP",
+      "target_definition": "KEY_UP, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "reorder up",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "REORDER_DOWN",
+      "id": 1011,
+      "reference_action": "NodeDownAction",
+      "reference_source_chord": "control DOWN",
+      "reference_effective_macos": "meta DOWN",
+      "target_definition": "KEY_DOWN, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "reorder down",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "LEVEL_LEFT",
+      "id": 1012,
+      "reference_action": "ChangeNodeLevelLeftsAction",
+      "reference_source_chord": "control LEFT",
+      "reference_effective_macos": "meta LEFT",
+      "target_definition": "KEY_LEFT, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "level left",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "LEVEL_RIGHT",
+      "id": 1013,
+      "reference_action": "ChangeNodeLevelRightsAction",
+      "reference_source_chord": "control RIGHT",
+      "reference_effective_macos": "meta RIGHT",
+      "target_definition": "KEY_RIGHT, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "level right",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "FOLD",
+      "id": 1014,
+      "reference_action": "ToggleFoldedAction",
+      "reference_source_chord": "SPACE",
+      "reference_effective_macos": "SPACE",
+      "target_definition": "KEY_SPACE, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "fold",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "NEXT_CHILD",
+      "id": 1015,
+      "reference_action": "ShowNextChildAction",
+      "reference_source_chord": "shift SPACE",
+      "reference_effective_macos": "shift SPACE",
+      "target_definition": "KEY_SPACE, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "next child",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "FOLD_CHILDREN",
+      "id": 1016,
+      "reference_action": "ToggleChildrenFoldedAction",
+      "reference_source_chord": "control SPACE",
+      "reference_effective_macos": "meta SPACE",
+      "target_definition": "-1, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "fold children",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "FOLD_LEVEL",
+      "id": 1017,
+      "reference_action": "FoldOneLevelAction",
+      "reference_source_chord": "alt PAGE_UP",
+      "reference_effective_macos": "alt PAGE_UP",
+      "target_definition": "KEY_PAGE_UP, M.OPTION",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "fold level",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "UNFOLD_LEVEL",
+      "id": 1018,
+      "reference_action": "UnfoldOneLevelAction",
+      "reference_source_chord": "alt PAGE_DOWN",
+      "reference_effective_macos": "alt PAGE_DOWN",
+      "target_definition": "KEY_PAGE_DOWN, M.OPTION",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "unfold level",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "FOLD_ALL",
+      "id": 1019,
+      "reference_action": "FoldAllAction",
+      "reference_source_chord": "alt HOME",
+      "reference_effective_macos": "alt HOME",
+      "target_definition": "KEY_HOME, M.OPTION",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "fold all",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "UNFOLD_ALL",
+      "id": 1020,
+      "reference_action": "UnfoldAllAction",
+      "reference_source_chord": "alt END",
+      "reference_effective_macos": "alt END",
+      "target_definition": "KEY_END, M.OPTION",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "unfold all",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "SELECT_ALL",
+      "id": 1021,
+      "reference_action": "SelectAllAction",
+      "reference_source_chord": "control A",
+      "reference_effective_macos": "meta A",
+      "target_definition": "97, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "select all",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "SELECT_BRANCH",
+      "id": 1022,
+      "reference_action": "SelectBranchAction",
+      "reference_source_chord": "control shift A",
+      "reference_effective_macos": "meta shift A",
+      "target_definition": "97, M.PRIMARY_SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "select branch",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "ROOT",
+      "id": 1023,
+      "reference_action": "MoveToRootAction",
+      "reference_source_chord": "ESCAPE",
+      "reference_effective_macos": "ESCAPE",
+      "target_definition": "KEY_ESCAPE, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "root",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "FIND",
+      "id": 1024,
+      "reference_action": "FindAction",
+      "reference_source_chord": "control G",
+      "reference_effective_macos": "meta G",
+      "target_definition": "103, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "find",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "FIND_NEXT",
+      "id": 1025,
+      "reference_action": "FindNextAction",
+      "reference_source_chord": "control shift G",
+      "reference_effective_macos": "meta shift G",
+      "target_definition": "103, M.PRIMARY_SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "find next",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "FILTER",
+      "id": 1026,
+      "reference_action": "ShowFilterToolbarAction",
+      "reference_source_chord": "control F",
+      "reference_effective_macos": "meta F",
+      "target_definition": "102, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "filter",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "NODE_LIST",
+      "id": 1027,
+      "reference_action": "NodeListAction",
+      "reference_source_chord": "control shift F",
+      "reference_effective_macos": "meta shift F",
+      "target_definition": "102, M.PRIMARY_SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "node list",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "CONNECT",
+      "id": 1028,
+      "reference_action": "AddConnectorAction",
+      "reference_source_chord": "control L",
+      "reference_effective_macos": "meta L",
+      "target_definition": "108, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "connect",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "LINK",
+      "id": 1029,
+      "reference_action": "SetLinkByTextFieldAction",
+      "reference_source_chord": "control K",
+      "reference_effective_macos": "meta K",
+      "target_definition": "107, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "link",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "UNDO",
+      "id": 1030,
+      "reference_action": "UndoAction",
+      "reference_source_chord": "control Z",
+      "reference_effective_macos": "meta Z",
+      "target_definition": "122, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "undo",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "REDO",
+      "id": 1031,
+      "reference_action": "RedoAction",
+      "reference_source_chord": "control Y",
+      "reference_effective_macos": "meta Y",
+      "target_definition": "122 if host == HostPlatform.MACOS else 121, M.PRIMARY_SHIFT if host == HostPlatform.MACOS else M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "redo",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "DELETE",
+      "id": 1032,
+      "reference_action": "DeleteAction",
+      "reference_source_chord": "DELETE",
+      "reference_effective_macos": "BACK_SPACE",
+      "target_definition": "KEY_BACKSPACE if host == HostPlatform.MACOS else KEY_DELETE, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "delete",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "OUTLINE",
+      "id": 1033,
+      "reference_action": "FocusOutlineAction",
+      "reference_source_chord": "control shift O",
+      "reference_effective_macos": "meta shift O",
+      "target_definition": "111, M.PRIMARY_SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "outline",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "NOTES",
+      "id": 1034,
+      "reference_action": "SelectNoteAction",
+      "reference_source_chord": "control LESS",
+      "reference_effective_macos": "meta PERIOD",
+      "target_definition": "46, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "notes",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "COPY",
+      "id": 1035,
+      "reference_action": "CopyAction",
+      "reference_source_chord": "control C",
+      "reference_effective_macos": "meta C",
+      "target_definition": "KEY_C, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "copy",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "CUT",
+      "id": 1036,
+      "reference_action": "CutAction",
+      "reference_source_chord": "control X",
+      "reference_effective_macos": "meta X",
+      "target_definition": "KEY_X, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "cut",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "PASTE",
+      "id": 1037,
+      "reference_action": "PasteAction",
+      "reference_source_chord": "control V",
+      "reference_effective_macos": "meta V",
+      "target_definition": "KEY_V, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "paste",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "SAVE",
+      "id": 1038,
+      "reference_action": "SaveAction",
+      "reference_source_chord": "control S",
+      "reference_effective_macos": "meta S",
+      "target_definition": "115, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "save",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "OPEN",
+      "id": 1039,
+      "reference_action": "OpenAction",
+      "reference_source_chord": "control O",
+      "reference_effective_macos": "meta O",
+      "target_definition": "111, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "open",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "NEW",
+      "id": 1040,
+      "reference_action": "NewMapAction",
+      "reference_source_chord": "control N",
+      "reference_effective_macos": "meta N",
+      "target_definition": "110, M.PRIMARY",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "new",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/external/resources/xml/mindmapmodemenu.xml",
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/editor/resources/default_accelerators_mac.properties"
+      ],
+      "status": "source-inspected; live reference UI unavailable"
+    },
+    {
+      "command": "MOVE",
+      "id": 1041,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "-1, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "move",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "SIDE",
+      "id": 1042,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "side",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "SPACE_MORE",
+      "id": 1043,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "space more",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "SPACE_LESS",
+      "id": 1044,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "space less",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "DUPLICATE",
+      "id": 1045,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "duplicate",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "STYLE",
+      "id": 1046,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "style",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "TAGS",
+      "id": 1047,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "tags",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "ICONS",
+      "id": 1048,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "icons",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "RECOVER",
+      "id": 1049,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "recover",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "IMPORT",
+      "id": 1050,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "import",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "PALETTE",
+      "id": 1051,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "palette",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "EXIT_FOCUS",
+      "id": 1052,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_F6, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "Move focus from map to ordinary Commands toolbar; Enter opens palette; Tab traverses controls",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local focus-navigation extension; no unmodified F6 in pinned reference accelerators"
+    },
+    {
+      "command": "ZOOM_IN",
+      "id": 1053,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_UP, M.OPTION",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "zoom in",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "ZOOM_OUT",
+      "id": 1054,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_DOWN, M.OPTION",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "zoom out",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "FIT",
+      "id": 1055,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "fit",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "ONE_SIDE",
+      "id": 1056,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "one side",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "SELECT_UP",
+      "id": 1057,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_UP, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "select up",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected navigation"
+    },
+    {
+      "command": "SELECT_DOWN",
+      "id": 1058,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "KEY_DOWN, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "select down",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected navigation"
+    },
+    {
+      "command": "LINK_LABEL",
+      "id": 1059,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "link label",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "UNLINK",
+      "id": 1060,
+      "reference_action": null,
+      "reference_source_chord": "control shift F10",
+      "reference_effective_macos": "meta shift F10",
+      "target_definition": "palette only",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "unlink",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)"
+      ],
+      "status": "local extension, palette only"
+    },
+    {
+      "command": "SELECT_LEFT",
+      "id": 1061,
+      "reference_action": "DefaultNodeKeyListener",
+      "reference_source_chord": "shift LEFT",
+      "reference_effective_macos": "shift LEFT",
+      "target_definition": "KEY_LEFT, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "select left",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected listener behavior; live reference UI unavailable"
+    },
+    {
+      "command": "SELECT_RIGHT",
+      "id": 1062,
+      "reference_action": "DefaultNodeKeyListener",
+      "reference_source_chord": "shift RIGHT",
+      "reference_effective_macos": "shift RIGHT",
+      "target_definition": "KEY_RIGHT, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "select right",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected listener behavior; live reference UI unavailable"
+    },
+    {
+      "command": "PAGE_UP",
+      "id": 1063,
+      "reference_action": "DefaultNodeKeyListener",
+      "reference_source_chord": "PAGE_UP",
+      "reference_effective_macos": "PAGE_UP",
+      "target_definition": "KEY_PAGE_UP, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "page up",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected listener behavior; live reference UI unavailable"
+    },
+    {
+      "command": "PAGE_DOWN",
+      "id": 1064,
+      "reference_action": "DefaultNodeKeyListener",
+      "reference_source_chord": "PAGE_DOWN",
+      "reference_effective_macos": "PAGE_DOWN",
+      "target_definition": "KEY_PAGE_DOWN, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "page down",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected listener behavior; live reference UI unavailable"
+    },
+    {
+      "command": "SELECT_PAGE_UP",
+      "id": 1065,
+      "reference_action": "DefaultNodeKeyListener",
+      "reference_source_chord": "shift PAGE_UP",
+      "reference_effective_macos": "shift PAGE_UP",
+      "target_definition": "KEY_PAGE_UP, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "select page up",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected listener behavior; live reference UI unavailable"
+    },
+    {
+      "command": "SELECT_PAGE_DOWN",
+      "id": 1066,
+      "reference_action": "DefaultNodeKeyListener",
+      "reference_source_chord": "shift PAGE_DOWN",
+      "reference_effective_macos": "shift PAGE_DOWN",
+      "target_definition": "KEY_PAGE_DOWN, M.SHIFT",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "select page down",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected listener behavior; live reference UI unavailable"
+    },
+    {
+      "command": "EDIT_START",
+      "id": 1067,
+      "reference_action": "DefaultNodeKeyListener",
+      "reference_source_chord": "HOME",
+      "reference_effective_macos": "HOME",
+      "target_definition": "KEY_HOME, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "edit start",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected listener behavior; live reference UI unavailable"
+    },
+    {
+      "command": "EDIT_END",
+      "id": 1068,
+      "reference_action": "DefaultNodeKeyListener",
+      "reference_source_chord": "END",
+      "reference_effective_macos": "END",
+      "target_definition": "KEY_END, M.NONE",
+      "context": "ordinary editor owns text/selection/composition; map commands apply when map-focused; active transaction cancels before idle Escape",
+      "expected": "edit end",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
+      ],
+      "status": "source-inspected listener behavior; live reference UI unavailable"
+    }
+  ]
+}

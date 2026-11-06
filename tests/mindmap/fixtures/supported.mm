@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="freeplane 1.13.3"><node ID="root" TEXT="Field notes · 日本語"><node ID="left" TEXT="Research · العربية" POSITION="left"><node ID="leaf" TEXT="café é 🙂" FOLDED="true" LINK="https://example.org"><icon BUILTIN="idea"/></node></node><node ID="right" TEXT="Draft" POSITION="right"><arrowlink DESTINATION="leaf" MIDDLE_LABEL="related"/></node></node></map>

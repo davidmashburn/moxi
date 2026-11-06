@@ -7,6 +7,14 @@ preview = ["pixi-build"]
 version = "0.6.0"
 
 [tasks]
+d04-mindmap-contract = "bash scripts/mindmap/check.sh contract"
+d04-mindmap-import-check = "bash scripts/mindmap/check.sh import"
+d04-mindmap-probe = "bash scripts/mindmap/check.sh build"
+d04-mindmap-app = "bash scripts/mindmap/check.sh app"
+d04-mindmap-native-check = "bash scripts/mindmap/check.sh capture"
+d04-mindmap-replay = "bash scripts/mindmap/check.sh capture"
+d04-mindmap-consumer = "bash scripts/mindmap/check.sh consumer"
+d04-mindmap-benchmark = "bash scripts/mindmap/check.sh benchmark"
 canvas-contract = "bash scripts/canvas_checks.sh check"
 canvas-native-layers = "bash scripts/canvas_checks.sh layers"
 canvas-native-check = "bash scripts/canvas_checks.sh capture"

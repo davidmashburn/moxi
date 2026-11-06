@@ -84,6 +84,10 @@
 #define MOXI_KEY_DOWN 1003
 #define MOXI_KEY_HOME 1004
 #define MOXI_KEY_END 1005
+#define MOXI_KEY_F2 1006
+#define MOXI_KEY_PAGE_UP 1007
+#define MOXI_KEY_PAGE_DOWN 1008
+#define MOXI_KEY_F6 1009
 #define MOXI_KEY_C 99
 #define MOXI_KEY_V 118
 #define MOXI_KEY_X 120
@@ -3368,6 +3372,33 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 - (void)keyDown:(NSEvent *)event {
     MOXI_CALLBACK_SCOPE(return);
     moxi_interpreting_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
+    // Logical application accelerators must survive AppKit's text key bindings.
+    // A native editor/composition retains its existing responder path.
+    NSString *logical = event.charactersIgnoringModifiers;
+    if (moxi_active_text_input_index < 0 && logical.length == 1) {
+        unichar ch = [logical characterAtIndex:0];
+        int key = ch;
+        if (ch == NSLeftArrowFunctionKey) key = MOXI_KEY_LEFT;
+        else if (ch == NSRightArrowFunctionKey) key = MOXI_KEY_RIGHT;
+        else if (ch == NSUpArrowFunctionKey) key = MOXI_KEY_UP;
+        else if (ch == NSDownArrowFunctionKey) key = MOXI_KEY_DOWN;
+        else if (ch == NSHomeFunctionKey) key = MOXI_KEY_HOME;
+        else if (ch == NSEndFunctionKey) key = MOXI_KEY_END;
+        else if (ch == NSF2FunctionKey) key = MOXI_KEY_F2;
+        else if (ch == NSPageUpFunctionKey) key = MOXI_KEY_PAGE_UP;
+        else if (ch == NSPageDownFunctionKey) key = MOXI_KEY_PAGE_DOWN;
+        else if (ch == NSF6FunctionKey) key = MOXI_KEY_F6;
+        // Option-letter dead keys still belong to the input method. Only the
+        // declared Option+Enter application chord bypasses text interpretation.
+        if (key != ch || ch == MOXI_KEY_SPACE ||
+                (ch == MOXI_KEY_ENTER && (moxi_interpreting_modifiers & MOXI_MOD_OPTION)) ||
+                (moxi_interpreting_modifiers & (MOXI_MOD_COMMAND | MOXI_MOD_CONTROL))) {
+            if (key >= 'A' && key <= 'Z') key += 'a' - 'A';
+            moxi_queue_key_event(key);
+            moxi_interpreting_modifiers = 0;
+            return;
+        }
+    }
     [self interpretKeyEvents:@[event]];
     moxi_interpreting_modifiers = 0;
 }
