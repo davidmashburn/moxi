@@ -1,5 +1,6 @@
 #include "api.h"
 #include "core.hpp"
+#include "panel.hpp"
 #include "renderer.h"
 #include <cmath>
 #include <map>
@@ -15,6 +16,7 @@ struct Entry {
   Entry(Entry &source, uint64_t viewID) : document(source.document), model(*document), view(viewID), documentID(source.documentID) {}
   uint64_t owner = 0, renderer = 0;
   Revision published{0, 0, 0, 0, 0, 0};
+  Panel panel;
   Projected anchor;
   std::vector<ScreenLine> lines;
   std::optional<std::vector<Object>> staging;
@@ -376,6 +378,40 @@ double ms_anchor_x(uint64_t id) {
 double ms_anchor_y(uint64_t id) {
   auto e = get(id);
   return e ? e->anchor.y : NAN;
+}
+int ms_panel_configure(uint64_t id,double ox,double oy,double oz,double ux,double uy,double uz,double vx,double vy,double vz,double width,double height) {
+  auto e=get(id); return e && e->panel.configure({{ox,oy,oz},{ux,uy,uz},{vx,vy,vz},width,height});
+}
+int ms_panel_route(uint64_t id,int phase,double x,double y) {
+  auto e=get(id);
+  if (!e || phase<MS_PANEL_PROBE || phase>MS_PANEL_CANCEL) return MS_PANEL_INVALID;
+  auto state=e->model.state();
+  if (state!=State::Ready && state!=State::Computing) { e->panel.cancel(); return MS_PANEL_STALE; }
+  return int(e->panel.route(PanelPhase(phase),x,y,e->model.frame(),e->model.document().clip).result);
+}
+double ms_panel_local(uint64_t id,int axis) {
+  auto e=get(id);
+  if (!e || e->panel.last.result!=PanelResult::Hit || (axis!=0 && axis!=1)) return NAN;
+  return axis==0 ? e->panel.last.x : e->panel.last.y;
+}
+double ms_panel_project(uint64_t id,double x,double y,int axis) {
+  auto e=get(id);
+  if (!e || !e->panel.configured || !std::isfinite(x) || !std::isfinite(y) || (axis!=0 && axis!=1)) return NAN;
+  auto q=project(e->panel.point(x,y),e->model.camera(),e->model.viewport());
+  if(q.state==AnchorState::BehindCamera || q.depth>=100) return NAN;
+  return axis==0 ? q.x : q.y;
+}
+int ms_panel_render(uint64_t id,uint64_t source,int slot) {
+  auto e=get(id);
+  if (!e || !e->renderer || !e->panel.configured || source==e->owner) return 0;
+  auto state=e->model.state();
+  if(state!=State::Ready && state!=State::Computing) return 0;
+  const auto &f=e->model.frame(); auto v=f.viewport;
+  auto vertices=e->panel.vertices(f,e->model.document().clip);
+  if(!ms_renderer_panel(e->renderer,vertices.data(),vertices.size(),source,int(e->panel.pose.width),int(e->panel.pose.height))) return 0;
+  const Vertex empty{};
+  return ms_renderer_frame(e->renderer,f.vertices.empty()? &empty : f.vertices.data(),f.vertices.size(),e->model.counters().frameBuilds,f.matrix.data(),
+    int(std::lround(v.width*v.scale)),int(std::lround(v.height*v.scale)),slot,float(v.x),float(v.y),float(v.width),float(v.height));
 }
 int ms_mount(uint64_t id, uint64_t owner) {
   auto e = get(id);

@@ -122,3 +122,25 @@ int moxi_composition_release(uint64_t owner, uint64_t token) {
   [moxi_canvas setNeedsDisplay:YES];
   return 1;
 }
+
+int moxi_composition_snapshot(uint64_t owner, uint8_t *rgba, size_t capacity,
+                              int width, int height) {
+  if (!NSThread.isMainThread || !rgba || width<1 || height<1 ||
+      width>1024 || height>1024 || capacity<(size_t)width*height*4) return 0;
+  __attribute__((cleanup(moxi_restore_context))) MoxiWindowState *previous = moxi_active_context;
+  if (!moxi_window_select_instance(owner) || !moxi_canvas || !moxi_window_opened ||
+      moxi_canvas.bounds.size.width!=width || moxi_canvas.bounds.size.height!=height) return 0;
+  @autoreleasepool {
+    NSBitmapImageRep *bitmap=[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+      pixelsWide:width pixelsHigh:height bitsPerSample:8 samplesPerPixel:4
+      hasAlpha:YES isPlanar:NO colorSpaceName:NSDeviceRGBColorSpace
+      bitmapFormat:0 bytesPerRow:width*4 bitsPerPixel:32];
+    bitmap.size=NSMakeSize(width,height);
+    [moxi_canvas layoutSubtreeIfNeeded];
+    [moxi_canvas cacheDisplayInRect:moxi_canvas.bounds toBitmapImageRep:bitmap];
+    NSBitmapImageRep *srgb=[bitmap bitmapImageRepByConvertingToColorSpace:NSColorSpace.sRGBColorSpace renderingIntent:NSColorRenderingIntentDefault];
+    if (!srgb || srgb.bitsPerPixel!=32 || srgb.samplesPerPixel!=4 || srgb.isPlanar) return 0;
+    for(int y=0;y<height;y++) memcpy(rgba+(size_t)y*width*4,srgb.bitmapData+(size_t)y*srgb.bytesPerRow,width*4);
+    return 1;
+  }
+}

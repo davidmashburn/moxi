@@ -16,7 +16,10 @@
 @property MSGeometry *geometry;
 @property id<MTLRenderPipelineState> pipeline;
 @property id<MTLDepthStencilState> depthState;
-@property id<MTLTexture> color, depth;
+@property id<MTLTexture> color, depth, panelTexture;
+@property id<MTLBuffer> panelVertices;
+@property size_t panelCount;
+@property id<MTLRenderPipelineState> panelPipeline;
 @property(nonatomic) double cpu, encode, wait, gpu, readback, publication,
     total;
 @end
@@ -163,6 +166,12 @@ int ms_renderer_frame(uint64_t handle, const void *vertices, size_t count,
     [e drawPrimitives:MTLPrimitiveTypeTriangle
           vertexStart:0
           vertexCount:r.geometry.count];
+    if (r.panelCount) {
+      [e setRenderPipelineState:r.panelPipeline];
+      [e setVertexBuffer:r.panelVertices offset:0 atIndex:0];
+      [e setFragmentTexture:r.panelTexture atIndex:0];
+      [e drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:r.panelCount];
+    }
     [e endEncoding];
     double encoded = CACurrentMediaTime();
     [cmd commit];
@@ -197,6 +206,33 @@ int ms_renderer_frame(uint64_t handle, const void *vertices, size_t count,
     r.total = (end - start) * 1000;
     return ok;
   }
+}
+int ms_renderer_panel(uint64_t handle,const void *vertices,size_t count,uint64_t source,int width,int height) {
+  MSRenderer *r=lookup(handle);
+  if (!r || count>9 || (count && !vertices) || width<1 || height<1 || width>1024 || height>1024) return 0;
+  NSMutableData *data=[NSMutableData dataWithLength:(size_t)width*height*4];
+  if (!moxi_composition_snapshot(source,data.mutableBytes,data.length,width,height)) return 0;
+  if (!r.panelPipeline) {
+    NSString *shader=@"#include <metal_stdlib>\nusing namespace metal; struct V{float4 p;float4 uv;}; struct O{float4 p [[position]];float2 uv;}; vertex O pv(uint i [[vertex_id]],const device V*a [[buffer(0)]],constant float4x4&m [[buffer(1)]]){O o;o.p=m*a[i].p;o.uv=a[i].uv.xy;return o;} fragment float4 pf(O o [[stage_in]],texture2d<float> t [[texture(0)]]){constexpr sampler s(coord::normalized,address::clamp_to_edge,filter::linear);return t.sample(s,o.uv);}";
+    NSError *error=nil;
+    id<MTLLibrary> lib=[moxi_metal_device newLibraryWithSource:shader options:nil error:&error];
+    MTLRenderPipelineDescriptor *p=[MTLRenderPipelineDescriptor new];
+    p.vertexFunction=[lib newFunctionWithName:@"pv"]; p.fragmentFunction=[lib newFunctionWithName:@"pf"];
+    p.colorAttachments[0].pixelFormat=MTLPixelFormatRGBA8Unorm_sRGB;
+    p.depthAttachmentPixelFormat=MTLPixelFormatDepth32Float;
+    if (lib) r.panelPipeline=[moxi_metal_device newRenderPipelineStateWithDescriptor:p error:&error];
+    if (!r.panelPipeline) return 0;
+  }
+  if (!r.panelTexture || r.panelTexture.width!=(NSUInteger)width || r.panelTexture.height!=(NSUInteger)height) {
+    MTLTextureDescriptor *t=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm_sRGB width:width height:height mipmapped:NO];
+    t.usage=MTLTextureUsageShaderRead; t.storageMode=MTLStorageModeShared;
+    r.panelTexture=[moxi_metal_device newTextureWithDescriptor:t];
+  }
+  if (!r.panelTexture) return 0;
+  [r.panelTexture replaceRegion:MTLRegionMake2D(0,0,width,height) mipmapLevel:0 withBytes:data.bytes bytesPerRow:width*4];
+  r.panelVertices=count ? [moxi_metal_device newBufferWithBytes:vertices length:count*32 options:MTLResourceStorageModeShared] : nil;
+  r.panelCount=count;
+  return !count || r.panelVertices!=nil;
 }
 uint64_t ms_renderer_metric(uint64_t handle, int metric) {
   MSRenderer *r = lookup(handle);

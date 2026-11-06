@@ -14,6 +14,11 @@ extern "C" {
  * release clears that resource's draw references. Owner destruction retires its
  * tokens. Every operation restores the previously selected owner, including
  * failure. */
+/* Experimental owner snapshot for planar probes. Exact logical dimensions,
+ * RGBA8 premultiplied sRGB at 1 pixel/point; caller capacity >= w*h*4.
+ * Copies actual AppKit content; does not export focus/IME/AX geometry. */
+int moxi_composition_snapshot(uint64_t owner, uint8_t *rgba, size_t capacity,
+                              int width, int height);
 uint64_t moxi_composition_acquire(uint64_t owner);
 int moxi_composition_publish(uint64_t owner, uint64_t token, uint64_t serial,
                              const uint8_t *rgba, size_t length, int width,

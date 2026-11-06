@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "demo_id": "spatial-world-panel",
+  "title": "Spatial S4 \u2014 world panel feasibility",
+  "scenario": "Ordinary components: real world plane versus native screen editor",
+  "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "backend": "Experimental D05 copied-image Metal + actual AppKit ordinary components",
+  "scale": 2.0,
+  "fixture": "400\u00d7240 source; 940\u00d7420 depth target; source SHA-256 f6093658eb10a518d2e93b585bce59d0d59195424f76309a811a01fcdf2099f2; scoped dirty source: True",
+  "reproduce": "pixi install --locked && python3 examples/spatial-world-panel/gallery.py",
+  "slides": [
+    {
+      "scenario_id": "01-oblique",
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "01-oblique.png",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "caption": "Ordinary text, button and slider on a real oblique plane",
+      "action": "Launch native probe",
+      "expected": "Perspective-correct texture in the existing depth pass",
+      "png_sha256": "7ca11f8f1ddea23a205797d269c65a44fa56d6627a4eb2ea89515a02c319787a"
+    },
+    {
+      "scenario_id": "02-capture-outside",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "02-capture-outside.png",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "caption": "Ray slider drag retains capture outside the panel",
+      "action": "Drag local x=100 to x=500 on a 400-point panel",
+      "expected": "Slider reaches 100; capture remains active until release",
+      "png_sha256": "96054790c33e71e2f1ce1302777d21761a9fce333c3e410436ccd92651b9a51e"
+    },
+    {
+      "scenario_id": "03-text-focus-failure",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "03-text-focus-failure.png",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "caption": "Focus survives; native world text geometry fails",
+      "action": "Click button and text; compare actual caret with its world projection",
+      "expected": "One click and stable focus; source-local IME coordinates explicitly unsupported",
+      "png_sha256": "dbfe6e3c517006a2d9a8a4d65301a1c441e87f73194cb39de5db065bb082c837"
+    },
+    {
+      "scenario_id": "04-hidden-click",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "04-hidden-click.png",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "caption": "Clipping and real scene occlusion reject input",
+      "action": "Clip x<0; add foreground geometry; attempt both hidden targets",
+      "expected": "Clipped and depth-occluded clicks return HIDDEN",
+      "png_sha256": "044b01e373d2d34a464122a1288e1862444095ab02dbc53467138715102ad02d"
+    },
+    {
+      "scenario_id": "05-screen-editor",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "05-screen-editor.png",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "caption": "Equivalent screen editor controls the same model",
+      "action": "Switch mode; replay native text protocols, selection, clipboard and keyboard",
+      "expected": "Same text/count/level; actual native roles and coherent screen caret",
+      "png_sha256": "ecc99b3c5637e66c817920999f706e6e65a0ccb04bb7ce49015200e169251fde"
+    },
+    {
+      "scenario_id": "06-cancel-recovery",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "06-cancel-recovery.png",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "caption": "Cancellation restores state; world promotion rejected",
+      "action": "Return to world; drag slider then Escape",
+      "expected": "Level restored to 99; explicit supported geometry and failed world IME/AX cases",
+      "png_sha256": "d05c4a330e5781c3b7ce9a785549fa16b20f23d39a2da0c09175c944b4393bfd"
+    }
+  ]
+}

@@ -11,3 +11,5 @@ from .spatial import (SpatialViewport, SpatialNode, SpatialClip, SpatialEndpoint
     SpatialTiming, SpatialComponent, SpatialAnchor, SpatialAnchorPolicy,
     SpatialAnchorState, SpatialRoute, SpatialLine)
 from .composition import CompositionSurface
+
+from .panel import WorldPanel, PanelMode, PanelPhase, PanelResult

@@ -108,6 +108,16 @@ int ms_anchor(uint64_t session, double x, double y, double z,
               int always_visible);
 double ms_anchor_x(uint64_t session);
 double ms_anchor_y(uint64_t session);
+/* S4 experimental plane. Configuration copies affine edge vectors, not unit
+ * axes. Local dimensions <=1024. Pointer phases/results are validated enums.
+ * Native world IME/AX geometry is UNSUPPORTED: use the screen editor. */
+enum MSPanelPhase { MS_PANEL_PROBE, MS_PANEL_DOWN, MS_PANEL_MOVE, MS_PANEL_UP, MS_PANEL_CANCEL };
+enum MSPanelResult { MS_PANEL_HIT, MS_PANEL_OUTSIDE, MS_PANEL_HIDDEN, MS_PANEL_INVALID, MS_PANEL_STALE, MS_PANEL_IDLE };
+int ms_panel_configure(uint64_t session,double ox,double oy,double oz,double ux,double uy,double uz,double vx,double vy,double vz,double width,double height);
+int ms_panel_route(uint64_t session,int phase,double x,double y);
+double ms_panel_local(uint64_t session,int axis);
+double ms_panel_project(uint64_t session,double x,double y,int axis);
+int ms_panel_render(uint64_t session,uint64_t source_owner,int image_slot);
 /* Native boundary. Mount binds once to an owner; a different owner is rejected.
  * Render freezes camera/geometry/viewport/revisions, publishes only on exact
  * agreement, then composes the snapshot into an ordinary Moxi image slot.
