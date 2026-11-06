@@ -324,11 +324,30 @@
     {
       "id": "E01",
       "scope": "[Specialized Wave A](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-a): upstream-shaped layouts/fixtures for lollipop, waterfall, candlestick, bullet, grouped/stacked bar, Gantt/span, population pyramid.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "4706b42"
+      ],
+      "verification": [
+        "Parent: 85 Python tests, five focused Mojo regressions, nine layout/event/export parity replays, PlotSpec contract and API inventory passed.",
+        "Pinned dataviz v0.8.0 reference output hashes verified; nine six-frame galleries generated from clean source 4706b42 and scoped source hash 6031303e65b3f7feb8191c377487468bf8a30c73c04e8aaaba72b46ab4e5c895.",
+        "All 54 PNGs decoded and hashed; updates change output and recovery is pixel-exact. All nine slideshow pages loaded 12 images and passed navigation. Comparison, selection and update views visually inspected."
+      ],
+      "remaining_gates": [
+        "Canvas text labels and series legends absent; theme, margins, palette, domain fitting and some primitive/order differences remain. No pixel or full upstream parity claim.",
+        "Human usability/native input, large-data performance, physical frame latency, full upstream suite, other platforms/toolchains and remote CI not checked. VoiceOver remains paused."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/e01-lollipop/index.html",
+        "artifacts/demo-slideshows/e01-waterfall/index.html",
+        "artifacts/demo-slideshows/e01-candlestick/index.html",
+        "artifacts/demo-slideshows/e01-bullet/index.html",
+        "artifacts/demo-slideshows/e01-grouped-bar/index.html",
+        "artifacts/demo-slideshows/e01-stacked-bar/index.html",
+        "artifacts/demo-slideshows/e01-gantt/index.html",
+        "artifacts/demo-slideshows/e01-span-chart/index.html",
+        "artifacts/demo-slideshows/e01-population-pyramid/index.html"
+      ]
     },
     {
       "id": "E02",

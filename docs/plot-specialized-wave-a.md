@@ -141,7 +141,8 @@ python3 tests/demo_slideshows_test.py
 python3 -m http.server 8971 --bind 127.0.0.1
 ```
 
-Through the collaborative preview, set the viewport to 1280×900, device scale 1.
+Through the collaborative preview, set the CSS viewport to 1280×900. The recorded preview reported device pixel
+ratio 2 and saved 1280×900 PNGs; Canvas/reference outputs are 640×480 at scale 1.
 Use hyphens for fixture names in paths (for example `e01-grouped-bar`).
 For each `e01-<fixture>` folder under `artifacts/demo-slideshows`, navigate to
 `http://127.0.0.1:8971/artifacts/demo-slideshows/e01-<fixture>/source.html`,
@@ -176,3 +177,13 @@ these sequences alongside the other locally available captures.
 VoiceOver remains paused. Native-window input, human usability, physical frame
 latency, full upstream tests, all platform/toolchain combinations, and large-data
 performance were not checked. No external upstream acceptance is implied.
+
+Parent integration verification at `4706b42`: 85 Python tests, five focused Mojo
+regressions, PlotSpec contract checks, API inventory, and all nine geometry/event
+replays pass. All 54 PNGs decode with matching hashes and dimensions; each update
+differs from its original and each recovery matches exactly. The nine comparison,
+selection and update views plus a representative source view were visually
+inspected. All nine slideshow pages loaded their 12 embedded images and passed
+next/previous navigation. Confidence is high in the tested geometry and identity
+contracts, moderate in presentation quality; real human/native acceptance could
+change that assessment. The visual differences described above remain open.
