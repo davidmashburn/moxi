@@ -44,6 +44,7 @@ caveats, is in [docs/features.md](docs/features.md).
 - Backend-neutral accessibility semantics mapped to a native macOS `NSAccessibilityElement` tree.
 - A first-class Plot library with statistical recipes, facets, linked selection, and SVG export.
 - Shared iOS, Android, and Web host bridges with deterministic fallbacks (not yet Mojo package targets).
+- An opt-in [actual Mojo/Moxi browser FDG experiment](docs/browser-moxi-runtime.md), with a bounded Wasm64 runtime and native parity checks; the compiler route remains experimental.
 - A deterministic in-process capability bus for agent-safe mutation authorization.
 - A searchable Moxi Playground demo browser covering the core demos.
 - Deterministic headless testing: golden-image corpora, text conformance fixtures, and CI-checked visual diffs.

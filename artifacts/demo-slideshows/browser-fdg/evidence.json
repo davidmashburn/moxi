@@ -1,0 +1,677 @@
+{
+  "demoId": "P01-browser-fdg",
+  "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
+  "sourceStatus": "working tree; see sourceDigest for experiment inputs",
+  "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
+  "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
+  "host": "156.0.8078.81",
+  "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
+  "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
+  "viewport": {
+    "width": 1440,
+    "height": 1100,
+    "deviceScaleFactor": 1
+  },
+  "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
+  "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
+  "capturedAt": "2026-11-06T10:30:32.204Z",
+  "sourceInputs": [
+    "browser.mojo",
+    "runtime.mjs",
+    "demo.mjs",
+    "index.html",
+    "retarget.py",
+    "build.sh",
+    "browser-check.mjs",
+    "native.mojo",
+    "verify.mjs",
+    "check.mjs",
+    "runtime-check.mjs",
+    "test_retarget.py",
+    "target.mojo",
+    "serve.py"
+  ],
+  "toolchain": [
+    "Mojo 1.1.0 (8189361e)",
+    "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "Target: arm64-apple-darwin27.0.0",
+    "LLD 24.0.0"
+  ],
+  "directTarget": {
+    "exitStatus": 1,
+    "diagnostic": "could not construct host target info: No available targets are compatible with triple \"wasm64-unknown-unknown\""
+  },
+  "runtimeChecks": {
+    "tableLookups": 4096,
+    "products": 625,
+    "float32": true,
+    "diagnosticPoisoning": true,
+    "unknownImportRejection": true
+  },
+  "verification": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "verification": {
+      "comparisons": 6371,
+      "maxAbsoluteError": 0.00020000000017716957,
+      "capacitySvgBytes": 226761,
+      "layoutAndDispatch": {
+        "samples": 100,
+        "medianMs": 0,
+        "p95Ms": 0.10000002384185791
+      },
+      "sceneAndSerialization": {
+        "samples": 100,
+        "medianMs": 0.3999999761581421,
+        "p95Ms": 0.5
+      },
+      "transfer": {
+        "samples": 100,
+        "medianMs": 0,
+        "p95Ms": 0.10000002384185791
+      },
+      "frameBytes": 25602,
+      "state": "ready",
+      "failure": null,
+      "allocations": 40339,
+      "liveAllocations": 0,
+      "liveBytes": 0,
+      "heapHighWater": 5687760,
+      "memoryBytes": 5701632,
+      "instances": 0,
+      "wasmBytes": 533498,
+      "startupMs": 0.699999988079071,
+      "imports": [
+        "moxi_text_size",
+        "moxi_text_byte",
+        "KGEN_CompilerRT_AlignedAlloc",
+        "KGEN_CompilerRT_AlignedFree",
+        "moxi_can_create",
+        "moxi_graph_size",
+        "moxi_graph_edge",
+        "moxi_graph_group",
+        "moxi_register",
+        "moxi_resolve",
+        "moxi_forget",
+        "fmaxf",
+        "moxi_svg",
+        "moxi_semantic",
+        "KGEN_CompilerRT_GetStackTrace",
+        "write",
+        "dup",
+        "fdopen",
+        "fflush",
+        "fclose",
+        "KGEN_CompilerRT_fprintf",
+        "__multi3",
+        "fminf",
+        "fmax",
+        "fmin",
+        "sin",
+        "cos"
+      ]
+    },
+    "frames": [
+      {
+        "sceneMs": 9.699999928474426,
+        "transferMs": 0.20000004768371582,
+        "domSubmitMs": 7.399999976158142
+      },
+      {
+        "sceneMs": 2.300000011920929,
+        "transferMs": 0,
+        "domSubmitMs": 2.899999976158142
+      },
+      {
+        "sceneMs": 1.199999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 2.300000011920929
+      },
+      {
+        "sceneMs": 1.800000011920929,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.699999988079071
+      },
+      {
+        "sceneMs": 1.2999999523162842,
+        "transferMs": 0,
+        "domSubmitMs": 2
+      },
+      {
+        "sceneMs": 1.399999976158142,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.600000023841858
+      },
+      {
+        "sceneMs": 1,
+        "transferMs": 0,
+        "domSubmitMs": 2.800000011920929
+      },
+      {
+        "sceneMs": 1.199999988079071,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.7999999523162842
+      },
+      {
+        "sceneMs": 1,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.699999988079071
+      },
+      {
+        "sceneMs": 1,
+        "transferMs": 0,
+        "domSubmitMs": 1.7999999523162842
+      },
+      {
+        "sceneMs": 1,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 1.100000023841858
+      },
+      {
+        "sceneMs": 1.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 1.0999999642372131
+      },
+      {
+        "sceneMs": 0.800000011920929,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 1.4000000357627869
+      },
+      {
+        "sceneMs": 0.9000000357627869,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 1,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 1,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.8999999761581421,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.8999999761581421,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.8999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 1,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.800000011920929,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.800000011920929,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.5
+      },
+      {
+        "sceneMs": 0.9000000357627869,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.8999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.9000000357627869,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.8999999761581421,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.9000000357627869,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.8999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 1.100000023841858
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 1.4000000357627869
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 0.9000000357627869
+      },
+      {
+        "sceneMs": 0.800000011920929,
+        "transferMs": 0,
+        "domSubmitMs": 1.0999999642372131
+      },
+      {
+        "sceneMs": 0.9000000357627869,
+        "transferMs": 0,
+        "domSubmitMs": 1.2999999523162842
+      },
+      {
+        "sceneMs": 0.7000000476837158,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.6000000238418579,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.7000000476837158,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.300000011920929
+      },
+      {
+        "sceneMs": 0.800000011920929,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.7000000476837158,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.7000000476837158,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 1.300000011920929
+      },
+      {
+        "sceneMs": 0.800000011920929,
+        "transferMs": 0,
+        "domSubmitMs": 1.100000023841858
+      },
+      {
+        "sceneMs": 0.7999999523162842,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.5999999642372131,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.5999999642372131
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 0.9000000357627869
+      },
+      {
+        "sceneMs": 0.800000011920929,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.5999999642372131,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.6000000238418579,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 1.0999999642372131
+      },
+      {
+        "sceneMs": 0.9000000357627869,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.7000000476837158,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 1.0999999642372131
+      },
+      {
+        "sceneMs": 0.7000000476837158,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.6000000238418579,
+        "transferMs": 0,
+        "domSubmitMs": 1.199999988079071
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.5999999642372131,
+        "transferMs": 0,
+        "domSubmitMs": 1.199999988079071
+      },
+      {
+        "sceneMs": 0.6000000238418579,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.6000000238418579,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.8999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 1.5
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.100000023841858
+      },
+      {
+        "sceneMs": 0.800000011920929,
+        "transferMs": 0,
+        "domSubmitMs": 1.300000011920929
+      }
+    ],
+    "inputSamples": [
+      {
+        "inputToDomMs": 4.400000035762787,
+        "inputToNextAnimationFrameMs": 24.5
+      },
+      {
+        "inputToDomMs": 3.599999964237213,
+        "inputToNextAnimationFrameMs": 16.5
+      },
+      {
+        "inputToDomMs": 2.899999976158142,
+        "inputToNextAnimationFrameMs": 11.5
+      },
+      {
+        "inputToDomMs": 2.899999976158142,
+        "inputToNextAnimationFrameMs": 4.199999988079071
+      },
+      {
+        "inputToDomMs": 2.199999988079071,
+        "inputToNextAnimationFrameMs": 2.299999952316284
+      },
+      {
+        "inputToDomMs": 2.799999952316284,
+        "inputToNextAnimationFrameMs": 13.599999964237213
+      },
+      {
+        "inputToDomMs": 2.5,
+        "inputToNextAnimationFrameMs": 2.899999976158142
+      },
+      {
+        "inputToDomMs": 2,
+        "inputToNextAnimationFrameMs": 2.699999988079071
+      },
+      {
+        "inputToDomMs": 2.100000023841858,
+        "inputToNextAnimationFrameMs": 3
+      },
+      {
+        "inputToDomMs": 2.100000023841858,
+        "inputToNextAnimationFrameMs": 2.900000035762787
+      },
+      {
+        "inputToDomMs": 2,
+        "inputToNextAnimationFrameMs": 2.799999952316284
+      },
+      {
+        "inputToDomMs": 2.099999964237213,
+        "inputToNextAnimationFrameMs": 2.800000011920929
+      },
+      {
+        "inputToDomMs": 2.099999964237213,
+        "inputToNextAnimationFrameMs": 10.300000011920929
+      },
+      {
+        "inputToDomMs": 2.099999964237213,
+        "inputToNextAnimationFrameMs": 3
+      },
+      {
+        "inputToDomMs": 1.9000000357627869,
+        "inputToNextAnimationFrameMs": 15.199999988079071
+      },
+      {
+        "inputToDomMs": 2.400000035762787,
+        "inputToNextAnimationFrameMs": 2.699999988079071
+      },
+      {
+        "inputToDomMs": 2.100000023841858,
+        "inputToNextAnimationFrameMs": 3
+      },
+      {
+        "inputToDomMs": 2,
+        "inputToNextAnimationFrameMs": 2.699999988079071
+      },
+      {
+        "inputToDomMs": 2,
+        "inputToNextAnimationFrameMs": 3
+      },
+      {
+        "inputToDomMs": 2,
+        "inputToNextAnimationFrameMs": 2.900000035762787
+      },
+      {
+        "inputToDomMs": 1.800000011920929,
+        "inputToNextAnimationFrameMs": 11.899999976158142
+      },
+      {
+        "inputToDomMs": 2.199999988079071,
+        "inputToNextAnimationFrameMs": 2.199999988079071
+      },
+      {
+        "inputToDomMs": 1.800000011920929,
+        "inputToNextAnimationFrameMs": 14.100000023841858
+      },
+      {
+        "inputToDomMs": 1.899999976158142,
+        "inputToNextAnimationFrameMs": 11.600000023841858
+      },
+      {
+        "inputToDomMs": 2.299999952316284,
+        "inputToNextAnimationFrameMs": 9.5
+      },
+      {
+        "inputToDomMs": 1.7000000476837158,
+        "inputToNextAnimationFrameMs": 5.700000047683716
+      },
+      {
+        "inputToDomMs": 1.5,
+        "inputToNextAnimationFrameMs": 3.600000023841858
+      },
+      {
+        "inputToDomMs": 1.699999988079071,
+        "inputToNextAnimationFrameMs": 1.800000011920929
+      },
+      {
+        "inputToDomMs": 2.100000023841858,
+        "inputToNextAnimationFrameMs": 9
+      },
+      {
+        "inputToDomMs": 1.800000011920929,
+        "inputToNextAnimationFrameMs": 6.5
+      },
+      {
+        "inputToDomMs": 1.800000011920929,
+        "inputToNextAnimationFrameMs": 4.5
+      },
+      {
+        "inputToDomMs": 2.100000023841858,
+        "inputToNextAnimationFrameMs": 16
+      },
+      {
+        "inputToDomMs": 1.9000000357627869,
+        "inputToNextAnimationFrameMs": 13.5
+      },
+      {
+        "inputToDomMs": 1.5999999642372131,
+        "inputToNextAnimationFrameMs": 11.299999952316284
+      },
+      {
+        "inputToDomMs": 2.799999952316284,
+        "inputToNextAnimationFrameMs": 8.799999952316284
+      },
+      {
+        "inputToDomMs": 1.7000000476837158,
+        "inputToNextAnimationFrameMs": 6
+      },
+      {
+        "inputToDomMs": 1.9000000357627869,
+        "inputToNextAnimationFrameMs": 3.699999988079071
+      },
+      {
+        "inputToDomMs": 1.5999999642372131,
+        "inputToNextAnimationFrameMs": 1.7999999523162842
+      },
+      {
+        "inputToDomMs": 1.699999988079071,
+        "inputToNextAnimationFrameMs": 15.599999964237213
+      },
+      {
+        "inputToDomMs": 1.5,
+        "inputToNextAnimationFrameMs": 13.899999976158142
+      },
+      {
+        "inputToDomMs": 1.7999999523162842,
+        "inputToNextAnimationFrameMs": 11.799999952316284
+      },
+      {
+        "inputToDomMs": 1.9000000357627869,
+        "inputToNextAnimationFrameMs": 10
+      },
+      {
+        "inputToDomMs": 1.699999988079071,
+        "inputToNextAnimationFrameMs": 7.699999988079071
+      },
+      {
+        "inputToDomMs": 1.600000023841858,
+        "inputToNextAnimationFrameMs": 6
+      },
+      {
+        "inputToDomMs": 1.899999976158142,
+        "inputToNextAnimationFrameMs": 3.899999976158142
+      },
+      {
+        "inputToDomMs": 1.7000000476837158,
+        "inputToNextAnimationFrameMs": 2
+      },
+      {
+        "inputToDomMs": 1.899999976158142,
+        "inputToNextAnimationFrameMs": 31.19999998807907
+      },
+      {
+        "inputToDomMs": 1.5,
+        "inputToNextAnimationFrameMs": 29.30000001192093
+      },
+      {
+        "inputToDomMs": 1.7999999523162842,
+        "inputToNextAnimationFrameMs": 26.899999976158142
+      },
+      {
+        "inputToDomMs": 1.5,
+        "inputToNextAnimationFrameMs": 25.100000023841858
+      },
+      {
+        "inputToDomMs": 2,
+        "inputToNextAnimationFrameMs": 23.600000023841858
+      }
+    ],
+    "runtime": {
+      "state": "ready",
+      "failure": null,
+      "allocations": 22931,
+      "liveAllocations": 44,
+      "liveBytes": 122448,
+      "heapHighWater": 942848,
+      "memoryBytes": 983040,
+      "instances": 2,
+      "wasmBytes": 533498,
+      "startupMs": 4.800000011920929,
+      "imports": [
+        "moxi_text_size",
+        "moxi_text_byte",
+        "KGEN_CompilerRT_AlignedAlloc",
+        "KGEN_CompilerRT_AlignedFree",
+        "moxi_can_create",
+        "moxi_graph_size",
+        "moxi_graph_edge",
+        "moxi_graph_group",
+        "moxi_register",
+        "moxi_resolve",
+        "moxi_forget",
+        "fmaxf",
+        "moxi_svg",
+        "moxi_semantic",
+        "KGEN_CompilerRT_GetStackTrace",
+        "write",
+        "dup",
+        "fdopen",
+        "fflush",
+        "fclose",
+        "KGEN_CompilerRT_fprintf",
+        "__multi3",
+        "fminf",
+        "fmax",
+        "fmin",
+        "sin",
+        "cos"
+      ]
+    }
+  },
+  "paint": {
+    "source": "Chrome devtools.timeline Paint events; CPU paint work, not GPU/display latency; per-event statistics, not per-frame",
+    "count": 2280,
+    "totalMs": 73.44100000000024,
+    "medianMs": 0.002,
+    "p95Ms": 0.299
+  },
+  "interaction": "real mouse, keyboard, wheel and DOM button inputs",
+  "errors": []
+}

@@ -1,0 +1,127 @@
+// Optional automation dependency: see README. All app computation stays in Wasm.
+import assert from 'node:assert/strict';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {fileURLToPath, pathToFileURL} from 'node:url';
+import path from 'node:path';
+const {chromium} = await import(process.env.MOXI_PLAYWRIGHT_MODULE || 'playwright');
+const here = path.dirname(fileURLToPath(import.meta.url));
+const output = path.resolve(here, '../../artifacts/demo-slideshows/browser-fdg');
+await mkdir(output, {recursive:true});
+const origin = process.env.MOXI_DEMO_URL || 'http://127.0.0.1:8765/experiments/browser-moxi/';
+const browser = await chromium.launch({headless:true, ...(process.env.MOXI_CHROME ? {executablePath:process.env.MOXI_CHROME} : {})});
+const page = await browser.newPage({viewport:{width:1440,height:1100},deviceScaleFactor:1});
+const errors = [];
+page.on('pageerror', e => errors.push(String(e)));
+const revision = execFileSync('git',['rev-parse','HEAD'],{cwd:here,encoding:'utf8'}).trim();
+const sourceDigest = createHash('sha256');
+const sourceInputs=['browser.mojo','runtime.mjs','demo.mjs','index.html','retarget.py','build.sh','browser-check.mjs','native.mojo','verify.mjs','check.mjs','runtime-check.mjs','test_retarget.py','target.mojo','serve.py'];
+for(const name of sourceInputs) sourceDigest.update(name).update(await readFile(path.join(here,name)));
+const metadata = {demoId:'P01-browser-fdg',sourceRevision:revision,sourceStatus:'working tree; see sourceDigest for experiment inputs',sourceDigest:sourceDigest.digest('hex'),wasmSha256:createHash('sha256').update(await readFile(path.join(here,'dist/browser.wasm'))).digest('hex'),host:await browser.version(),captureHost:'Playwright headless Chrome; collaborative preview drag failed twice (see README)',backend:'Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost',viewport:{width:1440,height:1100,deviceScaleFactor:1},fixture:'sample_graph: 36 nodes; 100 real solver frames then Fit and Pause',command:'node experiments/browser-moxi/browser-check.mjs (see README for environment)',capturedAt:new Date().toISOString()};
+const captures=[];
+async function capture(name,action,expected){
+  const file=`${String(captures.length+1).padStart(2,'0')}-${name}.png`;
+  const png=await page.screenshot({path:path.join(output,file),fullPage:true});
+  captures.push({...metadata,file,scenario:name,action,expected,fullPage:true,outputPixels:{width:png.readUInt32BE(16),height:png.readUInt32BE(20)}});
+}
+async function inspect(id,index,field){return page.evaluate(({id,index,field})=>window.moxiDemo.panes.get(id).owner.inspect(index,field),{id,index,field});}
+async function nodePoint(id,index){return page.evaluate(({id,index})=>{const r=document.getElementById(id).getBoundingClientRect(),d=window.moxiDemo;return {x:r.x+d.panes.get(id).owner.inspect(index,d.NodeField.screenX),y:r.y+d.panes.get(id).owner.inspect(index,d.NodeField.screenY)};},{id,index});}
+async function control(name){
+  const p=await page.evaluate(name=>{const d=window.moxiDemo,r=document.getElementById('a').getBoundingClientRect(),b=d.panes.get('a').lastFrame.semantics.find(n=>n.id===d.Control[name]).bounds;return {x:r.x+b.x+b.width/2,y:r.y+b.y+b.height/2};},name);
+  await page.mouse.click(p.x,p.y);
+}
+try {
+  await page.goto(origin);
+  await page.waitForFunction(()=>window.moxiDemo?.panes.size===2);
+  await page.evaluate(()=>window.moxiDemo.setAnimate(false));
+  const fields=await page.evaluate(()=>({node:window.moxiDemo.NodeField,app:window.moxiDemo.AppField}));
+  const bBefore=await inspect('b',0,fields.node.x);
+  await capture('initial','Load the page; both existing Moxi graph apps settle, fit and pause.','Both panes contain the 36-node Mojo graph and Moxi controls.');
+  let point=await nodePoint('a',0);
+  await page.mouse.click(point.x,point.y);
+  assert.equal(await inspect('a',-1,fields.app.selected),0);
+  await page.locator('#a').focus();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await inspect('a',-1,fields.app.selected),1);
+  point=await nodePoint('a',0);
+  await page.mouse.move(point.x,point.y);await page.mouse.down();
+  await page.mouse.move(point.x+80,point.y+45,{steps:6});
+  assert.equal(await inspect('a',0,fields.node.pinned),1);
+  await capture('dragging','Click node-0; ArrowRight selects node-1; drag node-0 by 80×45 CSS pixels and hold.','Node-0 follows the pointer and is pinned while held; instance B stays unchanged.');
+  await page.mouse.up();
+  assert.equal(await inspect('a',0,fields.node.pinned),0);
+  assert.equal(await inspect('b',0,fields.node.x),bBefore);
+  const panBefore=await inspect('a',-1,fields.app.panX),zoomBefore=await inspect('a',-1,fields.app.zoom);
+  const bounds=await page.evaluate(()=>{const d=window.moxiDemo,r=document.getElementById('a').getBoundingClientRect(),b=d.panes.get('a').lastFrame.semantics.find(n=>n.id===d.Control.canvas).bounds;return {x:r.x+b.x,y:r.y+b.y,width:b.width,height:b.height};});
+  await page.mouse.move(bounds.x+bounds.width-50,bounds.y+bounds.height-50);await page.mouse.down();
+  await page.mouse.move(bounds.x+bounds.width-140,bounds.y+bounds.height-90,{steps:5});await page.mouse.up();
+  assert.notEqual(await inspect('a',-1,fields.app.panX),panBefore);
+  await page.mouse.wheel(0,-160);
+  await page.waitForFunction(old=>window.moxiDemo.panes.get('a').owner.inspect(-1,window.moxiDemo.AppField.zoom)!==old,zoomBefore);
+  await page.locator('#resize-a').click();
+  await page.waitForFunction(()=>document.querySelector('#a svg')?.getAttribute('height')==='720');
+  await capture('pan-zoom-resize','Drag empty canvas left/up, wheel up 160 units, then click Resize A.','Moxi viewport and SVG resize to 720px; pan/zoom affect A only.');
+  await control('pause');assert.equal(await inspect('a',-1,fields.app.paused),0);
+  await control('pause');assert.equal(await inspect('a',-1,fields.app.paused),1);
+  await control('restart');assert.equal(await inspect('a',-1,fields.app.paused),0);
+  assert.ok(await inspect('a',-1,fields.app.alpha)>.9);
+  await capture('restart','Use the Moxi Resume/Pause control twice, then Reheat. Animation is held for capture.','Reheat resets solver alpha and changes the Moxi control back to Pause.');
+  await control('search');
+  await page.keyboard.type('node-12');await page.keyboard.press('Enter');
+  assert.equal(await inspect('a',-1,fields.app.selected),12);
+  assert.equal(await page.evaluate(()=>window.moxiDemo.panes.get('a').lastFrame.semantics.find(n=>n.id===window.moxiDemo.Control.search).value),'node-12');
+  assert.equal(await inspect('b',-1,fields.app.selected),-1);
+  assert.equal(await inspect('b',0,fields.node.x),bBefore);
+  await capture('two-instances','Click the Moxi search field, type node-12, and press Enter.','Moxi text/key dispatch selects node-12; B retains its initial state.');
+  const oldHandle=await page.evaluate(()=>String(window.moxiDemo.panes.get('a').owner.handle));
+  await page.locator('#dispose-a').click();
+  assert.equal(await page.evaluate(()=>window.moxiDemo.panes.size),1);
+  assert.equal(await page.locator('#a [data-moxi-accessibility]').count(),0);
+  await capture('disposed','Click Dispose A.','A has no rendered graph or accessibility overlay; B remains live.');
+  await page.locator('#recreate-a').click();
+  await page.waitForFunction(()=>window.moxiDemo.panes.size===2);
+  assert.notEqual(await page.evaluate(()=>String(window.moxiDemo.panes.get('a').owner.handle)),oldHandle);
+  assert.equal(await page.evaluate(h=>window.moxiDemo.runtime.invoke('moxi_destroy',BigInt(h)),oldHandle),-1);
+  assert.equal(await inspect('a',-1,fields.app.selected),-1);
+  await capture('recreated','Click Recreate A; attempt teardown with the old raw handle.','New independent state appears; stale handle returns invalid-handle without affecting it.');
+  const verification=await page.evaluate(()=>window.moxiDemo.runVerification());
+  assert.equal(await page.evaluate(()=>window.moxiDemo.failure),null);
+  assert.deepEqual(errors,[]);
+  // Actual browser paint trace, separately from synchronous DOM submission/RAF.
+  const cdp=await page.context().newCDPSession(page);
+  await cdp.send('Tracing.start',{categories:'devtools.timeline',transferMode:'ReturnAsStream'});
+  await page.evaluate(()=>{const d=window.moxiDemo,p=d.panes.get('a');p.owner.event(d.EventKind.action,{key:d.Control.restart,value:1});d.setAnimate(true);});
+  // A fresh sample counter avoids assuming the ring buffer was not already full.
+  await page.evaluate(()=>window.moxiDemo.frames.length=0);
+  await page.waitForFunction(()=>window.moxiDemo.frames.length>=120);
+  await page.evaluate(()=>window.moxiDemo.setAnimate(false));
+  const complete=new Promise(resolve=>cdp.once('Tracing.tracingComplete',resolve));
+  await cdp.send('Tracing.end');const {stream}=await complete;
+  let trace='';for(;;){const chunk=await cdp.send('IO.read',{handle:stream});trace+=chunk.data;if(chunk.eof)break;}await cdp.send('IO.close',{handle:stream});
+  await writeFile(path.join(output,'paint-trace.json'),trace);
+  const paints=JSON.parse(trace).traceEvents.filter(e=>e.name==='Paint'&&e.ph==='X').map(e=>e.dur/1000);
+  assert.ok(paints.length>0,'Chrome trace must contain real Paint events');
+  const sortedPaints=[...paints].sort((a,b)=>a-b);
+  const toolchain=(await readFile(path.join(here,'dist/toolchain.txt'),'utf8')).split('\n').filter(s=>/^(Mojo |Apple clang |Target:|LLD )/.test(s));
+  const directTarget={exitStatus:Number(await readFile(path.join(here,'dist/direct-target.status'),'utf8')),diagnostic:(await readFile(path.join(here,'dist/direct-target.log'),'utf8')).split('error: ').at(-1).trim()};
+  const runtimeChecks=JSON.parse(await readFile(path.join(here,'dist/runtime-check.json'),'utf8'));
+  const evidence={...metadata,sourceInputs,toolchain,directTarget,runtimeChecks,verification,paint:{source:'Chrome devtools.timeline Paint events; CPU paint work, not GPU/display latency; per-event statistics, not per-frame',count:paints.length,totalMs:paints.reduce((a,b)=>a+b,0),medianMs:sortedPaints[Math.floor(paints.length/2)],p95Ms:sortedPaints[Math.floor(paints.length*.95)]},interaction:'real mouse, keyboard, wheel and DOM button inputs',errors};
+  await page.goto(`${origin}?unsupported`);
+  await page.waitForFunction(()=>document.getElementById('failure').textContent.includes('memory64'));
+  assert.equal(await page.locator('.svg svg').count(),0);
+  await capture('unsupported','Load ?unsupported to force the unsupported feature path.','A clear memory64-required error appears; no JavaScript substitute graph.');
+  await writeFile(path.join(output,'evidence.json'),JSON.stringify(evidence,null,2));
+  await writeFile(path.join(output,'manifest.json'),JSON.stringify(captures,null,2));
+  const slides=[];
+  for(const c of captures)slides.push(`<article><h2>${c.scenario}</h2><p>${c.action}</p><p>Expected: ${c.expected}</p><img alt="${c.scenario}" src="data:image/png;base64,${(await readFile(path.join(output,c.file))).toString('base64')}"><details><summary>Capture metadata</summary><pre>${JSON.stringify(c,null,2)}</pre></details></article>`);
+  await writeFile(path.join(output,'index.html'),`<!doctype html><html lang="en"><meta charset="utf-8"><title>P01 · actual Moxi browser captures</title><style>body{font:16px system-ui;background:#edf2f6;color:#20334a;margin:24px}nav{position:sticky;top:0;background:white;padding:12px;display:flex;gap:12px}button{padding:8px}article{max-width:1100px;margin:auto}img{width:100%}pre{white-space:pre-wrap}body:not(.contact) article:not(.active){display:none}.contact main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.contact details{display:none}</style><h1>P01 · actual Mojo/Moxi browser runtime</h1><p>All eight captures are from the same automated browser session. Arrow keys navigate; Contact sheet shows the complete sequence. This file embeds its images and works offline.</p><nav><button id="prev">Previous</button><span id="position"></span><button id="next">Next</button><button id="contact">Contact sheet</button></nav><main>${slides.join('')}</main><script>const slides=[...document.querySelectorAll('article')];let current=0;function show(n){current=(n+slides.length)%slides.length;slides.forEach((s,i)=>s.classList.toggle('active',i===current));document.getElementById('position').textContent=(current+1)+' / '+slides.length;}document.getElementById('prev').onclick=()=>show(current-1);document.getElementById('next').onclick=()=>show(current+1);document.getElementById('contact').onclick=()=>document.body.classList.toggle('contact');document.onkeydown=e=>{if(e.key==='ArrowLeft')show(current-1);if(e.key==='ArrowRight')show(current+1);};show(0);</script></html>`);
+  await page.goto(pathToFileURL(path.join(output,'index.html')).href);
+  assert.equal(await page.locator('article.active h2').textContent(),'initial');
+  await page.locator('#next').click();assert.equal(await page.locator('article.active h2').textContent(),'dragging');
+  await page.keyboard.press('ArrowLeft');assert.equal(await page.locator('article.active h2').textContent(),'initial');
+  await page.locator('#contact').click();assert.equal(await page.locator('body.contact article:visible').count(),8);
+  assert.equal(await page.locator('img').evaluateAll(images=>images.every(i=>i.complete&&i.naturalWidth>0)),true);
+  assert.deepEqual(errors,[]);
+  console.log(JSON.stringify({captures:captures.length,comparisons:verification.verification.comparisons,paintSamples:paints.length,offlineGallery:true,output}));
+} finally {await browser.close();}
