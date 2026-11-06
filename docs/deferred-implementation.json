@@ -82,16 +82,30 @@
     {
       "id": "P02",
       "scope": "[Server-backed views](docs/design/server-backed-views.md): real delayed local transport, immediate client feedback, bounded queries/cancellation, stale-result rejection, capped exact-record details, disconnect/retry, and measured full-data comparison.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "implemented",
+      "commits": [
+        "536442a"
+      ],
+      "verification": [
+        "Parent reviewed and fixed root entry URL redirect; 11 real HTTP tests, bounded adapter contracts and preserved original reducer probe pass.",
+        "Integrated pinned Mojo build passes native/Wasm SVG parity, data/identity bounds, independent views and 20 disposal cycles with zero tracked live allocations.",
+        "Eight fresh browser comparisons produce identical viewports and all 1024 grid counts at 0/150/600/1800ms server delay; real offline failure, forged-session rejection, stable exact IDs and disposal/restart pass.",
+        "Nine genuine browser captures inspected and fingerprinted against committed executable source; all six gallery manifests validate. Browser gallery navigation and all 18 embedded images pass."
+      ],
+      "remaining_gates": [
+        "Reduced route transfers about 17\u201318KB versus 20MB full data in this sweep, but Python reduction is slower. No overall performance or total-memory win is claimed.",
+        "Remote/authenticated transport, unsupported browsers, long sessions, load, human accessibility and physical presentation latency are unverified; VoiceOver remains paused.",
+        "Changed dataset revision restart is verified at the HTTP boundary, not through a browser-controlled backend restart.",
+        "Full repository suite and CI were not run for this isolated experiment."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/server-backed-views/index.html"
+      ]
     },
     {
       "id": "P03",
       "scope": "[Jupyter entry points](docs/design/jupyter-integration.md): fresh-kernel notebook using one graph for static SVG and nonblocking native launch, with repeated execution, errors, close/restart and explicit remote-kernel behavior.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],

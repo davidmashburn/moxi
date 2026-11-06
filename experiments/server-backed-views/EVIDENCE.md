@@ -9,17 +9,15 @@ case could change that assessment. This is not a supported general browser targe
 
 ## Source and capture provenance
 
-Captured 2026-11-06T11:24:16.672Z on macOS arm64, Chrome 156.0.8078.81,
-1440×1100 CSS pixels, scale 1. Base: `b4d8109ec94a8331415aa5f3548e1a6bdabb879e`.
-The implementation is **uncommitted**, as required for parent review. The gallery's
-`revision` field therefore identifies the integration base only, and its visible
-title explicitly discloses that limitation. Schema validation passes; the
-shared contract's **committed-source provenance gate is not yet satisfied**.
-The parent must commit, rebuild and recapture before treating it as committed-source
-evidence. The capture script detects changes to its executable source inputs.
+Captured 2026-11-06T11:32:45.218Z on macOS arm64, Chrome 156.0.8078.81,
+1440×1100 CSS pixels, scale 1. Implementation: `536442af0e3dd46cadf690a2af4f3fcc8c6c8503`.
+The parent reviewed and committed the source, rebuilt it on the integration
+branch, and reran the browser capture and eight comparisons. Executable sources
+match that commit; the capture script fingerprints its source inputs separately
+from this report and raw measurements.
 
-- Executable-source SHA-256: `8e28a07461f10339875e539b3cfa45ccc47f5c76724237a8657de261f8c203ce`.
-- Wasm SHA-256: `125a3bcf3a9487488ac1c0c52710c5a60a9a0324c2b83dd647d08b86e76618e9` (442,213 bytes).
+- Executable-source SHA-256: `30bb2e342f88402b6243f5497cef5ec85fa45c552c7ba2734e1283008e138eba`.
+- Wasm SHA-256: `926d841d721cee1f856bfc5f069331665c1231c0e6e5ca4aa50a55614a809990` (441,849 bytes).
 - Dataset SHA-256: `cbc893afb24c38048ff9e30813c114c47ee1052bd18aa8963008ff93a04c991f`.
 - [Raw comparison](comparison.json) records all eight runs, identities, individual
   timings, allocations and main/worker CDP snapshots. Separate
@@ -46,14 +44,14 @@ and zoom queries. Both routes display the same aggregate fidelity.
 
 | Route | Server delay ms | Response/source body bytes | Reducer ms, pan / zoom | Local SVG submission ms, min–max | Fresh SVG ms, pan / zoom | Final main JS heap MB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| reduced | 0 | 17,094 | 402.7 / 586.3 | 5.7–7.2 | 431.4 / 601.5 | 2.93 |
-| full | 0 | 20,000,000 | 17.1 / 15.2 | 4.4–6.0 | 317.9 / 320.4 | 2.99 |
-| reduced | 150 | 18,049 | 386.6 / 364.1 | 5.0–7.3 | 558.2 / 531.6 | 3.00 |
-| full | 150 | 20,000,000 | 20.2 / 18.8 | 5.0–6.4 | 324.6 / 322.3 | 4.89 |
-| reduced | 600 | 18,050 | 342.7 / 281.6 | 5.0–6.1 | 961.4 / 899.0 | 4.88 |
-| full | 600 | 20,000,000 | 18.2 / 17.9 | 5.0–6.1 | 339.8 / 326.9 | 4.87 |
-| reduced | 1800 | 18,049 | 284.2 / 263.1 | 4.6–5.9 | 2107.5 / 2074.8 | 4.89 |
-| full | 1800 | 20,000,000 | 17.2 / 14.8 | 4.1–5.7 | 319.4 / 315.3 | 4.88 |
+| reduced | 0 | 17,094 | 439.0 / 358.1 | 5.6–7.2 | 457.0 / 372.0 | 2.97 |
+| full | 0 | 20,000,000 | 23.2 / 24.8 | 5.1–6.4 | 303.4 / 313.4 | 3.00 |
+| reduced | 150 | 18,050 | 517.4 / 464.6 | 6.4–7.4 | 686.5 / 634.0 | 3.00 |
+| full | 150 | 20,000,000 | 27.2 / 23.2 | 6.6–7.3 | 316.0 / 294.2 | 4.86 |
+| reduced | 600 | 18,051 | 515.9 / 495.9 | 6.5–8.7 | 1142.2 / 1112.7 | 4.88 |
+| full | 600 | 20,000,000 | 27.9 / 28.5 | 6.6–8.4 | 324.4 / 319.5 | 4.87 |
+| reduced | 1800 | 18,051 | 496.7 / 377.0 | 6.7–7.3 | 2323.1 / 2198.0 | 4.90 |
+| full | 1800 | 20,000,000 | 21.9 / 23.4 | 6.0–7.3 | 317.3 / 309.4 | 4.88 |
 
 Body bytes include initial data, subsequent queries and cancellation replies for A;
 request-body bytes are recorded separately. Common HTML/JS/Wasm assets, HTTP headers,
@@ -77,7 +75,7 @@ Superseded queries have null freshness. Raw evidence separately records apply ti
 and the next animation-frame callback. Neither DOM submission nor next-frame
 callbacks prove physical display presentation or hardware input latency.
 
-CDP main heaps above exclude the full worker's 0.59–1.15MB used JS heap and its
+CDP main heaps above exclude the full worker's 0.75–0.92MB used JS heap and its
 20,009,272-byte backing storage (20,000,000 source bytes). Both routes also have
 6,094,848-byte Wasm linear memory and SVG/DOM embedder memory; the raw snapshots
 include these, DOM counts and allocator live/high-water values. These scopes overlap
@@ -94,8 +92,8 @@ and a binary copy, approximately 40MB of data buffers before Python/runtime over
   dispose cycles end with zero live handles, allocations and bytes. Two independent
   views, nonfinite rejection and grid/exact caps pass. Clang emits the expected
   target-triple override warning.
-- `test_server.py`: 10 tests pass, including million-point totals/binary digest,
-  exact half-open fixture, real delay, cancellation before start/during delay/during
+- `test_server.py`: 11 tests pass, including million-point totals/binary digest,
+  advertised root URL redirect with query preservation, exact half-open fixture, real delay, cancellation before start/during delay/during
   reduction, one-job/session capacity, two sessions, request bounds and Host/Origin/
   static-path rejection. A real HTTP server stops/restarts on the same port with
   changed data; old revision is rejected and new revision succeeds. Python emitted
@@ -107,24 +105,23 @@ and a binary copy, approximately 40MB of data buffers before Python/runtime over
   real pointer/wheel events, actual offline fetch failure, forged-session HTTP reply,
   stable exact IDs across reduction, same-cell reselection while details are pending,
   disposal/restart, concurrent restart and independent B are checked.
-- Shared gallery generator's four tests pass. P02-only manifest validation and HTML
-  generation pass; generated-gallery next/arrow/contact-sheet navigation and
-  embedded PNG loading pass with no page errors. Whole-gallery validation fails because this checkout lacks the
-  existing ignored `browser-fdg/01-initial.png`; other families were not changed.
+- All six integrated gallery manifests validate. All nine fresh P02 browser frames
+  were visually inspected. Shared generator tests were already passed and were not
+  repeated because its implementation did not change. Browser gallery checks load
+  all 18 embedded images and pass next/previous/contact-sheet/wrap navigation.
 
-Full logs remain in `/tmp/moxi-p02-build.log`, `/tmp/moxi-p02-server-tests.log`,
-`/tmp/moxi-p02-adapter.log`, `/tmp/moxi-p02-probe.log`, `/tmp/moxi-p02-browser.log`,
-`/tmp/moxi-p02-gallery-tests.log`, `/tmp/moxi-p02-gallery-scoped.log` and
-`/tmp/moxi-p02-gallery.log`; generated gallery browser checks are in
-`/tmp/moxi-p02-gallery-ui.log`. Live demo server output is `/tmp/moxi-p02-server.log`.
+Parent logs: `/tmp/moxi-p02-integrated-build.log`,
+`/tmp/moxi-p02-parent-server.log`, `/tmp/moxi-p02-parent-adapter.log`,
+`/tmp/moxi-p02-parent-probe.log`, `/tmp/moxi-p02-integrated-browser.log`.
+The parent fixed the advertised root URL to redirect to the canonical app directory
+before loading relative modules; the browser harness now starts at that root URL.
+The integrated server on port 8899 serves the main checkout; its log is
+`/tmp/moxi-p02-root-server.log`.
 
 ## Integration gates and exclusions
 
-Parent review/commit and committed-source recapture remain outstanding. Restore or
-reproduce other families' ignored PNGs before building the whole shared gallery.
 Build outputs, PNGs and generated HTML are ignored local artifacts and need rebuilding
-in another checkout. Reuse P01's runtime, retargeter and host at the integration base;
-no core/native, P01 source, math editor or deferred-ledger changes are required.
+in another checkout. P01 runtime, retargeter and host are reused unchanged.
 
 The browser runs only the pinned experimental memory64 subset. Native window UI,
 VoiceOver (paused), physical keyboard/accessibility usability, unsupported-browser
@@ -132,4 +129,4 @@ matrix, long sessions, multi-client load, actual remote/authenticated transport,
 Jupyter, whole-repository tests and CI were not verified. Changed-revision recovery
 is verified at the real HTTP contract boundary, not through an automated browser
 backend-process restart. No public service, auth system, notebook adapter or general
-query framework is introduced. No commits, pushes or PRs were made.
+query framework is introduced. Changes are committed locally; no pushes or PRs were made.

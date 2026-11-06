@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "baseRevision": "b4d8109ec94a8331415aa5f3548e1a6bdabb879e",
-    "sourceStatus": "UNCOMMITTED source: revision is the integration base only; committed-source recapture is required",
+    "baseRevision": "536442af0e3dd46cadf690a2af4f3fcc8c6c8503",
+    "sourceStatus": "Committed executable sources match revision",
     "sourceFingerprint": {
-      "sha256": "8e28a07461f10339875e539b3cfa45ccc47f5c76724237a8657de261f8c203ce",
+      "sha256": "30bb2e342f88402b6243f5497cef5ec85fa45c552c7ba2734e1283008e138eba",
       "inputs": [
         "experiments/browser-moxi/retarget.py",
         "experiments/browser-moxi/runtime.mjs",
@@ -81,6 +81,7 @@
         "src/moxi/layout_workbench.mojo",
         "src/moxi/layout_workbench_replay.mojo",
         "src/moxi/legacy_runtime.mojo",
+        "src/moxi/lifecycle_workbench.mojo",
         "src/moxi/linux.mojo",
         "src/moxi/live_script.mojo",
         "src/moxi/macos.mojo",
@@ -88,6 +89,7 @@
         "src/moxi/metal.mojo",
         "src/moxi/native_clipboard.mojo",
         "src/moxi/native_frame.mojo",
+        "src/moxi/native_instance.mojo",
         "src/moxi/native_paragraph.mojo",
         "src/moxi/native_widgets.mojo",
         "src/moxi/native_window.mojo",
@@ -135,10 +137,10 @@
         "src/moxi/wxstyle.mojo"
       ]
     },
-    "wasmSha256": "125a3bcf3a9487488ac1c0c52710c5a60a9a0324c2b83dd647d08b86e76618e9",
+    "wasmSha256": "926d841d721cee1f856bfc5f069331665c1231c0e6e5ca4aa50a55614a809990",
     "browser": "156.0.8078.81",
     "captureHost": "Playwright Chromium; repository scripted browser workflow",
-    "capturedAt": "2026-11-06T11:24:16.672Z",
+    "capturedAt": "2026-11-06T11:32:45.218Z",
     "viewport": {
       "width": 1440,
       "height": 1100,
@@ -148,7 +150,7 @@
   "captures": [
     {
       "file": "01-initial-grid.png",
-      "sha256": "f1bbb001dc247f8c241780acbac0b1445aa713e81f8e048661d64537e1e43c12",
+      "sha256": "66c7918fdded7fda66e0047c919a5249c1dba6f0af1879112b317615b89c9c30",
       "state": [
         {
           "id": "a",
@@ -173,7 +175,7 @@
             "rejected": 0,
             "accepted": 1
           },
-          "bytes": 5120
+          "bytes": 5121
         },
         {
           "id": "b",
@@ -201,11 +203,11 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:18.485Z"
+      "capturedAt": "2026-11-06T11:32:47.701Z"
     },
     {
       "file": "02-pan-pending-retained.png",
-      "sha256": "a0b9c2d128b3a555ffe99df666923c7504a29f26e566aee1560d93890b46e953",
+      "sha256": "463c0211a5fdf12b3496496a753b6e6035f39f9cd3668ea27ad466aee4884f68",
       "state": [
         {
           "id": "a",
@@ -230,7 +232,7 @@
             "rejected": 7,
             "accepted": 1
           },
-          "bytes": 6793
+          "bytes": 6794
         },
         {
           "id": "b",
@@ -258,11 +260,11 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:18.777Z"
+      "capturedAt": "2026-11-06T11:32:48.039Z"
     },
     {
       "file": "03-fresh-reduction.png",
-      "sha256": "3cdae9a022c3083a3f21ae017c4031dcb8da3205ed329f23dd5c36bdc4e2ccb8",
+      "sha256": "f914dfe4b2f8b5f5f94ca2f55b644ec091e425357ba75090acacc95a73b5ad4b",
       "state": [
         {
           "id": "a",
@@ -287,7 +289,7 @@
             "rejected": 7,
             "accepted": 2
           },
-          "bytes": 12451
+          "bytes": 12452
         },
         {
           "id": "b",
@@ -315,11 +317,11 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:22.128Z"
+      "capturedAt": "2026-11-06T11:32:51.556Z"
     },
     {
       "file": "04-aggregate-selection.png",
-      "sha256": "5c5c420a1b7582406326f9d2f781bc005902733e49cd679ea719914ce0ffbc9f",
+      "sha256": "3d8b2886ba24f87c0631e8819e6cd4e318514ff8b02524c8306cab59069e37c0",
       "state": [
         {
           "id": "a",
@@ -344,7 +346,7 @@
             "rejected": 7,
             "accepted": 2
           },
-          "bytes": 12451
+          "bytes": 12452
         },
         {
           "id": "b",
@@ -372,11 +374,11 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:22.225Z"
+      "capturedAt": "2026-11-06T11:32:51.687Z"
     },
     {
       "file": "05-capped-exact-records.png",
-      "sha256": "ead1ea7514353d1ab534077178bd178dd4838777d99f262478fc2cb592cba392",
+      "sha256": "ceeafee3a592888973baf67c44ef39e8b3c9cfb89c053d733ba2537df0279df2",
       "state": [
         {
           "id": "a",
@@ -401,7 +403,7 @@
             "rejected": 8,
             "accepted": 4
           },
-          "bytes": 20621
+          "bytes": 20623
         },
         {
           "id": "b",
@@ -429,11 +431,11 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:24.740Z"
+      "capturedAt": "2026-11-06T11:32:54.470Z"
     },
     {
       "file": "06-network-disconnected.png",
-      "sha256": "dbea24c6da403c7cc2a4ab5307ff756db9fb9cbf14010378d55c89e41660015b",
+      "sha256": "a40ae3a2358ab141cb4f77fab353a20dc0cae21113ed8b46c86845dcec3f9dd4",
       "state": [
         {
           "id": "a",
@@ -458,7 +460,7 @@
             "rejected": 11,
             "accepted": 5
           },
-          "bytes": 27009
+          "bytes": 27012
         },
         {
           "id": "b",
@@ -486,11 +488,11 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:25.498Z"
+      "capturedAt": "2026-11-06T11:32:55.403Z"
     },
     {
       "file": "07-retry-recovered.png",
-      "sha256": "69f24701e59fc1a55a0b65b0c52ffa2d20e3cb71c6da2512dc3f9d41109a5741",
+      "sha256": "414a63323667d0cdd37ad7998ffced1ef33646094fbd4162c55713cb21dc12ff",
       "state": [
         {
           "id": "a",
@@ -515,7 +517,7 @@
             "rejected": 11,
             "accepted": 6
           },
-          "bytes": 32617
+          "bytes": 32620
         },
         {
           "id": "b",
@@ -543,7 +545,7 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:26.144Z"
+      "capturedAt": "2026-11-06T11:32:56.279Z"
     },
     {
       "file": "08-disposed-while-pending.png",
@@ -575,7 +577,7 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:27.456Z"
+      "capturedAt": "2026-11-06T11:32:58.049Z"
     },
     {
       "file": "09-restarted-two-views.png",
@@ -632,7 +634,7 @@
           "bytes": 5120
         }
       ],
-      "capturedAt": "2026-11-06T11:24:28.192Z"
+      "capturedAt": "2026-11-06T11:32:59.104Z"
     }
   ]
 }

@@ -95,6 +95,7 @@ installed Chrome, without adding dependencies to the project:
 npm install --prefix /tmp/moxi-p01-tools playwright@1.56.1 --ignore-scripts
 export MOXI_PLAYWRIGHT_MODULE=/tmp/moxi-p01-tools/node_modules/playwright/index.mjs
 export MOXI_CHROME='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+# Optional alternate server: export MOXI_DENSITY_URL=http://127.0.0.1:8899/
 node experiments/server-backed-views/browser-check.mjs > /tmp/moxi-p02-browser.log 2>&1
 # P02-only gallery when other demos' ignored PNGs are absent:
 mkdir -p /tmp/moxi-p02-gallery
@@ -116,12 +117,11 @@ and identical pan/zoom actions for both routes and asserts identical resulting
 viewports and every grid count.
 
 `artifacts/demo-slideshows/server-backed-views/manifest.json` uses the version 1
-shared gallery schema. Its committed-source requirement remains an integration
-gate until the parent commits and recaptures. `capture-provenance.json` records raw capture state,
-source-input digest, Wasm hash and screenshot hashes separately. The manifest
-explicitly labels this **uncommitted** implementation relative to the base commit;
-the revision field is the integration base, not the implementation commit. The
-parent must commit and recapture to satisfy committed-source provenance. `comparison.json` contains raw measurements, not a performance promise.
+shared gallery schema. The integration capture is rebuilt from committed executable
+sources; `capture-provenance.json` records the commit, source-input digest, Wasm
+hash, actual view states and screenshot hashes. The capture script labels dirty
+sources explicitly and refuses to present their base revision as implementation
+provenance. `comparison.json` contains raw measurements, not a performance promise.
 PNG/HTML files and `dist/` remain ignored local artifacts; reproduce them before
 running gallery validation in a clean checkout. Full build and check logs are in
 `/tmp`. Collaborative preview was used for inspection; repeatable timed captures
