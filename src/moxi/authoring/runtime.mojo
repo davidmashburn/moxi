@@ -98,9 +98,10 @@ struct Declaration[S: ImplicitlyCopyable, C: ImplicitlyCopyable](ImplicitlyCopya
     var enabled: Bool
     var checked: Bool
     var show_label: Bool
+    var hint: String
     var action: Action[Self.S, Self.C]
 
-    def __init__(out self, path: String, kind: Int, label: String = "", value: String = "", action: Action[Self.S, Self.C] = Action[Self.S, Self.C](), enabled: Bool = True, checked: Bool = False, show_label: Bool = True):
+    def __init__(out self, path: String, kind: Int, label: String = "", value: String = "", action: Action[Self.S, Self.C] = Action[Self.S, Self.C](), enabled: Bool = True, checked: Bool = False, show_label: Bool = True, hint: String = ""):
         self.path = path
         self.kind = kind
         self.label = label
@@ -109,6 +110,7 @@ struct Declaration[S: ImplicitlyCopyable, C: ImplicitlyCopyable](ImplicitlyCopya
         self.enabled = enabled
         self.checked = checked
         self.show_label = show_label
+        self.hint = hint
 
 
 trait Pane(ImplicitlyCopyable):
@@ -160,14 +162,15 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
     def button(mut self, text: String, on_click: def(mut Self.S, mut Self.C) thin -> None, enabled: Bool = True):
         self.declarations.append(Declaration[Self.S, Self.C](self.path(), BUTTON_KIND, text, action=Action[Self.S, Self.C](payload=on_click, invoke=_write_context[Self.S, Self.C]), enabled=enabled))
 
-    def text_input(mut self, label: String, value: String, on_change: def(mut Self.S, String) thin -> None, *, show_label: Bool = True):
+    def text_input(mut self, label: String, value: String, on_change: def(mut Self.S, String) thin -> None, *, show_label: Bool = True, hint: String = ""):
         """Declare an editor; show_label=False keeps only its accessible name.
 
+        hint supplies accessibility help without adding a visible control.
         Keep show_label fixed within a mount: the visible label occupies a slot.
         """
         if show_label:
             self.label(label)
-        self.declarations.append(Declaration[Self.S, Self.C](self.path(), TEXT_INPUT_VIEW_KIND, label, value, Action[Self.S, Self.C](payload=on_change, invoke=_text[Self.S, Self.C])))
+        self.declarations.append(Declaration[Self.S, Self.C](self.path(), TEXT_INPUT_VIEW_KIND, label, value, Action[Self.S, Self.C](payload=on_change, invoke=_text[Self.S, Self.C]), hint=hint))
 
     def checkbox(mut self, label: String, checked: Bool, on_change: def(mut Self.S, Bool) thin -> None, *, show_label: Bool = True):
         """Declare a checkbox, optionally hiding its text but keeping its name."""
@@ -183,7 +186,7 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
             var action = Action[Self.S, Self.C]()
             if item.action._storage:
                 action = child_action[Self.S, Self.C, Child, Child.Context, K](key, route, item.action)
-            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label))
+            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label, item.hint))
         self.end_scope()
 
 
@@ -197,7 +200,7 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
             var action = Action[Self.S, Self.C]()
             if item.action._storage:
                 action = child_action[Self.S, Self.C, Child, Child.Context, K](key, route, item.action)
-            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label))
+            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label, item.hint))
         self.end_scope()
 
 
@@ -207,6 +210,7 @@ struct RetainedUI[S: ImplicitlyCopyable](ImplicitlyCopyable):
     var id_indices: Dict[Int, Int]
     var view: ColumnView
     var next_id: Int
+    var id_stride: Int
     var dispatches: Int
 
     def __init__(out self):
@@ -215,6 +219,7 @@ struct RetainedUI[S: ImplicitlyCopyable](ImplicitlyCopyable):
         self.id_indices = Dict[Int, Int]()
         self.view = ColumnView(Rect(0, 0, 520, 900), 16, 8)
         self.next_id = 1
+        self.id_stride = 1
         self.dispatches = 0
 
     def __init__(out self, *, copy: Self):
@@ -223,6 +228,7 @@ struct RetainedUI[S: ImplicitlyCopyable](ImplicitlyCopyable):
         self.id_indices = copy.id_indices.copy()
         self.view = copy.view.clone()
         self.next_id = copy.next_id
+        self.id_stride = copy.id_stride
         self.dispatches = copy.dispatches
 
     def begin(mut self):
@@ -262,7 +268,7 @@ struct RetainedUI[S: ImplicitlyCopyable](ImplicitlyCopyable):
             self.controls.append(Control[Self.S](path, self.next_id, kind))
             self.path_indices[path] = index
             self.id_indices[self.next_id] = index
-            self.next_id += 1
+            self.next_id += self.id_stride
         _require(not self.controls[index].seen, "duplicate identity: " + path)
         _require(self.controls[index].kind == kind, "control kind changed: " + path)
         self.controls[index].seen = True
@@ -296,6 +302,7 @@ struct RetainedUI[S: ImplicitlyCopyable](ImplicitlyCopyable):
                 self.view.set_accessibility_label(self.controls[i].id, item.label)
             elif item.kind == TEXT_INPUT_VIEW_KIND:
                 self.add_editor(i, item.label, item.value)
+                self.view.set_accessibility_hint(self.controls[i].id, item.hint)
         self.finish()
 
     def index(self, id: Int) -> Int:
@@ -367,9 +374,17 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
     var _request_scopes: List[_OwnedRequestScope]
     var _pending_requests: List[ActionRequest[Self.Root]]
 
-    def __init__(out self, root: Self.Root):
+    def __init__(out self, root: Self.Root, *, id_stride: Int = 1):
+        """Create a host with monotonic control IDs.
+
+        Embedded hosts can share an ID region: use the same positive id_stride
+        and slot offsets with distinct residues modulo that stride. Keep this
+        region above the parent and any fixed-ID components.
+        """
+        _require(id_stride > 0, "control ID stride must be positive")
         self.root = root
         self.ui = RetainedUI[Self.Root]()
+        self.ui.id_stride = id_stride
         self.renders = 0
         self.scope = DeliveryScope()
         self._request_scopes = List[_OwnedRequestScope]()
@@ -425,14 +440,17 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
 
         The parent must rebuild and forward reconcile_requests before delivering
         more events. Retired IDs are never reused. This does not drain native
-        input; whole-window callers must use reset(app, root, window, renderer).
+        input; an embedded native parent must finish the current input batch
+        before replacement. Whole-window callers use reset(app, root, window, renderer).
         """
         # Keep the allocator outside replaced model values. Do not recycle IDs.
         var next_id = self.ui.next_id
+        var id_stride = self.ui.id_stride
         self.root = root
         self.scope = DeliveryScope()
         self.ui = RetainedUI[Self.Root]()
         self.ui.next_id = next_id
+        self.ui.id_stride = id_stride
         self.refresh()
 
     def queue(self, event: Event) -> QueuedEvent:

@@ -385,7 +385,7 @@ struct LabelPane(Pane):
         pass
 
     def render(self, mut ui: UI[Self, Self.Context], context: NoneType):
-        ui.text_input("Visible editor", "one", Self.edit)
+        ui.text_input("Visible editor", "one", Self.edit, hint="Enter your name")
         ui.text_input("Named editor", "two", Self.edit, show_label=False)
         ui.checkbox("Visible check", True, Self.toggle)
         ui.checkbox("Named check", False, Self.toggle, show_label=False)
@@ -411,6 +411,7 @@ def visible_and_accessible_labels():
     for offset in range(0, 10, 5):
         test_check(app.view.child(offset).text == "Visible editor")
         test_check(app.view.child(offset + 1).semantics.label == "Visible editor")
+        test_check(app.view.child(offset + 1).semantics.hint == "Enter your name")
         test_check(app.view.child(offset + 2).text == "two")
         test_check(app.view.child(offset + 2).semantics.label == "Named editor")
         test_check(app.view.child(offset + 3).text == "Visible check")
@@ -458,6 +459,21 @@ def embedded_model_reset():
     var result = app.requests.pop_ready()
     test_check(result.key == 92 and app.requests.should_deliver(result))
 
+def interleaved_control_ids():
+    # Embedded slots may share an unbounded allocation space by residue.
+    var left = HandlerHost(Root(), id_stride=5)
+    var right = HandlerHost(Root(), id_stride=5)
+    for lifetime in range(250):
+        for control in left.ui.controls:
+            test_check(control.id % 5 == 1)
+            for other in right.ui.controls:
+                test_check(control.id != other.id + 1)
+        left.reset_model(Root())
+        if lifetime % 3 == 0:
+            right.reset_model(Root())
+    test_check(left.ui.next_id > 1000)
+
+
 def main() raises:
     root_and_copy_lifetimes()
     collection_lifetimes_and_reorder()
@@ -467,4 +483,5 @@ def main() raises:
     visible_and_accessible_labels()
     reset_preserves_unrelated_queue_capacity()
     embedded_model_reset()
+    interleaved_control_ids()
     print("PASS authoring lifetimes, request delivery, and reset contracts")
