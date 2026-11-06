@@ -524,7 +524,7 @@ struct PlotRuntime:
                 var point = self.plot.series[series_index].points[point_index]
                 if not point.interactive:
                     continue
-                var keys = point.source_keys.copy()
+                var keys = point.selection_keys()
                 if len(keys) == 0:
                     keys.append(point.row_key)
                 for row_key in keys:
@@ -573,7 +573,7 @@ struct PlotRuntime:
                 var point = self.plot.series[series_index].points[point_index]
                 if not point.interactive:
                     continue
-                var keys = point.source_keys.copy()
+                var keys = point.selection_keys()
                 if len(keys) == 0:
                     keys.append(point.row_key)
                 for row_key in keys:

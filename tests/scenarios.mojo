@@ -23,7 +23,7 @@ from moxi_demo import DemoCatalog, DEMO_FORM_ID
 def main():
     var registry = canonical_scenarios()
     test_check(registry.is_valid())
-    test_check(registry.count() == 7)
+    test_check(registry.count() == 19)
     test_check(registry.index_for_id(SCENARIO_FORM) == 0)
     test_check(registry.index_for_id(SCENARIO_THEME) == 1)
     test_check(registry.index_for_id(SCENARIO_COLLECTION) == 2)
@@ -56,6 +56,12 @@ def main():
     var catalog = DemoCatalog()
     for scenario_index in range(registry.count()):
         var scenario = registry.entry(scenario_index)
+        # Specialized source scenarios run through the contract/capture harness;
+        # they do not pretend to be native DemoCatalog entries.
+        if scenario.fixture.startswith("wave-c-"):
+            test_check(scenario.task == "wave-c-check")
+            test_check(scenario.test_source == "tests/plot_specialized_c.mojo")
+            continue
         var found = False
         for demo_index in range(catalog.count()):
             var demo = catalog.entry(demo_index)

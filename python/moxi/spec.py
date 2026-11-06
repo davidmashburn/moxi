@@ -117,6 +117,8 @@ class Layer:
     series_fields: List[str] = field(default_factory=list)
     range_fields: List[str] = field(default_factory=list)
     error_fields: List[str] = field(default_factory=list)
+    triangles: List[List[int]] = field(default_factory=list)
+    levels: List[float] = field(default_factory=list)
     total_field: str = ""
     horizontal: bool = False
     percent: bool = False
@@ -152,6 +154,8 @@ class Layer:
             "total_field": self.total_field,
             "horizontal": self.horizontal,
             "percent": self.percent,
+            "triangles": self.triangles,
+            "levels": self.levels,
         }
 
 
@@ -319,11 +323,13 @@ class PlotSpec:
     def specialize(self, layer_id: int, *, series_fields: Iterable[str] = (),
                    range_fields: Iterable[str] = (), error_fields: Iterable[str] = (),
                    total_field: str = "", horizontal: bool = False,
-                   percent: bool = False) -> None:
-        """Opt a Wave A layer into layout v1 (ordered wide-column matrices).
+                   percent: bool = False, triangles: Iterable[Iterable[int]] = (),
+                   levels: Iterable[float] = ()) -> None:
+        """Opt a supported specialized layer into layout v1.
 
         x is the category column, y the measure/close/start/left column;
-        y2 is target/open/end/right. See docs/plot-specialized-wave-a.md.
+        y2 is target/open/end/right or hierarchy parent/flow target.
+        See docs/plot-specialized-wave-a.md and plot-specialized-wave-c.md.
         The operation validates before replacing the layer.
         """
         from dataclasses import replace
@@ -332,7 +338,8 @@ class PlotSpec:
         layer = replace(self.layers[index], layout_version=LayoutVersion.SPECIALIZED,
                         series_fields=list(series_fields), range_fields=list(range_fields),
                         error_fields=list(error_fields), total_field=total_field,
-                        horizontal=horizontal, percent=percent)
+                        horizontal=horizontal, percent=percent,
+                        triangles=[list(t) for t in triangles], levels=list(levels))
         validate_layout(layer)
         self.layers[index] = layer
 

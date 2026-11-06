@@ -207,6 +207,8 @@ struct PlotLayer(ImplicitlyCopyable):
     var opacity: Float32
     var tooltip_fields: String
     var layout_version: PlotLayoutVersion
+    var triangles_json: String
+    var levels_json: String
     var series_fields_json: String
     var range_fields_json: String
     var error_fields_json: String
@@ -245,6 +247,8 @@ struct PlotLayer(ImplicitlyCopyable):
         self.opacity = 1.0
         self.tooltip_fields = ""
         self.layout_version = PlotLayoutVersion.ROW
+        self.triangles_json = "[]"
+        self.levels_json = "[]"
         self.series_fields_json = "[]"
         self.range_fields_json = "[]"
         self.error_fields_json = "[]"

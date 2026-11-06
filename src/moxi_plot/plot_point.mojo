@@ -46,6 +46,17 @@ struct PlotGlyphKind(ImplicitlyCopyable):
     comptime SEGMENT = Self(2)
     comptime POINT = Self(3)
     comptime POLYGON = Self(4)
+    comptime TRIANGLE = Self(5)
+
+    def __init__(out self, value: Int):
+        self.value = value
+
+
+struct PlotSelectionPolicy(ImplicitlyCopyable):
+    """Whether interaction selects a glyph's primary row or all contributors."""
+    var value: Int
+    comptime PRIMARY = Self(0)
+    comptime CONTRIBUTORS = Self(1)
 
     def __init__(out self, value: Int):
         self.value = value
@@ -56,9 +67,13 @@ struct PlotPoint(ImplicitlyCopyable):
 
     var vertices: List[Point]
     var source_keys: List[Int]
+    var selection_policy: PlotSelectionPolicy
     var glyph: PlotGlyphKind
     var interactive: Bool
     var part: String
+    var stroke_width: Float32
+    var x3: Float32
+    var y3: Float32
     var x: Float32
     var y: Float32
     var row_key: Int
@@ -83,9 +98,13 @@ struct PlotPoint(ImplicitlyCopyable):
     def __init__(out self, x: Float32, y: Float32, row_key: Int = -1):
         self.vertices = List[Point]()
         self.source_keys = List[Int]()
+        self.selection_policy = PlotSelectionPolicy.PRIMARY
         self.glyph = PlotGlyphKind.ROW
         self.interactive = True
         self.part = ""
+        self.stroke_width = 0
+        self.x3 = x
+        self.y3 = y
         self.x = x
         self.y = y
         self.row_key = row_key
@@ -110,9 +129,13 @@ struct PlotPoint(ImplicitlyCopyable):
     def __init__(out self, *, copy: Self):
         self.vertices = copy.vertices.copy()
         self.source_keys = copy.source_keys.copy()
+        self.selection_policy = copy.selection_policy
         self.glyph = copy.glyph
         self.interactive = copy.interactive
         self.part = copy.part
+        self.stroke_width = copy.stroke_width
+        self.x3 = copy.x3
+        self.y3 = copy.y3
         self.x = copy.x
         self.y = copy.y
         self.row_key = copy.row_key
@@ -133,6 +156,19 @@ struct PlotPoint(ImplicitlyCopyable):
         self.stat_high = copy.stat_high
         self.stat_median = copy.stat_median
         self.has_statistics = copy.has_statistics
+
+    def selection_keys(self) -> List[Int]:
+        if self.selection_policy.value == PlotSelectionPolicy.CONTRIBUTORS.value and len(self.source_keys) > 0:
+            return self.source_keys.copy()
+        return [self.row_key]
+
+    def source_keys_text(self) -> String:
+        var result = String()
+        for key in self.source_keys:
+            if result != "":
+                result += ","
+            result += String(key)
+        return result^
 
     def set_facet(mut self, value: String):
         self.facet_value = value

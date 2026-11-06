@@ -4,6 +4,7 @@ Adapted from dataviz_mojo v0.8.0, commit 3fd5a7e7c622d6130c99a290b88c4fee039deab
 MIT Copyright (c) 2026 Randy Zwitch. Full notice: tests/fixtures/wave_a/DATAVIZ-LICENSE.
 Wide named columns correspond to upstream series/range matrices, in declared order.
 """
+from .plot_layout_c import _wave_c, _c_validate, _c_layout
 from std.collections import List
 from .plot_wave_b import _wave_b, _b_valid, _b_series
 from std.math import isfinite
@@ -35,6 +36,14 @@ def specialized_valid(layer: PlotLayer) -> Bool:
     if layer.layout_version.value == PlotLayoutVersion.ROW.value:
         return True
     if layer.layout_version.value != PlotLayoutVersion.SPECIALIZED.value:
+        return False
+    if _wave_c(layer.mark):
+        try:
+            _c_validate(layer)
+            return True
+        except:
+            return False
+    if layer.triangles_json != "[]" or layer.levels_json != "[]":
         return False
     var mark = layer.mark
     if _wave_b(mark):
@@ -78,6 +87,12 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
         return True
     if _wave_b(layer.mark):
         return _b_valid(layer,data)
+    if _wave_c(layer.mark):
+        try:
+            _ = _c_layout(layer,data,0)
+            return True
+        except:
+            return False
     if data.row_count() == 0 or data.field_kind(layer.x_field) == 0:
         return False
     var fields: List[String] = [layer.y_field]
@@ -164,6 +179,11 @@ def _glyph(mut series: PlotSeries, layer: PlotLayer, data: PlotDataTable, row: I
 def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Float32 = 560, height: Float32 = 416) -> PlotSeries:
     if _wave_b(layer.mark):
         return _b_series(layer,data,id,width,height)
+    if _wave_c(layer.mark):
+        try:
+            return _c_layout(layer,data,id)
+        except:
+            return PlotSeries(id,layer.label,layer.color,layer.mark)
     var result = PlotSeries(id, layer.label, layer.color, layer.mark)
     result.line_width = layer.line_width
     result.marker_size = layer.size

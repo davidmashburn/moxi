@@ -38,6 +38,7 @@ from .plot_marks import (
     PLOT_TICK,
 )
 from .plot_spec_json import (
+    _numeric_array_json,
     _string_array_json,
     _find_token,
     _read_number,
@@ -1054,6 +1055,8 @@ struct PlotSpec:
                 "{\"id\":",
                 layer.id,
                 ",\"layout_version\":", layer.layout_version.value,
+                ",\"triangles\":", layer.triangles_json,
+                ",\"levels\":", layer.levels_json,
                 ",\"series_fields\":", layer.series_fields_json,
                 ",\"range_fields\":", layer.range_fields_json,
                 ",\"error_fields\":", layer.error_fields_json,
@@ -1301,6 +1304,8 @@ def plot_spec_from_json(value: String) -> PlotSpec:
         if layout_start != -1 and (not layout_version.ok or object[codepoint=layout_start:layout_version.next] != String(layout_version.integer)):
             result.valid = False
         result.layers[layer_index].layout_version = PlotLayoutVersion(layout_version.integer)
+        result.layers[layer_index].triangles_json = _numeric_array_json(object,"triangles")
+        result.layers[layer_index].levels_json = _numeric_array_json(object,"levels")
         result.layers[layer_index].series_fields_json = _string_array_json(object, "series_fields")
         result.layers[layer_index].range_fields_json = _string_array_json(object, "range_fields")
         result.layers[layer_index].error_fields_json = _string_array_json(object, "error_fields")

@@ -34,6 +34,7 @@ class GlyphKind(str, Enum):
     SEGMENT = "segment"
     POINT = "point"
     POLYGON = "polygon"
+    TRIANGLE = "triangle"
 
 
 @dataclass(frozen=True)
@@ -46,6 +47,8 @@ class Glyph:
     interactive: bool = True
     vertices: Tuple[Tuple[float, float], ...] = ()
     source_rows: Tuple[int, ...] = ()
+    size: float = 6.0
+    stroke_width: float = 0.0
 
 
 @dataclass
@@ -68,9 +71,14 @@ def validate_layout(layer: Any) -> None:
     version = LayoutVersion(layer.layout_version)
     if version is LayoutVersion.ROW:
         return
-    from .wave_b import WaveBMark, validate
+    from .specialized_c import WaveCMark, validate
+    if layer.mark in WaveCMark._value2member_map_:
+        return validate(layer)
+    if layer.triangles or layer.levels:
+        raise ValueError("triangles/levels require tricontour")
+    from .wave_b import WaveBMark, validate as validate_b
     if layer.mark in WaveBMark._value2member_map_:
-        validate(layer)
+        validate_b(layer)
         return
     mark = WaveAMark(layer.mark)
     if not isinstance(layer.horizontal, bool) or not isinstance(layer.percent, bool):
@@ -107,6 +115,9 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
     from .wave_b import WaveBMark, layout as wave_b_layout
     if layer.mark in WaveBMark._value2member_map_:
         return wave_b_layout(layer, data, width, height)
+    from .specialized_c import WaveCMark, layout as wave_c_layout
+    if layer.mark in WaveCMark._value2member_map_:
+        return wave_c_layout(layer, data)
     mark = WaveAMark(layer.mark)
     categories = list(data.column(layer.x))
     n = len(categories)

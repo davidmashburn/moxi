@@ -304,3 +304,17 @@ def _string_array(value: String) -> List[String]:
             return List[String]()
         cursor += 1
     return List[String]()
+
+
+def _numeric_array_json(object: String, name: String) -> String:
+    var start = _member_start(object,name)
+    if start < 0: return "[]"
+    if String(object[codepoint=start:start+1]) != "[": return "invalid"
+    var depth = 0
+    for i in range(start,object.count_codepoints()):
+        var c = object[codepoint=i:i+1]
+        if c == "[": depth += 1
+        if c == "]":
+            depth -= 1
+            if depth == 0: return String(object[codepoint=start:i+1])
+    return "invalid"

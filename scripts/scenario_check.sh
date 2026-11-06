@@ -64,8 +64,8 @@ for line in Path(os.environ["MOXI_SCENARIO_OUTPUT"]).read_text(
         }
     )
 
-if len(records) != 7:
-    raise SystemExit(f"expected seven canonical scenarios, got {len(records)}")
+if len(records) != 19:
+    raise SystemExit(f"expected nineteen canonical scenarios, got {len(records)}")
 if len({record["id"] for record in records}) != len(records):
     raise SystemExit("canonical scenario ids are not unique")
 if len({record["fixture"] for record in records}) != len(records):
@@ -95,7 +95,7 @@ for record in records:
             f"{record['fixture']}: missing benchmark {record['benchmark']}"
         )
     demo_source = (repo / "src/moxi_demo/demo_entry.mojo").read_text(encoding="utf-8")
-    if record["source"] not in demo_source or record["task"] not in demo_source:
+    if not record["fixture"].startswith("wave-c-") and (record["source"] not in demo_source or record["task"] not in demo_source):
         raise SystemExit(
             f"{record['fixture']}: demo catalog is missing source/task mapping"
         )

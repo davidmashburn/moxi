@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "demo_id": "e03-sunburst",
+  "title": "E03 sunburst",
+  "scenario": "Depth rings and descendant-weight angles; root hidden. Tessellated sectors replace analytic arcs. Same 640\u00d7480 source fixture. Upstream margins normalized to native Scene (48/32/28/36), legend disabled, DejaVu Sans pinned. Fixed upstream palettes cannot be overridden by these APIs; Moxi retains its palette. Moxi Canvas text/legend absent; semantic/source table is the fallback. Python export margins differ. Circular geometry is stretched by independent native x/y scales; upstream uses the smaller plot dimension. Barbs use data-space lengths in Moxi versus pixel staff length upstream. These are recorded visual/metric differences, not pixel parity. No native-window, VoiceOver, human usability or physical performance gate is claimed.",
+  "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+  "source_dirty": true,
+  "source_state": {
+    "scoped_sha256": "2bf2b86a1e65bef2e741ff11f2647478b800ce5c42a8a291a3e5be441f9b20d9",
+    "files": {
+      "docs/dataviz-capabilities.tsv": "b5d5be8c49a3b609f34b770999fd7fe73f8d68c229448bf3c0de3732bf7be8cc",
+      "docs/plot-specialized-wave-c.md": "7bbd600b1e0c86cb592b5036a45fd63960abe83ec82c8ba280f4a49e2c4cb1b0",
+      "pixi.lock": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0",
+      "pixi.toml": "dd152466c9b45972a041f68fc713c74cbeb7706f94c36fae7151f0d07a7c707e",
+      "python/moxi/__init__.py": "e1e11a733aba7af7ddc057e5ef76b3b96ddbc9e426da7baaf6e9a5a839c3ed45",
+      "python/moxi/data.py": "19bdda0fc073c9cbaae1b086973600914b1ffa0096c7f8d17bb0ed76ac9427bf",
+      "python/moxi/figure.py": "ebebe91e5b8ebc317b4cb32c5bf799fed12ae8bff309abc2400ce482ed30d424",
+      "python/moxi/py.typed": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "python/moxi/scenarios.py": "f94faeaf8e0fdbf382a27a8f79ea43bcc4bd20f1e85c76192b804f9fefa7af6c",
+      "python/moxi/spec.py": "8d1db4aa9cd8975e6ac909f5beaefe70984ce0fcc7fbd753dc409023aa0141b8",
+      "python/moxi/specialized.py": "190e3500d1c440669e976e1fd0c2ca9b0d2cbb15b8200ffe13b62e90326fe508",
+      "python/moxi/specialized_c.py": "5d37b3dcfd91d78aa6bcaf259d9d815d22125f1a8e643639de9f756eb5ec4e0e",
+      "scripts/wave_c/boundaries.py": "d87028a412d90f15a0ca58e6a762a28f8ffc857fc3ad7e4db20da0bcbcf64cd1",
+      "scripts/wave_c/consumer.sh": "aa898ea01820f955d90b92e7a65f466dd91aa38cbc99cc1eb28fbc759f51d9d0",
+      "scripts/wave_c/evidence.py": "f02b4f4b2b3a7e04b0de1a8135e6d1bf3d9771fd0debc6fe9fd6f1bd476b231c",
+      "scripts/wave_c/fixtures.py": "8c341029847612dc525a47fa6991181a1ca7a99d023c278ebacc203c56b4ce6d",
+      "scripts/wave_c/slideshows.py": "11d51aa85a96641fb8c5ddfc827eadaa7d4d22f35fab02f1febf86f6fbba4bc6",
+      "scripts/wave_c/upstream.py": "eebcde36b4db59276ea5142c8ace36f356808186fe35786dc83f2b2d873a42cc",
+      "scripts/wave_c/verify.py": "4edb847f416da98a0de17ed7b4fa84c878c896ae8306f0913216e53c0d76a137",
+      "src/moxi/scenarios.mojo": "57686d3bd7c5ca9bbe3b194f78a3b84e333d7bc83379e7609522ef564ac5f281",
+      "src/moxi_plot/__init__.mojo": "873bfc2034dde5d330376ec28ac0cedba4d95d70bdfebee85b9ee73f97020405",
+      "src/moxi_plot/fixtures.mojo": "01040a0a82c300d588a28a6454c013d7b71dccca650e02775246c3496eaa337c",
+      "src/moxi_plot/plot_api.mojo": "4b908f7797981e170343437d8540b69ed08b62792c432664528bd15b12b57af7",
+      "src/moxi_plot/plot_data.mojo": "b09eede22382f09ceeacdb92e74116bdb8c7d7743adf8d94026db0dbb76c77e7",
+      "src/moxi_plot/plot_layout.mojo": "2b1cf7e6a617458028ab8b2747a8b3c6899b3feffa01a2fd496553c26a0124aa",
+      "src/moxi_plot/plot_layout_c.mojo": "078b868758d0698ad9fe13bcaef8f48f25245c54ae140305665a7967f03fa3f5",
+      "src/moxi_plot/plot_link.mojo": "0d4ac57a0682e1a608dfec77b50c5e84f12047b6b46936250d21e3fcf59fccfd",
+      "src/moxi_plot/plot_marks.mojo": "dd366e7b71fa49bc3b5ce9f3a10ee383c41c1e58ee8007ef176961b6bd21ee8c",
+      "src/moxi_plot/plot_point.mojo": "35fc1520987151b46da9a9b835bd3a3be9e778eaa20866a2e467bb1df834534a",
+      "src/moxi_plot/plot_render_bridge.mojo": "1596ad378aa0805e51e8c08197041a4e59fea88fb87428ab92f40d0a71f27971",
+      "src/moxi_plot/plot_runtime.mojo": "0009e5e7f69cbc2a87d148c75fc3ca7ff7adfd9cdef896e52cda750d2c016424",
+      "src/moxi_plot/plot_series.mojo": "20e242dcf618cb2140ac49ab1b92382a1360b55f397edb890880b85acf1cd231",
+      "src/moxi_plot/plot_spec.mojo": "bbce75cfd4bf9646607560ec981c6fe5b77b1882e62933a64c68b97ca11d1dde",
+      "src/moxi_plot/plot_spec_json.mojo": "5c3394b006372b76bb74f295f4e45d281d112b427b647e45d59b8df125169cc1",
+      "src/moxi_plot/plot_spec_names.mojo": "00500b4c82a44703b36bfcfcf8105bfaf4af29d567acf9f08102aec4f6c3a34c",
+      "src/moxi_plot/plot_spec_types.mojo": "fdf9bc34b60e91037f704901e88f5ace32a439041eb5308ce956ef0dd39ea3ec",
+      "src/moxi_plot/plot_view.mojo": "322cfdd5c8eb7b682a8f117465634cedc0287058516a4444d6663223d76dce4c",
+      "src/moxi_plot/plotting.mojo": "d1cb51fb42125575e85b7fc4b8fd18618fc3bb093a23a84ddec7e4fbf7dd26b1",
+      "tests/fixtures/wave_c/cases.json": "7d088940e1b3bf24b59ebd7a0281bfbfa26ef4a1419e97edc6eea09f3484442e",
+      "tests/plot_specialized_c.mojo": "3d62c6cabafc36bbe324848a3f2cecd0c14b01c9cee9d18b52dd17b7bd69f50b",
+      "tests/test_specialized_c.py": "3c1439a1408c5e745a6a0e2068be990632c916f7b56537dd2e8258d7a5146d82"
+    },
+    "status": " M docs/dataviz-capabilities.tsv\n M pixi.toml\n M python/moxi/figure.py\n M python/moxi/spec.py\n M python/moxi/specialized.py\n M src/moxi/scenarios.mojo\n M src/moxi_plot/plot_layout.mojo\n M src/moxi_plot/plot_point.mojo\n M src/moxi_plot/plot_spec.mojo\n M src/moxi_plot/plot_spec_json.mojo\n M src/moxi_plot/plot_spec_types.mojo\n M src/moxi_plot/plot_view.mojo\n M src/moxi_plot/plotting.mojo\n?? docs/plot-specialized-wave-c.md\n?? python/moxi/specialized_c.py\n?? scripts/wave_c/\n?? src/moxi_plot/plot_layout_c.mojo\n?? tests/fixtures/wave_c/cases.json\n?? tests/plot_specialized_c.mojo\n?? tests/test_specialized_c.py\n"
+  },
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "backend": "Mojo Scene/Canvas, pinned dataviz, collaborative browser evidence replay",
+  "scale": 1,
+  "fixture": "tests/fixtures/wave_c/cases.json#sunburst",
+  "reproduce": "Follow docs/plot-specialized-wave-c.md. Run upstream.py, verify.py, evidence.py; capture source/comparison/selection pages through T3 preview at 1280x800 (tricontour reference.html too); run scripts/wave_c/slideshows.py.",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "01-source.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Source data/schema",
+      "action": "Open source.html",
+      "expected": "Actual fixture and version-1 contract",
+      "sha256": "ffe383beaee5958422c6f3a58cb15eeb910239dadb3b9c2fa2f8fd12820d45b6",
+      "browser_metrics": {
+        "width": 1280,
+        "height": 800,
+        "pageHeight": 800,
+        "dpr": 2
+      },
+      "capture_scale_note": "T3 snapshot saved at CSS-pixel resolution; browser DPR is recorded separately."
+    },
+    {
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "02-reference.png",
+      "dimensions": [
+        640,
+        480
+      ],
+      "caption": "Real pinned upstream output",
+      "action": "Run pinned upstream.py",
+      "expected": "Actual pinned PNG",
+      "sha256": "0bc9391f6e955514bc52207eec9f458045b22f1032c3b8a2525259a33115baec"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "03-comparison.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Actual Moxi / reference comparison",
+      "action": "Open comparison.html",
+      "expected": "Classified structural and visual differences",
+      "sha256": "5bc0485e1954add5798756706e94865ced9115c7502e9c3e23c617ce3a5e8d24",
+      "browser_metrics": {
+        "width": 1280,
+        "height": 800,
+        "pageHeight": 800,
+        "dpr": 2
+      },
+      "capture_scale_note": "T3 snapshot saved at CSS-pixel resolution; browser DPR is recorded separately."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "04-selection.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Actual source-key event replay and CSV fallback",
+      "action": "Open selection.html after Mojo click dispatch",
+      "expected": "Selected source row and complete table",
+      "sha256": "d894c495ffce68c9f6fef44b4671eb39e74d513e48c47adaab664a29f9bf2cd1",
+      "browser_metrics": {
+        "width": 1280,
+        "height": 800,
+        "pageHeight": 800,
+        "dpr": 2
+      },
+      "capture_scale_note": "T3 snapshot saved at CSS-pixel resolution; browser DPR is recorded separately."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "05-update.png",
+      "dimensions": [
+        640,
+        480
+      ],
+      "caption": "Source update and export",
+      "action": "PlotView.replace_data(changed); Python SVG/PDF/PNG exports",
+      "expected": "Actual recomputed geometry and cleared selection",
+      "sha256": "12ec26526d341656f1c3e428861dd24abe1862356c3e0e6db1a2296f8292c922"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "06-recovery.png",
+      "dimensions": [
+        640,
+        480
+      ],
+      "caption": "Reject invalid data and restore source",
+      "action": "Reject nonfinite replacement; restore original snapshot",
+      "expected": "Original Canvas pixels restored exactly",
+      "sha256": "17d3dcf0b11b2843d3692a1f227c98ea444e438595dcef2b22274c349644ea83"
+    }
+  ]
+}

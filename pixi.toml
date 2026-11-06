@@ -103,6 +103,7 @@ fractal-benchmark = { cmd = "./dist/moxi-fractal-benchmark", depends-on = ["frac
 not-implemented-demo-build = { cmd = "mkdir -p dist && mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/not_implemented.mojo -o dist/moxi-not-implemented-demo", depends-on = ["native-object"] }
 not-implemented-demo = { cmd = "./dist/moxi-not-implemented-demo", depends-on = ["not-implemented-demo-build"] }
 demo-catalog-check = "bash scripts/demo_catalog_check.sh"
+wave-c-check = "python3 scripts/wave_c/verify.py /tmp/moxi-e03-moxi"
 scenario-check = "bash scripts/scenario_check.sh"
 api-status-check = "bash scripts/api_status_check.sh"
 api-ergonomics = "bash scripts/api_ergonomics.sh"

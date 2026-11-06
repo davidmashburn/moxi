@@ -1,6 +1,6 @@
 """Composable plot view boundary for Moxi layout and event hosts."""
 
-from moxi.accessibility import AccessibilitySnapshot
+from moxi.accessibility import AccessibilitySnapshot, Semantics, ROLE_TABLE, ROLE_LABEL
 from moxi.component import Component
 from moxi.column_view import ColumnView
 from moxi.event import (
@@ -27,6 +27,8 @@ from .plot_series import PlotHit
 from .plot_spec import PlotSpec, plot_from_spec
 from .plot_wave_b import _wave_b
 from .plot_spec_types import PlotLayoutVersion
+from .plot_layout_c import _wave_c
+from .plot_data import COLUMN_STRING, COLUMN_CATEGORY
 from moxi.scene import Scene
 
 
@@ -184,7 +186,33 @@ struct PlotView(Component):
 
     def accessibility(self) -> AccessibilitySnapshot:
         """Return the current semantic plot subtree."""
-        return self.runtime.accessibility()
+        var snapshot=self.runtime.accessibility()
+        for layer in self.spec.layers:
+            if layer.layout_version.value != PlotLayoutVersion.SPECIALIZED.value or not _wave_c(layer.mark): continue
+            var table=Semantics(800000,ROLE_TABLE,"Source data")
+            table.parent_id=1
+            table.value=self.data.table.csv()
+            snapshot.append(table)
+            for i in range(self.data.row_count()):
+                var row=Semantics(800001+i,ROLE_LABEL,String("Source key ",self.data.key_at(i)))
+                row.parent_id=800000
+                var value=String()
+                for column_index in range(len(self.data.table.columns)):
+                    if value!="": value+="; "
+                    value+=self.data.table.columns[column_index].name+"="
+                    if self.data.table.columns[column_index].kind==COLUMN_STRING or self.data.table.columns[column_index].kind==COLUMN_CATEGORY: value+=self.data.table.string_field_at(self.data.table.columns[column_index].name,i)
+                    else: value+=String(self.data.table.float_field_at(self.data.table.columns[column_index].name,i))
+                row.value=value
+                snapshot.append(row)
+        return snapshot^
+
+    def _source_is_valid(self, data: PlotDataTable) -> Bool:
+        # Wave C geometry is rebuilt atomically from the complete source object.
+        var spec=self.spec.clone()
+        for layer in spec.layers:
+            if layer.layout_version.value == PlotLayoutVersion.SPECIALIZED.value and _wave_c(layer.mark):
+                return spec.validate_data(data)
+        return True
 
     def set_bounds(mut self, bounds: Rect):
         if (
@@ -195,8 +223,23 @@ struct PlotView(Component):
         ):
             return
         if _wave_b_spec(self.spec):
+            var selection = self.runtime.selection()
+            var previous = self.runtime.plot^
             self.runtime.plot = plot_from_spec(self.spec, self.data.table, bounds)
+            self.runtime.plot.set_x_domain(previous.x_scale.data_min, previous.x_scale.data_max)
+            self.runtime.plot.set_y_domain(previous.y_scale.data_min, previous.y_scale.data_max)
+            for series_index in range(len(self.runtime.plot.series)):
+                for old_series in previous.series:
+                    if old_series.id == self.runtime.plot.series[series_index].id:
+                        self.runtime.plot.series[series_index].visible = old_series.visible
+            self.runtime.set_linked_selection(selection)
+            # Pixel-relative hover and unfinished gestures no longer describe
+            # the rebuilt layout. Stable-key selection and viewport survive.
             self.runtime.hovered = PlotHit()
+            self.runtime.dragging = False
+            self.runtime.brushing = False
+            self.runtime.lassoing = False
+            self.runtime.lasso_points.clear()
             self.runtime.index_revision = -1
             self.runtime.packet_cache_valid = False
             self.runtime.cached_packet_revision = -1
@@ -259,6 +302,12 @@ struct PlotView(Component):
 
     def request_data(mut self, data: PlotDataTable) -> Bool:
         """Queue changed data and invalidate without compiling immediately."""
+        if not self.pending_spec_valid and not self._source_is_valid(data): return False
+        if self.pending_spec_valid:
+            var pending=self.pending_spec.clone()
+            for layer in pending.layers:
+                if layer.layout_version.value == PlotLayoutVersion.SPECIALIZED.value and _wave_c(layer.mark):
+                    if not pending.validate_data(data): return False
         if self.data.version() == data.version and not self.pending_spec_valid:
             return False
         var candidate = self.pending_spec.clone() if self.pending_spec_valid else self.spec.clone()
@@ -292,6 +341,7 @@ struct PlotView(Component):
 
     def replace_data(mut self, data: PlotDataTable) -> Bool:
         """Eagerly commit changed data without retaining a pending copy."""
+        if not self._source_is_valid(data): return False
         if self.data.version() == data.version:
             return False
         if _wave_b_spec(self.spec):

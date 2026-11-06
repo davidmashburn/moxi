@@ -1,0 +1,415 @@
+{
+  "treemap": {
+    "x": "id",
+    "y": "value",
+    "channels": {
+      "y2_field": "parent"
+    },
+    "columns": {
+      "id": [
+        "root",
+        "A",
+        "B",
+        "a1",
+        "a2",
+        "b1",
+        "b2"
+      ],
+      "parent": [
+        "",
+        "root",
+        "root",
+        "A",
+        "A",
+        "B",
+        "B"
+      ],
+      "value": [
+        99,
+        0,
+        0,
+        6,
+        2,
+        3,
+        1
+      ]
+    }
+  },
+  "sunburst": {
+    "x": "id",
+    "y": "value",
+    "channels": {
+      "y2_field": "parent"
+    },
+    "columns": {
+      "id": [
+        "root",
+        "A",
+        "B",
+        "a1",
+        "a2",
+        "b1",
+        "b2"
+      ],
+      "parent": [
+        "",
+        "root",
+        "root",
+        "A",
+        "A",
+        "B",
+        "B"
+      ],
+      "value": [
+        99,
+        0,
+        0,
+        6,
+        2,
+        3,
+        1
+      ]
+    }
+  },
+  "tree": {
+    "x": "id",
+    "y": "value",
+    "channels": {
+      "y2_field": "parent"
+    },
+    "columns": {
+      "id": [
+        "root",
+        "A",
+        "B",
+        "a1",
+        "a2",
+        "b1",
+        "b2"
+      ],
+      "parent": [
+        "",
+        "root",
+        "root",
+        "A",
+        "A",
+        "B",
+        "B"
+      ],
+      "value": [
+        99,
+        0,
+        0,
+        6,
+        2,
+        3,
+        1
+      ]
+    }
+  },
+  "sankey": {
+    "x": "source",
+    "y": "value",
+    "channels": {
+      "y2_field": "target"
+    },
+    "columns": {
+      "source": [
+        "A",
+        "A",
+        "B",
+        "C",
+        "A"
+      ],
+      "target": [
+        "B",
+        "C",
+        "D",
+        "D",
+        "D"
+      ],
+      "value": [
+        5,
+        3,
+        5,
+        3,
+        2
+      ]
+    }
+  },
+  "chord": {
+    "x": "source",
+    "y": "value",
+    "channels": {
+      "y2_field": "target"
+    },
+    "columns": {
+      "source": [
+        "A",
+        "A",
+        "B",
+        "C",
+        "A"
+      ],
+      "target": [
+        "B",
+        "C",
+        "D",
+        "D",
+        "D"
+      ],
+      "value": [
+        5,
+        3,
+        5,
+        3,
+        2
+      ]
+    }
+  },
+  "graph": {
+    "x": "source",
+    "y": "value",
+    "channels": {
+      "y2_field": "target"
+    },
+    "columns": {
+      "source": [
+        "A",
+        "A",
+        "B",
+        "C",
+        "A"
+      ],
+      "target": [
+        "B",
+        "C",
+        "D",
+        "D",
+        "D"
+      ],
+      "value": [
+        5,
+        3,
+        5,
+        3,
+        2
+      ]
+    }
+  },
+  "calendar_heatmap": {
+    "x": "date",
+    "y": "value",
+    "columns": {
+      "date": [
+        "2024-01-01",
+        "2024-02-29",
+        "2024-04-17",
+        "2024-07-04",
+        "2024-12-31"
+      ],
+      "value": [
+        1,
+        5,
+        -2,
+        9,
+        3
+      ]
+    }
+  },
+  "corrplot": {
+    "x": "variable",
+    "y": "A",
+    "layout": {
+      "series_fields": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "columns": {
+      "variable": [
+        "A",
+        "B",
+        "C"
+      ],
+      "A": [
+        1,
+        0.5,
+        -0.8
+      ],
+      "B": [
+        0.5,
+        1,
+        0
+      ],
+      "C": [
+        -0.8,
+        0,
+        1
+      ]
+    }
+  },
+  "punchcard": {
+    "x": "day",
+    "y": "hour",
+    "layout": {
+      "series_fields": [
+        "count"
+      ]
+    },
+    "columns": {
+      "day": [
+        "Mon",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Wed"
+      ],
+      "hour": [
+        "AM",
+        "PM",
+        "AM",
+        "AM",
+        "PM"
+      ],
+      "count": [
+        20,
+        50,
+        0,
+        90,
+        35
+      ]
+    }
+  },
+  "marimekko": {
+    "x": "category",
+    "y": "north",
+    "layout": {
+      "series_fields": [
+        "north",
+        "south"
+      ]
+    },
+    "columns": {
+      "category": [
+        "A",
+        "B",
+        "C"
+      ],
+      "north": [
+        6,
+        2,
+        3
+      ],
+      "south": [
+        2,
+        4,
+        1
+      ]
+    }
+  },
+  "barbs": {
+    "x": "x",
+    "y": "y",
+    "layout": {
+      "series_fields": [
+        "u",
+        "v"
+      ]
+    },
+    "columns": {
+      "x": [
+        0,
+        1,
+        2,
+        0,
+        1,
+        2
+      ],
+      "y": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "u": [
+        0,
+        5,
+        10,
+        -15,
+        50,
+        65
+      ],
+      "v": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        20
+      ]
+    }
+  },
+  "tricontour": {
+    "x": "x",
+    "y": "y",
+    "layout": {
+      "series_fields": [
+        "z"
+      ],
+      "triangles": [
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          2,
+          4
+        ],
+        [
+          2,
+          3,
+          4
+        ],
+        [
+          3,
+          0,
+          4
+        ]
+      ],
+      "levels": [
+        0.5,
+        1,
+        1.5
+      ]
+    },
+    "columns": {
+      "x": [
+        0,
+        2,
+        2,
+        0,
+        1
+      ],
+      "y": [
+        0,
+        0,
+        2,
+        2,
+        1
+      ],
+      "z": [
+        0,
+        0,
+        0,
+        0,
+        2
+      ]
+    }
+  }
+}

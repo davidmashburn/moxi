@@ -230,7 +230,7 @@ class Figure:
                     }
             for row_index, (left, top, right, bottom, _) in enumerate(geometry.rects):
                 if left <= x <= right and top <= y <= bottom:
-                    return {
+                    rectangle_hit = {
                         "layer": layer.id,
                         "mark": layer.mark,
                         "row_index": getattr(geometry, "source_row", row_index),
@@ -238,6 +238,9 @@ class Figure:
                         "x": (left + right) / 2.0,
                         "y": (top + bottom) / 2.0,
                     }
+                    if hasattr(geometry, "source_rows"):
+                        rectangle_hit["source_rows"] = list(geometry.source_rows)
+                    return rectangle_hit
             for row_index, (x0, y0, x1, y1) in enumerate(geometry.segments):
                 dx, dy = x1 - x0, y1 - y0
                 denominator = dx * dx + dy * dy
@@ -854,6 +857,7 @@ class Figure:
 
     def _render_geometries(self):
         from .specialized import LayoutVersion, GlyphKind, layout
+        from .specialized_c import WaveCMark
         left, top, width, height, *_ = self._layout()
         for layer in self.spec.layers:
             if layer.layout_version != LayoutVersion.SPECIALIZED:
@@ -861,21 +865,28 @@ class Figure:
                 continue
             result = layout(layer, self.data, width, height)
             for glyph in result.glyphs:
+                if glyph.kind is GlyphKind.POINT and glyph.size <= 0:
+                    continue
                 x0, y0, x1, y1 = glyph.bounds
                 x0 = left + _scale(x0, *result.x_domain, width)
                 x1 = left + _scale(x1, *result.x_domain, width)
                 y0 = top + _scale(y0, *result.y_domain, height, invert=True)
                 y1 = top + _scale(y1, *result.y_domain, height, invert=True)
                 g = _Geometry("points", result.x_domain, result.y_domain,
-                              colors=[glyph.color], opacities=[1.0], sizes=[layer.size])
+                              colors=[glyph.color], opacities=[1.0], sizes=[glyph.size if glyph.size != 6.0 or layer.mark == WaveCMark.PUNCHCARD else layer.size])
                 if glyph.kind is GlyphKind.POLYGON:
                     g.polygons = [[(left + _scale(x, *result.x_domain, width), top + _scale(y, *result.y_domain, height, invert=True)) for x,y in glyph.vertices]]
                 elif glyph.kind is GlyphKind.RECT:
                     g.rects = [(min(x0,x1), min(y0,y1), max(x0,x1), max(y0,y1), 1.)]
+                elif glyph.kind is GlyphKind.TRIANGLE:
+                    vx, vy = glyph.vertices[0]
+                    g.polygons = [[(x0,y0), (x1,y1),
+                        (left + _scale(vx,*result.x_domain,width), top + _scale(vy,*result.y_domain,height,invert=True))]]
                 elif glyph.kind is GlyphKind.SEGMENT:
                     g.segments = [(x0,y0,x1,y1)]
                 else:
                     g.points = [(x0,y0)]
+                g.stroke_width = glyph.stroke_width or layer.line_width
                 g.source_row = glyph.row
                 if glyph.source_rows:
                     g.source_rows = glyph.source_rows
@@ -960,7 +971,7 @@ class Figure:
                     parts.append(f'<rect x="{x0:g}" y="{y0:g}" width="{max(1.0, x1-x0):g}" height="{max(1.0, y1-y0):g}" fill="{self._svg_style(geometry, layer, index)}" data-mark="{layer.mark}"/>')
             elif geometry.segments:
                 for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
-                    parts.append(f'<line x1="{x0:g}" y1="{y0:g}" x2="{x1:g}" y2="{y1:g}" stroke="{self._svg_style(geometry, layer, index)}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
+                    parts.append(f'<line x1="{x0:g}" y1="{y0:g}" x2="{x1:g}" y2="{y1:g}" stroke="{self._svg_style(geometry, layer, index)}" stroke-width="{getattr(geometry,'stroke_width',layer.line_width):g}" data-mark="{layer.mark}"/>')
             elif geometry.rects and layer.mark in {"heatmap", "hexbin"}:
                 for x0, y0, x1, y1, weight in geometry.rects:
                     parts.append(f'<rect x="{x0:g}" y="{y0:g}" width="{max(1.0, x1-x0):g}" height="{max(1.0, y1-y0):g}" fill="{color}" opacity="{max(0.05, min(1.0, weight)):g}" data-mark="{layer.mark}"/>')
@@ -1021,12 +1032,12 @@ class Figure:
                     raster.polygon(polygon, self._rgba_style(geometry, layer, index))
             elif geometry.segments and geometry.rects:
                 for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
-                    raster.line((x0, y0), (x1, y1), layer.line_width, self._rgba_style(geometry, layer, index))
+                    raster.line((x0, y0), (x1, y1), getattr(geometry,"stroke_width",layer.line_width), self._rgba_style(geometry, layer, index))
                 for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
                     raster.rect(x0, y0, max(1.0, x1 - x0), max(1.0, y1 - y0), self._rgba_style(geometry, layer, index))
             elif geometry.segments:
                 for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
-                    raster.line((x0, y0), (x1, y1), layer.line_width, self._rgba_style(geometry, layer, index))
+                    raster.line((x0, y0), (x1, y1), getattr(geometry,"stroke_width",layer.line_width), self._rgba_style(geometry, layer, index))
             elif geometry.rects and layer.mark in {"heatmap", "hexbin"}:
                 for x0, y0, x1, y1, weight in geometry.rects:
                     rgba = (color[0], color[1], color[2], max(8, int(color[3] * max(0.05, min(1.0, weight)))))
@@ -1103,7 +1114,7 @@ class Figure:
                 for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
                     segment_color = self._geometry_color(geometry, layer, index)
                     stroke_color = f"{segment_color[0]:g} {segment_color[1]:g} {segment_color[2]:g} RG"
-                    commands.append(f"{stroke_color} {layer.line_width:g} w {x0:g} {self.height-y0:g} m {x1:g} {self.height-y1:g} l S")
+                    commands.append(f"{stroke_color} {getattr(geometry,'stroke_width',layer.line_width):g} w {x0:g} {self.height-y0:g} m {x1:g} {self.height-y1:g} l S")
                 for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
                     rect_color = self._geometry_color(geometry, layer, index)
                     fill = f"{rect_color[0]:g} {rect_color[1]:g} {rect_color[2]:g} rg"
@@ -1112,7 +1123,7 @@ class Figure:
                 for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
                     segment_color = self._geometry_color(geometry, layer, index)
                     stroke_color = f"{segment_color[0]:g} {segment_color[1]:g} {segment_color[2]:g} RG"
-                    commands.append(f"{stroke_color} {layer.line_width:g} w {x0:g} {self.height-y0:g} m {x1:g} {self.height-y1:g} l S")
+                    commands.append(f"{stroke_color} {getattr(geometry,'stroke_width',layer.line_width):g} w {x0:g} {self.height-y0:g} m {x1:g} {self.height-y1:g} l S")
             elif geometry.rects:
                 for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
                     rect_color = self._geometry_color(geometry, layer, index)

@@ -8,7 +8,7 @@ from std.collections import List
 from std.math import cos, sin, pi, sqrt, exp, pow, isfinite, floor, ceil
 from moxi.geometry import Point
 from moxi.style import Color
-from .plot_point import PlotPoint, PlotGlyphKind
+from .plot_point import PlotPoint, PlotGlyphKind, PlotSelectionPolicy
 from .plot_series import PlotSeries
 from .plot_data import PlotDataTable, COLUMN_STRING, COLUMN_CATEGORY, COLUMN_BOOL
 from .plot_spec_types import PlotLayer
@@ -152,6 +152,7 @@ def _emit(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable, ids: Li
     if len(vertices) == 0:
         return
     var p = PlotPoint(vertices[0].x,vertices[0].y,data.key_at(ids[0]))
+    p.selection_policy = PlotSelectionPolicy.CONTRIBUTORS
     p.glyph = kind
     p.interactive = interactive
     p.part = part

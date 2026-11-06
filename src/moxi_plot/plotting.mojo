@@ -7,6 +7,7 @@ overlays.
 """
 
 
+from moxi.scene_path import ScenePath
 from .plot_point import PlotGlyphKind
 from std.collections import List
 from std.math import sqrt
@@ -25,6 +26,7 @@ from .plot_marks import (
     PLOT_BAND,
     PLOT_BAR,
     PLOT_BARBS,
+    PLOT_PUNCHCARD,
     PLOT_BOX,
     PLOT_BUBBLE,
     PLOT_BULLET,
@@ -1715,10 +1717,11 @@ struct Plot:
                     if source_point.has_color:
                         point_color = source_point.color
                     var point_size = self.series[series_index].marker_size
-                    if source_point.size != 6.0:
+                    if source_point.size != 6.0 or (source_point.glyph.value != PlotGlyphKind.ROW.value and self.series[series_index].kind == PLOT_PUNCHCARD):
                         point_size = source_point.size
                     var point_opacity = self.series[series_index].opacity * source_point.opacity
                     if source_point.glyph.value != PlotGlyphKind.ROW.value:
+                        if source_point.glyph.value == PlotGlyphKind.POINT.value and point_size<=0: continue
                         var endpoint = source_point
                         endpoint.x = source_point.x2
                         endpoint.y = source_point.y2
@@ -1732,8 +1735,18 @@ struct Plot:
                             continue
                         elif source_point.glyph.value == PlotGlyphKind.RECT.value:
                             scene.append_rect(identity, Rect(min(point.x, end.x), min(point.y, end.y), max(Float32(1.0), abs(end.x-point.x)), max(Float32(1.0), abs(end.y-point.y))), point_color)
+                        elif source_point.glyph.value == PlotGlyphKind.TRIANGLE.value:
+                            endpoint.x = source_point.x3
+                            endpoint.y = source_point.y3
+                            var third = self._screen_point(endpoint)
+                            var path = ScenePath()
+                            path.move_to(point)
+                            path.line_to(end)
+                            path.line_to(third)
+                            path.close()
+                            scene.append_typed_path(identity,path,point_color,Color(0,0,0,0),0)
                         elif source_point.glyph.value == PlotGlyphKind.SEGMENT.value:
-                            scene.append_line(identity, point, end, point_color, self.series[series_index].line_width)
+                            scene.append_line(identity, point, end, point_color, source_point.stroke_width if source_point.stroke_width>0 else self.series[series_index].line_width)
                         else:
                             scene.append_rounded_rect(identity, Rect(point.x-point_size*0.5, point.y-point_size*0.5, point_size, point_size), point_color, point_size*0.5)
                         var command = scene.commands[len(scene.commands)-1]
@@ -2167,6 +2180,16 @@ struct Plot:
                         var near_x = max(min(screen.x, end.x), min(point.x, max(screen.x, end.x)))
                         var near_y = max(min(screen.y, end.y), min(point.y, max(screen.y, end.y)))
                         distance = (near_x-point.x)**2 + (near_y-point.y)**2
+                    elif source.glyph.value == PlotGlyphKind.TRIANGLE.value:
+                        endpoint.x = source.x3
+                        endpoint.y = source.y3
+                        var third = self._screen_point(endpoint)
+                        var area = (end.x-screen.x)*(third.y-screen.y)-(end.y-screen.y)*(third.x-screen.x)
+                        if abs(area)<0.000001: continue
+                        var a = ((end.x-point.x)*(third.y-point.y)-(end.y-point.y)*(third.x-point.x))/area
+                        var b = ((third.x-point.x)*(screen.y-point.y)-(third.y-point.y)*(screen.x-point.x))/area
+                        if a>=0 and b>=0 and a+b<=1: distance=0
+                        else: continue
                     elif source.glyph.value == PlotGlyphKind.SEGMENT.value:
                         var vx = end.x-screen.x
                         var vy = end.y-screen.y
@@ -2207,7 +2230,7 @@ struct Plot:
                     var point = self.series[index].points[point_index]
                     if not point.interactive:
                         continue
-                    var keys = point.source_keys.copy()
+                    var keys = point.selection_keys()
                     if len(keys) == 0:
                         keys.append(point.row_key)
                     for row_key in keys:

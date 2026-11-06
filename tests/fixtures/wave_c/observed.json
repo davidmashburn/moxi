@@ -1,0 +1,929 @@
+{
+  "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+  "source_state": {
+    "scoped_sha256": "2bf2b86a1e65bef2e741ff11f2647478b800ce5c42a8a291a3e5be441f9b20d9",
+    "files": {
+      "docs/dataviz-capabilities.tsv": "b5d5be8c49a3b609f34b770999fd7fe73f8d68c229448bf3c0de3732bf7be8cc",
+      "docs/plot-specialized-wave-c.md": "7bbd600b1e0c86cb592b5036a45fd63960abe83ec82c8ba280f4a49e2c4cb1b0",
+      "pixi.lock": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0",
+      "pixi.toml": "dd152466c9b45972a041f68fc713c74cbeb7706f94c36fae7151f0d07a7c707e",
+      "python/moxi/__init__.py": "e1e11a733aba7af7ddc057e5ef76b3b96ddbc9e426da7baaf6e9a5a839c3ed45",
+      "python/moxi/data.py": "19bdda0fc073c9cbaae1b086973600914b1ffa0096c7f8d17bb0ed76ac9427bf",
+      "python/moxi/figure.py": "ebebe91e5b8ebc317b4cb32c5bf799fed12ae8bff309abc2400ce482ed30d424",
+      "python/moxi/py.typed": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "python/moxi/scenarios.py": "f94faeaf8e0fdbf382a27a8f79ea43bcc4bd20f1e85c76192b804f9fefa7af6c",
+      "python/moxi/spec.py": "8d1db4aa9cd8975e6ac909f5beaefe70984ce0fcc7fbd753dc409023aa0141b8",
+      "python/moxi/specialized.py": "190e3500d1c440669e976e1fd0c2ca9b0d2cbb15b8200ffe13b62e90326fe508",
+      "python/moxi/specialized_c.py": "5d37b3dcfd91d78aa6bcaf259d9d815d22125f1a8e643639de9f756eb5ec4e0e",
+      "scripts/wave_c/boundaries.py": "d87028a412d90f15a0ca58e6a762a28f8ffc857fc3ad7e4db20da0bcbcf64cd1",
+      "scripts/wave_c/consumer.sh": "aa898ea01820f955d90b92e7a65f466dd91aa38cbc99cc1eb28fbc759f51d9d0",
+      "scripts/wave_c/evidence.py": "f02b4f4b2b3a7e04b0de1a8135e6d1bf3d9771fd0debc6fe9fd6f1bd476b231c",
+      "scripts/wave_c/fixtures.py": "8c341029847612dc525a47fa6991181a1ca7a99d023c278ebacc203c56b4ce6d",
+      "scripts/wave_c/slideshows.py": "11d51aa85a96641fb8c5ddfc827eadaa7d4d22f35fab02f1febf86f6fbba4bc6",
+      "scripts/wave_c/upstream.py": "eebcde36b4db59276ea5142c8ace36f356808186fe35786dc83f2b2d873a42cc",
+      "scripts/wave_c/verify.py": "4edb847f416da98a0de17ed7b4fa84c878c896ae8306f0913216e53c0d76a137",
+      "src/moxi/scenarios.mojo": "57686d3bd7c5ca9bbe3b194f78a3b84e333d7bc83379e7609522ef564ac5f281",
+      "src/moxi_plot/__init__.mojo": "873bfc2034dde5d330376ec28ac0cedba4d95d70bdfebee85b9ee73f97020405",
+      "src/moxi_plot/fixtures.mojo": "01040a0a82c300d588a28a6454c013d7b71dccca650e02775246c3496eaa337c",
+      "src/moxi_plot/plot_api.mojo": "4b908f7797981e170343437d8540b69ed08b62792c432664528bd15b12b57af7",
+      "src/moxi_plot/plot_data.mojo": "b09eede22382f09ceeacdb92e74116bdb8c7d7743adf8d94026db0dbb76c77e7",
+      "src/moxi_plot/plot_layout.mojo": "2b1cf7e6a617458028ab8b2747a8b3c6899b3feffa01a2fd496553c26a0124aa",
+      "src/moxi_plot/plot_layout_c.mojo": "078b868758d0698ad9fe13bcaef8f48f25245c54ae140305665a7967f03fa3f5",
+      "src/moxi_plot/plot_link.mojo": "0d4ac57a0682e1a608dfec77b50c5e84f12047b6b46936250d21e3fcf59fccfd",
+      "src/moxi_plot/plot_marks.mojo": "dd366e7b71fa49bc3b5ce9f3a10ee383c41c1e58ee8007ef176961b6bd21ee8c",
+      "src/moxi_plot/plot_point.mojo": "35fc1520987151b46da9a9b835bd3a3be9e778eaa20866a2e467bb1df834534a",
+      "src/moxi_plot/plot_render_bridge.mojo": "1596ad378aa0805e51e8c08197041a4e59fea88fb87428ab92f40d0a71f27971",
+      "src/moxi_plot/plot_runtime.mojo": "0009e5e7f69cbc2a87d148c75fc3ca7ff7adfd9cdef896e52cda750d2c016424",
+      "src/moxi_plot/plot_series.mojo": "20e242dcf618cb2140ac49ab1b92382a1360b55f397edb890880b85acf1cd231",
+      "src/moxi_plot/plot_spec.mojo": "bbce75cfd4bf9646607560ec981c6fe5b77b1882e62933a64c68b97ca11d1dde",
+      "src/moxi_plot/plot_spec_json.mojo": "5c3394b006372b76bb74f295f4e45d281d112b427b647e45d59b8df125169cc1",
+      "src/moxi_plot/plot_spec_names.mojo": "00500b4c82a44703b36bfcfcf8105bfaf4af29d567acf9f08102aec4f6c3a34c",
+      "src/moxi_plot/plot_spec_types.mojo": "fdf9bc34b60e91037f704901e88f5ace32a439041eb5308ce956ef0dd39ea3ec",
+      "src/moxi_plot/plot_view.mojo": "322cfdd5c8eb7b682a8f117465634cedc0287058516a4444d6663223d76dce4c",
+      "src/moxi_plot/plotting.mojo": "d1cb51fb42125575e85b7fc4b8fd18618fc3bb093a23a84ddec7e4fbf7dd26b1",
+      "tests/fixtures/wave_c/cases.json": "7d088940e1b3bf24b59ebd7a0281bfbfa26ef4a1419e97edc6eea09f3484442e",
+      "tests/plot_specialized_c.mojo": "3d62c6cabafc36bbe324848a3f2cecd0c14b01c9cee9d18b52dd17b7bd69f50b",
+      "tests/test_specialized_c.py": "3c1439a1408c5e745a6a0e2068be990632c916f7b56537dd2e8258d7a5146d82"
+    },
+    "status": " M docs/dataviz-capabilities.tsv\n M pixi.toml\n M python/moxi/figure.py\n M python/moxi/spec.py\n M python/moxi/specialized.py\n M src/moxi/scenarios.mojo\n M src/moxi_plot/plot_layout.mojo\n M src/moxi_plot/plot_point.mojo\n M src/moxi_plot/plot_spec.mojo\n M src/moxi_plot/plot_spec_json.mojo\n M src/moxi_plot/plot_spec_types.mojo\n M src/moxi_plot/plot_view.mojo\n M src/moxi_plot/plotting.mojo\n?? docs/plot-specialized-wave-c.md\n?? python/moxi/specialized_c.py\n?? scripts/wave_c/\n?? src/moxi_plot/plot_layout_c.mojo\n?? tests/fixtures/wave_c/cases.json\n?? tests/plot_specialized_c.mojo\n?? tests/test_specialized_c.py\n"
+  },
+  "upstream": {
+    "repository": "https://github.com/randyzwitch/dataviz_mojo",
+    "revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+    "dirty": false,
+    "command": [
+      "pixi",
+      "run",
+      "--manifest-path",
+      "/private/tmp/moxi-e01-dataviz/pixi.toml",
+      "mojo",
+      "run",
+      "-I",
+      "/private/tmp/moxi-e01-dataviz",
+      "/private/tmp/moxi-e03-r2-reference/reference.mojo"
+    ],
+    "returncode": 0,
+    "compiler": "Mojo 1.0.0 (ed45d567)",
+    "canvas_revision": "58fb12a471a65dfbc29ebc743860448439a6af22",
+    "lock_sha256": "d51ef8de4d3a1845907d134fa191e04a45040ddf75740aff055af6896d58136b",
+    "driver_sha256": "96a84f81d672308dddbad315cf52a3cea4c709899252b4ef700c3b93811a900d",
+    "font_dir": "/private/tmp/moxi-e01-venv/lib/python3.14/site-packages/matplotlib/mpl-data/fonts/ttf",
+    "font_sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22",
+    "font_family": "DejaVu Sans",
+    "tricontour_available": false,
+    "moxi_canvas_revision": "8fcb0c83966ef872248239f9dafd6baaba06204e",
+    "moxi_lock_sha256": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0"
+  },
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "python": "3.14.7",
+  "mojo": "Mojo 1.1.0 (8189361e)",
+  "common_differences": "Same 640\u00d7480 source fixture. Upstream margins normalized to native Scene (48/32/28/36), legend disabled, DejaVu Sans pinned. Fixed upstream palettes cannot be overridden by these APIs; Moxi retains its palette. Moxi Canvas text/legend absent; semantic/source table is the fallback. Python export margins differ. Circular geometry is stretched by independent native x/y scales; upstream uses the smaller plot dimension. Barbs use data-space lengths in Moxi versus pixel staff length upstream. These are recorded visual/metric differences, not pixel parity. No native-window, VoiceOver, human usability or physical performance gate is claimed.",
+  "cases": {
+    "treemap": {
+      "classification": "Alternating slice/dice leaf rectangles; descendant sums ignore branch own values. Input-order siblings; branch colors.",
+      "geometry": {
+        "rect": 4
+      },
+      "source_rows": 7,
+      "selection": {
+        "row_key": 121,
+        "row_index": 3,
+        "x": 234.66667,
+        "y": 184.0,
+        "source_keys": "121"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.00010499998461455107,
+            9.80000477284193e-05,
+            9.699992369860411e-05,
+            9.700004011392593e-05,
+            9.699992369860411e-05,
+            9.600003249943256e-05,
+            9.80000477284193e-05
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 9.700004011392593e-05,
+          "stdev": 3.0394202019617013e-06,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.00020020798547193408,
+            0.00021112500689923763,
+            0.00017920800019055605,
+            0.0001754579716362059,
+            0.00017704098718240857,
+            0.00017729098908603191,
+            0.00017441698582842946
+          ],
+          "median": 0.00017729098908603191,
+          "stdev": 1.456687006325311e-05,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 5,
+          "text": 4
+        },
+        "assertions": [
+          "All four leaf rectangle bounds within 1.1 px of integer-rounded upstream"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "8f6a007eb5c8cdb1bfdd6f075ad87ddc0f819d1980f40d304eea7d5291dd86c4",
+        "selected.png": "58f12e307bd1c6c417f8ce984f8b7fb06c5a402f5ebba18eeec3de810a4c5f1c",
+        "05-update.png": "d11b2873e2ff8a61760e8b06f986c5422255198cbebd1a9952ba3f166edd62cb",
+        "06-recovery.png": "8f6a007eb5c8cdb1bfdd6f075ad87ddc0f819d1980f40d304eea7d5291dd86c4",
+        "02-reference.png": "312bc43d78f94ddf1188dff45d1806c17cf277fb4f785a1d615cb15b51e984c6",
+        "export.svg": "48ac4df249f2a979af5c8e500326d887b05028c5b2a851ab4d149f0356fc1dbd",
+        "export.pdf": "bca217756985685446847d6af655e83833d330af9db67b1d302111d22ec5c849",
+        "export.png": "af2c2c5d55f77871396c8f2a09618dc289e257641e60f742037a4908def12e50"
+      },
+      "reference_svg_sha256": "f0858597bbec2af2e78f2f7e8dba5daab210439374e1bf3e3c281f48feba0d18",
+      "scene_svg_sha256": "993246110220914a34d773fbb1ce12a85bb2d47ab860528bc79ada1440df3821",
+      "source_csv_sha256": "43bd4938c159e50f6501ac628564ea7ce8eb3fd6f8930d436b86b09219c04e53"
+    },
+    "sunburst": {
+      "classification": "Depth rings and descendant-weight angles; root hidden. Tessellated sectors replace analytic arcs.",
+      "geometry": {
+        "triangle": 264
+      },
+      "source_rows": 7,
+      "selection": {
+        "row_key": 107,
+        "row_index": 1,
+        "x": 332.0849,
+        "y": 173.74791,
+        "source_keys": "107"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.002646000008098781,
+            0.0025919999461621046,
+            0.002591000054962933,
+            0.0025889999233186245,
+            0.002578000072389841,
+            0.002581000095233321,
+            0.0025840000016614795
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.0025889999233186245,
+          "stdev": 2.3329919514608782e-05,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.003195500001311302,
+            0.003174250014126301,
+            0.0032869160058908165,
+            0.003190541989170015,
+            0.003229374997317791,
+            0.0032124999561347067,
+            0.0031949590193107724
+          ],
+          "median": 0.003195500001311302,
+          "stdev": 3.733340956075278e-05,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 1,
+          "path": 6
+        },
+        "assertions": [
+          "Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "17d3dcf0b11b2843d3692a1f227c98ea444e438595dcef2b22274c349644ea83",
+        "selected.png": "72eaefb92dd6aee8ff1971a46d1490927c3f31711790e4f18d72cbd6df44f320",
+        "05-update.png": "12ec26526d341656f1c3e428861dd24abe1862356c3e0e6db1a2296f8292c922",
+        "06-recovery.png": "17d3dcf0b11b2843d3692a1f227c98ea444e438595dcef2b22274c349644ea83",
+        "02-reference.png": "0bc9391f6e955514bc52207eec9f458045b22f1032c3b8a2525259a33115baec",
+        "export.svg": "3f59383c0b83d3d2f8bc837e45504774f1bf5e98d55933fe7106a45a5a014193",
+        "export.pdf": "fcfd76b6c4f5d33aa45196bd35db31e2314c0fc8c968123473bbcf7ee69a7caf",
+        "export.png": "19e214ed684938b9765ebe285f11bbfe9d9adc17971f690b8c15c6212c6a4cbd"
+      },
+      "reference_svg_sha256": "98a8b6c77d795e296fd94de39f9ace5ed5bdcf7d5401e3d09747401851359367",
+      "scene_svg_sha256": "b071436b8a602bbec68a824b26093ade15fdacc8ec01d0c2ade9b7d47e257c6d",
+      "source_csv_sha256": "43bd4938c159e50f6501ac628564ea7ce8eb3fd6f8930d436b86b09219c04e53"
+    },
+    "tree": {
+      "classification": "DFS leaf slots, arithmetic mean child positions, depth levels; parent-child source pairs retained. This is the upstream tree algorithm.",
+      "geometry": {
+        "segment": 6,
+        "point": 7
+      },
+      "source_rows": 7,
+      "selection": {
+        "row_key": 107,
+        "row_index": 1,
+        "x": 234.66667,
+        "y": 132.0,
+        "source_keys": "100,107"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.00020899996161460876,
+            0.00013599998783320189,
+            0.00013099994976073503,
+            0.00014300004113465548,
+            0.00012600002810359,
+            0.00012599991168826818,
+            0.00012600002810359
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.00013099994976073503,
+          "stdev": 3.0038063579450975e-05,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.0002841250388883054,
+            0.00026945798890665174,
+            0.0002685419749468565,
+            0.00026599998818710446,
+            0.00026416598120704293,
+            0.0002591669908724725,
+            0.0002577920095063746
+          ],
+          "median": 0.00026599998818710446,
+          "stdev": 8.725940575729832e-06,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 1,
+          "line": 6,
+          "circle": 7,
+          "text": 7
+        },
+        "assertions": [
+          "Six parent-child edge endpoints within 1.1 px; seven nodes"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "6674a935897e1aea803c658358824a20861ec78ba8f98131acff7811b263656b",
+        "selected.png": "f1aa1aad00a19d3297899a67a8044aa22922621bf6f84dbe1d18899371dffa5d",
+        "05-update.png": "e3e1b5e4562a1dc554eb1205e2eace4a812e0aefb261228b8c1c9bff34ea5534",
+        "06-recovery.png": "6674a935897e1aea803c658358824a20861ec78ba8f98131acff7811b263656b",
+        "02-reference.png": "fd6b8142a5001f3cc0f12497e29281ddaf8b712a8a9d8092fa93c0d24a745a39",
+        "export.svg": "430e7467dca5e29098568035a665014f36476b59fc9aa8bec5cee7f8896b0689",
+        "export.pdf": "2ba4df9775223e1d0e9022b3d176d55af028e3a6b9f22b1f304596c71ec89374",
+        "export.png": "9aafb168701e2307ac3a8e2d7d488fc571c69af3325e41ccb28bd0e7f14fafa1"
+      },
+      "reference_svg_sha256": "a969ff718feae84c4bcea3fc9b59cd7a72ac6ba74f0498bb97dbfe2afdcb5695",
+      "scene_svg_sha256": "7f0b20afe59ebd3b485dd6e82272a45df93d58c1bed1defd7e3cfb3e77235944",
+      "source_csv_sha256": "43bd4938c159e50f6501ac628564ea7ce8eb3fd6f8930d436b86b09219c04e53"
+    },
+    "sankey": {
+      "classification": "DAG longest-path columns, pass-through nodes for long edges, per-column normalization and edge-order strips. Aggregate nodes expose incident edge keys and are table-only selection targets.",
+      "geometry": {
+        "triangle": 12,
+        "rect": 4
+      },
+      "source_rows": 5,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 152.53334,
+        "y": 166.66666,
+        "source_keys": "100"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.00021900003775954247,
+            0.00021500000730156898,
+            0.0002109999768435955,
+            0.00021399999968707561,
+            0.0002109999768435955,
+            0.0002109999768435955,
+            0.00020899996161460876
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.0002109999768435955,
+          "stdev": 3.3876784451314826e-06,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.00037750002229586244,
+            0.0003566249506548047,
+            0.0003678749781101942,
+            0.0003605420351959765,
+            0.0003577499883249402,
+            0.00035858398769050837,
+            0.00035733403638005257
+          ],
+          "median": 0.00035858398769050837,
+          "stdev": 7.70917314977735e-06,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 5,
+          "path": 6,
+          "text": 4
+        },
+        "assertions": [
+          "All six flow-strip vertices within 1.1 px; includes long-edge splitting and unequal column totals"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "844f568f39ac9fcb3a6cc3bd110001933c9f8aaaefc1f9f292b2c71bce1cf418",
+        "selected.png": "97fc784ab58a08bf4f13dd2957ff470d00348f2c3aab6413c5a1afa9ec30664e",
+        "05-update.png": "d5d2c5788092d7a12f92a9379b32eecbf047495737544a543fd6336bef8a067b",
+        "06-recovery.png": "844f568f39ac9fcb3a6cc3bd110001933c9f8aaaefc1f9f292b2c71bce1cf418",
+        "02-reference.png": "448a58f2ff8f963ab42a1eaf8c3ec35f79fa51710510a5da5d6dfb8738bd6b5f",
+        "export.svg": "8281d5b4cc53eb37e4d73063e671dc653a6f4df2722c28bb29ccdc30ab7d2ad8",
+        "export.pdf": "64972b96ed423b08ef131e52d0fa7a5222e88c8e69ce94719e5cdcb2ce8b6426",
+        "export.png": "c714cd53cb38b8e0ba23562ba6a27946d985f359dcc3ef368e4e970880f350c3"
+      },
+      "reference_svg_sha256": "3e2b0b1c936524f14224312f6e8c55434e75cc2f29199da230f967c28295e480",
+      "scene_svg_sha256": "66245a9a88c1b4e061d37f562d4de540360c78f9932aa7cee29aabf6e30aee4b",
+      "source_csv_sha256": "afb739e21d7e53d727404066ccf7c6b8c534411e93f2f5324469e93ee846cf1b"
+    },
+    "chord": {
+      "classification": "Incident flow totals partition the ring; row-order subarcs connect via quadratic ribbons through the center. Tessellation replaces analytic arcs. Aggregate rim nodes are table-only targets.",
+      "geometry": {
+        "triangle": 530
+      },
+      "source_rows": 5,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 441.70142,
+        "y": 107.81803,
+        "source_keys": "100"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.00577100005466491,
+            0.005684999981895089,
+            0.0056180000538006425,
+            0.005765999900177121,
+            0.005664000054821372,
+            0.005612000008113682,
+            0.005803000065498054
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.005684999981895089,
+          "stdev": 7.739877512887357e-05,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.007046832994092256,
+            0.007154499995522201,
+            0.007060833973810077,
+            0.006911874981597066,
+            0.007104334014002234,
+            0.006854207953438163,
+            0.006913333025295287
+          ],
+          "median": 0.007046832994092256,
+          "stdev": 0.00011319691249345637,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 1,
+          "path": 9
+        },
+        "assertions": [
+          "Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "5864c8ecbf32e1ca7245e3246b87a3c005b005f35d833cd17e8be22e522553b2",
+        "selected.png": "904ee79ef0b3368ebdd526a0929681304c13fe53a5ba5610e1636a7ff6e24e23",
+        "05-update.png": "755277d43628527ad7d49d0d7923958fa65cbd9576356a9a754c24f9d435f6e8",
+        "06-recovery.png": "5864c8ecbf32e1ca7245e3246b87a3c005b005f35d833cd17e8be22e522553b2",
+        "02-reference.png": "c80556552e2da5194dcc88ced48d2b3ec630e774fb18f0da1c8ba31aa4c8667f",
+        "export.svg": "d65b76a62323ab9f66374f253d723ac00241dfaaff428af6b1124e9e12b0057f",
+        "export.pdf": "82abe11de4c583a8bd9d722ba8474c140966d55713766a35479702da377e2faa",
+        "export.png": "1cec556d5714e4278b79961b0a66c4393c3937492cf76eb8ce92b8940d4c6a50"
+      },
+      "reference_svg_sha256": "6ef0b79ad281a0c8a52a9183d76f43105203af42d054757fd6fd1d3e963b8ca8",
+      "scene_svg_sha256": "7eeb3c9bae8807c6f760f21d34cb1d39f28e3c779987bc0a34a9b559d518275c",
+      "source_csv_sha256": "afb739e21d7e53d727404066ccf7c6b8c534411e93f2f5324469e93ee846cf1b"
+    },
+    "graph": {
+      "classification": "Deterministic circular nodes; source-list then target-list first-seen ordering. Weighted edge width. Self loops omitted. Nodes retain all incident edge identities and are table-only targets.",
+      "geometry": {
+        "segment": 5,
+        "point": 4
+      },
+      "source_rows": 5,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 453.99997,
+        "y": 142.4,
+        "source_keys": "100"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.00010699999984353781,
+            0.00010599999222904444,
+            0.00010000006295740604,
+            9.899993892759085e-05,
+            0.00010000006295740604,
+            9.899993892759085e-05,
+            0.00010000006295740604
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.00010000006295740604,
+          "stdev": 3.408671534507207e-06,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.00021879200357943773,
+            0.0002103750011883676,
+            0.00020949996542185545,
+            0.00020837498595938087,
+            0.00020612496882677078,
+            0.00020574999507516623,
+            0.00020337500609457493
+          ],
+          "median": 0.00020837498595938087,
+          "stdev": 4.980157945168888e-06,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 1,
+          "line": 5,
+          "circle": 4,
+          "text": 4
+        },
+        "assertions": [
+          "Five source edges, four nodes, exact relative edge stroke widths; aspect differs"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "f53fa254c4596d2a8fe6b040dbcb138d0f93a1ba137787e56a3a0739bd264df1",
+        "selected.png": "d0fc04a5f03718768cfbb7b35e00be4bfe373975c025c6c72a534b4b183ee7b7",
+        "05-update.png": "71f81576946cfae51b551306b9caf28e4595bb38392a2cfdd54907d24c2c23c4",
+        "06-recovery.png": "f53fa254c4596d2a8fe6b040dbcb138d0f93a1ba137787e56a3a0739bd264df1",
+        "02-reference.png": "08779278f85fe66a1d003e60b059a52dae326ce0f1e9a093706a924e61bbd1a2",
+        "export.svg": "342cbbbc8331c8f33563c6bbaf8a57f4b8bd75522119ca9fad0816d4a86088a9",
+        "export.pdf": "28fd76610680f4f914879d62b738289c2666316f4f2ba8590cda0cb90e486a50",
+        "export.png": "69260d74866cc8ee22de48f0ef0b79fb8be67f894afcd2b2e48a38302a7ee8d5"
+      },
+      "reference_svg_sha256": "977ec10616c861cfa731cbcfe23b609085a7fbaff3eac7abcfa386b364c13941",
+      "scene_svg_sha256": "594a5a6d1d9c7dcdbaa36736e144417d5d3c0d01a02ca0f1dafbbe80160a4caf",
+      "source_csv_sha256": "afb739e21d7e53d727404066ccf7c6b8c534411e93f2f5324469e93ee846cf1b"
+    },
+    "calendar_heatmap": {
+      "classification": "Validated ISO dates in one Gregorian year, Sunday-first weeks and leap-day handling. Source dates map to exact week/day cells.",
+      "geometry": {
+        "rect": 5
+      },
+      "source_rows": 5,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 53.28302,
+        "y": 117.14287,
+        "source_keys": "100"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.00013599998783320189,
+            0.0001289999345317483,
+            0.00012900005094707012,
+            0.00012999994214624166,
+            0.00012900005094707012,
+            0.00012999994214624166,
+            0.00012900005094707012
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.00012900005094707012,
+          "stdev": 2.5634701039603043e-06,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.0001629579928703606,
+            0.00015312497271224856,
+            0.0001836660085245967,
+            0.00016283401055261493,
+            0.00017433299217373133,
+            0.00015616603195667267,
+            0.0001534579787403345
+          ],
+          "median": 0.00016283401055261493,
+          "stdev": 1.1448689119769069e-05,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 6,
+          "text": 19
+        },
+        "assertions": [
+          "All five week/day bounds within 1.1 px after accounting for upstream month-label reserve of 16 px"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "d0732f7e4992a16cfd774ba05f8df6aabbf18478f1aff6794ebd0782a2b0d01a",
+        "selected.png": "47eacc556998b9eb3107e6093ed5661fcf93ac6145ec4476aa3d102db0e713d7",
+        "05-update.png": "07b92f56c13dc84c52ccf74a614f5131a0f8f90039229ce44575a467fea72263",
+        "06-recovery.png": "d0732f7e4992a16cfd774ba05f8df6aabbf18478f1aff6794ebd0782a2b0d01a",
+        "02-reference.png": "88a353449c05a6bb429e7034880026a6b38bdb7fe88ebb080ba0dd54f9190eb8",
+        "export.svg": "b971e60c609ef2442843541d718c1e1af13ce53fe7a05bc96b481b11a80f845b",
+        "export.pdf": "c1b53ece686ebec75a7b8cae11bc3a1478749d315379def3f41c9ae2ac1148d5",
+        "export.png": "e48e5711dc784e43123c5167dfb0f9da2ae2e224844ed932b6afd5013bc9e41a"
+      },
+      "reference_svg_sha256": "3418e4b4476f60b8f965f377692effa9c2fcafd121c14f4119db066fdf26f728",
+      "scene_svg_sha256": "feb5e652eabfd804097a6dc7c197d8d9e54428aaddd9920c2a4b1f668b8d34af",
+      "source_csv_sha256": "843e9f0361fd131a1444682be681f5eb3d1d89b915ca5f6efb1c9834d64d3b13"
+    },
+    "corrplot": {
+      "classification": "Full square matrix, radius proportional to absolute correlation; range [-1,1], cell identity is source row plus series column. Zero radius is invisible.",
+      "geometry": {
+        "triangle": 288
+      },
+      "source_rows": 3,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 190.63289,
+        "y": 93.72631,
+        "source_keys": "100"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.0029009999707341194,
+            0.0029109999304637313,
+            0.0028600000077858567,
+            0.0028229999588802457,
+            0.0027969999937340617,
+            0.0028379999566823244,
+            0.0028460000175982714
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.0028460000175982714,
+          "stdev": 4.087261157402885e-05,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.0038342500338330865,
+            0.004071334027685225,
+            0.003765582980122417,
+            0.0037026249920018017,
+            0.0036509159835986793,
+            0.003652749990578741,
+            0.0037354169762693346
+          ],
+          "median": 0.0037354169762693346,
+          "stdev": 0.00014636652960385962,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 1,
+          "line": 8,
+          "circle": 9,
+          "text": 15
+        },
+        "assertions": [
+          "All nine centers and absolute-correlation radii within .51 px after public bubble_fraction=.8 normalization; Moxi x radius stretches with aspect"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "61b9e3f4f402d4f630605ab0032005d9006629d5c8bf272800f543e14bd40e6a",
+        "selected.png": "de8d7b7848d2f68c8862770f97aa94ae95593977c56de496de72bc04f7c28b1e",
+        "05-update.png": "e826536b79fe28fc71e02e950258aa35ee8f8bb63db1bde73d8088270bac1822",
+        "06-recovery.png": "61b9e3f4f402d4f630605ab0032005d9006629d5c8bf272800f543e14bd40e6a",
+        "02-reference.png": "4c74b2cfafcff5ef1c37a69d282c0d5c61473cf24d3cb16a5ed882c625ea3d41",
+        "export.svg": "cc208f3e8dfb3b16f7e02451c58edec9d6c84c1e6463a62372462d2c096e291a",
+        "export.pdf": "13940b1c707581e2873fedb10307f77f89f35445d7b1f58b57d433d2a4c01983",
+        "export.png": "5b84302fab983ee52723b272527994af083fd5cc62dd3be9e172aea3b76ecdb4"
+      },
+      "reference_svg_sha256": "fb6f693d313efcee1b2a2006257a4a0fb04bd3c3362b1d7e4c775e77ab919e74",
+      "scene_svg_sha256": "b5ed8703a6846a65f803e0fac38d72507331b6ef9f2619f2432c3f3873eac107",
+      "source_csv_sha256": "afd14cde01ddcbc90b286686d23f0ad83f7b1bee65f66d29e6a7bdf45b1b8da9"
+    },
+    "punchcard": {
+      "classification": "First-seen categorical axes; bubble radius equals size/10 pixels. Duplicate cells retain separate source rows; overlap selection is bounded to the topmost matching glyph.",
+      "geometry": {
+        "point": 5
+      },
+      "source_rows": 5,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 141.33334,
+        "y": 132.0,
+        "source_keys": "100"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            9.400001727044582e-05,
+            8.999998681247234e-05,
+            8.899997919797897e-05,
+            8.599995635449886e-05,
+            8.999998681247234e-05,
+            8.700008038431406e-05,
+            8.599995635449886e-05
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 8.899997919797897e-05,
+          "stdev": 2.853578294974969e-06,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.0001382920308969915,
+            0.00013287499314174056,
+            0.0001305839978158474,
+            0.00013062497600913048,
+            0.00013274996308609843,
+            0.00013170798774808645,
+            0.00013083399971947074
+          ],
+          "median": 0.00013170798774808645,
+          "stdev": 2.7183424320092954e-06,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 1,
+          "line": 7,
+          "circle": 5,
+          "text": 5
+        },
+        "assertions": [
+          "Five bubbles with upstream integer-rounded size/10 radii"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "aaac0e360ea5feff2189046fc095ddb0878dae956f21956721a509dfabc6883f",
+        "selected.png": "44ff519f7acb1902824ce300b0d9d44a9d0068ae341b3ff962458c30aa0caf99",
+        "05-update.png": "6c1ac67c338b4e72d2c1c0d6b52b6079a11381b0aff1117c4c462e52b11e5456",
+        "06-recovery.png": "aaac0e360ea5feff2189046fc095ddb0878dae956f21956721a509dfabc6883f",
+        "02-reference.png": "e8710959ed560ec5e32bf65fff412b26bc49d5fc24842b675e54728526f73cf5",
+        "export.svg": "3a0c4c3fb8bc33c6b8321236a6d98c13f752cf4a3362122d9e95062946614388",
+        "export.pdf": "b630a29b924bd022bebf4a6deff965f7261de55d20a5f516def57c1829230880",
+        "export.png": "c1aa30f235313298636931f3286d985d60839763cdc68d7381ea00ec07e5db25"
+      },
+      "reference_svg_sha256": "41aca193e17dca3f9b89a2c672256431419d9f02ece9b548e41d635b215bf52c",
+      "scene_svg_sha256": "0d0e066941c0b79f3b372ca7594608a00ef5f986d9887f74110c702fa8faf0f2",
+      "source_csv_sha256": "71f977521f285d94b268fc30aff7faecbd729152ebc6588069d7a641a5294e8e"
+    },
+    "marimekko": {
+      "classification": "Wide series/category matrix. Category width is column total/grand total; stack heights normalize within each column.",
+      "geometry": {
+        "rect": 6
+      },
+      "source_rows": 3,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 172.44444,
+        "y": 288.0,
+        "source_keys": "100"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            9.600003249943256e-05,
+            9.300000965595245e-05,
+            9.300000965595245e-05,
+            9.300000965595245e-05,
+            9.200000204145908e-05,
+            9.200000204145908e-05,
+            9.200000204145908e-05
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 9.300000965595245e-05,
+          "stdev": 1.4142243308928895e-06,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.00020954199135303497,
+            0.00014966598246246576,
+            0.00014879199443385005,
+            0.00014829100109636784,
+            0.00014895800268277526,
+            0.00014837499475106597,
+            0.00014766596723347902
+          ],
+          "median": 0.00014879199443385005,
+          "stdev": 2.3032969760658307e-05,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 7,
+          "text": 3
+        },
+        "assertions": [
+          "Six matrix rectangle bounds within 1.1 px of upstream rounding"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "ae4332d3f7c9e11307e6223a91f6264a2b7807e609e5c51542329508372d4b1a",
+        "selected.png": "af464452ac8bf97450d1630c37bbe00c96acb97355de37ac81f11471e961fa64",
+        "05-update.png": "9c7e6ab81534c2a155249b60be39c52392251e3cc298c0992da795977e485202",
+        "06-recovery.png": "ae4332d3f7c9e11307e6223a91f6264a2b7807e609e5c51542329508372d4b1a",
+        "02-reference.png": "9c3cf7ed525b03c829fc808960fea3540ca8281ec17cf14ab821fdfd834f89af",
+        "export.svg": "fd274a65367f9f10ebe1396d54d0ecdf732b9ae10e8b050aa6f86c4157da3813",
+        "export.pdf": "1af60f6d1f058079a90359feda662e53b5c6b8e10276c232e3f6b0c4dde2b2a3",
+        "export.png": "9ee3541b9ef47810999340c5e2fbb8ba7094fb632544b2eb72bae24259835b0d"
+      },
+      "reference_svg_sha256": "15e8e3ee2fed9f33339f00274dfb90d16cf8ad00218ad37d99f74962ebfb6565",
+      "scene_svg_sha256": "842b8b4b11f57fe8ca2c8d5181ddb5987cf7c4695261542e9937fe76b44867e5",
+      "source_csv_sha256": "0a7ba75880399740333729ba4d193590d118f6108f321859d6e898405c411939"
+    },
+    "barbs": {
+      "classification": "Round speed to nearest five; upwind staff, 50-unit flags, 10-unit full ticks, 5-unit half ticks and calm circles. No arrow substitution.",
+      "geometry": {
+        "segment": 43,
+        "triangle": 2
+      },
+      "source_rows": 6,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 134.65543,
+        "y": 383.59753,
+        "source_keys": "100"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.00020600005518645048,
+            0.00019400008022785187,
+            0.0001930000726133585,
+            0.00018799991812556982,
+            0.0001860000193119049,
+            0.00018700002692639828,
+            0.0001860000193119049
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.00018799991812556982,
+          "stdev": 7.207824896435909e-06,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.000833250000141561,
+            0.0006712090107612312,
+            0.0006316669750958681,
+            0.0006193329463712871,
+            0.0006217500194907188,
+            0.0006227919948287308,
+            0.0006277919746935368
+          ],
+          "median": 0.0006277919746935368,
+          "stdev": 7.796789073475121e-05,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "upstream_structure": {
+        "svg_elements": {
+          "rect": 1,
+          "line": 18,
+          "ellipse": 1,
+          "path": 7,
+          "text": 8
+        },
+        "assertions": [
+          "All staff, full/half tick and flag vertices agree within .002 px after translation and 28 px length normalization; default hemisphere orientation checked"
+        ]
+      },
+      "artifact_sha256": {
+        "moxi.png": "5d493ab94454a2d9bd60eabdc71733fb65c54e07c172394e5d59857d820e74e5",
+        "selected.png": "0f6e9f45ced9b489522790e446a7a959f956e36d942f8442c5a51957b95e2d01",
+        "05-update.png": "c5eb78312c9aeee58db12e2daed65df781fce16fa9918819d596a3c43eaba66e",
+        "06-recovery.png": "5d493ab94454a2d9bd60eabdc71733fb65c54e07c172394e5d59857d820e74e5",
+        "02-reference.png": "3a1d555fdc2aa4935a1c0d6fcbf3e94bc498c65c37486cb6272609adbc358333",
+        "export.svg": "39214ca84b93616352afcf264b89d9fdcec919345b73f9f157b8bc8c2bc7b785",
+        "export.pdf": "aec7312099c2868479ca6cbd5bc89a5fe246b29913ac0dff5e6a7cd1b894f8ed",
+        "export.png": "e532b65ed9ba4e2f1e8d8f780bfd4a9ccc68545ac124ab392157a2851eedd03d"
+      },
+      "reference_svg_sha256": "beb1ccb751101ea28a5708d5843a5be0db31d1fcea9496d55652a86fd7fe0d0a",
+      "scene_svg_sha256": "c5866e20cf4df0a6d9308fd5ac2d569ca3e4a13f36ecd250fb43a8a023e050df",
+      "source_csv_sha256": "d775ab32c7e508c1ec27c807c9560653989c41c26a7ce97cf38691c5fd740297"
+    },
+    "tricontour": {
+      "classification": "Explicit validated triangle mesh and strictly increasing levels; marching triangles with half-open vertex ownership. All three vertex keys retained. Pinned upstream has no tricontour module/API: reference gate is missing.",
+      "geometry": {
+        "segment": 12
+      },
+      "source_rows": 5,
+      "selection": {
+        "row_key": 100,
+        "row_index": 0,
+        "x": 328.0,
+        "y": 392.0,
+        "source_keys": "100,107,128"
+      },
+      "benchmark": {
+        "mojo": {
+          "samples_seconds": [
+            0.00032600003760308027,
+            0.00031599996145814657,
+            0.00031699996907263994,
+            0.0003149999538436532,
+            0.00031400006264448166,
+            0.0003149999538436532,
+            0.0003179999766871333
+          ],
+          "n": 7,
+          "iterations": 10,
+          "median": 0.00031599996145814657,
+          "stdev": 4.070817293483613e-06,
+          "excludes": "Compilation, rasterization, PNG/SVG export, browser, native input"
+        },
+        "python": {
+          "n": 7,
+          "iterations": 10,
+          "samples_seconds": [
+            0.0008957089739851654,
+            0.0009045829647220671,
+            0.0009757499792613089,
+            0.0008843750110827386,
+            0.0008732499554753304,
+            0.000871917000040412,
+            0.000915417040232569
+          ],
+          "median": 0.0008957089739851654,
+          "stdev": 3.582484113961504e-05,
+          "excludes": "Rendering/export/browser/native input"
+        }
+      },
+      "missing_gate": "No tricontour implementation in pinned dataviz; no reference image substituted",
+      "artifact_sha256": {
+        "moxi.png": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85",
+        "selected.png": "c5c909153df7d8d6e266333d9ca7d8911f0f0f8f77ded2144192f0fa60cfdaa2",
+        "05-update.png": "652aa09e51114c5debd3f8aff9f747673b769cd65bc941951b2a6e470241d682",
+        "06-recovery.png": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85",
+        "export.svg": "fe2f664c857b446a0197d681108991fd19852faf44e4e1c9e6b1ce5027147392",
+        "export.pdf": "c2d34078229ddce753007fca8db4c7d181cc97b88352ca8bcd7ee284d65b3bda",
+        "export.png": "53c3627e0cbc8e48a8caed6f773a8457734bc94ca10004b6824e88002e8875e2"
+      },
+      "scene_svg_sha256": "87913987ea9649f683656a740106eccb29f899bb19dd2572a015197fc60f4c1b",
+      "source_csv_sha256": "28823d6756b85f8d83a8594c021eeb0d16568162c9fa63a4c4789497672e0926"
+    }
+  }
+}

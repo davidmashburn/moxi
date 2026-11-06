@@ -21,6 +21,19 @@ comptime SCENARIO_PLOT = 5
 comptime SCENARIO_CAPABILITY = 6
 comptime SCENARIO_FRACTAL = 7
 
+comptime SCENARIO_WAVE_C_TREEMAP = 803
+comptime SCENARIO_WAVE_C_SUNBURST = 804
+comptime SCENARIO_WAVE_C_TREE = 805
+comptime SCENARIO_WAVE_C_SANKEY = 806
+comptime SCENARIO_WAVE_C_CHORD = 807
+comptime SCENARIO_WAVE_C_GRAPH = 808
+comptime SCENARIO_WAVE_C_CALENDAR_HEATMAP = 809
+comptime SCENARIO_WAVE_C_CORRPLOT = 810
+comptime SCENARIO_WAVE_C_PUNCHCARD = 811
+comptime SCENARIO_WAVE_C_MARIMEKKO = 812
+comptime SCENARIO_WAVE_C_BARBS = 813
+comptime SCENARIO_WAVE_C_TRICONTOUR = 814
+
 comptime CANVAS_SCENE_PRIMITIVES = 0
 comptime CANVAS_SCENE_THEME_DARK = 1
 comptime CANVAS_SCENE_THEME_LIGHT = 2
@@ -324,6 +337,104 @@ struct ScenarioRegistry:
             True,
             "editable generator geometry and a component-owned canvas",
             "expanded segments, commands, vertices, and frame timing",
+        ))
+
+
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_TREEMAP, "Specialized treemap", "wave-c-treemap",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            7, 80300, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_SUNBURST, "Specialized sunburst", "wave-c-sunburst",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            7, 80301, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_TREE, "Specialized tree", "wave-c-tree",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            7, 80302, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_SANKEY, "Specialized sankey", "wave-c-sankey",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            5, 80303, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_CHORD, "Specialized chord", "wave-c-chord",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            5, 80304, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_GRAPH, "Specialized graph", "wave-c-graph",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            5, 80305, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_CALENDAR_HEATMAP, "Specialized calendar_heatmap", "wave-c-calendar_heatmap",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            5, 80306, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_CORRPLOT, "Specialized corrplot", "wave-c-corrplot",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            3, 80307, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_PUNCHCARD, "Specialized punchcard", "wave-c-punchcard",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            5, 80308, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_MARIMEKKO, "Specialized marimekko", "wave-c-marimekko",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            3, 80309, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_BARBS, "Specialized barbs", "wave-c-barbs",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            6, 80310, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
+        ))
+        self.entries.append(ScenarioDescriptor(
+            SCENARIO_WAVE_C_TRICONTOUR, "Specialized tricontour", "wave-c-tricontour",
+            "scripts/wave_c/fixtures.py", "wave-c-check",
+            "tests/plot_specialized_c.mojo", "scripts/wave_c/evidence.py", "",
+            5, 80311, 640.0, 480.0, True,
+            "source keys and tabular fallback; aggregate nodes table only",
+            "layout and scene samples; render timing separately excluded",
         ))
 
     def count(self) -> Int:
