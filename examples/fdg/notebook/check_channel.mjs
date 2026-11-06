@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import {Channel,Kind,Protocol} from '../dist/interactive/widget.mjs';
+let receive,now=0,acks=0,failures=0;
+const messages=[];
+const model={on:(_,fn)=>receive=fn,off:()=>receive=null,send:message=>messages.push(message)};
+const identity={session:'one',generation:1,view:'view'};
+const channel=new Channel(model,identity,{ack:()=>acks++,fail:()=>failures++,now:()=>now});
+channel.send(Kind.hello);
+for(let i=0;i<10000;i++)channel.queue({releases:Math.floor(i/100),dragging:i%100!==99});
+assert.equal(messages.length,1);assert.equal(channel.metrics.maxQueued,2);
+receive({v:1,...identity,seq:1,kind:Kind.ack,session:'stale'});assert.equal(acks,0);
+now=200;
+receive({v:1,...identity,seq:1,kind:Kind.ack});
+assert.equal(messages.length,2);assert.equal(messages[1].state.releases,99);assert.equal(messages[1].state.dragging,false);
+receive({v:1,...identity,seq:2,kind:Kind.ack});assert.equal(acks,2);
+now+=Protocol.heartbeatMs;channel.tick();assert.equal(messages.at(-1).kind,Kind.ping);
+now+=Protocol.timeoutMs+1;channel.tick();assert.equal(failures,1);
+channel.dispose();assert.equal(receive,null);
+console.log('Channel: 10,000 updates bounded to two slots; stale ack ignored; final release retained; timeout and disposal passed');
+
+const closed=new Channel({...model,send:()=>{throw Error('Cannot send');}},identity,{ack:()=>{},fail:()=>failures++,now:()=>now});
+assert.equal(closed.send(Kind.hello),false);assert.equal(failures,2);
+assert.doesNotThrow(()=>closed.dispose());assert.equal(closed.flight,null);
+console.log('Closed comm: visible failure without unhandled exception; disposal remains idempotent');

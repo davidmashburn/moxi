@@ -89,3 +89,9 @@ and finalization.
 VoiceOver remains paused. These scripted checks and rendered output inspection do
 not claim independent human usability, physical-input acceptance, remote-kernel
 coverage, other notebook frontend compatibility, or Linux/Windows native support.
+
+## Interactive inline example
+
+For P04's optional inline graph, setup, real-browser checks and screenshot
+evidence, see [INTERACTIVE.md](INTERACTIVE.md). The P03 example above remains
+independent.
