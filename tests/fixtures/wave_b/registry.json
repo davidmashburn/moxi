@@ -1,0 +1,159 @@
+{
+  "source_sha256": "1816bb851eb645ac3d251765f50467f005426d9f462a8fd9d3e38c1930c1ab95",
+  "cases": [
+    {
+      "id": "pie",
+      "fixture": "tests/fixtures/wave_b/pie.json",
+      "rows": 4,
+      "seed": 201,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "donut",
+      "fixture": "tests/fixtures/wave_b/donut.json",
+      "rows": 4,
+      "seed": 202,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "radar",
+      "fixture": "tests/fixtures/wave_b/radar.json",
+      "rows": 5,
+      "seed": 203,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "gauge",
+      "fixture": "tests/fixtures/wave_b/gauge.json",
+      "rows": 1,
+      "seed": 204,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "polar",
+      "fixture": "tests/fixtures/wave_b/polar.json",
+      "rows": 7,
+      "seed": 205,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "polar_bar",
+      "fixture": "tests/fixtures/wave_b/polar_bar.json",
+      "rows": 4,
+      "seed": 206,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "radialbar",
+      "fixture": "tests/fixtures/wave_b/radialbar.json",
+      "rows": 4,
+      "seed": 207,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "beeswarm",
+      "fixture": "tests/fixtures/wave_b/beeswarm.json",
+      "rows": 24,
+      "seed": 208,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "violin",
+      "fixture": "tests/fixtures/wave_b/violin.json",
+      "rows": 24,
+      "seed": 209,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "ridgeline",
+      "fixture": "tests/fixtures/wave_b/ridgeline.json",
+      "rows": 24,
+      "seed": 210,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "nightingale",
+      "fixture": "tests/fixtures/wave_b/nightingale.json",
+      "rows": 4,
+      "seed": 211,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "streamgraph",
+      "fixture": "tests/fixtures/wave_b/streamgraph.json",
+      "rows": 6,
+      "seed": 212,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": true
+    },
+    {
+      "id": "contour",
+      "fixture": "tests/fixtures/wave_b/contour.json",
+      "rows": 25,
+      "seed": 213,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": false
+    },
+    {
+      "id": "contourf",
+      "fixture": "tests/fixtures/wave_b/contourf.json",
+      "rows": 25,
+      "seed": 214,
+      "width": 640,
+      "height": 480,
+      "schema_version": 1,
+      "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+      "reference_available": false
+    }
+  ]
+}

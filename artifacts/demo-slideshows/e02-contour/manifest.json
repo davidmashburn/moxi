@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "demo_id": "e02-contour",
+  "title": "E02 contour",
+  "scenario": "No contour API exists at the pinned upstream revision. Moxi uses real fixed-diagonal piecewise-linear grid isolines, seven interior levels; no upstream parity claim. Same 640\u00d7480 canvas, 48/32/28/36 margins and source values. Canvas lacks text/legend labels. Moxi retains Cartesian axes/grid even for radial marks; upstream uses its own radial/category presentation. Palette differences, arc tessellation and antialiasing remain. No physical input, native, VoiceOver or human-performance claim.",
+  "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+  "source_dirty": true,
+  "source_state_path": "tests/fixtures/wave_b/source-state.json",
+  "source_state_sha256": "250840991d3d8f5bbc9682600874d62ff85bf0f1f0645d063cfcfbb0d7790289",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; T3 browser evidence replay",
+  "scale": 1,
+  "fixture": "tests/fixtures/wave_b/contour.json",
+  "reproduce": "Follow docs/plot-specialized-wave-b.md; run registry, verify, upstream, compare and evidence. Capture source/comparison/selection (and absent reference report) in T3 preview at 1280\u00d7900. Run scripts/wave_b/slideshows.py.",
+  "missing_gates": [
+    "contour/contourf pinned upstream output",
+    "native window input/rendering",
+    "VoiceOver paused",
+    "independent human/scientific review",
+    "physical/GPU/large-workload performance"
+  ],
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "01-source.png",
+      "dimensions": [
+        1280,
+        900
+      ],
+      "caption": "Source data/schema",
+      "action": "Open source.html",
+      "expected": "Source fields and nontrivial stable keys",
+      "sha256": "f9fb8414d417953fa8aace10b9572d9b8c08c8e567a5be7eeec77ce7a6cf7c31"
+    },
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "02-reference.png",
+      "dimensions": [
+        1280,
+        900
+      ],
+      "caption": "Missing pinned upstream API: primary-source evidence",
+      "action": "Open reference-gap.html",
+      "expected": "Explicit absence; no substitute chart",
+      "sha256": "c334728f15be98d8053e557b372273215375e194067eebcd3ca5120207df231d"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "03-comparison.png",
+      "dimensions": [
+        1280,
+        900
+      ],
+      "caption": "Actual Moxi comparison with narrow assertions",
+      "action": "Open comparison.html",
+      "expected": "Real Canvas output and classified remaining differences",
+      "sha256": "36449c79b9368f1ac5746b6ad5f9966946dbd5523b11496249561f92ca3d7997"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "04-selection.png",
+      "dimensions": [
+        1280,
+        900
+      ],
+      "caption": "Source-key selection/table fallback: recorded event replay",
+      "action": "Runner dispatches recorded click; open selection.html",
+      "expected": "Selected key and exported source table agree",
+      "sha256": "72f01f68f80b778ff4dfa7fb6d9be27fdfece8f6edb5c1679d46b36b3e229b89"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "05-update.png",
+      "dimensions": [
+        640,
+        480
+      ],
+      "caption": "Export and data update",
+      "action": "Canvas/SVG/Python PNG/PDF export; add 1.5 to first source value (grid scalar for contours)",
+      "expected": "Actual changed output; selection clears",
+      "sha256": "38e7bcfcdfb0ddc8245d3db934283144802e8e67add872bda80a23d173cf78d8"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "06-rejected.png",
+      "dimensions": [
+        640,
+        480
+      ],
+      "caption": "Reject nonfinite replacement",
+      "action": "replace_data(nonfinite); assert false",
+      "expected": "Last valid updated output preserved pixel-for-pixel",
+      "sha256": "38e7bcfcdfb0ddc8245d3db934283144802e8e67add872bda80a23d173cf78d8"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "07-recovery.png",
+      "dimensions": [
+        640,
+        480
+      ],
+      "caption": "Restore original source data",
+      "action": "replace_data(original)",
+      "expected": "Actual restored output equals initial Canvas pixels",
+      "sha256": "780a611495bcde767329d0a0c7eabb2f0e296eb80a19085d04b8b4c1b9cc2e27"
+    }
+  ]
+}

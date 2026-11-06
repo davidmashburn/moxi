@@ -20,6 +20,13 @@ def check_case(name: String, document: String, data: PlotDataTable, output: Stri
     var plot = plot_from_spec(spec, data, Rect(0, 0, 640, 480))
     test_check(plot.series[0].has_layout_domain)
     test_check(plot.build_render_packet().fallback_required)
+    var semantics = plot.accessibility()
+    for index in range(len(plot.series[0].points)):
+        var point = plot.series[0].points[index]
+        if point.interactive:
+            # Wave B contributor labels must not change Wave A's existing value.
+            test_check(semantics.node_for_id(500000+index).value == point.tooltip)
+            break
     for p in plot.series[0].points:
         print("glyph|", name, "|", p.glyph.value, "|", p.row_key, "|", p.part, "|", p.x, "|", p.y, "|", p.x2, "|", p.y2)
     var runtime = PlotRuntime(Rect(0, 0, 640, 480))

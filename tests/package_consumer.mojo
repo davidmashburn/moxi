@@ -2,6 +2,11 @@
 
 from moxi import test_check
 from moxi_plot import PlotDataTable, PlotSpec
+from moxi_plot.plot_spec import plot_from_spec
+from moxi_plot.plot_spec_types import PlotLayoutVersion
+from moxi_plot.plot_marks import PLOT_PIE
+from moxi_plot.plot_point import PlotGlyphKind
+from moxi import ScenePathStorage, canonical_wave_b_scenarios
 from moxi import (
     App,
     BACKEND_MACOS_APPKIT,
@@ -42,6 +47,21 @@ def main() raises:
     var installed_plot_spec = PlotSpec()
     test_check(installed_plot_table.row_count() == 0)
     test_check(installed_plot_spec.valid)
+    test_check(len(canonical_wave_b_scenarios()) == 14)
+    _ = installed_plot_table.append_with_key(17, 0, 2)
+    _ = installed_plot_table.append_with_key(41, 1, 3)
+    _ = installed_plot_spec.add_catalog_mark(PLOT_PIE, "Installed specialized pie")
+    installed_plot_spec.layers[0].layout_version = PlotLayoutVersion.SPECIALIZED
+    test_check(installed_plot_spec.validate_data(installed_plot_table))
+    var installed_plot = plot_from_spec(installed_plot_spec, installed_plot_table, Rect(0,0,640,480))
+    test_check(installed_plot.series[0].points[0].glyph.value == PlotGlyphKind.POLYGON.value)
+    test_check(len(installed_plot.series[0].points[0].vertices) > 16)
+    test_check(installed_plot.series[0].points[0].source_keys[0] == 17)
+    var installed_scene = installed_plot.build_scene()
+    var extended_found = False
+    for i in range(installed_scene.count()):
+        extended_found = extended_found or installed_scene.command(i).typed_path.storage.value == ScenePathStorage.EXTENDED.value
+    test_check(extended_found)
 
     var editing = TextInputState("package")
     test_check(editing.select_all())

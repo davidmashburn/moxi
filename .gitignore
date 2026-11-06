@@ -10,3 +10,5 @@ artifacts/demo-slideshows/**/*.png
 artifacts/demo-slideshows/**/*.html
 artifacts/demo-slideshows/e01-*/*.svg
 artifacts/demo-slideshows/e01-*/*.pdf
+artifacts/demo-slideshows/e02-*/*.svg
+artifacts/demo-slideshows/e02-*/*.pdf

@@ -1,0 +1,23 @@
+{
+  "columns": {
+    "category": [
+      "Load"
+    ],
+    "value": [
+      67.0
+    ],
+    "minimum": [
+      0.0
+    ],
+    "maximum": [
+      100.0
+    ]
+  },
+  "x": "category",
+  "y": "value",
+  "channels": {
+    "stat_low_field": "minimum",
+    "stat_high_field": "maximum"
+  },
+  "layout": {}
+}

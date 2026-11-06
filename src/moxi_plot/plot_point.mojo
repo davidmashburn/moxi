@@ -6,6 +6,7 @@ from std.math import exp, log, pow, sqrt
 
 
 from moxi.style import Color
+from moxi.geometry import Point
 
 
 comptime SCALE_LINEAR = 1
@@ -44,6 +45,7 @@ struct PlotGlyphKind(ImplicitlyCopyable):
     comptime RECT = Self(1)
     comptime SEGMENT = Self(2)
     comptime POINT = Self(3)
+    comptime POLYGON = Self(4)
 
     def __init__(out self, value: Int):
         self.value = value
@@ -52,6 +54,8 @@ struct PlotGlyphKind(ImplicitlyCopyable):
 struct PlotPoint(ImplicitlyCopyable):
     """One data-space point."""
 
+    var vertices: List[Point]
+    var source_keys: List[Int]
     var glyph: PlotGlyphKind
     var interactive: Bool
     var part: String
@@ -77,6 +81,8 @@ struct PlotPoint(ImplicitlyCopyable):
     var has_statistics: Bool
 
     def __init__(out self, x: Float32, y: Float32, row_key: Int = -1):
+        self.vertices = List[Point]()
+        self.source_keys = List[Int]()
         self.glyph = PlotGlyphKind.ROW
         self.interactive = True
         self.part = ""
@@ -100,6 +106,33 @@ struct PlotPoint(ImplicitlyCopyable):
         self.stat_high = y
         self.stat_median = y
         self.has_statistics = False
+
+    def __init__(out self, *, copy: Self):
+        self.vertices = copy.vertices.copy()
+        self.source_keys = copy.source_keys.copy()
+        self.glyph = copy.glyph
+        self.interactive = copy.interactive
+        self.part = copy.part
+        self.x = copy.x
+        self.y = copy.y
+        self.row_key = copy.row_key
+        self.facet_value = copy.facet_value
+        self.facet_column_value = copy.facet_column_value
+        self.panel_index = copy.panel_index
+        self.x2 = copy.x2
+        self.y2 = copy.y2
+        self.has_x2 = copy.has_x2
+        self.has_y2 = copy.has_y2
+        self.size = copy.size
+        self.opacity = copy.opacity
+        self.text = copy.text
+        self.tooltip = copy.tooltip
+        self.color = copy.color
+        self.has_color = copy.has_color
+        self.stat_low = copy.stat_low
+        self.stat_high = copy.stat_high
+        self.stat_median = copy.stat_median
+        self.has_statistics = copy.has_statistics
 
     def set_facet(mut self, value: String):
         self.facet_value = value

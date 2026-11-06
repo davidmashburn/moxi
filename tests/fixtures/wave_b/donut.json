@@ -1,0 +1,18 @@
+{
+  "columns": {
+    "category": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "value": [
+      4.0,
+      2.0,
+      3.0,
+      1.0
+    ]
+  },
+  "x": "category",
+  "y": "value"
+}

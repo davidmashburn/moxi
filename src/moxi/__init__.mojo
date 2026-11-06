@@ -468,6 +468,7 @@ from .scene_path import (
     SCENE_PATH_MOVE_TO,
     SCENE_PATH_QUAD_TO,
     ScenePath,
+    ScenePathStorage,
     ScenePathCommand,
 )
 from .scene_text import (
@@ -657,6 +658,8 @@ from .scenarios import (
     SCENARIO_PLOT,
     SCENARIO_CAPABILITY,
     SCENARIO_FRACTAL,
+    SpecializedPlotScenario,
+    canonical_wave_b_scenarios,
     ScenarioDescriptor,
     ScenarioRegistry,
     ThemeModeFixture,

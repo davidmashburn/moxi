@@ -39,6 +39,7 @@ def test_all_families_have_row_identity_exports_and_roundtrip(case):
         hit=f.hit_test((a+c)/2,(b+d)/2,1)
         assert hit is not None
         assert hit['row_index']==g.source_row
+        assert 'source_rows' not in hit  # Wave A's existing hit-result contract.
 
 
 def result(name):

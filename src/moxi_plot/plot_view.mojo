@@ -25,10 +25,16 @@ from .plot_runtime import PlotRuntime
 from moxi.plot_render import PlotRenderPacket
 from .plot_series import PlotHit
 from .plot_spec import PlotSpec, plot_from_spec
+from .plot_wave_b import _wave_b
+from .plot_spec_types import PlotLayoutVersion
 from moxi.scene import Scene
 
 
 comptime PLOT_VIEW_CANVAS_ID = 1
+
+
+def _wave_b_spec(spec: PlotSpec) -> Bool:
+    return len(spec.layers) == 1 and spec.layers[0].layout_version.value == PlotLayoutVersion.SPECIALIZED.value and _wave_b(spec.layers[0].mark)
 
 
 struct PlotView(Component):
@@ -188,10 +194,21 @@ struct PlotView(Component):
             and self.runtime.plot.bounds.height == bounds.height
         ):
             return
-        self.runtime.plot.set_bounds(bounds)
+        if _wave_b_spec(self.spec):
+            self.runtime.plot = plot_from_spec(self.spec, self.data.table, bounds)
+            self.runtime.hovered = PlotHit()
+            self.runtime.index_revision = -1
+            self.runtime.packet_cache_valid = False
+            self.runtime.cached_packet_revision = -1
+        else:
+            self.runtime.plot.set_bounds(bounds)
 
     def replace_spec(mut self, spec: PlotSpec, data: PlotDataTable):
-        """Eagerly replace the declarative source and reset plot state."""
+        """Eagerly replace the source; invalid Wave B data preserves current state."""
+        if _wave_b_spec(spec):
+            var candidate = spec.clone()
+            if not candidate.validate_data(data):
+                return
         self._clear_pending()
         _ = self.invalidate_reactive()
         _ = self.execution.take_dirty(self.reactive_component_id)
@@ -230,6 +247,10 @@ struct PlotView(Component):
 
     def request_spec(mut self, spec: PlotSpec, data: PlotDataTable) -> Bool:
         """Queue a declarative source replacement for a later local rebuild."""
+        if _wave_b_spec(spec):
+            var candidate = spec.clone()
+            if not candidate.validate_data(data):
+                return False
         self.pending_spec = spec.clone()
         self.pending_data = data.snapshot()
         self.pending_spec_valid = True
@@ -239,6 +260,9 @@ struct PlotView(Component):
     def request_data(mut self, data: PlotDataTable) -> Bool:
         """Queue changed data and invalidate without compiling immediately."""
         if self.data.version() == data.version and not self.pending_spec_valid:
+            return False
+        var candidate = self.pending_spec.clone() if self.pending_spec_valid else self.spec.clone()
+        if _wave_b_spec(candidate) and not candidate.validate_data(data):
             return False
         self.pending_data = data.snapshot()
         self.pending_data_valid = True
@@ -270,6 +294,10 @@ struct PlotView(Component):
         """Eagerly commit changed data without retaining a pending copy."""
         if self.data.version() == data.version:
             return False
+        if _wave_b_spec(self.spec):
+            var candidate = self.spec.clone()
+            if not candidate.validate_data(data):
+                return False
         self._clear_pending()
         _ = self.invalidate_reactive()
         _ = self.execution.take_dirty(self.reactive_component_id)

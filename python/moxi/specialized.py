@@ -33,6 +33,7 @@ class GlyphKind(str, Enum):
     RECT = "rect"
     SEGMENT = "segment"
     POINT = "point"
+    POLYGON = "polygon"
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,8 @@ class Glyph:
     bounds: Tuple[float, float, float, float]
     color: Tuple[float, ...]
     interactive: bool = True
+    vertices: Tuple[Tuple[float, float], ...] = ()
+    source_rows: Tuple[int, ...] = ()
 
 
 @dataclass
@@ -64,6 +67,10 @@ def validate_layout(layer: Any) -> None:
         raise ValueError("layout_version must be an integer")
     version = LayoutVersion(layer.layout_version)
     if version is LayoutVersion.ROW:
+        return
+    from .wave_b import WaveBMark, validate
+    if layer.mark in WaveBMark._value2member_map_:
+        validate(layer)
         return
     mark = WaveAMark(layer.mark)
     if not isinstance(layer.horizontal, bool) or not isinstance(layer.percent, bool):
@@ -95,8 +102,11 @@ def validate_layout(layer: Any) -> None:
         raise ValueError("total_field requires waterfall")
 
 
-def layout(layer: Any, data: Any) -> Layout:
+def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> Layout:
     validate_layout(layer)
+    from .wave_b import WaveBMark, layout as wave_b_layout
+    if layer.mark in WaveBMark._value2member_map_:
+        return wave_b_layout(layer, data, width, height)
     mark = WaveAMark(layer.mark)
     categories = list(data.column(layer.x))
     n = len(categories)

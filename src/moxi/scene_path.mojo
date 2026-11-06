@@ -8,6 +8,7 @@ caller-owned grammar.
 """
 
 from .geometry import Point, Rect
+from std.collections import List
 
 
 comptime SCENE_PATH_MOVE_TO = 1
@@ -36,15 +37,26 @@ struct ScenePathCommand(ImplicitlyCopyable):
         self.point3 = point3
 
 
+struct ScenePathStorage(ImplicitlyCopyable):
+    """Explicit path allocation policy; existing callers remain inline-only."""
+    var value: Int
+    comptime INLINE = Self(0)
+    comptime EXTENDED = Self(1)
+
+    def __init__(out self, value: Int):
+        self.value = value
+
+
 struct ScenePath(ImplicitlyCopyable):
-    """A bounded typed path value suitable for a SceneCommand.
+    """Typed path with sixteen inline commands and opt-in bounded overflow.
 
-    The inline capacity is deliberate: scene paths are small retained values,
-    and a bounded command count keeps the renderer boundary allocation-free.
-    Longer paths should be split into multiple commands.
+    EXTENDED permits up to 4096 commands for continuous filled polygons.
+    Copies own their overflow; default construction preserves the old limit.
     """
-
     comptime MAX_COMMANDS = 16
+    comptime MAX_EXTENDED_COMMANDS = 4096
+    var storage: ScenePathStorage
+    var overflow: List[ScenePathCommand]
 
     var command_0: ScenePathCommand
     var command_1: ScenePathCommand
@@ -69,7 +81,9 @@ struct ScenePath(ImplicitlyCopyable):
     var has_current: Bool
     var valid: Bool
 
-    def __init__(out self):
+    def __init__(out self, storage: ScenePathStorage = ScenePathStorage.INLINE):
+        self.storage = storage
+        self.overflow = List[ScenePathCommand]()
         var empty = ScenePathCommand(SCENE_PATH_CLOSE)
         self.command_0 = empty
         self.command_1 = empty
@@ -92,12 +106,42 @@ struct ScenePath(ImplicitlyCopyable):
         self.current = Point(0.0, 0.0)
         self.subpath_start = Point(0.0, 0.0)
         self.has_current = False
-        self.valid = True
+        self.valid = storage.value == ScenePathStorage.INLINE.value or storage.value == ScenePathStorage.EXTENDED.value
+
+    def __init__(out self, *, copy: Self):
+        self.overflow = copy.overflow.copy()
+        self.storage = copy.storage
+        self.command_0 = copy.command_0
+        self.command_1 = copy.command_1
+        self.command_2 = copy.command_2
+        self.command_3 = copy.command_3
+        self.command_4 = copy.command_4
+        self.command_5 = copy.command_5
+        self.command_6 = copy.command_6
+        self.command_7 = copy.command_7
+        self.command_8 = copy.command_8
+        self.command_9 = copy.command_9
+        self.command_10 = copy.command_10
+        self.command_11 = copy.command_11
+        self.command_12 = copy.command_12
+        self.command_13 = copy.command_13
+        self.command_14 = copy.command_14
+        self.command_15 = copy.command_15
+        self.command_count = copy.command_count
+        self.bounds = copy.bounds
+        self.current = copy.current
+        self.subpath_start = copy.subpath_start
+        self.has_current = copy.has_current
+        self.valid = copy.valid
 
     def _store(mut self, command: ScenePathCommand) -> Bool:
         if self.command_count >= Self.MAX_COMMANDS:
-            self.valid = False
-            return False
+            if self.storage.value != ScenePathStorage.EXTENDED.value or self.command_count >= Self.MAX_EXTENDED_COMMANDS:
+                self.valid = False
+                return False
+            self.overflow.append(command)
+            self.command_count += 1
+            return True
         if self.command_count == 0:
             self.command_0 = command
         elif self.command_count == 1:
@@ -196,6 +240,8 @@ struct ScenePath(ImplicitlyCopyable):
         return self.command_count
 
     def command(self, index: Int) -> ScenePathCommand:
+        if index >= Self.MAX_COMMANDS and index < self.command_count:
+            return self.overflow[index-Self.MAX_COMMANDS]
         if index == 0:
             return self.command_0
         if index == 1:

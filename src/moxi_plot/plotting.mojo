@@ -14,6 +14,7 @@ from std.math import sqrt
 
 from moxi.geometry import Point, Rect
 from moxi.scene import Scene
+from moxi.scene_path import ScenePath, ScenePathStorage
 from moxi.style import Color
 from moxi.accessibility import AccessibilitySnapshot, ROLE_CANVAS, ROLE_LABEL, Semantics
 from moxi.plot_render import PlotRenderPacket
@@ -71,6 +72,20 @@ from .plot_series import PlotHit, PlotSeries
 comptime PLOT_COMPOSITION_LAYER = 1
 comptime PLOT_COMPOSITION_HORIZONTAL = 2
 comptime PLOT_COMPOSITION_VERTICAL = 3
+
+
+def _append_polygon(mut scene: Scene, identity: Int, vertices: List[Point], color: Color, opacity: Float32):
+    var path = ScenePath(ScenePathStorage.EXTENDED)
+    for i in range(len(vertices)):
+        if i == 0:
+            path.move_to(vertices[i])
+        else:
+            path.line_to(vertices[i])
+    path.close()
+    scene.append_typed_path(identity,path,color,Color(0,0,0,0),0)
+    var command = scene.commands[len(scene.commands)-1]
+    command.set_opacity(opacity)
+    scene.commands[len(scene.commands)-1] = command
 
 
 def _category_color(value: String) -> Color:
@@ -1709,7 +1724,13 @@ struct Plot:
                         endpoint.y = source_point.y2
                         var end = self._screen_point(endpoint)
                         var identity = 500000 + series_index * 100000 + point_index
-                        if source_point.glyph.value == PlotGlyphKind.RECT.value:
+                        if source_point.glyph.value == PlotGlyphKind.POLYGON.value:
+                            var vertices = List[Point]()
+                            for vertex in source_point.vertices:
+                                vertices.append(self._screen_point(PlotPoint(vertex.x,vertex.y)))
+                            _append_polygon(scene, identity, vertices, point_color, point_opacity)
+                            continue
+                        elif source_point.glyph.value == PlotGlyphKind.RECT.value:
                             scene.append_rect(identity, Rect(min(point.x, end.x), min(point.y, end.y), max(Float32(1.0), abs(end.x-point.x)), max(Float32(1.0), abs(end.y-point.y))), point_color)
                         elif source_point.glyph.value == PlotGlyphKind.SEGMENT.value:
                             scene.append_line(identity, point, end, point_color, self.series[series_index].line_width)
@@ -2122,7 +2143,27 @@ struct Plot:
                     endpoint.x = source.x2
                     endpoint.y = source.y2
                     var end = self._screen_point(endpoint)
-                    if source.glyph.value == PlotGlyphKind.RECT.value:
+                    if source.glyph.value == PlotGlyphKind.POLYGON.value:
+                        var inside = False
+                        distance = Float32(1e30)
+                        for j in range(len(source.vertices)):
+                            var a = PlotPoint(source.vertices[j].x,source.vertices[j].y)
+                            var b = PlotPoint(source.vertices[(j+1)%len(source.vertices)].x,source.vertices[(j+1)%len(source.vertices)].y)
+                            var pa = self._screen_point(a)
+                            var pb = self._screen_point(b)
+                            if (pa.y > point.y) != (pb.y > point.y):
+                                if point.x < (pb.x-pa.x)*(point.y-pa.y)/(pb.y-pa.y)+pa.x:
+                                    inside = not inside
+                            var vx = pb.x-pa.x
+                            var vy = pb.y-pa.y
+                            var denom = vx*vx+vy*vy
+                            var t = Float32(0.0)
+                            if denom > 0.0:
+                                t = max(Float32(0.0), min(Float32(1.0), ((point.x-pa.x)*vx+(point.y-pa.y)*vy)/denom))
+                            distance = min(distance, (pa.x+t*vx-point.x)**2+(pa.y+t*vy-point.y)**2)
+                        if inside:
+                            distance = 0.0
+                    elif source.glyph.value == PlotGlyphKind.RECT.value:
                         var near_x = max(min(screen.x, end.x), min(point.x, max(screen.x, end.x)))
                         var near_y = max(min(screen.y, end.y), min(point.y, max(screen.y, end.y)))
                         distance = (near_x-point.x)**2 + (near_y-point.y)**2
@@ -2166,16 +2207,22 @@ struct Plot:
                     var point = self.series[index].points[point_index]
                     if not point.interactive:
                         continue
-                    var duplicate = False
-                    for key in seen:
-                        if key == point.row_key:
-                            duplicate = True
-                    if duplicate:
-                        continue
-                    seen.append(point.row_key)
-                    var row = Semantics(500000 + index*100000 + point_index, ROLE_LABEL, point.text)
-                    row.parent_id = 10000 + self.series[index].id
-                    row.bounds = self.plot_area
-                    row.value = point.tooltip
-                    snapshot.append(row)
+                    var keys = point.source_keys.copy()
+                    if len(keys) == 0:
+                        keys.append(point.row_key)
+                    for row_key in keys:
+                        var duplicate = False
+                        for key in seen:
+                            if key == row_key:
+                                duplicate = True
+                        if duplicate:
+                            continue
+                        seen.append(row_key)
+                        var identity = point_index if len(point.source_keys) == 0 else len(seen)-1
+                        var row = Semantics(500000 + index*100000 + identity, ROLE_LABEL, point.text)
+                        row.parent_id = 10000 + self.series[index].id
+                        row.bounds = self.plot_area
+                        row.value = point.tooltip if len(point.source_keys) == 0 else String("source key=",row_key,"; ",point.tooltip)
+                        snapshot.append(row)
+
         return snapshot^

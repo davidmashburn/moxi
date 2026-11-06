@@ -5,6 +5,7 @@ MIT Copyright (c) 2026 Randy Zwitch. Full notice: tests/fixtures/wave_a/DATAVIZ-
 Wide named columns correspond to upstream series/range matrices, in declared order.
 """
 from std.collections import List
+from .plot_wave_b import _wave_b, _b_valid, _b_series
 from std.math import isfinite
 from moxi.style import Color
 from .plot_data import PlotDataTable, COLUMN_STRING, COLUMN_CATEGORY, COLUMN_BOOL
@@ -36,6 +37,8 @@ def specialized_valid(layer: PlotLayer) -> Bool:
     if layer.layout_version.value != PlotLayoutVersion.SPECIALIZED.value:
         return False
     var mark = layer.mark
+    if _wave_b(mark):
+        return _fields_valid(layer.series_fields_json) and _b_valid(layer)
     if layer.x2_field != "" or layer.color_field != "" or layer.fill_field != "" or layer.stroke_field != "" or layer.size_field != "" or layer.opacity_field != "" or layer.text_field != "" or layer.median_field != "":
         return False
     if not (mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
@@ -73,6 +76,8 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
         return False
     if layer.layout_version.value == PlotLayoutVersion.ROW.value:
         return True
+    if _wave_b(layer.mark):
+        return _b_valid(layer,data)
     if data.row_count() == 0 or data.field_kind(layer.x_field) == 0:
         return False
     var fields: List[String] = [layer.y_field]
@@ -156,7 +161,9 @@ def _glyph(mut series: PlotSeries, layer: PlotLayer, data: PlotDataTable, row: I
     series.append(point)
 
 
-def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int) -> PlotSeries:
+def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Float32 = 560, height: Float32 = 416) -> PlotSeries:
+    if _wave_b(layer.mark):
+        return _b_series(layer,data,id,width,height)
     var result = PlotSeries(id, layer.label, layer.color, layer.mark)
     result.line_width = layer.line_width
     result.marker_size = layer.size

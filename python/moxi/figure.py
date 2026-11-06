@@ -214,6 +214,7 @@ class Figure:
         for layer, geometry in self._render_geometries():
             if not getattr(geometry, "interactive", True):
                 continue
+            previous_result = result
             anchors = geometry.points
             for row_index, (px, py) in enumerate(anchors):
                 distance = (px - float(x)) ** 2 + (py - float(y)) ** 2
@@ -254,6 +255,21 @@ class Figure:
                         "x": nearest_x,
                         "y": nearest_y,
                     }
+            for polygon in geometry.polygons if hasattr(geometry, 'source_rows') else ():
+                inside = False
+                distance = float('inf')
+                for (ax,ay),(bx,by) in zip(polygon, polygon[1:]+polygon[:1]):
+                    if (ay > y) != (by > y) and x < (bx-ax)*(y-ay)/(by-ay)+ax:
+                        inside = not inside
+                    dx,dy=bx-ax,by-ay
+                    t=max(0.,min(1.,((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy))) if dx*dx+dy*dy else 0.
+                    distance=min(distance,(ax+t*dx-x)**2+(ay+t*dy-y)**2)
+                if inside: distance=0.
+                if distance <= best_distance:
+                    best_distance=distance
+                    result=dict(layer=layer.id, mark=layer.mark, row_index=getattr(geometry,'source_row',0), part=getattr(geometry,'part','mark'), x=x, y=y)
+            if result is not None and result is not previous_result and hasattr(geometry, 'source_rows'):
+                result['source_rows'] = list(getattr(geometry,'source_rows', (result['row_index'],)))
         return result
 
     def accessibility(self) -> List[Dict[str, Any]]:
@@ -286,6 +302,10 @@ class Figure:
         return rows
 
     def _layout(self) -> Tuple[float, float, float, float, float, float, float, float]:
+        from .specialized import LayoutVersion
+        from .wave_b import WaveBMark
+        if any(layer.layout_version == LayoutVersion.SPECIALIZED and layer.mark in WaveBMark._value2member_map_ for layer in self.spec.layers):
+            return 48., 28., max(1., self.width-80.), max(1., self.height-64.), 0., 1., 0., 1.
         return 54.0, 18.0, max(1.0, self.width - 72.0), max(1.0, self.height - 48.0), 0.0, 1.0, 0.0, 1.0
 
     def _transform_for_layer(self, layer: Any) -> Optional[Any]:
@@ -839,7 +859,7 @@ class Figure:
             if layer.layout_version != LayoutVersion.SPECIALIZED:
                 yield layer, self._screen_geometry(layer)
                 continue
-            result = layout(layer, self.data)
+            result = layout(layer, self.data, width, height)
             for glyph in result.glyphs:
                 x0, y0, x1, y1 = glyph.bounds
                 x0 = left + _scale(x0, *result.x_domain, width)
@@ -848,13 +868,17 @@ class Figure:
                 y1 = top + _scale(y1, *result.y_domain, height, invert=True)
                 g = _Geometry("points", result.x_domain, result.y_domain,
                               colors=[glyph.color], opacities=[1.0], sizes=[layer.size])
-                if glyph.kind is GlyphKind.RECT:
+                if glyph.kind is GlyphKind.POLYGON:
+                    g.polygons = [[(left + _scale(x, *result.x_domain, width), top + _scale(y, *result.y_domain, height, invert=True)) for x,y in glyph.vertices]]
+                elif glyph.kind is GlyphKind.RECT:
                     g.rects = [(min(x0,x1), min(y0,y1), max(x0,x1), max(y0,y1), 1.)]
                 elif glyph.kind is GlyphKind.SEGMENT:
                     g.segments = [(x0,y0,x1,y1)]
                 else:
                     g.points = [(x0,y0)]
                 g.source_row = glyph.row
+                if glyph.source_rows:
+                    g.source_rows = glyph.source_rows
                 g.part = glyph.part
                 g.interactive = glyph.interactive
                 yield layer, g

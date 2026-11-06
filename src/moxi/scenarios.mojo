@@ -879,3 +879,51 @@ def make_interaction_foundation_scenario(
     _ = result.popups.set_actions(100, actions)
     return result^
 
+
+
+struct SpecializedPlotScenario(ImplicitlyCopyable):
+    """Shared E02 fixture identity; consumers load columns from fixture_path.
+
+    schema_version is PlotSpec layout version, seed is deterministic source-key
+    seed, reference_available describes the exact pinned upstream API surface.
+    """
+    var name: String
+    var fixture_path: String
+    var row_count: Int
+    var seed: Int
+    var width: Int
+    var height: Int
+    var schema_version: Int
+    var reference_revision: String
+    var reference_available: Bool
+
+    def __init__(out self, name: String, row_count: Int, seed: Int, reference_available: Bool = True):
+        self.name = name
+        self.fixture_path = String("tests/fixtures/wave_b/",name,".json")
+        self.row_count = row_count
+        self.seed = seed
+        self.width = 640
+        self.height = 480
+        self.schema_version = 1
+        self.reference_revision = "3fd5a7e7c622d6130c99a290b88c4fee039deab2"
+        self.reference_available = reference_available
+
+
+def canonical_wave_b_scenarios() -> List[SpecializedPlotScenario]:
+    """Full authoritative Wave B inventory, including separate radialbar/grid variants."""
+    return [
+        SpecializedPlotScenario("pie",4,201),
+        SpecializedPlotScenario("donut",4,202),
+        SpecializedPlotScenario("radar",5,203),
+        SpecializedPlotScenario("gauge",1,204),
+        SpecializedPlotScenario("polar",7,205),
+        SpecializedPlotScenario("polar_bar",4,206),
+        SpecializedPlotScenario("radialbar",4,207),
+        SpecializedPlotScenario("beeswarm",24,208),
+        SpecializedPlotScenario("violin",24,209),
+        SpecializedPlotScenario("ridgeline",24,210),
+        SpecializedPlotScenario("nightingale",4,211),
+        SpecializedPlotScenario("streamgraph",6,212),
+        SpecializedPlotScenario("contour",25,213,False),
+        SpecializedPlotScenario("contourf",25,214,False),
+    ]

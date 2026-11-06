@@ -522,21 +522,27 @@ struct PlotRuntime:
                 continue
             for point_index in range(self.plot.series[series_index].count()):
                 var point = self.plot.series[series_index].points[point_index]
-                if not point.interactive or not selection.contains(point.row_key):
+                if not point.interactive:
                     continue
-                var duplicate = False
-                if self.plot.series[series_index].has_layout_domain:
-                    for chosen in self.selected_hits:
-                        if chosen.series_id == self.plot.series[series_index].id and chosen.row_key == point.row_key:
-                            duplicate = True
-                if duplicate:
-                    continue
-                var hit = PlotHit()
-                hit.series_id = self.plot.series[series_index].id
-                hit.point_index = point_index
-                hit.row_key = point.row_key
-                hit.distance_squared = 0.0
-                self.selected_hits.append(hit)
+                var keys = point.source_keys.copy()
+                if len(keys) == 0:
+                    keys.append(point.row_key)
+                for row_key in keys:
+                    if not selection.contains(row_key):
+                        continue
+                    var duplicate = False
+                    if self.plot.series[series_index].has_layout_domain:
+                        for chosen in self.selected_hits:
+                            if chosen.series_id == self.plot.series[series_index].id and chosen.row_key == row_key:
+                                duplicate = True
+                    if duplicate:
+                        continue
+                    var hit = PlotHit()
+                    hit.series_id = self.plot.series[series_index].id
+                    hit.point_index = point_index
+                    hit.row_key = row_key
+                    hit.distance_squared = 0.0
+                    self.selected_hits.append(hit)
         if len(self.selected_hits) > 0:
             self.selected = self.selected_hits[len(self.selected_hits) - 1]
         else:
@@ -567,18 +573,22 @@ struct PlotRuntime:
                 var point = self.plot.series[series_index].points[point_index]
                 if not point.interactive:
                     continue
-                var duplicate = False
-                for row in seen:
-                    if row == point.row_key:
-                        duplicate = True
-                if duplicate:
-                    continue
-                seen.append(point.row_key)
-                var hit = PlotHit()
-                hit.series_id = self.plot.series[series_index].id
-                hit.point_index = point_index
-                hit.row_key = point.row_key
-                stops.append(hit)
+                var keys = point.source_keys.copy()
+                if len(keys) == 0:
+                    keys.append(point.row_key)
+                for row_key in keys:
+                    var duplicate = False
+                    for row in seen:
+                        if row == row_key:
+                            duplicate = True
+                    if duplicate:
+                        continue
+                    seen.append(row_key)
+                    var hit = PlotHit()
+                    hit.series_id = self.plot.series[series_index].id
+                    hit.point_index = point_index
+                    hit.row_key = row_key
+                    stops.append(hit)
         if len(stops) == 0:
             return False
         var current = -1

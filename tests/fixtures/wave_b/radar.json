@@ -1,0 +1,43 @@
+{
+  "columns": {
+    "category": [
+      "Speed",
+      "Range",
+      "Weight",
+      "Price",
+      "Power"
+    ],
+    "value": [
+      6.0,
+      8.0,
+      3.0,
+      7.0,
+      4.0
+    ],
+    "other": [
+      8.0,
+      4.0,
+      7.0,
+      5.0,
+      9.0
+    ],
+    "maximum": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ]
+  },
+  "x": "category",
+  "y": "value",
+  "channels": {
+    "y2_field": "maximum"
+  },
+  "layout": {
+    "series_fields": [
+      "value",
+      "other"
+    ]
+  }
+}

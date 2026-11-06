@@ -1653,7 +1653,7 @@ def plot_from_spec(
         var layer = spec.layer(index)
         if layer.layout_version.value == PlotLayoutVersion.SPECIALIZED.value:
             var series_id = plot.add_series(layer.label, layer.color, layer.mark)
-            var series = specialized_series(layer, transformed, series_id)
+            var series = specialized_series(layer, transformed, series_id, plot.plot_area.width, plot.plot_area.height)
             plot.series[plot.series_index(series_id)] = series^
             continue
         var color_field = layer.color_field

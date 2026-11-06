@@ -443,6 +443,7 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `SCENE_PATH_MOVE_TO` | `moxi.scene_path` | stable-core | portable paint/scene rendering |
 | `SCENE_PATH_QUAD_TO` | `moxi.scene_path` | stable-core | portable paint/scene rendering |
 | `ScenePath` | `moxi.scene_path` | stable-core | portable paint/scene rendering |
+| `ScenePathStorage` | `moxi.scene_path` | stable-core | portable paint/scene rendering |
 | `ScenePathCommand` | `moxi.scene_path` | stable-core | portable paint/scene rendering |
 | `TEXT_ALIGN_CENTER` | `moxi.scene_text` | stable-core | portable paint/scene rendering |
 | `TEXT_ALIGN_END` | `moxi.scene_text` | stable-core | portable paint/scene rendering |
@@ -623,6 +624,8 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `SCENARIO_PLOT` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `SCENARIO_CAPABILITY` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `SCENARIO_FRACTAL` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `SpecializedPlotScenario` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
+| `canonical_wave_b_scenarios` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `ScenarioDescriptor` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `ScenarioRegistry` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
 | `ThemeModeFixture` | `moxi.scenarios` | demo/support | examples, recipes, or validation support |
