@@ -65,11 +65,12 @@ Normalized input enqueued by asynchronous AppKit accessibility callbacks wakes
 the native wait without requiring an unrelated keyboard or pointer event.
 
 The canonical workbench uses `WorkbenchController`, `FramePacket` and
-`NativeFrameRenderer`; its replay and benchmark use the same controller and
-chart projection. Existing `Renderer` consumers retain their API with an
-explicit `end_frame()` boundary. Their `App` driver has the same scheduling and
-independent semantic update behavior; migration of every legacy demo to the
-packet API is not a prerequisite for the desktop slice.
+`NativeFrameRenderer`; its replay shares the controller. The native benchmark
+drives workload state directly while sharing `LayoutWorkbench`, the packet
+representation and chart projection. Existing `Renderer` consumers retain their
+API with an explicit `end_frame()` boundary. Their `App` driver has the same
+scheduling and independent semantic update behavior; migration of every legacy
+demo to the packet API is not a prerequisite for the desktop slice.
 
 GTK4 is the current Linux host substrate because input-method and desktop
 accessibility transport are part of this slice. Cairo produces pixels and
