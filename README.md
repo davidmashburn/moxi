@@ -194,6 +194,8 @@ paint example. For the complete demo, benchmark, and packaging task list, see
 [docs/demo-browser.md](docs/demo-browser.md) and
 [docs/features.md](docs/features.md#demos).
 
+`pixi run native-lifecycle` opens the macOS [two-window lifecycle workbench](docs/native-window-lifecycle.md): deep-row editing, native menus/sheets, row drag/drop, and close/reopen with retained independent models. Run `pixi run native-lifecycle-check` for ownership and automated AX assertions.
+
 `pixi run data-workbench` opens a standalone numerical data workbench with
 linked scatter/histogram views and a virtualized table. See
 [the workbench guide](docs/data-workbench.md) for CSV limits, controls,

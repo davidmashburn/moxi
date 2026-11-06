@@ -10,7 +10,10 @@
 #include <sys/stat.h>
 #include <string.h>
 
+@class MoxiWindowState;
+
 @interface MoxiWindowDelegate : NSObject <NSWindowDelegate>
+@property(nonatomic, weak) MoxiWindowState *moxiOwner;
 @end
 
 @interface MoxiEditorClipView : NSView
@@ -20,6 +23,7 @@
 @end
 
 @interface MoxiCanvasView : NSView <NSTextInputClient, NSTextFieldDelegate>
+@property(nonatomic, weak) MoxiWindowState *moxiOwner;
 @property(nonatomic, strong) NSTextField *nativeTextEditor;
 @property(nonatomic, strong) MoxiEditorClipView *nativeTextEditorClip;
 @property(nonatomic, strong) NSString *nativeTextEditorValue;
@@ -32,16 +36,12 @@
 @end
 
 @interface MoxiAccessibilityElement : NSAccessibilityElement
+@property(nonatomic, weak) MoxiWindowState *moxiOwner;
 @property(nonatomic) int moxiIdentifier;
 @property(nonatomic, strong) NSMutableArray *moxiChildren;
 @end
 
 #define MOXI_MAX_DRAW_COMMANDS 1024
-/* Opt-in retained submission order. Legacy hosts keep their established order. */
-static BOOL moxi_ordered_paint_enabled = NO;
-static int moxi_ordered_paint_count = 0;
-static int moxi_ordered_paint_kinds[MOXI_MAX_DRAW_COMMANDS + 1];
-static int moxi_ordered_paint_slots[MOXI_MAX_DRAW_COMMANDS + 1];
 #define MOXI_MAX_CUSTOM_LINES 32768
 #define MOXI_MAX_CUSTOM_CIRCLES 4096
 #define MOXI_MAX_CUSTOM_RECTS 262144 /* 100k observations plus selection overlays */
@@ -117,22 +117,7 @@ static int moxi_ordered_paint_slots[MOXI_MAX_DRAW_COMMANDS + 1];
 #define MOXI_ROLE_CANVAS 20
 #define MOXI_ROLE_SEPARATOR 21
 
-static NSWindow *moxi_window;
-static MoxiWindowDelegate *moxi_delegate;
-static MoxiCanvasView *moxi_canvas;
-static BOOL moxi_window_opened;
-static NSTask *moxi_demo_task;
 typedef int (*MoxiLiveFrameFunction)(float, float, float, float);
-static void *moxi_live_handle;
-static MoxiLiveFrameFunction moxi_live_frame;
-
-static BOOL moxi_click_pending;
-static float moxi_last_click_x;
-static float moxi_last_click_y;
-static BOOL moxi_mouse_is_down;
-static BOOL moxi_mouse_dragging;
-static float moxi_last_pointer_x;
-static float moxi_last_pointer_y;
 
 typedef struct {
     int kind;
@@ -200,37 +185,6 @@ typedef struct {
     NSRect clipFrame;
 } MoxiToggleSlot;
 
-static MoxiQueuedEvent moxi_event_queue[MOXI_EVENT_QUEUE_CAPACITY];
-static int moxi_event_queue_head;
-static int moxi_event_queue_tail;
-static int moxi_event_queue_count;
-static BOOL moxi_waiting_for_event;
-static int moxi_event_dropped_count;
-static int moxi_event_kind;
-static int moxi_event_key;
-static int moxi_event_modifiers;
-static int moxi_event_codepoint;
-static NSString *moxi_event_text_value;
-static int moxi_event_selection_start;
-static int moxi_event_selection_end;
-static float moxi_event_x;
-static float moxi_event_y;
-static float moxi_event_scroll_x;
-static float moxi_event_scroll_y;
-static int moxi_event_target;
-static int moxi_event_action;
-static uint64_t moxi_current_event_receipt_ns;
-static int moxi_current_event_queue_depth;
-static int moxi_interpreting_modifiers;
-static NSString *moxi_marked_text;
-static int moxi_marked_selection_start;
-static int moxi_marked_selection_end;
-
-static CGFloat moxi_last_canvas_width;
-static CGFloat moxi_last_canvas_height;
-static CGFloat moxi_last_canvas_scale;
-static NSString *moxi_clipboard_value;
-
 /*
  * Opt-in native timing for the real window path. This is deliberately kept
  * private to the native window and the workbench example. The logged draw
@@ -238,9 +192,38 @@ static NSString *moxi_clipboard_value;
  * It measures CPU work in AppKit's view callback, not compositor presentation
  * or input-to-photon latency.
  */
-static BOOL moxi_native_timing_active;
-static MoxiNativeTiming moxi_native_timing;
-static FILE *moxi_native_timing_output;
+
+typedef struct {
+    NSString *text;
+    NSRect frame;
+    float fill[4];
+    float textColor[4];
+    float radius;
+    float fontSize;
+    int kind;
+    BOOL focused;
+    BOOL enabled;
+    BOOL selected;
+    BOOL expanded;
+    BOOL clipEnabled;
+    NSRect clipFrame;
+} MoxiNativeWidgetSlot;
+
+typedef struct {
+    NSRect track;
+    NSRect thumb;
+    float trackColor[4];
+    float thumbColor[4];
+    float radius;
+    BOOL visible;
+    BOOL clipEnabled;
+    NSRect clipFrame;
+} MoxiScrollbarSlot;
+
+static NSTask *moxi_demo_task;
+static void *moxi_live_handle;
+static MoxiLiveFrameFunction moxi_live_frame;
+#include "macos_window_state.h"
 
 static uint64_t moxi_native_timing_now_ns(void) {
     static mach_timebase_info_data_t timebase;
@@ -286,7 +269,7 @@ static void moxi_native_timing_configure_output(void) {
     }
     const char *path = getenv("MOXI_NATIVE_TIMING_FILE");
     if (path != NULL && path[0] != '\0') {
-        moxi_native_timing_output = fopen(path, "w");
+        moxi_native_timing_output = fopen(path, "a");
     }
 }
 
@@ -355,226 +338,6 @@ static void moxi_native_timing_draw_completed(void) {
     fflush(output);
     moxi_native_timing_reset();
 }
-
-static int moxi_label_count;
-static int moxi_command_overflow_count;
-static NSString *moxi_label_texts[MOXI_MAX_DRAW_COMMANDS];
-static id<MoxiParagraphDrawing> moxi_label_paragraphs[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_label_frames[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_label_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_label_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_label_wraps[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_label_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_label_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-
-static int moxi_button_count;
-static NSString *moxi_button_texts[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_button_frames[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_button_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_button_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_button_radii[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_button_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_button_wraps[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_button_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_button_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_button_focused[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_button_hovered[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_button_pressed[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_button_enabled[MOXI_MAX_DRAW_COMMANDS];
-
-static int moxi_checkbox_count;
-static NSString *moxi_checkbox_texts[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_checkbox_frames[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_checkbox_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_checkbox_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_checkbox_radii[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_checkbox_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_checkbox_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_checkbox_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_checkbox_focused[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_checkbox_hovered[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_checkbox_pressed[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_checkbox_enabled[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_checkbox_checked[MOXI_MAX_DRAW_COMMANDS];
-
-static int moxi_progress_count;
-static NSString *moxi_progress_texts[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_progress_frames[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_progress_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_progress_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_progress_radii[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_progress_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_progress_values[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_progress_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_progress_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-
-static int moxi_slider_count;
-static MoxiSliderSlot moxi_slider_slots[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_toggle_count;
-static MoxiToggleSlot moxi_toggle_slots[MOXI_MAX_DRAW_COMMANDS];
-
-static int moxi_text_input_count;
-static NSString *moxi_text_input_texts[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_text_input_frames[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_text_input_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_text_input_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_text_input_radii[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_text_input_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_text_input_wraps[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_text_input_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_text_input_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_text_input_focused[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_text_input_cursors[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_text_input_selection_starts[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_text_input_selection_ends[MOXI_MAX_DRAW_COMMANDS];
-static NSString *moxi_text_input_compositions[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_text_input_composition_selection_starts[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_text_input_composition_selection_ends[MOXI_MAX_DRAW_COMMANDS];
-
-static int moxi_image_count;
-static int moxi_image_resource_ids[MOXI_MAX_DRAW_COMMANDS];
-static NSImage *moxi_image_resources[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_registered_image_ids[MOXI_MAX_DRAW_COMMANDS];
-static NSImage *moxi_registered_images[MOXI_MAX_DRAW_COMMANDS];
-static NSString *moxi_image_alt_texts[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_image_frames[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_image_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_image_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_image_radii[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_image_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_image_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_active_text_input_index;
-static int moxi_retained_text_editor_key = -1;
-static BOOL moxi_native_text_editor_seen;
-
-static float moxi_surface_fill[4];
-static int moxi_panel_count;
-static NSRect moxi_panel_frames[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_panel_fills[MOXI_MAX_DRAW_COMMANDS][4];
-static float moxi_panel_radii[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_panel_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_panel_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-
-typedef struct {
-    NSString *text;
-    NSRect frame;
-    float fill[4];
-    float textColor[4];
-    float radius;
-    float fontSize;
-    int kind;
-    BOOL focused;
-    BOOL enabled;
-    BOOL selected;
-    BOOL expanded;
-    BOOL clipEnabled;
-    NSRect clipFrame;
-} MoxiNativeWidgetSlot;
-
-static int moxi_native_widget_count;
-static MoxiNativeWidgetSlot moxi_native_widget_slots[MOXI_MAX_DRAW_COMMANDS];
-
-typedef struct {
-    NSRect track;
-    NSRect thumb;
-    float trackColor[4];
-    float thumbColor[4];
-    float radius;
-    BOOL visible;
-    BOOL clipEnabled;
-    NSRect clipFrame;
-} MoxiScrollbarSlot;
-
-static int moxi_scrollbar_count;
-static MoxiScrollbarSlot moxi_scrollbar_slots[MOXI_MAX_DRAW_COMMANDS];
-
-/* Dense custom canvas content lives beside the semantic widget stream. */
-static int moxi_custom_line_count;
-static NSPoint moxi_custom_line_starts[MOXI_MAX_CUSTOM_LINES];
-static NSPoint moxi_custom_line_ends[MOXI_MAX_CUSTOM_LINES];
-static float moxi_custom_line_colors[MOXI_MAX_CUSTOM_LINES][4];
-static float moxi_custom_line_widths[MOXI_MAX_CUSTOM_LINES];
-
-static int moxi_custom_circle_count;
-static NSPoint moxi_custom_circle_centers[MOXI_MAX_CUSTOM_CIRCLES];
-static float moxi_custom_circle_radii[MOXI_MAX_CUSTOM_CIRCLES];
-static float moxi_custom_circle_fills[MOXI_MAX_CUSTOM_CIRCLES][4];
-static float moxi_custom_circle_strokes[MOXI_MAX_CUSTOM_CIRCLES][4];
-static float moxi_custom_circle_stroke_widths[MOXI_MAX_CUSTOM_CIRCLES];
-
-static int moxi_custom_rect_count;
-static NSRect moxi_custom_rect_frames[MOXI_MAX_CUSTOM_RECTS];
-static float moxi_custom_rect_fills[MOXI_MAX_CUSTOM_RECTS][4];
-static float moxi_custom_rect_strokes[MOXI_MAX_CUSTOM_RECTS][4];
-static float moxi_custom_rect_stroke_widths[MOXI_MAX_CUSTOM_RECTS];
-static float moxi_custom_rect_radii[MOXI_MAX_CUSTOM_RECTS];
-
-static int moxi_custom_text_count;
-static NSString *moxi_custom_texts[MOXI_MAX_CUSTOM_TEXT];
-static NSRect moxi_custom_text_frames[MOXI_MAX_CUSTOM_TEXT];
-static float moxi_custom_text_colors[MOXI_MAX_CUSTOM_TEXT][4];
-static float moxi_custom_text_font_sizes[MOXI_MAX_CUSTOM_TEXT];
-
-static BOOL moxi_custom_clip_enabled;
-static NSRect moxi_custom_clip_frame;
-
-/*
- * The dense custom canvas is normally submitted and rasterized on every
- * frame.  Workbench can opt into retaining the already-rasterized canvas for
- * frames that only update native/semantic widgets.  The cache is deliberately
- * a single output layer: command submission invalidates it, while
- * begin_frame() leaves the last complete custom command stream in place so
- * a backing-size change can rebuild the retained layer when needed.
- */
-static BOOL moxi_custom_paint_cache_enabled;
-static BOOL moxi_custom_paint_cache_valid;
-static NSBitmapImageRep *moxi_custom_paint_cache_bitmap;
-static NSRect moxi_custom_paint_cache_bounds;
-static CGFloat moxi_custom_paint_cache_scale;
-static uint64_t moxi_custom_paint_cache_build_count;
-static uint64_t moxi_custom_paint_cache_hit_count;
-
-static BOOL moxi_current_clip_enabled;
-static NSRect moxi_current_clip_frame;
-
-static int moxi_accessibility_count;
-static int moxi_accessibility_ids[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_accessibility_parent_ids[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_accessibility_roles[MOXI_MAX_DRAW_COMMANDS];
-static NSString *moxi_accessibility_labels[MOXI_MAX_DRAW_COMMANDS];
-static NSString *moxi_accessibility_values[MOXI_MAX_DRAW_COMMANDS];
-static NSString *moxi_accessibility_hints[MOXI_MAX_DRAW_COMMANDS];
-static NSRect moxi_accessibility_frames[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_accessibility_enabled[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_accessibility_focused[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_accessibility_selected[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_accessibility_checked[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_accessibility_expanded[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_accessibility_has_value_range[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_accessibility_value_min[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_accessibility_value_max[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_accessibility_value_now[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_accessibility_actions[MOXI_MAX_DRAW_COMMANDS];
-static NSAccessibilityElement *moxi_accessibility_elements[MOXI_MAX_DRAW_COMMANDS];
-static NSMutableArray *moxi_accessibility_owned_elements;
-static NSMutableArray *moxi_accessibility_root_children;
-// The opt-in retained presenter keeps AX identity for active semantic keys only.
-static NSDictionary<NSNumber *, MoxiAccessibilityElement *> *moxi_retained_accessibility_elements;
-static BOOL moxi_accessibility_focused_text_input;
-static BOOL moxi_accessibility_has_previous_snapshot;
-static int moxi_previous_accessibility_count;
-static int moxi_previous_accessibility_ids[MOXI_MAX_DRAW_COMMANDS];
-static int moxi_previous_accessibility_roles[MOXI_MAX_DRAW_COMMANDS];
-static NSString *moxi_previous_accessibility_values[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_previous_accessibility_checked[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_previous_accessibility_expanded[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_previous_accessibility_selected[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_previous_accessibility_enabled[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_previous_accessibility_focused[MOXI_MAX_DRAW_COMMANDS];
-static BOOL moxi_previous_accessibility_has_value_range[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_previous_accessibility_value_min[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_previous_accessibility_value_max[MOXI_MAX_DRAW_COMMANDS];
-static float moxi_previous_accessibility_value_now[MOXI_MAX_DRAW_COMMANDS];
 
 static void moxi_queue_accessibility_action(int id, int action);
 static void moxi_queue_semantic_action(int target, int action);
@@ -1522,23 +1285,35 @@ int moxi_clipboard_codepoint_at(int target) {
 }
 
 @implementation MoxiAccessibilityElement
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        MoxiWindowState *owner = moxi_current_context();
+        self.moxiOwner = owner;
+    }
+    return self;
+}
 static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     @"AXChildrenInNavigationOrder";
 
 - (NSArray *)accessibilityChildren {
+    MOXI_CALLBACK_SCOPE(return 0);
     return self.moxiChildren == nil ? @[] : self.moxiChildren;
 }
 
 - (NSArray *)accessibilityChildrenInNavigationOrder {
+    MOXI_CALLBACK_SCOPE(return 0);
     return [self accessibilityChildren];
 }
 
 - (BOOL)isAccessibilityFocused {
+    MOXI_CALLBACK_SCOPE(return 0);
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     return index >= 0 && moxi_accessibility_focused[index];
 }
 
 - (void)setAccessibilityFocused:(BOOL)focused {
+    MOXI_CALLBACK_SCOPE(return);
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     if (index < 0 || !moxi_accessibility_enabled[index] ||
         moxi_accessibility_roles[index] != MOXI_ROLE_TEXT_INPUT) return;
@@ -1550,6 +1325,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (NSArray *)accessibilityAttributeNames {
+    MOXI_CALLBACK_SCOPE(return 0);
     NSMutableArray *names = [[super accessibilityAttributeNames] mutableCopy];
     if (names == nil) {
         names = [NSMutableArray array];
@@ -1579,6 +1355,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (id)accessibilityAttributeValue:(NSAccessibilityAttributeName)attribute {
+    MOXI_CALLBACK_SCOPE(return 0);
     if ([attribute isEqualToString:NSAccessibilityFocusedAttribute]) {
         return @([self isAccessibilityFocused]);
     }
@@ -1662,6 +1439,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (NSArray *)accessibilityActionNames {
+    MOXI_CALLBACK_SCOPE(return 0);
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     if (index < 0 || !self.accessibilityEnabled) {
         return @[];
@@ -1690,6 +1468,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (BOOL)accessibilityIsAttributeSettable:(NSAccessibilityAttributeName)attribute {
+    MOXI_CALLBACK_SCOPE(return 0);
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     if (index >= 0 &&
         moxi_accessibility_roles[index] == MOXI_ROLE_TEXT_INPUT &&
@@ -1703,6 +1482,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 
 - (void)accessibilitySetValue:(id)value
                   forAttribute:(NSAccessibilityAttributeName)attribute {
+    MOXI_CALLBACK_SCOPE(return);
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     // Retained accessibility clients may call an element after root reset.
     // It no longer belongs to the published tree; do not invoke superclass
@@ -1734,6 +1514,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (void)accessibilityPerformAction:(NSString *)action {
+    MOXI_CALLBACK_SCOPE(return);
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     if (index < 0 || !self.accessibilityEnabled) {
         return;
@@ -1761,6 +1542,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (BOOL)accessibilityPerformPress {
+    MOXI_CALLBACK_SCOPE(return 0);
     int index = moxi_accessibility_index_for_id(self.moxiIdentifier);
     if (index >= 0 &&
         (moxi_accessibility_actions[index] & MOXI_ACTION_PRESS) != 0 &&
@@ -1773,7 +1555,20 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 @end
 
 @implementation MoxiWindowDelegate
+- (void)moxiMenuSelected:(NSMenuItem *)item {
+    MOXI_CALLBACK_SCOPE(return);
+    owner->menuResult = item.tag;
+}
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        MoxiWindowState *owner = moxi_current_context();
+        self.moxiOwner = owner;
+    }
+    return self;
+}
 - (void)windowDidResignKey:(NSNotification *)notification {
+    MOXI_CALLBACK_SCOPE(return);
     (void)notification;
     /* AppKit can switch applications without delivering mouseUp. End the
      * current stream and clear hover so the next window cannot inherit a
@@ -1786,6 +1581,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
+    MOXI_CALLBACK_SCOPE(return);
     moxi_window_opened = NO;
     moxi_wake_event_wait();
     moxi_custom_paint_cache_enabled = NO;
@@ -1795,20 +1591,30 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     moxi_mouse_is_down = NO;
     moxi_mouse_dragging = NO;
     moxi_click_pending = NO;
-    [NSApp stop:nil];
 }
 @end
 
 @implementation MoxiCanvasView
+- (instancetype)initWithFrame:(NSRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        MoxiWindowState *owner = moxi_current_context();
+        self.moxiOwner = owner;
+    }
+    return self;
+}
 - (BOOL)isFlipped {
+    MOXI_CALLBACK_SCOPE(return 0);
     return YES;
 }
 
 - (BOOL)acceptsFirstResponder {
+    MOXI_CALLBACK_SCOPE(return 0);
     return YES;
 }
 
 - (void)updateTrackingAreas {
+    MOXI_CALLBACK_SCOPE(return);
     [super updateTrackingAreas];
     if (self.moxiTrackingArea != nil) {
         [self removeTrackingArea:self.moxiTrackingArea];
@@ -1825,28 +1631,34 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (BOOL)isAccessibilityElement {
+    MOXI_CALLBACK_SCOPE(return 0);
     return YES;
 }
 
 - (NSAccessibilityRole)accessibilityRole {
+    MOXI_CALLBACK_SCOPE(return 0);
     return NSAccessibilityGroupRole;
 }
 
 - (NSString *)accessibilityLabel {
+    MOXI_CALLBACK_SCOPE(return 0);
     return @"Moxi content";
 }
 
 - (NSArray *)accessibilityChildren {
+    MOXI_CALLBACK_SCOPE(return 0);
     return moxi_accessibility_root_children == nil
         ? @[]
         : moxi_accessibility_root_children;
 }
 
 - (NSArray *)accessibilityChildrenInNavigationOrder {
+    MOXI_CALLBACK_SCOPE(return 0);
     return [self accessibilityChildren];
 }
 
 - (id)accessibilityFocusedUIElement {
+    MOXI_CALLBACK_SCOPE(return 0);
     for (int i = 0; i < moxi_accessibility_count; i++) {
         if (moxi_accessibility_focused[i]) {
             return moxi_accessibility_elements[i];
@@ -1856,6 +1668,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (id)accessibilityHitTest:(NSPoint)point {
+    MOXI_CALLBACK_SCOPE(return 0);
     /* Children are emitted after their containers. Walk backwards so a
      * nested control wins over the larger parent frame. accessibilityFrame
      * is in screen coordinates, matching the point supplied by AppKit. */
@@ -1868,6 +1681,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (void)hideNativeTextEditor {
+    MOXI_CALLBACK_SCOPE(return);
     if (self.nativeTextEditor == nil) {
         return;
     }
@@ -1875,6 +1689,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (BOOL)nativeTextEditorIsVisibleForIndex:(int)index {
+    MOXI_CALLBACK_SCOPE(return 0);
     return self.nativeTextEditor != nil &&
         !self.nativeTextEditor.hidden &&
         moxi_native_text_editor_seen &&
@@ -1885,6 +1700,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (void)showNativeTextEditorForIndex:(int)index {
+    MOXI_CALLBACK_SCOPE(return);
     if (index < 0 || index >= moxi_text_input_count ||
         moxi_text_input_wraps[index]) {
         return;
@@ -1971,6 +1787,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (void)finishMoxiFrame {
+    MOXI_CALLBACK_SCOPE(return);
     BOOL shouldShow = moxi_native_text_editor_seen &&
         moxi_active_text_input_index >= 0 &&
         moxi_active_text_input_index < moxi_text_input_count &&
@@ -1994,6 +1811,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 }
 
 - (void)controlTextDidChange:(NSNotification *)notification {
+    MOXI_CALLBACK_SCOPE(return);
     if (self.synchronizingNativeTextEditor ||
         [notification object] != self.nativeTextEditor ||
         self.nativeTextEditor == nil) {
@@ -2020,6 +1838,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 - (BOOL)control:(NSControl *)control
         textView:(NSTextView *)textView
 doCommandBySelector:(SEL)commandSelector {
+    MOXI_CALLBACK_SCOPE(return 0);
     if (control != self.nativeTextEditor) {
         return NO;
     }
@@ -2569,6 +2388,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)drawOrderedSlot:(int)i kind:(int)kind {
+    MOXI_CALLBACK_SCOPE(return);
     if (kind == 3) {
         moxi_begin_clip(moxi_panel_clip_enabled[i], moxi_panel_clip_frames[i]);
         [moxi_color(moxi_panel_fills[i]) setFill];
@@ -2831,6 +2651,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
+    MOXI_CALLBACK_SCOPE(return);
     (void)dirtyRect;
     moxi_native_timing_draw_started();
     [moxi_color(moxi_surface_fill) setFill];
@@ -3213,6 +3034,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)mouseDown:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return);
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
     moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_last_click_x = point.x;
@@ -3228,6 +3050,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)mouseUp:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return);
     if (!moxi_mouse_is_down) {
         return;
     }
@@ -3245,6 +3068,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)mouseDragged:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return);
     if (!moxi_mouse_is_down) {
         return;
     }
@@ -3270,6 +3094,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)mouseExited:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return);
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
     moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_event_x = point.x;
@@ -3281,6 +3106,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)mouseEntered:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return);
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
     moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_event_x = point.x;
@@ -3289,6 +3115,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)mouseMoved:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return);
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
     moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_event_x = point.x;
@@ -3297,6 +3124,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)scrollWheel:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return);
     NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
     moxi_event_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     moxi_enqueue_event(
@@ -3315,6 +3143,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)insertText:(id)string replacementRange:(NSRange)replacementRange {
+    MOXI_CALLBACK_SCOPE(return);
     NSString *value = moxi_input_string(string);
     moxi_clear_marked_text();
     if ([value length] > 0) {
@@ -3341,6 +3170,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 - (void)setMarkedText:(id)string
        selectedRange:(NSRange)selectedRange
     replacementRange:(NSRange)replacementRange {
+    MOXI_CALLBACK_SCOPE(return);
     NSString *value = moxi_input_string(string);
     NSUInteger selectedLocation = selectedRange.location == NSNotFound
         ? 0
@@ -3363,6 +3193,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)unmarkText {
+    MOXI_CALLBACK_SCOPE(return);
     if (moxi_marked_text == nil) {
         return;
     }
@@ -3371,10 +3202,12 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (BOOL)hasMarkedText {
+    MOXI_CALLBACK_SCOPE(return 0);
     return moxi_marked_text != nil && [moxi_marked_text length] > 0;
 }
 
 - (NSRange)markedRange {
+    MOXI_CALLBACK_SCOPE(return NSMakeRange(NSNotFound, 0));
     if (![self hasMarkedText]) {
         return NSMakeRange(NSNotFound, 0);
     }
@@ -3388,11 +3221,13 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (NSRange)selectedRange {
+    MOXI_CALLBACK_SCOPE(return NSMakeRange(NSNotFound, 0));
     return moxi_active_selected_range();
 }
 
 - (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)range
                                                 actualRange:(NSRangePointer)actualRange {
+    MOXI_CALLBACK_SCOPE(return 0);
     NSString *text = moxi_active_text_input_text();
     if (range.location == NSNotFound) {
         range = NSMakeRange(0, 0);
@@ -3410,11 +3245,13 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (NSArray<NSAttributedStringKey> *)validAttributesForMarkedText {
+    MOXI_CALLBACK_SCOPE(return 0);
     return @[];
 }
 
 - (NSRect)firstRectForCharacterRange:(NSRange)range
                           actualRange:(NSRangePointer)actualRange {
+    MOXI_CALLBACK_SCOPE(return NSZeroRect);
     NSString *text = moxi_active_text_input_text();
     NSUInteger start = range.location == NSNotFound
         ? [text length]
@@ -3429,6 +3266,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (NSUInteger)characterIndexForPoint:(NSPoint)point {
+    MOXI_CALLBACK_SCOPE(return 0);
     if (moxi_active_text_input_index < 0 ||
         moxi_active_text_input_index >= moxi_text_input_count) {
         return 0;
@@ -3468,6 +3306,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)doCommandBySelector:(SEL)selector {
+    MOXI_CALLBACK_SCOPE(return);
     if (selector == @selector(moveLeft:) ||
         selector == @selector(moveLeftAndModifySelection:)) {
         moxi_queue_key_event(MOXI_KEY_LEFT);
@@ -3516,6 +3355,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)keyDown:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return);
     moxi_interpreting_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
     [self interpretKeyEvents:@[event]];
     moxi_interpreting_modifiers = 0;
@@ -3524,6 +3364,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 /* Standard Edit menu actions also serve a focused canvas control. Native
  * field editors handle these selectors earlier in the responder chain. */
 - (void)selectAll:(id)sender {
+    MOXI_CALLBACK_SCOPE(return);
     (void)sender;
     moxi_interpreting_modifiers = MOXI_MOD_COMMAND;
     moxi_queue_key_event('a');
@@ -3531,6 +3372,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)copy:(id)sender {
+    MOXI_CALLBACK_SCOPE(return);
     (void)sender;
     moxi_interpreting_modifiers = MOXI_MOD_COMMAND;
     moxi_queue_key_event(MOXI_KEY_C);
@@ -3538,6 +3380,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)cut:(id)sender {
+    MOXI_CALLBACK_SCOPE(return);
     (void)sender;
     moxi_interpreting_modifiers = MOXI_MOD_COMMAND;
     moxi_queue_key_event(MOXI_KEY_X);
@@ -3545,6 +3388,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 }
 
 - (void)paste:(id)sender {
+    MOXI_CALLBACK_SCOPE(return);
     (void)sender;
     moxi_interpreting_modifiers = MOXI_MOD_COMMAND;
     moxi_queue_key_event(MOXI_KEY_V);
@@ -3564,6 +3408,17 @@ void moxi_window_open(
     int fullscreen
 ) {
     @autoreleasepool {
+        // The compatibility ABI has one implicit session. A second live open
+        // must never silently steal it; explicit sessions use unique handles.
+        if (moxi_window != nil) {
+            if (moxi_window_opened || moxi_current_context() != moxi_legacy_context) {
+                [NSException raise:NSInternalInconsistencyException
+                    format:@"A native session already owns a window; create a new instance"];
+            }
+            moxi_legacy_context->retired = YES;
+            moxi_legacy_context = [MoxiWindowState new];
+            moxi_active_context = moxi_legacy_context;
+        }
         moxi_native_timing_active = moxi_native_timing_from_environment();
         moxi_native_timing_reset();
         moxi_native_timing_configure_output();
@@ -3604,6 +3459,7 @@ void moxi_window_open(
                                                      backing:NSBackingStoreBuffered
                                                        defer:NO];
         moxi_delegate = [[MoxiWindowDelegate alloc] init];
+        [moxi_window setReleasedWhenClosed:NO];
         [moxi_window setDelegate:moxi_delegate];
 
         NSString *windowTitle = title == NULL
@@ -4924,14 +4780,25 @@ void moxi_window_reset_input(void) {
         moxi_canvas.nativeTextEditorValue = nil;
         moxi_canvas.synchronizingNativeTextEditor = NO;
     }
-    // AppKit may still own input that has not reached our queue. Keep window
-    // lifecycle events (including close/resize) by discarding only input masks.
+    // AppKit's queue is process-wide. Remove only this window's pending input,
+    // retaining sibling input and non-input events in their original order.
     NSEventMask input = NSEventMaskKeyDown | NSEventMaskKeyUp | NSEventMaskFlagsChanged |
         NSEventMaskLeftMouseDown | NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged |
         NSEventMaskRightMouseDown | NSEventMaskRightMouseUp | NSEventMaskRightMouseDragged |
         NSEventMaskOtherMouseDown | NSEventMaskOtherMouseUp | NSEventMaskOtherMouseDragged |
         NSEventMaskMouseMoved | NSEventMaskScrollWheel;
-    [NSApp discardEventsMatchingMask:input beforeEvent:nil];
+    NSMutableArray<NSEvent *> *retainedEvents = [NSMutableArray array];
+    NSEvent *pending;
+    while ((pending = [NSApp nextEventMatchingMask:NSEventMaskAny
+        untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES]) != nil) {
+        if (moxi_window == nil || pending.windowNumber != moxi_window.windowNumber ||
+            (input & NSEventMaskFromType(pending.type)) == 0) {
+            [retainedEvents addObject:pending];
+        }
+    }
+    for (NSEvent *retainedEvent in retainedEvents.reverseObjectEnumerator) {
+        [NSApp postEvent:retainedEvent atStart:YES];
+    }
     // Native editor cleanup above may enqueue final composition callbacks.
     // Flush those too before the replacement model can receive input.
     int read = moxi_event_queue_head;
@@ -5256,4 +5123,94 @@ int moxi_demo_exit_status(void) {
         }
         return (int)[moxi_demo_task terminationStatus];
     }
+}
+
+/* Dispose only this instance; other windows and the process event pump survive. */
+int moxi_window_destroy_instance(uint64_t handle) {
+    NSCAssert([NSThread isMainThread], @"Moxi AppKit requires the main thread");
+    for (int i = 0; i < MoxiWindowCapacity; ++i) {
+        if (handle == 0 || moxi_context_ids[i] != handle || moxi_contexts[i] == nil) continue;
+        MoxiWindowState *state = moxi_contexts[i];
+        __attribute__((cleanup(moxi_restore_context)))
+        MoxiWindowState *previousContext = moxi_active_context == state ? nil : moxi_active_context;
+        moxi_active_context = state;
+        state->retired = YES;
+        [state->menu cancelTracking];
+        state->menu = nil;
+        if (state->dialog != nil) {
+            [moxi_window endSheet:state->dialog.window returnCode:NSModalResponseCancel];
+            [state->dialog.window orderOut:nil];
+            state->dialog = nil;
+        }
+        // Retirement suppresses callbacks; close housekeeping is explicit below.
+        moxi_window_close();
+        moxi_custom_paint_cache_discard();
+        moxi_native_timing_close_output();
+        state->retired = YES;
+        [moxi_canvas.nativeTextEditor setDelegate:nil];
+        [moxi_window setDelegate:nil];
+        [moxi_window setContentView:nil];
+        moxi_accessibility_reset_storage();
+        moxi_reset_event_queue();
+        moxi_reset_commands();
+        moxi_reset_custom_commands();
+        for (int resource = 0; resource < MOXI_MAX_DRAW_COMMANDS; ++resource) {
+            moxi_registered_images[resource] = nil;
+            moxi_image_resources[resource] = nil;
+            moxi_label_paragraphs[resource] = nil;
+        }
+        moxi_canvas = nil;
+        moxi_window = nil;
+        moxi_delegate = nil;
+        moxi_contexts[i] = nil;
+        moxi_context_ids[i] = 0;
+        return 1;
+    }
+    return 0;
+}
+
+void moxi_window_set_position(float x, float y) {
+    [moxi_window setFrameTopLeftPoint:NSMakePoint(x, y)];
+}
+
+/* Portable MenuState/DialogState own policy. These are window-owned AppKit
+ * surfaces only; their results return to the same application's event stream. */
+void moxi_window_menu_begin(void) {
+    MoxiWindowState *state = moxi_current_context();
+    state->menu = [[NSMenu alloc] initWithTitle:@"Collection actions"];
+    state->menu.autoenablesItems = NO;
+    state->menuResult = -1;
+}
+void moxi_window_menu_add(const char *title, int result) {
+    MoxiWindowState *state = moxi_current_context();
+    NSMenuItem *item = [state->menu addItemWithTitle:[NSString stringWithUTF8String:title]
+        action:@selector(moxiMenuSelected:) keyEquivalent:@""];
+    item.tag = result;
+    item.target = moxi_delegate;
+}
+int moxi_window_menu_show(float x, float y) {
+    MoxiWindowState *state = moxi_current_context();
+    [state->menu popUpMenuPositioningItem:nil atLocation:NSMakePoint(x,y) inView:moxi_canvas];
+    state->menu = nil;
+    return (int)state->menuResult;
+}
+int moxi_window_dialog_show(int target, const char *title, const char *message) {
+    MoxiWindowState *state = moxi_current_context();
+    if (state->dialog != nil || !moxi_window_opened) return 0;
+    state->dialog = [NSAlert new];
+    state->dialog.messageText = [NSString stringWithUTF8String:title];
+    state->dialog.informativeText = [NSString stringWithUTF8String:message];
+    [state->dialog addButtonWithTitle:@"Apply"];
+    [state->dialog addButtonWithTitle:@"Cancel"];
+    __weak MoxiWindowState *weakOwner = state;
+    [state->dialog beginSheetModalForWindow:moxi_window completionHandler:^(NSModalResponse response) {
+        MoxiWindowState *owner = weakOwner;
+        if (owner == nil || owner->retired) return;
+        __attribute__((cleanup(moxi_restore_context)))
+        MoxiWindowState *previousContext = moxi_active_context;
+        moxi_active_context = owner;
+        owner->dialog = nil;
+        moxi_queue_semantic_action(target, response == NSAlertFirstButtonReturn ? 1 : 0);
+    }];
+    return 1;
 }

@@ -7,6 +7,9 @@ preview = ["pixi-build"]
 version = "0.6.0"
 
 [tasks]
+native-lifecycle-build = "bash scripts/native_lifecycle_build.sh"
+native-lifecycle = { cmd = "open dist/MoxiLifecycle.app", depends-on = ["native-lifecycle-build"] }
+native-lifecycle-check = "bash scripts/native_lifecycle_check.sh"
 fdg-demo-build = "bash examples/fdg/scripts/build.sh"
 fdg-demo = { cmd = "./examples/fdg/dist/moxi-fdg", depends-on = ["fdg-demo-build"] }
 fdg-check = "bash examples/fdg/scripts/check.sh"
