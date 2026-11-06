@@ -87,7 +87,10 @@ def main():
                 capture('03-pan-pause.png')
                 # Real capture loss, then Escape cancel; no injected solver state.
                 for cancel in ('capture','escape'):
-                    p=point(0,1);page.mouse.move(**p);page.mouse.down();assert pinned(0,1)==1
+                    p=point(0,1);page.mouse.move(**p);page.mouse.down()
+                    # The preceding drag can put this center beneath another
+                    # node. Cancel the actual picked node, respecting z-order.
+                    dragged=inspect()['selected'];assert dragged>=0 and pinned(0,dragged)==1
                     if cancel=='capture':
                         # Establish the pending capture, then flush its release with
                         # another pointer event (Pointer Events pending-capture rules).
@@ -95,7 +98,7 @@ def main():
                         page.locator('.moxi-surface').first.evaluate("s=>{for(let id=0;id<10;id++)if(s.hasPointerCapture(id))s.releasePointerCapture(id);}")
                         page.mouse.move(p['x']+2,p['y']+2)
                     else:page.keyboard.press('Escape')
-                    page.wait_for_function(f"{WIDGETS}[0].moxi.owner.inspect(1,4)===0");page.mouse.up()
+                    page.wait_for_function(f"{WIDGETS}[0].moxi.owner.inspect({dragged},4)===0");page.mouse.up()
                 # A real busy kernel delays ACKs while pointer feedback remains local.
                 page.evaluate("()=>{window.p04busy=window.jupyterapp.shell.currentWidget.sessionContext.session.kernel.requestExecute({code:'import time; time.sleep(1.5)',store_history:false}).done;}")
                 p=point(0,2);page.mouse.move(**p);page.mouse.down()

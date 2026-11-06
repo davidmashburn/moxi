@@ -143,6 +143,8 @@ the script supplies repeatable pointer-held, device-scale and Chromium trace tes
 No test substitutes DOM artwork or JavaScript solver results for the real app.
 The capture-loss check establishes capture and sends a subsequent pointer event
 after releasing it, following the [pending pointer capture rules](https://www.w3.org/TR/pointerevents/latest/#process-pending-pointer-capture).
+Cancellation assertions follow the actual selected node: a small drag can put its
+center beneath a neighboring node, which correctly changes the next hit target.
 A parent diagnostic observed no immediate loss event after release, then the real
 `lostpointercapture` event and cleared Mojo pin on the next pointer movement.
 
