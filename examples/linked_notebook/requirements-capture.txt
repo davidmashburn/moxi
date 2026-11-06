@@ -1,0 +1,4 @@
+# P05 optional local capture environment; widget dependencies live in pyproject.
+jupyterlab==4.4.10
+jupyterlab_widgets==3.0.16
+playwright==1.56.0
