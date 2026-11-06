@@ -5252,3 +5252,6 @@ int moxi_window_dialog_show(int target, const char *title, const char *message) 
     }];
     return 1;
 }
+
+/* Bounded owner-safe image composition (opt-in). */
+#import "macos_composition.inc"
