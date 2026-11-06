@@ -4,7 +4,8 @@ Open [index.html](index.html) after running the
 [browser check](../../../experiments/browser-moxi/README.md). It embeds every
 PNG, works offline, and provides previous/next buttons, arrow-key navigation,
 captions, per-capture metadata, and a contact sheet. Original PNGs stay alongside
-it. [manifest.json](manifest.json) records each actual capture; [evidence.json](evidence.json)
+it. [manifest.json](manifest.json) supplies the shared gallery contract;
+[captures.json](captures.json) records exact per-capture provenance; [evidence.json](evidence.json)
 records verification and timing evidence. Large images, the generated slideshow,
 and the raw Chrome paint trace stay local and are ignored by Git.
 
@@ -20,3 +21,6 @@ and captured initial/selection states. Its drag operation then failed with
 sequence therefore uses local headless Chrome via Playwright. These are actual
 browser screenshots of the compiled Moxi application; they are not native-app
 captures or screen-reader/physical-display latency evidence.
+
+Run `python3 scripts/demo_slideshows.py` from the repository root to rebuild the
+shared offline gallery from this sequence and the other available captures.

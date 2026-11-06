@@ -20,6 +20,9 @@ const sourceInputs=['browser.mojo','runtime.mjs','demo.mjs','index.html','retarg
 for(const name of sourceInputs) sourceDigest.update(name).update(await readFile(path.join(here,name)));
 const metadata = {demoId:'P01-browser-fdg',sourceRevision:revision,sourceStatus:'working tree; see sourceDigest for experiment inputs',sourceDigest:sourceDigest.digest('hex'),wasmSha256:createHash('sha256').update(await readFile(path.join(here,'dist/browser.wasm'))).digest('hex'),host:await browser.version(),captureHost:'Playwright headless Chrome; collaborative preview drag failed twice (see README)',backend:'Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost',viewport:{width:1440,height:1100,deviceScaleFactor:1},fixture:'sample_graph: 36 nodes; 100 real solver frames then Fit and Pause',command:'node experiments/browser-moxi/browser-check.mjs (see README for environment)',capturedAt:new Date().toISOString()};
 const captures=[];
+const CapturePhase = Object.freeze({initial:'initial', interaction:'interaction', result:'result', recovery:'recovery'});
+const capturePhases = [CapturePhase.initial, CapturePhase.interaction, CapturePhase.interaction,
+  CapturePhase.result, CapturePhase.result, CapturePhase.recovery, CapturePhase.recovery, CapturePhase.recovery];
 async function capture(name,action,expected){
   const file=`${String(captures.length+1).padStart(2,'0')}-${name}.png`;
   const png=await page.screenshot({path:path.join(output,file),fullPage:true});
@@ -112,7 +115,17 @@ try {
   assert.equal(await page.locator('.svg svg').count(),0);
   await capture('unsupported','Load ?unsupported to force the unsupported feature path.','A clear memory64-required error appears; no JavaScript substitute graph.');
   await writeFile(path.join(output,'evidence.json'),JSON.stringify(evidence,null,2));
-  await writeFile(path.join(output,'manifest.json'),JSON.stringify(captures,null,2));
+  await writeFile(path.join(output,'captures.json'),JSON.stringify(captures,null,2));
+  const manifest = {
+    version:1, demo_id:'browser-fdg', title:'Moxi browser FDG',
+    scenario:'P01: actual Mojo App[GraphApp] through experimental Wasm64 retargeting. Capture provenance and source hashes are in captures.json.',
+    revision, host:metadata.captureHost, backend:metadata.backend, scale:metadata.viewport.deviceScaleFactor,
+    fixture:`${metadata.fixture}; ${metadata.sourceStatus}; source SHA256 ${metadata.sourceDigest}`,
+    reproduce:metadata.command,
+    slides:captures.map((c,i)=>({phase:capturePhases[i],capture_kind:'browser',image:c.file,
+      dimensions:[c.outputPixels.width,c.outputPixels.height],caption:c.scenario,action:c.action,expected:c.expected})),
+  };
+  await writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
   const slides=[];
   for(const c of captures)slides.push(`<article><h2>${c.scenario}</h2><p>${c.action}</p><p>Expected: ${c.expected}</p><img alt="${c.scenario}" src="data:image/png;base64,${(await readFile(path.join(output,c.file))).toString('base64')}"><details><summary>Capture metadata</summary><pre>${JSON.stringify(c,null,2)}</pre></details></article>`);
   await writeFile(path.join(output,'index.html'),`<!doctype html><html lang="en"><meta charset="utf-8"><title>P01 · actual Moxi browser captures</title><style>body{font:16px system-ui;background:#edf2f6;color:#20334a;margin:24px}nav{position:sticky;top:0;background:white;padding:12px;display:flex;gap:12px}button{padding:8px}article{max-width:1100px;margin:auto}img{width:100%}pre{white-space:pre-wrap}body:not(.contact) article:not(.active){display:none}.contact main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.contact details{display:none}</style><h1>P01 · actual Mojo/Moxi browser runtime</h1><p>All eight captures are from the same automated browser session. Arrow keys navigate; Contact sheet shows the complete sequence. This file embeds its images and works offline.</p><nav><button id="prev">Previous</button><span id="position"></span><button id="next">Next</button><button id="contact">Contact sheet</button></nav><main>${slides.join('')}</main><script>const slides=[...document.querySelectorAll('article')];let current=0;function show(n){current=(n+slides.length)%slides.length;slides.forEach((s,i)=>s.classList.toggle('active',i===current));document.getElementById('position').textContent=(current+1)+' / '+slides.length;}document.getElementById('prev').onclick=()=>show(current-1);document.getElementById('next').onclick=()=>show(current+1);document.getElementById('contact').onclick=()=>document.body.classList.toggle('contact');document.onkeydown=e=>{if(e.key==='ArrowLeft')show(current-1);if(e.key==='ArrowRight')show(current+1);};show(0);</script></html>`);

@@ -1,218 +1,110 @@
-[
-  {
-    "demoId": "P01-browser-fdg",
-    "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
-    "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-    "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-    "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
-    "host": "156.0.8078.81",
-    "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
-    "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
-    "viewport": {
-      "width": 1440,
-      "height": 1100,
-      "deviceScaleFactor": 1
+{
+  "version": 1,
+  "demo_id": "browser-fdg",
+  "title": "Moxi browser FDG",
+  "scenario": "P01: actual Mojo App[GraphApp] through experimental Wasm64 retargeting. Capture provenance and source hashes are in captures.json.",
+  "revision": "5921b478e6dd9838376ed771f6965e46e76e31ad",
+  "host": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
+  "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
+  "scale": 1,
+  "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause; working tree; see sourceDigest for experiment inputs; source SHA256 0a2767c1f10d3292a8237ddf57d91130887474558f8e172263fed2256b4aaf44",
+  "reproduce": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "01-initial.png",
+      "dimensions": [
+        1440,
+        1826
+      ],
+      "caption": "initial",
+      "action": "Load the page; both existing Moxi graph apps settle, fit and pause.",
+      "expected": "Both panes contain the 36-node Mojo graph and Moxi controls."
     },
-    "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
-    "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-    "capturedAt": "2026-11-06T10:30:32.204Z",
-    "file": "01-initial.png",
-    "scenario": "initial",
-    "action": "Load the page; both existing Moxi graph apps settle, fit and pause.",
-    "expected": "Both panes contain the 36-node Mojo graph and Moxi controls.",
-    "fullPage": true,
-    "outputPixels": {
-      "width": 1440,
-      "height": 1826
-    }
-  },
-  {
-    "demoId": "P01-browser-fdg",
-    "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
-    "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-    "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-    "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
-    "host": "156.0.8078.81",
-    "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
-    "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
-    "viewport": {
-      "width": 1440,
-      "height": 1100,
-      "deviceScaleFactor": 1
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "02-dragging.png",
+      "dimensions": [
+        1440,
+        1826
+      ],
+      "caption": "dragging",
+      "action": "Click node-0; ArrowRight selects node-1; drag node-0 by 80×45 CSS pixels and hold.",
+      "expected": "Node-0 follows the pointer and is pinned while held; instance B stays unchanged."
     },
-    "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
-    "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-    "capturedAt": "2026-11-06T10:30:32.204Z",
-    "file": "02-dragging.png",
-    "scenario": "dragging",
-    "action": "Click node-0; ArrowRight selects node-1; drag node-0 by 80×45 CSS pixels and hold.",
-    "expected": "Node-0 follows the pointer and is pinned while held; instance B stays unchanged.",
-    "fullPage": true,
-    "outputPixels": {
-      "width": 1440,
-      "height": 1826
-    }
-  },
-  {
-    "demoId": "P01-browser-fdg",
-    "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
-    "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-    "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-    "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
-    "host": "156.0.8078.81",
-    "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
-    "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
-    "viewport": {
-      "width": 1440,
-      "height": 1100,
-      "deviceScaleFactor": 1
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "03-pan-zoom-resize.png",
+      "dimensions": [
+        1440,
+        1906
+      ],
+      "caption": "pan-zoom-resize",
+      "action": "Drag empty canvas left/up, wheel up 160 units, then click Resize A.",
+      "expected": "Moxi viewport and SVG resize to 720px; pan/zoom affect A only."
     },
-    "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
-    "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-    "capturedAt": "2026-11-06T10:30:32.204Z",
-    "file": "03-pan-zoom-resize.png",
-    "scenario": "pan-zoom-resize",
-    "action": "Drag empty canvas left/up, wheel up 160 units, then click Resize A.",
-    "expected": "Moxi viewport and SVG resize to 720px; pan/zoom affect A only.",
-    "fullPage": true,
-    "outputPixels": {
-      "width": 1440,
-      "height": 1906
-    }
-  },
-  {
-    "demoId": "P01-browser-fdg",
-    "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
-    "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-    "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-    "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
-    "host": "156.0.8078.81",
-    "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
-    "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
-    "viewport": {
-      "width": 1440,
-      "height": 1100,
-      "deviceScaleFactor": 1
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "04-restart.png",
+      "dimensions": [
+        1440,
+        1906
+      ],
+      "caption": "restart",
+      "action": "Use the Moxi Resume/Pause control twice, then Reheat. Animation is held for capture.",
+      "expected": "Reheat resets solver alpha and changes the Moxi control back to Pause."
     },
-    "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
-    "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-    "capturedAt": "2026-11-06T10:30:32.204Z",
-    "file": "04-restart.png",
-    "scenario": "restart",
-    "action": "Use the Moxi Resume/Pause control twice, then Reheat. Animation is held for capture.",
-    "expected": "Reheat resets solver alpha and changes the Moxi control back to Pause.",
-    "fullPage": true,
-    "outputPixels": {
-      "width": 1440,
-      "height": 1906
-    }
-  },
-  {
-    "demoId": "P01-browser-fdg",
-    "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
-    "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-    "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-    "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
-    "host": "156.0.8078.81",
-    "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
-    "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
-    "viewport": {
-      "width": 1440,
-      "height": 1100,
-      "deviceScaleFactor": 1
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "05-two-instances.png",
+      "dimensions": [
+        1440,
+        1906
+      ],
+      "caption": "two-instances",
+      "action": "Click the Moxi search field, type node-12, and press Enter.",
+      "expected": "Moxi text/key dispatch selects node-12; B retains its initial state."
     },
-    "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
-    "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-    "capturedAt": "2026-11-06T10:30:32.204Z",
-    "file": "05-two-instances.png",
-    "scenario": "two-instances",
-    "action": "Click the Moxi search field, type node-12, and press Enter.",
-    "expected": "Moxi text/key dispatch selects node-12; B retains its initial state.",
-    "fullPage": true,
-    "outputPixels": {
-      "width": 1440,
-      "height": 1906
-    }
-  },
-  {
-    "demoId": "P01-browser-fdg",
-    "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
-    "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-    "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-    "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
-    "host": "156.0.8078.81",
-    "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
-    "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
-    "viewport": {
-      "width": 1440,
-      "height": 1100,
-      "deviceScaleFactor": 1
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "06-disposed.png",
+      "dimensions": [
+        1440,
+        1906
+      ],
+      "caption": "disposed",
+      "action": "Click Dispose A.",
+      "expected": "A has no rendered graph or accessibility overlay; B remains live."
     },
-    "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
-    "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-    "capturedAt": "2026-11-06T10:30:32.204Z",
-    "file": "06-disposed.png",
-    "scenario": "disposed",
-    "action": "Click Dispose A.",
-    "expected": "A has no rendered graph or accessibility overlay; B remains live.",
-    "fullPage": true,
-    "outputPixels": {
-      "width": 1440,
-      "height": 1906
-    }
-  },
-  {
-    "demoId": "P01-browser-fdg",
-    "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
-    "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-    "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-    "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
-    "host": "156.0.8078.81",
-    "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
-    "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
-    "viewport": {
-      "width": 1440,
-      "height": 1100,
-      "deviceScaleFactor": 1
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "07-recreated.png",
+      "dimensions": [
+        1440,
+        1906
+      ],
+      "caption": "recreated",
+      "action": "Click Recreate A; attempt teardown with the old raw handle.",
+      "expected": "New independent state appears; stale handle returns invalid-handle without affecting it."
     },
-    "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
-    "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-    "capturedAt": "2026-11-06T10:30:32.204Z",
-    "file": "07-recreated.png",
-    "scenario": "recreated",
-    "action": "Click Recreate A; attempt teardown with the old raw handle.",
-    "expected": "New independent state appears; stale handle returns invalid-handle without affecting it.",
-    "fullPage": true,
-    "outputPixels": {
-      "width": 1440,
-      "height": 1906
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "08-unsupported.png",
+      "dimensions": [
+        1440,
+        1860
+      ],
+      "caption": "unsupported",
+      "action": "Load ?unsupported to force the unsupported feature path.",
+      "expected": "A clear memory64-required error appears; no JavaScript substitute graph."
     }
-  },
-  {
-    "demoId": "P01-browser-fdg",
-    "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
-    "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-    "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-    "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
-    "host": "156.0.8078.81",
-    "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
-    "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
-    "viewport": {
-      "width": 1440,
-      "height": 1100,
-      "deviceScaleFactor": 1
-    },
-    "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
-    "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-    "capturedAt": "2026-11-06T10:30:32.204Z",
-    "file": "08-unsupported.png",
-    "scenario": "unsupported",
-    "action": "Load ?unsupported to force the unsupported feature path.",
-    "expected": "A clear memory64-required error appears; no JavaScript substitute graph.",
-    "fullPage": true,
-    "outputPixels": {
-      "width": 1440,
-      "height": 1860
-    }
-  }
-]
+  ]
+}

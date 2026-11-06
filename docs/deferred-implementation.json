@@ -35,7 +35,7 @@
     {
       "id": "F02",
       "scope": "Native ownership and lifecycle: instance-owned window state or an explicitly enforced bounded profile, then prove two windows cannot cross-route events/resources. Cover deep collection editing, native menu/dialog lifecycle, drag/drop, and automated AX assertions incrementally. Existing portable menu/dialog models are reused.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],
@@ -44,11 +44,24 @@
     {
       "id": "P01",
       "scope": "[Browser execution](docs/design/browser-execution.md): preserve the FDG probe, establish safe handles/capacity/runtime/toolchain boundaries, then connect actual Moxi events, scene output, rendering, semantics, and lifecycle. Define a supported subset before calling it a web target.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "implemented",
+      "commits": [
+        "5921b47"
+      ],
+      "verification": [
+        "Parent rebuilt the integrated branch with the pinned Mojo/Clang/LLD toolchain; 6371 native/Wasm comparisons passed, maximum absolute SVG error 0.000200000000177 within the declared tolerance.",
+        "Runtime intrinsic/ABI checks, bounded input/capacity checks, stale handles, isolated instances, exhaustion and 100 teardown cycles passed; zero tracked live allocations after normal teardown.",
+        "Parent reran actual browser mouse/keyboard/wheel/resize/disposal/recreation/unsupported-runtime scenarios; eight fresh captures and offline slideshow assertions passed.",
+        "Shared gallery validated both F01 and P01 manifests; parent visually inspected all eight P01 captures."
+      ],
+      "remaining_gates": [
+        "Experimental host LLVM retargeting only: direct Mojo Wasm compilation fails, and general ABI/compiler portability is not established.",
+        "Safari/Firefox, human IME/screen-reader acceptance, physical display latency and notebook integration are not verified.",
+        "Full repository/release CI was not rerun for this isolated experiment."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/browser-fdg/index.html"
+      ]
     },
     {
       "id": "P02",

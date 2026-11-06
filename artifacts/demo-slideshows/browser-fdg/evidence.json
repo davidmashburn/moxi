@@ -1,9 +1,9 @@
 {
   "demoId": "P01-browser-fdg",
-  "sourceRevision": "6c92242645cf94bc9900b6c0bcc3581f965b4616",
+  "sourceRevision": "5921b478e6dd9838376ed771f6965e46e76e31ad",
   "sourceStatus": "working tree; see sourceDigest for experiment inputs",
-  "sourceDigest": "ae4fb89075c48f353e93b250fb4413012040c8bb9dba0f29369712d6e8bd6d6d",
-  "wasmSha256": "e073cbfb23ea9909751306705f86ae6ead82242f52c8e0d6064366e8a1dd42e6",
+  "sourceDigest": "0a2767c1f10d3292a8237ddf57d91130887474558f8e172263fed2256b4aaf44",
+  "wasmSha256": "e18fe1a34e08dce94a34b868a63f2c65c6213a6f751fca33286928bad9303415",
   "host": "156.0.8078.81",
   "captureHost": "Playwright headless Chrome; collaborative preview drag failed twice (see README)",
   "backend": "Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost",
@@ -14,7 +14,7 @@
   },
   "fixture": "sample_graph: 36 nodes; 100 real solver frames then Fit and Pause",
   "command": "node experiments/browser-moxi/browser-check.mjs (see README for environment)",
-  "capturedAt": "2026-11-06T10:30:32.204Z",
+  "capturedAt": "2026-11-06T10:38:27.166Z",
   "sourceInputs": [
     "browser.mojo",
     "runtime.mjs",
@@ -61,8 +61,8 @@
       },
       "sceneAndSerialization": {
         "samples": 100,
-        "medianMs": 0.3999999761581421,
-        "p95Ms": 0.5
+        "medianMs": 0.30000001192092896,
+        "p95Ms": 0.40000003576278687
       },
       "transfer": {
         "samples": 100,
@@ -75,11 +75,11 @@
       "allocations": 40339,
       "liveAllocations": 0,
       "liveBytes": 0,
-      "heapHighWater": 5687760,
+      "heapHighWater": 5687568,
       "memoryBytes": 5701632,
       "instances": 0,
-      "wasmBytes": 533498,
-      "startupMs": 0.699999988079071,
+      "wasmBytes": 533658,
+      "startupMs": 0.6000000238418579,
       "imports": [
         "moxi_text_size",
         "moxi_text_byte",
@@ -112,515 +112,515 @@
     },
     "frames": [
       {
-        "sceneMs": 9.699999928474426,
-        "transferMs": 0.20000004768371582,
-        "domSubmitMs": 7.399999976158142
-      },
-      {
-        "sceneMs": 2.300000011920929,
+        "sceneMs": 5.5,
         "transferMs": 0,
-        "domSubmitMs": 2.899999976158142
-      },
-      {
-        "sceneMs": 1.199999988079071,
-        "transferMs": 0,
-        "domSubmitMs": 2.300000011920929
-      },
-      {
-        "sceneMs": 1.800000011920929,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1.699999988079071
-      },
-      {
-        "sceneMs": 1.2999999523162842,
-        "transferMs": 0,
-        "domSubmitMs": 2
-      },
-      {
-        "sceneMs": 1.399999976158142,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1.600000023841858
-      },
-      {
-        "sceneMs": 1,
-        "transferMs": 0,
-        "domSubmitMs": 2.800000011920929
-      },
-      {
-        "sceneMs": 1.199999988079071,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1.7999999523162842
-      },
-      {
-        "sceneMs": 1,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1.699999988079071
-      },
-      {
-        "sceneMs": 1,
-        "transferMs": 0,
-        "domSubmitMs": 1.7999999523162842
-      },
-      {
-        "sceneMs": 1,
-        "transferMs": 0.09999996423721313,
-        "domSubmitMs": 1.100000023841858
+        "domSubmitMs": 5.100000023841858
       },
       {
         "sceneMs": 1.699999988079071,
         "transferMs": 0,
-        "domSubmitMs": 1.0999999642372131
+        "domSubmitMs": 1.899999976158142
       },
       {
-        "sceneMs": 0.800000011920929,
-        "transferMs": 0.09999996423721313,
-        "domSubmitMs": 1.4000000357627869
-      },
-      {
-        "sceneMs": 0.9000000357627869,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 1,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 1,
-        "transferMs": 0,
-        "domSubmitMs": 0.8999999761581421
-      },
-      {
-        "sceneMs": 0.8999999761581421,
+        "sceneMs": 0.5,
         "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1
+        "domSubmitMs": 1.899999976158142
       },
       {
-        "sceneMs": 0.8999999761581421,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.8999999761581421,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 1,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.800000011920929,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.800000011920929,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1.5
-      },
-      {
-        "sceneMs": 0.9000000357627869,
-        "transferMs": 0.09999996423721313,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.8999999761581421,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.9000000357627869,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.8999999761581421,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 0.8999999761581421
-      },
-      {
-        "sceneMs": 0.9000000357627869,
-        "transferMs": 0.09999996423721313,
-        "domSubmitMs": 0.800000011920929
-      },
-      {
-        "sceneMs": 0.8999999761581421,
-        "transferMs": 0,
-        "domSubmitMs": 1.100000023841858
-      },
-      {
-        "sceneMs": 0.699999988079071,
-        "transferMs": 0.09999996423721313,
-        "domSubmitMs": 1.4000000357627869
-      },
-      {
-        "sceneMs": 0.699999988079071,
+        "sceneMs": 0.7000000476837158,
         "transferMs": 0.09999996423721313,
         "domSubmitMs": 0.9000000357627869
       },
       {
+        "sceneMs": 0.6000000238418579,
+        "transferMs": 0,
+        "domSubmitMs": 1.399999976158142
+      },
+      {
+        "sceneMs": 0.6000000238418579,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
         "sceneMs": 0.800000011920929,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 1.399999976158142
+      },
+      {
+        "sceneMs": 0.5999999642372131,
+        "transferMs": 0,
+        "domSubmitMs": 1
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 1.199999988079071
+      },
+      {
+        "sceneMs": 0.40000003576278687,
         "transferMs": 0,
         "domSubmitMs": 1.0999999642372131
       },
       {
-        "sceneMs": 0.9000000357627869,
-        "transferMs": 0,
-        "domSubmitMs": 1.2999999523162842
+        "sceneMs": 0.40000003576278687,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 0.6000000238418579
       },
       {
-        "sceneMs": 0.7000000476837158,
+        "sceneMs": 0.800000011920929,
         "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.6000000238418579,
-        "transferMs": 0,
-        "domSubmitMs": 0.8999999761581421
-      },
-      {
-        "sceneMs": 0.7000000476837158,
-        "transferMs": 0,
-        "domSubmitMs": 0.8999999761581421
+        "domSubmitMs": 0.5999999642372131
       },
       {
         "sceneMs": 0.699999988079071,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1.300000011920929
-      },
-      {
-        "sceneMs": 0.800000011920929,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.7000000476837158,
         "transferMs": 0,
         "domSubmitMs": 0.8999999761581421
       },
       {
-        "sceneMs": 0.7000000476837158,
-        "transferMs": 0.09999996423721313,
-        "domSubmitMs": 1.300000011920929
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.7000000476837158
       },
       {
-        "sceneMs": 0.800000011920929,
+        "sceneMs": 0.5,
         "transferMs": 0,
-        "domSubmitMs": 1.100000023841858
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5999999642372131,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.5999999642372131,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.5999999642372131,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.5999999642372131
       },
       {
         "sceneMs": 0.7999999523162842,
         "transferMs": 0,
-        "domSubmitMs": 0.800000011920929
-      },
-      {
-        "sceneMs": 0.5999999642372131,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1.5999999642372131
-      },
-      {
-        "sceneMs": 0.699999988079071,
-        "transferMs": 0,
-        "domSubmitMs": 0.9000000357627869
-      },
-      {
-        "sceneMs": 0.800000011920929,
-        "transferMs": 0.10000002384185791,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.699999988079071,
-        "transferMs": 0,
-        "domSubmitMs": 0.8999999761581421
-      },
-      {
-        "sceneMs": 0.5999999642372131,
-        "transferMs": 0.10000002384185791,
         "domSubmitMs": 1
       },
       {
         "sceneMs": 0.6000000238418579,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
         "transferMs": 0.09999996423721313,
-        "domSubmitMs": 0.800000011920929
-      },
-      {
-        "sceneMs": 0.699999988079071,
-        "transferMs": 0,
-        "domSubmitMs": 1.0999999642372131
-      },
-      {
-        "sceneMs": 0.9000000357627869,
-        "transferMs": 0,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.699999988079071,
-        "transferMs": 0,
-        "domSubmitMs": 0.8999999761581421
-      },
-      {
-        "sceneMs": 0.7000000476837158,
-        "transferMs": 0,
-        "domSubmitMs": 0.8999999761581421
-      },
-      {
-        "sceneMs": 0.699999988079071,
-        "transferMs": 0,
-        "domSubmitMs": 1.0999999642372131
-      },
-      {
-        "sceneMs": 0.7000000476837158,
-        "transferMs": 0,
-        "domSubmitMs": 1
+        "domSubmitMs": 0.6000000238418579
       },
       {
         "sceneMs": 0.6000000238418579,
         "transferMs": 0,
-        "domSubmitMs": 1.199999988079071
+        "domSubmitMs": 0.699999988079071
       },
       {
-        "sceneMs": 0.699999988079071,
+        "sceneMs": 0.5,
         "transferMs": 0,
-        "domSubmitMs": 0.800000011920929
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
       },
       {
         "sceneMs": 0.5999999642372131,
         "transferMs": 0,
-        "domSubmitMs": 1.199999988079071
-      },
-      {
-        "sceneMs": 0.6000000238418579,
-        "transferMs": 0,
-        "domSubmitMs": 0.8999999761581421
-      },
-      {
-        "sceneMs": 0.6000000238418579,
-        "transferMs": 0.09999996423721313,
-        "domSubmitMs": 1
-      },
-      {
-        "sceneMs": 0.8999999761581421,
-        "transferMs": 0,
-        "domSubmitMs": 1.5
-      },
-      {
-        "sceneMs": 0.699999988079071,
-        "transferMs": 0.10000002384185791,
         "domSubmitMs": 1.100000023841858
       },
       {
-        "sceneMs": 0.800000011920929,
+        "sceneMs": 0.5999999642372131,
         "transferMs": 0,
-        "domSubmitMs": 1.300000011920929
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.5999999642372131
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.5
+      },
+      {
+        "sceneMs": 0.3999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.3999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0.09999996423721313,
+        "domSubmitMs": 0.5
+      },
+      {
+        "sceneMs": 0.699999988079071,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.3999999761581421,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 1.0999999642372131
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.40000003576278687,
+        "transferMs": 0.19999998807907104,
+        "domSubmitMs": 0.5999999642372131
+      },
+      {
+        "sceneMs": 0.3999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 0.800000011920929
+      },
+      {
+        "sceneMs": 0.3999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.3999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.699999988079071
+      },
+      {
+        "sceneMs": 0.40000003576278687,
+        "transferMs": 0,
+        "domSubmitMs": 0.5999999642372131
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.7000000476837158
+      },
+      {
+        "sceneMs": 0.3999999761581421,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.6000000238418579
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.8999999761581421
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0.10000002384185791,
+        "domSubmitMs": 0.5999999642372131
+      },
+      {
+        "sceneMs": 0.5,
+        "transferMs": 0,
+        "domSubmitMs": 0.9000000357627869
       }
     ],
     "inputSamples": [
       {
-        "inputToDomMs": 4.400000035762787,
-        "inputToNextAnimationFrameMs": 24.5
-      },
-      {
-        "inputToDomMs": 3.599999964237213,
-        "inputToNextAnimationFrameMs": 16.5
-      },
-      {
-        "inputToDomMs": 2.899999976158142,
-        "inputToNextAnimationFrameMs": 11.5
-      },
-      {
-        "inputToDomMs": 2.899999976158142,
-        "inputToNextAnimationFrameMs": 4.199999988079071
-      },
-      {
-        "inputToDomMs": 2.199999988079071,
-        "inputToNextAnimationFrameMs": 2.299999952316284
-      },
-      {
-        "inputToDomMs": 2.799999952316284,
-        "inputToNextAnimationFrameMs": 13.599999964237213
-      },
-      {
-        "inputToDomMs": 2.5,
-        "inputToNextAnimationFrameMs": 2.899999976158142
-      },
-      {
-        "inputToDomMs": 2,
-        "inputToNextAnimationFrameMs": 2.699999988079071
-      },
-      {
-        "inputToDomMs": 2.100000023841858,
-        "inputToNextAnimationFrameMs": 3
-      },
-      {
-        "inputToDomMs": 2.100000023841858,
-        "inputToNextAnimationFrameMs": 2.900000035762787
-      },
-      {
-        "inputToDomMs": 2,
-        "inputToNextAnimationFrameMs": 2.799999952316284
-      },
-      {
-        "inputToDomMs": 2.099999964237213,
-        "inputToNextAnimationFrameMs": 2.800000011920929
-      },
-      {
-        "inputToDomMs": 2.099999964237213,
-        "inputToNextAnimationFrameMs": 10.300000011920929
-      },
-      {
-        "inputToDomMs": 2.099999964237213,
-        "inputToNextAnimationFrameMs": 3
-      },
-      {
-        "inputToDomMs": 1.9000000357627869,
-        "inputToNextAnimationFrameMs": 15.199999988079071
-      },
-      {
-        "inputToDomMs": 2.400000035762787,
-        "inputToNextAnimationFrameMs": 2.699999988079071
-      },
-      {
-        "inputToDomMs": 2.100000023841858,
-        "inputToNextAnimationFrameMs": 3
-      },
-      {
-        "inputToDomMs": 2,
-        "inputToNextAnimationFrameMs": 2.699999988079071
-      },
-      {
-        "inputToDomMs": 2,
-        "inputToNextAnimationFrameMs": 3
-      },
-      {
-        "inputToDomMs": 2,
-        "inputToNextAnimationFrameMs": 2.900000035762787
-      },
-      {
-        "inputToDomMs": 1.800000011920929,
-        "inputToNextAnimationFrameMs": 11.899999976158142
-      },
-      {
-        "inputToDomMs": 2.199999988079071,
-        "inputToNextAnimationFrameMs": 2.199999988079071
-      },
-      {
-        "inputToDomMs": 1.800000011920929,
-        "inputToNextAnimationFrameMs": 14.100000023841858
+        "inputToDomMs": 2.600000023841858,
+        "inputToNextAnimationFrameMs": 15.700000047683716
       },
       {
         "inputToDomMs": 1.899999976158142,
-        "inputToNextAnimationFrameMs": 11.600000023841858
+        "inputToNextAnimationFrameMs": 9.800000011920929
       },
       {
-        "inputToDomMs": 2.299999952316284,
-        "inputToNextAnimationFrameMs": 9.5
-      },
-      {
-        "inputToDomMs": 1.7000000476837158,
-        "inputToNextAnimationFrameMs": 5.700000047683716
-      },
-      {
-        "inputToDomMs": 1.5,
-        "inputToNextAnimationFrameMs": 3.600000023841858
+        "inputToDomMs": 2,
+        "inputToNextAnimationFrameMs": 6.700000047683716
       },
       {
         "inputToDomMs": 1.699999988079071,
-        "inputToNextAnimationFrameMs": 1.800000011920929
+        "inputToNextAnimationFrameMs": 9.399999976158142
       },
       {
-        "inputToDomMs": 2.100000023841858,
-        "inputToNextAnimationFrameMs": 9
+        "inputToDomMs": 1.100000023841858,
+        "inputToNextAnimationFrameMs": 1.5
       },
       {
-        "inputToDomMs": 1.800000011920929,
-        "inputToNextAnimationFrameMs": 6.5
-      },
-      {
-        "inputToDomMs": 1.800000011920929,
-        "inputToNextAnimationFrameMs": 4.5
-      },
-      {
-        "inputToDomMs": 2.100000023841858,
-        "inputToNextAnimationFrameMs": 16
-      },
-      {
-        "inputToDomMs": 1.9000000357627869,
-        "inputToNextAnimationFrameMs": 13.5
-      },
-      {
-        "inputToDomMs": 1.5999999642372131,
-        "inputToNextAnimationFrameMs": 11.299999952316284
-      },
-      {
-        "inputToDomMs": 2.799999952316284,
-        "inputToNextAnimationFrameMs": 8.799999952316284
-      },
-      {
-        "inputToDomMs": 1.7000000476837158,
-        "inputToNextAnimationFrameMs": 6
-      },
-      {
-        "inputToDomMs": 1.9000000357627869,
-        "inputToNextAnimationFrameMs": 3.699999988079071
-      },
-      {
-        "inputToDomMs": 1.5999999642372131,
-        "inputToNextAnimationFrameMs": 1.7999999523162842
+        "inputToDomMs": 1.399999976158142,
+        "inputToNextAnimationFrameMs": 16.19999998807907
       },
       {
         "inputToDomMs": 1.699999988079071,
-        "inputToNextAnimationFrameMs": 15.599999964237213
-      },
-      {
-        "inputToDomMs": 1.5,
-        "inputToNextAnimationFrameMs": 13.899999976158142
-      },
-      {
-        "inputToDomMs": 1.7999999523162842,
-        "inputToNextAnimationFrameMs": 11.799999952316284
-      },
-      {
-        "inputToDomMs": 1.9000000357627869,
-        "inputToNextAnimationFrameMs": 10
-      },
-      {
-        "inputToDomMs": 1.699999988079071,
-        "inputToNextAnimationFrameMs": 7.699999988079071
-      },
-      {
-        "inputToDomMs": 1.600000023841858,
-        "inputToNextAnimationFrameMs": 6
-      },
-      {
-        "inputToDomMs": 1.899999976158142,
-        "inputToNextAnimationFrameMs": 3.899999976158142
-      },
-      {
-        "inputToDomMs": 1.7000000476837158,
         "inputToNextAnimationFrameMs": 2
       },
       {
-        "inputToDomMs": 1.899999976158142,
-        "inputToNextAnimationFrameMs": 31.19999998807907
+        "inputToDomMs": 1.2000000476837158,
+        "inputToNextAnimationFrameMs": 1.800000011920929
       },
       {
-        "inputToDomMs": 1.5,
-        "inputToNextAnimationFrameMs": 29.30000001192093
+        "inputToDomMs": 1.100000023841858,
+        "inputToNextAnimationFrameMs": 1.699999988079071
+      },
+      {
+        "inputToDomMs": 1.300000011920929,
+        "inputToNextAnimationFrameMs": 1.800000011920929
+      },
+      {
+        "inputToDomMs": 1.4000000357627869,
+        "inputToNextAnimationFrameMs": 1.9000000357627869
+      },
+      {
+        "inputToDomMs": 1.4000000357627869,
+        "inputToNextAnimationFrameMs": 2
+      },
+      {
+        "inputToDomMs": 1.2999999523162842,
+        "inputToNextAnimationFrameMs": 13.599999964237213
+      },
+      {
+        "inputToDomMs": 1.399999976158142,
+        "inputToNextAnimationFrameMs": 1.899999976158142
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 17
       },
       {
         "inputToDomMs": 1.7999999523162842,
-        "inputToNextAnimationFrameMs": 26.899999976158142
+        "inputToNextAnimationFrameMs": 2.099999964237213
+      },
+      {
+        "inputToDomMs": 1.4000000357627869,
+        "inputToNextAnimationFrameMs": 1.9000000357627869
+      },
+      {
+        "inputToDomMs": 1.300000011920929,
+        "inputToNextAnimationFrameMs": 1.800000011920929
+      },
+      {
+        "inputToDomMs": 1.300000011920929,
+        "inputToNextAnimationFrameMs": 1.9000000357627869
+      },
+      {
+        "inputToDomMs": 1.300000011920929,
+        "inputToNextAnimationFrameMs": 1.699999988079071
+      },
+      {
+        "inputToDomMs": 1.100000023841858,
+        "inputToNextAnimationFrameMs": 13.900000035762787
+      },
+      {
+        "inputToDomMs": 1.2000000476837158,
+        "inputToNextAnimationFrameMs": 1.300000011920929
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 9.199999988079071
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 7.399999976158142
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 6
+      },
+      {
+        "inputToDomMs": 1.0999999642372131,
+        "inputToNextAnimationFrameMs": 3.899999976158142
+      },
+      {
+        "inputToDomMs": 1.2000000476837158,
+        "inputToNextAnimationFrameMs": 2.600000023841858
+      },
+      {
+        "inputToDomMs": 1,
+        "inputToNextAnimationFrameMs": 1.199999988079071
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 13.899999976158142
+      },
+      {
+        "inputToDomMs": 1,
+        "inputToNextAnimationFrameMs": 12.5
+      },
+      {
+        "inputToDomMs": 1.0999999642372131,
+        "inputToNextAnimationFrameMs": 11.300000011920929
       },
       {
         "inputToDomMs": 1.5,
-        "inputToNextAnimationFrameMs": 25.100000023841858
+        "inputToNextAnimationFrameMs": 14
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 12.199999988079071
+      },
+      {
+        "inputToDomMs": 1.100000023841858,
+        "inputToNextAnimationFrameMs": 10.800000011920929
       },
       {
         "inputToDomMs": 2,
-        "inputToNextAnimationFrameMs": 23.600000023841858
+        "inputToNextAnimationFrameMs": 9.100000023841858
+      },
+      {
+        "inputToDomMs": 1.300000011920929,
+        "inputToNextAnimationFrameMs": 7
+      },
+      {
+        "inputToDomMs": 1.300000011920929,
+        "inputToNextAnimationFrameMs": 5.400000035762787
+      },
+      {
+        "inputToDomMs": 1.100000023841858,
+        "inputToNextAnimationFrameMs": 4.100000023841858
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 2.699999988079071
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 1.5
+      },
+      {
+        "inputToDomMs": 1.300000011920929,
+        "inputToNextAnimationFrameMs": 14.200000047683716
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 12.900000035762787
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 11.300000011920929
+      },
+      {
+        "inputToDomMs": 1,
+        "inputToNextAnimationFrameMs": 10.100000023841858
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 8.800000011920929
+      },
+      {
+        "inputToDomMs": 1,
+        "inputToNextAnimationFrameMs": 7.600000023841858
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 6.400000035762787
+      },
+      {
+        "inputToDomMs": 1,
+        "inputToNextAnimationFrameMs": 5.200000047683716
+      },
+      {
+        "inputToDomMs": 1.2000000476837158,
+        "inputToNextAnimationFrameMs": 3.700000047683716
+      },
+      {
+        "inputToDomMs": 1,
+        "inputToNextAnimationFrameMs": 2.5
+      },
+      {
+        "inputToDomMs": 1.199999988079071,
+        "inputToNextAnimationFrameMs": 1.5
       }
     ],
     "runtime": {
@@ -629,11 +629,11 @@
       "allocations": 22931,
       "liveAllocations": 44,
       "liveBytes": 122448,
-      "heapHighWater": 942848,
+      "heapHighWater": 942656,
       "memoryBytes": 983040,
       "instances": 2,
-      "wasmBytes": 533498,
-      "startupMs": 4.800000011920929,
+      "wasmBytes": 533658,
+      "startupMs": 2.899999976158142,
       "imports": [
         "moxi_text_size",
         "moxi_text_byte",
@@ -668,9 +668,9 @@
   "paint": {
     "source": "Chrome devtools.timeline Paint events; CPU paint work, not GPU/display latency; per-event statistics, not per-frame",
     "count": 2280,
-    "totalMs": 73.44100000000024,
+    "totalMs": 63.013999999999946,
     "medianMs": 0.002,
-    "p95Ms": 0.299
+    "p95Ms": 0.22
   },
   "interaction": "real mouse, keyboard, wheel and DOM button inputs",
   "errors": []
