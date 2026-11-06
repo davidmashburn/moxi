@@ -89,7 +89,11 @@ def main():
                 for cancel in ('capture','escape'):
                     p=point(0,1);page.mouse.move(**p);page.mouse.down();assert pinned(0,1)==1
                     if cancel=='capture':
+                        # Establish the pending capture, then flush its release with
+                        # another pointer event (Pointer Events pending-capture rules).
+                        page.mouse.move(p['x']+1,p['y']+1)
                         page.locator('.moxi-surface').first.evaluate("s=>{for(let id=0;id<10;id++)if(s.hasPointerCapture(id))s.releasePointerCapture(id);}")
+                        page.mouse.move(p['x']+2,p['y']+2)
                     else:page.keyboard.press('Escape')
                     page.wait_for_function(f"{WIDGETS}[0].moxi.owner.inspect(1,4)===0");page.mouse.up()
                 # A real busy kernel delays ACKs while pointer feedback remains local.

@@ -141,6 +141,10 @@ It extends P03's explicitly documented Playwright workflow. The T3 collaborative
 preview is used first and contributes its own actual initial/selection captures;
 the script supplies repeatable pointer-held, device-scale and Chromium trace tests.
 No test substitutes DOM artwork or JavaScript solver results for the real app.
+The capture-loss check establishes capture and sends a subsequent pointer event
+after releasing it, following the [pending pointer capture rules](https://www.w3.org/TR/pointerevents/latest/#process-pending-pointer-capture).
+A parent diagnostic observed no immediate loss event after release, then the real
+`lostpointercapture` event and cleared Mojo pin on the next pointer movement.
 
 [The manifest and evidence](../../../artifacts/demo-slideshows/fdg-inline-notebook/README.md)
 record screenshots, source/binary hashes, versions, measured distributions and
