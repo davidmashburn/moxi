@@ -87,6 +87,11 @@ reachable through the content portal. See the
 [authoring lessons](../examples/authoring/README.md) for the learning sequence,
 reset contract, and retained lower-level examples.
 
+The [Not implemented pattern](not-implemented-pattern.md) page demonstrates two
+independent inert informational components, working surrounding controls, and
+host-owned replacement by an implemented counter. It is a runnable lesson about
+composition, not a substitute catalog entry for another unfinished feature.
+
 ## Editable source and hot reload
 
 `examples/editable_showcase.mojo` is the first explicitly reloadable script.

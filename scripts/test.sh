@@ -18,6 +18,7 @@ tests=(
   examples/authoring/workspace_check.mojo
   examples/authoring/draft_revert_check.mojo
   tests/component.mojo
+  tests/not_implemented.mojo
   tests/counter.mojo
   tests/form.mojo
   tests/headless.mojo

@@ -6,6 +6,8 @@ from std.collections import List
 
 from moxi.scenarios import SCENARIO_NONE, canonical_scenarios
 from .demo_style import (
+    DEMO_NOT_IMPLEMENTED_ID,
+    DEMO_PAGE_NOT_IMPLEMENTED,
     DEMO_EDITORS_ID,
     DEMO_PAGE_EDITORS,
     DEMO_SHARED_ID,
@@ -260,6 +262,17 @@ struct DemoCatalog:
             DEMO_PAGE_CAPABILITY_WALKTHROUGH,
             True,
             "struct CapabilityWalkthroughState(Component):\n    var bus: CapabilityBus\n    var step: Int\n\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 20.0, 12.0)\n        root.add_label(1, self.step_title(), 30.0)\n        root.add_progress(4, \"Walkthrough progress\", Float32(self.step + 1) / 10.0, 32.0)\n        root.add_button(6, \"Next\", 40.0)\n        root.layout()\n        return root^\n\n    def update(mut self, event: Event, view: ColumnView) -> Bool:\n        var request = CapabilityInvocation(\"next-1\", \"walkthrough.next\", CALLER_UI, \"{}\")\n        var result = self.bus.invoke_handler(self.next_handler, request)\n        if result.completed():\n            self.step += 1\n        return result.completed()\n\n    def approve_agent_reset(mut self, request: CapabilityInvocation):\n        var approval = self.bus.issue_approval(request, \"capability-walkthrough-confirmation\")\n        request.set_approval(approval)\n\nvar app = App[CapabilityWalkthroughState](CapabilityWalkthroughState(), bounds)",
+        ))
+        self.entries.append(DemoEntry(
+            DEMO_NOT_IMPLEMENTED_ID,
+            "Not implemented pattern",
+            DEMO_CATEGORY_COMPONENTS,
+            "Inert unfinished-feature content with wrapped text, independent instances, and working host controls.",
+            "examples/not_implemented.mojo",
+            "not-implemented-demo",
+            DEMO_PAGE_NOT_IMPLEMENTED,
+            True,
+            "from moxi.not_implemented import NotImplemented\nfrom moxi.component import ComponentSlot\n\nvar slot = ComponentSlot(\n    NotImplemented(\n        \"Report export\",\n        \"This application has no report exporter yet.\",\n    ), slot_id=10, id_offset=100,\n)\nvar child = slot.build(bounds)\nroot.add_component_view_to(\n    -1, slot.slot_id, child, slot.id_offset,\n)",
         ))
         self.entries.append(DemoEntry(
             DEMO_ROW_ID,

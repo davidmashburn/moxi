@@ -78,6 +78,8 @@ interactive-fractal-demo = { cmd = "./dist/moxi-interactive-fractal-demo", depen
 fractal-benchmark-clock = "clang -O3 -Wall -Wextra -Werror -c native/benchmark_clock.c -o native/benchmark_clock.o"
 fractal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker native/benchmark_clock.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation benchmarks/interactive_fractal.mojo -o dist/moxi-fractal-benchmark", depends-on = ["native-object", "metal-object", "fractal-benchmark-clock"] }
 fractal-benchmark = { cmd = "./dist/moxi-fractal-benchmark", depends-on = ["fractal-benchmark-build"] }
+not-implemented-demo-build = { cmd = "mkdir -p dist && mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/not_implemented.mojo -o dist/moxi-not-implemented-demo", depends-on = ["native-object"] }
+not-implemented-demo = { cmd = "./dist/moxi-not-implemented-demo", depends-on = ["not-implemented-demo-build"] }
 demo-catalog-check = "bash scripts/demo_catalog_check.sh"
 scenario-check = "bash scripts/scenario_check.sh"
 api-status-check = "bash scripts/api_status_check.sh"

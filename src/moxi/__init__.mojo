@@ -746,3 +746,5 @@ def moxi_version() -> String:
 
 from .frame import SurfaceMetrics, FrameResource, FramePacket, FrameHost, FrameRenderer, submit_frame
 from .event_replay import EventReplay, event_to_json, event_from_json, event_replay_from_json
+
+from .not_implemented import NotImplemented

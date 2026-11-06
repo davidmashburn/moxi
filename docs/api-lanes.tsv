@@ -84,3 +84,4 @@ experimental_api	experimental	focused optional integration path
 content_layout	provisional	explicit content and weighted fill layout
 frame	provisional	portable frame publication and host/renderer boundaries
 event_replay	provisional	bounded exact normalized event serialization
+not_implemented	provisional	application-authoring informational composition

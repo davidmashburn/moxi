@@ -66,11 +66,14 @@ from moxi.style import (
 )
 from moxi.column_view import ColumnView
 from moxi.wrapped import WrappedTextState
+from .not_implemented_demo import NotImplementedDemo
 from moxi.wxstyle import WxStyleState
 from .showcase import SHOWCASE_CANVAS_ID, SHOWCASE_HELLO_WINDOW, ShowcaseState
 from moxi.scene import Scene
 from .demo_entry import DemoCatalog, DemoEntry
 from .demo_style import (
+    DEMO_NOT_IMPLEMENTED_ID,
+    DEMO_PAGE_NOT_IMPLEMENTED,
     DEMO_EDITORS_ID,
     DEMO_PAGE_EDITORS,
     DEMO_SHARED_ID,
@@ -217,6 +220,8 @@ comptime DEMO_COMPOSED_SLOT_ID = 8004
 comptime DEMO_WX_STYLE_SLOT_ID = 8005
 comptime DEMO_ROW_SLOT_ID = 8006
 comptime DEMO_ALIGNMENT_SLOT_ID = 8007
+comptime DEMO_NOT_IMPLEMENTED_SLOT_ID = 8018
+comptime DEMO_NOT_IMPLEMENTED_ID_OFFSET = 24000
 comptime DEMO_WRAPPED_SLOT_ID = 8008
 # Interleaved IDs never cross into another authoring host after repeated reset
 # or keyed-child replacement. Legacy component ranges stay below this namespace.
@@ -293,6 +298,7 @@ struct DemoBrowserState(Component):
     var interaction: ComponentSlot[InteractionShowcaseState]
     var row: ComponentSlot[RowState]
     var alignment: ComponentSlot[AlignmentState]
+    var not_implemented: ComponentSlot[NotImplementedDemo]
     var wrapped: ComponentSlot[WrappedTextState]
     var showcase: ComponentSlot[ShowcaseState]
     var fractal: ComponentSlot[FractalState]
@@ -349,6 +355,9 @@ struct DemoBrowserState(Component):
         )
         self.alignment = ComponentSlot[AlignmentState](
             AlignmentState(), DEMO_ALIGNMENT_SLOT_ID, DEMO_ALIGNMENT_ID_OFFSET
+        )
+        self.not_implemented = ComponentSlot(
+            NotImplementedDemo(), DEMO_NOT_IMPLEMENTED_SLOT_ID, DEMO_NOT_IMPLEMENTED_ID_OFFSET,
         )
         self.wrapped = ComponentSlot[WrappedTextState](
             WrappedTextState(), DEMO_WRAPPED_SLOT_ID, DEMO_WRAPPED_ID_OFFSET
@@ -556,6 +565,8 @@ struct DemoBrowserState(Component):
             self.row.component = RowState()
         elif self.selected_id == DEMO_ALIGNMENT_ID:
             self.alignment.component = AlignmentState()
+        elif self.selected_id == DEMO_NOT_IMPLEMENTED_ID:
+            self.not_implemented.component = NotImplementedDemo()
         elif self.selected_id == DEMO_WRAPPED_ID:
             self.wrapped.component = WrappedTextState()
         elif self.selected_entry().page_kind == DEMO_PAGE_SHOWCASE:
@@ -1267,6 +1278,12 @@ struct DemoBrowserState(Component):
             authoring_height = _authoring_content_height(self.shared.component.ui.view)
         elif entry.page_kind == DEMO_PAGE_WORKSPACE:
             authoring_height = _authoring_content_height(self.workspace.component.ui.view)
+        elif entry.page_kind == DEMO_PAGE_NOT_IMPLEMENTED:
+            var preview_width = max((width - 20.0) * 0.58 - 16.0, 160.0)
+            if page_width < 720.0:
+                preview_width = page_width - 24.0
+            var preview = self.not_implemented.build(Rect(0.0, 0.0, preview_width, 0.0))
+            authoring_height = _authoring_content_height(preview)
         # Include split padding (8), preview padding (16), kicker (18),
         # and its following gap (8), so only the outer portal needs to scroll.
         if authoring_height + 50.0 > page_height:
@@ -1499,6 +1516,13 @@ struct DemoBrowserState(Component):
                 component_height,
             )
             return
+        if entry.page_kind == DEMO_PAGE_NOT_IMPLEMENTED:
+            var child = self.not_implemented.build(Rect(0.0, 0.0, component_width, component_height))
+            root.add_component_view_to(
+                component_parent, DEMO_NOT_IMPLEMENTED_SLOT_ID, child,
+                DEMO_NOT_IMPLEMENTED_ID_OFFSET, component_height,
+            )
+            return
         if entry.page_kind == DEMO_PAGE_WRAPPED:
             var child = self.wrapped.build(Rect(0.0, 0.0, component_width, component_height))
             root.add_component_view_to(
@@ -1643,6 +1667,8 @@ struct DemoBrowserState(Component):
                 return self.row.route(event, view)
             if self.selected_id == DEMO_ALIGNMENT_ID and self.alignment.contains(event.target, view):
                 return self.alignment.route(event, view)
+            if self.selected_id == DEMO_NOT_IMPLEMENTED_ID and self.not_implemented.contains(event.target, view):
+                return self.not_implemented.route(event, view)
             if self.selected_id == DEMO_WRAPPED_ID and self.wrapped.contains(event.target, view):
                 return self.wrapped.route(event, view)
             if self.selected_entry().page_kind == DEMO_PAGE_SHOWCASE:

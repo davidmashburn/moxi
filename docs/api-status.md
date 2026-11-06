@@ -708,4 +708,5 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `event_to_json` | `moxi.event_replay` | provisional | bounded exact normalized event serialization |
 | `event_from_json` | `moxi.event_replay` | provisional | bounded exact normalized event serialization |
 | `event_replay_from_json` | `moxi.event_replay` | provisional | bounded exact normalized event serialization |
+| `NotImplemented` | `moxi.not_implemented` | provisional | application-authoring informational composition |
 | `moxi_version` | `moxi.__init__` | stable-core | package version boundary |
