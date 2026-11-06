@@ -16,12 +16,14 @@
       "scope": "Portable font collections/fallback policy and richer paragraph corpus, preserving the existing CoreText/HarfBuzz ownership split. Verify mixed scripts, composed clusters, wrapping, selection, and invalidation; do not assume identical glyph IDs across engines.",
       "state": "implemented",
       "commits": [
-        "4e34e5b"
+        "4e34e5b",
+        "3b8182c"
       ],
       "verification": [
         "Parent reran pixi run harfbuzz-check: native ownership/policy tests, ten-case Mojo corpus, compatibility shaper and laboratory assertions passed.",
         "Worker verified portable boundary/shaping/layout/conformance, CoreText structural parity and native ASan/UBSan checks.",
-        "Six browser captures visually inspected; missing emoji coverage is displayed, not hidden."
+        "Six browser captures visually inspected; missing emoji coverage is displayed, not hidden.",
+        "Parent integration API check found and repaired the missing experimental font_collection classification; all public API inventories now pass."
       ],
       "remaining_gates": [
         "Linux execution and full release/CI not verified.",
@@ -66,7 +68,7 @@
     {
       "id": "P02",
       "scope": "[Server-backed views](docs/design/server-backed-views.md): real delayed local transport, immediate client feedback, bounded queries/cancellation, stale-result rejection, capped exact-record details, disconnect/retry, and measured full-data comparison.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],
@@ -295,11 +297,23 @@
     {
       "id": "N01",
       "scope": "[NotImplemented component](docs/not-implemented-pattern.md): pure inert component, feature name/explanation, ordinary semantics, independent namespacing, public import, runnable example and Playground entry.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "implemented",
+      "commits": [
+        "b4d8109"
+      ],
+      "verification": [
+        "Worker passed 89 test files and full pixi run check, API/catalog checks, native example and documentation snippet build.",
+        "Parent reviewed inert behavior, slot routing, semantics and wrapping, then reran the focused test on the integrated branch.",
+        "Integrated API and 27-entry catalog checks passed; seven fresh AppKit offscreen renders were visually inspected and all four slideshow manifests validated."
+      ],
+      "remaining_gates": [
+        "Live desktop input, compositor behavior and VoiceOver remain unverified; slideshow captures are actual AppKit offscreen renders.",
+        "Android/iOS checks skipped for missing SDKs; non-macOS visuals and remote CI unverified.",
+        "Uses existing character wrapping, which can split words in narrow panels; no word-boundary typography improvement is claimed."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/not-implemented/index.html"
+      ]
     },
     {
       "id": "V01",

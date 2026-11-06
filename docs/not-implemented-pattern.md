@@ -130,3 +130,30 @@ is retained at `/tmp/n01-native-sample.log`.
 The repository check skipped Android host compilation because the Android
 SDK/NDK is absent and iOS host checking because the iPhone simulator SDK is
 absent. Those platforms were not verified by this run.
+
+## Reproducible scripted slideshow
+
+The checked-in [capture probe](../experiments/not-implemented-capture/run.sh)
+replays actual App events and draws each state through AppKit into a bitmap:
+
+```sh
+bash experiments/not-implemented-capture/run.sh > /tmp/moxi-n01-capture.log 2>&1
+python3 scripts/demo_slideshows.py --check
+python3 scripts/demo_slideshows.py
+open artifacts/demo-slideshows/not-implemented/index.html
+```
+
+The seven-state [slideshow](../artifacts/demo-slideshows/not-implemented/index.html)
+covers the default/explanatory pair, host input, implemented replacement,
+restoration, narrow wrapping and scrolling, and Playground. Its manifest records
+the base revision and a SHA-256 of the working source, including the private
+capture adapter. The adapter includes the actual native drawing implementation;
+it introduces no production API. It may need updating when that private backend
+changes. These are offscreen renders, not desktop screenshots. The live manual
+acceptance recipe above remains open; VoiceOver is paused for this session.
+
+Parent integration verification passed the focused test, API inventories and
+27-entry catalog check. Seven fresh scripted renders were inspected. Narrow
+panels retain the current label renderer's character wrapping, which can split
+words; this component does not add word-boundary typography. The shared gallery
+validator passed all four current demo manifests.

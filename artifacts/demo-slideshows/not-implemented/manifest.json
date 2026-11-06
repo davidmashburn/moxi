@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "demo_id": "not-implemented",
+  "title": "Moxi unfinished-feature pattern",
+  "scenario": "N01: actual Moxi App event replay and AppKit drawing. Offscreen renders do not verify live desktop input, the compositor, or VoiceOver.",
+  "revision": "b4d8109ec94a8331415aa5f3548e1a6bdabb879e",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "backend": "AppKit offscreen bitmap, actual Moxi draw commands",
+  "scale": 1,
+  "fixture": "NotImplementedDemo and DemoBrowserState; working-source SHA256 b90a4c7a79e9ff6b6a4a6c7a5b0099a9c71ac7099aa4d4f6b396ccde3ddf8499",
+  "reproduce": "bash experiments/not-implemented-capture/run.sh; python3 scripts/demo_slideshows.py",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "initial.png",
+      "dimensions": [
+        600,
+        620
+      ],
+      "caption": "Default and explanatory variants",
+      "action": "Launch the real NotImplementedDemo",
+      "expected": "Both instances show Not implemented yet; Host clicks is 0"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "interaction.png",
+      "dimensions": [
+        600,
+        620
+      ],
+      "caption": "Working surrounding controls",
+      "action": "Dispatch Enter to the initially focused host button",
+      "expected": "Host clicks is 1; both informational components are unchanged"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "result.png",
+      "dimensions": [
+        600,
+        620
+      ],
+      "caption": "Replace with implemented content",
+      "action": "Activate replacement and the real counter increment action",
+      "expected": "Counter is 1 beside the unchanged Report export component"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "recovery.png",
+      "dimensions": [
+        600,
+        620
+      ],
+      "caption": "Restore unfinished content",
+      "action": "Activate Restore unfinished counter",
+      "expected": "Both informational components return; Host clicks remains 1"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "narrow.png",
+      "dimensions": [
+        280,
+        620
+      ],
+      "caption": "Narrow wrapped content",
+      "action": "Resize the App to 280 by 620 points",
+      "expected": "Explanation wraps; overflow is scrollable"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "narrow-bottom.png",
+      "dimensions": [
+        280,
+        620
+      ],
+      "caption": "Reach the recovery control",
+      "action": "Dispatch a scroll to the bottom",
+      "expected": "The replacement button remains reachable"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "playground.png",
+      "dimensions": [
+        1100,
+        760
+      ],
+      "caption": "Playground integration",
+      "action": "Select Not implemented pattern and its Demo tab",
+      "expected": "The same real component is mounted inside Playground"
+    }
+  ]
+}
