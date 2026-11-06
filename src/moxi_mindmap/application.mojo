@@ -740,7 +740,7 @@ struct MindMapApp:
             _ = self.app.runtime.set_focus(self.app.component.toolbar_target(CanvasCommand(MapCommand.PALETTE.value)))
             self.status("Toolbar focus · Tab traverses ordinary buttons · choose a map topic to return")
             return
-        elif command == MapCommand.SAVE or command == MapCommand.OPEN or command == MapCommand.RECOVER or command == MapCommand.IMPORT or command == MapCommand.NEW:
+        elif command == MapCommand.SAVE or command == MapCommand.SAVE_AS or command == MapCommand.OPEN or command == MapCommand.RECOVER or command == MapCommand.IMPORT or command == MapCommand.NEW:
             self.pending = command
             return
         else:

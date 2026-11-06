@@ -3,6 +3,7 @@
 #include <stdint.h>
 // Each returned result owns immutable payload/report strings. No ambient document.
 uint64_t moxi_mm_read(const char *path);
+uint64_t moxi_mm_destination(const char *path);
 uint64_t moxi_mm_write(const char *path, const char *text, const char *expected, int recovery);
 uint64_t moxi_mm_recover(const char *path);
 uint64_t moxi_mm_import(const char *path);

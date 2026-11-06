@@ -23,7 +23,35 @@ def key(code: Int, modifiers: Int = 0) -> Event:
     event.modifiers = modifiers
     return event
 
+def retained_creation() raises:
+    # Use the actual shortcut dispatcher and ordinary retained child content.
+    for redo_delete in List[Bool]([False, True]):
+        var app = App(freeform_graph(), Rect(0, 0, 1060, 780))
+        require(dispatch_canvas(app, key(110)), "first keyboard create")
+        var deleted = app.component.state.focus
+        var mount = app.component.mount_index(deleted)
+        app.component.mounts[mount].child.label.text = "Retained deleted content"
+        require(dispatch_canvas(app, key(KEY_DELETE)), "keyboard delete")
+        require(app.component.document.object_index.get(deleted, -1) < 0, "deleted node still live")
+        require(app.component.mount_index(deleted) >= 0, "delete lost retained mount")
+        if redo_delete:
+            require(invoke_canvas(app, CanvasCommand.UNDO), "undo delete")
+            require(app.component.document.object_index.get(deleted, -1) >= 0, "undo failed to restore identity")
+            require(app.component.mounts[app.component.mount_index(deleted)].child.label.text == "Retained deleted content", "undo lost child content")
+            require(invoke_canvas(app, CanvasCommand.REDO), "redo delete")
+        require(dispatch_canvas(app, key(110)), "create after delete")
+        var created = app.component.state.focus
+        require(created > deleted and app.component.document.object_index.get(created, -1) >= 0, "new node reused deleted identity")
+        require(invoke_canvas(app, CanvasCommand.UNDO), "undo replacement create")
+        require(invoke_canvas(app, CanvasCommand.UNDO), "undo prior delete")
+        require(app.component.document.object_index.get(deleted, -1) >= 0 and app.component.document.object_index.get(created, -1) < 0, "history identity crossed")
+        require(app.component.mounts[app.component.mount_index(deleted)].child.label.text == "Retained deleted content", "history lost retained content")
+        require(invoke_canvas(app, CanvasCommand.REDO), "redo prior delete")
+        require(invoke_canvas(app, CanvasCommand.REDO), "redo replacement create")
+        require(app.component.document.object_index.get(created, -1) >= 0 and app.component.document.object_index.get(deleted, -1) < 0, "redo restored wrong identity")
+
 def main() raises:
+    retained_creation()
     var canvas = freeform_graph()
     canvas.bindings.append(CanvasBinding(KEY_TAB, ShortcutModifier.NONE, MAP_CHILD, "New child"))
     canvas.bindings.append(CanvasBinding(KEY_TAB, ShortcutModifier.SHIFT, MAP_PARENT, "Insert parent"))

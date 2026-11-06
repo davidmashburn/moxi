@@ -71,6 +71,70 @@ def draft_file() raises -> LocalFile:
     result.check()
     return LocalFile(result.text(ResultField.PAYLOAD))
 
+def destination_file(path: String) raises -> LocalFile:
+    """Snapshot a confirmed Save As destination without adopting or changing it."""
+    if path == "":
+        raise Error("File choice cancelled")
+    if path.endswith(".recovery"):
+        raise Error("The .recovery suffix is reserved; choose a document destination")
+    var candidate = LocalFile(path)
+    var owned = candidate.path
+    var result = LocalResult(external_call["moxi_mm_destination", UInt64](owned.as_c_string_span().ptr()))
+    result.check()
+    candidate.digest = result.text(ResultField.DIGEST)
+    return candidate^
+
+struct LocalSession:
+    """Transactional file adoption and recovery, shared by the native loop/tests."""
+    var file: LocalFile
+    var draft: LocalFile
+    var saved_generation: Int
+    var recovered_generation: Int
+
+    def __init__(out self, generation: Int = 0):
+        self.file = LocalFile()
+        self.draft = LocalFile()
+        self.saved_generation = generation
+        self.recovered_generation = generation
+
+    def save(mut self, doc: MindMapDocument, generation: Int) raises:
+        if self.file.path == "":
+            raise Error("Choose a Save As destination")
+        self.file.save(doc)
+        self.saved_generation = generation
+        self.recovered_generation = -1
+
+    def save_as(mut self, doc: MindMapDocument, generation: Int, var candidate: LocalFile) raises:
+        if candidate.path == "":
+            raise Error("File choice cancelled")
+        # Re-selecting the open file must not refresh away its external-change
+        # guard. Save As provides an escape by choosing a different destination.
+        if candidate.path == self.file.path:
+            candidate.digest = self.file.digest
+        candidate.save(doc)
+        self.file = candidate^
+        self.saved_generation = generation
+        self.recovered_generation = -1
+
+    def recover(mut self, doc: MindMapDocument, generation: Int) raises -> String:
+        if generation == self.recovered_generation:
+            return ""
+        var warning = String()
+        if self.file.path != "":
+            try:
+                self.file.save(doc, True)
+                self.recovered_generation = generation
+                return ""
+            except error:
+                warning = String(error)
+        # A failed destination or changed open file must not strand new edits.
+        # Keep the previous draft until the next successful document replacement.
+        if self.draft.path == "":
+            self.draft = draft_file()
+        self.draft.save(doc, True)
+        self.recovered_generation = generation
+        return "" if warning == "" else warning + "; edits recovered in " + self.draft.path + ".recovery. Use Save As for another destination."
+
 def choose_file(save: Bool, recovery: Bool = False) raises -> String:
     var result = LocalResult(external_call["moxi_mm_choose", UInt64](Int32(2 if recovery else Int(save))))
     result.check()

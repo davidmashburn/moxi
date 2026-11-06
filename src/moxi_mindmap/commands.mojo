@@ -80,6 +80,7 @@ struct MapCommand(Equatable, ImplicitlyCopyable):
     comptime SELECT_PAGE_DOWN = Self(1066)
     comptime EDIT_START = Self(1067)
     comptime EDIT_END = Self(1068)
+    comptime SAVE_AS = Self(1069)
 
 
 def bindings(host: HostPlatform = HostPlatform.MACOS) -> List[CanvasBinding]:
@@ -133,6 +134,7 @@ def bindings(host: HostPlatform = HostPlatform.MACOS) -> List[CanvasBinding]:
     b.append(CanvasBinding(KEY_X, M.PRIMARY, CanvasCommand(MapCommand.CUT.value), "Cut branch · Primary+X"))
     b.append(CanvasBinding(KEY_V, M.PRIMARY, CanvasCommand(MapCommand.PASTE.value), "Paste branch · Primary+V"))
     b.append(CanvasBinding(115, M.PRIMARY, CanvasCommand(MapCommand.SAVE.value), "Save · Primary+S"))
+    b.append(CanvasBinding(115, M.PRIMARY_SHIFT, CanvasCommand(MapCommand.SAVE_AS.value), "Save As · Primary+Shift+S"))
     b.append(CanvasBinding(111, M.PRIMARY, CanvasCommand(MapCommand.OPEN.value), "Open · Primary+O"))
     b.append(CanvasBinding(110, M.PRIMARY, CanvasCommand(MapCommand.NEW.value), "New · Primary+N"))
     b.append(CanvasBinding(KEY_LEFT, M.SHIFT, CanvasCommand(MapCommand.SELECT_LEFT.value), "Extend left"))

@@ -1321,6 +1321,26 @@
         "https://github.com/freeplane/freeplane/blob/3a76de18523993a55bf885190438bffef38662a5/freeplane/src/main/java/org/freeplane/view/swing/ui/DefaultNodeKeyListener.java"
       ],
       "status": "source-inspected listener behavior; live reference UI unavailable"
+    },
+    {
+      "command": "SAVE_AS",
+      "id": 1069,
+      "reference_action": null,
+      "reference_source_chord": null,
+      "reference_effective_macos": null,
+      "target_definition": "115, M.PRIMARY_SHIFT",
+      "context": "map-focused keyboard shortcut and Commands palette; ordinary editor retains input precedence",
+      "expected": "save to a confirmed destination; keep active file and recovery route if saving fails or is cancelled",
+      "platforms": [
+        "macOS (native app)",
+        "Windows/Linux (binding policy only; native app not validated)"
+      ],
+      "evidence": [
+        "src/moxi_mindmap/commands.mojo (local extension; no reference binding claimed)",
+        "tests/mindmap/application.mojo",
+        "tests/mindmap/save_session.mojo"
+      ],
+      "status": "local extension; headless command and storage transitions verified; native chooser interaction not rerun"
     }
   ]
 }

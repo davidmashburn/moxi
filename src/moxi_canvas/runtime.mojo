@@ -116,6 +116,10 @@ def invoke_canvas[Child: Component & Deinitable](mut app: App[CanvasView[Child]]
             var id = 1
             for object in app.component.document.objects:
                 id = max(id, object.id + 1)
+            # Deleted nodes keep their mounts for undo/redo. Their identity is
+            # still reserved even though they no longer appear in the document.
+            for mount in app.component.mounts:
+                id = max(id, mount.id + 1)
             var camera = app.component.state.camera
             var at = camera.unproject(WindowPoint(camera.viewport.x + camera.viewport.width / 2, camera.viewport.y + camera.viewport.height / 2))
             try:

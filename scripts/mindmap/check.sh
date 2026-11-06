@@ -14,7 +14,13 @@ case "$mode" in
   import)
     clang -shared -fobjc-arc -Wall -Wextra -Werror native/mindmap/storage.m -framework Cocoa -o dist/moxi-mindmap-storage.dylib > /tmp/moxi-d04-storage-build.log 2>&1
     python3 tests/mindmap/storage_test.py "$PWD/dist/moxi-mindmap-storage.dylib" > /tmp/moxi-d04-storage-test.log 2>&1
-    cat /tmp/moxi-d04-storage-test.log ;;
+    cat /tmp/moxi-d04-storage-test.log
+    clang -c -fobjc-arc -Wall -Wextra -Werror native/mindmap/storage.m -o dist/mindmap-storage.o > /tmp/moxi-d04-save-session-build.log 2>&1
+    mojo build -I src -Xlinker "$PWD/dist/mindmap-storage.o" -Xlinker -framework -Xlinker Cocoa tests/mindmap/save_session.mojo -o dist/moxi-mindmap-save-session >> /tmp/moxi-d04-save-session-build.log 2>&1
+    session_dir=$(mktemp -d /tmp/moxi-d04-save-session.XXXXXX)
+    trap 'rm -rf "$session_dir"' EXIT
+    ./dist/moxi-mindmap-save-session "$session_dir" > /tmp/moxi-d04-save-session.log 2>&1
+    cat /tmp/moxi-d04-save-session.log ;;
   build|capture|app)
     if [[ "$mode" == capture ]]; then
       capture_snapshot=$(mktemp /tmp/moxi-d04-capture-sources.XXXXXX)

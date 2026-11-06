@@ -167,4 +167,15 @@ def main() raises:
     if map.mode != MapMode.EDIT:
         raise Error("Focus failed to return to map after keyboard destination")
     map.finish_edit(True)
+    event = Event()
+    event.kind = KEY_DOWN_KIND
+    event.key = 115
+    event.modifiers = MOD_COMMAND | MOD_SHIFT
+    _ = map.dispatch(event)
+    if map.pending != MapCommand.SAVE_AS:
+        raise Error("Save As shortcut unavailable")
+    map.pending = MapCommand.NONE
+    map.execute(MapCommand.SAVE_AS)
+    if map.pending != MapCommand.SAVE_AS:
+        raise Error("Save As command unavailable")
     print("mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS")

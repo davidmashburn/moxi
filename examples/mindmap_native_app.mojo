@@ -13,7 +13,7 @@ from moxi_mindmap.commands import MapCommand
 from moxi_mindmap.model import MindMapDocument
 from moxi_mindmap.history import MapHistory
 from moxi_mindmap.codec import encode
-from moxi_mindmap.storage import LocalFile, import_mm, choose_file, draft_file
+from moxi_mindmap.storage import LocalFile, LocalSession, import_mm, choose_file, destination_file
 from moxi_mindmap.fixtures import useful_map, large_map
 
 
@@ -185,10 +185,7 @@ def main() raises:
         replay(map, window, paint, graph, args[2])
         window.close()
         return
-    var file = LocalFile()
-    var draft = LocalFile()
-    var saved_generation = map.history.generation
-    var recovered_generation = saved_generation
+    var storage = LocalSession(map.history.generation)
     var clipboard = MacOSClipboard()
     window.activate()
     render_canvas(map.app, paint, graph)
@@ -211,42 +208,44 @@ def main() raises:
         var pending = map.pending
         map.pending = MapCommand.NONE
         try:
-            if pending == MapCommand.SAVE:
-                if file.path == "":
-                    file = LocalFile(choose_file(True))
-                file.save(map.doc)
-                saved_generation = map.history.generation
-                map.status(file.report)
+            if pending == MapCommand.SAVE or pending == MapCommand.SAVE_AS:
+                if pending == MapCommand.SAVE_AS or storage.file.path == "":
+                    var candidate = destination_file(choose_file(True))
+                    storage.save_as(map.doc, map.history.generation, candidate^)
+                else:
+                    storage.save(map.doc, map.history.generation)
+                map.status(storage.file.report)
                 changed = True
             elif pending == MapCommand.NEW or pending == MapCommand.OPEN or pending == MapCommand.IMPORT or pending == MapCommand.RECOVER:
-                if saved_generation != map.history.generation:
+                if storage.saved_generation != map.history.generation:
                     raise Error("Save the current map before replacing it")
                 if pending == MapCommand.NEW:
                     map = MindMapApp(MindMapDocument())
-                    file = LocalFile()
+                    storage.file = LocalFile()
                 elif pending == MapCommand.IMPORT:
                     var imported = import_mm(choose_file(False))
                     map = MindMapApp(imported[0])
                     map.show_report(imported[1])
-                    file = LocalFile()
+                    storage.file = LocalFile()
                 else:
                     var incoming = LocalFile(choose_file(False, pending == MapCommand.RECOVER))
                     var doc = incoming.load(pending == MapCommand.RECOVER)
                     map = MindMapApp(doc)
-                    file = incoming^
-                    map.status(file.report)
-                saved_generation = -1 if pending == MapCommand.IMPORT or pending == MapCommand.RECOVER else map.history.generation
-                recovered_generation = -1
-                draft = LocalFile()
+                    storage.file = incoming^
+                    map.status(storage.file.report)
+                storage.saved_generation = -1 if pending == MapCommand.IMPORT or pending == MapCommand.RECOVER else map.history.generation
+                storage.recovered_generation = -1
+                storage.draft = LocalFile()
                 changed = True
-            if map.history.generation != recovered_generation:
-                if file.path != "":
-                    file.save(map.doc, True)
-                else:
-                    if draft.path == "":
-                        draft = draft_file()
-                    draft.save(map.doc, True)
-                recovered_generation = map.history.generation
+        except error:
+            map.status(String(error))
+            changed = True
+        # Recovery still runs after a cancelled chooser or failed explicit save.
+        try:
+            var warning = storage.recover(map.doc, map.history.generation)
+            if warning != "":
+                map.status(warning)
+                changed = True
         except error:
             map.status(String(error))
             changed = True

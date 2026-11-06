@@ -80,6 +80,13 @@ uint64_t moxi_mm_read(const char *path) {
         return error ? fail(error) : result(YES,text,@"Loaded local file",sha(data));
     }
 }
+uint64_t moxi_mm_destination(const char *path) {
+    @autoreleasepool {
+        NSString *error = nil;
+        NSData *data = readBounded(@(path),&error,YES);
+        return error ? fail(error) : result(YES,@"",@"",sha(data));
+    }
+}
 uint64_t moxi_mm_write(const char *path, const char *text, const char *expected, int recovery) {
     @autoreleasepool {
         NSString *file = @(path), *error = nil;
