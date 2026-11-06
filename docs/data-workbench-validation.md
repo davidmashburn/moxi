@@ -1,8 +1,10 @@
 # Data workbench validation — September 18, 2026
 
 Later fixes and stronger measurements are recorded in the
-[hardening report](data-workbench-hardening.md). This document preserves the
-original validation evidence and its limitations.
+[hardening report](data-workbench-hardening.md) and the
+[support reconciliation below](#support-decision-and-remaining-evidence). The
+walkthrough and measurements preserve their original September 18 scope; they
+are not current-build acceptance results.
 
 The workbench answers the synthetic tail-analysis question through a native
 macOS window, with bounded local CSV input and CSV/SVG output. Confidence is
@@ -129,27 +131,59 @@ it is not the native application's memory footprint or per-operation memory.
 
 ## Support decision and remaining evidence
 
-Use this as a local macOS numerical explorer with the documented bounded CSV
-subset. Prefer 10,000-row exploratory workloads until native timing is measured.
-The 100,000-row fixture is a correctness and stress workload, not a guarantee
-of fluid interaction. Input limits protect ingestion size; they do not promise
-that every accepted dataset is cheap to plot. In particular, arbitrary
-nonmonotonic imported keys still exercise duplicate-key scans during plot
-construction and can take quadratic time; the benchmark fixture uses monotone
-keys. A future indexed or bulk construction path would be needed to extend the
-large-data performance claim to arbitrary key order.
+Reconciled on 2026-11-06 against source at `fa42b6f` and the later evidence
+linked below. This review adds no new desktop replay or performance samples.
+The supported scope remains an experimental local macOS numerical explorer
+with the documented bounded CSV subset. Prefer 10,000-row exploratory workloads;
+100,000 rows remain a correctness and stress workload, without a general fluid
+interaction or 60 Hz guarantee. Input limits bound ingestion size, not plotting
+cost.
 
-Native input-to-display latency, per-operation allocations, leak/soak behavior,
-and cache reuse were not measured. Process peak RSS is not a leak test.
-A known native accessibility activation defect remains: selecting custom
-buttons by accessibility element did not invoke their action, although pointer
-and keyboard activation worked and accessibility text assignment succeeded.
-Headless semantic-action routing passes. The exact native/tooling boundary
-has not been isolated, so the accessibility acceptance portion of planning
-slice A2 remains open.
+The [hardening report](data-workbench-hardening.md#arbitrary-source-keys)
+supersedes the original arbitrary-key construction concern: the workbench uses
+`PlotDataTable.append_rows`, which validates a batch atomically with a temporary
+key set. The reported reversed, shuffled, and sparse-key timings belong to the
+September 18 artifacts. Repeated single-row arbitrary-key insertion retains its
+previous behavior; that is no longer the workbench's ingestion path.
 
-IME marked-text entry, mixed-script native editing, and VoiceOver usability
-remain unverified. Accessibility publication and headless text conformance do
-not establish those claims. No independent developer usability study or
-cross-platform runtime test was performed. No release or public API promotion
-is implied.
+The [native timing report](workbench-native-latency.md) decomposes event enqueue
+through AppKit drawing completion and records implemented plot-output reuse for
+table-only scrolling. Its September 18 cached-scroll p95 values were 5.886 ms
+at 10k rows and 5.018 ms at 100k rows. Those small, instrumented samples exclude
+pointer-move frames, which still rebuild plots; they establish neither complete
+gesture cost nor input-to-display latency. Filtering, selection, field changes,
+and other invalidating events retain the full rendering path. The original
+software-rendered measurements above remain evidence for their own workload and
+timing boundary.
+
+[Offscreen and native soak observations](data-workbench-hardening.md) and the
+[process memory profile](workbench-memory-profile.md) now provide bounded memory
+evidence. The soak runs found no sustained RSS growth within their measured
+intervals, while the profile separates residency, physical footprint, and heap
+categories. They do not establish leak freedom, per-operation allocation cost,
+or allocation ownership for the anonymous memory growth. Process peak RSS alone
+remains insufficient for those claims.
+
+The [native accessibility activation defect](data-workbench-hardening.md#delivery-and-accessibility)
+was isolated to a Mojo/C integer-width ABI mismatch and fixed with explicit
+`Int32` arguments. A 64-case ABI regression and native AX replay support that
+resolution. The [native acceptance follow-up](workbench-native-acceptance.md)
+also records path-field focus/caret preservation across window zoom/restore,
+basic Japanese conversion and commit on September 23, and the user's observation
+of spoken VoiceOver controls. Full IME editing, mixed-script input, the complete
+VoiceOver workflow, and broader focus recovery remain unverified. VoiceOver
+testing remains paused at the user's request; accessibility publication and
+headless conformance cannot close that acceptance gate.
+
+An [agent authoring exercise](workbench-authoring-exercise.md) supplies a tested
+extension example, but independent human authoring remains open. The data
+workbench has no recorded same-application cross-platform runtime acceptance;
+Linux layout-workbench evidence concerns a different application. No fresh
+current-build desktop acceptance or input-to-display latency measurement was
+performed for this reconciliation. No release or public API promotion is implied.
+
+Confidence is high that the documented batch-ingestion, AX ABI, and table-scroll
+reuse mechanisms are implemented, and moderate in generalizing the historical
+native measurements. Current-build native failures, a complete IME/VoiceOver
+replay, independent human authoring, or presentation-timing measurements could
+change this support decision.
