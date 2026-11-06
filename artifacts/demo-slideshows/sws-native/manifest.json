@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "demo_id": "sws-native",
+  "title": "SeedWater / native Moxi",
+  "scenario": "Actual AppKit content-view cacheDisplay captures of a running Moxi native consumer. Scripted native callbacks; offscreen render, excludes compositor/window chrome/physical input. VoiceOver paused.",
+  "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "backend": "Moxi AppKit / copied RGBA8 / nearest sampling / public Camera",
+  "scale": 2.0,
+  "fixture": "Synthetic TYX 3 \u00d7 93 \u00d7 157; uint16; pinned upstream 45bd4bf / NumPy 1.22.0 / mahotas 1.4.11; exact stable IDs",
+  "reproduce": "See README.md: run moxi-sws/scripts/evidence.py with explicit MOXI_ROOT, MOJO, MODULAR_HOME, SWS_REFERENCE, SWS_LEGACY_PYTHON",
+  "source_manifest": "source-hashes.json",
+  "source_manifest_sha256": "887ead3dcf30a75140e5f83e1e9321feffcec92a87682986a497793a25aa186a",
+  "slides": [
+    {
+      "scenario_id": "01-asymmetric",
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "01-asymmetric.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "b636636b2c3301aa1e1cc4cc4b992aa3a3127512adccd0ec990a9579b257a18e",
+      "caption": "Pinned asymmetric stack / stable cell 7",
+      "action": "Open synthetic fixture in native Moxi window",
+      "expected": "TYX origin, unequal image dimensions, sparse stable IDs and cell boundary agree"
+    },
+    {
+      "scenario_id": "02-navigation",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "02-navigation.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "96d90d044e0b8b7a9561e52a22027359d5c2e5560a57a39268bef158d64a2ad3",
+      "caption": "Frame, contrast, zoom and retained image pan",
+      "action": "Native frame / contrast / zoom controls; public Camera pan",
+      "expected": "Frame 2, 3.2\u00d7 zoom; image and labels stay aligned; no image upload on pan"
+    },
+    {
+      "scenario_id": "03-edit-watershed",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "03-edit-watershed.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "b5cf7833035f8ebee6a095c288874df1ba8a21aac5211c694fe6406cf22976b3",
+      "caption": "Seed move / polygon markers / accepted watershed",
+      "action": "Native place and move; four polygon vertices; Apply polygon; Watershed",
+      "expected": "New stable cell owns polygon markers; fresh generation accepted with prior labels retained while pending"
+    },
+    {
+      "scenario_id": "04-undo",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "04-undo.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "6906dedd176e7c9764d20579a6ec55fdb36a63061d9004be2c806df8c8a50931",
+      "caption": "Semantic undo restores the seed move",
+      "action": "Native Undo",
+      "expected": "Polygon command and its accepted labels revert together"
+    },
+    {
+      "scenario_id": "05-redo",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "05-redo.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "73c314a40b4319a66daf9078d5ee56312d8ff57b6fec70be11b5129095044b08",
+      "caption": "Redo restores polygon and accepted labels",
+      "action": "Native Redo",
+      "expected": "Same stable cell ID and scientific result restored"
+    },
+    {
+      "scenario_id": "06-save-reopen",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "06-save-reopen.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "8d15f9377195f2ab26538d90fee7e8df3b818b7e77ebe79e6fc247c9adffa398",
+      "caption": "Atomic v1 save / reopen",
+      "action": "Native Save, then Reopen",
+      "expected": "Arrays, history, cell IDs and axes round-trip; original preserved"
+    },
+    {
+      "scenario_id": "07-pending",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "07-pending.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "07b1a983e8aafa94b92ee1ded15d15c04764389e7e8a83d2fcc4f54d191480c8",
+      "caption": "Navigate while a delayed request is pending",
+      "action": "Slow request, then change frame before completion",
+      "expected": "Last accepted labels remain visible on each frame"
+    },
+    {
+      "scenario_id": "08-stale",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "08-stale.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "adffbd63e34d0c3ada5dcdc2f36db94caa9c4983a19bafa7916908c938e9bc27",
+      "caption": "Stale frame result rejected",
+      "action": "Wait for old frame request",
+      "expected": "Generation/frame mismatch rejected without replacing labels"
+    },
+    {
+      "scenario_id": "09-failure",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "09-failure.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "725be4ccc3660a14c266965046ee562e17b65486609d789583810d9da73f6f34",
+      "caption": "Failed kernel request preserves accepted labels",
+      "action": "Native Fail request (bounded harness fault)",
+      "expected": "Worker error visible; valid scientific output survives"
+    },
+    {
+      "scenario_id": "10-cancel",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "10-cancel.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "17ce3e38f69cde7debb9460be4d9c82e4934530924f3a4f398ab7892bb011bda",
+      "caption": "Cancellation terminates and reaps worker",
+      "action": "Slow request, then Cancel",
+      "expected": "No pending worker; accepted labels remain"
+    },
+    {
+      "scenario_id": "11-recovery",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "11-recovery.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "5d222b85c0e5843462c3e1fa6a7e049be92961cc8bc0447841d14c4f25f3d8e5",
+      "caption": "Explicit recovery keeps the corrupt original",
+      "action": "Harness corrupts main copy; native Reopen rejects it; native Recover",
+      "expected": "Verified recovery restores document and history without overwriting main file"
+    },
+    {
+      "scenario_id": "12-resize",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "12-resize.png",
+      "dimensions": [
+        2200,
+        1600
+      ],
+      "png_sha256": "029d39f874a78288d999252af69d00be6fc1aa5df31b6596442be84d0dd1aaa9",
+      "caption": "Native resize retains document and ownership",
+      "action": "AppKit content resize after second-owner rejection and disposal",
+      "expected": "Remaining window, camera, image and scientific data stay valid"
+    },
+    {
+      "scenario_id": "13-recreated",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "13-recreated.png",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "png_sha256": "7224f105feed01ee3978ba0711f8c837a5358524a2414f884abc60d0179f9592",
+      "caption": "Close / recreate native owner",
+      "action": "Dispose native image/window, reject retired token, open fresh owner",
+      "expected": "Application document survives; retired resource cannot be reused"
+    }
+  ]
+}

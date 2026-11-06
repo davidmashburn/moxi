@@ -1,0 +1,43 @@
+{
+  "reference": "45bd4bf22184f3daae3add27f7b2d2136c1573de",
+  "cases": 18,
+  "params": {
+    "algorithm": "mahotas.cwatershed",
+    "connectivity": 4,
+    "preprocessing": "none",
+    "background_border": 2,
+    "return_lines": false,
+    "intensity_dtype": "uint16"
+  },
+  "partition_equal": true,
+  "stable_identity_equal": true,
+  "corpus_shape": [
+    18,
+    93,
+    157
+  ],
+  "input_image_sha256": "eea9922dd2cb9a3d1c971bc690e76dd3997a1cc7b9f5966244d93dfa19f47550",
+  "input_seed_sha256": "361f70e4cfe7c7ee83cdc7e783d6ecfce706419d843d4f2b1d24ee2dc514965f",
+  "expected_label_sha256": "712a8eb79e9a47a8d487761d7dd30cdf695b26e377f6da28bcd27c59b2bae622",
+  "in_process_compute_ms": [
+    3.631958970800042,
+    3.253165981732309,
+    6.428874970879406,
+    3.4460410242900252,
+    2.2237090161070228,
+    1.981667010113597,
+    5.749124975409359,
+    3.881749988067895,
+    1.94379105232656,
+    3.054582979530096,
+    7.0454999804496765,
+    3.6239579785615206,
+    2.0503749838098884,
+    9.361750038806349,
+    5.321291973814368,
+    2.1640000049956143,
+    2.960124984383583,
+    3.514082985930145
+  ],
+  "scope": "3 frames: baseline/place/move/polygon/delete; flat 0/1000/65535 plateaus. No preprocessing or external data."
+}

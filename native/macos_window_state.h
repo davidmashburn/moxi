@@ -138,6 +138,7 @@ typedef struct {
     int moxi_image_count;
     int moxi_image_resource_ids[MOXI_MAX_DRAW_COMMANDS];
     NSImage *moxi_image_resources[MOXI_MAX_DRAW_COMMANDS];
+    BOOL moxi_image_nearest[MOXI_MAX_DRAW_COMMANDS];
     int moxi_registered_image_ids[MOXI_MAX_DRAW_COMMANDS];
     NSImage *moxi_registered_images[MOXI_MAX_DRAW_COMMANDS];
     NSString *moxi_image_alt_texts[MOXI_MAX_DRAW_COMMANDS];
@@ -418,6 +419,7 @@ int moxi_window_select_instance(uint64_t handle) {
 #define moxi_image_count (moxi_current_context()->moxi_image_count)
 #define moxi_image_resource_ids (moxi_current_context()->moxi_image_resource_ids)
 #define moxi_image_resources (moxi_current_context()->moxi_image_resources)
+#define moxi_image_nearest (moxi_current_context()->moxi_image_nearest)
 #define moxi_registered_image_ids (moxi_current_context()->moxi_registered_image_ids)
 #define moxi_registered_images (moxi_current_context()->moxi_registered_images)
 #define moxi_image_alt_texts (moxi_current_context()->moxi_image_alt_texts)

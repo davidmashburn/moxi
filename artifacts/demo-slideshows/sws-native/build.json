@@ -1,0 +1,29 @@
+{
+  "moxi_base": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+  "source_manifest_sha256": "887ead3dcf30a75140e5f83e1e9321feffcec92a87682986a497793a25aa186a",
+  "source_counts": {
+    "application": 26,
+    "moxi": 1279
+  },
+  "source_recheck_after_replay": "identical",
+  "toolchain": {
+    "python": "3.11.16 (main, Sep 24 2026, 17:46:15) [Clang 22.1.3 ]",
+    "compiler": "Mojo 1.1.0 (8189361e)",
+    "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "sdk": "27.0",
+    "macos": "macOS-27.0.1-arm64-arm-64bit",
+    "numpy": "1.26.4",
+    "mahotas": "1.4.18"
+  },
+  "binary_sha256": {
+    "dist/consumer/evidence.o": "ee05d9f38f45b455e03674991157f95ee05c94ef4582573c38faf51c01a33cc8",
+    "dist/consumer/libmoxi_sws.dylib": "f0699216157d1c42ed3a8f86bf3865fbe6b7151c1f0899e39936b75a01f65403",
+    "dist/sdk/moxi.mojoc": "8e8d1fcf5e46edbd9efeec2e2f1fda340fda6806118dac864e8573e7177712e5",
+    "dist/sdk/moxi_canvas.mojoc": "6284dfebd9c767a372534f892edde2852a05442666e1d694fd383f88301b8669",
+    "dist/sdk/window.o": "aac053203a70ece26a5e2128d1698456673c4dd4bce768c5499a83ee06a2a0d8"
+  },
+  "consumer": "camera.mojo compiled with -I dist/sdk only (moxi.mojoc + moxi_canvas.mojoc); linked precompiled window.o; no source implementation includes",
+  "producer_command": "MOXI_ROOT=<isolated-tree> MOJO=<compiler> MODULAR_HOME=<toolchain>/share/max bash scripts/build.sh",
+  "replay_command": "PYTHONPATH=. .venv/bin/python scripts/replay.py <Moxi>/artifacts/demo-slideshows/sws-native",
+  "reference": "45bd4bf22184f3daae3add27f7b2d2136c1573de"
+}

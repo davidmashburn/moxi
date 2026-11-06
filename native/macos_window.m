@@ -935,6 +935,7 @@ static void moxi_reset_commands(void) {
         moxi_text_input_texts[i] = nil;
         moxi_image_alt_texts[i] = nil;
         moxi_image_resources[i] = nil;
+        moxi_image_nearest[i] = NO;
         moxi_image_resource_ids[i] = -1;
         moxi_label_frames[i] = NSZeroRect;
         moxi_button_frames[i] = NSZeroRect;
@@ -2705,7 +2706,8 @@ double moxi_window_benchmark_custom_paint(int iterations) {
                     operation:NSCompositingOperationSourceOver
                      fraction:1.0
                respectFlipped:YES
-                        hints:nil];
+                        hints:moxi_image_nearest[i]
+                            ? @{NSImageHintInterpolation: @(NSImageInterpolationNone)} : nil];
         } else {
             NSDictionary *imageAttributes = @{
                 NSFontAttributeName: [NSFont systemFontOfSize:14.0],
@@ -4202,6 +4204,7 @@ void moxi_window_set_image_at(
         }
         moxi_image_resource_ids[index] = resource_id;
         moxi_image_resources[index] = nil;
+        moxi_image_nearest[index] = NO;
         for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
             if (moxi_registered_image_ids[i] == resource_id) {
                 moxi_image_resources[index] = moxi_registered_images[i];

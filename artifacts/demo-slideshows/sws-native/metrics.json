@@ -1,0 +1,210 @@
+{
+  "shape_tyx": [
+    3,
+    93,
+    157
+  ],
+  "backend": "AppKit copied RGBA8 composition; nearest; public Moxi Camera",
+  "host": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "Apple M4",
+  "frame_ms": {
+    "n": 60,
+    "min": 2.817625005263835,
+    "p50": 4.012666002381593,
+    "p95": 15.326083987019956,
+    "max": 17.474082997068763,
+    "samples": [
+      2.817625005263835,
+      4.012666002381593,
+      3.213083022274077,
+      17.474082997068763,
+      3.1471669790335,
+      16.495416988618672,
+      4.018583975266665,
+      12.092457967810333,
+      3.223500039894134,
+      11.604416999034584,
+      3.02154099335894,
+      15.066458028741181,
+      3.3605829812586308,
+      13.550667033996433,
+      3.2574159558862448,
+      14.199500030372292,
+      3.313041990622878,
+      12.617416970897466,
+      3.148708026856184,
+      13.798209023661911,
+      3.160000022035092,
+      12.772165995556861,
+      3.1993750017136335,
+      14.566458004992455,
+      3.4932499984279275,
+      13.343750033527613,
+      3.1898339511826634,
+      11.245458968915045,
+      3.2957500079646707,
+      15.037833014503121,
+      3.1694580102339387,
+      13.8198749627918,
+      3.2314170384779572,
+      12.148417008575052,
+      3.3372920006513596,
+      14.347291958983988,
+      3.174832963850349,
+      12.773166003171355,
+      3.407666983548552,
+      14.325083000585437,
+      3.0643329955637455,
+      13.096583017613739,
+      3.0152499675750732,
+      12.705459026619792,
+      3.0112909735180438,
+      12.552500003948808,
+      2.8932500281371176,
+      15.69212501635775,
+      3.2258330029435456,
+      13.687791011761874,
+      3.19295801455155,
+      11.740916990675032,
+      2.9029169818386436,
+      14.981125015765429,
+      3.03258397616446,
+      13.251458993181586,
+      3.11745802173391,
+      13.435416971333325,
+      3.070542006753385,
+      15.326083987019956
+    ]
+  },
+  "frame_scope": "Python app draw through Moxi end_frame synchronous AppKit flush; excludes compositor/scanout",
+  "worker_roundtrip_ms": {
+    "n": 8,
+    "min": 292.25083300843835,
+    "p50": 322.65779096633196,
+    "p95": 400.7615839946084,
+    "max": 400.7615839946084,
+    "samples": [
+      315.1158340042457,
+      322.65779096633196,
+      400.7615839946084,
+      373.58295801095665,
+      302.03466600505635,
+      349.51541700866073,
+      348.10375003144145,
+      292.25083300843835
+    ]
+  },
+  "kernel_ms": {
+    "n": 8,
+    "min": 1.1458339868113399,
+    "p50": 1.3854170101694763,
+    "p95": 1.4674999983981252,
+    "max": 1.4674999983981252,
+    "samples": [
+      1.265792001504451,
+      1.4449579757638276,
+      1.4674999983981252,
+      1.1458339868113399,
+      1.4001249801367521,
+      1.1552919750101864,
+      1.419208012521267,
+      1.3854170101694763
+    ]
+  },
+  "worker_samples": [
+    {
+      "roundtrip_ms": 315.1158340042457,
+      "kernel_ms": 1.265792001504451,
+      "request_bytes": 102520,
+      "result_bytes": 34658,
+      "accepted": true
+    },
+    {
+      "roundtrip_ms": 322.65779096633196,
+      "kernel_ms": 1.4449579757638276,
+      "request_bytes": 102520,
+      "result_bytes": 34659,
+      "accepted": true
+    },
+    {
+      "roundtrip_ms": 400.7615839946084,
+      "kernel_ms": 1.4674999983981252,
+      "request_bytes": 102520,
+      "result_bytes": 34659,
+      "accepted": true
+    },
+    {
+      "roundtrip_ms": 373.58295801095665,
+      "kernel_ms": 1.1458339868113399,
+      "request_bytes": 102520,
+      "result_bytes": 34659,
+      "accepted": true
+    },
+    {
+      "roundtrip_ms": 302.03466600505635,
+      "kernel_ms": 1.4001249801367521,
+      "request_bytes": 102520,
+      "result_bytes": 34659,
+      "accepted": true
+    },
+    {
+      "roundtrip_ms": 349.51541700866073,
+      "kernel_ms": 1.1552919750101864,
+      "request_bytes": 102520,
+      "result_bytes": 34659,
+      "accepted": true
+    },
+    {
+      "roundtrip_ms": 348.10375003144145,
+      "kernel_ms": 1.419208012521267,
+      "request_bytes": 102520,
+      "result_bytes": 34658,
+      "accepted": true
+    },
+    {
+      "roundtrip_ms": 292.25083300843835,
+      "kernel_ms": 1.3854170101694763,
+      "request_bytes": 102520,
+      "result_bytes": 34659,
+      "accepted": true
+    }
+  ],
+  "rgba_bytes_per_upload": 58404,
+  "pan_upload_bytes_60_frames": 0,
+  "peak_parent_rss_bytes": 258211840,
+  "peak_finished_child_rss_bytes": 43319296,
+  "memory_scope": "macOS ru_maxrss high-water bytes, includes replay/captures/Python; child maximum is not sum",
+  "alignment": [
+    {
+      "capture": "01-asymmetric",
+      "checked_centers": 56,
+      "zoom": 4.0,
+      "max_rgb_tolerance": 2,
+      "comparison_space": "sRGB via embedded capture ICC profile; original PNG unmodified"
+    },
+    {
+      "capture": "02-navigation",
+      "checked_centers": 56,
+      "zoom": 3.2,
+      "max_rgb_tolerance": 2,
+      "comparison_space": "sRGB via embedded capture ICC profile; original PNG unmodified"
+    },
+    {
+      "capture": "03-edit-watershed",
+      "checked_centers": 56,
+      "zoom": 3.2,
+      "max_rgb_tolerance": 2,
+      "comparison_space": "sRGB via embedded capture ICC profile; original PNG unmodified"
+    }
+  ],
+  "lifecycle": "two-owner cross-token rejection; dispose/recreate; stale token rejection; resize; no dropped events",
+  "human_gates": [
+    "physical editing",
+    "human science",
+    "IME",
+    "VoiceOver paused",
+    "external stacks",
+    "other hosts",
+    "sustained throughput"
+  ]
+}

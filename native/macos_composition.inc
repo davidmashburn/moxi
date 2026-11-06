@@ -104,6 +104,19 @@ int moxi_composition_compose(uint64_t owner, uint64_t token, int slot, float x,
   r.snapshot = r.image;
   return 1;
 }
+int moxi_composition_compose_sampled(uint64_t owner, uint64_t token, int slot,
+    float x, float y, float width, float height, MoxiImageSampling sampling) {
+  if (sampling != MoxiImageSamplingDefault && sampling != MoxiImageSamplingNearest)
+    return 0;
+  if (!moxi_composition_compose(owner, token, slot, x, y, width, height))
+    return 0;
+  __attribute__((cleanup(moxi_restore_context))) MoxiWindowState *previous =
+      moxi_active_context;
+  if (!moxi_window_select_instance(owner))
+    return 0;
+  moxi_image_nearest[slot] = sampling == MoxiImageSamplingNearest;
+  return 1;
+}
 int moxi_composition_release(uint64_t owner, uint64_t token) {
   MoxiComposition *r = moxi_composition_find(owner, token);
   if (!r)

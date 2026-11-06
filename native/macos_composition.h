@@ -25,6 +25,13 @@ int moxi_composition_publish(uint64_t owner, uint64_t token, uint64_t serial,
                              int height, int stride);
 int moxi_composition_compose(uint64_t owner, uint64_t token, int slot, float x,
                              float y, float width, float height);
+typedef enum {
+    MoxiImageSamplingDefault = 0,
+    MoxiImageSamplingNearest = 1
+} MoxiImageSampling;
+/* Explicit pixel-label sampling; unsupported values fail without changing a frame. */
+int moxi_composition_compose_sampled(uint64_t owner, uint64_t token, int slot,
+    float x, float y, float width, float height, MoxiImageSampling sampling);
 int moxi_composition_release(uint64_t owner, uint64_t token);
 #ifdef __cplusplus
 }
