@@ -24,7 +24,7 @@ package-dir = { "" = "python" }
 where = ["python"]
 
 [tool.setuptools.package-data]
-moxi = ["py.typed"]
+moxi = ["py.typed", "licenses/*.txt"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests/python"]

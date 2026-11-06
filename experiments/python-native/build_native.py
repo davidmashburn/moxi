@@ -10,12 +10,29 @@ import sys
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 RUNTIMES = ('libKGENCompilerRTShared.dylib', 'libMSupportGlobals.dylib', 'libAsyncRTRuntimeGlobals.dylib')
+RUNTIME_NOTICE_FILES = ('LICENSE', 'Third-Party-Notices')
 
 def run(*args):
     return subprocess.check_output(args, text=True).strip()
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def copy_runtime_notices(prefix, destination):
+    """Retain the exact installed compiler package terms, never substitute web terms."""
+    records = list((prefix / 'conda-meta').glob('mojo-compiler-*.json'))
+    if len(records) != 1:
+        raise RuntimeError('Expected one installed mojo-compiler package record')
+    record = json.loads(records[0].read_text())
+    source = Path(record['link']['source']) / 'info/licenses'
+    for name in RUNTIME_NOTICE_FILES:
+        if not (source / name).is_file() or not (source / name).stat().st_size:
+            raise RuntimeError(f'Installed runtime notice missing: {name}; refusing incomplete wheel')
+    if destination.exists():
+        shutil.rmtree(destination)
+    shutil.copytree(source, destination)
+    return record['license'], {str(p.relative_to(destination)): sha(p)
+                               for p in sorted(destination.rglob('*')) if p.is_file()}
 
 def main():
     if sys.platform != 'darwin' or run('uname', '-m') != 'arm64':
@@ -25,6 +42,7 @@ def main():
     version = run(compiler, '--version')
     if not version.startswith('Mojo 1.1.0 '):
         raise SystemExit(f'Unverified compiler ABI: {version}; expected Mojo 1.1.0')
+    runtime_license, notices = copy_runtime_notices(prefix, HERE / 'moxi_native/runtime-notices')
     output = HERE / 'dist'
     output.mkdir(exist_ok=True)
     obj = output / 'render.o'
@@ -62,7 +80,7 @@ def main():
                  dirty=bool(run('git', '-C', str(ROOT), 'status', '--porcelain')),
                  sources_sha256=hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest(),
                  object_sha256=sha(obj), sources=sources, runtimes=runtimes,
-                 runtime_license='LicenseRef-Modular-Proprietary (installed conda metadata)',
+                 runtime_license=runtime_license, runtime_notices=notices,
                  redistribution_review='not performed; local proof only')
     (HERE / 'moxi_native/_build.py').write_text('BUILD = ' + repr(build) + '\n')
     (output / 'build.json').write_text(json.dumps(build, indent=2) + '\n')

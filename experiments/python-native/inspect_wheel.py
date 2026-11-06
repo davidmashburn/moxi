@@ -1,5 +1,6 @@
 """Independent stdlib/Mach-O inspection; does not import the extension."""
 import hashlib
+import ast
 import json
 from pathlib import Path
 import subprocess
@@ -21,6 +22,13 @@ def inspect(wheel: Path) -> dict:
             archive.extractall(root)
             metadata = archive.read(next(n for n in names if n.endswith('.dist-info/METADATA'))).decode()
             tags = archive.read(next(n for n in names if n.endswith('.dist-info/WHEEL'))).decode()
+            build_module = ast.parse(archive.read('moxi_native/_build.py').decode())
+            build = ast.literal_eval(build_module.body[0].value)
+            notices = build['runtime_notices']
+            assert {'LICENSE', 'Third-Party-Notices'} <= notices.keys(), 'Missing installed runtime notices'
+            for name, digest in notices.items():
+                data = archive.read('moxi_native/runtime-notices/' + name)
+                assert data and hashlib.sha256(data).hexdigest() == digest, 'Runtime notice changed: ' + name
         binaries = {}
         core = list(root.rglob('_core*.so'))
         assert len(core) == 1
@@ -55,6 +63,7 @@ def inspect(wheel: Path) -> dict:
         return dict(wheel=wheel.name, sha256=hashlib.sha256(wheel.read_bytes()).hexdigest(),
                     bytes=wheel.stat().st_size, members=names, metadata=metadata, tags=tags,
                     binaries=binaries, dependency_check='PASS: bundled or system only',
+                    runtime_license=build['runtime_license'], runtime_notices=notices,
                     compiler_in_wheel=False, abi3=False,
                     production_gate='OPEN: proprietary runtime redistribution unreviewed; one CPython/macOS/arm64 host only; bounded render coverage')
 

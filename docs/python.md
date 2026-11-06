@@ -52,3 +52,10 @@ The Python package and the Mojo package share the versioned `PlotSpec` JSON cont
 Current Python exports are deterministic reference implementations for PNG, SVG, PDF, and raw RGBA, plus NumPy conversion. Core marks and the recipe wave (histogram, density, ECDF, regression, hexbin, and error bars) use executable transforms rather than raw-point placeholders. Mapping-like column data and row sequences are supported directly. pandas and NumPy are optional adapters; they are not import-time dependencies.
 
 This is the stable value-boundary lane, not a CPython extension. A future native/limited-ABI binding may reuse this contract, but the Python API will not depend on compiler availability. The support policy is documented in [the support matrix](support-matrix.md), and the clean-wheel gate is `pixi run python-check`.
+
+### Third-party attribution
+
+The specialized plotting implementations adapt the pinned MIT-licensed
+`dataviz_mojo` algorithms identified in their source modules. The Python wheel
+and source distribution retain the copyright and permission notice at
+`moxi/licenses/DATAVIZ-LICENSE.txt`.

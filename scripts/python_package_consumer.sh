@@ -15,7 +15,9 @@ mkdir -p "$stage_dir/docs"
 cp "$repo_dir/docs/python.md" "$stage_dir/docs/python.md"
 cp -R "$repo_dir/python" "$stage_dir/python"
 python3 -m venv "$venv_dir"
-"$venv_dir/bin/python" -m pip wheel --disable-pip-version-check --no-deps --quiet "$stage_dir" --wheel-dir "$wheel_dir"
+"$venv_dir/bin/python" -m pip install --disable-pip-version-check --quiet build
+"$venv_dir/bin/python" -m build --wheel --sdist --outdir "$wheel_dir" "$stage_dir"
+python3 "$repo_dir/scripts/python_package_notices.py" "$wheel_dir"
 wheel="$(find "$wheel_dir" -type f -name 'moxi-*.whl' -print -quit)"
 if [[ -z "$wheel" ]]; then
     echo "Python wheel build did not produce a moxi wheel" >&2

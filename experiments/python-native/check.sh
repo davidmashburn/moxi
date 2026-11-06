@@ -20,11 +20,18 @@ cat /tmp/moxi-e04-native-tests.log
   "$consumer/venv/bin/python" -I -c 'import runpy,sys; sys.path.insert(0,"tests"); sys.argv=["tests/probe.py",sys.argv[1]]; runpy.run_path("tests/probe.py",run_name="__main__")' "$artifacts")
 cp /tmp/moxi-e04-native-tests.log "$artifacts/native-tests.log"
 # The existing suite stays authoritative for the unchanged facade.
-cp -R "$root/tests/python" "$consumer/facade-tests"
-mkdir -p "$consumer/fixtures"
-cp -R "$root/tests/fixtures/wave_a" "$consumer/fixtures/"
+cp -R "$root/tests/python" "$consumer/tests/python"
+mkdir -p "$consumer/tests/fixtures" "$consumer/scripts/wave_b" "$consumer/scripts/wave_c" "$consumer/src/moxi" "$consumer/docs"
+cp -R "$root/tests/fixtures/wave_a" "$root/tests/fixtures/wave_b" "$root/tests/fixtures/wave_c" "$consumer/tests/fixtures/"
+cp "$root/tests/test_specialized_c.py" "$consumer/tests/"
+# Copy the fixture loaders and their data dependencies, never the facade source.
+for wave in wave_b wave_c; do
+  cp "$root/scripts/$wave/fixtures.py" "$root/scripts/$wave/boundaries.py" "$consumer/scripts/$wave/"
+done
+cp "$root/src/moxi/scenarios.mojo" "$consumer/src/moxi/"
+cp "$root/docs/dataviz-capabilities.tsv" "$consumer/docs/"
 (cd "$consumer" && env -i HOME="$consumer/home" PATH=/usr/bin:/bin \
-  "$consumer/venv/bin/python" -I -m pytest facade-tests -q) > /tmp/moxi-e04-facade-tests.log 2>&1
+  "$consumer/venv/bin/python" -I -m pytest tests/python tests/test_specialized_c.py -q) > /tmp/moxi-e04-facade-tests.log 2>&1
 cat /tmp/moxi-e04-facade-tests.log
 cp /tmp/moxi-e04-facade-tests.log "$artifacts/facade-tests.log"
 printf 'Clean installed consumer retained at %s\n' "$consumer"

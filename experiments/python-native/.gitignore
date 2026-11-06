@@ -4,3 +4,4 @@ build/
 moxi_native/_build.py
 moxi_native/*.so
 moxi_native/.libs/
+moxi_native/runtime-notices/

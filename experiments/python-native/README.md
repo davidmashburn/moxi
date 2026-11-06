@@ -159,3 +159,16 @@ No E02/E03 specialized plot dispatcher or implementation is edited. The
 compiled object imports their shared `moxi_plot` base, so integration must
 rebuild and rerun this proof after those branches land; an existing wheel's
 source hashes cannot establish behavior of a newer integrated revision.
+
+## Distribution notices
+
+The build retains the exact installed Mojo compiler package's `LICENSE` and
+`Third-Party-Notices` under `moxi_native/runtime-notices/`. Missing installed
+notices fail the build before runtime bundling. Build metadata records their
+hashes, and the independent wheel inspector verifies those bytes without loading
+the extension. These notices apply to the bundled runtime libraries; the local
+proof's redistribution and production gates remain open.
+
+The Python facade ships the pinned dataviz_mojo MIT notice under
+`moxi/licenses/DATAVIZ-LICENSE.txt`. `scripts/python_package_consumer.sh` verifies
+its exact contents in both the wheel and source distribution.

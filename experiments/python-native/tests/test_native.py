@@ -206,3 +206,13 @@ def test_json_boundary_types_and_shared_scales():
     raw = spec.as_dict(); raw['shared_scales'] = {'x': False, 'y': False}
     with pytest.raises(UnsupportedError): call(json.dumps(raw))
     with pytest.raises(InputError): call('"\ud800"')
+
+
+@pytest.mark.parametrize('label', ['closing } brace', 'opening { brace', 'quote " and \\ slash'])
+def test_json_punctuation_in_layer_labels_preserves_geometry(label):
+    spec, columns = canonical()
+    original = json.loads(spec.to_json())
+    expected = call(json.dumps(original), columns)
+    for layer in original['layers']:
+        layer['label'] = label
+    assert call(json.dumps(original), columns) == expected
