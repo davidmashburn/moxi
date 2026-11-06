@@ -295,7 +295,7 @@ class Session:
         self.document.close(self.controller)
         if self.capture_root:
             self.capture_root.mkdir(parents=True, exist_ok=True)
-            (self.capture_root / "manifest.json").write_text(json.dumps(self.manifest, indent=2) + "\n")
+            (self.capture_root / "captures.json").write_text(json.dumps(self.manifest, indent=2) + "\n")
             metrics = {"frame_ticks": self.frames, "slow_frame_intervals_ms": self.slow_intervals,
                        "slow_frame_intervals_ms_by_backend": self.slow_by_backend,
                        "capture_error": self.capture_error, "capture_pauses_excluded": True,

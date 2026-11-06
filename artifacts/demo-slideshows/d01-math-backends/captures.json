@@ -1,0 +1,2106 @@
+[
+  {
+    "demo": "D01",
+    "caption": "Initial exact arithmetic fixture",
+    "backend": "sympy",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 0,
+    "generation": 0,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "00-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Ready. No computation has run.",
+    "source": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "3"
+          ],
+          "children": [],
+          "id": "rational"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "6"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "One third + one sixth: exact result",
+    "backend": "sympy",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 0,
+    "generation": 1,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "01-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "3"
+          ],
+          "children": [],
+          "id": "rational"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "6"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result-1"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Applied result, then edited its exact JSON rational payload",
+    "backend": "sympy",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 2,
+    "generation": 1,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "02-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Text edit: rational payload 1/2 -> 3/4; still typed and computable.",
+    "source": {
+      "kind": "rational",
+      "values": [
+        "3",
+        "4"
+      ],
+      "children": [],
+      "id": "result-1"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result-1"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "expand-square: ok",
+    "backend": "sympy",
+    "fixture": "expand-square",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 3,
+    "generation": 2,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "03-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "add",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "2"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "result-4"
+            }
+          ],
+          "id": "result-2"
+        },
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "result-7"
+            }
+          ],
+          "id": "result-5"
+        },
+        {
+          "kind": "mul",
+          "values": [],
+          "children": [
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "result-9"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            }
+          ],
+          "id": "result-8"
+        }
+      ],
+      "id": "result-1"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "differentiate-sine-product: ok",
+    "backend": "sympy",
+    "fixture": "differentiate-sine-product",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 4,
+    "generation": 3,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "04-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "mul",
+      "values": [],
+      "children": [
+        {
+          "kind": "symbol",
+          "values": [
+            "x",
+            "x",
+            "complex"
+          ],
+          "children": [],
+          "id": "x"
+        },
+        {
+          "kind": "sin",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            }
+          ],
+          "id": "expression"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "mul",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "cos",
+              "values": [],
+              "children": [
+                {
+                  "kind": "symbol",
+                  "values": [
+                    "x",
+                    "x",
+                    "complex"
+                  ],
+                  "children": [],
+                  "id": "x"
+                }
+              ],
+              "id": "result-4"
+            }
+          ],
+          "id": "result-2"
+        },
+        {
+          "kind": "sin",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            }
+          ],
+          "id": "result-6"
+        }
+      ],
+      "id": "result-1"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "substitute-compound: ok",
+    "backend": "sympy",
+    "fixture": "substitute-compound",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 5,
+    "generation": 4,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "05-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "symbol",
+          "values": [
+            "x",
+            "x",
+            "complex"
+          ],
+          "children": [],
+          "id": "x"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "2"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "add",
+          "values": [],
+          "children": [
+            {
+              "kind": "integer",
+              "values": [
+                "1"
+              ],
+              "children": [],
+              "id": "result-3"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            }
+          ],
+          "id": "result-2"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "2"
+          ],
+          "children": [],
+          "id": "result-5"
+        }
+      ],
+      "id": "result-1"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "complex-root-square: ok",
+    "backend": "sympy",
+    "fixture": "complex-root-square",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 6,
+    "generation": 5,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "06-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "integer"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "2"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "result-4"
+            }
+          ],
+          "id": "result-2"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "2"
+          ],
+          "children": [],
+          "id": "result-5"
+        }
+      ],
+      "id": "result-1"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "real-root-unsupported-abs: unsupported",
+    "backend": "sympy",
+    "fixture": "real-root-unsupported-abs",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 7,
+    "generation": 6,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "07-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "unsupported; source retained: Cannot import result type Abs",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "r",
+                "r",
+                "real"
+              ],
+              "children": [],
+              "id": "r"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "integer"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "2"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Real slow expansion pending; native frame ticks continue",
+    "backend": "sympy",
+    "fixture": "slow-expansion",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 8,
+    "generation": 7,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "08-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Real expansion (x+y+z)^1200 running; edit, cancel or supersede.",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "add",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "z",
+                "z",
+                "complex"
+              ],
+              "children": [],
+              "id": "z"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "1200"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Source edited while expansion runs; old revision cannot apply",
+    "backend": "sympy",
+    "fixture": "slow-expansion",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 9,
+    "generation": 7,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "09-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Structured edit: wrapped source + 1; older result is stale.",
+    "source": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "add",
+              "values": [],
+              "children": [
+                {
+                  "kind": "symbol",
+                  "values": [
+                    "x",
+                    "x",
+                    "complex"
+                  ],
+                  "children": [],
+                  "id": "x"
+                },
+                {
+                  "kind": "symbol",
+                  "values": [
+                    "y",
+                    "y",
+                    "complex"
+                  ],
+                  "children": [],
+                  "id": "y"
+                },
+                {
+                  "kind": "symbol",
+                  "values": [
+                    "z",
+                    "z",
+                    "complex"
+                  ],
+                  "children": [],
+                  "id": "z"
+                }
+              ],
+              "id": "expression"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "1200"
+              ],
+              "children": [],
+              "id": "integer"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "1"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Slow request superseded by exact arithmetic; only the new generation returns",
+    "backend": "sympy",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 10,
+    "generation": 8,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "10-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "3"
+          ],
+          "children": [],
+          "id": "rational"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "6"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result-1"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Cancellation terminates the worker process",
+    "backend": "sympy",
+    "fixture": "slow-expansion",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 11,
+    "generation": 10,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "11-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Cancelled: native/Python process killed; next request restarts.",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "add",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "z",
+                "z",
+                "complex"
+              ],
+              "children": [],
+              "id": "z"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "1200"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Worker restarted; editable result applied",
+    "backend": "sympy",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 13,
+    "generation": 11,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "12-sympy.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Apply: ok",
+    "source": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result-1"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result-1"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Initial exact arithmetic fixture",
+    "backend": "symengine",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 14,
+    "generation": 11,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "13-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Fixture: exact-half",
+    "source": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "3"
+          ],
+          "children": [],
+          "id": "rational"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "6"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "One third + one sixth: exact result",
+    "backend": "symengine",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 14,
+    "generation": 1,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "14-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "3"
+          ],
+          "children": [],
+          "id": "rational"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "6"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Applied result, then edited its exact JSON rational payload",
+    "backend": "symengine",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 16,
+    "generation": 1,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "15-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Text edit: rational payload 1/2 -> 3/4; still typed and computable.",
+    "source": {
+      "kind": "rational",
+      "values": [
+        "3",
+        "4"
+      ],
+      "children": [],
+      "id": "result"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "expand-square: ok",
+    "backend": "symengine",
+    "fixture": "expand-square",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 17,
+    "generation": 2,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "16-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "add",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "2"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "result"
+            }
+          ],
+          "id": "result"
+        },
+        {
+          "kind": "mul",
+          "values": [],
+          "children": [
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "result"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            }
+          ],
+          "id": "result"
+        },
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "result"
+            }
+          ],
+          "id": "result"
+        }
+      ],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "differentiate-sine-product: ok",
+    "backend": "symengine",
+    "fixture": "differentiate-sine-product",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 18,
+    "generation": 3,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "17-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "mul",
+      "values": [],
+      "children": [
+        {
+          "kind": "symbol",
+          "values": [
+            "x",
+            "x",
+            "complex"
+          ],
+          "children": [],
+          "id": "x"
+        },
+        {
+          "kind": "sin",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            }
+          ],
+          "id": "expression"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "mul",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "cos",
+              "values": [],
+              "children": [
+                {
+                  "kind": "symbol",
+                  "values": [
+                    "x",
+                    "x",
+                    "complex"
+                  ],
+                  "children": [],
+                  "id": "x"
+                }
+              ],
+              "id": "result"
+            }
+          ],
+          "id": "result"
+        },
+        {
+          "kind": "sin",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            }
+          ],
+          "id": "result"
+        }
+      ],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "substitute-compound: ok",
+    "backend": "symengine",
+    "fixture": "substitute-compound",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 19,
+    "generation": 4,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "18-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "symbol",
+          "values": [
+            "x",
+            "x",
+            "complex"
+          ],
+          "children": [],
+          "id": "x"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "2"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "add",
+          "values": [],
+          "children": [
+            {
+              "kind": "integer",
+              "values": [
+                "1"
+              ],
+              "children": [],
+              "id": "result"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            }
+          ],
+          "id": "result"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "2"
+          ],
+          "children": [],
+          "id": "result"
+        }
+      ],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "complex-root-square: ok",
+    "backend": "symengine",
+    "fixture": "complex-root-square",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 20,
+    "generation": 5,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "19-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "integer"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "2"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "result"
+            }
+          ],
+          "id": "result"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "2"
+          ],
+          "children": [],
+          "id": "result"
+        }
+      ],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "real-root-unsupported-abs: unsupported",
+    "backend": "symengine",
+    "fixture": "real-root-unsupported-abs",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 21,
+    "generation": 6,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "20-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "unsupported; source retained: SymEngine probe supports complex symbols only",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "r",
+                "r",
+                "real"
+              ],
+              "children": [],
+              "id": "r"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "2"
+              ],
+              "children": [],
+              "id": "integer"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "2"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Real slow expansion pending; native frame ticks continue",
+    "backend": "symengine",
+    "fixture": "slow-expansion",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 22,
+    "generation": 7,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "21-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Real expansion (x+y+z)^1200 running; edit, cancel or supersede.",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "add",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "z",
+                "z",
+                "complex"
+              ],
+              "children": [],
+              "id": "z"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "1200"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Source edited while expansion runs; old revision cannot apply",
+    "backend": "symengine",
+    "fixture": "slow-expansion",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 23,
+    "generation": 7,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "22-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Structured edit: wrapped source + 1; older result is stale.",
+    "source": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "pow",
+          "values": [],
+          "children": [
+            {
+              "kind": "add",
+              "values": [],
+              "children": [
+                {
+                  "kind": "symbol",
+                  "values": [
+                    "x",
+                    "x",
+                    "complex"
+                  ],
+                  "children": [],
+                  "id": "x"
+                },
+                {
+                  "kind": "symbol",
+                  "values": [
+                    "y",
+                    "y",
+                    "complex"
+                  ],
+                  "children": [],
+                  "id": "y"
+                },
+                {
+                  "kind": "symbol",
+                  "values": [
+                    "z",
+                    "z",
+                    "complex"
+                  ],
+                  "children": [],
+                  "id": "z"
+                }
+              ],
+              "id": "expression"
+            },
+            {
+              "kind": "integer",
+              "values": [
+                "1200"
+              ],
+              "children": [],
+              "id": "integer"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "1"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Slow request superseded by exact arithmetic; only the new generation returns",
+    "backend": "symengine",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 24,
+    "generation": 8,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "23-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "ok; eligible for explicit apply",
+    "source": {
+      "kind": "add",
+      "values": [],
+      "children": [
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "3"
+          ],
+          "children": [],
+          "id": "rational"
+        },
+        {
+          "kind": "rational",
+          "values": [
+            "1",
+            "6"
+          ],
+          "children": [],
+          "id": "rational"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Cancellation terminates the worker process",
+    "backend": "symengine",
+    "fixture": "slow-expansion",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 25,
+    "generation": 10,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "24-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Cancelled: native/Python process killed; next request restarts.",
+    "source": {
+      "kind": "pow",
+      "values": [],
+      "children": [
+        {
+          "kind": "add",
+          "values": [],
+          "children": [
+            {
+              "kind": "symbol",
+              "values": [
+                "x",
+                "x",
+                "complex"
+              ],
+              "children": [],
+              "id": "x"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "y",
+                "y",
+                "complex"
+              ],
+              "children": [],
+              "id": "y"
+            },
+            {
+              "kind": "symbol",
+              "values": [
+                "z",
+                "z",
+                "complex"
+              ],
+              "children": [],
+              "id": "z"
+            }
+          ],
+          "id": "expression"
+        },
+        {
+          "kind": "integer",
+          "values": [
+            "1200"
+          ],
+          "children": [],
+          "id": "integer"
+        }
+      ],
+      "id": "expression"
+    },
+    "result": null,
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Worker restarted; editable result applied",
+    "backend": "symengine",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 27,
+    "generation": 11,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "25-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Apply: ok",
+    "source": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  },
+  {
+    "demo": "D01",
+    "caption": "Measured decision at the application boundary; choose SymPy",
+    "backend": "symengine",
+    "fixture": "exact-half",
+    "source_revision": "df1eff863f8da5cf2e121ce44bc70e99838fde1c + local D01 diff",
+    "source_sha256": "22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35",
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "document_revision": 27,
+    "generation": 11,
+    "window_points": [
+      1100,
+      760
+    ],
+    "scale": "see PNG pixel dimensions",
+    "image": "26-symengine.png",
+    "capture": "AppKit cacheDisplay of the live Moxi NSWindow contentView; OS screen capture unavailable",
+    "reproduction": "bash experiments/math-backends/run-demo.sh --capture <output-directory>",
+    "status": "Apply: ok",
+    "source": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result"
+    },
+    "result": {
+      "kind": "rational",
+      "values": [
+        "1",
+        "2"
+      ],
+      "children": [],
+      "id": "result"
+    },
+    "pixels": [
+      2200,
+      1520
+    ]
+  }
+]

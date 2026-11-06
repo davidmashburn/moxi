@@ -14,8 +14,11 @@ open /tmp/moxi-d01/captures/index.html
 
 The program launches the actual Moxi AppKit window, drives both real workers,
 and exits after 27 captures. The slideshow embeds all images; adjacent originals,
-manifest and frame intervals preserve the evidence. The manifest lists each
+capture metadata and frame intervals preserve the evidence. `captures.json` lists each
 interaction and actual source/result state. No renderer changes are required.
+`manifest.json` supplies the shared gallery contract. Run
+`python3 scripts/demo_slideshows.py` to rebuild the master gallery after copying
+the generated files into this directory.
 
 OS screenshot capture was unavailable on the recorded host. These PNGs use
 AppKit's cacheDisplay of the live window content view, not an offscreen Moxi

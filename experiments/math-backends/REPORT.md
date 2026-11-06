@@ -112,9 +112,9 @@ its warm boundary cost here. It does not use a Python SymEngine binding. Removin
 that cost or measuring predominantly novel/large expressions could change the
 choice. SymEngine already has better p99/max for powers 8 and 24 in this sample.
 
-The final native demo recorded 222 app ticks. During real slow expansions,
-excluding capture pauses, SymPy had 47 intervals with median/p95/max
-18.041/19.747/19.801 ms; SymEngine had 47 at 18.069/19.669/19.958 ms. The loop
+The parent integration capture recorded 320 app ticks. During real slow
+expansions, excluding capture pauses, SymPy had 49 intervals with median/p95/max
+17.133/20.351/20.789 ms; SymEngine had 49 at 17.151/21.027/21.175 ms. The loop
 intentionally sleeps 16 ms and continues dispatching events and applying edits.
 These are application tick intervals, **not GPU presentation timestamps** or a
 human usability assessment. Original intervals are in the gallery's `frames.json`.
@@ -200,20 +200,23 @@ policy becomes a requirement; GMP was not rejected on an inferred policy.
 
 The [portable slideshow](../../artifacts/demo-slideshows/d01-math-backends/index.html)
 contains 27 actual running-window captures, previous/next controls, arrow-key
-navigation and a contact sheet. Adjacent PNGs, `manifest.json` and `frames.json`
+navigation and a contact sheet. Adjacent PNGs, `captures.json`, the shared-gallery `manifest.json` and `frames.json`
 record the fixtures, actions, actual source/result/status, revisions/generations,
 base Git revision, source SHA-256, host and dimensions. The base is
-`6c92242645cf94bc9900b6c0bcc3581f965b4616` plus this uncommitted D01 change.
+`df1eff863f8da5cf2e121ce44bc70e99838fde1c` plus the capture/gallery integration diff.
 The capture fingerprint covers executable probe sources/scripts and package
 metadata, not documentation/evidence files. A fresh source run produces its own
 fingerprint. See README for exact reproduction.
 
 Final artifact verification matched all 27 captures to source fingerprint
-`c2ab9ccc300e10d48e1a589cea7f48e62801cd80161ec7fe1e2dba7e261fc1cb`.
+`22ce2c782b42f36c53c776aa60ce8628226ae7193c88d8599ab915e9a0188b35`.
 Each original is 2200×1520 pixels for a 1100×760-point window. Browser checks
 loaded all 27 slides and thumbnails, exercised next/arrow-back/contact-sheet
 controls, and found no external image dependencies or failed image loads.
-Originals plus the standalone embedded-image gallery occupy about 13 MB.
+The parent visually inspected exact-result, unsupported-result, restart and
+measured-decision screenshots. Shared gallery validation passed for all three
+integrated demos. The engine timing tables above retain the original benchmark
+run; this fresh capture only replaces native screenshot/frame evidence.
 
 The OS screen-capture command failed (`could not create image from window`).
 The fallback snapshots the live Moxi window's AppKit content view, after rendering,
@@ -227,9 +230,11 @@ Changes are confined to `experiments/math-backends/` and its D01 gallery. The
 application glue is 1,563 lines of Python/Mojo/C/Objective-C plus 236 lines of
 focused tests/consumer checks and small shell scripts. This includes
 the semantic model, shared protocol, two adapters, native demo, measurement and
-gallery tools; it is not merely the size of a C ABI wrapper. The parent's review
-should pay particular attention to the boundary validators, document eligibility
-checks and process teardown before using these experimentally in D02.
+gallery tools; it is not merely the size of a C ABI wrapper. Parent review covered boundary validators, document eligibility and process
+teardown, fixed the selected-binder escape described above, and reran the clean
+installed-consumer checks successfully. The documented embedded-Python path
+command was corrected for macOS framework installations after a failed launch;
+the corrected command produced the fresh captures.
 
 Local logs remain under `/tmp/moxi-d01/`: `configure.log`, `build.log`,
 `install.log`, `worker-build.log`, `final-check.log`, `final-package.log`,

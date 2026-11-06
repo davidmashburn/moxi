@@ -156,16 +156,29 @@
     {
       "id": "D01",
       "scope": "[Symbolic backend comparison](docs/design/math-backend-experiment.md): executable SymEngine wrapper and persistent SymPy worker against one exact-expression corpus; ownership, bounded work, revision/cancellation, editable result conversion, packaging and measured decision.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "df1eff8"
+      ],
+      "verification": [
+        "Parent reviewed and reran 34 focused tests against both real workers; added local rejection of selections nested inside unsupported binders.",
+        "Sixteen independent corpus oracles, result round-trips, bounded framing/queueing, stale generations, cancellation, deadline/restart, teardown and native handle counters passed.",
+        "Measured application-boundary comparison provisionally chooses persistent SymPy; details and alternative tradeoffs are in experiments/math-backends/REPORT.md.",
+        "Parent reran clean wheel consumers and captured 27 fresh live AppKit states. All images loaded, slideshow navigation passed, and representative success/unsupported/recovery/decision frames were visually inspected."
+      ],
+      "remaining_gates": [
+        "D02 actual 2D/text editor integration must repeat semantic and lifecycle acceptance; structural JSON editing alone does not satisfy it.",
+        "Relocatable/signed application packaging and complete runtime redistribution verification remain open; clean Python-wheel consumers are narrower evidence.",
+        "Other platforms, physical input/IME/accessibility, compositor latency, full Moxi regression suite and remote CI are unverified."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/d01-math-backends/index.html"
+      ]
     },
     {
       "id": "D02",
       "scope": "[Math editor M0\u2013M4](docs/design/math-editing.md): lossless notation/text including holes/malformed edits; shared display/editor geometry, fractions/scripts/radicals/delimiters/matrices/functions/sums/integrals, navigation/selection, clipboard/history/persistence, one selected async backend, and second public-API consumer.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],

@@ -26,7 +26,7 @@ permits 3.11+, but only 3.14.7 was exercised.
 ```sh
 python3 -m venv /tmp/moxi-d01/venv
 /tmp/moxi-d01/venv/bin/pip install 'sympy==1.14.0' 'mpmath==1.3.0' 'pytest==9.0.2'
-export MOJO_PYTHON_LIBRARY="$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR") + "/" + sysconfig.get_config_var("LDLIBRARY"))')"
+export MOJO_PYTHON_LIBRARY="$(python3 -c 'import sysconfig; print((sysconfig.get_config_var("PYTHONFRAMEWORKPREFIX") or sysconfig.get_config_var("LIBDIR")) + "/" + sysconfig.get_config_var("LDLIBRARY"))')"
 bash experiments/math-backends/build-native.sh > /tmp/moxi-d01/build-driver.log 2>&1
 bash experiments/math-backends/check.sh > /tmp/moxi-d01/check.log 2>&1
 bash experiments/math-backends/package-check.sh > /tmp/moxi-d01/package-check.log 2>&1
