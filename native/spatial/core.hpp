@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <cstdint>
 #include <mutex>
+#include <map>
 #include <optional>
 #include <thread>
 #include <vector>
@@ -67,18 +68,28 @@ struct Projected {
 };
 struct Revision {
   uint64_t document = 1, geometry = 1, camera = 1, viewport = 1, generation = 1,
-           preview = 1;
+           preview = 1, view = 1, lifecycle = 1;
   bool operator==(const Revision &) const = default;
 };
 struct Object {
   uint64_t id;
   Transform transform;
   Vec3 color;
+  uint64_t parent = 0; // zero is world; stable application IDs, independent of order
   bool operator==(const Object &) const = default;
 };
+struct ClipPlane {
+  bool enabled = false;
+  Vec3 normal{1, 0, 0};
+  double offset = 0; // retained half-space: dot(normal, worldPoint) >= offset
+  bool operator==(const ClipPlane &) const = default;
+};
+struct Probe { uint64_t object = 0; Vec3 local; };
+struct Measurement { Vec3 a, b; double distance = 0; };
 struct Document {
   double parameter = .18;
   std::vector<Object> objects;
+  ClipPlane clip;
   bool operator==(const Document &) const = default;
 };
 struct Vertex {
@@ -156,12 +167,23 @@ public:
   Session(const Session &) = delete;
   Session &operator=(const Session &) = delete;
   const Document &document() const { return doc; }
-  const Camera &camera() const { return view; }
-  const Viewport &viewport() const { return port; }
-  const Revision &revision() const { return rev; }
+  const Camera &camera() const { return v().camera; }
+  const Viewport &viewport() const { return v().viewport; }
+  Revision revision() const;
+  uint64_t createView();
+  bool activateView(uint64_t);
+  void removeView(uint64_t);
+  size_t viewCount() const { return views.size(); }
+  std::optional<Transform> worldTransform(uint64_t, bool preview = true) const;
+  std::optional<Transform> localTransform(uint64_t) const;
+  bool clipping(ClipPlane);
+  bool probe(double x, double y);
+  bool setProbe(int endpoint, uint64_t object, Vec3 local);
+  void clearProbes();
+  std::optional<Measurement> measurement() const;
   const std::optional<Gesture> &gesture() const { return drag; }
   const Frame &frame();
-  State state() const { return status; }
+  State state() const { return v().lifecycle == State::Ready ? status : v().lifecycle; }
   uint64_t selection() const { return selected; }
   double displayedParameter() const { return mesh.parameter; }
   size_t undoCount() const { return undoStack.size(); }
@@ -206,14 +228,25 @@ public:
   std::vector<ScreenLine> overlays(Tool);
   bool hitHandle(Tool, double, double);
   bool frameCurrent(Revision r) const {
-    return r == rev && status != State::Disposed &&
-           status != State::Unsupported && status != State::Failed;
+    return r == revision() && usable();
   }
 
 private:
   Document doc;
-  Camera view;
-  Viewport port;
+  struct ViewState {
+    Camera camera;
+    Viewport viewport;
+    uint64_t cameraRevision = 1, viewportRevision = 1, epoch = 1;
+    State lifecycle = State::Ready;
+    Route route = Route::None;
+    double pointerX = 0, pointerY = 0;
+  };
+  std::map<uint64_t, ViewState> views{{1, {}}};
+  uint64_t activeView = 1, nextView = 2, dragView = 0;
+  ViewState &v() { return views.at(activeView); }
+  const ViewState &v() const { return views.at(activeView); }
+  std::array<std::optional<Probe>, 2> probes;
+  int nextProbe = 0;
   Revision rev;
   State status = State::Ready;
   uint64_t selected = 101, workRevision = 1;
@@ -221,8 +254,6 @@ private:
   Frame cached;
   Counters counts;
   std::optional<Gesture> drag;
-  Route route = Route::None;
-  double pointerX = 0, pointerY = 0;
   std::vector<Document> undoStack, redoStack;
   Object *object(uint64_t);
   const Object *object(uint64_t) const;

@@ -46,7 +46,8 @@ enum MSMetric {
   MS_REPLACED,
   MS_FRAME_BUILDS,
   MS_UPLOADS,
-  MS_SUBMISSIONS
+  MS_SUBMISSIONS,
+  MS_DOCUMENT_ID, MS_VIEWS, MS_VERTICES, MS_GEOMETRY_ID, MS_TARGET_ID, MS_GPU_BYTES
 };
 enum MSTiming {
   MS_CPU,
@@ -58,6 +59,20 @@ enum MSTiming {
   MS_TOTAL
 };
 uint64_t ms_create(void);
+/* Linked views share document/history/selection/worker/geometry, but have their
+ * own camera, viewport, lifecycle and composition owner. Total handles <=16. */
+uint64_t ms_link(uint64_t source);
+int ms_objects_parent(uint64_t session, uint64_t object, uint64_t parent);
+uint64_t ms_parent(uint64_t session, uint64_t object);
+double ms_world_transform(uint64_t session, uint64_t object, int component, int preview);
+/* Normal is normalized together with offset. Keep dot(n,p)>=offset, no caps.
+ * Clip is document history; measurements are ephemeral local object anchors. */
+int ms_clip(uint64_t session, int enabled, double nx, double ny, double nz, double offset);
+double ms_clip_value(uint64_t session, int field);
+int ms_probe(uint64_t session, double x, double y);
+int ms_probe_set(uint64_t session, int endpoint, uint64_t object, double x, double y, double z);
+int ms_probe_clear(uint64_t session);
+double ms_measurement(uint64_t session, int component);
 int ms_destroy(uint64_t session);
 int ms_state(uint64_t session);
 int ms_viewport(uint64_t session, double x, double y, double width,

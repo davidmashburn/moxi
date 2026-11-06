@@ -92,6 +92,12 @@ struct SpatialMetric(ImplicitlyCopyable, Equatable):
     comptime FRAME_BUILDS = Self(12)
     comptime UPLOADS = Self(13)
     comptime SUBMISSIONS = Self(14)
+    comptime DOCUMENT_ID = Self(15)
+    comptime VIEWS = Self(16)
+    comptime VERTICES = Self(17)
+    comptime GEOMETRY_ID = Self(18)
+    comptime TARGET_ID = Self(19)
+    comptime GPU_BYTES = Self(20)
 
     def __init__(out self, value: Int32):
         self.value = value
@@ -211,6 +217,27 @@ struct SpatialObject(ImplicitlyCopyable):
 
 
 @fieldwise_init
+struct SpatialNode(ImplicitlyCopyable):
+    var object: SpatialObject
+    var parent: UInt64
+
+
+@fieldwise_init
+struct SpatialClip(ImplicitlyCopyable):
+    var enabled: Bool
+    var normal: SpatialPoint
+    var offset: Float64
+
+
+struct SpatialEndpoint(ImplicitlyCopyable):
+    var value: Int32
+    comptime A = Self(0)
+    comptime B = Self(1)
+    def __init__(out self, value: Int32):
+        self.value = value
+
+
+@fieldwise_init
 struct SpatialAnchor(ImplicitlyCopyable):
     var state: SpatialAnchorState
     var x: Float64
@@ -250,6 +277,51 @@ struct SpatialViewport:
         if self._handle != 0:
             _ = external_call["ms_destroy", Int32](self._handle)
             self._handle = 0
+
+    def __init__(out self, linked_to: SpatialViewport) raises:
+        """New view of the same document; independent camera/owner, no mesh copy."""
+        self._handle = external_call["ms_link", UInt64](linked_to._handle)
+        if self._handle == 0:
+            raise Error("Cannot create linked spatial view")
+
+    def replace_hierarchy(self, nodes: List[SpatialNode]) -> Bool:
+        if len(nodes) > 16:
+            return False
+        if external_call["ms_objects_begin", Int32](self._handle) == 0:
+            return False
+        for node in nodes:
+            var o = node.object
+            if external_call["ms_objects_add", Int32](self._handle, o.id, o.position.x, o.position.y, o.position.z, o.angle, o.scale, o.color.x, o.color.y, o.color.z) == 0:
+                return False
+            if external_call["ms_objects_parent", Int32](self._handle, o.id, node.parent) == 0:
+                return False
+        return external_call["ms_objects_commit", Int32](self._handle) != 0
+
+    def parent(self, object: UInt64) -> UInt64:
+        return external_call["ms_parent", UInt64](self._handle, object)
+
+    def world_transform(self, object: UInt64, component: SpatialComponent, preview: Bool = True) -> Float64:
+        return external_call["ms_world_transform", Float64](self._handle, object, component.value, Int32(preview))
+
+    def set_clip(self, clip: SpatialClip) -> Bool:
+        return external_call["ms_clip", Int32](self._handle, Int32(clip.enabled), clip.normal.x, clip.normal.y, clip.normal.z, clip.offset) != 0
+
+    def clip(self) -> SpatialClip:
+        return SpatialClip(external_call["ms_clip_value", Float64](self._handle, Int32(0)) == 1, SpatialPoint(external_call["ms_clip_value", Float64](self._handle, Int32(1)), external_call["ms_clip_value", Float64](self._handle, Int32(2)), external_call["ms_clip_value", Float64](self._handle, Int32(3))), external_call["ms_clip_value", Float64](self._handle, Int32(4)))
+
+    def probe(self, x: Float64, y: Float64) -> Bool:
+        """Alternate A/B surface picks using the same clipped geometry as rendering."""
+        return external_call["ms_probe", Int32](self._handle, x, y) != 0
+
+    def set_probe(self, endpoint: SpatialEndpoint, object: UInt64, local: SpatialPoint) -> Bool:
+        return external_call["ms_probe_set", Int32](self._handle, endpoint.value, object, local.x, local.y, local.z) != 0
+
+    def clear_probes(self):
+        _ = external_call["ms_probe_clear", Int32](self._handle)
+
+    def measurement(self) -> Float64:
+        """World-unit distance; NaN until both local object anchors are valid."""
+        return external_call["ms_measurement", Float64](self._handle, Int32(0))
 
     def state(self) -> SpatialState:
         return SpatialState(external_call["ms_state", Int32](self._handle))

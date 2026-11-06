@@ -4,20 +4,26 @@
 #import "../macos_metal.m"
 #import "api.h"
 #include <sys/resource.h>
+@interface MSGeometry : NSObject
+@property uint64_t identity, serial, uploads;
+@property id<MTLBuffer> vertices;
+@property size_t count;
+@end
+@implementation MSGeometry
+@end
 @interface MSRenderer : NSObject
-@property uint64_t owner, resource, serial, uploads, submissions;
+@property uint64_t owner, resource, serial, submissions, document;
+@property MSGeometry *geometry;
 @property id<MTLRenderPipelineState> pipeline;
 @property id<MTLDepthStencilState> depthState;
-@property id<MTLBuffer> vertices;
 @property id<MTLTexture> color, depth;
-@property size_t count;
 @property(nonatomic) double cpu, encode, wait, gpu, readback, publication,
     total;
 @end
 @implementation MSRenderer
 @end
 static MSRenderer *renderers[32];
-static uint64_t rendererIDs[32], nextRenderer = 1;
+static uint64_t rendererIDs[32], nextRenderer = 1, nextGeometry = 1;
 static double cpuSeconds(void) {
   struct rusage r;
   getrusage(RUSAGE_SELF, &r);
@@ -32,7 +38,7 @@ static MSRenderer *lookup(uint64_t handle) {
       return renderers[i];
   return nil;
 }
-uint64_t ms_renderer_create(uint64_t owner) {
+uint64_t ms_renderer_create(uint64_t owner, uint64_t document) {
   if (!NSThread.isMainThread || !nextRenderer)
     return 0;
   int slot = -1;
@@ -48,6 +54,13 @@ uint64_t ms_renderer_create(uint64_t owner) {
     return 0;
   MSRenderer *r = [MSRenderer new];
   r.owner = owner;
+  r.document = document;
+  for (int i=0;i<32;i++)
+    if (renderers[i] && renderers[i].document == document) { r.geometry = renderers[i].geometry; break; }
+  if (!r.geometry) {
+    if (!nextGeometry) { moxi_composition_release(owner,resource); return 0; }
+    r.geometry = [MSGeometry new]; r.geometry.identity = nextGeometry++;
+  }
   r.resource = resource;
   if (!moxi_metal_init(16, 16)) {
     moxi_composition_release(owner, resource);
@@ -93,7 +106,7 @@ void ms_renderer_destroy(uint64_t handle) {
     }
 }
 int ms_renderer_frame(uint64_t handle, const void *vertices, size_t count,
-                      int upload, const float *matrix, int width, int height,
+                      uint64_t geometrySerial, const float *matrix, int width, int height,
                       int slot, float x, float y, float w, float h) {
   MSRenderer *r = lookup(handle);
   if (!r || count > 100000 || width < 1 || height < 1 || width > 2048 ||
@@ -104,15 +117,16 @@ int ms_renderer_frame(uint64_t handle, const void *vertices, size_t count,
     // A null vertices pointer means compose the already published snapshot.
     if (!vertices)
       return moxi_composition_compose(r.owner, r.resource, slot, x, y, w, h);
-    if (upload) {
-      r.vertices =
+    if (r.geometry.serial != geometrySerial) {
+      r.geometry.vertices =
           [moxi_metal_device newBufferWithBytes:vertices
                                          length:MAX(count, 1) * 32
                                         options:MTLResourceStorageModeShared];
-      r.count = count;
-      if (!r.vertices)
+      r.geometry.count = count;
+      if (!r.geometry.vertices)
         return 0;
-      r.uploads++;
+      r.geometry.uploads++;
+      r.geometry.serial = geometrySerial;
     }
     if (!r.color || r.color.width != (NSUInteger)width ||
         r.color.height != (NSUInteger)height) {
@@ -128,7 +142,7 @@ int ms_renderer_frame(uint64_t handle, const void *vertices, size_t count,
       t.storageMode = MTLStorageModePrivate;
       r.depth = [moxi_metal_device newTextureWithDescriptor:t];
     }
-    if (!r.color || !r.depth || !r.vertices)
+    if (!r.color || !r.depth || !r.geometry.vertices)
       return 0;
     MTLRenderPassDescriptor *p = [MTLRenderPassDescriptor renderPassDescriptor];
     p.colorAttachments[0].texture = r.color;
@@ -144,11 +158,11 @@ int ms_renderer_frame(uint64_t handle, const void *vertices, size_t count,
     [e setRenderPipelineState:r.pipeline];
     [e setDepthStencilState:r.depthState];
     [e setCullMode:MTLCullModeNone];
-    [e setVertexBuffer:r.vertices offset:0 atIndex:0];
+    [e setVertexBuffer:r.geometry.vertices offset:0 atIndex:0];
     [e setVertexBytes:matrix length:64 atIndex:1];
     [e drawPrimitives:MTLPrimitiveTypeTriangle
           vertexStart:0
-          vertexCount:r.count];
+          vertexCount:r.geometry.count];
     [e endEncoding];
     double encoded = CACurrentMediaTime();
     [cmd commit];
@@ -186,7 +200,10 @@ int ms_renderer_frame(uint64_t handle, const void *vertices, size_t count,
 }
 uint64_t ms_renderer_metric(uint64_t handle, int metric) {
   MSRenderer *r = lookup(handle);
-  return metric == MS_UPLOADS       ? r.uploads
+  if (metric == MS_GEOMETRY_ID) return r.geometry.identity;
+  if (metric == MS_TARGET_ID) return r.resource;
+  if (metric == MS_GPU_BYTES) return r.geometry.vertices.length;
+  return metric == MS_UPLOADS       ? r.geometry.uploads
          : metric == MS_SUBMISSIONS ? r.submissions
                                     : 0;
 }

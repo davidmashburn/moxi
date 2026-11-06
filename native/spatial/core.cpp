@@ -269,6 +269,102 @@ std::optional<Transform> apply(const Transform &before, Operation op) {
   }
   return valid(t) ? std::optional<Transform>(t) : std::nullopt;
 }
+namespace {
+Transform compose(const Transform &parent, const Transform &local) {
+  return {world(local.position, parent), parent.angle + local.angle, parent.scale * local.scale};
+}
+Vec3 inversePoint(Vec3 p, const Transform &t) {
+  p = (p - t.position) * (1 / t.scale);
+  double c = cos(t.angle), s = sin(t.angle);
+  return {c*p.x+s*p.y, -s*p.x+c*p.y, p.z};
+}
+std::optional<Transform> resolve(const std::vector<Object> &objects, uint64_t id,
+                                 const std::optional<Gesture> &drag, size_t depth = 0) {
+  if (depth >= maxObjects) return {};
+  for (auto &o : objects) if (o.id == id) {
+    if (drag && drag->id == id) return drag->preview;
+    if (!o.parent) return o.transform;
+    auto parent = resolve(objects, o.parent, drag, depth + 1);
+    if (!parent) return {};
+    return compose(*parent, o.transform);
+  }
+  return {};
+}
+bool hierarchyValid(const std::vector<Object> &objects, const std::optional<Gesture> &drag = {}) {
+  for (auto &o : objects) {
+    auto t = resolve(objects, o.id, drag);
+    if (!t || !valid(*t)) return false;
+  }
+  return true;
+}
+}
+Revision Session::revision() const {
+  auto r = rev;
+  r.camera = v().cameraRevision; r.viewport = v().viewportRevision;
+  r.view = activeView; r.lifecycle = v().epoch;
+  return r;
+}
+uint64_t Session::createView() {
+  if (!usable() || views.size() >= 16 || !nextView) return 0;
+  auto id = nextView++;
+  views.emplace(id, ViewState{});
+  return id;
+}
+bool Session::activateView(uint64_t id) {
+  if (!views.count(id)) return false;
+  activeView = id;
+  return true;
+}
+void Session::removeView(uint64_t id) {
+  if (!views.count(id)) return;
+  auto old = activeView;
+  activateView(id); dispose(); views.erase(id);
+  if (!views.empty()) activeView = views.count(old) ? old : views.begin()->first;
+}
+std::optional<Transform> Session::worldTransform(uint64_t id, bool preview) const {
+  return resolve(doc.objects, id, preview ? drag : std::optional<Gesture>{});
+}
+std::optional<Transform> Session::localTransform(uint64_t id) const {
+  auto o = object(id); if (!o) return {};
+  auto t = worldTransform(id);
+  if (!o->parent) return t;
+  auto parent = *worldTransform(o->parent);
+  return Transform{inversePoint(t->position,parent),t->angle-parent.angle,t->scale/parent.scale};
+}
+bool Session::clipping(ClipPlane plane) {
+  double n = length(plane.normal);
+  if (!usable() || !finite(plane.normal) || !std::isfinite(plane.offset) ||
+      n < epsilon || !std::isfinite(n) || fabs(plane.offset / n) > 40 ||
+      (plane.enabled && mesh.vertices.size() * doc.objects.size() * 2 > maxVertices)) return false;
+  plane.normal = plane.normal * (1/n); plane.offset /= n;
+  if (plane == doc.clip) return true;
+  cancel(); auto before = doc; doc.clip = plane; history(before); changed(false);
+  return true;
+}
+bool Session::setProbe(int endpoint, uint64_t id, Vec3 local) {
+  if (!usable() || endpoint < 0 || endpoint > 1 || !object(id) || !finite(local) || length(local) > 2) return false;
+  probes[endpoint] = Probe{id, local};
+  return true;
+}
+void Session::clearProbes() { probes = {}; nextProbe = 0; }
+std::optional<Measurement> Session::measurement() const {
+  if (!probes[0] || !probes[1]) return {};
+  auto a = worldTransform(probes[0]->object), b = worldTransform(probes[1]->object);
+  if (!a || !b) return {};
+  auto p = world(probes[0]->local, *a), q = world(probes[1]->local, *b);
+  return Measurement{p, q, length(q-p)};
+}
+bool Session::probe(double x, double y) {
+  if (!usable()) return false;
+  auto ray = unproject(x, y, v().camera, v().viewport);
+  if (!ray) return false;
+  auto hit = pick(*ray, frame().triangles);
+  if (!hit.id || project(hit.point, v().camera, v().viewport).state != AnchorState::Visible) return false;
+  auto transform = *worldTransform(hit.id);
+  if (!setProbe(nextProbe, hit.id, inversePoint(hit.point, transform))) return false;
+  nextProbe = (nextProbe + 1) % 2;
+  return true;
+}
 Session::Session() {
   doc.objects = {{101, {{-1.1, 0, .25}, 0, 1}, {1, .26, .08}},
                  {202, {{.55, .1, -.45}, 0, 1}, {.08, .65, 1}},
@@ -289,7 +385,7 @@ Session::~Session() {
   thread.join();
 }
 bool Session::usable() const {
-  return status == State::Ready || status == State::Computing;
+  return state() == State::Ready || state() == State::Computing;
 }
 Object *Session::object(uint64_t id) {
   for (auto &o : doc.objects)
@@ -305,7 +401,7 @@ const Object *Session::object(uint64_t id) const {
 }
 bool Session::setObjects(std::vector<Object> objects) {
   if (!usable() || objects.size() > maxObjects ||
-      objects.size() * mesh.vertices.size() > maxVertices)
+      objects.size() * mesh.vertices.size() * (doc.clip.enabled ? 2 : 1) > maxVertices)
     return false;
   std::set<uint64_t> ids;
   for (auto &o : objects)
@@ -313,6 +409,7 @@ bool Session::setObjects(std::vector<Object> objects) {
         !finite(o.color) || std::min({o.color.x, o.color.y, o.color.z}) < 0 ||
         std::max({o.color.x, o.color.y, o.color.z}) > 1)
       return false;
+  if (!hierarchyValid(objects)) return false;
   cancel();
   Document before = doc;
   doc.objects = std::move(objects);
@@ -325,21 +422,21 @@ bool Session::setObjects(std::vector<Object> objects) {
 bool Session::setCamera(Camera c) {
   if (!usable() || !valid(c))
     return false;
-  if (c == view)
+  if (c == v().camera)
     return true;
-  cancel();
-  view = c;
-  rev.camera++;
+  if (dragView == activeView) cancel();
+  v().camera = c;
+  v().cameraRevision++;
   return true;
 }
-bool Session::setViewport(Viewport v) {
-  if (!valid(v))
+bool Session::setViewport(Viewport value) {
+  if (!valid(value))
     return false;
-  if (v == port)
+  if (value == v().viewport)
     return true;
-  cancel();
-  port = v;
-  rev.viewport++;
+  if (dragView == activeView) cancel();
+  v().viewport = value;
+  v().viewportRevision++;
   return true;
 }
 bool Session::select(uint64_t id) {
@@ -364,19 +461,19 @@ void Session::selectNext() {
   select(doc.objects[(i + 1) % doc.objects.size()].id);
 }
 void Session::orbit(double x, double y) {
-  Camera c = view;
+  Camera c = v().camera;
   c.yaw += x;
   c.pitch = std::clamp(c.pitch + y, -1.4, 1.4);
   setCamera(c);
 }
 void Session::pan(double x, double y) {
-  auto b = basis(view);
-  Camera c = view;
+  auto b = basis(v().camera);
+  Camera c = v().camera;
   c.target = c.target + b.right * x + b.up * y;
   setCamera(c);
 }
 void Session::dolly(double x) {
-  Camera c = view;
+  Camera c = v().camera;
   c.distance = std::clamp(c.distance + x, .5, 60.);
   setCamera(c);
 }
@@ -385,16 +482,17 @@ void Session::fit() {
     return;
   Vec3 min{100, 100, 100}, max{-100, -100, -100};
   for (auto &o : doc.objects) {
-    double r = 1.15 * o.transform.scale;
-    auto p = o.transform.position;
+    auto t = *worldTransform(o.id);
+    double r = 1.15 * t.scale;
+    auto p = t.position;
     min = {std::min(min.x, p.x - r), std::min(min.y, p.y - r),
            std::min(min.z, p.z - r)};
     max = {std::max(max.x, p.x + r), std::max(max.y, p.y + r),
            std::max(max.z, p.z + r)};
   }
-  Camera c = view;
+  Camera c = v().camera;
   c.target = (min + max) * .5;
-  double angle = atan(tan(pi / 8) * std::min(1., port.width / port.height));
+  double angle = atan(tan(pi / 8) * std::min(1., v().viewport.width / v().viewport.height));
   c.distance = std::clamp(length(max - min) * .5 / sin(angle), .5, 60.);
   setCamera(c);
 }
@@ -465,20 +563,21 @@ void Session::worker() {
   }
 }
 bool Session::accept(WorkResult result) {
-  if (!usable() || result.input.generation != rev.generation ||
+  if ((status != State::Ready && status != State::Computing) || result.input.generation != rev.generation ||
       result.input.revision != workRevision ||
       result.input.parameter != doc.parameter) {
     counts.rejected++;
     return false;
   }
   if (result.failed || result.mesh.vertices.empty() ||
-      result.mesh.vertices.size() * doc.objects.size() > maxVertices) {
+      result.mesh.vertices.size() * doc.objects.size() * (doc.clip.enabled ? 2 : 1) > maxVertices) {
     status = State::Failed;
     cancel();
     return false;
   }
   if (drag && transformTool(drag->tool))
     cancel();
+  clearProbes();
   mesh = std::move(result.mesh);
   rev.geometry++;
   status = State::Ready;
@@ -495,7 +594,7 @@ bool Session::poll() {
   return r ? accept(std::move(*r)) : false;
 }
 const Frame &Session::frame() {
-  if (cached.revision == rev)
+  if (cached.revision == revision())
     return cached;
   bool verticesChanged = cached.revision.geometry != rev.geometry ||
                          cached.revision.document != rev.document ||
@@ -505,26 +604,43 @@ const Frame &Session::frame() {
     cached.triangles.clear();
     cached.vertices.clear();
     for (auto &o : doc.objects) {
-      Transform t = drag && drag->id == o.id ? drag->preview : o.transform;
+      Transform t = *worldTransform(o.id);
       for (size_t i = 0; i < mesh.vertices.size(); i += 3) {
         Vec3 a = world(mesh.vertices[i], t), b = world(mesh.vertices[i + 1], t),
              c = world(mesh.vertices[i + 2], t);
-        cached.triangles.push_back({a, b, c, o.id});
         Vec3 n = unit(cross(b - a, c - a));
         double shade = .40 + .60 * fabs(dot(n, unit({.4, .8, 1})));
-        for (auto p : {a, b, c})
-          cached.vertices.push_back(
-              {{float(p.x), float(p.y), float(p.z), 1},
-               {float(o.color.x * shade), float(o.color.y * shade),
-                float(o.color.z * shade), 1}});
+        std::array<Vec3, 4> polygon{a,b,c,{}};
+        size_t count = 3;
+        if (doc.clip.enabled) {
+          count = 0;
+          std::array<Vec3, 3> input{a,b,c};
+          for (size_t edge = 0; edge < 3; ++edge) {
+            auto p = input[edge], q = input[(edge+1)%3];
+            double dp = dot(doc.clip.normal,p)-doc.clip.offset;
+            double dq = dot(doc.clip.normal,q)-doc.clip.offset;
+            if (dp >= 0) polygon[count++] = p;
+            if ((dp >= 0) != (dq >= 0)) polygon[count++] = p+(q-p)*(dp/(dp-dq));
+          }
+        }
+        for (size_t j = 1; j+1 < count; ++j) {
+          auto p = polygon[0], q = polygon[j], r = polygon[j+1];
+          if (doc.clip.enabled && length(cross(q-p,r-p)) <= epsilon) continue;
+          cached.triangles.push_back({p,q,r,o.id});
+          for (auto point : {p,q,r})
+            cached.vertices.push_back(
+                {{float(point.x), float(point.y), float(point.z), 1},
+                 {float(o.color.x * shade), float(o.color.y * shade),
+                  float(o.color.z * shade), 1}});
+        }
       }
     }
     counts.frameBuilds++;
   }
-  cached.revision = rev;
-  cached.camera = view;
-  cached.viewport = port;
-  cached.matrix = matrix(view, port);
+  cached.revision = revision();
+  cached.camera = v().camera;
+  cached.viewport = v().viewport;
+  cached.matrix = matrix(v().camera, v().viewport);
   return cached;
 }
 bool Session::constraint(Tool t, Ray r, Vec3 pivot, Vec3 &point,
@@ -548,24 +664,26 @@ bool Session::begin(Tool t, double x, double y) {
   if (!usable() || drag || !transformTool(t))
     return false;
   auto o = object(selected);
-  auto ray = unproject(x, y, view, port);
+  auto ray = unproject(x, y, v().camera, v().viewport);
   if (!o || !ray)
     return false;
   Vec3 anchor;
   double scalar = 0;
-  if (!constraint(t, *ray, o->transform.position, anchor, scalar))
+  auto transform = *worldTransform(o->id);
+  if (!constraint(t, *ray, transform.position, anchor, scalar))
     return false;
   if ((t == Tool::RotateZ || t == Tool::Scale) && scalar < .05)
     return false;
-  drag = Gesture{t,   selected, o->transform,          o->transform,
-                 rev, anchor,   o->transform.position, scalar};
+  dragView = activeView;
+  drag = Gesture{t,   selected, transform, transform,
+                 revision(), anchor, transform.position, scalar};
   return true;
 }
 bool Session::preview(Operation op) {
-  if (!drag || op.tool != drag->tool || drag->start.document != rev.document ||
+  if (!drag || dragView != activeView || op.tool != drag->tool || drag->start.document != rev.document ||
       drag->start.geometry != rev.geometry ||
-      drag->start.camera != rev.camera ||
-      drag->start.viewport != rev.viewport ||
+      drag->start.camera != v().cameraRevision ||
+      drag->start.viewport != v().viewportRevision ||
       drag->start.generation != rev.generation)
     return false;
   auto t = apply(drag->before, op);
@@ -573,14 +691,22 @@ bool Session::preview(Operation op) {
     return false;
   if (*t == drag->preview)
     return true;
+  auto selectedObject = object(drag->id);
+  if (selectedObject->parent) {
+    auto parent = *worldTransform(selectedObject->parent);
+    Transform local{inversePoint(t->position,parent), t->angle-parent.angle, t->scale/parent.scale};
+    if (!valid(local)) return false;
+  }
+  auto candidate = *drag; candidate.preview = *t;
+  if (!hierarchyValid(doc.objects, candidate)) return false;
   drag->preview = *t;
   rev.preview++;
   return true;
 }
 bool Session::update(double x, double y, bool snap) {
-  if (!drag)
+  if (!drag || dragView != activeView)
     return false;
-  auto ray = unproject(x, y, view, port);
+  auto ray = unproject(x, y, v().camera, v().viewport);
   Vec3 p;
   double scalar = 0;
   if (!ray || !constraint(drag->tool, *ray, drag->pivot, p, scalar))
@@ -619,7 +745,7 @@ bool Session::update(double x, double y, bool snap) {
   return preview(op);
 }
 bool Session::commit() {
-  if (!drag)
+  if (!drag || dragView != activeView)
     return false;
   Gesture g = *drag;
   auto o = object(g.id);
@@ -632,11 +758,15 @@ bool Session::commit() {
                 fabs(g.preview.scale - g.before.scale) > 1e-8;
   Document before = doc;
   drag.reset();
-  route = Route::None;
+  v().route = Route::None;
   rev.preview++;
   if (!change)
     return false;
   o->transform = g.preview;
+  if (o->parent) {
+    auto parent = *worldTransform(o->parent, false);
+    o->transform = {inversePoint(g.preview.position, parent), g.preview.angle-parent.angle, g.preview.scale/parent.scale};
+  }
   history(before);
   changed(false);
   return true;
@@ -647,7 +777,7 @@ void Session::cancel() {
       rev.preview++;
     drag.reset();
   }
-  route = Route::None;
+  for (auto &[id, viewState] : views) viewState.route = Route::None;
 }
 bool Session::operation(Operation op) {
   if (!usable() || drag)
@@ -655,8 +785,10 @@ bool Session::operation(Operation op) {
   auto o = object(selected);
   if (!o || !transformTool(op.tool))
     return false;
-  drag = Gesture{op.tool, selected, o->transform,          o->transform,
-                 rev,     {},       o->transform.position, 0};
+  auto transform = *worldTransform(o->id);
+  dragView = activeView;
+  drag = Gesture{op.tool, selected, transform, transform,
+                 revision(), {}, transform.position, 0};
   if (!preview(op)) {
     cancel();
     return false;
@@ -691,86 +823,93 @@ bool Session::redo() {
 }
 Route Session::pointerDown(Tool t, double x, double y) {
   captureLost();
-  if (!usable() || !std::isfinite(x) || !std::isfinite(y) || x < port.x ||
-      x > port.x + port.width || y < port.y || y > port.y + port.height)
+  if (!usable() || !std::isfinite(x) || !std::isfinite(y) || x < v().viewport.x ||
+      x > v().viewport.x + v().viewport.width || y < v().viewport.y || y > v().viewport.y + v().viewport.height)
     return Route::None;
-  pointerX = x;
-  pointerY = y;
+  if (drag && dragView != activeView) return Route::Rejected;
+  v().pointerX = x;
+  v().pointerY = y;
   if (t == Tool::Orbit || t == Tool::Pan) {
-    route = Route::Navigation;
-    drag = Gesture{t, 0, {}, {}, rev, {}, {}, 0};
-    return route;
+    v().route = Route::Navigation;
+    dragView = activeView;
+  drag = Gesture{t, 0, {}, {}, revision(), {}, {}, 0};
+    return v().route;
   }
   if (transformTool(t) && hitHandle(t, x, y)) {
-    route = begin(t, x, y) ? Route::Manipulation : Route::Rejected;
-    return route;
+    v().route = begin(t, x, y) ? Route::Manipulation : Route::Rejected;
+    return v().route;
   }
   if (t != Tool::Select && !transformTool(t))
     return Route::Rejected;
-  auto ray = unproject(x, y, view, port);
+  auto ray = unproject(x, y, v().camera, v().viewport);
   auto hit = ray ? pick(*ray, frame().triangles) : Pick{};
   // Far clipping is camera depth, not Euclidean ray distance.
-  if (hit.id && project(hit.point, view, port).state != AnchorState::Visible)
+  if (hit.id && project(hit.point, v().camera, v().viewport).state != AnchorState::Visible)
     hit = {};
   select(hit.id);
-  route = Route::Selection;
-  return route;
+  v().route = Route::Selection;
+  return v().route;
 }
 bool Session::pointerMove(double x, double y, bool snap) {
   if (!std::isfinite(x) || !std::isfinite(y))
     return false;
-  if (route == Route::Manipulation)
+  if (v().route == Route::Manipulation)
     return update(x, y, snap);
-  if (route == Route::Navigation && drag) {
+  if (v().route == Route::Navigation && drag && dragView == activeView) {
     Tool t = drag->tool;
-    double dx = x - pointerX, dy = y - pointerY;
+    double dx = x - v().pointerX, dy = y - v().pointerY;
     drag.reset();
     if (t == Tool::Orbit)
       orbit(dx * .008, dy * .008);
     else
       pan(-dx * .008, dy * .008);
-    drag = Gesture{t, 0, {}, {}, rev, {}, {}, 0};
-    route = Route::Navigation;
-    pointerX = x;
-    pointerY = y;
+    dragView = activeView;
+  drag = Gesture{t, 0, {}, {}, revision(), {}, {}, 0};
+    v().route = Route::Navigation;
+    v().pointerX = x;
+    v().pointerY = y;
     return true;
   }
   return false;
 }
 bool Session::pointerUp() {
-  if (route == Route::Manipulation)
+  if (v().route == Route::Manipulation)
     return commit();
   captureLost();
   return false;
 }
-void Session::captureLost() { cancel(); }
+void Session::captureLost() { if (dragView == activeView) cancel(); v().route = Route::None; }
 void Session::dispose() {
-  cancel();
+  captureLost();
+  v().lifecycle = State::Disposed;
+  v().epoch++;
+  for (auto &[id, viewState] : views)
+    if (viewState.lifecycle == State::Ready) return;
   rev.generation++;
   status = State::Disposed;
   std::lock_guard lock(mutex);
-  pending.reset();
-  completed.reset();
+  pending.reset(); completed.reset();
 }
 void Session::recreate() {
-  if (status == State::Ready || status == State::Computing)
-    return;
+  if (usable()) return;
+  v().lifecycle = State::Ready;
+  v().epoch++;
+  if (status == State::Ready || status == State::Computing) return;
   rev.generation++;
   status = State::Computing;
   workRevision++;
   queue(0);
 }
 void Session::fail(State s) {
-  if (s != State::Failed && s != State::Unsupported)
-    return;
+  if (s != State::Failed && s != State::Unsupported) return;
   dispose();
-  status = s;
+  v().lifecycle = s;
 }
 
 std::vector<ScreenLine> Session::overlays(Tool tool) {
   std::vector<ScreenLine> lines;
   auto line = [&](Vec3 a, Vec3 b, Vec3 color, bool handle) {
-    auto p = project(a, view, port), q = project(b, view, port);
+    auto p = project(a, v().camera, v().viewport), q = project(b, v().camera, v().viewport);
     if (p.state == AnchorState::Visible && q.state == AnchorState::Visible)
       lines.push_back({p.x, p.y, q.x, q.y, color, handle});
   };
@@ -779,10 +918,23 @@ std::vector<ScreenLine> Session::overlays(Tool tool) {
     line({double(i), -1.2, -4}, {double(i), -1.2, 4}, {.16, .22, .28}, false);
     line({-4, -1.2, double(i)}, {4, -1.2, double(i)}, {.16, .22, .28}, false);
   }
+  if (auto m = measurement()) {
+    line(m->a, m->b, {.3,1,1}, false);
+    for (auto p : {m->a,m->b}) {
+      line(p-Vec3{.08,0,0},p+Vec3{.08,0,0},{.3,1,1},false);
+      line(p-Vec3{0,.08,0},p+Vec3{0,.08,0},{.3,1,1},false);
+    }
+  }
+  if (doc.clip.enabled) {
+    auto n = doc.clip.normal;
+    auto a = unit(cross(n, fabs(n.y) < .9 ? Vec3{0,1,0} : Vec3{1,0,0}))*2.5;
+    auto b = unit(cross(n,a))*2.5, center = n*doc.clip.offset;
+    std::array<Vec3,4> points{center+a+b, center-a+b, center-a-b, center+a-b};
+    for (int i=0;i<4;++i) line(points[i], points[(i+1)%4], {.9,.45,1}, false);
+  }
   auto o = object(selected);
-  if (!o)
-    return lines;
-  Transform t = drag && drag->id == selected ? drag->preview : o->transform;
+  if (!o) return lines;
+  Transform t = *worldTransform(selected);
   Vec3 p = t.position;
   // Fixed conservative object bounds, independent of tessellation. Outlines
   // and handles are explicitly always-on-top overlays, clipped to viewport.
@@ -837,10 +989,11 @@ bool Session::hitHandle(Tool tool, double x, double y) {
 }
 
 Projected Session::annotation(Vec3 point, AnchorPolicy policy) {
-  auto p = project(point, view, port);
+  auto p = project(point, v().camera, v().viewport);
   if (p.state != AnchorState::Visible || policy == AnchorPolicy::AlwaysVisible)
     return p;
-  auto ray = unproject(p.x, p.y, view, port);
+  if (doc.clip.enabled && dot(doc.clip.normal, point) < doc.clip.offset) { p.state = AnchorState::Occluded; return p; }
+  auto ray = unproject(p.x, p.y, v().camera, v().viewport);
   auto hit = pick(*ray, frame().triangles);
   double distance = length(point - ray->origin);
   if (hit.id && hit.distance < distance - 1e-4)

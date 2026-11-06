@@ -8,7 +8,11 @@
 using namespace moxi::spatial;
 namespace {
 struct Entry {
-  Session model;
+  std::shared_ptr<Session> document;
+  Session &model;
+  uint64_t view = 1, documentID = 0;
+  Entry() : document(std::make_shared<Session>()), model(*document) {}
+  Entry(Entry &source, uint64_t viewID) : document(source.document), model(*document), view(viewID), documentID(source.documentID) {}
   uint64_t owner = 0, renderer = 0;
   Revision published{0, 0, 0, 0, 0, 0};
   Projected anchor;
@@ -16,6 +20,7 @@ struct Entry {
   std::optional<std::vector<Object>> staging;
   bool stagingValid = false;
   ~Entry() {
+    model.removeView(view);
     if (renderer)
       ms_renderer_destroy(renderer);
   }
@@ -27,7 +32,9 @@ Entry *get(uint64_t id) {
   if (std::this_thread::get_id() != hostThread)
     return nullptr;
   auto i = entries.find(id);
-  return i == entries.end() ? nullptr : i->second.get();
+  if (i == entries.end()) return nullptr;
+  auto e = i->second.get();
+  return e->model.activateView(e->view) ? e : nullptr;
 }
 bool tool(int t) { return t >= MS_SELECT && t <= MS_SCALE; }
 } // namespace
@@ -39,11 +46,24 @@ uint64_t ms_create() {
   try {
     auto e = std::make_unique<Entry>();
     uint64_t id = nextID++;
+    e->documentID = id;
     entries.emplace(id, std::move(e));
     return id;
   } catch (...) {
     return 0;
   }
+}
+uint64_t ms_link(uint64_t source) {
+  auto e = get(source);
+  if (!e || entries.size() >= 16 || !nextID) return 0;
+  auto view = e->model.createView();
+  if (!view) return 0;
+  try {
+    auto linked = std::make_unique<Entry>(*e, view);
+    auto id = nextID++;
+    entries.emplace(id, std::move(linked));
+    return id;
+  } catch (...) { e->model.removeView(view); return 0; }
 }
 int ms_destroy(uint64_t id) {
   if (!get(id))
@@ -102,6 +122,42 @@ int ms_objects_commit(uint64_t id) {
   bool ok = e->stagingValid && e->model.setObjects(std::move(*e->staging));
   e->staging.reset();
   return ok;
+}
+int ms_objects_parent(uint64_t id, uint64_t object, uint64_t parent) {
+  auto e = get(id);
+  if (!e || !e->staging || !e->stagingValid) return 0;
+  for (auto &o : *e->staging) if (o.id == object) { o.parent = parent; return 1; }
+  e->stagingValid = false;
+  return 0;
+}
+int ms_clip(uint64_t id, int enabled, double x, double y, double z, double offset) {
+  auto e = get(id);
+  return e && (enabled == 0 || enabled == 1) && e->model.clipping({enabled != 0,{x,y,z},offset});
+}
+double ms_clip_value(uint64_t id, int field) {
+  auto e = get(id); if (!e) return NAN;
+  auto c = e->model.document().clip;
+  switch(field) { case 0:return c.enabled; case 1:return c.normal.x; case 2:return c.normal.y; case 3:return c.normal.z; case 4:return c.offset; default:return NAN; }
+}
+int ms_probe(uint64_t id, double x, double y) { auto e=get(id); return e && e->model.probe(x,y); }
+int ms_probe_set(uint64_t id, int endpoint, uint64_t object, double x, double y, double z) {
+  auto e=get(id); return e && e->model.setProbe(endpoint,object,{x,y,z});
+}
+int ms_probe_clear(uint64_t id) { auto e=get(id); if (!e) return 0; e->model.clearProbes(); return 1; }
+double ms_measurement(uint64_t id, int component) {
+  auto e=get(id); if (!e) return NAN;
+  auto m=e->model.measurement(); if (!m) return NAN;
+  switch(component) { case 0:return m->distance; case 1:return m->a.x; case 2:return m->a.y; case 3:return m->a.z; case 4:return m->b.x; case 5:return m->b.y; case 6:return m->b.z; default:return NAN; }
+}
+double ms_world_transform(uint64_t id, uint64_t object, int component, int preview) {
+  auto e=get(id); if (!e) return NAN;
+  auto t=e->model.worldTransform(object,preview != 0); if (!t) return NAN;
+  switch(component) { case 0:return t->position.x; case 1:return t->position.y; case 2:return t->position.z; case 3:return t->angle; case 4:return t->scale; default:return NAN; }
+}
+uint64_t ms_parent(uint64_t id, uint64_t object) {
+  auto e=get(id); if (!e) return 0;
+  for (auto &o:e->model.document().objects) if(o.id==object) return o.parent;
+  return 0;
 }
 double ms_camera_value(uint64_t id, int component) {
   auto e = get(id);
@@ -228,6 +284,12 @@ uint64_t ms_metric(uint64_t id, int metric) {
     return c.replaced;
   case MS_FRAME_BUILDS:
     return c.frameBuilds;
+  case MS_DOCUMENT_ID: return e->documentID;
+  case MS_VIEWS: return e->model.viewCount();
+  case MS_VERTICES: return e->model.frame().vertices.size();
+  case MS_GEOMETRY_ID:
+  case MS_TARGET_ID:
+  case MS_GPU_BYTES:
   case MS_UPLOADS:
   case MS_SUBMISSIONS:
     return ms_renderer_metric(e->renderer, metric);
@@ -247,9 +309,7 @@ double ms_transform_value(uint64_t id, uint64_t object, int component,
   for (auto &o : e->model.document().objects)
     if (o.id == object) {
       auto t = o.transform;
-      auto g = e->model.gesture();
-      if (preview && g && g->id == object)
-        t = g->preview;
+      if (preview) t = *e->model.localTransform(object);
       switch (component) {
       case 0:
         return t.position.x;
@@ -323,7 +383,7 @@ int ms_mount(uint64_t id, uint64_t owner) {
     return 0;
   if (e->renderer)
     return 1;
-  uint64_t r = ms_renderer_create(owner);
+  uint64_t r = ms_renderer_create(owner, e->documentID);
   if (!r) {
     e->model.fail(State::Unsupported);
     return 0;
@@ -345,10 +405,6 @@ int ms_render(uint64_t id, int slot) {
   const auto &f = e->model.frame();
   auto v = f.viewport;
   bool same = f.revision == e->published;
-  bool upload = f.revision.document != e->published.document ||
-                f.revision.geometry != e->published.geometry ||
-                f.revision.preview != e->published.preview ||
-                f.revision.generation != e->published.generation;
   const Vertex empty{};
   const void *data = same                 ? nullptr
                      : f.vertices.empty() ? &empty
@@ -356,7 +412,7 @@ int ms_render(uint64_t id, int slot) {
   if (!e->model.frameCurrent(f.revision))
     return 0;
   int ok = ms_renderer_frame(
-      e->renderer, data, f.vertices.size(), upload, f.matrix.data(),
+      e->renderer, data, f.vertices.size(), e->model.counters().frameBuilds, f.matrix.data(),
       int(std::lround(v.width * v.scale)), int(std::lround(v.height * v.scale)),
       slot, float(v.x), float(v.y), float(v.width), float(v.height));
   if (ok)
