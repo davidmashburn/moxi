@@ -2,9 +2,9 @@
 import copy, math, sys
 from pathlib import Path
 import pytest
-sys.path.insert(0,str(Path(__file__).parents[2]/'scripts/wave_b'))
-from fixtures import load_cases, figure
-from boundaries import examples
+sys.path.insert(0,str(Path(__file__).parents[2]))
+from scripts.wave_b.fixtures import load_cases, figure
+from scripts.wave_b.boundaries import examples
 from moxi import PlotSpec, plot
 from moxi.specialized import layout, GlyphKind, LayoutVersion
 from moxi.wave_b import WaveBMark, _density

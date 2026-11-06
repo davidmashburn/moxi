@@ -1,6 +1,9 @@
 """Independent input mutations shared by runtime boundary checks, not a mark registry."""
 import copy
-from fixtures import load_cases
+if __package__:
+    from .fixtures import load_cases
+else:
+    from fixtures import load_cases
 
 
 def examples():

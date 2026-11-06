@@ -111,7 +111,9 @@ Rows that produce no geometry remain in the source table/Python row semantics,
 but have no Mojo geometric focus stop. Native screen-reader behavior is unverified;
 VoiceOver remains paused.
 
-Wave B PlotView resize recompiles pixel-dependent geometry. Its eager and queued
+Wave B PlotView resize recompiles pixel-dependent geometry and remaps selection
+by stable source keys. It preserves viewport domains and series visibility, and
+clears pixel-relative hover and unfinished gestures. Its eager and queued
 source replacements validate before committing, preserve the last valid output
 on rejection, and clear selection on a successful source update. These additions
 are restricted to Wave B specialized specs; E01 and version-0 update/resize paths

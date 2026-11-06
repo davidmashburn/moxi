@@ -229,9 +229,9 @@ struct PlotView(Component):
             self.runtime.plot.set_x_domain(previous.x_scale.data_min, previous.x_scale.data_max)
             self.runtime.plot.set_y_domain(previous.y_scale.data_min, previous.y_scale.data_max)
             for series_index in range(len(self.runtime.plot.series)):
-                for old_series in previous.series:
-                    if old_series.id == self.runtime.plot.series[series_index].id:
-                        self.runtime.plot.series[series_index].visible = old_series.visible
+                for previous_index in range(len(previous.series)):
+                    if previous.series[previous_index].id == self.runtime.plot.series[series_index].id:
+                        self.runtime.plot.series[series_index].visible = previous.series[previous_index].visible
             self.runtime.set_linked_selection(selection)
             # Pixel-relative hover and unfinished gestures no longer describe
             # the rebuilt layout. Stable-key selection and viewport survive.

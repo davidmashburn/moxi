@@ -38,8 +38,12 @@ mark constants and `GlyphKind`/`PlotGlyphKind` represent domain choices.
 `GlyphKind.TRIANGLE` and `PlotGlyphKind.TRIANGLE` add a primitive. Python `Glyph`
 adds `vertices`, `source_rows`, `size`, `stroke_width`; Mojo `PlotPoint` adds
 `x3`, `y3`, `source_keys`, `stroke_width`. These are provisional layout/render
-seams; no root package exports are added. `source_keys` is a comma-separated
-sequence of actual integer keys, never a fabricated aggregate node key.
+seams; no root package exports are added. `source_keys` is a `List[Int]` of
+actual source keys, shared with Wave B; `source_keys_text()` formats its
+comma-separated diagnostic representation. `PlotSelectionPolicy.PRIMARY`
+keeps Wave C interaction on the primary row, while Wave B uses
+`PlotSelectionPolicy.CONTRIBUTORS`. Provenance never invents an aggregate node
+key. Polygon and triangle glyphs have distinct identities.
 
 | Mark | Source schema | Geometry |
 | --- | --- | --- |

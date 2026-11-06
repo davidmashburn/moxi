@@ -20,6 +20,8 @@ def check_case(name: String, document: String, data: PlotDataTable, changed: Plo
     var selected_y: Float32=0
     for i in range(len(plot.series[0].points)):
         var p=plot.series[0].points[i]
+        var selectable = p.selection_keys()
+        test_check(len(selectable) == 1 and selectable[0] == p.row_key)
         print("glyph|",name,"|",p.glyph.value,"|",p.row_key,"|",p.part,"|",p.x,"|",p.y,"|",p.x2,"|",p.y2,"|",p.x3,"|",p.y3,"|",p.source_keys_text(),"|",p.interactive,"|",p.size,"|",p.stroke_width)
         if not p.interactive: continue
         var center=p

@@ -1,9 +1,9 @@
 import copy,json,math,sys
 from pathlib import Path
 import pytest
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts/wave_c'))
-from fixtures import CASES,figure
-from boundaries import negatives
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from scripts.wave_c.fixtures import CASES,figure
+from scripts.wave_c.boundaries import negatives
 from moxi import PlotSpec,plot
 from moxi.specialized import layout,GlyphKind
 
@@ -53,7 +53,7 @@ def test_zero_edges_and_constant_contour():
     case=next(c for c in CASES if c['id']=='tricontour');c=copy.deepcopy(case['columns']);c['z']=[1]*5;assert not geometry('tricontour',c).glyphs
 
 
-from boundaries import positives
+from scripts.wave_c.boundaries import positives
 @pytest.mark.parametrize('case,columns',positives())
 def test_degenerate_valid_boundaries(case,columns):
     f=figure(case,columns)

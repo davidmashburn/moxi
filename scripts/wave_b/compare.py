@@ -47,7 +47,7 @@ def main():
                 error=max(abs(x-y) for p,q in zip(actual,expected) for x,y in zip(p,q))
                 assert error<=tolerance,(name,error)
                 row['max_vertex_or_anchor_pixel_error']=error
-                row['assertion']='Pinned SVG vertices/row anchors within '+str(tolerance)+' px; raster IoU descriptive only' 
+                row['assertion']='Pinned SVG vertices/row anchors within '+str(tolerance)+' px; raster IoU descriptive only'
         result[name]=row
     (a.actual/'comparison.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
 if __name__=='__main__':main()

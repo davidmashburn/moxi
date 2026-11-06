@@ -237,16 +237,30 @@ def _object_array(value: String, start: Int, end: Int) -> List[String]:
     if start < 0 or end < start:
         return result^
     var content = String(value[codepoint=start:end])
-    var cursor = 0
-    while True:
-        var object_start = _find_token(content, "{", cursor)
-        if object_start == -1:
-            break
-        var object_end = _find_token(content, "}", object_start)
-        if object_end == -1:
-            break
-        result.append(String(content[codepoint=object_start:object_end + 1]))
-        cursor = object_end + 1
+    var depth = 0
+    var object_start = -1
+    var quoted = False
+    var escaped = False
+    for cursor in range(content.count_codepoints()):
+        var glyph = json_char(content, cursor)
+        if quoted:
+            if escaped:
+                escaped = False
+            elif glyph == chr(92):
+                escaped = True
+            elif glyph == chr(34):
+                quoted = False
+            continue
+        if glyph == chr(34):
+            quoted = True
+        elif glyph == "{":
+            if depth == 0:
+                object_start = cursor
+            depth += 1
+        elif glyph == "}" and depth > 0:
+            depth -= 1
+            if depth == 0:
+                result.append(String(content[codepoint=object_start:cursor + 1]))
     return result^
 
 

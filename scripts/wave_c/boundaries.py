@@ -1,6 +1,9 @@
 """Independent malformed inputs replayed at both language boundaries."""
 import copy,json
-from fixtures import CASES,figure
+if __package__:
+    from .fixtures import CASES,figure
+else:
+    from fixtures import CASES,figure
 
 def negatives():
     cases={c['id']:c for c in CASES};out=[]

@@ -5,7 +5,10 @@ from moxi_plot.plot_spec import plot_spec_from_json, plot_from_spec
 from moxi_plot.plot_point import PlotPoint, PlotGlyphKind
 from moxi_plot.plot_data import PlotDataTable
 from moxi_plot.plot_view import PlotView
-from moxi_plot.plot_marks import PLOT_CONTOUR, PLOT_CONTOURF, PLOT_DONUT
+from moxi_plot.plot_marks import PLOT_CONTOUR, PLOT_CONTOURF, PLOT_DONUT, PLOT_BEESWARM
+from moxi_plot.plot_spec import PlotSpec
+from moxi_plot.plot_spec_types import PlotLayoutVersion
+from moxi.plot_selection import PlotSelection
 
 
 def capture(mut view: PlotView, path: String) raises:
@@ -113,5 +116,40 @@ def check_case(name: String, document: String, data: PlotDataTable, output: Stri
         print("benchmark|",name,"|",sample,"|",perf_counter()-start,"|",scene.count())
 
 
+def check_resize_selection():
+    var spec = PlotSpec()
+    _ = spec.add_catalog_mark(PLOT_BEESWARM, "swarm")
+    spec.layers[0].layout_version = PlotLayoutVersion.SPECIALIZED
+    var data = PlotDataTable()
+    _ = data.append(0, 0)
+    _ = data.append(0, 0.01)
+    _ = data.append(0, 1)
+    var view = PlotView(spec, data, Rect(0, 0, 640, 80))
+    var selection = PlotSelection()
+    _ = selection.add(data.key_at(0))
+    view.runtime.set_linked_selection(selection)
+    var old_index = view.runtime.selected.point_index
+    view.runtime.hovered = view.runtime.selected
+    view.runtime.dragging = True
+    view.set_bounds(Rect(0, 0, 640, 480))
+    test_check(view.runtime.selected.point_index != old_index)
+    test_check(view.runtime.selected.row_key == data.key_at(0))
+    test_check(len(view.runtime.selected_hits) == 1)
+    test_check(view.runtime.plot.series[0].points[view.runtime.selected.point_index].row_key == data.key_at(0))
+    test_check(view.runtime.plot.series[0].points[view.runtime.selected_hits[0].point_index].row_key == data.key_at(0))
+    test_check(view.runtime.selection().contains(data.key_at(0)))
+    test_check(not view.runtime.hovered.found() and not view.runtime.dragging)
+    # The viewport and hidden series survive subsequent recompilation too.
+    view.runtime.plot.set_x_domain(-2, 2)
+    view.runtime.plot.set_y_domain(-1, 2)
+    view.runtime.plot.series[0].visible = False
+    view.set_bounds(Rect(0, 0, 800, 400))
+    test_check(view.runtime.plot.x_scale.data_min == -2)
+    test_check(view.runtime.plot.y_scale.data_max == 2)
+    test_check(not view.runtime.plot.series[0].visible)
+    test_check(len(view.runtime.selected_hits) == 0)
+    test_check(view.runtime.selection().contains(data.key_at(0)))
+
+
 def main():
-    pass
+    check_resize_selection()

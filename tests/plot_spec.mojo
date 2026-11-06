@@ -25,7 +25,32 @@ from moxi_plot import (
 from moxi.style import Color
 
 
+def check_escaped_object_labels():
+    # Every object array must skip braces inside quoted and escaped strings.
+    var label = String("brace } { label ", chr(34), "quoted", chr(34), " slash ", chr(92), " end }")
+    var spec = PlotSpec(label)
+    _ = spec.add_line(label, "x", "y")
+    _ = spec.add_scatter("second", "x", "y")
+    _ = spec.add_annotation(label, 0, 1)
+    spec.add_filter_between("y", 0, 2)
+    spec.add_sort("x")
+    _ = spec.add_hover()
+    _ = spec.add_click_select()
+    var decoded = plot_spec_from_json(spec.to_json())
+    test_check(decoded.validate())
+    test_check(decoded.title == label)
+    test_check(decoded.layer_count() == 2)
+    test_check(decoded.layers[0].label == label)
+    test_check(decoded.layers[1].label == "second")
+    test_check(decoded.annotations[0].text == label)
+    test_check(decoded.transform_count() == 2)
+    test_check(decoded.interaction_count() == 2)
+    var roundtrip = plot_spec_from_json(decoded.to_json())
+    test_check(roundtrip.validate() and roundtrip.layers[0].label == label)
+
+
 def main():
+    check_escaped_object_labels()
     var spec = PlotSpec("Telemetry")
     _ = spec.add_line("CPU", "time", "value")
     var samples = spec.add_scatter("Samples")
