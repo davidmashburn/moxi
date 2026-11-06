@@ -221,11 +221,24 @@
     {
       "id": "D02",
       "scope": "[Math editor M0\u2013M4](docs/design/math-editing.md): lossless notation/text including holes/malformed edits; shared display/editor geometry, fractions/scripts/radicals/delimiters/matrices/functions/sums/integrals, navigation/selection, clipboard/history/persistence, one selected async backend, and second public-API consumer.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "implemented",
+      "commits": [
+        "5f9bb45"
+      ],
+      "verification": [
+        "Integrated native applications and model/editor/geometry/synthetic native acceptance/performance checks pass against F02 ownership.",
+        "Ten actual persistent-worker backend tests and source-free archive consumer pass; existing API inventory passes.",
+        "Twelve fresh live content-view captures inspected; source and PNG hashes recorded. Eight gallery manifests validate; all 24 math images and navigation pass.",
+        "Integrated 1,000-node CPU edit path p95 5.333 ms; isolated worker p95 6.414 ms. Neither measures display presentation."
+      ],
+      "remaining_gates": [
+        "Physical US/non-US keyboard and IME, typography, compositor capture and frame-presentation acceptance remain open; VoiceOver stays paused.",
+        "Fresh-host distribution, signing/publication, other platforms and simultaneous multiple math font/view sessions are not supported or verified.",
+        "Full repository/CI and sanitizer/leak checks were not run."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/d02-native-math-editor/index.html"
+      ]
     },
     {
       "id": "D03",

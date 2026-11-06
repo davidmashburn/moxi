@@ -1,8 +1,8 @@
 # Native math editor: D02 implementation evidence
 
-This is a local implementation candidate for M0–M4, based on `df1eff8` with
-D01 and F01 integrated. It is not a declaration that every release gate has
-passed. The implementation and reproduction instructions are in
+This is a local implementation candidate for M0–M4, integrated at `5f9bb45`
+with D01, F01 and F02 native ownership changes. It is not a declaration that
+every release gate has passed. The implementation and reproduction instructions are in
 [math-editor.md](math-editor.md). D01's persistent SymPy choice remains
 provisional, with moderate confidence; its report is unchanged.
 
@@ -147,9 +147,9 @@ acceptance. Captures use the observed 2× content-view pixel scale on this run.
 
 A temporary `.app` bundle launched and appeared as running in the native UI
 inventory. Both path-based and bundle-ID window binding returned
-`cgWindowNotFound`. Therefore no OS-compositor screenshot is claimed. Parent
-integration owns the final native capture/gallery and must replace the base
-revision-plus-uncommitted-source provenance with the final reviewed commit.
+`cgWindowNotFound`. Therefore no OS-compositor screenshot is claimed. The
+integrated capture below records the reviewed commit and clean executable
+source provenance.
 
 ## Remaining gates and deliberate boundaries
 
@@ -198,3 +198,37 @@ fingerprint metadata and generated offline slideshow are under
 `/tmp/moxi-d02/moxi-math-local.tar.gz`. These temporary paths are evidence from
 this session, not checked-in build artifacts. Reproduce them using the shipped
 scripts before relying on them in another environment.
+
+## Parent integration verification
+
+At `5f9bb45`, the parent rebuilt both native applications and reran the model,
+editor, geometry, synthetic native acceptance, performance and ten real-process
+backend checks. All passed against the integrated F02 native ownership code.
+The source-free archive consumer also passed in a fresh temporary directory.
+The existing API inventory passed (1,008 exports, 103 trait methods, four
+packages); the optional math package's public surface is documented separately
+in [math-editor.md](math-editor.md).
+
+The integrated CPU run measured 5.333 ms p95 and 5.921 ms worst for the
+1,000-node row. Other concurrent work was active; this is a compatibility
+measurement, not a replacement for the isolated benchmark above or proof of
+frame presentation latency.
+
+All twelve fresh content-view PNGs were visually inspected. The matrix,
+malformed literal, pending/stale computation, editable result, numerator-only
+application, undo and saved/reopened notation are visible. The shared gallery
+validated eight manifests; all 24 math-gallery image elements loaded and
+next/previous/last/wrap navigation passed. The captures remain offscreen AppKit
+content renders, without window chrome or compositor evidence.
+
+The integrated slideshow is
+[`d02-native-math-editor`](../artifacts/demo-slideshows/d02-native-math-editor/index.html).
+Its manifest records clean source at `5f9bb45`, individual PNG hashes and source
+SHA-256 `34649ffef030a3b7c2cb46e375ffc2061e8397c51be7feaac9b5cf7657b737f0`.
+Logs are `/tmp/moxi-d02-parent-check.log`,
+`/tmp/moxi-d02-parent-consumer.log`, `/tmp/moxi-d02-parent-api.log` and
+`/tmp/moxi-d02-integrated-capture.log`; individual checks are in
+`/tmp/moxi-d02-parent`. Full repository/CI, sanitizers, other platforms and the
+physical/human gates above were not run. Confidence is high in these exercised
+contracts and moderate in interaction readiness; physical input, typography
+and frame-presentation evidence could change that assessment.
