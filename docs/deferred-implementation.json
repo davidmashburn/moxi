@@ -14,11 +14,23 @@
     {
       "id": "F01",
       "scope": "Portable font collections/fallback policy and richer paragraph corpus, preserving the existing CoreText/HarfBuzz ownership split. Verify mixed scripts, composed clusters, wrapping, selection, and invalidation; do not assume identical glyph IDs across engines.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "implemented",
+      "commits": [
+        "4e34e5b"
+      ],
+      "verification": [
+        "Parent reran pixi run harfbuzz-check: native ownership/policy tests, ten-case Mojo corpus, compatibility shaper and laboratory assertions passed.",
+        "Worker verified portable boundary/shaping/layout/conformance, CoreText structural parity and native ASan/UBSan checks.",
+        "Six browser captures visually inspected; missing emoji coverage is displayed, not hidden."
+      ],
+      "remaining_gates": [
+        "Linux execution and full release/CI not verified.",
+        "Human IME acceptance not performed; VoiceOver remains paused.",
+        "Full Unicode bidi/grapheme conformance, color/bitmap fonts and throughput claims are outside the documented bounded profile."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/text-laboratory/index.html"
+      ]
     },
     {
       "id": "F02",
@@ -257,7 +269,7 @@
     {
       "id": "N01",
       "scope": "[NotImplemented component](docs/not-implemented-pattern.md): pure inert component, feature name/explanation, ordinary semantics, independent namespacing, public import, runnable example and Playground entry.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],

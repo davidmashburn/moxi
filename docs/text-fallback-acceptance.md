@@ -77,8 +77,11 @@ that visual acceptance step.
 ## Unmet or excluded gates
 
 Human IME acceptance was not performed. VoiceOver remains paused; no human
-screen-reader acceptance is claimed. Browser screenshots and visual acceptance
-are left to the parent's capture pipeline. Linux execution, full release/CI,
+screen-reader acceptance is claimed. The parent captured and visually inspected
+all five replay states plus return to the original snapshot; the local
+[slideshow](../artifacts/demo-slideshows/text-laboratory/index.html) records the
+capture recipe and actual missing emoji coverage. This is replay inspection,
+not human editor acceptance. Linux execution, full release/CI,
 performance benchmarking, color/bitmap fonts, full UAX #9/UAX #29 conformance,
 word-breaking/hyphenation and production font licensing/distribution were not
 verified or added. The bounded native implementation reshapes candidate lines;

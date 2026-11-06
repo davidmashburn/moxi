@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "demo_id": "text-laboratory",
+  "title": "Moxi text laboratory",
+  "scenario": "F01: real HarfBuzz glyphs and retained FreeType outlines, rendered as an executable replay with explicit missing coverage.",
+  "revision": "3a9c5b6",
+  "host": "macOS arm64",
+  "backend": "HarfBuzz 14.5.0 / FreeType / Fontconfig; SVG outlines in Chromium",
+  "scale": 2,
+  "fixture": "Arial, Arial Unicode MS, Hiragino Sans resolved by host Fontconfig; five executable states plus retained snapshot",
+  "reproduce": "Run pixi run text-laboratory; serve dist/text-laboratory with python3 -m http.server; open index.html at 1280 x 800 CSS pixels, device scale 2; visit #mixed, #wrap, #fallback, #selection, #edit, #mixed. Browser navigation selects precomputed executable states; it does not execute text editing.",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "mixed.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Mixed scripts and explicit missing coverage",
+      "action": "Open #mixed after running the executable.",
+      "expected": "Three lines; revision 4; one build; two missing emoji clusters on this host."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "wrap.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Resize the paragraph constraint",
+      "action": "Open #wrap, the executable state with a 330-unit constraint.",
+      "expected": "Five lines; two builds; composed fallback units stay together."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "fallback.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Change fallback order",
+      "action": "Open #fallback, generated after fonts.move(2, 1).",
+      "expected": "Revision 5 and three builds; CJK outlines change."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "selection.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Selection reuses the cached paragraph",
+      "action": "Open #selection.",
+      "expected": "38 selection rectangles, source offset 42, three builds and one cache hit."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "edit.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Delete one composed unit",
+      "action": "Open #edit, generated after TextInputState.delete_backward().",
+      "expected": "The whole e + acute unit disappears; cursor 3; four builds and one cache hit."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "recovery.png",
+      "dimensions": [
+        1280,
+        800
+      ],
+      "caption": "Revisit the retained original snapshot",
+      "action": "Return to #mixed after viewing the edited state. The executable also writes retained.svg after all edits.",
+      "expected": "The original paragraph remains intact; retained.svg is byte-identical to mixed.svg. This is snapshot retention, not an editor undo interaction."
+    }
+  ]
+}
