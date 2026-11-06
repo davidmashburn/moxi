@@ -1,5 +1,12 @@
 # Native workbench timing
 
+The measurements below are historical September 18 evidence. A source audit at
+`fa42b6f` on 2026-11-06 confirms that the plot-output reuse described below is
+still implemented in the workbench host and component, with headless regression
+coverage for reuse and invalidation. It is not pending optimization work. No
+new timing run or native replay was performed for this audit; the reported
+values do not establish current-build latency or display-presentation timing.
+
 On 2026-09-18, a single macOS arm64 process recorded real native-window
 interactions with opt-in instrumentation. Table scrolling took a median
 19.203 ms at 10,000 rows and 83.364 ms at 100,000 rows from native event enqueue
@@ -54,7 +61,8 @@ pixels at 1× and 2×, exercises warm reuse, and checks command, clip, bounds,
 and backing-scale invalidation. It passed with six builds, eight hits, and
 zero failures, and is now included in `pixi run check`.
 
-The full `pixi run check` passed against the final source: 72 test files plus
+The full `pixi run check` passed against the final source for that September 18
+cache change: 72 test files plus
 native and host checks. Source hashes were unchanged across the run. Focused
 cache pixel, rectangle equivalence, accessibility ABI, native capacity,
 workbench build, and signed artifact checks also passed. Android and iOS

@@ -5,6 +5,23 @@ starting at `c267311`. The changes and measurements use a dirty working tree;
 artifact hashes identify the tested executables. It supplements the earlier
 [application validation](data-workbench-validation.md).
 
+## Acceptance reconciliation, 2026-11-06
+
+The sections below preserve the September 18 checkpoint. A source and evidence
+review at `fa42b6f` confirms two later developments:
+table-only scrolling already retains plot output, and native follow-up observed
+path-field focus/caret recovery across zoom/restore plus basic Japanese
+composition/commit and spoken VoiceOver controls. The dated
+[native acceptance record](workbench-native-acceptance.md) defines the limits of
+those observations; the [cache replay](workbench-native-latency.md#plot-output-reuse)
+records the implemented optimization and its measured boundary.
+
+H2 remains open for the complete VoiceOver workflow, remaining IME editing and
+mixed-script cases, and broader focus recovery. Further VoiceOver testing was
+paused at the user's request. H6 remains open for an independent human authoring
+exercise. This reconciliation adds no native replay, benchmark, or human
+acceptance evidence and does not establish current-build desktop acceptance.
+
 ## Delivery and accessibility
 
 Packaging now seals build provenance into the signed bundle and validates both
@@ -48,9 +65,10 @@ Native replay on macOS 26.6.2 (25G83), arm64, with the U.S. keyboard verified:
   produced exactly `key,time,value,y` and `1,2.0,5.0,8.0`; SVG export parsed as XML.
 - Keyboard dead-key composition committed `café` in the path field.
 
-This is AX-client evidence, not VoiceOver acceptance. VoiceOver speech and
-navigation, CJK marked-text composition/cancellation, mixed-script paths, and
-focus recovery across resize remain unverified. The dead-key check does not
+At this checkpoint, this was AX-client evidence, not VoiceOver acceptance.
+VoiceOver speech and navigation, CJK marked-text composition/cancellation,
+mixed-script paths, and focus recovery across resize were unverified. The
+dead-key check does not
 establish those broader input behaviors. No reliable backing-scale measurement
 was recorded for this replay; the raster parity test separately covers 1×/2×.
 
@@ -177,11 +195,13 @@ No PR was opened, so remote CI was not checked.
 ## Authoring and remaining acceptance
 
 The [native acceptance follow-up](workbench-native-acceptance.md) records a
-passing focused path-field zoom/restore sequence and the remaining VoiceOver
-and Japanese composition verification limits after the checkpoint.
+passing focused path-field zoom/restore sequence, basic Japanese conversion and
+commit, and spoken VoiceOver controls. Full VoiceOver traversal and IME editing
+acceptance remain open.
 The [native latency follow-up](workbench-native-latency.md) measures the real
-window through CPU drawing completion and identifies unchanged plot work on
-table scrolling. The [memory profile](workbench-memory-profile.md) separates
+window through CPU drawing completion and records the later implementation and
+replay of plot-output retention on table scrolling. The
+[memory profile](workbench-memory-profile.md) separates
 live allocations, resident memory, and physical footprint.
 
 An agent added a filter-sensitive count/mean panel in an isolated source copy

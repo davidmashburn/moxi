@@ -1,5 +1,26 @@
 # Native acceptance follow-up
 
+## Acceptance status reviewed 2026-11-06
+
+H2 remains partially verified. The [hardening replay](data-workbench-hardening.md)
+and dated observations below establish native AX actions, a focused path-field
+zoom/restore sequence, basic Japanese conversion and commit, and audible
+VoiceOver controls. They do not establish the complete
+keyboard/VoiceOver workflow: labels and navigation order, filter changes, row
+selection announcements and plot purpose, import/export activation, duplicate
+editable elements, and focus recovery after scrolling and resizing still need
+a recorded end-to-end verdict. The remaining IME cases include cancellation,
+selected-range replacement, mixed-script paths, and numeric-filter rejection
+while preserving a usable active edit.
+
+This is a source and historical-evidence audit at `fa42b6f`, not a new native
+session. No GUI or settings were changed, and no physical input was simulated.
+VoiceOver testing remains paused at the user's request. Headless regressions
+cannot replace these native acceptance observations or establish that the older
+manual results still hold on the current build. H6's independent human authoring
+exercise is a separate open gate; see the
+[supplementary agent exercise](workbench-authoring-exercise.md).
+
 ## Interactive follow-up, 2026-09-23
 
 The user activated Japanese–Romaji/Hiragana and used the physical keyboard in
@@ -48,7 +69,7 @@ restoring the window, and typing `-restored` produced
 enlarge/restore sequence. Confidence is high for this sequence; arbitrary
 interactive resize gestures and other focused controls were not checked.
 
-## Unverified native acceptance
+## September 18 verification limits
 
 VoiceOver was enabled through System Settings and its welcome dialog.
 The process was running, and its existing caption-panel preference was on.
@@ -65,7 +86,7 @@ input menu, globe-key emoji action, and English-only dictation language list
 were verified restored. Automatic keyboard brightness was restored on after
 an unintended UI toggle during settings navigation.
 
-## Next native probes
+## September 18 retry and remaining probes
 
 A subsequent retry on 2026-09-18 used the default signed bundle with the plot
 cache changes (executable SHA-256
@@ -82,8 +103,8 @@ This blocked further VoiceOver testing. Desktop access later recovered, and
 the hidden input menu, globe-key emoji action, and U.S.-only source list were
 confirmed. Japanese was removed from dictation and the English-only language
 list was verified. Settings cleanup is complete. VoiceOver was not enabled
-during this retry. Neither native acceptance item is a pass, and the automation
-failure does not establish an application defect.
+during this retry. Neither native acceptance item passed in that retry, and the
+automation failure does not establish an application defect.
 
 - With a confirmed active Japanese input method, compose and cancel text in
   the path and threshold controls, then commit and replace a selected range.
@@ -94,10 +115,13 @@ failure does not establish an application defect.
   text-input harness. Workbench uses AppKit `NSTextField` overlays, so it does
   not validate the canvas marked-text callback path.
 
-Source inspection found risks requiring native tests: `controlTextDidChange:`
-for the overlay forwards the field's entire value, while canvas `setMarkedText`
-ignores `replacementRange`, `markedRange` uses model selection, and empty
-`unmarkText` emits no composition-end event. These are inspection findings,
-not demonstrated workbench failures. Existing headless composition tests and
+Source inspection at `fa42b6f` confirms risks requiring native tests:
+`controlTextDidChange:` for the overlay forwards the field's entire value,
+while canvas `setMarkedText` ignores `replacementRange` and `markedRange` uses
+model selection. The earlier claim about empty `unmarkText` was too broad:
+it emits a composition-end event whenever marked-text storage is non-nil,
+including an empty marked string, and returns without an event only when that
+storage is nil. These are source observations, not demonstrated workbench
+failures. Existing headless composition tests and
 the accessibility ABI test do not establish native IME or screen-reader
 acceptance. No new tests were added for this manual acceptance record.
