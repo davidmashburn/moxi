@@ -4,11 +4,11 @@
 #include <string.h>
 
 // Main-thread application service. 0 means cancelled, -1 means invalid path.
-int64_t fdg_choose_svg_path(uint8_t *buffer, int64_t capacity) {
+int64_t fdg_choose_export_path(uint8_t *buffer, int64_t capacity) {
     NSSavePanel *panel = [NSSavePanel savePanel];
-    panel.title = @"Export graph as SVG";
+    panel.title = @"Export graph (SVG, PNG or PDF)";
     panel.nameFieldStringValue = @"moxi-fdg.svg";
-    panel.allowedContentTypes = @[UTTypeSVG];
+    panel.allowedContentTypes = @[UTTypeSVG, UTTypePNG, UTTypePDF];
     panel.canCreateDirectories = YES;
     if ([panel runModal] != NSModalResponseOK) return 0;
     NSString *path = panel.URL.path;
@@ -30,4 +30,15 @@ void fdg_present_frame(void) {
 void fdg_close_window(void) {
     NSView *view = (__bridge NSView *)moxi_window_canvas_view();
     [view.window performClose:nil];
+}
+
+// Explicit offscreen-render evidence; this is not a desktop/window screenshot.
+int32_t fdg_capture_frame(const char *path) {
+    NSView *view = (__bridge NSView *)moxi_window_canvas_view();
+    [view layoutSubtreeIfNeeded];
+    [view displayIfNeeded];
+    NSBitmapImageRep *bitmap = [view bitmapImageRepForCachingDisplayInRect:view.bounds];
+    [view cacheDisplayInRect:view.bounds toBitmapImageRep:bitmap];
+    NSData *png = [bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
+    return [png writeToFile:[NSString stringWithUTF8String:path] atomically:YES] ? 0 : -1;
 }

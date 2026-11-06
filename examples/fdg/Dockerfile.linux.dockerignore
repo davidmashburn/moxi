@@ -1,0 +1,7 @@
+**/.pixi
+**/dist
+**/build
+**/__pycache__
+**/*.egg-info
+.git
+artifacts

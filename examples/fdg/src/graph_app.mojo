@@ -10,6 +10,7 @@ from moxi.event import (
 from moxi.accessibility import ACTION_PRESS
 from moxi.controls_text import TextInputState, TextInputControl
 from layout import Layout
+from moxi.scene_text import SceneTextStyle
 
 comptime CANVAS = 100
 comptime PAUSE = 10
@@ -81,7 +82,7 @@ struct GraphApp(Component):
         root.add_button_to(bar, FIT, "Fit graph", 32)
         root.add_button_to(bar, LABELS, "Hide labels" if self.labels else "Show labels", 32)
         root.add_button_to(bar, NEIGHBORS, "All nodes" if self.neighbors_only else "Neighbors", 32)
-        root.add_button_to(bar, EXPORT, "Export SVG", 32)
+        root.add_button_to(bar, EXPORT, "Export…", 32)
         for id in range(PAUSE, EXPORT + 1):
             root.set_fixed_width(id, 118)
         var search = root.add_row(3, 0, 36, 0, 8)
@@ -290,7 +291,7 @@ struct GraphApp(Component):
             result.append_rounded_rect(10000 + i * 3, Rect(p.x - radius - 2, p.y - radius - 2, radius * 2 + 4, radius * 2 + 4), Color(1, 1, 1, 1), radius + 2)
             result.append_rounded_rect(10001 + i * 3, Rect(p.x - radius, p.y - radius, radius * 2, radius * 2), color, radius)
             if self.labels or self.selected == i:
-                result.append_text(10002 + i * 3, self.graph.nodes[i].id, Rect(p.x + radius + 5, p.y - 9, 180, 20), Color(0.12, 0.18, 0.27, color.alpha))
+                result.append_text_styled(10002 + i * 3, self.graph.nodes[i].id, Rect(p.x + radius + 5, p.y - 9, 180, 20), Color(0.12, 0.18, 0.27, color.alpha), SceneTextStyle(family="sans-serif", size=14))
         result.pop_clip(1)
         return result^
 

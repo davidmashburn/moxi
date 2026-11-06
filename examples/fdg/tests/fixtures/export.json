@@ -1,0 +1,1 @@
+{"nodes":[{"id":"A & <α>","group":0},{"id":"B β","group":1},{"id":"C γ","group":2},{"id":"isolated","group":3}],"links":[{"source":"A & <α>","target":"B β","value":4},{"source":"A & <α>","target":"C γ","value":1},{"source":"B β","target":"B β","value":9}]}

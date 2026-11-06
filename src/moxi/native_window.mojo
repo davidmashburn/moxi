@@ -752,7 +752,7 @@ struct NativeCanvasSceneRenderer[backend_kind: Int](SceneRenderer):
                 command.fill.green,
                 command.fill.blue,
                 command.fill.alpha * command.opacity,
-                14.0,
+                Float32(14.0),
             )
 
     def end_scene(mut self) raises:

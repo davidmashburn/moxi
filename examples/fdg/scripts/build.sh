@@ -9,9 +9,10 @@ clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c "$moxi_dir/native/macos_window.m" -o "$app_dir/dist/macos_window.o"
 clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules \
   -c "$app_dir/native/save_panel.m" -o "$app_dir/dist/save_panel.o"
+clang -O3 -Wall -Wextra -Werror -c "$app_dir/native/export.c" -o "$app_dir/dist/export.o"
 pixi run --manifest-path "$moxi_dir/pixi.toml" mojo build \
   -I "$moxi_dir/src" -I "$app_dir/src" "$app_dir/src/main.mojo" \
-  -Xlinker "$app_dir/dist/macos_window.o" -Xlinker "$app_dir/dist/save_panel.o" \
+  -Xlinker "$app_dir/dist/export.o" -Xlinker "$app_dir/dist/macos_window.o" -Xlinker "$app_dir/dist/save_panel.o" \
   -Xlinker -framework -Xlinker Cocoa \
   -Xlinker -framework -Xlinker UniformTypeIdentifiers \
   -o "$app_dir/dist/moxi-fdg"

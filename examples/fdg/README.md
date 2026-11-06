@@ -11,7 +11,7 @@ does not promise D3 API compatibility or identical numerical layouts.
 
 ## Build and run
 
-Requires macOS ARM64, Xcode command-line tools, Pixi, and a Moxi source checkout
+The macOS build requires ARM64, Xcode command-line tools, Pixi, and a Moxi source checkout
 with its Mojo 1.1.0 environment installed. Build scripts use the containing
 Moxi checkout by default; `MOXI_SOURCE_DIR` can override it. This example is
 not a separately published package.
@@ -80,8 +80,8 @@ graphs raise `subprocess.CalledProcessError` with diagnostics in `.stderr`.
 The default export timeout is 30 seconds (`timeout=120` increases it). The
 current JSON parser can be slow on large payloads, including ignored metadata;
 pass only the graph data you need.
-This is not an interactive notebook widget. The executable currently requires
-macOS ARM64; a remote notebook kernel cannot open a window on your laptop.
+This is not an interactive notebook widget. The executable uses macOS ARM64 or
+the Linux GTK lane; a remote notebook kernel cannot open a window on your laptop.
 Neither helper installs or builds the executable automatically.
 
 ## Explore and export
@@ -94,7 +94,7 @@ Neither helper installs or builds the executable automatically.
   cycles through matches.
 - With the canvas focused, left/right select nodes, Enter toggles neighbors,
   and Escape clears selection and filtering.
-- Export SVG opens a native Save dialog for the current camera/selection/filter
+- Export opens a native Save dialog (.svg, .png or .pdf) for the current camera/selection/filter
   state. CLI `--export PATH` writes directly to that path (replacing it if present)
   after 400 deterministic layout steps and fitting the settled graph.
 
@@ -112,9 +112,10 @@ Unknown JSON properties are ignored. Invalid JSON, duplicate IDs, missing
 endpoints, unsupported control characters, and invalid weights produce errors.
 String and number IDs are accepted as text; prefer strings for stable identity.
 
-This slice includes no original JavaScript template hooks,
-PNG/PDF export, graph editing, an input file picker, or package-only installation.
-Other operating systems and screen-reader workflows require verification.
+This slice includes no original JavaScript template hooks, graph editing, or
+input file picker. PNG/PDF export, local platform wheels, and the Linux GTK
+lane are described in [the P06 implementation and reproduction report](P06.md).
+Screen-reader and physical Linux desktop workflows remain unverified.
 
 ## Verification
 

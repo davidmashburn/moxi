@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "moxi-fdg"
+version = "0.1.0"
+description = "Example-local native Moxi force graph application and Python launcher"
+requires-python = ">=3.9"
+license = "MIT AND LicenseRef-Modular-MAX-Community"
+
+[project.scripts]
+moxi-fdg = "moxi_fdg:main"
+
+[tool.setuptools]
+py-modules = ["moxi_fdg"]
+packages = ["_moxi_fdg_data"]
