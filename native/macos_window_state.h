@@ -2,6 +2,14 @@
  * The current context is only a main-thread dispatch cursor; no draw/event
  * payload is shared. Cocoa callbacks save/restore it, including nested calls.
  */
+enum { MoxiCustomSliceCapacity = 64, MoxiOrderedCustomSlice = 101 };
+typedef struct {
+    int rectStart, rectEnd, lineStart, lineEnd;
+    int circleStart, circleEnd, textStart, textEnd;
+    BOOL clipEnabled;
+    NSRect clip;
+} MoxiCustomSlice;
+
 @interface MoxiWindowState : NSObject {
 @public
     BOOL retired;
@@ -11,8 +19,10 @@
     /* Opt-in retained submission order; legacy hosts keep their original order. */
     BOOL moxi_ordered_paint_enabled;
     int moxi_ordered_paint_count;
-    int moxi_ordered_paint_kinds[MOXI_MAX_DRAW_COMMANDS + 1];
-    int moxi_ordered_paint_slots[MOXI_MAX_DRAW_COMMANDS + 1];
+    int moxi_ordered_paint_kinds[MOXI_MAX_DRAW_COMMANDS + MoxiCustomSliceCapacity];
+    int moxi_ordered_paint_slots[MOXI_MAX_DRAW_COMMANDS + MoxiCustomSliceCapacity];
+    int customSliceCount;
+    MoxiCustomSlice customSlices[MoxiCustomSliceCapacity];
     NSWindow *moxi_window;
     MoxiWindowDelegate *moxi_delegate;
     MoxiCanvasView *moxi_canvas;

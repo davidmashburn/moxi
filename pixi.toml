@@ -7,6 +7,17 @@ preview = ["pixi-build"]
 version = "0.6.0"
 
 [tasks]
+canvas-contract = "bash scripts/canvas_checks.sh check"
+canvas-native-layers = "bash scripts/canvas_checks.sh layers"
+canvas-native-check = "bash scripts/canvas_checks.sh capture"
+canvas-check = "bash scripts/canvas_checks.sh check"
+canvas-consumer = "bash scripts/canvas_checks.sh consumer"
+canvas-build = "bash scripts/canvas_checks.sh build"
+canvas-gallery = "python3 scripts/canvas_gallery.py"
+canvas-capture = "bash scripts/canvas_checks.sh capture"
+canvas-interaction-benchmark = "bash scripts/canvas_checks.sh benchmark"
+canvas-probe = {cmd = "./dist/moxi-canvas-probe", depends-on = ["canvas-build"]}
+canvas-graph = {cmd = "./dist/moxi-canvas-graph", depends-on = ["canvas-build"]}
 native-lifecycle-build = "bash scripts/native_lifecycle_build.sh"
 native-lifecycle = { cmd = "open dist/MoxiLifecycle.app", depends-on = ["native-lifecycle-build"] }
 native-lifecycle-check = "bash scripts/native_lifecycle_check.sh"

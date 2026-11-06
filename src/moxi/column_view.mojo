@@ -103,6 +103,8 @@ struct ColumnView:
     var clip_to_bounds: Bool
     var root_scroll_offset: Float32
     var theme: Theme
+    # A spatial presenter may publish final bounds for an already laid-out tree.
+    var published_geometry: Bool
     var content_layout_enabled: Bool
     var content_layout_active: Bool
     var content_layout_tree: LayoutTree
@@ -131,6 +133,7 @@ struct ColumnView:
         self.clip_to_bounds = False
         self.root_scroll_offset = 0.0
         self.theme = Theme()
+        self.published_geometry = False
         self.content_layout_enabled = False
         self.content_layout_active = False
         self.content_layout_tree = LayoutTree()
@@ -159,6 +162,7 @@ struct ColumnView:
         result.clip_to_bounds = self.clip_to_bounds
         result.root_scroll_offset = self.root_scroll_offset
         result.theme = self.theme
+        result.published_geometry = self.published_geometry
         result.content_layout_enabled = self.content_layout_enabled
         result.content_layout_active = self.content_layout_active
         result.content_layout_tree = self.content_layout_tree.clone()
@@ -1557,6 +1561,8 @@ struct ColumnView:
 
     def layout(mut self):
         """Assign bounds to the root and any nested container children."""
+        if self.published_geometry:
+            return
         if self.content_layout_enabled and self._layout_content():
             return
         self.content_layout_active = False

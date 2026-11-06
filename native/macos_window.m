@@ -898,6 +898,7 @@ static int moxi_event_modifiers_for_flags(NSEventModifierFlags flags) {
 static void moxi_reset_commands(void) {
     moxi_ordered_paint_enabled = NO;
     moxi_ordered_paint_count = 0;
+    moxi_current_context()->customSliceCount = 0;
     moxi_native_text_editor_seen = NO;
     moxi_label_count = 0;
     moxi_button_count = 0;
@@ -2124,7 +2125,7 @@ static void moxi_draw_native_widget(MoxiNativeWidgetSlot slot) {
     moxi_end_clip(slot.clipEnabled);
 }
 
-static void moxi_draw_custom_rectangles(void) {
+static void moxi_draw_custom_rectangles(int start, int end) {
     CGContextRef context = NSGraphicsContext.currentContext.CGContext;
     CGContextSaveGState(context);
     // Match NSBezierPath's rasterization defaults. Core Graphics' default
@@ -2134,7 +2135,7 @@ static void moxi_draw_custom_rectangles(void) {
     CGContextSetLineCap(context, (CGLineCap)NSBezierPath.defaultLineCapStyle);
     CGContextSetMiterLimit(context, NSBezierPath.defaultMiterLimit);
     CGContextSetLineDash(context, 0, NULL, 0);
-    for (int i = 0; i < moxi_custom_rect_count; i++) {
+    for (int i = start; i < end; i++) {
         [moxi_color(moxi_custom_rect_fills[i]) setFill];
         NSRect frame = moxi_custom_rect_frames[i];
         CGFloat radius = moxi_custom_rect_radii[i];
@@ -2168,15 +2169,15 @@ static void moxi_draw_custom_rectangles(void) {
     CGContextRestoreGState(context);
 }
 
-static void moxi_draw_custom_commands_uncached(void) {
-    moxi_begin_clip(moxi_custom_clip_enabled, moxi_custom_clip_frame);
-    moxi_draw_custom_rectangles();
+static void moxi_draw_custom_slice(MoxiCustomSlice slice) {
+    moxi_begin_clip(slice.clipEnabled, slice.clip);
+    moxi_draw_custom_rectangles(slice.rectStart, slice.rectEnd);
 
-    int line_index = 0;
-    while (line_index < moxi_custom_line_count) {
+    int line_index = slice.lineStart;
+    while (line_index < slice.lineEnd) {
         int batch_end = line_index + 1;
         BOOL can_batch = moxi_custom_line_colors[line_index][3] >= 1.0;
-        while (can_batch && batch_end < moxi_custom_line_count &&
+        while (can_batch && batch_end < slice.lineEnd &&
                moxi_custom_line_colors[batch_end][3] >= 1.0 &&
                moxi_custom_line_style_equal(line_index, batch_end)) {
             batch_end += 1;
@@ -2193,7 +2194,7 @@ static void moxi_draw_custom_commands_uncached(void) {
         line_index = batch_end;
     }
 
-    for (int i = 0; i < moxi_custom_circle_count; i++) {
+    for (int i = slice.circleStart; i < slice.circleEnd; i++) {
         CGFloat radius = moxi_custom_circle_radii[i];
         NSPoint center = moxi_custom_circle_centers[i];
         NSRect frame = NSMakeRect(
@@ -2215,7 +2216,7 @@ static void moxi_draw_custom_commands_uncached(void) {
         }
     }
 
-    for (int i = 0; i < moxi_custom_text_count; i++) {
+    for (int i = slice.textStart; i < slice.textEnd; i++) {
         NSDictionary *attributes = @{
             NSFontAttributeName: [NSFont systemFontOfSize:moxi_custom_text_font_sizes[i]
                                                        weight:NSFontWeightSemibold],
@@ -2224,7 +2225,14 @@ static void moxi_draw_custom_commands_uncached(void) {
         [moxi_custom_texts[i] drawInRect:moxi_custom_text_frames[i]
                           withAttributes:attributes];
     }
-    moxi_end_clip(moxi_custom_clip_enabled);
+    moxi_end_clip(slice.clipEnabled);
+}
+
+static void moxi_draw_custom_commands_uncached(void) {
+    MoxiCustomSlice slice = {0, moxi_custom_rect_count, 0, moxi_custom_line_count,
+        0, moxi_custom_circle_count, 0, moxi_custom_text_count,
+        moxi_custom_clip_enabled, moxi_custom_clip_frame};
+    moxi_draw_custom_slice(slice);
 }
 
 static CGFloat moxi_custom_paint_backing_scale(void) {
@@ -2661,6 +2669,9 @@ double moxi_window_benchmark_custom_paint(int iterations) {
         for (int entry = 0; entry < moxi_ordered_paint_count; entry++) {
             int kind = moxi_ordered_paint_kinds[entry];
             if (kind == 100) { moxi_draw_custom_commands(); }
+            else if (kind == MoxiOrderedCustomSlice) {
+                moxi_draw_custom_slice(moxi_current_context()->customSlices[moxi_ordered_paint_slots[entry]]);
+            }
             else { [self drawOrderedSlot:moxi_ordered_paint_slots[entry] kind:kind]; }
         }
         moxi_native_timing_draw_completed();
@@ -3524,18 +3535,45 @@ void moxi_window_begin_frame(void) {
 void moxi_window_ordered_paint_begin(void) {
     moxi_ordered_paint_enabled = YES;
     moxi_ordered_paint_count = 0;
+    moxi_current_context()->customSliceCount = 0;
 }
 
 void moxi_window_ordered_paint(int kind, int slot) {
     if (!moxi_ordered_paint_enabled ||
         (kind != 1 && kind != 2 && kind != 3 && kind != 5 && kind != 22 && kind != 100) ||
         slot < 0 || slot >= MOXI_MAX_DRAW_COMMANDS ||
-        moxi_ordered_paint_count >= MOXI_MAX_DRAW_COMMANDS + 1) {
+        moxi_ordered_paint_count >= MOXI_MAX_DRAW_COMMANDS + MoxiCustomSliceCapacity) {
         moxi_command_overflow_count++;
         return;
     }
     moxi_ordered_paint_kinds[moxi_ordered_paint_count] = kind;
     moxi_ordered_paint_slots[moxi_ordered_paint_count++] = slot;
+}
+
+/* Seal only commands added since the previous slice. Storage and clip belong
+ * to this window; legacy whole-scene cache submissions remain unchanged. */
+int moxi_window_ordered_custom_slice(void) {
+    MoxiWindowState *owner = moxi_current_context();
+    int index = owner->customSliceCount;
+    if (!moxi_ordered_paint_enabled || index >= MoxiCustomSliceCapacity ||
+        moxi_ordered_paint_count >= MOXI_MAX_DRAW_COMMANDS + MoxiCustomSliceCapacity) {
+        moxi_command_overflow_count++;
+        return 0;
+    }
+    MoxiCustomSlice previous = index ? owner->customSlices[index - 1] : (MoxiCustomSlice){0};
+    MoxiCustomSlice slice = {previous.rectEnd, moxi_custom_rect_count,
+        previous.lineEnd, moxi_custom_line_count, previous.circleEnd, moxi_custom_circle_count,
+        previous.textEnd, moxi_custom_text_count, moxi_custom_clip_enabled, moxi_custom_clip_frame};
+    if (slice.rectStart > slice.rectEnd || slice.lineStart > slice.lineEnd ||
+        slice.circleStart > slice.circleEnd || slice.textStart > slice.textEnd) {
+        moxi_command_overflow_count++;
+        return 0;
+    }
+    owner->customSlices[index] = slice;
+    owner->customSliceCount++;
+    moxi_ordered_paint_kinds[moxi_ordered_paint_count] = MoxiOrderedCustomSlice;
+    moxi_ordered_paint_slots[moxi_ordered_paint_count++] = index;
+    return 1;
 }
 
 void moxi_window_set_custom_paint_cache_enabled(int enabled) {
