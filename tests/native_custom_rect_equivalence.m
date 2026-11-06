@@ -26,7 +26,7 @@ static NSBitmapImageRep *render(BOOL legacy, CGFloat scale) {
             }
         }
     } else {
-        moxi_draw_custom_rectangles();
+        moxi_draw_custom_rectangles(0, moxi_custom_rect_count);
     }
     [NSGraphicsContext restoreGraphicsState];
     return bitmap;
