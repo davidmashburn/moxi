@@ -1,56 +1,78 @@
 # Make the workbench a reliable desktop application
 
-## Execution evidence — September 18, 2026
+## Execution status reviewed November 6, 2026
 
-Implementation is committed as `99b1ba7` on `feat/data-workbench`,
-based on `c267311`. The companion report is
+The implementation source and existing evidence were audited at `fa42b6f`.
+This is a reconciliation of prior results, not a new native replay, benchmark,
+or independent human exercise. The original acceptance criteria below remain
+the milestone contract. H2 and H6 remain open; headless checks do not close them.
+
+The September 18 hardening implementation was committed as `99b1ba7` on
+`feat/data-workbench`, based on `c267311`. Its report is
 `docs/data-workbench-hardening.md` in the implementation worktree.
 
 - H1: artifact provenance, negative checks, repaired prose guard, and isolated
-  launch observer implemented. First launch and rebuilt desktop replay passed,
-  including ordinary quit. The integrated repository check passed.
-- H2: reproduced and fixed Mojo/C integer-width corruption of native action
-  flags. Native AX import, selection, filtering, sorting, and export now work;
-  the 64-case ABI regression passes. VoiceOver, CJK IME, and focus recovery
-  acceptance remain open; dead-key composition is only a narrower verified case.
-- H3: 3 × 100 native offscreen samples collected per case, with attributable
-  phases and retained raw data. This measures custom-command paints, not the
-  full native window or input-to-display latency. Comparison and supplementary
-  offscreen memory soak passed. The separate 10-minute native-window observation
-  completed with periodic interactions, exact selected-row export, and normal
-  quit; no sustained RSS growth was observed. Visible latency remains unmeasured.
-- H4: atomic batch key validation removes quadratic arbitrary-key construction.
-  Targeted identity and failure regressions pass; time/memory tradeoffs are
+  launch observer implemented. September 18 first launch and rebuilt desktop
+  replay passed, including ordinary quit; the integrated repository check passed.
+  These observations identify their tested builds, not a fresh current-build
+  desktop acceptance result.
+- H2: the Mojo/C integer-width corruption of native action flags was reproduced
+  and fixed. Native AX import, selection, filtering, sorting, and export worked;
+  the 64-case ABI regression passed. Later observations verified focused
+  path-field zoom/restore, basic Japanese conversion and commit, and audible
+  VoiceOver controls. The complete VoiceOver workflow, remaining IME editing
+  and mixed-script cases, and broader focus recovery remain open. Further
+  VoiceOver testing was paused at the user's request.
+- H3: 3 × 100 native offscreen samples per case attributed custom-command paint
+  work; the native-window follow-up separately measured event enqueue through
+  CPU drawing completion. A 10-minute native-window observation with periodic
+  interactions, exact selected-row export, and normal quit found no sustained
+  RSS growth. Actual display-presentation latency remains unmeasured.
+- H4: atomic batch key validation removed quadratic arbitrary-key construction.
+  Targeted identity and failure regressions passed; time/memory tradeoffs are
   documented.
-- H5: direct Core Graphics rectangle paths preserve tested pixels at 1×/2×.
-  Retained after total CPU medians improved 3.1–4.8%; confidence is moderate
-  because the host was not isolated. The 16.67 ms target still misses: scroll
-  medians are 19.3 ms at 10k and 177.5 ms at 100k rows.
-- H6: supplementary agent extension exercise and documentation improvements
-  complete. Independent human acceptance remains open.
+- H5: the measured Core Graphics rectangle optimization and subsequent
+  table-scroll plot-output retention are implemented. The cache follow-up is
+  described below; retaining unchanged plot output is no longer pending work.
+  Full 60 Hz or 100k-row interaction support is not established by the narrow
+  scroll result.
+- H6: the supplementary agent extension exercise and resulting documentation
+  improvements are complete. Independent human acceptance remains open.
 
-The original acceptance criteria below remain the milestone contract. Partial
-native coverage and an agent authoring exercise do not close their open items.
+### Follow-up measurements and native acceptance
 
-### Follow-up measurements
+The native timing probe and first follow-up evidence were committed as
+`15ffce2`. The implementation worktree's `docs/workbench-native-latency.md`
+records twelve native-window scroll samples per size: the baseline medians
+were 19.203 ms at 10k and 83.364 ms at 100k from event enqueue to the end of CPU
+drawing. This baseline rebuilt and redrew unchanged plots during table scrolls.
 
-The native probe and follow-up evidence are committed as `15ffce2` on
-`feat/data-workbench`.
+The later plot-output retention implementation skips scene construction and
+submission for eligible table-only scroll batches and caches native custom
+paint output, with bounds, commands, clip, and backing-scale invalidation.
+The same report records cached medians of 5.291 ms at 10k and 4.589 ms at 100k,
+again with twelve samples per size. Cache/direct pixel parity and workbench
+invalidation regressions passed. Confidence in the speedup magnitude is
+moderate: these were separate small runs on a shared host. Pointer-move frames
+were excluded, so neither whole-gesture cost nor display presentation was
+measured. The implementation remains present at `fa42b6f`; no new timings were
+collected for this reconciliation.
 
-The implementation worktree's `docs/workbench-native-latency.md` records a real
-native-window trace: twelve scroll samples per size yielded 19.203 ms median
-at 10k and 83.364 ms at 100k from event enqueue to the end of CPU drawing.
-This is not display-presentation latency. At 100k, scene construction and
-drawing dominate; table-only scrolling still rebuilds and redraws the plots.
-The next optimization should preserve unchanged plot output across table
-scrolling, with explicit invalidation checks for plot-affecting interactions.
+`docs/workbench-native-acceptance.md` records September 18 path-field
+focus/caret retention across window enlarge/restore and September 23 user-driven
+Japanese marked-text conversion and commit. The user also heard VoiceOver speak
+workbench controls. These limited observations supersede the earlier blanket
+unverified status without closing H2. Cancellation, selected-range replacement,
+mixed-script paths, numeric-filter editing, full VoiceOver traversal and
+selection announcements, and broader focus recovery still need recorded native
+verdicts. Temporary test settings were restored; further VoiceOver testing
+remains paused at the user's request.
 
-`docs/workbench-native-acceptance.md` records passing path-field focus/caret
-retention across native window enlarge/restore. VoiceOver output and actual
-Japanese marked-text composition could not be verified through the automation
-interface; they remain acceptance gaps. Temporary test settings were restored.
 `docs/workbench-memory-profile.md` records paired small-fixture/100k allocation
-snapshots and the limitations of attributing allocations without stack logging.
+snapshots and the limits of attribution without stack logging.
+`docs/workbench-authoring-exercise.md` records the supplementary agent task;
+its prior implementation familiarity does not satisfy H6's independent human
+requirement. No new authoring exercise was performed for this reconciliation.
 
 ## Decision and evidence
 

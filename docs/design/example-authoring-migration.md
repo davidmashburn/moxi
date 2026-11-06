@@ -1,7 +1,9 @@
 # Example authoring migration, preserving Moxi Playground
 
-Status: implemented locally on `feat/playground-authoring` through `fa42b6f`.
-Manual launcher acceptance and CI remain unverified; see the reconciliation below.
+Status: implementation complete locally through `fa42b6f` on
+`feat/playground-authoring`. Interactive launcher, physical IME and VoiceOver
+acceptance remain open. Publication and remote CI are outside the current
+local scope; see the reconciliation below.
 
 Observed November 2, 2026 against implementation `main` at
 [`ba8fc93`](https://github.com/davidmashburn/moxi/tree/ba8fc93e3a16b4113bec4f2c9adc8e5713aa1fc2).
@@ -315,3 +317,19 @@ Confidence is high in the locally tested model, routing, and reset behavior;
 manual accessibility/input acceptance remains unverified. A failing real IME,
 VoiceOver, or launcher navigation/reset session would change that assessment
 and should be resolved before calling the migration fully verified.
+
+## November 6 acceptance audit
+
+A separate source/test reconciliation found no additional active implementation
+requirement. The existing passing full-check result covers model persistence,
+reset and native-batch ordering, disjoint control identities, editor/clipboard
+semantics, and responsive previews. The lesson guide now also states that
+Playground has no owner-based route for live asynchronous completions; the
+migrated models schedule no requests. This is a documentation clarification
+of the existing embedding contract.
+
+The audit added no runtime test, GUI session, human trial, benchmark or CI
+result. Documentation checks passed; the November 5 acceptance limits above
+remain. Confidence is high in local implementation completeness. A failing
+interactive launcher, physical IME or VoiceOver session would reopen the
+relevant acceptance item. Deferred experiments were not promoted by this audit.

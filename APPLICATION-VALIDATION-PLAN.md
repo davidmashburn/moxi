@@ -7,9 +7,10 @@ UI, plotting, and rendering contracts compose into a useful development
 experience. Prioritize the defects and API friction this application exposes
 before expanding widget, plot-family, or platform coverage.
 
-This is a proposed execution direction, not a new implementation or stability
-claim. It expands the September 18, 2026 repository assessment against `main`
-at `a34963f`. Confidence is moderate: the assessment inspected architecture,
+This direction has a landed macOS application and historical validation;
+the milestone remains open for the acceptance gaps recorded below. The original
+proposal expanded the September 18, 2026 assessment against `main` at `a34963f`.
+Confidence in that assessment was moderate: it inspected architecture,
 selected runtime code, examples, test sources, and support/performance policy;
 it did not rerun builds, tests, benchmarks, or desktop interaction. Historical
 validation in CURRENT-STATE.md remains historical evidence, not a fresh pass.
@@ -25,6 +26,37 @@ with stronger needs, substantial difficulty composing the existing plotting
 and UI surfaces, or application measurements showing that framework overhead
 removes the expected benefit of keeping computation and interaction together.
 
+## Status reconciliation — November 6, 2026
+
+Source and evidence were reviewed at implementation revision `fa42b6f`.
+The full local check at that revision passed; this reconciliation adds no
+new native replay, benchmark run, independent human exercise, or remote CI
+result. The September 18–23 native and performance records retain their dated
+artifact identities and do not establish current-build desktop acceptance.
+
+| Slice | Reconciled status | Evidence and remaining boundary |
+| --- | --- | --- |
+| A1. Fixture-driven workflow | Implemented; recorded acceptance | `examples/data_workbench.mojo`, `src/moxi_demo/data_workbench.mojo`, and `tests/data_workbench.mojo` provide routed filtering, linked plot/table selection, sorting, and stable source identities. `docs/data-workbench-validation.md` records the real macOS workflow. Current-build desktop replay was not repeated. |
+| A2. Native interaction | Partially accepted; open | The recorded native walkthrough and hardening replay establish clipboard, keyboard/pointer/AX actions, selection preservation, and bounded resize/scroll behavior. The AX activation ABI defect is fixed and regression-tested. `docs/workbench-native-acceptance.md` adds focused path-field zoom/restore, basic Japanese conversion/commit, and spoken VoiceOver controls. Complete IME editing, mixed-script input, end-to-end VoiceOver operation, and broader focus recovery remain unverified; VoiceOver testing is paused at the user's request. |
+| A3. Authoring friction | Bounded documentation and agent evidence; human acceptance open | `docs/workbench-authoring-exercise.md` records a tested count/mean-panel extension and the documented public-API recipe. Its author was an agent with prior implementation familiarity, so the exercise cannot establish independent developer usability. Keep independent human authoring open; no broad API redesign is justified by this record. |
+| A4. Local data usefulness | Implemented; recorded acceptance | The bounded CSV model, recoverable failures, stable keys, missing values, limits, selected-row round trip, and SVG export have focused checks and recorded native use. `docs/data-workbench.md` defines the supported subset. Later atomic `PlotDataTable.append_rows` ingestion removes the original workbench arbitrary-key duplicate-scan bottleneck; it does not change repeated single-row insertion. |
+| A5. Measurement and support | Baselines and bounded support decision recorded; acceptance remains open | `docs/data-workbench-hardening.md`, `docs/workbench-native-latency.md`, and `docs/workbench-memory-profile.md` provide phase timing, bounded soak/memory evidence, and measured table-scroll output reuse. Historical cached-scroll samples do not establish whole-gesture or general 60 Hz performance, input-to-display latency, leak freedom, or current-build performance. Keep support experimental and retain the stated 10k exploratory / 100k stress-workload limits. |
+
+The milestone is not complete. Next evidence is a current-build native
+acceptance replay, the remaining IME and VoiceOver cases when the user resumes
+that testing, an independent human authoring exercise, and performance work
+scoped to the remaining timing and resource uncertainties. Headless regressions
+do not substitute for those observations. The Linux layout workbench is a
+different application and does not prove this data workbench across platforms.
+
+Confidence is high in the implemented workflow, batch ingestion, AX ABI fix,
+and table-scroll reuse mechanisms, and moderate in generalizing historical
+native measurements. A current-build native failure, completed accessibility/IME
+workflow, independent authoring evidence, or presentation-timing
+measurement could change these statuses or the support decision. See
+`docs/data-workbench-validation.md` for the consolidated implementation-side
+support reconciliation.
+
 ## Relationship to the existing plan
 
 Keep the landed package boundaries, compatibility inventories, shared fixtures,
@@ -32,7 +64,8 @@ and performance policy. This proposal gives the remaining work a concrete
 consumer; it does not reopen settled packaging or trait decisions.
 
 - S3, real desktop validation, becomes an early part of application validation.
-- S2, oversized structs, remains an explicit decision. Split a type only when
+- S2, oversized structs, is settled by ADR-006: retain the current owners.
+  Reopen a boundary only when
   application work or an independently demonstrated ownership defect warrants
   it; file size alone is not a prerequisite for this milestone.
 - Gate 2 text/native work and Gate 4 plotting work advance in bounded slices
@@ -244,7 +277,8 @@ milestone; expand it when a consumer establishes a concrete interoperability
 need. Revisit another platform after the application provides a reusable
 acceptance workload and the runtime/toolchain feasibility is demonstrated.
 
-The immediate next implementation slice is A1, followed by A2 before broad API
-work. A3 and A4 then use the resulting evidence; A5 starts measurement early
-and closes the milestone with a support decision. No calendar estimate is
-assigned until A1 exposes the actual integration cost.
+A1 and A4 have landed with recorded workflow evidence. Continue A2's remaining
+native acceptance, A3's independent human authoring, and A5's bounded
+performance/resource validation before closing the milestone. Preserve the
+historical measurements and explicit support limits; no calendar estimate
+or general platform/API promotion follows from this reconciliation.

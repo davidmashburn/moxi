@@ -4,7 +4,7 @@ This orphan branch is the planning record for Moxi. Product code lives on
 `main`; planning commits must not copy the implementation tree into this
 branch.
 
-The current planning baseline is:
+The November 2 integration record is:
 
 - implementation: `main` at `19d149c`, integrated November 2, 2026 by rebasing
   and fast-forwarding the workbench and authoring changes onto `875f714`. The
@@ -18,6 +18,31 @@ The current planning baseline is:
   checks also pass. The earlier 30-run benchmark and reviewed macOS baseline
   remain historical performance evidence; this integration adds benchmark smoke
   coverage, not a new performance study.
+
+## Active implementation follow-through — November 6, 2026
+
+The current local implementation baseline is `fa42b6f` on
+`feat/playground-authoring`, based on the last fetched `origin/main` at
+`ba8fc93`. The authoring migration's full local check passed; the November 2 CI
+result above does not validate these unpublished commits. The five subsequent
+documentation commits through `6c92242` record S2 and correct the evidence and
+embedding boundaries without changing runtime behavior.
+
+The active scope is the following implementation and acceptance work. Older
+proposal checklists below are historical context, not additional assignments.
+
+| Plan | Current boundary |
+| --- | --- |
+| [Structural S2 decision](PROJECT-PLANNING.md#s2-oversized-struct-boundary--settled) | Settled: retain the five current owners; ADR-006 records costs and reopening criteria. |
+| [Application validation](APPLICATION-VALIDATION-PLAN.md) | Workflow and bounded local-data implementation exist; support remains bounded by native, performance and independent human acceptance. |
+| [Workbench hardening](WORKBENCH-HARDENING-PLAN.md) | Implementation and plot retention exist; complete native acceptance and independent human authoring remain open. |
+| [Desktop host architecture](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md) | H0–H2 implemented for the recorded desktop slice; H3 services exist with manual/platform acceptance gaps. |
+| [Example authoring migration](docs/design/example-authoring-migration.md) | Implementation and local regression checks are complete; interactive launcher, IME/VoiceOver, and publication CI remain open. |
+
+Browser/server/Jupyter experiments, new math/canvas/mind-map/3D applications,
+specialized plotting ports, Linux GPU rendering, and additional host adapters
+remain deferred proposals. No public release or promotion of broader platform,
+performance, or human usability claims follows from this reconciliation.
 
 ## Planning record
 

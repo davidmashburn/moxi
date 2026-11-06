@@ -1,15 +1,53 @@
 # Moxi cross-platform host and renderer architecture plan
 
-Status: proposed architecture for independent review
+Status: desktop architecture implemented; manual acceptance remains partial.
+Linux GPU work and additional host adapters are deferred.
 
-Planning baseline: October 4, 2026
+Original planning baseline: October 4, 2026
 
-Implementation baseline: Moxi `main` at `e3be517` (`canvas_mojo` upstream
-v0.42.0, released Mojo 1.1.0); native Linux hosting is not yet claimed.
+Original implementation baseline: Moxi `main` at `e3be517` (`canvas_mojo`
+upstream v0.42.0, released Mojo 1.1.0). Linux hosting was not yet claimed then.
 
-This plan is intentionally independent of the active Linux implementation
-thread. It defines the boundaries that implementation should satisfy rather
-than prescribing one toolkit as Moxi's core.
+## November 6 implementation reconciliation
+
+Source and recorded evidence were reviewed at `fa42b6f`. The accepted
+implementation contract is `docs/architecture/adr-005-host-frame-contract.md`;
+`docs/support-matrix.md` and `docs/vm-validation.md` bound platform claims.
+The proposal below remains historical rationale, not a second implementation
+checklist. Where it differs, the accepted ADR governs.
+
+| Gate | Implemented scope and remaining boundary |
+| --- | --- |
+| H0 | Portable frame/resource, host/renderer and capability boundaries; shared form/collection/chart projections and event replay. Native runner and replay share `WorkbenchController`; the benchmark drives state directly using the shared workbench, packet and chart. |
+| H1 | Deadline-driven input/tasks/animation, idle waiting, semantic-only updates and bounded repaint contracts, covered by frame-driver/packet and native wait tests. |
+| H2 | Linked GTK4/Cairo/Pango software host, X11 window/service checks and descriptive VM benchmark smoke. Historical Ubuntu 24.04 x86-64 evidence identifies its tested source revisions; it is not a fresh Linux run at `fa42b6f`. |
+| H3 | Desktop IME, clipboard and semantic services implemented. External AT-SPI and clipboard checks passed on the recorded X11 lane; actual IBus/Mozc service conversion, replacement and cancellation passed with synthetic X11 keys. Full spoken screen-reader, physical-input and platform acceptance remains open. |
+| H4 | New Linux GPU renderer deferred; not a dependency of the implemented software host. |
+| H5 | Existing desktop contract tests and support matrix implemented. Additional mobile/browser/other host adapters and runtime promotion deferred. |
+
+GTK4 supplies Linux input-method and accessibility transport; Cairo paints and
+Pango measures text. This supersedes the proposal's SDL3-first preference.
+`WindowBackend` owns lifecycle, with `FrameHost` as its publication facet.
+The host owns presentation: paint-conditional rendering precedes semantic
+publication, then successful paint updates present. Semantic-only updates do
+not paint or present. These accepted details supersede the conceptual
+renderer-owned presentation and ordering below. The implemented validation
+task is `linux-layout-check`, not the proposed `linux-host-check`.
+
+Remaining H3 evidence includes full VoiceOver/Orca traversal, real macOS IME
+on the retained-layout host, physical horizontal scrolling, exact caret-relative
+candidate placement, and Wayland acceptance if promoted. Basic Japanese and
+spoken-control observations in the separate Data Workbench do not close those
+host-specific gates. Native paragraph resources and one-window-per-process
+limits also remain explicit in the ADR. The Linux VM timing record excludes
+live GTK proxy submission and does not establish native hardware performance.
+
+No source gap was reproduced. The ADR's benchmark/controller sharing statement
+was corrected to the actual boundary. This reconciliation reused the passing
+local full-check evidence at `fa42b6f`; no new GUI/VM, screen-reader, physical
+input, CI or benchmark run was performed. Confidence is high in the source
+mapping; a reproduced regression or fresh platform evidence would change the
+acceptance assessment.
 
 ## Product position
 

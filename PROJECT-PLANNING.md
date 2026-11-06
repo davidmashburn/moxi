@@ -371,7 +371,7 @@ should list support status; the changelog should describe shipped deltas.
 The package split (#2) and module split (#3) established a three-package
 shape and removed the largest file-level review barriers; the packaging and
 contract follow-on (#4) closed two of the resulting gaps. All three merged to
-`main` at `a34963f`. Two boundaries remain open (S2, S3); S1, S4, and S5 are
+`main` at `a34963f`. S3 remains open; S1, S2, S4, and S5 are
 settled and kept below as the record of what closed them. None was a
 prerequisite for another.
 
@@ -391,52 +391,72 @@ lane but is not yet stated in the support matrix.
 
 - Non-goals held: publishing to a public channel; a Python extension wheel.
 
-### S2. Decide the oversized-struct boundary
+### S2. Oversized-struct boundary — settled
 
-File splitting has reached its limit. `ColumnView` (1878 lines), `Plot` (2104),
-`DemoBrowserState` (1705), `PlotSpec` (1658), and `ColumnRuntime` (1001) are
-single structs, and Mojo offers no partial-struct or extension mechanism.
+Retain `ColumnView`, `ColumnRuntime`, `Plot`, `PlotSpec` and
+`DemoBrowserState` as their current owners.
+`docs/architecture/adr-006-large-struct-ownership.md` records the decision,
+per-struct coupling, extraction alternatives, remaining review costs and
+focused review paths against implementation baseline `fa42b6f`.
 
-- Owner boundary: whoever owns the view/runtime contract; this is a design
-  decision about delegation, not a cleanup task.
-- Files: `src/moxi/column_view.mojo`, `src/moxi/column_runtime.mojo`,
-  `src/moxi_plot/plotting.mojo`, `src/moxi_plot/plot_spec.mojo`,
-  `src/moxi_demo/demo_browser.mojo`.
-- Decide first whether thinning is worth it. Extracting method bodies into free
-  functions taking the struct as a parameter is mechanical but touches
-  behavior-adjacent code and adds an indirection the codebase does not
-  currently use anywhere. Doing nothing is a legitimate outcome if the review
-  cost is acceptable; what is not legitimate is treating the current sizes as
-  resolved because the files around them got smaller.
-- Validation command: `pixi run test` plus the affected area's targeted tests
-  after each extraction.
-- Acceptance: either a recorded decision to leave them whole with the reasoning,
-  or a per-struct extraction that reduces the largest reviewable unit without
-  changing a single public name or observable behavior.
-- Non-goals: redesigning the view model; introducing a trait-based partial-impl
-  pattern the language does not support.
+The inspected boundaries keep declaration geometry together, preserve retained
+identity and paint history under one owner, keep both plot projections tied to
+the same data/coordinate policy, keep spec serialization with its grammar, and
+keep browser selection/routing/reset lifetime coherent. Existing delegated
+components remain the appropriate seams. Moving whole methods to functions
+that accept the same struct would not reduce the hardest review units.
+
+The earlier size figures were file lengths, not isolated struct sizes;
+`PlotSpec` already has a top-level parser and compiler, and its serializer is
+180 lines at the review baseline. Size remains a cost, especially the plot
+projection and browser composition methods. This is an explicit no-extraction
+decision, not a claim that file splitting removed that cost.
+
+- Acceptance met: recorded retain decisions for all five structs; no public
+  names, state ownership or observable behavior changed.
+- Validation: source/caller/failure-path review, the repository prose-artifact
+  check and whitespace check. Compiler and behavior suites were not rerun for
+  this documentation-only decision; no extraction occurred. Native GUI and
+  reviewer-productivity claims were not evaluated by S2.
+- Reopen for demonstrated projection divergence, duplicated ownership logic
+  in another consumer, or review defects attributable to coupled
+  responsibilities. A future extraction must identify the smaller state
+  contract and reasoning removed, preserve public behavior, and run
+  `pixi run test` plus affected targeted tests after each extraction.
+- Non-goals held: redesigning the view model, unsupported partial-impl
+  patterns and line-count-only refactoring.
 
 ### S3. Validate the interactive macOS claims against a real desktop
 
 IME composition, the native accessibility tree, selection/clipboard, and
-scroll/virtualization are the most prominently documented behaviors and the
-least directly validated. Headless contracts and one reviewed capture are not
-the same as a session driven with synthetic input.
+scroll/virtualization need recorded desktop scenarios in addition to headless
+contracts. Partial native sessions have occurred; S3 is not wholly unstarted.
 
-The AX half is now driveable: AX activation preserves the stable semantic
-target instead of synthesizing a coordinate click, single-line text nodes
-accept settable `AXValue`, and `scripts/launch_demo_app.sh` plus the bundle
-`Info.plist` let the Playground run as a real app that automation can attach
-to. The session itself has not been run.
+The workbench's September 18 replay covered native AX actions and path-field
+focus/caret retention across zoom/restore. On September 23, user-driven
+Japanese composition and commit and spoken VoiceOver controls were observed.
+See the implementation worktree's `docs/workbench-native-acceptance.md` and
+`docs/data-workbench-hardening.md` for exact builds and limits. Full IME editing
+and VoiceOver traversal remain open; further VoiceOver testing was paused at
+the user's request. These Workbench results do not establish equivalent
+Playground coverage or current-build acceptance.
+
+The latest Playground attempt was blocked by `cgWindowNotFound`. That is an
+incomplete automation observation, not a native acceptance pass or a proven
+application defect. Headless AX focus/queue regressions cannot replace the
+missing desktop scenario verdicts. S3 remains open.
 
 - Owner boundary: host review lane, not a CI gate. This produces findings, not
   a pass/fail signal.
 - Files: the demo lane under `src/moxi_demo/`, `native/macos_*.m`,
   `src/moxi/macos.mojo`, `scripts/launch_demo_app.sh`; harness kept outside the
   repository.
-- Preconditions: a macOS session with Accessibility and Screen Recording
-  permissions granted, and a CJK input source enabled for the IME scenario.
-  These are the current blockers.
+- Preconditions: a usable macOS automation session with the required
+  Accessibility and Screen Recording access, plus an active CJK input source
+  and user participation for genuine IME scenarios. The latest Playground
+  automation blocker is `cgWindowNotFound`; the earlier Workbench session
+  demonstrates that native testing previously ran. Resume paused VoiceOver
+  work only when the user requests it.
 - Validation command: the scenario scripts in the external harness, starting
   with `pixi run demo-walkthrough` as the project's own definition of working.
 - Acceptance: each scenario has a recorded verdict with screenshot or AX-dump
@@ -608,15 +628,16 @@ rewrite:
    artifacts to a chosen public channel remains an external release action.
 7. Structural boundary follow-on: the package split, module split, and
    packaging/trait-contract follow-on landed on `main` at `a34963f` (S1, S4,
-   and S5 settled). S2 (oversized structs) and S3 (desktop validation) remain
-   open and are independent of each other; S3 can run as soon as a permitted
-   desktop session is available.
+   and S5 settled). S2 is settled by the November 6 retain decision in ADR-006.
+   S3 remains partially verified; complete native scenarios require a usable
+   desktop session and appropriate human participation.
 
-8. Application validation: execute A1–A5 in
+8. Application validation: reconcile the implemented A1–A5 slices and remaining
+   acceptance gates in
    [APPLICATION-VALIDATION-PLAN.md](APPLICATION-VALIDATION-PLAN.md), bringing S3
-   into the early application workflow and using evidence to select any S2,
-   text/native, or plotting follow-up. Defer new feature/platform breadth
-   until this bounded workflow has a recorded support decision.
+   into the remaining native acceptance work and using demonstrated defects
+   to select any text/native or plotting follow-up. Defer new feature/platform
+   breadth until this bounded workflow has a recorded support decision.
 
 The landed sequence remains historical context. The application milestone is
 the next proposed execution priority and consumes the infrastructure already
