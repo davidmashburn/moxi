@@ -1,0 +1,57 @@
+{
+  "source_sha256": "dd7551e11c8ccb4a1cb36a66d835d51567dd8d2f597ab73aec8ad68ad98d0dbc",
+  "files": {
+    "experiments/spatial-probe/build.sh": "fc9ef1641f1dd924696e0abd1d88934cb0550b4fefe68cc4be9626226f7a2324",
+    "experiments/spatial-probe/gallery.py": "a79b6259964ce39898d6e772e1c918788f287e9d1fbfb705fd7d87624143b462",
+    "experiments/spatial-probe/probe.m": "643d6733ddd69c09c831789c8b853e4f92b7a3805ed9932c8e83c3308b6e0dd6",
+    "experiments/spatial-probe/renderer.m": "85a4d2c80483cb8e01c73eddd867b28dba68cdece06eb579b23f0f21aabfb8dd",
+    "experiments/spatial-probe/spatial.h": "1eaf627f7d062e3de5047cdae309f4253fd750e05fc374f1d84d6e59e7ecc3df",
+    "native/macos_metal.m": "da28156b7e4135f23d67336b3b28556e6938fd76825cef621b09276c5c85e0ab",
+    "native/macos_window.m": "0fc87fc4fb3c7e2d0cccbf3ba616c243b0ef8f33d7cfa50c542fe723190f8054",
+    "native/macos_window_state.h": "3ee0e214eb440785ee29406073f4c3dfae1f1fe27f484d9c05ef3b699941502c",
+    "native/macos_paragraph.h": "39d19b28f66d92d8bd699e5c0dca1b5af6b60634b5cf6a1be79efb2ed9725698",
+    "scripts/demo_slideshows.py": "d9bfa8ef8e7f23afdb3275fc492f6a930af4ea5cbd1bf7034b8c0f4826edc66d"
+  },
+  "base_revision": "c228b15ad8ab3d4ca200f3ccba72b51001bce848",
+  "uncommitted_source": false,
+  "captured_at": "2026-11-06T12:18:09Z",
+  "sdk": "27.0",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "footprints": {
+    "bridge": {
+      "bytes": 574648,
+      "sha256": "ecdd5c1f7f9f3bfe86fc840063c226f04ac9686a133ad2b6cc0b71bee2d67781",
+      "build_wall_seconds": 3.3692716250079684,
+      "linked_libraries": [
+        "\t/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa (compatibility version 1.0.0, current version 24.0.0)",
+        "\t/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText (compatibility version 1.0.0, current version 904.0.0)",
+        "\t/System/Library/Frameworks/Metal.framework/Versions/A/Metal (compatibility version 1.0.0, current version 382.5.3)",
+        "\t/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore (compatibility version 1.2.0, current version 1223.2.2)",
+        "\t/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5027.0.69)",
+        "\t/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)",
+        "\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)",
+        "\t/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2775.10.103)",
+        "\t/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5027.0.69)",
+        "\t/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics (compatibility version 64.0.0, current version 2050.0.0)"
+      ]
+    },
+    "comparison": {
+      "bytes": 578104,
+      "sha256": "6047bdf0e686608b42c55f601ec8553413d2bffd6f0c549ea32d383517e7b8e2",
+      "build_wall_seconds": 3.587709291954525,
+      "linked_libraries": [
+        "\t/System/Library/Frameworks/Cocoa.framework/Versions/A/Cocoa (compatibility version 1.0.0, current version 24.0.0)",
+        "\t/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText (compatibility version 1.0.0, current version 904.0.0)",
+        "\t/System/Library/Frameworks/Metal.framework/Versions/A/Metal (compatibility version 1.0.0, current version 382.5.3)",
+        "\t/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore (compatibility version 1.2.0, current version 1223.2.2)",
+        "\t/System/Library/Frameworks/SceneKit.framework/Versions/A/SceneKit (compatibility version 1.0.0, current version 612.0.0)",
+        "\t/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5027.0.69)",
+        "\t/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)",
+        "\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)",
+        "\t/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2775.10.103)",
+        "\t/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5027.0.69)",
+        "\t/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics (compatibility version 64.0.0, current version 2050.0.0)"
+      ]
+    }
+  }
+}

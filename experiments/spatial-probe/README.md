@@ -152,3 +152,29 @@ maximum-capacity stress; independently varied material count, annotations, real
 instancing/one expensive mesh, active native text editors and concurrent viewport
 throughput; production zero-copy composition/resource API; maintained portable
 renderer and non-macOS host validation. Screenshots do not close these gates.
+
+## Parent integration evidence
+
+The integrated source at `c228b15` was rebuilt and replayed on November 6, 2026.
+Both bridge-only and comparison binaries passed the contracts above. The parent
+reviewed all 15 fresh content-view captures; all 30 slideshow/contact-sheet images
+loaded and first/next/previous/last/wrap navigation passed. All nine gallery
+manifests validated. Ten source-file hashes, two executable hashes and 15 PNG
+hashes match the recorded provenance; compiled capture sources were clean.
+
+The integrated run recorded worst 768-pixel frame-to-CPU-image p95 values of
+25.21 ms for the bridge and 34.69 ms for SceneKit. Other implementation workers
+were active, so this is not a controlled performance comparison. The initial
+worker run also exceeded 16.67 ms at that size. These observations reinforce the
+need for presentation-inclusive measurements before selecting a production path.
+The non-square perspective and orthographic comparisons each had zero pixels
+differing by more than two byte values. Both candidates submitted zero adapter
+frames in their 0.3-second idle intervals.
+
+Parent logs: `/tmp/moxi-d05-parent-gallery.log`,
+`/tmp/moxi-d05-parent-replay.log`, and
+`/tmp/moxi-d05-parent-bridge-only.log`. The comparison includes fresh F02 owner
+isolation assertions. The unchanged full Mojo lifecycle suite, API inventory,
+shared gallery unit tests, full repository suite, sanitizers and remote CI were
+not rerun for this isolated experiment. Physical input, compositor behavior and
+other acceptance gates listed above remain unverified; VoiceOver remains paused.

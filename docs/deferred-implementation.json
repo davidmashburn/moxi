@@ -127,7 +127,7 @@
     {
       "id": "P04",
       "scope": "[Interactive Jupyter](docs/design/jupyter-integration.md): example-local FDG widget/comm spike with bounded versioned messages, isolated outputs, disposal/rerun/restart, static saved fallback, and actual remote-kernel verification.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],
@@ -261,11 +261,24 @@
     {
       "id": "D05",
       "scope": "[Spatial S0](docs/design/3d-interaction.md): compare existing bridge with one credible renderer; establish depth, perspective/orthographic, compositing, frame/resource/coordinate contracts and measured choice.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "c228b15"
+      ],
+      "verification": [
+        "Parent reviewed both native renderer implementations and rebuilt/replayed the bridge-only and optional SceneKit comparison binaries; focused depth/order, camera, color/alpha, invalid-bound, overlay/clip, focus, resize, stale-generation, release/recreate and F02 owner isolation assertions passed.",
+        "Measured cold/warm encoding, GPU, completion wait, readback, alpha conversion, CPU, geometry update, binary footprint and idle behavior. Both candidates exceeded a 60 Hz frame-to-image budget at the larger viewport; no production path selected.",
+        "Fifteen fresh live AppKit content-view renders visually inspected. All source/binary/PNG hashes verified; nine gallery manifests validate and all 30 slideshow images plus navigation pass."
+      ],
+      "remaining_gates": [
+        "Production selection requires a public per-window compositable GPU resource interface, a maintained renderer candidate and sustained presentation-inclusive measurements. SceneKit is a deprecated comparator; private image injection is experiment-only.",
+        "Physical input, compositor/scanout, display profiles and cross-display DPI, sustained leak/thermal/capacity tests, independent material/annotation/instancing costs and other platforms remain unverified; VoiceOver remains paused.",
+        "Capture is offscreen AppKit content rendering, not a compositor screenshot. Parent measurements ran alongside workers and are not controlled performance evidence.",
+        "Unchanged full Mojo lifecycle suite, API inventory, shared gallery unit tests, full repository suite, sanitizers and remote CI were not rerun for this isolated experiment."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/spatial-probe/index.html"
+      ]
     },
     {
       "id": "D06",

@@ -1,0 +1,239 @@
+{
+  "version": 1,
+  "demo_id": "spatial-probe",
+  "title": "Spatial S0 \u2014 two executable renderers",
+  "scenario": "Actual NSWindow content-view cacheDisplay captures of the Moxi native host. Native callbacks are scripted; excludes window chrome, compositor, physical input and scanout. Live content rendered offscreen via AppKit cacheDisplay; not a compositor screenshot. VoiceOver remains paused.",
+  "revision": "c228b15ad8ab3d4ca200f3ccba72b51001bce848",
+  "host": "macOS 27.0.1 / arm64",
+  "backend": "Moxi AppKit host + Metal bridge depth extension / optional SceneKit",
+  "scale": 2.0,
+  "fixture": "Two cubes, 24 triangles, linear vertex colors; source SHA-256 dd7551e11c8ccb4a1cb36a66d835d51567dd8d2f597ab73aec8ad68ad98d0dbc",
+  "reproduce": "python3 experiments/spatial-probe/gallery.py",
+  "slides": [
+    {
+      "scenario_id": "01-perspective",
+      "backend": "Metal bridge extension",
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "01-perspective.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Bridge \u2022 perspective",
+      "action": "Open the real Moxi window",
+      "expected": "Depth-tested orange and blue cubes beside Moxi controls",
+      "png_sha256": "c5906607c1ed2470a7c70d6a5b79ab2820f3eb770327227db1349a4acba0719f"
+    },
+    {
+      "scenario_id": "02-orbit-active",
+      "backend": "Metal bridge extension",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "02-orbit-active.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Camera drag in progress",
+      "action": "Deliver native mouse down and drag callbacks",
+      "expected": "Changed view while capture remains active; no mesh upload",
+      "png_sha256": "371d1e5ba2c8509fe779c2d84e27994e71701158e9562158be0628aaffef347c"
+    },
+    {
+      "scenario_id": "02b-pan-dolly",
+      "backend": "Metal bridge extension",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "02b-pan-dolly.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Pan and dolly",
+      "action": "Deliver Shift-drag callbacks and a synthetic Moxi wheel packet",
+      "expected": "Camera pans and moves closer without a mesh upload; wheel hardware is not tested",
+      "png_sha256": "77b3fff5729a7c684d3513a5caba0308f8190a8c82141802ecc14550d36bbe26"
+    },
+    {
+      "scenario_id": "03-orthographic",
+      "backend": "Metal bridge extension",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "03-orthographic.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Bridge \u2022 orthographic",
+      "action": "Click Use orthographic",
+      "expected": "Parallel projection of the same retained geometry",
+      "png_sha256": "dc34eb1e981c7d6fd42d74c474b09a2e89fa467f5391fb31d9694891dcf75719"
+    },
+    {
+      "scenario_id": "04-clip-overlay",
+      "backend": "Metal bridge extension",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "04-clip-overlay.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Scroll, clip and overlay",
+      "action": "Click Show overlay and Scroll / clip",
+      "expected": "Image shifts up 72 logical points and clips; ordinary button remains above it",
+      "png_sha256": "6f1440f7113b7ad277cf4310fa31de729ed779c368cca9a4ffd91da7817c02a5"
+    },
+    {
+      "scenario_id": "05-control-focus",
+      "backend": "Metal bridge extension",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "05-control-focus.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Keyboard focus in ordinary controls",
+      "action": "Click overlay reset, then Tab from viewport to camera control",
+      "expected": "Button focus ring; arrow input leaves camera unchanged",
+      "png_sha256": "2e309079a178afea269c9841b361808e1383230eec900651946b847726c4e5b4"
+    },
+    {
+      "scenario_id": "06-resize",
+      "backend": "Metal bridge extension",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "06-resize.png",
+      "dimensions": [
+        1360,
+        960
+      ],
+      "caption": "Narrow live window",
+      "action": "Resize NSWindow content to 680 \u00d7 480 points",
+      "expected": "Target pixel size follows viewport size and backing scale",
+      "png_sha256": "165333b5ff628a14e0a73afbd68b2b2bf32a72f34b56447b5f41d2474662fd81"
+    },
+    {
+      "scenario_id": "07-disposed",
+      "backend": "Metal bridge extension",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "07-disposed.png",
+      "dimensions": [
+        1360,
+        960
+      ],
+      "caption": "Viewport resources disposed",
+      "action": "Click Dispose resources",
+      "expected": "Scene removed; ordinary UI remains available; stale generation rejected",
+      "png_sha256": "22b4bad457263c2c7d12c5d8564fef1c7ca6eafdaf69e4f3e3b191fdac7ffeb1"
+    },
+    {
+      "scenario_id": "08-recreated",
+      "backend": "Metal bridge extension",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "08-recreated.png",
+      "dimensions": [
+        1360,
+        960
+      ],
+      "caption": "New resource generation",
+      "action": "Click Recreate resources",
+      "expected": "Scene returns with retained camera and a new generation",
+      "png_sha256": "cdb7c85636594d879eddeb6bb49b3a74275a72f74cf4e09a6cc0b4cd7250eac7"
+    },
+    {
+      "scenario_id": "09-focus-recovery",
+      "backend": "Metal bridge extension",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "09-focus-recovery.png",
+      "dimensions": [
+        1360,
+        960
+      ],
+      "caption": "Cancel capture and restore camera focus",
+      "action": "Open second owner, cancel first owner's drag with Escape, close second, press Right",
+      "expected": "First owner camera responds; second owner's image identity was untouched",
+      "png_sha256": "79ab805f5c784600971f6bf0d46252c4b25b342ad5d986a48aa3245c5f9340be"
+    },
+    {
+      "scenario_id": "10-bridge-comparison",
+      "backend": "Metal bridge extension",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "10-bridge-comparison.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Comparison \u2022 bridge",
+      "action": "Restore wide layout and reset camera, clip and overlay",
+      "expected": "Canonical perspective scene before renderer switch",
+      "png_sha256": "d0f0f7482958f32fa9a13321502fac280d9a119fc9a0f68f4afc71708bde859e"
+    },
+    {
+      "scenario_id": "11-adapter-perspective",
+      "backend": "SceneKit adapter",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "11-adapter-perspective.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Comparison \u2022 SceneKit",
+      "action": "Click Switch renderer",
+      "expected": "The same fixture through the actual SceneKit renderer",
+      "png_sha256": "e88f620bd4af8fd23e49f420c3ca34c27610bf05a1e2f039beaffd9e3e7f66d1"
+    },
+    {
+      "scenario_id": "12-adapter-orthographic",
+      "backend": "SceneKit adapter",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "12-adapter-orthographic.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Adapter \u2022 orthographic",
+      "action": "Click Use orthographic",
+      "expected": "SceneKit camera uses shared view parameters",
+      "png_sha256": "66f092b0557b98b611303c585a6613339d3b1f4e360ba2010e1973d4273133f8"
+    },
+    {
+      "scenario_id": "13-adapter-clip",
+      "backend": "SceneKit adapter",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "13-adapter-clip.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Adapter \u2022 host composition",
+      "action": "Show overlay and scroll the SceneKit image",
+      "expected": "Same host clipping and overlay path as the bridge",
+      "png_sha256": "7ad441f80bcfef32f17929d440f19fc5df7881935307a1cb2eaf3e88ba0022db"
+    },
+    {
+      "scenario_id": "14-adapter-recreated",
+      "backend": "SceneKit adapter",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "14-adapter-recreated.png",
+      "dimensions": [
+        1800,
+        1240
+      ],
+      "caption": "Adapter \u2022 recreated",
+      "action": "Dispose and recreate the SceneKit adapter",
+      "expected": "Scene restored under new resource generation",
+      "png_sha256": "c75982afec7b5b263d621bc4b6a058ffe24a21ecf88ee898489914008be24970"
+    }
+  ]
+}
