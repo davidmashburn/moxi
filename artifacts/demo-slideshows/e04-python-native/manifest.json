@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "demo_id": "e04-python-native",
+  "title": "E04: native Mojo/CPython boundary proof",
+  "scenario": "Clean host wheel import, actual native exports, unchanged facade comparison, malformed/lifetime recovery, inspected deployment decision",
+  "revision": "8c7014763753f6fe9fb07f01654b4b1dcd39293a",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "backend": "CPython C ABI \u2192 Mojo PlotSpec/Scene \u2192 software RGBA and SVG",
+  "scale": 2,
+  "fixture": "experiments/python-native/tests/fixture.py: canonical six-row line/scatter",
+  "reproduce": "bash experiments/python-native/build.sh; bash experiments/python-native/check.sh; python3 experiments/python-native/evidence.py pages; serve artifact folder on loopback; use T3 preview at 1400x1100 to save each of five HTML pages as matching PNG; python3 experiments/python-native/evidence.py finalize. See README for exact environment and capture steps.",
+  "source_state": {
+    "dirty": true,
+    "build_dirty": true,
+    "build_sources_sha256": "405b47aa2fbb84da7a505de42b67b10a3e19bb173900dbc83c09f434eaeb6a10",
+    "build_source_count": 133,
+    "proof_sources": {
+      "experiments/python-native/.gitignore": "db56327e21c032f5aef7ec219817fae408688fe25596fe573919e86c95550a19",
+      "experiments/python-native/README.md": "5111f69438d3d1eec25e50eedfc814b3a3c0aed2dbd0524a4f51b35249ec7bd8",
+      "experiments/python-native/build.sh": "615aff78070652f77bb2e6228c5beeef2bc67c8b65e5fc948a6539c269fffe84",
+      "experiments/python-native/build_native.py": "9495bfab0269ada63b1f1a24a3bd24ae468e7999b4036ab857666d58273417e0",
+      "experiments/python-native/check.sh": "139d6bb3ec3136c1a151e517b991800ba33e93e10c3b5f23d7f8520080934788",
+      "experiments/python-native/evidence.py": "ec0c3f4dc3edab78ca4224d040f154a6684faa633a4995b8fec6469c5160c326",
+      "experiments/python-native/inspect_wheel.py": "7deb613ba76581d4987a9cd49d5b0de293053e50edc046e0fe8ae2fc44849e1e",
+      "experiments/python-native/moxi_native/__init__.py": "71ff2c9c86a0c86069f1442838aa50fc9fee0b0317ea661a6917985c74b97f9a",
+      "experiments/python-native/moxi_native/formats.py": "0206ebf8ea2d423d852ac7cc09cb6b3c7369958b171a9d89766ba1b1d687aff5",
+      "experiments/python-native/native/module.c": "b10c1957a050fc5e812792b5ddc8df368f7e203f3b3cc9f3b7e8476697513afe",
+      "experiments/python-native/native/render.mojo": "8a4f120be1f2725265dcf9e82c39384ac086f4ede2d510e19aeca240136431c4",
+      "experiments/python-native/pyproject.toml": "dfac84c3f8d7f9f5d9c1c02d855340ebc41b20f54bf572bdadc083fb2dc6c09f",
+      "experiments/python-native/setup.py": "1e5767395176d0838ee22804dd200ca25ad5a98845546dba79913ac6f9c836c9",
+      "experiments/python-native/tests/fixture.py": "51b4d1f335334b7f948bd22f712c6e573bf5c360c8576be89e6c50ed84c7b46b",
+      "experiments/python-native/tests/probe.py": "c502317dda42e16bbed7a830b7f03b996913b1671a87549b5e4354baadf28a44",
+      "experiments/python-native/tests/test_native.py": "e11f460b0dcd3460dc10244672f19feec6e44d0bece5c10f6439e5d78ac3f25f"
+    }
+  },
+  "binary_provenance": {
+    "compiler": "Mojo 1.1.0 (8189361e)",
+    "compiler_sha256": "b90f394cd44d1d1041493af512074eb606b33294202b053a2fe299ab8bde2e8f",
+    "object_sha256": "8723c74adf33c237bd30409f8f3b0a65c8168a5834bf56e00b0468f47bb05ba3",
+    "wheel": "moxi_native_experimental-0.1.0-cp314-cp314-macosx_26_0_arm64.whl",
+    "wheel_sha256": "1b6d8a9017beaa6efd932e0a01046822cc184c143e9454feb7170e68c2e10fb2",
+    "runtime_hashes": {
+      "libKGENCompilerRTShared.dylib": {
+        "original_sha256": "4168d702daba3fe2146b16de2f32ecdcdb7fd42cd57ea033319d646f7a1f1a00",
+        "bundled_sha256": "4ae03c8a089bcb73110bc101ef311eb6cb9e004385464fbe49220409fdf4fbf0"
+      },
+      "libMSupportGlobals.dylib": {
+        "original_sha256": "d540a5235b9b8f4be3f1917580b7812e12ec38cae4836c73f2b421b44e9ed16e",
+        "bundled_sha256": "de5444cc552073d55e1cc3ca8fd50ffafda8721ad966c03759b1b713df57d660"
+      },
+      "libAsyncRTRuntimeGlobals.dylib": {
+        "original_sha256": "b824969ba785f4fa7901fedc61465a56bf987f87f5202fdc2196dd1ffbe7685c",
+        "bundled_sha256": "406c5b72267433b235464e1043a4beacf5bf08733231d99643d26b72d754e1b8"
+      }
+    }
+  },
+  "artifacts_sha256": {
+    "01-import.json": "408de9ad713635abde4e11089966c7820c94b15edb2af8100a4bb71e821a795d",
+    "01-import.png": "4a270374cf8120779d51de1b81e9f4c119cce7aa22e1165e78ad5bb65afee483",
+    "02-render.json": "c36f8f0f1e090a040fcec488628b02186c329feac1a1bf247e4fe07d4ab3101c",
+    "02-render.png": "5968bf51b8fbe79783b64d96e6cc76f94998895be4ccf6ca66d0f24b4ecec5be",
+    "03-comparison.png": "71f87c23592274e09c5d9153d1ae1fc3e127f093b305288466fb322e330c1aea",
+    "04-errors.json": "5dfc2a965e68569c58356d6d7d59fbe5142a8cbcf06c7e47fef6dc9cdbc47224",
+    "04-recovery.png": "399398295919bfdff862f5aaa4b2ebbdf2e68b78600afefbc564ecce99f08cb2",
+    "05-packaging.png": "69cc285c1d0c597c2ce146475cb61efede17edc6c30d275f35e4c7fe763c90a6",
+    "benchmark.json": "4e767ba0669da651e2b5eb6544fa20d9e9a261c51fe22a8898f968c67f26cd1d",
+    "build.json": "05350fb111583a57306c3f7f0f7502e095c85c5789d5b34b80edbbdb934001e5",
+    "facade-tests.log": "9efd89627ede4bb0b550a8798b27c09fc5c3c7cfcfde2fe6c89985a0ff9efe46",
+    "facade.pdf": "f59086bdfaa91ce958b52dba3357ad111b0742ce01d95a6a7d981e6f8112fde6",
+    "facade.png": "1d0f0b1a4119fed49f267d34cf30b0a44b5797d07e11b471d8914bbba747a268",
+    "facade.rgba": "eccac440111034653a80d8ef2fa06de6483ea83668ad0ed6a225cf8eec2f166b",
+    "facade.svg": "b5918db469d6e574e22b7f73b720d7f096cc247037159be99bccfba73e0f8cc9",
+    "loaded-runtime.json": "4f0c9b9744b79d9f75b072b69f2bdd22b3484cead0e4902adf65d418210bf360",
+    "native-tests.log": "7ae46c5d7cc81754a8c6f851c41e0599bffbf765ee754721001599cc86b35414",
+    "native.pdf": "a72b179287fb5aac7374a414c3e66133f710d6247468c3d32131dab8929c5553",
+    "native.png": "c5087463af4ae3b7492a615d4c4c7a5dc578630e9ae2f30575dbcd4d77e256f7",
+    "native.rgba": "e3f788163bbe7ad41834724ec15490f32fca397df45871df1bb5de5820c87bc5",
+    "native.svg": "2782d434353cca3d2734106bcd34415bd6df8fdf6a77a2b31daa2244e3031e82",
+    "packaging.json": "7665bfaca3bbb2cec547a68180b584ae58ec115dc4c0fbded1b85fc98d3afa49"
+  },
+  "capture_environment": {
+    "viewport_css": [
+      1400,
+      1100
+    ],
+    "device_pixel_ratio": 2,
+    "saved_png_dimensions": [
+      [
+        1280,
+        1006
+      ],
+      [
+        1280,
+        1006
+      ],
+      [
+        1280,
+        1006
+      ],
+      [
+        1280,
+        1006
+      ],
+      [
+        1280,
+        1006
+      ]
+    ],
+    "note": "T3 preview_snapshot downsampled saved captures to 1280x1006; returned PNG bytes were copied unmodified. scale records browser devicePixelRatio, not saved pixels per CSS pixel."
+  },
+  "gates": {
+    "clean_installed_native": "passed",
+    "facade_regression": "passed",
+    "repeated_lifetime": "bounded pass",
+    "dependency_inspection": "PASS: bundled or system only",
+    "native_abi3": "not claimed",
+    "production": "open",
+    "runtime_redistribution": "unreviewed",
+    "other_hosts": "not tested",
+    "voiceover": "paused; not exercised",
+    "sanitizer_or_leak_detector": "not run",
+    "screenshot_scope": "browser evidence pages of actual terminal logs and renderer outputs; not native UI captures"
+  },
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "01-import.png",
+      "dimensions": [
+        1280,
+        1006
+      ],
+      "caption": "Clean installed import and compiled ABI version",
+      "action": "Navigate the T3 collaborative browser to the generated 01-import.html evidence page; save preview_snapshot PNG",
+      "expected": "Clean installed import and compiled ABI version; recorded results from the clean installed artifact, with limits shown",
+      "sha256": "4a270374cf8120779d51de1b81e9f4c119cce7aa22e1165e78ad5bb65afee483",
+      "evidence_page": "01-import.html",
+      "page_sha256": "276a39347b71af721ac819b6eab9898a80453a01b6200abce409bf4dfd51bd03"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "02-render.png",
+      "dimensions": [
+        1280,
+        1006
+      ],
+      "caption": "Canonical native scene: SVG and raster PNG",
+      "action": "Navigate the T3 collaborative browser to the generated 02-render.html evidence page; save preview_snapshot PNG",
+      "expected": "Canonical native scene: SVG and raster PNG; recorded results from the clean installed artifact, with limits shown",
+      "sha256": "5968bf51b8fbe79783b64d96e6cc76f94998895be4ccf6ca66d0f24b4ecec5be",
+      "evidence_page": "02-render.html",
+      "page_sha256": "82daa465765f0eeb4a6446938e4d6b1911f9bfa1adc322a1a54fd6daf77caa8e"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "03-comparison.png",
+      "dimensions": [
+        1280,
+        1006
+      ],
+      "caption": "Native and unchanged facade export comparison",
+      "action": "Navigate the T3 collaborative browser to the generated 03-comparison.html evidence page; save preview_snapshot PNG",
+      "expected": "Native and unchanged facade export comparison; recorded results from the clean installed artifact, with limits shown",
+      "sha256": "71f87c23592274e09c5d9153d1ae1fc3e127f093b305288466fb322e330c1aea",
+      "evidence_page": "03-comparison.html",
+      "page_sha256": "c88364288f339dfe4623e6a2b8bef532057eec8f9e544f71b1774e15efbd8e08"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "04-recovery.png",
+      "dimensions": [
+        1280,
+        1006
+      ],
+      "caption": "Malformed input rejection and repeated lifetime recovery",
+      "action": "Navigate the T3 collaborative browser to the generated 04-recovery.html evidence page; save preview_snapshot PNG",
+      "expected": "Malformed input rejection and repeated lifetime recovery; recorded results from the clean installed artifact, with limits shown",
+      "sha256": "399398295919bfdff862f5aaa4b2ebbdf2e68b78600afefbc564ecce99f08cb2",
+      "evidence_page": "04-recovery.html",
+      "page_sha256": "dba3ffc18a8b592b13f29b58c85245da400ac72c77b9df65a03cddf8850ea476"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "05-packaging.png",
+      "dimensions": [
+        1280,
+        1006
+      ],
+      "caption": "Inspected wheel, bounded timing and deployment decision",
+      "action": "Navigate the T3 collaborative browser to the generated 05-packaging.html evidence page; save preview_snapshot PNG",
+      "expected": "Inspected wheel, bounded timing and deployment decision; recorded results from the clean installed artifact, with limits shown",
+      "sha256": "69cc285c1d0c597c2ce146475cb61efede17edc6c30d275f35e4c7fe763c90a6",
+      "evidence_page": "05-packaging.html",
+      "page_sha256": "a2cd153071f92b203c242cdb08a94cbc027bb4fa746e95fde6dcc14d181da68b"
+    }
+  ]
+}

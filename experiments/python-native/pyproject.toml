@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "moxi-native-experimental"
+version = "0.1.0"
+description = "Host-specific stateless Mojo/CPython rendering proof (E04)"
+requires-python = ">=3.11"
+dependencies = ["moxi==0.6.0", "numpy>=1.24"]
+
+[tool.setuptools]
+packages = ["moxi_native"]
+
+[tool.setuptools.package-data]
+moxi_native = [".libs/*.dylib"]

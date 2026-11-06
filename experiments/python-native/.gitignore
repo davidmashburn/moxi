@@ -1,0 +1,6 @@
+dist/
+build/
+*.egg-info/
+moxi_native/_build.py
+moxi_native/*.so
+moxi_native/.libs/

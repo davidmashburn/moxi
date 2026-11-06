@@ -1,0 +1,6 @@
+*.json
+!manifest.json
+*.log
+*.svg
+*.pdf
+*.rgba
