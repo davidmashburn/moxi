@@ -1,0 +1,22 @@
+{
+  "dimensions": [
+    1068,
+    560
+  ],
+  "labels": [
+    "A & <\u03b1>",
+    "B \u03b2",
+    "C \u03b3"
+  ],
+  "pdf_text": "A & <\u03b1>\r\nB \u03b2\r\nC \u03b3",
+  "node_centers_compared": 3,
+  "png_pdf_mean_absolute_error": 0.08025626449081506,
+  "native_label_ink_pixels": [
+    637,
+    366,
+    265
+  ],
+  "native_node_centers_match": true,
+  "pdf_rasterizer": "PDFium via pypdfium2",
+  "native_pixel_parity": "not asserted"
+}

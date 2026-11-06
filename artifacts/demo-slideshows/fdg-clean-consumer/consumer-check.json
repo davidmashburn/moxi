@@ -1,0 +1,10 @@
+{
+  "module": "/private/tmp/moxi-p06-consumer.zRwSHq/venv/lib/python3.13/site-packages/moxi_fdg.py",
+  "executable": "/private/tmp/moxi-p06-consumer.zRwSHq/venv/lib/python3.13/site-packages/_moxi_fdg_data/moxi-fdg",
+  "cwd": "/private/tmp/moxi-p06-consumer.zRwSHq/clean",
+  "isolated_python": 1,
+  "runtime_removal_failed_as_expected": true,
+  "fixture_loaded_from_package": true,
+  "optional_converter_rejection": true,
+  "native_replay_exit": 0
+}

@@ -1,0 +1,9 @@
+*.png
+*.svg
+*.pdf
+*.html
+*.log
+installed-consumer/*.png
+installed-consumer/*.svg
+installed-consumer/*.pdf
+installed-consumer/*.log

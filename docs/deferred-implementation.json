@@ -159,11 +159,28 @@
     {
       "id": "P06",
       "scope": "[FDG follow-ups](docs/design/fdg-port.md): proposed finite choices are PNG/PDF export, clean local package installation, and a Linux native lane. Keep existing solver/app; measure larger graphs before any capacity/solver redesign.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "c44de8c"
+      ],
+      "verification": [
+        "Parent reviewed and committed current-state SVG/PNG/PDF export, local platform wheels, GTK entry point and the shared Float32 native font ABI fix; existing solver and production caps retained.",
+        "Parent passed FDG layout/JSON/event/SVG regressions, atomic export/failure/recovery/capacity checks, Python native launch and 60 AppKit frames with zero blank/deferred frames. P04 protocol and bounded-channel regressions passed.",
+        "Clean c44de8c source and isolated macOS wheel replays passed. Actual Ubuntu 24.04 x86-64 GTK/Xvfb build, replay and isolated Linux wheel passed; all 223 source hashes match the parent checkout and runtime dependencies resolve within installation/system libraries.",
+        "Three six-frame galleries from integrated sources: independent PDFium reopening verified dimensions, three Unicode labels, three node centers, native text ink and recovery. PNG/PDF mean RGB differences 0.0803 macOS and 0.0796 Linux; installed Linux consumer also passed.",
+        "Parent benchmark: 30 warmup / 200 measured active iterations through 1024 nodes and 4096 links, bypassing input validation only in benchmark construction. Production limits remain 256 nodes / 1024 links; measurements exclude native paint and have no sustained-load or dispersion claim.",
+        "All 18 gallery PNGs decoded and passed hash/dimension checks; source and installed-consumer images are pixel-identical on each platform. All three browser pages loaded 12 images and passed previous/next navigation; 25 master manifests validate."
+      ],
+      "remaining_gates": [
+        "Actual native Save-dialog save/cancel, physical mouse/keyboard, independent human usability and screen readers unverified; VoiceOver remains paused. Galleries are offscreen app content captures, not compositor screenshots or physical input evidence.",
+        "Linux evidence is emulated x86-64 Ubuntu 24.04 with GTK 4.14, Xvfb and software Cairo; physical Linux/Wayland, other distributions/CPUs and older macOS remain unverified. Linux wheel is not manylinux; optional rsvg-convert and GTK/system dependencies are not bundled.",
+        "Full repository suite, remote CI, fresh Dockerfile image build, sustained performance and public distribution/licensing acceptance were not checked. Runtime notices retained; no publication performed."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/fdg-export/index.html",
+        "artifacts/demo-slideshows/fdg-clean-consumer/index.html",
+        "artifacts/demo-slideshows/fdg-linux/index.html"
+      ]
     },
     {
       "id": "P07",
@@ -334,7 +351,7 @@
     {
       "id": "D07",
       "scope": "[Spatial S3](docs/design/3d-interaction.md): second application with hierarchy, linked perspective/orthographic views, shared selection, measurement/clipping and resource/work reuse evidence.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],
