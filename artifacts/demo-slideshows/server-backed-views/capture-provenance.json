@@ -1,0 +1,638 @@
+{
+  "metadata": {
+    "baseRevision": "b4d8109ec94a8331415aa5f3548e1a6bdabb879e",
+    "sourceStatus": "UNCOMMITTED source: revision is the integration base only; committed-source recapture is required",
+    "sourceFingerprint": {
+      "sha256": "8e28a07461f10339875e539b3cfa45ccc47f5c76724237a8657de261f8c203ce",
+      "inputs": [
+        "experiments/browser-moxi/retarget.py",
+        "experiments/browser-moxi/runtime.mjs",
+        "experiments/server-backed-views/adapter-check.mjs",
+        "experiments/server-backed-views/adapter.mjs",
+        "experiments/server-backed-views/app.mojo",
+        "experiments/server-backed-views/browser-check.mjs",
+        "experiments/server-backed-views/build.sh",
+        "experiments/server-backed-views/demo.mjs",
+        "experiments/server-backed-views/density.mojo",
+        "experiments/server-backed-views/fingerprint.mjs",
+        "experiments/server-backed-views/index.html",
+        "experiments/server-backed-views/local-worker.mjs",
+        "experiments/server-backed-views/local.mjs",
+        "experiments/server-backed-views/native.mojo",
+        "experiments/server-backed-views/probe.py",
+        "experiments/server-backed-views/server.py",
+        "experiments/server-backed-views/test_server.py",
+        "experiments/server-backed-views/wasm-check.mjs",
+        "native/hosts/moxi_web_host.mjs",
+        "pixi.lock",
+        "pixi.toml",
+        "src/moxi/__init__.mojo",
+        "src/moxi/accessibility.mojo",
+        "src/moxi/alignment.mojo",
+        "src/moxi/animation.mojo",
+        "src/moxi/app.mojo",
+        "src/moxi/app_runtime.mojo",
+        "src/moxi/authoring/__init__.mojo",
+        "src/moxi/authoring/actions.mojo",
+        "src/moxi/authoring/composition.mojo",
+        "src/moxi/authoring/delivery.mojo",
+        "src/moxi/authoring/identity.mojo",
+        "src/moxi/authoring/runtime.mojo",
+        "src/moxi/backend.mojo",
+        "src/moxi/box_layout.mojo",
+        "src/moxi/canvas_renderer.mojo",
+        "src/moxi/capability_bus.mojo",
+        "src/moxi/capability_types.mojo",
+        "src/moxi/capability_walkthrough.mojo",
+        "src/moxi/clipboard.mojo",
+        "src/moxi/collection_layout.mojo",
+        "src/moxi/collection_state.mojo",
+        "src/moxi/column_runtime.mojo",
+        "src/moxi/column_view.mojo",
+        "src/moxi/component.mojo",
+        "src/moxi/composed.mojo",
+        "src/moxi/constraint_layout.mojo",
+        "src/moxi/content_layout.mojo",
+        "src/moxi/control_state.mojo",
+        "src/moxi/controls_basic.mojo",
+        "src/moxi/controls_collection.mojo",
+        "src/moxi/controls_state.mojo",
+        "src/moxi/controls_text.mojo",
+        "src/moxi/conversation.mojo",
+        "src/moxi/coretext.mojo",
+        "src/moxi/counter_view.mojo",
+        "src/moxi/event.mojo",
+        "src/moxi/event_replay.mojo",
+        "src/moxi/execution.mojo",
+        "src/moxi/experimental_api.mojo",
+        "src/moxi/font_collection.mojo",
+        "src/moxi/form.mojo",
+        "src/moxi/fractal.mojo",
+        "src/moxi/frame.mojo",
+        "src/moxi/geometry.mojo",
+        "src/moxi/harfbuzz.mojo",
+        "src/moxi/host_api.mojo",
+        "src/moxi/host_contract.mojo",
+        "src/moxi/interaction_showcase.mojo",
+        "src/moxi/invalidation.mojo",
+        "src/moxi/json.mojo",
+        "src/moxi/layout.mojo",
+        "src/moxi/layout_primitives.mojo",
+        "src/moxi/layout_workbench.mojo",
+        "src/moxi/layout_workbench_replay.mojo",
+        "src/moxi/legacy_runtime.mojo",
+        "src/moxi/linux.mojo",
+        "src/moxi/live_script.mojo",
+        "src/moxi/macos.mojo",
+        "src/moxi/measure.mojo",
+        "src/moxi/metal.mojo",
+        "src/moxi/native_clipboard.mojo",
+        "src/moxi/native_frame.mojo",
+        "src/moxi/native_paragraph.mojo",
+        "src/moxi/native_widgets.mojo",
+        "src/moxi/native_window.mojo",
+        "src/moxi/nested.mojo",
+        "src/moxi/not_implemented.mojo",
+        "src/moxi/overlay_layout.mojo",
+        "src/moxi/paint.mojo",
+        "src/moxi/performance.mojo",
+        "src/moxi/platform.mojo",
+        "src/moxi/platform_adapters.mojo",
+        "src/moxi/plot_render.mojo",
+        "src/moxi/plot_selection.mojo",
+        "src/moxi/popup.mojo",
+        "src/moxi/reactivity.mojo",
+        "src/moxi/recipes.mojo",
+        "src/moxi/reorder.mojo",
+        "src/moxi/resources.mojo",
+        "src/moxi/retained_engine.mojo",
+        "src/moxi/retained_layout.mojo",
+        "src/moxi/retained_leaf.mojo",
+        "src/moxi/row.mojo",
+        "src/moxi/scenarios.mojo",
+        "src/moxi/scene.mojo",
+        "src/moxi/scene_path.mojo",
+        "src/moxi/scene_text.mojo",
+        "src/moxi/scrollbar.mojo",
+        "src/moxi/software.mojo",
+        "src/moxi/style.mojo",
+        "src/moxi/svg.mojo",
+        "src/moxi/targets.mojo",
+        "src/moxi/tasks.mojo",
+        "src/moxi/testing.mojo",
+        "src/moxi/text_boundary.mojo",
+        "src/moxi/text_layout.mojo",
+        "src/moxi/text_shaping.mojo",
+        "src/moxi/theme_showcase.mojo",
+        "src/moxi/tokens.mojo",
+        "src/moxi/view_leaf.mojo",
+        "src/moxi/view_node.mojo",
+        "src/moxi/virtual_view.mojo",
+        "src/moxi/widget.mojo",
+        "src/moxi/window.mojo",
+        "src/moxi/windowing.mojo",
+        "src/moxi/wrapped.mojo",
+        "src/moxi/wxstyle.mojo"
+      ]
+    },
+    "wasmSha256": "125a3bcf3a9487488ac1c0c52710c5a60a9a0324c2b83dd647d08b86e76618e9",
+    "browser": "156.0.8078.81",
+    "captureHost": "Playwright Chromium; repository scripted browser workflow",
+    "capturedAt": "2026-11-06T11:24:16.672Z",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "scale": 1
+    }
+  },
+  "captures": [
+    {
+      "file": "01-initial-grid.png",
+      "sha256": "f1bbb001dc247f8c241780acbac0b1445aa713e81f8e048661d64537e1e43c12",
+      "state": [
+        {
+          "id": "a",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        },
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:18.485Z"
+    },
+    {
+      "file": "02-pan-pending-retained.png",
+      "sha256": "a0b9c2d128b3a555ffe99df666923c7504a29f26e566aee1560d93890b46e953",
+      "state": [
+        {
+          "id": "a",
+          "viewport": [
+            -0.11197511851787567,
+            -0.09090909361839294,
+            0.8880248814821243,
+            0.9090909063816071
+          ],
+          "state": "pending",
+          "generation": 9,
+          "active": true,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 1,
+            "replaced": 0,
+            "cancelled": 7,
+            "rejected": 7,
+            "accepted": 1
+          },
+          "bytes": 6793
+        },
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:18.777Z"
+    },
+    {
+      "file": "03-fresh-reduction.png",
+      "sha256": "3cdae9a022c3083a3f21ae017c4031dcb8da3205ed329f23dd5c36bdc4e2ccb8",
+      "state": [
+        {
+          "id": "a",
+          "viewport": [
+            -0.11197511851787567,
+            -0.09090909361839294,
+            0.8880248814821243,
+            0.9090909063816071
+          ],
+          "state": "ready",
+          "generation": 9,
+          "active": false,
+          "pending": false,
+          "total": 807004,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 1,
+            "replaced": 0,
+            "cancelled": 7,
+            "rejected": 7,
+            "accepted": 2
+          },
+          "bytes": 12451
+        },
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:22.128Z"
+    },
+    {
+      "file": "04-aggregate-selection.png",
+      "sha256": "5c5c420a1b7582406326f9d2f781bc005902733e49cd679ea719914ce0ffbc9f",
+      "state": [
+        {
+          "id": "a",
+          "viewport": [
+            -0.11197511851787567,
+            -0.09090909361839294,
+            0.8880248814821243,
+            0.9090909063816071
+          ],
+          "state": "ready",
+          "generation": 9,
+          "active": false,
+          "pending": false,
+          "total": 807004,
+          "selection": 966,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 1,
+            "replaced": 0,
+            "cancelled": 7,
+            "rejected": 7,
+            "accepted": 2
+          },
+          "bytes": 12451
+        },
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:22.225Z"
+    },
+    {
+      "file": "05-capped-exact-records.png",
+      "sha256": "ead1ea7514353d1ab534077178bd178dd4838777d99f262478fc2cb592cba392",
+      "state": [
+        {
+          "id": "a",
+          "viewport": [
+            -0.11197511851787567,
+            -0.09090909361839294,
+            0.8880248814821243,
+            0.9090909063816071
+          ],
+          "state": "ready",
+          "generation": 12,
+          "active": false,
+          "pending": false,
+          "total": 807004,
+          "selection": 966,
+          "exact": 32,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 1,
+            "replaced": 0,
+            "cancelled": 8,
+            "rejected": 8,
+            "accepted": 4
+          },
+          "bytes": 20621
+        },
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:24.740Z"
+    },
+    {
+      "file": "06-network-disconnected.png",
+      "sha256": "dbea24c6da403c7cc2a4ab5307ff756db9fb9cbf14010378d55c89e41660015b",
+      "state": [
+        {
+          "id": "a",
+          "viewport": [
+            -0.11197511851787567,
+            -0.12121212482452393,
+            0.8880248814821243,
+            0.8787878751754761
+          ],
+          "state": "error",
+          "generation": 18,
+          "active": false,
+          "pending": false,
+          "total": 807368,
+          "selection": 966,
+          "exact": 32,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 1,
+            "replaced": 0,
+            "cancelled": 11,
+            "rejected": 11,
+            "accepted": 5
+          },
+          "bytes": 27009
+        },
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:25.498Z"
+    },
+    {
+      "file": "07-retry-recovered.png",
+      "sha256": "69f24701e59fc1a55a0b65b0c52ffa2d20e3cb71c6da2512dc3f9d41109a5741",
+      "state": [
+        {
+          "id": "a",
+          "viewport": [
+            -0.11197511851787567,
+            -0.12121212482452393,
+            0.8880248814821243,
+            0.8787878751754761
+          ],
+          "state": "ready",
+          "generation": 19,
+          "active": false,
+          "pending": false,
+          "total": 780210,
+          "selection": 966,
+          "exact": 32,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 1,
+            "replaced": 0,
+            "cancelled": 11,
+            "rejected": 11,
+            "accepted": 6
+          },
+          "bytes": 32617
+        },
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:26.144Z"
+    },
+    {
+      "file": "08-disposed-while-pending.png",
+      "sha256": "6be217a1d57c0359c8aef71f59ca794db2631d59228637c2be6862c643201976",
+      "state": [
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:27.456Z"
+    },
+    {
+      "file": "09-restarted-two-views.png",
+      "sha256": "1a478143858fb733ecbc74c154694f3d2922a1b08bd6eee11bcd078c99e214bf",
+      "state": [
+        {
+          "id": "b",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        },
+        {
+          "id": "a",
+          "viewport": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "state": "ready",
+          "generation": 1,
+          "active": false,
+          "pending": false,
+          "total": 1000000,
+          "selection": -1,
+          "exact": 0,
+          "metrics": {
+            "maxActive": 1,
+            "maxPending": 0,
+            "replaced": 0,
+            "cancelled": 0,
+            "rejected": 0,
+            "accepted": 1
+          },
+          "bytes": 5120
+        }
+      ],
+      "capturedAt": "2026-11-06T11:24:28.192Z"
+    }
+  ]
+}

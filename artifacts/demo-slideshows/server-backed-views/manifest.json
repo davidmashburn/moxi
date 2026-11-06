@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "demo_id": "server-backed-views",
+  "title": "P02 · Moxi million-point density explorer · UNCOMMITTED (revision = base only)",
+  "scenario": "UNCOMMITTED source: revision is the integration base only; committed-source recapture is required. Executable-source SHA-256 8e28a07461f10339875e539b3cfa45ccc47f5c76724237a8657de261f8c203ce. Real delayed loopback transport, immediate Moxi camera, retained reductions, capped exact selection and isolated lifecycle recovery",
+  "revision": "b4d8109ec94a8331415aa5f3548e1a6bdabb879e",
+  "source_status": "UNCOMMITTED source: revision is the integration base only; committed-source recapture is required",
+  "source_fingerprint": "8e28a07461f10339875e539b3cfa45ccc47f5c76724237a8657de261f8c203ce",
+  "host": "darwin arm64; Chromium 156.0.8078.81",
+  "backend": "Mojo App[Density] → experimental Wasm64 → Moxi SVG / MoxiWebHost; loopback Python transport",
+  "scale": 1,
+  "fixture": "probe.generate_points(1_000_000, seed=0x5EED2026), immutable binary source SHA-256 cbc893afb24c38048ff9e30813c114c47ee1052bd18aa8963008ff93a04c991f",
+  "reproduce": "See experiments/server-backed-views/README.md. MOXI_PIXI_MANIFEST=/path/to/installed/moxi/pixi.toml bash experiments/server-backed-views/build.sh; python3 experiments/server-backed-views/server.py --port 8766; MOXI_PLAYWRIGHT_MODULE=/tmp/moxi-p01-tools/node_modules/playwright/index.mjs node experiments/server-backed-views/browser-check.mjs; python3 scripts/demo_slideshows.py",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "01-initial-grid.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "initial grid",
+      "action": "Open the built P02 application; wait for both million-point reductions.",
+      "expected": "Two actual Moxi views each show a 32×32 grid totaling one million points."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "02-pan-pending-retained.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "pan pending retained",
+      "action": "Set 3000ms delay; drag A by 72×30 pixels in eight moves. Capture before the final reply.",
+      "expected": "The old grid moves synchronously with the Moxi camera; pending status is visible and B stays fixed."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "03-fresh-reduction.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "fresh reduction",
+      "action": "Release the pointer and wait for the current-generation response.",
+      "expected": "Fresh viewport reduction replaces the transformed retained grid; one active and one replaceable pending were the maximum."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "04-aggregate-selection.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "aggregate selection",
+      "action": "Click a visible density cell in A.",
+      "expected": "Orange aggregate bounds are selected; aggregate counts are not record IDs; exact selection is empty."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "05-capped-exact-records.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "capped exact records",
+      "action": "Click Exact records (≤32) and wait for the separate capped request.",
+      "expected": "32 stable source IDs and coordinates are shown, with the larger aggregate total and truncation disclosed."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "06-network-disconnected.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "network disconnected",
+      "action": "Use Chromium network-offline emulation and drag A.",
+      "expected": "The fetch fails visibly; the prior reduction and exact selection remain; B is isolated."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "07-retry-recovered.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "retry recovered",
+      "action": "Restore the loopback network and click Reconnect / retry.",
+      "expected": "The current viewport receives fresh data; exact IDs for the unchanged revision remain selected."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "08-disposed-while-pending.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "disposed while pending",
+      "action": "Pan A with 3000ms delay, then Dispose before the reply.",
+      "expected": "A has no live Moxi owner; B continues displaying its independent view."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "09-restarted-two-views.png",
+      "dimensions": [
+        1440,
+        1100
+      ],
+      "caption": "restarted two views",
+      "action": "Restart A; wait for its new session and reduction.",
+      "expected": "A starts at the full viewport with empty selection and a new handle; B remains unchanged."
+    }
+  ]
+}
