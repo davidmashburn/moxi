@@ -11,6 +11,8 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
+from .specialized import LayoutVersion
+
 PLOT_SPEC_VERSION = 1
 PLOT_MARKS = (
     "line",
@@ -111,6 +113,13 @@ class Layer:
     size: float = 6.0
     opacity: float = 1.0
     tooltip: str = ""
+    layout_version: LayoutVersion = LayoutVersion.ROW
+    series_fields: List[str] = field(default_factory=list)
+    range_fields: List[str] = field(default_factory=list)
+    error_fields: List[str] = field(default_factory=list)
+    total_field: str = ""
+    horizontal: bool = False
+    percent: bool = False
     color: List[float] = field(default_factory=lambda: [0.25, 0.75, 1.0, 1.0])
 
     def as_dict(self) -> Dict[str, Any]:
@@ -136,6 +145,13 @@ class Layer:
             "opacity": self.opacity,
             "tooltip": self.tooltip,
             "color": list(self.color),
+            "layout_version": int(self.layout_version),
+            "series_fields": list(self.series_fields),
+            "range_fields": list(self.range_fields),
+            "error_fields": list(self.error_fields),
+            "total_field": self.total_field,
+            "horizontal": self.horizontal,
+            "percent": self.percent,
         }
 
 
@@ -300,6 +316,26 @@ class PlotSpec:
                 self.encode(layer_id, channel, str(field_name))
         return layer_id
 
+    def specialize(self, layer_id: int, *, series_fields: Iterable[str] = (),
+                   range_fields: Iterable[str] = (), error_fields: Iterable[str] = (),
+                   total_field: str = "", horizontal: bool = False,
+                   percent: bool = False) -> None:
+        """Opt a Wave A layer into layout v1 (ordered wide-column matrices).
+
+        x is the category column, y the measure/close/start/left column;
+        y2 is target/open/end/right. See docs/plot-specialized-wave-a.md.
+        The operation validates before replacing the layer.
+        """
+        from dataclasses import replace
+        from .specialized import LayoutVersion, validate_layout
+        index = next(i for i, layer in enumerate(self.layers) if layer.id == layer_id)
+        layer = replace(self.layers[index], layout_version=LayoutVersion.SPECIALIZED,
+                        series_fields=list(series_fields), range_fields=list(range_fields),
+                        error_fields=list(error_fields), total_field=total_field,
+                        horizontal=horizontal, percent=percent)
+        validate_layout(layer)
+        self.layers[index] = layer
+
     def add_grouped_bar(
         self,
         label: str = "",
@@ -457,7 +493,12 @@ class PlotSpec:
         result.composition = str(raw.get("composition", "layer"))
         result.facet = dict(raw.get("facet", result.facet))
         result.shared_scales = dict(raw.get("shared_scales", result.shared_scales))
+        from .specialized import LayoutVersion
         result.layers = [Layer(**item) for item in raw.get("layers", [])]
+        for layer in result.layers:
+            if type(layer.layout_version) not in (int, LayoutVersion):
+                raise ValueError("layout_version must be an integer")
+            layer.layout_version = LayoutVersion(layer.layout_version)
         result.encodings = [Encoding(**item) for item in raw.get("encodings", [])]
         result.transforms = [Transform(**item) for item in raw.get("transforms", [])]
         result.scales = list(raw.get("scales", []))
@@ -475,6 +516,13 @@ class PlotSpec:
         layer_ids = set()
         for layer in self.layers:
             if layer.id in layer_ids or layer.mark not in PLOT_MARKS or not layer.x or not layer.y:
+                return False
+            from .specialized import validate_layout
+            try:
+                validate_layout(layer)
+            except (ValueError, TypeError):
+                return False
+            if layer.layout_version == LayoutVersion.SPECIALIZED and (len(self.layers) != 1 or self.composition != "layer" or any(self.facet.values()) or self.transforms or self.scales):
                 return False
             layer_ids.add(layer.id)
             if not (0.0 <= layer.opacity <= 1.0 and layer.size > 0.0 and layer.line_width > 0.0):

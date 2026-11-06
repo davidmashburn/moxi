@@ -18,6 +18,13 @@ from moxi_plot import (
 
 
 def main():
+    var quoted = PlotDataTable()
+    test_check(quoted.add_string_column('label,"quote"'))
+    test_check(quoted.add_category_column("kind"))
+    test_check(quoted.append_with_key(7, 1.0, 2.0))
+    test_check(quoted.set_string_field('label,"quote"', 0, 'A, "quoted"\nline'))
+    test_check(quoted.set_category_field("kind", 0, 'B"category'))
+    test_check(quoted.csv() == 'key,x,y,"label,""quote""","kind"\n7,1.0,2.0,"A, ""quoted""\nline","B""category"\n')
     var bulk = PlotDataTable()
     test_check(bulk.add_float_column("extra"))
     var keys: List[Int] = [9, 2, 1000003, 0]

@@ -25,6 +25,18 @@ comptime COLUMN_FLOAT64 = 7
 comptime COLUMN_CATEGORY = 8
 
 
+def _csv_text(value: String) -> String:
+    """Quote a CSV field, preserving commas/newlines and doubling quotes."""
+    var result = String(chr(34))
+    for index in range(value.count_codepoints()):
+        var glyph = value[codepoint=index:index+1]
+        result += glyph
+        if glyph == chr(34):
+            result += glyph
+    result += chr(34)
+    return result
+
+
 def column_kind_name(kind: Int) -> String:
     if kind == COLUMN_INT64:
         return "int64"
@@ -1428,10 +1440,10 @@ struct PlotDataTable(ImplicitlyCopyable):
 
     def csv(self) -> String:
         """Return a stable, renderer-independent data-table fallback."""
-        var result = "key,x,y\n"
+        var result = "key,x,y"
         for column_index in range(len(self.columns)):
-            result += self.columns[column_index].name
-            result += "," if column_index + 1 < len(self.columns) else "\n"
+            result += String(",", _csv_text(self.columns[column_index].name))
+        result += "\n"
         for index in range(self.row_count()):
             result += String(self.keys[index], ",")
             if self.x_valid[index]:
@@ -1448,14 +1460,12 @@ struct PlotDataTable(ImplicitlyCopyable):
                 if not self.columns[column_index].valid[index]:
                     result += "null"
                 elif self.columns[column_index].kind == COLUMN_STRING:
-                    result += String("\"", self.columns[column_index].string_values[index], "\"")
+                    result += _csv_text(self.columns[column_index].string_values[index])
                 elif self.columns[column_index].kind == COLUMN_CATEGORY:
-                    result += String(
-                        "\"",
+                    result += _csv_text(
                         self.columns[column_index].category_at(
                             self.columns[column_index].category_indices[index]
                         ),
-                        "\"",
                     )
                 elif self.columns[column_index].kind == COLUMN_FLOAT64:
                     result += String(self.columns[column_index].float64_values[index])

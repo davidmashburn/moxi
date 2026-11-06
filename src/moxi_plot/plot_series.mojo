@@ -21,6 +21,11 @@ struct PlotSeries:
     var opacity: Float32
     var points: List[PlotPoint]
     var visible: Bool
+    var has_layout_domain: Bool
+    var layout_x_min: Float32
+    var layout_x_max: Float32
+    var layout_y_min: Float32
+    var layout_y_max: Float32
 
     def __init__(
         out self,
@@ -38,6 +43,11 @@ struct PlotSeries:
         self.opacity = 1.0
         self.points = List[PlotPoint]()
         self.visible = True
+        self.has_layout_domain = False
+        self.layout_x_min = 0.0
+        self.layout_x_max = 1.0
+        self.layout_y_min = 0.0
+        self.layout_y_max = 1.0
 
     def append(mut self, point: PlotPoint):
         self.points.append(point)

@@ -67,3 +67,10 @@ HTML remain local artifacts by default.
 Screenshots do not prove scientific correctness, responsiveness, physical IME,
 screen-reader behavior or independent human usability. Track those acceptance
 gates separately. Missing hardware produces a missing sequence, not a mockup.
+
+The E01 specialized plot sequences are reproduced by
+[`scripts/wave_a/evidence.py`](../scripts/wave_a/evidence.py), after the real
+reference and Mojo fixture runners. See
+[Wave A reproduction](plot-specialized-wave-a.md#exact-reproduction-and-capture).
+These sequences distinguish actual offscreen output from browser evidence replay;
+their manifests record revision, scoped source hashes and capture hashes.

@@ -198,6 +198,10 @@ class Figure:
         self.width = max(1, int(width))
         self.height = max(1, int(height))
         self.backend = backend
+        from .specialized import LayoutVersion, layout
+        for layer in self.spec.layers:
+            if layer.layout_version == LayoutVersion.SPECIALIZED:
+                layout(layer, self.data)  # Reject malformed data before rendering.
 
     def capabilities(self) -> BackendCapabilities:
         return BackendCapabilities(backend=self.backend)
@@ -207,8 +211,9 @@ class Figure:
         limit = max(0.0, float(tolerance))
         best_distance = limit * limit
         result: Optional[Dict[str, Any]] = None
-        for layer in self.spec.layers:
-            geometry = self._screen_geometry(layer)
+        for layer, geometry in self._render_geometries():
+            if not getattr(geometry, "interactive", True):
+                continue
             anchors = geometry.points
             for row_index, (px, py) in enumerate(anchors):
                 distance = (px - float(x)) ** 2 + (py - float(y)) ** 2
@@ -217,7 +222,8 @@ class Figure:
                     result = {
                         "layer": layer.id,
                         "mark": layer.mark,
-                        "row_index": row_index,
+                        "row_index": getattr(geometry, "source_row", row_index),
+                        "part": getattr(geometry, "part", "mark"),
                         "x": px,
                         "y": py,
                     }
@@ -226,7 +232,8 @@ class Figure:
                     return {
                         "layer": layer.id,
                         "mark": layer.mark,
-                        "row_index": row_index,
+                        "row_index": getattr(geometry, "source_row", row_index),
+                        "part": getattr(geometry, "part", "mark"),
                         "x": (left + right) / 2.0,
                         "y": (top + bottom) / 2.0,
                     }
@@ -242,7 +249,8 @@ class Figure:
                     result = {
                         "layer": layer.id,
                         "mark": layer.mark,
-                        "row_index": row_index,
+                        "row_index": getattr(geometry, "source_row", row_index),
+                        "part": getattr(geometry, "part", "mark"),
                         "x": nearest_x,
                         "y": nearest_y,
                     }
@@ -270,6 +278,11 @@ class Figure:
                 "opacity_field": layer.opacity_field,
                 "row_count": self.data.row_count,
             })
+        from .specialized import LayoutVersion, layout
+        for layer in self.spec.layers:
+            if layer.layout_version == LayoutVersion.SPECIALIZED:
+                rows.extend(dict(row, layer=layer.id, role="row")
+                            for row in layout(layer, self.data).rows)
         return rows
 
     def _layout(self) -> Tuple[float, float, float, float, float, float, float, float]:
@@ -819,6 +832,46 @@ class Figure:
                 result.errors.append((sx, project(x, lower)[1], project(x, upper)[1]))
         return result
 
+    def _render_geometries(self):
+        from .specialized import LayoutVersion, GlyphKind, layout
+        left, top, width, height, *_ = self._layout()
+        for layer in self.spec.layers:
+            if layer.layout_version != LayoutVersion.SPECIALIZED:
+                yield layer, self._screen_geometry(layer)
+                continue
+            result = layout(layer, self.data)
+            for glyph in result.glyphs:
+                x0, y0, x1, y1 = glyph.bounds
+                x0 = left + _scale(x0, *result.x_domain, width)
+                x1 = left + _scale(x1, *result.x_domain, width)
+                y0 = top + _scale(y0, *result.y_domain, height, invert=True)
+                y1 = top + _scale(y1, *result.y_domain, height, invert=True)
+                g = _Geometry("points", result.x_domain, result.y_domain,
+                              colors=[glyph.color], opacities=[1.0], sizes=[layer.size])
+                if glyph.kind is GlyphKind.RECT:
+                    g.rects = [(min(x0,x1), min(y0,y1), max(x0,x1), max(y0,y1), 1.)]
+                elif glyph.kind is GlyphKind.SEGMENT:
+                    g.segments = [(x0,y0,x1,y1)]
+                else:
+                    g.points = [(x0,y0)]
+                g.source_row = glyph.row
+                g.part = glyph.part
+                g.interactive = glyph.interactive
+                yield layer, g
+
+    def table(self) -> List[Dict[str, Any]]:
+        """Semantic source rows, never synthetic range/connector rows."""
+        from .specialized import LayoutVersion, layout
+        result = []
+        for layer in self.spec.layers:
+            if layer.layout_version == LayoutVersion.SPECIALIZED:
+                result.extend(dict(row, layer=layer.id) for row in layout(layer, self.data).rows)
+            else:
+                result.extend({"layer": layer.id, "row_index": i,
+                               **{key: values[i] for key, values in self.data.columns.items()}}
+                              for i in range(self.data.row_count))
+        return result
+
     def _points(self, layer: Any) -> List[Tuple[float, float]]:
         return self._screen_geometry(layer).points
 
@@ -850,8 +903,7 @@ class Figure:
         parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.width}" height="{self.height}" viewBox="0 0 {self.width} {self.height}">', '<rect width="100%" height="100%" fill="white"/>', f'<g data-moxi="plot" data-version="{self.spec.version}">']
         parts.append(f'<line x1="{left:g}" y1="{top+plot_height:g}" x2="{left+plot_width:g}" y2="{top+plot_height:g}" stroke="#667085"/>')
         parts.append(f'<line x1="{left:g}" y1="{top:g}" x2="{left:g}" y2="{top+plot_height:g}" stroke="#667085"/>')
-        for layer in self.spec.layers:
-            geometry = self._screen_geometry(layer)
+        for layer, geometry in self._render_geometries():
             points = geometry.points
             color = _svg_color(layer.color, layer.opacity)
             if geometry.kind == "line" and len(points) > 1:
@@ -921,8 +973,7 @@ class Figure:
         axis = (102, 112, 133, 255)
         raster.line((left, top + plot_height), (left + plot_width, top + plot_height), 1.0, axis)
         raster.line((left, top), (left, top + plot_height), 1.0, axis)
-        for layer in self.spec.layers:
-            geometry = self._screen_geometry(layer)
+        for layer, geometry in self._render_geometries():
             points = geometry.points
             color = _rgba(layer.color, layer.opacity)
             if geometry.kind == "line":
@@ -997,8 +1048,7 @@ class Figure:
             "0.4 0.44 0.52 RG 1 w %g %g m %g %g l S" % (left, self.height - top - plot_height, left + plot_width, self.height - top - plot_height),
             "0.4 0.44 0.52 RG 1 w %g %g m %g %g l S" % (left, self.height - top, left, self.height - top - plot_height),
         ]
-        for layer in self.spec.layers:
-            geometry = self._screen_geometry(layer)
+        for layer, geometry in self._render_geometries():
             points = geometry.points
             red, green, blue, alpha = layer.color
             color = f"{red:g} {green:g} {blue:g} rg"

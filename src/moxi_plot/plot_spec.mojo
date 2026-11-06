@@ -38,11 +38,14 @@ from .plot_marks import (
     PLOT_TICK,
 )
 from .plot_spec_json import (
+    _string_array_json,
     _find_token,
     _read_number,
     _string_member,
     _number_member,
+    _member_start,
     _bool_member,
+    _valid_bool_member,
     _color_member,
     _object_array,
     _array_content,
@@ -107,8 +110,10 @@ from .plot_spec_names import (
     _interaction_from_name,
     _transform_from_name,
 )
+from .plot_layout import specialized_valid, specialized_series
 from .plot_spec_types import (
     PlotEncoding,
+    PlotLayoutVersion,
     PlotTransform,
     _derived_field_available,
     PlotScaleSpec,
@@ -896,6 +901,10 @@ struct PlotSpec:
             okay = False
         for layer_index in range(len(self.layers)):
             var layer = self.layers[layer_index]
+            if not specialized_valid(layer):
+                okay = False
+            if layer.layout_version.value == PlotLayoutVersion.SPECIALIZED.value and (len(self.layers) != 1 or self.composition != COMPOSITION_LAYER or self.facet_row != "" or self.facet_column != "" or len(self.transforms) > 0 or len(self.scales) > 0):
+                okay = False
             if not _valid_mark(layer.mark) or layer.x_field.count_codepoints() == 0 or layer.y_field.count_codepoints() == 0:
                 okay = False
             if layer.stat_low_field.count_codepoints() > 0 and layer.stat_high_field.count_codepoints() == 0:
@@ -968,6 +977,8 @@ struct PlotSpec:
         var okay = self.validate()
         for layer_index in range(len(self.layers)):
             var layer = self.layers[layer_index]
+            if not specialized_valid(layer, data):
+                okay = False
             if (
                 data.field_kind(layer.x_field) == 0
                 and not _derived_field_available(self.transforms, layer.x_field)
@@ -1042,6 +1053,13 @@ struct PlotSpec:
             result += String(
                 "{\"id\":",
                 layer.id,
+                ",\"layout_version\":", layer.layout_version.value,
+                ",\"series_fields\":", layer.series_fields_json,
+                ",\"range_fields\":", layer.range_fields_json,
+                ",\"error_fields\":", layer.error_fields_json,
+                ",\"total_field\":", json_quote(layer.total_field),
+                ",\"horizontal\":", json_bool(layer.horizontal),
+                ",\"percent\":", json_bool(layer.percent),
                 ",\"mark\":",
                 json_quote(plot_mark_name(layer.mark)),
                 ",\"label\":",
@@ -1278,6 +1296,19 @@ def plot_spec_from_json(value: String) -> PlotSpec:
         result.layers[layer_index].id = id.integer
         if id.integer >= result.next_layer_id:
             result.next_layer_id = id.integer + 1
+        var layout_version = _number_member(object, "layout_version")
+        var layout_start = _member_start(object, "layout_version")
+        if layout_start != -1 and (not layout_version.ok or object[codepoint=layout_start:layout_version.next] != String(layout_version.integer)):
+            result.valid = False
+        result.layers[layer_index].layout_version = PlotLayoutVersion(layout_version.integer)
+        result.layers[layer_index].series_fields_json = _string_array_json(object, "series_fields")
+        result.layers[layer_index].range_fields_json = _string_array_json(object, "range_fields")
+        result.layers[layer_index].error_fields_json = _string_array_json(object, "error_fields")
+        result.layers[layer_index].total_field = _string_member(object, "total_field").value
+        result.layers[layer_index].horizontal = _bool_member(object, "horizontal")
+        result.layers[layer_index].percent = _bool_member(object, "percent")
+        if not _valid_bool_member(object, "horizontal") or not _valid_bool_member(object, "percent"):
+            result.valid = False
         var x2 = _string_member(object, "x2")
         var y2 = _string_member(object, "y2")
         var color_field = _string_member(object, "color_field")
@@ -1620,6 +1651,11 @@ def plot_from_spec(
             plot.set_y_scale(scale.kind, scale.power, scale.reverse)
     for index in range(spec.layer_count()):
         var layer = spec.layer(index)
+        if layer.layout_version.value == PlotLayoutVersion.SPECIALIZED.value:
+            var series_id = plot.add_series(layer.label, layer.color, layer.mark)
+            var series = specialized_series(layer, transformed, series_id)
+            plot.series[plot.series_index(series_id)] = series^
+            continue
         var color_field = layer.color_field
         if color_field.count_codepoints() == 0:
             color_field = layer.fill_field

@@ -7,6 +7,7 @@ overlays.
 """
 
 
+from .plot_point import PlotGlyphKind
 from std.collections import List
 from std.math import sqrt
 
@@ -696,6 +697,9 @@ struct Plot:
         var index = self.series_index(series_id)
         if index == -1 or point_index < 0 or point_index >= self.series[index].count():
             return False
+        # Specialized primitives derive jointly from source rows; rebuild via PlotView.replace_data.
+        if self.series[index].has_layout_domain:
+            return False
         var previous = self.series[index].points[point_index]
         var next = PlotPoint(x, y, previous.row_key)
         next.set_facet(previous.facet_value)
@@ -732,6 +736,19 @@ struct Plot:
         var maximum_y: Float32 = 0.0
         for series_index in range(len(self.series)):
             if not self.series[series_index].visible:
+                continue
+            if self.series[series_index].has_layout_domain:
+                if not found:
+                    minimum_x = self.series[series_index].layout_x_min
+                    maximum_x = self.series[series_index].layout_x_max
+                    minimum_y = self.series[series_index].layout_y_min
+                    maximum_y = self.series[series_index].layout_y_max
+                    found = True
+                else:
+                    minimum_x = min(minimum_x, self.series[series_index].layout_x_min)
+                    maximum_x = max(maximum_x, self.series[series_index].layout_x_max)
+                    minimum_y = min(minimum_y, self.series[series_index].layout_y_min)
+                    maximum_y = max(maximum_y, self.series[series_index].layout_y_max)
                 continue
             for point_index in range(len(self.series[series_index].points)):
                 var point = self.series[series_index].points[point_index]
@@ -1686,6 +1703,22 @@ struct Plot:
                     if source_point.size != 6.0:
                         point_size = source_point.size
                     var point_opacity = self.series[series_index].opacity * source_point.opacity
+                    if source_point.glyph.value != PlotGlyphKind.ROW.value:
+                        var endpoint = source_point
+                        endpoint.x = source_point.x2
+                        endpoint.y = source_point.y2
+                        var end = self._screen_point(endpoint)
+                        var identity = 500000 + series_index * 100000 + point_index
+                        if source_point.glyph.value == PlotGlyphKind.RECT.value:
+                            scene.append_rect(identity, Rect(min(point.x, end.x), min(point.y, end.y), max(Float32(1.0), abs(end.x-point.x)), max(Float32(1.0), abs(end.y-point.y))), point_color)
+                        elif source_point.glyph.value == PlotGlyphKind.SEGMENT.value:
+                            scene.append_line(identity, point, end, point_color, self.series[series_index].line_width)
+                        else:
+                            scene.append_rounded_rect(identity, Rect(point.x-point_size*0.5, point.y-point_size*0.5, point_size, point_size), point_color, point_size*0.5)
+                        var command = scene.commands[len(scene.commands)-1]
+                        command.set_opacity(point_opacity)
+                        scene.commands[len(scene.commands)-1] = command
+                        continue
                     if self.series[series_index].kind == PLOT_SCATTER or self.series[series_index].kind == PLOT_DOT or self.series[series_index].kind == PLOT_BUBBLE:
                         scene.append_rounded_rect(
                             2000 + self.series[series_index].id * 100 + point_index,
@@ -2057,6 +2090,12 @@ struct Plot:
                 legend_x += 128.0
         return scene^
 
+    def has_specialized_layout(self) -> Bool:
+        for index in range(len(self.series)):
+            if self.series[index].has_layout_domain:
+                return True
+        return False
+
     def hit_test(self, point: Point, tolerance: Float32 = 8.0) -> PlotHit:
         """Find the nearest data point within a screen-space tolerance."""
         var result = PlotHit()
@@ -2069,12 +2108,32 @@ struct Plot:
             for point_index in range(self.series[series_index].count()):
                 if not self.point_is_renderable(self.series[series_index].points[point_index]):
                     continue
+                var source = self.series[series_index].points[point_index]
+                if not source.interactive:
+                    continue
                 var screen = self._screen_point(
                     self.series[series_index].points[point_index]
                 )
                 var dx = point.x - screen.x
                 var dy = point.y - screen.y
                 var distance = dx * dx + dy * dy
+                if source.glyph.value != PlotGlyphKind.ROW.value:
+                    var endpoint = source
+                    endpoint.x = source.x2
+                    endpoint.y = source.y2
+                    var end = self._screen_point(endpoint)
+                    if source.glyph.value == PlotGlyphKind.RECT.value:
+                        var near_x = max(min(screen.x, end.x), min(point.x, max(screen.x, end.x)))
+                        var near_y = max(min(screen.y, end.y), min(point.y, max(screen.y, end.y)))
+                        distance = (near_x-point.x)**2 + (near_y-point.y)**2
+                    elif source.glyph.value == PlotGlyphKind.SEGMENT.value:
+                        var vx = end.x-screen.x
+                        var vy = end.y-screen.y
+                        var denominator = vx*vx+vy*vy
+                        var amount: Float32 = 0.0
+                        if denominator > 0.0:
+                            amount = max(Float32(0.0), min(Float32(1.0), ((point.x-screen.x)*vx+(point.y-screen.y)*vy)/denominator))
+                        distance = (screen.x+amount*vx-point.x)**2 + (screen.y+amount*vy-point.y)**2
                 if distance <= best:
                     best = distance
                     result.series_id = self.series[series_index].id
@@ -2101,4 +2160,22 @@ struct Plot:
             series.bounds = self.plot_area
             series.value = String("points=", self.series[index].count())
             snapshot.append(series)
+            if self.series[index].has_layout_domain:
+                var seen = List[Int]()
+                for point_index in range(self.series[index].count()):
+                    var point = self.series[index].points[point_index]
+                    if not point.interactive:
+                        continue
+                    var duplicate = False
+                    for key in seen:
+                        if key == point.row_key:
+                            duplicate = True
+                    if duplicate:
+                        continue
+                    seen.append(point.row_key)
+                    var row = Semantics(500000 + index*100000 + point_index, ROLE_LABEL, point.text)
+                    row.parent_id = 10000 + self.series[index].id
+                    row.bounds = self.plot_area
+                    row.value = point.tooltip
+                    snapshot.append(row)
         return snapshot^

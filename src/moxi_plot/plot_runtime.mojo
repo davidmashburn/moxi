@@ -286,7 +286,7 @@ struct PlotRuntime:
                 continue
             for point_index in range(self.plot.series[series_index].count()):
                 var point = self.plot.series[series_index].points[point_index]
-                if not self.plot.point_is_renderable(point):
+                if not point.interactive or not self.plot.point_is_renderable(point):
                     continue
                 var screen = self.plot.screen_point(point)
                 var cell_index = (
@@ -362,7 +362,9 @@ struct PlotRuntime:
         return Rect(left, top, right - left, bottom - top)
 
     def _hit_test_index(mut self, point: Point, tolerance: Float32 = 8.0) -> PlotHit:
-        """Find the nearest mark by inspecting only nearby grid cells."""
+        """Use exact glyph distance for specialized layouts, indexed anchors otherwise."""
+        if self.plot.has_specialized_layout():
+            return self.plot.hit_test(point, tolerance)
         var result = PlotHit()
         var limit = tolerance if tolerance > 0.0 else 0.0
         var limit_squared = limit * limit
@@ -520,7 +522,14 @@ struct PlotRuntime:
                 continue
             for point_index in range(self.plot.series[series_index].count()):
                 var point = self.plot.series[series_index].points[point_index]
-                if not selection.contains(point.row_key):
+                if not point.interactive or not selection.contains(point.row_key):
+                    continue
+                var duplicate = False
+                if self.plot.series[series_index].has_layout_domain:
+                    for chosen in self.selected_hits:
+                        if chosen.series_id == self.plot.series[series_index].id and chosen.row_key == point.row_key:
+                            duplicate = True
+                if duplicate:
                     continue
                 var hit = PlotHit()
                 hit.series_id = self.plot.series[series_index].id
@@ -547,7 +556,46 @@ struct PlotRuntime:
             return True
         return False
 
+    def _move_layout_focus(mut self, key: Int) -> Bool:
+        # One focus stop per source row, independent of primitive decomposition.
+        var stops = List[PlotHit]()
+        for series_index in range(len(self.plot.series)):
+            if not self.plot.series[series_index].visible:
+                continue
+            var seen = List[Int]()
+            for point_index in range(self.plot.series[series_index].count()):
+                var point = self.plot.series[series_index].points[point_index]
+                if not point.interactive:
+                    continue
+                var duplicate = False
+                for row in seen:
+                    if row == point.row_key:
+                        duplicate = True
+                if duplicate:
+                    continue
+                seen.append(point.row_key)
+                var hit = PlotHit()
+                hit.series_id = self.plot.series[series_index].id
+                hit.point_index = point_index
+                hit.row_key = point.row_key
+                stops.append(hit)
+        if len(stops) == 0:
+            return False
+        var current = -1
+        for index in range(len(stops)):
+            if stops[index].series_id == self.hovered.series_id and stops[index].row_key == self.hovered.row_key:
+                current = index
+        if current == -1:
+            self.hovered = stops[0]
+            return True
+        var delta = -1 if key == KEY_LEFT or key == KEY_UP else 1
+        var next = max(0, min(len(stops)-1, current+delta))
+        self.hovered = stops[next]
+        return next != current
+
     def _move_focus(mut self, key: Int) -> Bool:
+        if self.plot.has_specialized_layout():
+            return self._move_layout_focus(key)
         if not self.hovered.found() and not self._focus_first():
             return False
         var series_index = self.plot.series_index(self.hovered.series_id)

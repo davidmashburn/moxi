@@ -205,6 +205,18 @@ def _bool_member(object: String, name: String) -> Bool:
     return location != -1 and json_char(object, location) == "t"
 
 
+def _valid_bool_member(object: String, name: String) -> Bool:
+    """Optional layout flags must be actual JSON booleans."""
+    var location = _member_start(object, name)
+    if location == -1:
+        return True
+    var length = 4 if _find_token(object, "true", location) == location else 5
+    if length == 5 and _find_token(object, "false", location) != location:
+        return False
+    var delimiter = json_char(object, location + length)
+    return delimiter == "," or delimiter == "}"
+
+
 def _color_member(object: String) -> Color:
     var location = _member_start(object, "color")
     if location == -1 or json_char(object, location) != "[":
@@ -249,3 +261,46 @@ def _array_content(value: String, start_marker: String, end_marker: String) -> S
     return String(value[codepoint=content_start:end])
 
 
+
+
+def _string_array_json(object: String, name: String) -> String:
+    var start = _member_start(object, name)
+    if start == -1:
+        return "[]"
+    if json_char(object, start) != "[":
+        return "invalid"
+    var cursor = start+1
+    if json_char(object, cursor) == "]":
+        return "[]"
+    while cursor < object.count_codepoints():
+        var item = _read_string(object, cursor)
+        if not item.ok:
+            return "invalid"
+        cursor = item.next
+        if json_char(object, cursor) == "]":
+            return String(object[codepoint=start:cursor+1])
+        if json_char(object, cursor) != ",":
+            return "invalid"
+        cursor += 1
+    return "invalid"
+
+
+def _string_array(value: String) -> List[String]:
+    var result = List[String]()
+    if value == "[]":
+        return result^
+    if json_char(value, 0) != "[":
+        return result^
+    var cursor = 1
+    while cursor < value.count_codepoints():
+        var item = _read_string(value, cursor)
+        if not item.ok:
+            return List[String]()
+        result.append(item.value)
+        cursor = item.next
+        if json_char(value, cursor) == "]" and cursor+1 == value.count_codepoints():
+            return result^
+        if json_char(value, cursor) != ",":
+            return List[String]()
+        cursor += 1
+    return List[String]()

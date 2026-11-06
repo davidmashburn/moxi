@@ -37,9 +37,24 @@ def _symexp(value: Float32) -> Float32:
     return transformed if value >= 0.0 else -transformed
 
 
+struct PlotGlyphKind(ImplicitlyCopyable):
+    """Typed primitive identity for specialized layouts; ROW preserves D0."""
+    var value: Int
+    comptime ROW = Self(0)
+    comptime RECT = Self(1)
+    comptime SEGMENT = Self(2)
+    comptime POINT = Self(3)
+
+    def __init__(out self, value: Int):
+        self.value = value
+
+
 struct PlotPoint(ImplicitlyCopyable):
     """One data-space point."""
 
+    var glyph: PlotGlyphKind
+    var interactive: Bool
+    var part: String
     var x: Float32
     var y: Float32
     var row_key: Int
@@ -62,6 +77,9 @@ struct PlotPoint(ImplicitlyCopyable):
     var has_statistics: Bool
 
     def __init__(out self, x: Float32, y: Float32, row_key: Int = -1):
+        self.glyph = PlotGlyphKind.ROW
+        self.interactive = True
+        self.part = ""
         self.x = x
         self.y = y
         self.row_key = row_key

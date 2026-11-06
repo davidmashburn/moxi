@@ -20,6 +20,16 @@ from .plot_spec_names import (
 )
 
 
+struct PlotLayoutVersion(ImplicitlyCopyable):
+    """Versioned specialized-layout contract; unsupported versions fail validation."""
+    var value: Int
+    comptime ROW = Self(0)
+    comptime SPECIALIZED = Self(1)
+
+    def __init__(out self, value: Int):
+        self.value = value
+
+
 struct PlotEncoding(ImplicitlyCopyable):
     """A channel binding to a typed field or literal value."""
 
@@ -196,6 +206,13 @@ struct PlotLayer(ImplicitlyCopyable):
     var size: Float32
     var opacity: Float32
     var tooltip_fields: String
+    var layout_version: PlotLayoutVersion
+    var series_fields_json: String
+    var range_fields_json: String
+    var error_fields_json: String
+    var total_field: String
+    var horizontal: Bool
+    var percent: Bool
 
     def __init__(
         out self,
@@ -227,5 +244,12 @@ struct PlotLayer(ImplicitlyCopyable):
         self.size = 6.0
         self.opacity = 1.0
         self.tooltip_fields = ""
+        self.layout_version = PlotLayoutVersion.ROW
+        self.series_fields_json = "[]"
+        self.range_fields_json = "[]"
+        self.error_fields_json = "[]"
+        self.total_field = ""
+        self.horizontal = False
+        self.percent = False
 
 
