@@ -127,16 +127,30 @@
     {
       "id": "P04",
       "scope": "[Interactive Jupyter](docs/design/jupyter-integration.md): example-local FDG widget/comm spike with bounded versioned messages, isolated outputs, disposal/rerun/restart, static saved fallback, and actual remote-kernel verification.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "0cbd942",
+        "f8b8cc9",
+        "08303c8"
+      ],
+      "verification": [
+        "Parent instrumented Mojo build; three Python protocol/real-fallback tests and Node bounded-channel check passed.",
+        "Actual JupyterLab/Chrome gestures, two-output isolation, busy-kernel bounded queue/final release, capture loss/Escape, resize/DPR2, backend failure/recovery, rerun/clear/disposal, changed kernel PID/recovery and offline SVG passed; zero frontend errors.",
+        "13 genuine captures visually reviewed; PNG hashes/dimensions/decode and slideshow navigation passed. Clean source 08303c8; measured layout/Scene/SVG/DOM/Paint/comm/input distributions recorded."
+      ],
+      "remaining_gates": [
+        "Actual remote kernel/network topology unavailable and unverified; no remote compatibility claim.",
+        "Other frontend/browser/build platforms, physical input, independent human usability and sustained performance; VoiceOver paused.",
+        "Dense labels, graph overflow after zoom and cramped/clipped narrow controls remain visual acceptance limits; screenshots do not establish usability."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/fdg-inline-notebook/index.html"
+      ]
     },
     {
       "id": "P05",
       "scope": "Reusable notebook adapter gate from the same [Jupyter plan](docs/design/jupyter-integration.md): add a genuinely distinct linked-selection plot consumer before generalizing; verify installation, keyboard/semantics and recovery.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],

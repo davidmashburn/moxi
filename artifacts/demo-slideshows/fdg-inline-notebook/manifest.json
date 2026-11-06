@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "demo_id": "fdg-inline-notebook",
+  "title": "Inline Mojo / Moxi in Jupyter",
+  "scenario": "P04 local browser-owned actual Moxi graph with kernel comms, drag/pan/pause, isolated outputs, resize/DPR, failure/recovery, kernel restart and saved fallback. Remote gate remains unverified.",
+  "revision": "08303c839e26bf0fdfc70bf61116fc96d27b300c",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "backend": "JupyterLab 4.4.10 / Chrome 156.0.8078.81 / Mojo Wasm64",
+  "scale": 1,
+  "fixture": "Deterministic FDG benchmark topologies: 77/254 and 256/1024; groups i%6, edge i%n\u2192(7*i+1)%n; 100 solver steps, Fit, Pause",
+  "reproduce": "Follow examples/fdg/notebook/INTERACTIVE.md: build P01, prepare_interactive.py, run check_interactive.py and check_channel.mjs, capture_interactive.py, then gallery_inline.py. Optional dependencies isolated. See evidence.json for exact versions and source hashes.",
+  "source_provenance": {
+    "base_revision": "08303c839e26bf0fdfc70bf61116fc96d27b300c",
+    "uncommitted_changes": false,
+    "wasm_sha256": "3d9190e798002fff50f4b088fa4cdcdff22a362d6ee5340646ba3e94583fa0c2",
+    "source_hashes_file": "evidence.json",
+    "note": "Exact source content hashes recorded; uncommitted_changes describes the captured source scope."
+  },
+  "verification": {
+    "checks": [
+      "fresh kernel and real widget comm roundtrip",
+      "77/254 and 256/1024 actual state counts",
+      "selection and active drag/release",
+      "pan/zoom/pause",
+      "two outputs isolated",
+      "lost capture and Escape cancel",
+      "busy kernel immediate feedback and bounded queue/final release",
+      "resize and DPR 2 hit testing",
+      "real backend failure/recovery stops resources",
+      "current SVG download",
+      "rerun disposes old view",
+      "stale replaced identity rejected",
+      "clear output stops resources",
+      "actual kernel PID changed and old animations stopped",
+      "restart rerun recovers",
+      "offline saved fallback without adapter"
+    ],
+    "skipped": [
+      "actual remote kernel: no target available",
+      "VoiceOver: paused",
+      "other browsers/frontends/platforms",
+      "physical input and independent human usability"
+    ]
+  },
+  "slides": [
+    {
+      "image": "01-initial.png",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Inline 77-node graph",
+      "action": "Run all cells in a fresh Python kernel",
+      "expected": "Real Mojo state reports 77 nodes and 254 links; kernel roundtrip acknowledged",
+      "sha256": "649208511a74f71e29d42daef896c6a2e6dacc19778f3dd21c331420309ddff6"
+    },
+    {
+      "image": "02-drag.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Drag held before release",
+      "action": "Press a real graph node and move the mouse while held",
+      "expected": "Selection changes and the actual Mojo node is pinned at the dragged location",
+      "sha256": "046f43c3f4d1c3bb3651caa2fd4c4664751bfd23d62807bced71116c86615fe8"
+    },
+    {
+      "image": "03-pan-pause.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Pan, zoom and pause",
+      "action": "Release, pan blank canvas, wheel, Resume then Pause",
+      "expected": "Actual Moxi pan and zoom changed; solver is paused; output B remains independent",
+      "sha256": "6af3209f107c84f31309610a247b26691a605ae20f2643ba545a939e37332ebb"
+    },
+    {
+      "image": "04-two-outputs.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1900
+      ],
+      "scale": 1,
+      "caption": "Two independent notebook outputs",
+      "action": "Use a taller viewport to inspect both cells",
+      "expected": "77/254 and 256/1024 graph states coexist",
+      "sha256": "1f20afe1fd91110d04269dc5a304f6db48515cdc79d36bf902b28d972fd6bd19"
+    },
+    {
+      "image": "05-resize.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "dimensions": [
+        860,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Narrow layout and hit testing",
+      "action": "Resize to 860 CSS pixels and select a known node",
+      "expected": "Selection agrees with the actual resized Mojo scene",
+      "sha256": "bbedadeb549c237956c5cdc8b212649adb12f57cee8010481148a4d9855cdc6e"
+    },
+    {
+      "image": "06-scale2.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        860,
+        1100
+      ],
+      "scale": 2,
+      "caption": "Device scale 2",
+      "action": "Set Chromium DPR 2 and select another node",
+      "expected": "Physical screenshot dimensions double; CSS hit testing still selects the intended node",
+      "sha256": "19bd868f45971232347dec6f7172f0773aa39c4bbe291243cd063bca612a9c88"
+    },
+    {
+      "image": "07-failure.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Actual kernel backend rejection",
+      "action": "Set a.set_backend_available(False)",
+      "expected": "A shows a visible error and releases runtime resources; B remains live",
+      "sha256": "3ab1bc20928f3af0571d722c9581ffda445bbbf06bc361199c8fb92510b452af"
+    },
+    {
+      "image": "08-recovery.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Backend restored",
+      "action": "Restore backend availability and click Retry",
+      "expected": "A confirms a new roundtrip and recreates a settled real graph",
+      "sha256": "a618480f87be462dbe64bb237d21f103d270efc3e29b6a3b0b5bce8e17ca0a19"
+    },
+    {
+      "image": "09-restart-stopped.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Kernel restart stops old outputs",
+      "action": "Restart the actual kernel without rerunning cells",
+      "expected": "Old outputs stop and release runtime resources; PID changes",
+      "sha256": "e3a7e0589ba273a1ed0e556eac937c3f3934a34c8375fe43623c4349d108dc0a"
+    },
+    {
+      "image": "10-restart-recovered.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Rerun in the new kernel",
+      "action": "Run all cells after restart",
+      "expected": "Both outputs reconstruct and acknowledge new sessions",
+      "sha256": "d21df924cc2c7f5893458f940b99178c2016765a783ec9c9365502873b12548d"
+    },
+    {
+      "image": "11-saved-fallback.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "dimensions": [
+        1600,
+        1200
+      ],
+      "scale": 1,
+      "caption": "Saved notebook without adapter/network",
+      "action": "Export the executed notebook normally; open offline and expand saved SVG",
+      "expected": "Real saved SVG displays without live widget elements",
+      "sha256": "80490d6a96ab12061e776ed521efee8eeeab7bf7c9480f4e23353562ffe24134"
+    },
+    {
+      "image": "00-preview.png",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "dimensions": [
+        1280,
+        960
+      ],
+      "scale": 1,
+      "caption": "T3 collaborative preview: real Jupyter output",
+      "action": "Run three notebook code cells through the T3 collaborative preview; click the actual Mojo node 0 at its measured projected position.",
+      "expected": "Two live outputs report 77/254 and 256/1024; node 0 becomes selected and is released, while output B remains unselected.",
+      "sha256": "a515ef1d82bfe64a04c4a2585f1dff7cf5ff8d9b5a90695cd9bd487af213ea31"
+    },
+    {
+      "image": "00-preview-selection.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "dimensions": [
+        1280,
+        960
+      ],
+      "scale": 1,
+      "caption": "T3 collaborative preview: real node selection",
+      "action": "Run three notebook code cells through the T3 collaborative preview; click the actual Mojo node 0 at its measured projected position.",
+      "expected": "Two live outputs report 77/254 and 256/1024; node 0 becomes selected and is released, while output B remains unselected.",
+      "sha256": "20bbb4bc59b77bf06dd6b61c30454dddb364797d037852647a5c49d93a34a0bd"
+    }
+  ]
+}
