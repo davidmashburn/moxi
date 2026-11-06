@@ -311,11 +311,25 @@
     {
       "id": "D06",
       "scope": "[Spatial S1/S2](docs/design/3d-interaction.md): reactive geometry explorer, picking/selection/inspector, projected annotation, stale-work rejection, constrained transforms/snapping/numeric entry and shared undo.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "b24045c"
+      ],
+      "verification": [
+        "Parent reviewed and integrated public Mojo spatial/composition APIs, portable geometry/interaction core, owner-scoped native bridge and actual explorer consumer.",
+        "Parent passed 1832 portable assertions, 143 native composition/F02/Metal assertions, clean packaged Mojo consumer, direct composition consumer, portable ASan/UBSan and existing F02 lifecycle regression.",
+        "Clean b24045c replay produced 17 native offscreen captures; all visually reviewed and PNG hashes/dimensions/decode passed. All 138 source hashes verified; 22 master manifests validate, 34 embedded images load and previous/next navigation passes.",
+        "Camera-only mesh uploads, derived mesh rebuilds, unrelated control rebuilds and idle submissions were zero. Sixty frames measured p95 CPU 4.321 ms, GPU 1.784 ms, readback 1.979 ms, publication 2.065 ms and total to host image 8.450 ms; overlapping phases, before presentation."
+      ],
+      "remaining_gates": [
+        "Experimental copied-image renderer; D05 production selection and sustained presentation-inclusive performance remain open. Measurements ran alongside workers and do not establish a 60 Hz guarantee.",
+        "Physical mouse/keyboard/IME, independent human usability, screen-reader behavior, cross-display DPI/color, other platforms and sustained capacity/leak/thermal trials unverified; VoiceOver remains paused.",
+        "Gallery captures are AppKit offscreen content renders with synthetic native event callbacks, not compositor screenshots or physical input evidence. Always-on-top guides/bounds can overlap geometry; conservative bounds are deliberately loose.",
+        "Full repository suite, remote CI, GPU/native sanitizers and unchanged API inventory were not rerun. D07 second application, hierarchy, linked views, measurements and clipping remain separate work."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/spatial-explorer/index.html"
+      ]
     },
     {
       "id": "D07",

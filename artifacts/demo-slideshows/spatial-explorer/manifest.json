@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "demo_id": "spatial-explorer",
+  "title": "D06 \u2014 native geometry explorer / S1 + S2",
+  "scenario": "Real Moxi AppKit+Metal content captured with cacheDisplay. Synthetic native event-queue replay; offscreen-render, not compositor/native-window or human input evidence. Experimental CPU readback; no production renderer or performance acceptance claim. VoiceOver paused.",
+  "revision": "b24045ce61744d9485673ec8e96abf596af3e29b",
+  "host": "macOS 27.0.1 / arm64",
+  "backend": "Moxi AppKit + bounded Metal depth bridge + public owner-scoped composition",
+  "scale": 2.0,
+  "fixture": "3 generated surfaces; 13,680 expanded vertices; source SHA-256 9a691c9186001bb040c40b0af357fcc0b617f2dcc9868a8b6a34832b0b5e57fd; uncommitted scoped source: False",
+  "reproduce": "python3 examples/spatial-explorer/gallery.py",
+  "slides": [
+    {
+      "scenario_id": "01-initial",
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "01-initial.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Generated geometry through public Mojo",
+      "action": "Launch native explorer",
+      "expected": "Three generated surfaces, stable IDs, world anchor, outline and inspector",
+      "png_sha256": "d2265e7f255fb72b328f1c7f9c968723c73a56e4eedd22d5cd1dd404a66196b1"
+    },
+    {
+      "scenario_id": "02-parameter",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "02-parameter.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Asynchronous parameter result",
+      "action": "Activate Parameter +0.12; await current completion",
+      "expected": "Actual vertices change; requested and displayed parameters agree",
+      "png_sha256": "d646ad721ea01ee16364b8e3e7329015929a90082ab6db6a2cd832fe508cf8e5"
+    },
+    {
+      "scenario_id": "03-camera",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "03-camera.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Orbit with retained geometry",
+      "action": "Drag Orbit from (600,350) to (660,375)",
+      "expected": "Camera changes; zero mesh uploads or control rebuilds during drag",
+      "png_sha256": "6264c0bf32b2a9ee3ad92ced74c875b9a0fd6cb310d94dd18a2c28011365f9c0"
+    },
+    {
+      "scenario_id": "04-pick-annotation",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "04-pick-annotation.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Ray selection and projected annotation",
+      "action": "Select; click the projected center of object 202",
+      "expected": "Nearest triangle selects a stable ID; inspector and bounding outline agree",
+      "png_sha256": "e27881cfbf1c65dce55af14f9fc95799c98caddc104d82547af13c28da14a0a1"
+    },
+    {
+      "scenario_id": "05-orthographic",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "05-orthographic.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Orthographic projection",
+      "action": "Toggle projection",
+      "expected": "Shared projection changes rendering, rays, handles and anchor positions",
+      "png_sha256": "42deadc1ac451fc02920af406d72d5a20562410b7bae15d11c46381ff947a956"
+    },
+    {
+      "scenario_id": "06-slow-responsive",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "06-slow-responsive.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Navigate while geometry is pending",
+      "action": "Request a 700ms update, supersede it, then press Right in viewport",
+      "expected": "Camera advances using the last accepted mesh; requested and displayed values differ",
+      "png_sha256": "fcc06cd1e63b4b4fe5ce1137ac141c4165c7ccda01b24869614ce6598b6a789f"
+    },
+    {
+      "scenario_id": "07-stale-rejected",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "07-stale-rejected.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Stale completion rejected",
+      "action": "Poll until first old revision completes while newer work is pending",
+      "expected": "Rejected count increases without publishing old geometry",
+      "png_sha256": "eb260fc74bf7d049723301a4665608d1c759d4e387ab18fef1b27ee59fbde511"
+    },
+    {
+      "scenario_id": "08-axis-preview",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "08-axis-preview.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "X axis preview",
+      "action": "Fit, select 101, drag projected X handle 50 points",
+      "expected": "Inspector and bounds show preview; committed history unchanged until pointer up",
+      "png_sha256": "e94d4cc9efe909837066aa8b45e7016a239f88de0c1dfedb71bd666217469da2"
+    },
+    {
+      "scenario_id": "09-plane-preview",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "09-plane-preview.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "XY plane preview",
+      "action": "Drag plane handle (+25,-20) points",
+      "expected": "Two world components change through the same operation validator",
+      "png_sha256": "c1b9e30a6a814f3eb20699b8119bfd9a8cc0fa03f0ad46fb49803678795667f1"
+    },
+    {
+      "scenario_id": "10-rotation-preview",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "10-rotation-preview.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Z rotation preview",
+      "action": "Drag rotation ring (-25,-35) points",
+      "expected": "Preview rotates geometry and bounds around selected pivot",
+      "png_sha256": "c1332d20901d7e728e59b5e9593fbaf50524fe068d5b53a5f818e9d50dfee946"
+    },
+    {
+      "scenario_id": "11-scale-preview",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "11-scale-preview.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Uniform scale preview",
+      "action": "Drag scale handle (+15,-15) points",
+      "expected": "Uniform scale preview; one commit on pointer up",
+      "png_sha256": "81d0627b9409699c862a9449a1199d309eee12b8b72b87db9c110fc7ce202090"
+    },
+    {
+      "scenario_id": "12-snap-preview",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "12-snap-preview.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Grid snapping",
+      "action": "Enable snap; drag Y handle -37 points",
+      "expected": "Translation delta quantized to 0.25 world units; rotation uses 15 degrees",
+      "png_sha256": "65f73ecb95f7477c6e922ba24f6c6da817ad0b22d70ea603788cef05d4a180e6"
+    },
+    {
+      "scenario_id": "13-cancel",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "13-cancel.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Cancel restores committed document",
+      "action": "Escape during snapped preview",
+      "expected": "Preview disappears without a history entry",
+      "png_sha256": "b9eae71fa1780a9df8bb9186eb8682e706587c98bb2ef29a59a16244d28a7326"
+    },
+    {
+      "scenario_id": "14-numeric-keyboard",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "14-numeric-keyboard.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Native numeric field and keyboard operation",
+      "action": "Enter 0.75 through native text callback, Enter, Escape, Up",
+      "expected": "Numeric and key routes use the same validated operation and shared history",
+      "png_sha256": "275d2aed7859992847d9f4f91dc540a65bf178cf069ded4088011c99243cea51"
+    },
+    {
+      "scenario_id": "15-undo",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "15-undo.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Shared undo",
+      "action": "Undo last keyboard operation",
+      "expected": "Prior committed transform restored; parameter edits share this history",
+      "png_sha256": "24b7efe076bf5db7c13cab2ca190e8d736ff5d8448e7e3cd329077a39726e286"
+    },
+    {
+      "scenario_id": "16-disposed",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "16-disposed.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Explicitly disposed viewport",
+      "action": "Dispose resources",
+      "expected": "Unavailable message; geometry image removed and input capture retired",
+      "png_sha256": "79d254f0bf911fdbeac4c238db5964bda9186d250571477d3b9fb77fd08ddb64"
+    },
+    {
+      "scenario_id": "17-recreated",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "17-recreated.png",
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "caption": "Recreate under a new generation",
+      "action": "Recreate and wait for accepted generation",
+      "expected": "Retained document and camera render again; old work cannot resurrect resources",
+      "png_sha256": "92ba2af01317d40a234fe01105a5371fbcafe811000900f4e6b06b8d5a66b29e"
+    }
+  ]
+}
