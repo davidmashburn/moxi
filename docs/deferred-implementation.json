@@ -398,15 +398,20 @@
     {
       "id": "D08",
       "scope": "[Spatial S4](docs/design/3d-interaction.md): planar world-space ordinary controls, ray/local mapping, occlusion/clip/capture/focus/IME/semantics; compare screen-space editing before promoting the API.",
-      "state": "in_progress",
+      "state": "partial",
       "commits": [],
       "verification": [
-        "Initial worktree was clean when interrupted; no delivered implementation from r1."
+        "Worker r2 report only, not parent-verified: runnable world-space ordinary-control plane and equivalent screen editor; portable edge cases, native ownership/focus/semantic/text protocols, packaged consumers, source-free panel/explorer/assembly replays and D06/D07 regressions passed.",
+        "Worker reports six offscreen-render slides with matching pre-build/post-replay source and PNG hashes; three cold and 90 warm draws. Parent checked preserved worktree, notes and gallery presence only."
       ],
       "remaining_gates": [
-        "Initial worker stopped when workspace credits were exhausted. Separate Astra High r2 worker restarted at user request; parent review/integration deferred to resume."
+        "Review uncommitted t3/spatial-world-panel-1 (t3-40ab68f6, base bd3cccd), integrate narrow shared/native changes, run affected D04/full regressions as appropriate and recapture.",
+        "Worker rejects world-panel promotion: native IME/semantic geometry remains source-local; world semantics suppressed, screen-space route retained. Independent parent verification and coherent transformed native geometry required before reconsideration.",
+        "Physical IME, human/assistive-tech acceptance, compositor/sustained-performance evidence and D05 production decision remain open."
       ],
-      "slideshows": []
+      "slideshows": [
+        "spatial-world-panel worker gallery; not integrated"
+      ]
     },
     {
       "id": "E01",
