@@ -47,6 +47,7 @@ from moxi_demo import (
     DEMO_CAPABILITY_WALKTHROUGH_ID,
     DEMO_COUNTER_ID,
     DEMO_COUNTER_ID_OFFSET,
+    DEMO_RESET_BUTTON_ID,
     DEMO_CLEAR_SEARCH_ID,
     DEMO_CONTENT_PORTAL_ID,
     DEMO_ENTRY_VIEW_BASE,
@@ -636,7 +637,26 @@ def main() raises:
     var increment_point = Point(increment.x + 1.0, increment.y + 1.0)
     test_check(app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, increment_point))))
     test_check(app.dispatch(Event(PointerEvent(POINTER_UP_KIND, increment_point))))
-    test_check(app.component.counter.component.count == 1)
+    test_check(app.component.counter.component.root.count == 1)
+
+    # A page keeps its model while hidden, but Reset retires its controls and
+    # captures. Other pages and the launcher's own state keep their lifetime.
+    var captured_increment = app.component.counter.component.capture(3)
+    test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_THEME_SHOWCASE_ID)))
+    test_check(not app.dispatch(action(DEMO_COUNTER_ID_OFFSET + 3)))
+    test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID)))
+    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.counter.component.root.count == 1)
+    test_check(app.dispatch(action(DEMO_RESET_BUTTON_ID)))
+    test_check(app.component.counter.component.root.count == 0)
+    test_check(app.component.selected_id == DEMO_COUNTER_ID)
+    test_check(app.component.theme_showcase.component.theme_mode == 1)
+    test_check(not app.component.counter.component.deliver_action(captured_increment))
+    test_check(not app.dispatch(action(DEMO_COUNTER_ID_OFFSET + 3)))
+    var replacement_increment = app.component.counter.component.ui.controls[2].id
+    test_check(replacement_increment > 3)
+    test_check(app.dispatch(action(DEMO_COUNTER_ID_OFFSET + replacement_increment)))
+    test_check(app.component.counter.component.root.count == 1)
 
     test_check(app.dispatch(action(DEMO_TAB_SOURCE_ID)))
     test_check(app.component.tab == DEMO_TAB_SOURCE)

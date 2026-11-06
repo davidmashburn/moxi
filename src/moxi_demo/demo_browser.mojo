@@ -13,7 +13,9 @@ from std.collections import List
 
 from moxi.accessibility import ACTION_COLLAPSE, ACTION_EXPAND, ACTION_PRESS
 from moxi.alignment import AlignmentState
-from moxi.app import CounterState
+from moxi.authoring import HandlerHost
+from moxi.tasks import RequestScheduler
+from .authoring_examples.counter import Counter
 from moxi.capability_walkthrough import CapabilityWalkthroughState
 from moxi.component import Component, ComponentSlot
 from moxi.composed import ComposedState
@@ -242,7 +244,7 @@ struct DemoBrowserState(Component):
     var task_running: Bool
     var active_task: String
 
-    var counter: ComponentSlot[CounterState]
+    var counter: ComponentSlot[HandlerHost[Counter]]
     var form: ComponentSlot[FormState]
     var nested: ComponentSlot[NestedState]
     var composed: ComponentSlot[ComposedState]
@@ -267,8 +269,8 @@ struct DemoBrowserState(Component):
         self.pending_task = ""
         self.task_running = False
         self.active_task = ""
-        self.counter = ComponentSlot[CounterState](
-            CounterState(), DEMO_COUNTER_SLOT_ID, DEMO_COUNTER_ID_OFFSET
+        self.counter = ComponentSlot[HandlerHost[Counter]](
+            HandlerHost(Counter()), DEMO_COUNTER_SLOT_ID, DEMO_COUNTER_ID_OFFSET
         )
         self.form = ComponentSlot[FormState](
             FormState(), DEMO_FORM_SLOT_ID, DEMO_FORM_ID_OFFSET
@@ -439,9 +441,12 @@ struct DemoBrowserState(Component):
             )
         return True
 
+    def reconcile_requests(mut self, mut requests: RequestScheduler):
+        self.counter.component.reconcile_requests(requests)
+
     def _reset_active(mut self):
         if self.selected_id == DEMO_COUNTER_ID:
-            self.counter.component = CounterState()
+            self.counter.component.reset_model(Counter())
         elif self.selected_id == DEMO_FORM_ID:
             self.form.component = FormState()
         elif self.selected_id == DEMO_NESTED_ID:

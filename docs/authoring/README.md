@@ -13,7 +13,7 @@ they exercise real Moxi controls but do not open a window.
 
 ## A counter
 
-The complete model from [counter.mojo](../../examples/authoring/counter.mojo):
+The complete model from [Counter model](../../src/moxi_demo/authoring_examples/counter.mojo):
 
 ```mojo
 from moxi.authoring import Screen, UI

@@ -7,6 +7,9 @@ python3 examples/authoring/run.py
 ```
 
 `counter.mojo`, `editors.mojo`, and `shared.mojo` introduce individual patterns.
+The [Counter model](../../src/moxi_demo/authoring_examples/counter.mojo) is shared
+by the headless runner, both standalone counter windows, and Playground’s
+in-process Counter page (`pixi run demo`).
 `workspace.mojo` combines them: a shared document, keyed groups, and keyed drafts
 inside each group. Add, close, reverse, and reset operate through ordinary methods;
 the workspace needs one handwritten route to supply the shared document.

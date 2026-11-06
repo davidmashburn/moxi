@@ -127,12 +127,12 @@ struct DemoCatalog:
             DEMO_COUNTER_ID,
             "Counter",
             DEMO_CATEGORY_COMPONENTS,
-            "A stateful button rebuild with focus, pointer, and keyboard routing.",
+            "Ordinary fields and methods with declarative render and retained controls.",
             "examples/counter.mojo",
             "counter-demo",
             DEMO_PAGE_COUNTER,
             True,
-            "struct CounterState(Component):\n    var count: Int\n\n    def build(self, bounds: Rect) -> ColumnView:\n        var view = make_counter_column(self.count, bounds)\n        view.set_action(3, COUNTER_INCREMENT_ACTION)\n        return view^\n\n    def update(mut self, event: Event, view: ColumnView) -> Bool:\n        if event.target == 3 and event.kind == CLICK_KIND:\n            self.count += 1\n            return True\n        return False",
+            "struct Counter(Screen):\n    var count: Int\n\n    def __init__(out self):\n        self.count = 0\n\n    def increment(mut self):\n        self.count += 1\n\n    def render(self, mut ui: UI[Self]):\n        ui.label(\"Moxi Counter\")\n        ui.label(\"Count: \" + String(self.count))\n        ui.button(\"Increment\", Self.increment)",
         ))
         self.entries.append(DemoEntry(
             DEMO_FORM_ID,

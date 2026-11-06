@@ -595,8 +595,8 @@ struct DemoWalkthroughDriver:
             elif app.component.selected_id == DEMO_METAL_SCENE_ID:
                 self.observed_metal = True
         elif action.capability_name == "counter.increment":
-            if app.component.counter.component.count > self.counter_peak:
-                self.counter_peak = app.component.counter.component.count
+            if app.component.counter.component.root.count > self.counter_peak:
+                self.counter_peak = app.component.counter.component.root.count
         elif action.capability_name == "plot.toggle_marks":
             self.observed_plot = (
                 self.observed_plot
