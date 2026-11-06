@@ -690,6 +690,10 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `SvgSceneRenderer` | `moxi.svg` | host-adapter | platform and native-host adapters |
 | `MacOSTextShaper` | `moxi.coretext` | experimental | experimental or optional integration |
 | `HarfBuzzTextShaper` | `moxi.harfbuzz` | experimental | experimental or optional integration |
+| `FontCollection` | `moxi.font_collection` | experimental | owned optional HarfBuzz font collections and retained paragraphs |
+| `MissingFontPolicy` | `moxi.font_collection` | experimental | owned optional HarfBuzz font collections and retained paragraphs |
+| `FontTextStatus` | `moxi.font_collection` | experimental | owned optional HarfBuzz font collections and retained paragraphs |
+| `HarfBuzzParagraph` | `moxi.font_collection` | experimental | owned optional HarfBuzz font collections and retained paragraphs |
 | `MacOSMetalCanvasPainter` | `moxi.metal` | experimental | experimental or optional integration |
 | `MacOSMetalRenderer` | `moxi.metal` | experimental | experimental or optional integration |
 | `MacOSMetalWindow` | `moxi.metal` | experimental | experimental or optional integration |

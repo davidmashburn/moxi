@@ -85,3 +85,4 @@ content_layout	provisional	explicit content and weighted fill layout
 frame	provisional	portable frame publication and host/renderer boundaries
 event_replay	provisional	bounded exact normalized event serialization
 not_implemented	provisional	application-authoring informational composition
+font_collection	experimental	owned optional HarfBuzz font collections and retained paragraphs
