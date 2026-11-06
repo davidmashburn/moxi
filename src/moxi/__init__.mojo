@@ -729,6 +729,7 @@ from .virtual_view import VirtualItemBuilder, VirtualizedList
 from .svg import SvgSceneRenderer
 from .coretext import MacOSTextShaper
 from .harfbuzz import HarfBuzzTextShaper
+from .font_collection import FontCollection, MissingFontPolicy, FontTextStatus, HarfBuzzParagraph
 from .metal import MacOSMetalCanvasPainter, MacOSMetalRenderer, MacOSMetalWindow
 from .live_script import (
     LIVE_SCRIPT_CANVAS_ID,

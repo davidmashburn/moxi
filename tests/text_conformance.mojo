@@ -26,7 +26,7 @@ def grapheme_count(text: String) -> Int:
 def main():
     var style = default_label_style()
     var corpus = canonical_text_corpus()
-    test_check(len(corpus) == 5)
+    test_check(len(corpus) == 10)
     for index in range(len(corpus)):
         var fixture = corpus[index]
         var shaped = shape_text(
@@ -48,6 +48,14 @@ def main():
             var next = next_text_boundary(fixture.text, cursor)
             test_check(next > cursor)
             test_check(clamp_text_boundary(fixture.text, next) == next)
+            # Portable estimation keeps every practical grapheme on one line.
+            var cluster_line = -1
+            for glyph_index in range(shaped.glyph_count()):
+                var glyph = shaped.glyph(glyph_index)
+                if glyph.cluster >= cursor and glyph.cluster < next:
+                    if cluster_line == -1:
+                        cluster_line = glyph.line
+                    test_check(glyph.line == cluster_line)
             cursor = next
 
         var editing = TextInputState(fixture.text)

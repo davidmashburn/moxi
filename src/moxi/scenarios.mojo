@@ -710,7 +710,7 @@ def canonical_text_mixed_bidi_fixture() -> String:
 
 def canonical_text_corpus() -> List[TextCorpusFixture]:
     """Return the shared shaping/editing corpus in deterministic order."""
-    var result = List[TextCorpusFixture](capacity=5)
+    var result = List[TextCorpusFixture](capacity=10)
     result.append(TextCorpusFixture(
         "combining",
         canonical_text_combining_fixture(),
@@ -756,6 +756,21 @@ def canonical_text_corpus() -> List[TextCorpusFixture]:
         True,
         True,
     ))
+    result.append(TextCorpusFixture(
+        "paragraph-mixed", "Café Ελληνικά Кириллица 世界 — שלום مرحبا\nSecond line: office Å and 👩‍💻.",
+        TEXT_DIRECTION_LTR, 190.0, True, True, True))
+    result.append(TextCorpusFixture(
+        "clusters-wrap", "é Å 👩‍💻 👍🏽 🇺🇸 1️⃣ repeated é Å",
+        TEXT_DIRECTION_LTR, 70.0, False, True, True))
+    result.append(TextCorpusFixture(
+        "paragraph-rtl", "שלום עולם مرحبا 123\nשלום é 世界",
+        TEXT_DIRECTION_AUTO, 110.0, True, True, True))
+    result.append(TextCorpusFixture(
+        "hard-breaks", "first\r\n\r\n世界\nlast\n",
+        TEXT_DIRECTION_LTR, 80.0, False, True, True))
+    result.append(TextCorpusFixture(
+        "long-unbroken", "supercalifragilisticexpialidocious世界世界世界",
+        TEXT_DIRECTION_LTR, 40.0, False, True, True))
     return result^
 
 

@@ -26,6 +26,16 @@ def is_combining_mark(codepoint: Int) -> Bool:
         or (codepoint >= 0x20D0 and codepoint <= 0x20FF)
         or (codepoint >= 0xFE20 and codepoint <= 0xFE2F)
         or codepoint == 0x20E3
+        or (codepoint >= 0x0591 and codepoint <= 0x05BD)
+        or codepoint == 0x05BF or codepoint == 0x05C1 or codepoint == 0x05C2
+        or codepoint == 0x05C4 or codepoint == 0x05C5 or codepoint == 0x05C7
+        or (codepoint >= 0x0610 and codepoint <= 0x061A)
+        or (codepoint >= 0x064B and codepoint <= 0x065F)
+        or codepoint == 0x0670
+        or codepoint == 0x093A or codepoint == 0x093B or codepoint == 0x093C
+        or (codepoint >= 0x093E and codepoint <= 0x094F)
+        or (codepoint >= 0x0951 and codepoint <= 0x0957)
+        or codepoint == 0x0962 or codepoint == 0x0963
     )
 
 
@@ -70,9 +80,16 @@ def previous_text_boundary(text: String, offset: Int) -> Int:
     while cursor > 0:
         var current = codepoint_at(text, cursor)
         var previous = codepoint_at(text, cursor - 1)
-        if is_extend(current) or previous == 0x200D:
+        if is_extend(current) or previous == 0x200D or previous == 0x094D:
             cursor -= 1
             continue
+        if is_regional_indicator(current):
+            var start = cursor
+            while start > 0 and is_regional_indicator(codepoint_at(text, start - 1)):
+                start -= 1
+            if (cursor - start) % 2 == 1:
+                cursor -= 1
+            break
         # Treat CRLF as one editing unit.
         if current == 0x0A and previous == 0x0D:
             cursor -= 1
@@ -90,11 +107,17 @@ def next_text_boundary(text: String, offset: Int) -> Int:
     if cursor >= length:
         return length
 
+    if is_regional_indicator(codepoint_at(text, cursor)):
+        var start = cursor
+        while start > 0 and is_regional_indicator(codepoint_at(text, start - 1)):
+            start -= 1
+        if (cursor - start) % 2 == 0 and cursor + 1 < length and is_regional_indicator(codepoint_at(text, cursor + 1)):
+            cursor += 1
     cursor += 1
     while cursor < length:
         var current = codepoint_at(text, cursor)
         var previous = codepoint_at(text, cursor - 1)
-        if is_extend(current) or previous == 0x200D:
+        if is_extend(current) or previous == 0x200D or previous == 0x094D:
             cursor += 1
             continue
         # Treat CRLF as one editing unit.

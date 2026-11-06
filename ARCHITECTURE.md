@@ -174,9 +174,12 @@ explicit, and `RichText` stores styled spans as portable data. The
 fallback-face classes. `MacOSTextShaper` delegates to CoreText and retains
 native glyph ids, source clusters, positions, advances, bidi direction, and
 font fallback through the same `ShapedText` contract. The optional
-`HarfBuzzTextShaper` uses host Fontconfig/FreeType font selection and real
-OpenType shaping/positioning through the same contract. The headless
-rasterizer still does not invent glyph pixels.
+`HarfBuzzTextShaper` uses an owned, ordered `FontCollection` and real OpenType
+shaping/positioning through the same contract. Retained `HarfBuzzParagraph`
+snapshots provide bounded cluster wrapping, selection/caret geometry and
+revision-aware cache invalidation. CoreText keeps its own native fallback
+ownership; [the text policy](docs/text-policy.md) defines the supported subset.
+The headless rasterizer still does not invent glyph pixels.
 
 `ViewNode` supports independent minimum and maximum width/height constraints.
 Setting a conflicting bound deterministically normalizes the other bound so

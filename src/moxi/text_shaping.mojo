@@ -14,6 +14,7 @@ from .text_boundary import (
     codepoint_at,
     is_extend,
     is_regional_indicator,
+    next_text_boundary,
 )
 from .measure import TextMeasurement
 
@@ -236,6 +237,18 @@ trait TextShaper:
         ...
 
 
+def _estimated_advance(codepoint: Int, base: Float32) -> Float32:
+    if codepoint == 0x09:
+        return base * 4.0
+    if is_extend(codepoint):
+        return 0.0
+    if _is_emoji(codepoint):
+        return base * 1.15
+    if codepoint >= 0x2E80 and codepoint <= 0x9FFF:
+        return base * 1.75
+    return base
+
+
 struct PortableTextShaper(TextShaper):
     """Deterministic script-run shaper used by headless and unsupported hosts.
 
@@ -277,10 +290,17 @@ struct PortableTextShaper(TextShaper):
         var run_glyph_start = 0
         var run_cluster_start = 0
         var index = 0
+        var cluster_end = 0
         while index < text.count_codepoints():
             var codepoint = codepoint_at(text, index)
-            var advance = base_advance
-            if codepoint == 0x0A:
+            var at_cluster_start = index >= cluster_end
+            var cluster_advance: Float32 = 0.0
+            if at_cluster_start:
+                cluster_end = next_text_boundary(text, index)
+                for scalar_index in range(index, cluster_end):
+                    cluster_advance += _estimated_advance(codepoint_at(text, scalar_index), base_advance)
+            var advance = _estimated_advance(codepoint, base_advance)
+            if codepoint == 0x0A or codepoint == 0x0D:
                 if line_width > max_line_width:
                     max_line_width = line_width
                 if run_line != -1:
@@ -300,17 +320,9 @@ struct PortableTextShaper(TextShaper):
                 line += 1
                 line_count += 1
                 line_width = 0.0
-                index += 1
+                index = cluster_end
                 continue
-            if codepoint == 0x09:
-                advance *= 4.0
-            elif is_extend(codepoint):
-                advance = 0.0
-            elif _is_emoji(codepoint):
-                advance *= 1.15
-            elif codepoint >= 0x2E80 and codepoint <= 0x9FFF:
-                advance *= 1.75
-            if width_limit > 0.0 and line_width > 0.0 and line_width + advance > width_limit:
+            if at_cluster_start and width_limit > 0.0 and line_width > 0.0 and line_width + cluster_advance > width_limit:
                 if line_width > max_line_width:
                     max_line_width = line_width
                 if run_line != -1:
@@ -338,14 +350,14 @@ struct PortableTextShaper(TextShaper):
             if glyph_direction != resolved_direction and not is_extend(codepoint):
                 result.bidi_applied = True
             var font_id = fallback_font_id(codepoint)
-            if is_extend(codepoint) and len(result.glyphs) > 0:
+            if not at_cluster_start and len(result.glyphs) > 0:
                 # Marks, variation selectors, and ZWJ inherit the preceding
                 # run's face/direction instead of creating a visual split.
                 var previous = result.glyphs[len(result.glyphs) - 1]
                 font_id = previous.font_id
                 glyph_direction = run_direction if run_line != -1 else glyph_direction
             var glyph_script = script_id(codepoint)
-            if is_extend(codepoint) and run_line != -1:
+            if not at_cluster_start and run_line != -1:
                 glyph_script = run_script
             if font_id != 0:
                 result.used_fallback_font = True
