@@ -1,0 +1,981 @@
+{
+  "timestamp": "2026-11-06T10:23:02.970800+00:00",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "samples": 30,
+  "timing_units": "nanoseconds; RSS bytes (ps resident pages, not allocator/leak proof)",
+  "backends": {
+    "sympy": {
+      "startup": {
+        "startup_ns": 275612375,
+        "version": 1,
+        "ready": true,
+        "engine": "sympy",
+        "engine_version": "1.14.0"
+      },
+      "cold_first": {
+        "construct_ns": 12482459,
+        "compute_ns": 1166,
+        "convert_ns": 14709,
+        "export_ns": 65625,
+        "roundtrip_ns": 12658792,
+        "transport_ns": 115250,
+        "import_ns": 44875,
+        "total_ns": 288384917,
+        "handles": null,
+        "app_observed_ns": 288938041
+      },
+      "corpus": [
+        {
+          "case": "exact-half",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 5250,
+            "compute_ns": 250,
+            "convert_ns": 5667,
+            "export_ns": 13042,
+            "roundtrip_ns": 113541,
+            "transport_ns": 72541,
+            "import_ns": 14709,
+            "total_ns": 150667,
+            "handles": null
+          }
+        },
+        {
+          "case": "large-rational",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 25125,
+            "compute_ns": 208,
+            "convert_ns": 6667,
+            "export_ns": 11250,
+            "roundtrip_ns": 128458,
+            "transport_ns": 84458,
+            "import_ns": 12542,
+            "total_ns": 156167,
+            "handles": null
+          }
+        },
+        {
+          "case": "exact-decimal",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 35375,
+            "compute_ns": 250,
+            "convert_ns": 4500,
+            "export_ns": 15292,
+            "roundtrip_ns": 102292,
+            "transport_ns": 41125,
+            "import_ns": 10291,
+            "total_ns": 130250,
+            "handles": null
+          }
+        },
+        {
+          "case": "expand-square",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 106917,
+            "compute_ns": 264083,
+            "convert_ns": 56750,
+            "export_ns": 18375,
+            "roundtrip_ns": 531042,
+            "transport_ns": 75208,
+            "import_ns": 37125,
+            "total_ns": 588375,
+            "handles": null
+          }
+        },
+        {
+          "case": "selected-numerator",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 5875,
+            "compute_ns": 2791,
+            "convert_ns": 27625,
+            "export_ns": 16917,
+            "roundtrip_ns": 110083,
+            "transport_ns": 51166,
+            "import_ns": 29417,
+            "total_ns": 158875,
+            "handles": null
+          }
+        },
+        {
+          "case": "differentiate-polynomial",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 89500,
+            "compute_ns": 2518166,
+            "convert_ns": 35709,
+            "export_ns": 30625,
+            "roundtrip_ns": 2764417,
+            "transport_ns": 80125,
+            "import_ns": 33833,
+            "total_ns": 2831291,
+            "handles": null
+          }
+        },
+        {
+          "case": "differentiate-sine-product",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 68542,
+            "compute_ns": 630708,
+            "convert_ns": 19000,
+            "export_ns": 25084,
+            "roundtrip_ns": 813125,
+            "transport_ns": 65500,
+            "import_ns": 28125,
+            "total_ns": 869584,
+            "handles": null
+          }
+        },
+        {
+          "case": "substitute-compound",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 20458,
+            "compute_ns": 41750,
+            "convert_ns": 20042,
+            "export_ns": 16625,
+            "roundtrip_ns": 162166,
+            "transport_ns": 53291,
+            "import_ns": 19250,
+            "total_ns": 200250,
+            "handles": null
+          }
+        },
+        {
+          "case": "complex-root-square",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 3503333,
+            "compute_ns": 417,
+            "convert_ns": 21750,
+            "export_ns": 19000,
+            "roundtrip_ns": 3604292,
+            "transport_ns": 56542,
+            "import_ns": 24125,
+            "total_ns": 3649208,
+            "handles": null
+          }
+        },
+        {
+          "case": "positive-root-square",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 60500,
+            "compute_ns": 250,
+            "convert_ns": 3083,
+            "export_ns": 26917,
+            "roundtrip_ns": 148541,
+            "transport_ns": 62875,
+            "import_ns": 16667,
+            "total_ns": 194875,
+            "handles": null
+          }
+        },
+        {
+          "case": "real-root-unsupported-abs",
+          "status": "unsupported",
+          "message": "Cannot import result type Abs",
+          "timings": {
+            "export_ns": 17709,
+            "roundtrip_ns": 212875,
+            "transport_ns": 53084,
+            "import_ns": 1541,
+            "total_ns": 233833,
+            "handles": null
+          }
+        },
+        {
+          "case": "matrix",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 66291,
+            "compute_ns": 209,
+            "convert_ns": 41125,
+            "export_ns": 13625,
+            "roundtrip_ns": 207250,
+            "transport_ns": 67083,
+            "import_ns": 28417,
+            "total_ns": 250959,
+            "handles": null
+          }
+        },
+        {
+          "case": "matrix-multiplication",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 145208,
+            "compute_ns": 250,
+            "convert_ns": 26458,
+            "export_ns": 21958,
+            "roundtrip_ns": 259583,
+            "transport_ns": 51333,
+            "import_ns": 24792,
+            "total_ns": 307917,
+            "handles": null
+          }
+        },
+        {
+          "case": "unknown-function",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 116625,
+            "compute_ns": 209,
+            "convert_ns": 10583,
+            "export_ns": 8417,
+            "roundtrip_ns": 180375,
+            "transport_ns": 38541,
+            "import_ns": 9250,
+            "total_ns": 199625,
+            "handles": null
+          }
+        },
+        {
+          "case": "unsupported-derivative",
+          "status": "unsupported",
+          "message": "Cannot import result type Derivative",
+          "timings": {
+            "export_ns": 17000,
+            "roundtrip_ns": 219041,
+            "transport_ns": 57291,
+            "import_ns": 1167,
+            "total_ns": 239417,
+            "handles": null
+          }
+        },
+        {
+          "case": "unsupported-infinity",
+          "status": "unsupported",
+          "message": "Cannot import result type ComplexInfinity",
+          "timings": {
+            "export_ns": 9000,
+            "roundtrip_ns": 71708,
+            "transport_ns": 45083,
+            "import_ns": 1084,
+            "total_ns": 83334,
+            "handles": null
+          }
+        }
+      ],
+      "sizes": {
+        "2": {
+          "construct_ns": {
+            "n": 30,
+            "median": 4604.0,
+            "p95": 6709,
+            "p99": 9708,
+            "max": 9708
+          },
+          "compute_ns": {
+            "n": 30,
+            "median": 1750.0,
+            "p95": 3166,
+            "p99": 5542,
+            "max": 5542
+          },
+          "convert_ns": {
+            "n": 30,
+            "median": 25708.5,
+            "p95": 33209,
+            "p99": 35417,
+            "max": 35417
+          },
+          "export_ns": {
+            "n": 30,
+            "median": 11895.5,
+            "p95": 22750,
+            "p99": 23250,
+            "max": 23250
+          },
+          "roundtrip_ns": {
+            "n": 30,
+            "median": 105791.5,
+            "p95": 127792,
+            "p99": 187709,
+            "max": 187709
+          },
+          "transport_ns": {
+            "n": 30,
+            "median": 51562.5,
+            "p95": 69251,
+            "p99": 107251,
+            "max": 107251
+          },
+          "import_ns": {
+            "n": 30,
+            "median": 30437.5,
+            "p95": 34542,
+            "p99": 35125,
+            "max": 35125
+          },
+          "total_ns": {
+            "n": 30,
+            "median": 149395.5,
+            "p95": 179292,
+            "p99": 248834,
+            "max": 248834
+          },
+          "app_observed_ns": {
+            "n": 30,
+            "median": 773416.5,
+            "p95": 779375,
+            "p99": 841042,
+            "max": 841042
+          }
+        },
+        "8": {
+          "construct_ns": {
+            "n": 30,
+            "median": 5125.0,
+            "p95": 7625,
+            "p99": 33917,
+            "max": 33917
+          },
+          "compute_ns": {
+            "n": 30,
+            "median": 2041.5,
+            "p95": 3333,
+            "p99": 1034167,
+            "max": 1034167
+          },
+          "convert_ns": {
+            "n": 30,
+            "median": 122229.5,
+            "p95": 130042,
+            "p99": 321208,
+            "max": 321208
+          },
+          "export_ns": {
+            "n": 30,
+            "median": 12791.5,
+            "p95": 37000,
+            "p99": 43875,
+            "max": 43875
+          },
+          "roundtrip_ns": {
+            "n": 30,
+            "median": 269499.5,
+            "p95": 316542,
+            "p99": 1530875,
+            "max": 1530875
+          },
+          "transport_ns": {
+            "n": 30,
+            "median": 102249.5,
+            "p95": 128083,
+            "p99": 143042,
+            "max": 143042
+          },
+          "import_ns": {
+            "n": 30,
+            "median": 114708.5,
+            "p95": 121917,
+            "p99": 122708,
+            "max": 122708
+          },
+          "total_ns": {
+            "n": 30,
+            "median": 401250.0,
+            "p95": 486791,
+            "p99": 1661625,
+            "max": 1661625
+          },
+          "app_observed_ns": {
+            "n": 30,
+            "median": 780624.5,
+            "p95": 845959,
+            "p99": 2060250,
+            "max": 2060250
+          }
+        },
+        "24": {
+          "construct_ns": {
+            "n": 30,
+            "median": 4791.5,
+            "p95": 8292,
+            "p99": 30292,
+            "max": 30292
+          },
+          "compute_ns": {
+            "n": 30,
+            "median": 1833.5,
+            "p95": 3625,
+            "p99": 2577083,
+            "max": 2577083
+          },
+          "convert_ns": {
+            "n": 30,
+            "median": 357479.0,
+            "p95": 380583,
+            "p99": 380959,
+            "max": 380959
+          },
+          "export_ns": {
+            "n": 30,
+            "median": 13562.0,
+            "p95": 17167,
+            "p99": 23292,
+            "max": 23292
+          },
+          "roundtrip_ns": {
+            "n": 30,
+            "median": 624645.5,
+            "p95": 2292833,
+            "p99": 3270959,
+            "max": 3270959
+          },
+          "transport_ns": {
+            "n": 30,
+            "median": 195521.5,
+            "p95": 294416,
+            "p99": 1861541,
+            "max": 1861541
+          },
+          "import_ns": {
+            "n": 30,
+            "median": 327187.0,
+            "p95": 345917,
+            "p99": 359041,
+            "max": 359041
+          },
+          "total_ns": {
+            "n": 30,
+            "median": 964375.0,
+            "p95": 2645833,
+            "p99": 3624500,
+            "max": 3624500
+          },
+          "app_observed_ns": {
+            "n": 30,
+            "median": 1004062.0,
+            "p95": 2685125,
+            "p99": 3659000,
+            "max": 3659000
+          }
+        }
+      },
+      "rss_before": 60620800,
+      "rss_after": 61177856,
+      "persistent_processes_started": 1
+    },
+    "symengine": {
+      "startup": {
+        "startup_ns": 41300167,
+        "version": 1,
+        "ready": true,
+        "engine": "symengine",
+        "engine_version": "0.14.0"
+      },
+      "cold_first": {
+        "construct_ns": 302875,
+        "compute_ns": 2959,
+        "convert_ns": 125625,
+        "export_ns": 60125,
+        "roundtrip_ns": 527542,
+        "transport_ns": 86375,
+        "import_ns": 22875,
+        "total_ns": 41912709,
+        "handles": {
+          "live": 0,
+          "peak": 4
+        },
+        "app_observed_ns": 42141584
+      },
+      "corpus": [
+        {
+          "case": "exact-half",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 25875,
+            "compute_ns": 833,
+            "convert_ns": 6042,
+            "export_ns": 18334,
+            "roundtrip_ns": 91916,
+            "transport_ns": 54416,
+            "import_ns": 11542,
+            "total_ns": 126667,
+            "handles": {
+              "live": 0,
+              "peak": 4
+            }
+          }
+        },
+        {
+          "case": "large-rational",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 26709,
+            "compute_ns": 750,
+            "convert_ns": 20333,
+            "export_ns": 6708,
+            "roundtrip_ns": 95042,
+            "transport_ns": 42500,
+            "import_ns": 8083,
+            "total_ns": 111583,
+            "handles": {
+              "live": 0,
+              "peak": 4
+            }
+          }
+        },
+        {
+          "case": "exact-decimal",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 25625,
+            "compute_ns": 500,
+            "convert_ns": 4584,
+            "export_ns": 8417,
+            "roundtrip_ns": 84667,
+            "transport_ns": 50292,
+            "import_ns": 7583,
+            "total_ns": 102042,
+            "handles": {
+              "live": 0,
+              "peak": 4
+            }
+          }
+        },
+        {
+          "case": "expand-square",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 51125,
+            "compute_ns": 36083,
+            "convert_ns": 130459,
+            "export_ns": 11416,
+            "roundtrip_ns": 287625,
+            "transport_ns": 48750,
+            "import_ns": 26125,
+            "total_ns": 326458,
+            "handles": {
+              "live": 0,
+              "peak": 4
+            }
+          }
+        },
+        {
+          "case": "selected-numerator",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 31625,
+            "compute_ns": 2375,
+            "convert_ns": 104792,
+            "export_ns": 11708,
+            "roundtrip_ns": 204334,
+            "transport_ns": 45792,
+            "import_ns": 28166,
+            "total_ns": 245458,
+            "handles": {
+              "live": 0,
+              "peak": 4
+            }
+          }
+        },
+        {
+          "case": "differentiate-polynomial",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 39583,
+            "compute_ns": 112750,
+            "convert_ns": 98208,
+            "export_ns": 16583,
+            "roundtrip_ns": 340292,
+            "transport_ns": 74292,
+            "import_ns": 27917,
+            "total_ns": 386000,
+            "handles": {
+              "live": 0,
+              "peak": 4
+            }
+          }
+        },
+        {
+          "case": "differentiate-sine-product",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 255959,
+            "compute_ns": 17875,
+            "convert_ns": 95000,
+            "export_ns": 10041,
+            "roundtrip_ns": 463625,
+            "transport_ns": 80625,
+            "import_ns": 32084,
+            "total_ns": 506875,
+            "handles": {
+              "live": 0,
+              "peak": 4
+            }
+          }
+        },
+        {
+          "case": "substitute-compound",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 43292,
+            "compute_ns": 21042,
+            "convert_ns": 53708,
+            "export_ns": 18000,
+            "roundtrip_ns": 188125,
+            "transport_ns": 58958,
+            "import_ns": 19042,
+            "total_ns": 227125,
+            "handles": {
+              "live": 0,
+              "peak": 6
+            }
+          }
+        },
+        {
+          "case": "complex-root-square",
+          "status": "ok",
+          "message": "",
+          "timings": {
+            "construct_ns": 29625,
+            "compute_ns": 917,
+            "convert_ns": 40833,
+            "export_ns": 14625,
+            "roundtrip_ns": 122541,
+            "transport_ns": 40291,
+            "import_ns": 16792,
+            "total_ns": 155458,
+            "handles": {
+              "live": 0,
+              "peak": 6
+            }
+          }
+        },
+        {
+          "case": "positive-root-square",
+          "status": "unsupported",
+          "message": "SymEngine probe supports complex symbols only",
+          "timings": {
+            "export_ns": 9250,
+            "roundtrip_ns": 47500,
+            "transport_ns": 47500,
+            "import_ns": 625,
+            "total_ns": 58333,
+            "handles": {
+              "live": 0
+            }
+          }
+        },
+        {
+          "case": "real-root-unsupported-abs",
+          "status": "unsupported",
+          "message": "SymEngine probe supports complex symbols only",
+          "timings": {
+            "export_ns": 8958,
+            "roundtrip_ns": 48959,
+            "transport_ns": 48959,
+            "import_ns": 583,
+            "total_ns": 59417,
+            "handles": {
+              "live": 0
+            }
+          }
+        },
+        {
+          "case": "matrix",
+          "status": "unsupported",
+          "message": "SymEngine probe does not import matrix",
+          "timings": {
+            "export_ns": 13667,
+            "roundtrip_ns": 55417,
+            "transport_ns": 55417,
+            "import_ns": 583,
+            "total_ns": 70875,
+            "handles": {
+              "live": 0
+            }
+          }
+        },
+        {
+          "case": "matrix-multiplication",
+          "status": "unsupported",
+          "message": "SymEngine probe does not import matmul",
+          "timings": {
+            "export_ns": 16750,
+            "roundtrip_ns": 58291,
+            "transport_ns": 58291,
+            "import_ns": 584,
+            "total_ns": 76667,
+            "handles": {
+              "live": 0
+            }
+          }
+        },
+        {
+          "case": "unknown-function",
+          "status": "unsupported",
+          "message": "SymEngine probe does not import function",
+          "timings": {
+            "export_ns": 5791,
+            "roundtrip_ns": 31209,
+            "transport_ns": 31209,
+            "import_ns": 458,
+            "total_ns": 38333,
+            "handles": {
+              "live": 0
+            }
+          }
+        },
+        {
+          "case": "unsupported-derivative",
+          "status": "unsupported",
+          "message": "SymEngine probe does not import function",
+          "timings": {
+            "export_ns": 17250,
+            "roundtrip_ns": 34333,
+            "transport_ns": 34333,
+            "import_ns": 500,
+            "total_ns": 56625,
+            "handles": {
+              "live": 0
+            }
+          }
+        },
+        {
+          "case": "unsupported-infinity",
+          "status": "unsupported",
+          "message": "Unsupported native result type: Infty",
+          "timings": {
+            "export_ns": 8792,
+            "roundtrip_ns": 39500,
+            "transport_ns": 39500,
+            "import_ns": 541,
+            "total_ns": 53916,
+            "handles": {
+              "live": 0
+            }
+          }
+        }
+      ],
+      "sizes": {
+        "2": {
+          "construct_ns": {
+            "n": 30,
+            "median": 26521.0,
+            "p95": 44292,
+            "p99": 44375,
+            "max": 44375
+          },
+          "compute_ns": {
+            "n": 30,
+            "median": 2187.5,
+            "p95": 4500,
+            "p99": 5125,
+            "max": 5125
+          },
+          "convert_ns": {
+            "n": 30,
+            "median": 106375.5,
+            "p95": 128416,
+            "p99": 132667,
+            "max": 132667
+          },
+          "export_ns": {
+            "n": 30,
+            "median": 11333.5,
+            "p95": 16333,
+            "p99": 21916,
+            "max": 21916
+          },
+          "roundtrip_ns": {
+            "n": 30,
+            "median": 202937.0,
+            "p95": 250125,
+            "p99": 262792,
+            "max": 262792
+          },
+          "transport_ns": {
+            "n": 30,
+            "median": 50645.5,
+            "p95": 68000,
+            "p99": 84625,
+            "max": 84625
+          },
+          "import_ns": {
+            "n": 30,
+            "median": 27666.5,
+            "p95": 34750,
+            "p99": 39459,
+            "max": 39459
+          },
+          "total_ns": {
+            "n": 30,
+            "median": 243458.0,
+            "p95": 312875,
+            "p99": 313959,
+            "max": 313959
+          },
+          "app_observed_ns": {
+            "n": 30,
+            "median": 774208.0,
+            "p95": 839292,
+            "p99": 878417,
+            "max": 878417
+          }
+        },
+        "8": {
+          "construct_ns": {
+            "n": 30,
+            "median": 23917.0,
+            "p95": 27417,
+            "p99": 30000,
+            "max": 30000
+          },
+          "compute_ns": {
+            "n": 30,
+            "median": 3645.5,
+            "p95": 5667,
+            "p99": 8542,
+            "max": 8542
+          },
+          "convert_ns": {
+            "n": 30,
+            "median": 501792.0,
+            "p95": 521625,
+            "p99": 539833,
+            "max": 539833
+          },
+          "export_ns": {
+            "n": 30,
+            "median": 12375.0,
+            "p95": 14791,
+            "p99": 15667,
+            "max": 15667
+          },
+          "roundtrip_ns": {
+            "n": 30,
+            "median": 709375.0,
+            "p95": 744958,
+            "p99": 780541,
+            "max": 780541
+          },
+          "transport_ns": {
+            "n": 30,
+            "median": 82625.0,
+            "p95": 103333,
+            "p99": 103916,
+            "max": 103916
+          },
+          "import_ns": {
+            "n": 30,
+            "median": 110125.0,
+            "p95": 116250,
+            "p99": 120792,
+            "max": 120792
+          },
+          "total_ns": {
+            "n": 30,
+            "median": 832208.0,
+            "p95": 876250,
+            "p99": 910208,
+            "max": 910208
+          },
+          "app_observed_ns": {
+            "n": 30,
+            "median": 860979.0,
+            "p95": 1303833,
+            "p99": 1566417,
+            "max": 1566417
+          }
+        },
+        "24": {
+          "construct_ns": {
+            "n": 30,
+            "median": 26000.0,
+            "p95": 33875,
+            "p99": 34792,
+            "max": 34792
+          },
+          "compute_ns": {
+            "n": 30,
+            "median": 8437.5,
+            "p95": 11250,
+            "p99": 12791,
+            "max": 12791
+          },
+          "convert_ns": {
+            "n": 30,
+            "median": 1665395.5,
+            "p95": 1712125,
+            "p99": 1794334,
+            "max": 1794334
+          },
+          "export_ns": {
+            "n": 30,
+            "median": 13042.0,
+            "p95": 15792,
+            "p99": 17458,
+            "max": 17458
+          },
+          "roundtrip_ns": {
+            "n": 30,
+            "median": 2190625.0,
+            "p95": 2271042,
+            "p99": 2336000,
+            "max": 2336000
+          },
+          "transport_ns": {
+            "n": 30,
+            "median": 188979.5,
+            "p95": 215792,
+            "p99": 216708,
+            "max": 216708
+          },
+          "import_ns": {
+            "n": 30,
+            "median": 329999.5,
+            "p95": 340167,
+            "p99": 341292,
+            "max": 341292
+          },
+          "total_ns": {
+            "n": 30,
+            "median": 2535083.5,
+            "p95": 2614750,
+            "p99": 2672333,
+            "max": 2672333
+          },
+          "app_observed_ns": {
+            "n": 30,
+            "median": 2572938.0,
+            "p95": 2926833,
+            "p99": 3068542,
+            "max": 3068542
+          }
+        }
+      },
+      "rss_before": 26492928,
+      "rss_after": 26902528,
+      "persistent_processes_started": 1
+    }
+  }
+}
