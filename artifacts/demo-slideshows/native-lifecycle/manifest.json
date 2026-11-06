@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "demo_id": "native-lifecycle",
+  "title": "Independent native windows",
+  "scenario": "Two real Moxi/AppKit collection windows: isolated editing, drag, sheet outcomes and retained reopen. Scripted native callbacks; content-view captures exclude window chrome and compositor effects.",
+  "revision": "c8d602ae51c333602088c5f30eab5f0f0a164340",
+  "host": "macOS 27.0.1",
+  "backend": "AppKit live NSWindow content-view cacheDisplay",
+  "scale": 2.0,
+  "fixture": "100000 stable rows per window; six mounted rows; source SHA-256 1a58cfe52784b91dcade01e8316509ed69e4ba06c027cee047e3ba0e4a6a33a1",
+  "reproduce": "python3 scripts/native_lifecycle_gallery.py && python3 scripts/demo_slideshows.py",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "native-window",
+      "image": "01-initial-a.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "Independent A",
+      "action": "Open both real Moxi windows",
+      "expected": "A shows rows 50001–50006; row 50001 is selected"
+    },
+    {
+      "phase": "initial",
+      "capture_kind": "native-window",
+      "image": "02-initial-b.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "Independent B",
+      "action": "Capture B while A remains alive",
+      "expected": "B has its own labels, selection and model"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "native-window",
+      "image": "03-edited-a.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "A retains a mixed-script edit",
+      "action": "Use A's native AX text callback while B is selected",
+      "expected": "Only A's row 50001 becomes Alpha deep edit 日本語"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "native-window",
+      "image": "04-edited-b.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "B retains a different edit",
+      "action": "Select B's row 50003 and use its native AX text callback",
+      "expected": "Only B's row 50003 becomes Beta retained edit"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "native-window",
+      "image": "05-reordered-a.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "Stable identity through drag",
+      "action": "Deliver AppKit mouse down/drag/up callbacks to A while B is selected",
+      "expected": "A's row 50001 moves to the third slot with its edit and selection"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "native-window",
+      "image": "06-selected-text.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "Native editor selection",
+      "action": "Invoke the native menu target and apply the portable selection result",
+      "expected": "A's native field editor selects the complete retained text"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "native-window",
+      "image": "08-cancelled.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "Cancel preserves the edit",
+      "action": "Open a real NSAlert sheet and resolve Cancel",
+      "expected": "A retains its mixed-script edit; B remains independent"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "native-window",
+      "image": "09-applied.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "Apply resets one row",
+      "action": "Open another native sheet and resolve Apply",
+      "expected": "A's selected row returns to A observation 50001"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "native-window",
+      "image": "10-sibling-survives.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "B survives A's disposal",
+      "action": "Restore A's edit, close A with a sheet open, then invoke its stale callback",
+      "expected": "B stays open with Beta retained edit"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "native-window",
+      "image": "11-reopened-a.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "Fresh window, retained model",
+      "action": "Request reopening through B's native AX button action",
+      "expected": "A has a new handle and retains its edit, row order and selection"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "native-window",
+      "image": "12-final-b.png",
+      "dimensions": [
+        1120,
+        1280
+      ],
+      "caption": "Sibling state remains isolated",
+      "action": "Close A after reopening and capture B",
+      "expected": "B still shows its independent selected row and edit"
+    }
+  ]
+}

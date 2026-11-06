@@ -37,11 +37,25 @@
     {
       "id": "F02",
       "scope": "Native ownership and lifecycle: instance-owned window state or an explicitly enforced bounded profile, then prove two windows cannot cross-route events/resources. Cover deep collection editing, native menu/dialog lifecycle, drag/drop, and automated AX assertions incrementally. Existing portable menu/dialog models are reused.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "implemented",
+      "commits": [
+        "c8d602a"
+      ],
+      "verification": [
+        "Parent reviewed instance ownership, callbacks, disposal, event reset and bounded profile; reran both native ownership and Moxi lifecycle lanes after integration.",
+        "Two live windows retain independent deep edits, native editor selection and reordered stable rows; sheet Cancel/Apply, stale callbacks, sibling survival and fresh reopen handles pass assertions.",
+        "Eleven native content-view captures inspected; versioned reproduction harness and source fingerprint recorded. Integrated API status check passes.",
+        "Existing N01 capture passed with the new owner header included in its fingerprint. All 27 D01 native replay outcomes match the pre-F02 baseline; representative compatibility frames inspected. Five gallery manifests validate, and F02 browser images/navigation pass."
+      ],
+      "remaining_gates": [
+        "Physical IME/input, menu and sheet appearance, compositor/window chrome, performance acceptance and VoiceOver remain unverified; VoiceOver stays paused.",
+        "Sheet cacheDisplay bitmap has incomplete material rendering and is excluded; automated outcomes are verified.",
+        "Supported profile is main-thread AppKit with eight explicit sessions. Metal multi-window, other desktop platforms and external/cross-window drag/drop are not claimed.",
+        "Full repository suite and remote CI were not run for this integration."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/native-lifecycle/index.html"
+      ]
     },
     {
       "id": "P01",
@@ -189,7 +203,7 @@
     {
       "id": "D03",
       "scope": "[Canvas C0\u2013C4](docs/design/canvas-interaction.md): transformed ordinary components, shared geometry/input/semantics, pan/zoom/select/move/resize/history, ports/edges/reconnect, groups/minimap/culling and public consumers.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],

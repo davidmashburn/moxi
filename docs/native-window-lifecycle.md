@@ -132,3 +132,16 @@ local compatibility paths; no Linux desktop session was tested.
 Parent replay with captures passed in `/tmp/moxi-f02-parent-check.log`. The native
 sheet bitmap has incomplete material rendering and is excluded from the gallery;
 Cancel/Apply behavior passes assertions and its resulting Moxi frames are shown.
+
+### Integrated verification
+
+At `c8d602a`, `python3 scripts/native_lifecycle_gallery.py` passed both native
+lanes and produced eleven gallery frames (`/tmp/moxi-f02-integrated-capture.log`).
+The API inventory check passed (`/tmp/moxi-f02-integrated-api.log`). All 22
+embedded full/thumbnail images loaded in the browser, and next, previous,
+contact-sheet navigation and wraparound passed. The N01 capture reran with the
+owner header included in its fingerprint (`/tmp/moxi-f02-n01-compat.log`).
+The D01 native demo produced 27 captures in `/tmp/moxi-f02-d01-compat`; every
+backend, fixture, status, expression, result, revision and generation matched
+the prior replay. Representative N01/D01 compatibility frames were inspected.
+This verification does not close the manual or performance gates above.

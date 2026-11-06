@@ -3,11 +3,11 @@
   "demo_id": "not-implemented",
   "title": "Moxi unfinished-feature pattern",
   "scenario": "N01: actual Moxi App event replay and AppKit drawing. Offscreen renders do not verify live desktop input, the compositor, or VoiceOver.",
-  "revision": "b4d8109ec94a8331415aa5f3548e1a6bdabb879e",
+  "revision": "c8d602ae51c333602088c5f30eab5f0f0a164340",
   "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
   "backend": "AppKit offscreen bitmap, actual Moxi draw commands",
   "scale": 1,
-  "fixture": "NotImplementedDemo and DemoBrowserState; working-source SHA256 b90a4c7a79e9ff6b6a4a6c7a5b0099a9c71ac7099aa4d4f6b396ccde3ddf8499",
+  "fixture": "NotImplementedDemo and DemoBrowserState; working-source SHA256 ffdcf4a2fa5d72087f8ab66dfa39ef948ae4148b6ba383a717e96972bbdb620b",
   "reproduce": "bash experiments/not-implemented-capture/run.sh; python3 scripts/demo_slideshows.py",
   "slides": [
     {

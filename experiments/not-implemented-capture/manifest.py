@@ -8,7 +8,7 @@ import sys
 
 repo = Path(__file__).resolve().parents[2]
 output = Path(sys.argv[1])
-sources = sorted([*repo.glob("src/**/*.mojo"), repo / "native/macos_window.m",
+sources = sorted([*repo.glob("src/**/*.mojo"), repo / "native/macos_window.m", repo / "native/macos_window_state.h",
                   *Path(__file__).parent.glob("capture.*"), Path(__file__),
                   Path(__file__).with_name("run.sh")])
 fingerprint = hashlib.sha256(b"".join(
