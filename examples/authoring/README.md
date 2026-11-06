@@ -99,6 +99,12 @@ publishing replacements, so already-queued input cannot act on a new model and
 unrelated navigation, resize, or request work is retained. Addressed callbacks
 from retired controls are rejected by monotonic, disjoint control IDs.
 
+Request reconciliation retires stale owned work; live asynchronous completion
+delivery requires a separate owner-based route that Playground does not provide.
+These lessons schedule no requests. See the
+[embedding contract](../../docs/authoring/application-guide.md#mounting-a-model-inside-a-component-application)
+before adding asynchronous work to an embedded lesson.
+
 Form keeps its name/hint, Unicode editing, selection, clipboard, composition,
 and submission behavior. Its presentation now uses the authoring column's
 16-pixel padding and standard control heights instead of the old panel frame.
