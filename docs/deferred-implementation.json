@@ -199,15 +199,20 @@
     {
       "id": "P07",
       "scope": "[SeedWaterSegmenter](docs/design/sws-port.md): reproducible reference fixtures, native stack/label viewer, generation-safe watershed, seed/polygon editing, undo/redo, persistence, cancellation and recovery. Preserve scientific algorithms first.",
-      "state": "in_progress",
+      "state": "partial",
       "commits": [],
       "verification": [
-        "Initial worktree was clean when interrupted; no delivered implementation from r1."
+        "Worker r2 report only, not parent-verified: native stack/label viewer, seed/polygon editing, generation-safe watershed, semantic undo/redo, atomic save/reopen and explicit recovery; 23 contract/history/persistence/failure tests and 18 pinned-original comparisons with partition equality and exact stable IDs.",
+        "Worker reports source-free precompiled consumer, 168 pixel-alignment checks, native ownership/lifecycle/sampling regressions and unchanged source hashes after replay. Parent checked Git status, notes and gallery/reproduction presence only."
       ],
       "remaining_gates": [
-        "Initial worker stopped when workspace credits were exhausted. Separate Astra High r2 worker restarted at user request; parent review/integration deferred to resume."
+        "Review entirely uncommitted moxi-sws application on feat/sws-native-port (new repository with no commits) and Moxi t3/native-seed-watershed-viewer (t3-983abb96, base bd3cccd). Reconcile native composition/sampling hooks with D08/D04, independently verify and commit before integration.",
+        "Full Moxi/D04 suites, physical editing, human scientific acceptance, IME, VoiceOver, external stacks, other hosts, power-loss durability and sustained performance remain open. Worker timings cover only a synthetic 3x93x157 stack.",
+        "Pinned scientific reference is 45bd4bf22184f3daae3add27f7b2d2136c1573de; upstream license text is only BSD and no upstream code was vendored. Review dependency and distribution details before publication."
       ],
-      "slideshows": []
+      "slideshows": [
+        "sws-native worker gallery; not integrated"
+      ]
     },
     {
       "id": "P08",
