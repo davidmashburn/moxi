@@ -17,7 +17,7 @@ from moxi import (
     canonical_theme_modes,
     test_check,
 )
-from moxi_demo import DemoCatalog
+from moxi_demo import DemoCatalog, DEMO_FORM_ID
 
 
 def main():
@@ -50,7 +50,7 @@ def main():
     test_check(registry.entry(2).semantic_hint.count_codepoints() > 20)
     test_check(registry.entry(4).counter_hint.count_codepoints() > 20)
 
-    # Keep the registry's source/task metadata tied to real catalog entries.
+    # Keep the registry's runnable tasks tied to real catalog entries.
     # The registry is deliberately independent of the browser implementation,
     # so this check catches drift without making scenarios own a window.
     var catalog = DemoCatalog()
@@ -59,9 +59,12 @@ def main():
         var found = False
         for demo_index in range(catalog.count()):
             var demo = catalog.entry(demo_index)
-            if demo.source == scenario.source and demo.task == scenario.task:
+            if demo.task == scenario.task:
                 test_check(catalog.scenario_id_for(demo_index) == scenario.id)
                 found = True
                 break
         test_check(found)
+    var form_index = catalog.index_for_id(DEMO_FORM_ID)
+    test_check(catalog.entry(form_index).source != registry.entry(0).source)
+    test_check(catalog.scenario_id_for(form_index) == SCENARIO_FORM)
     print("Moxi scenario registry test passed")

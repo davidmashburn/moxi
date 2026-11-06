@@ -29,6 +29,7 @@ tests=(
   tests/workbench_data.mojo
   tests/data_workbench.mojo
   tests/demo_browser.mojo
+  tests/demo_authoring.mojo
   tests/demo_walkthrough.mojo
   tests/fractal.mojo
   tests/diff.mojo

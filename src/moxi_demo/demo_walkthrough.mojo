@@ -328,7 +328,7 @@ struct DemoWalkthroughDriver:
             "{\"step\":1}",
             CALLER_UI,
             DEMO_WALKTHROUGH_COUNTER_HANDLER,
-            DEMO_COUNTER_ID_OFFSET + 3,
+            DEMO_COUNTER_ID_OFFSET + 11,
             0.90,
         )
         self._append_action(
@@ -336,7 +336,7 @@ struct DemoWalkthroughDriver:
             "{\"step\":2}",
             CALLER_UI,
             DEMO_WALKTHROUGH_COUNTER_HANDLER,
-            DEMO_COUNTER_ID_OFFSET + 3,
+            DEMO_COUNTER_ID_OFFSET + 11,
             0.90,
         )
         self._append_action(
@@ -344,7 +344,7 @@ struct DemoWalkthroughDriver:
             "{\"step\":3}",
             CALLER_UI,
             DEMO_WALKTHROUGH_COUNTER_HANDLER,
-            DEMO_COUNTER_ID_OFFSET + 3,
+            DEMO_COUNTER_ID_OFFSET + 11,
             2.30,
         )
 

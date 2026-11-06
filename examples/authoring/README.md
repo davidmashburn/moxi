@@ -7,9 +7,18 @@ python3 examples/authoring/run.py
 ```
 
 `counter.mojo`, `editors.mojo`, and `shared.mojo` introduce individual patterns.
-The [Counter model](../../src/moxi_demo/authoring_examples/counter.mojo) is shared
-by the headless runner, both standalone counter windows, and Playground’s
-in-process Counter page (`pixi run demo`).
+Their models live in [moxi_demo/authoring_examples](../../src/moxi_demo/authoring_examples/)
+and are shared by the runners, native windows, and Playground pages. Open
+`pixi run demo` and choose Counter → Form → Editors → Shared document → Workspace.
+The Demo tab shows the running model alongside an excerpt; Source names the
+complete model file. Counter and Form also retain `pixi run counter-demo` and
+`pixi run form-demo`. The other standalone lessons run with `pixi run authoring-editors`,
+`pixi run authoring-shared`, and `pixi run authoring-workspace`.
+
+These lessons teach application authoring. Nested Containers, Composed, Rows,
+Alignment, Wrapped Text, and Wx Style teach component composition and layout;
+use them when you need those lower-level contracts. Plotting, scene, Metal,
+fractal, and Live Script pages retain their specialized rendering/host paths.
 `workspace.mojo` combines them: a shared document, keyed groups, and keyed drafts
 inside each group. Add, close, reverse, and reset operate through ordinary methods;
 the workspace needs one handwritten route to supply the shared document.
@@ -79,3 +88,32 @@ typing, retired/disabled targets, and publication without input feedback. The
 exact operation behind the automation tool's original click remains unknown;
 this is not an accessibility conformance claim. Physical IME, window resizing,
 performance, and unassisted human authoring were not evaluated in this smoke check.
+
+## Embedded page lifetime
+
+Playground remains a `Component` application. It mounts each authoring model
+through `ComponentSlot[HandlerHost[...]]`, forwards clipboard and request
+reconciliation, and preserves models while switching pages. Reset replaces only
+the selected model. The native loop finishes its current input batch before
+publishing replacements, so already-queued input cannot act on a new model and
+unrelated navigation, resize, or request work is retained. Addressed callbacks
+from retired controls are rejected by monotonic, disjoint control IDs.
+
+Form keeps its name/hint, Unicode editing, selection, clipboard, composition,
+and submission behavior. Its presentation now uses the authoring column's
+16-pixel padding and standard control heights instead of the old panel frame.
+Workspace uses the existing content portal to scroll its complete nested form.
+`tests/demo_authoring.mojo` covers embedded editing, identity, and scrolling;
+`tests/native_demo_authoring.mojo` covers native queue order, reset, and late
+accessibility callbacks. These probes do not establish physical IME or VoiceOver
+conformance.
+
+## Workbench boundary
+
+The Data Workbench toolbar/filter/import region remains a lower-level component.
+Its threshold editor feeds numeric parsing, data filtering, table scroll reset,
+and plot refresh; its import editor shares clipboard and layout handling with
+that region. Moving only these controls into authoring would add a state/output
+adapter while losing the existing compact row layout. The current authoring
+column does not simplify this boundary. Revisit after a standalone panel has a
+clear ownership and commit contract; this migration adds no Workbench wrapper.

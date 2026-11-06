@@ -305,3 +305,29 @@ checked against the normal event loop. By default the native test checks the
 backend queue and publication ABI without opening a window. The optional smoke
 opens and closes a real AppKit window to exercise attached input-context cleanup.
 Both modes inject events; neither verifies physical input or a real IME session.
+
+## Mounting a model inside a Component application
+
+Playground's [browser](../../src/moxi_demo/demo_browser.mojo) is a mixed-style
+example: its shell remains a `Component`, while its application lessons use
+`ComponentSlot[HandlerHost[Model]]`. Forward the slot's events and clipboard
+operations, and forward each host's `reconcile_requests` from the parent.
+
+For a child replacement, call `host.reset_model(Model())` and rebuild the parent
+before dispatching more input. This retires controls and captured actions without
+replacing the parent `App`. It does not clear a native queue. Playground defers
+replacement until the current native input batch has drained, then rebuilds and
+renders before accepting another batch. Use `reset(app, model, window, renderer)`
+for a whole-window reset instead.
+
+Multiple hosts need disjoint control IDs even after many resets or dynamic child
+additions. Playground reserves an ID region above its fixed component IDs and
+uses the same `id_stride` for all authoring hosts, with a distinct slot-offset
+residue for each host. Standalone hosts use the default stride of one.
+The root-oriented `schedule_action` helper still takes `App[HandlerHost[Model]]`;
+Playground does not add asynchronous request APIs to these embedded lessons.
+Request reconciliation retires stale work; it does not route live completions.
+An embedded asynchronous host also needs an explicit owner-based completion
+route, independent of the currently focused page. The Playground lessons do not
+schedule requests, and its ordinary target-based event route does not provide
+that contract.

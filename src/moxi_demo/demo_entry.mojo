@@ -6,6 +6,12 @@ from std.collections import List
 
 from moxi.scenarios import SCENARIO_NONE, canonical_scenarios
 from .demo_style import (
+    DEMO_EDITORS_ID,
+    DEMO_PAGE_EDITORS,
+    DEMO_SHARED_ID,
+    DEMO_PAGE_SHARED,
+    DEMO_WORKSPACE_ID,
+    DEMO_PAGE_WORKSPACE,
     _contains_insensitive,
     DEMO_ALIGNMENT_ID,
     DEMO_ANIMATION_ID,
@@ -100,12 +106,12 @@ struct DemoCatalog:
     var entries: List[DemoEntry]
 
     def __init__(out self):
-        self.entries = List[DemoEntry](capacity=24)
+        self.entries = List[DemoEntry](capacity=26)
         self.entries.append(DemoEntry(
             DEMO_HELLO_WINDOW_ID,
             "Hello Window",
             DEMO_CATEGORY_START,
-            "The smallest native window and renderer loop.",
+            "Lower-level window and renderer setup. Start with Counter for application authoring.",
             "examples/hello_window.mojo",
             "hello-window-demo",
             DEMO_PAGE_SHOWCASE,
@@ -116,7 +122,7 @@ struct DemoCatalog:
             DEMO_HELLO_COMPONENT_ID,
             "Hello Component",
             DEMO_CATEGORY_START,
-            "A minimal Component and App lifecycle with a declarative label.",
+            "Lower-level Component and App lifecycle. Counter teaches the shorter application style.",
             "examples/hello_component.mojo",
             "component-demo",
             DEMO_PAGE_SHOWCASE,
@@ -128,7 +134,7 @@ struct DemoCatalog:
             "Counter",
             DEMO_CATEGORY_COMPONENTS,
             "Ordinary fields and methods with declarative render and retained controls.",
-            "examples/counter.mojo",
+            "src/moxi_demo/authoring_examples/counter.mojo",
             "counter-demo",
             DEMO_PAGE_COUNTER,
             True,
@@ -139,17 +145,50 @@ struct DemoCatalog:
             "Form",
             DEMO_CATEGORY_COMPONENTS,
             "Unicode-safe text input, selection, clipboard, and submit actions.",
-            "examples/form.mojo",
+            "src/moxi_demo/authoring_examples/form.mojo",
             "form-demo",
             DEMO_PAGE_FORM,
             True,
-            "struct FormState(Component):\n    var input: TextInputState\n\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 32.0, 8.0)\n        var input = TextInputControl(2, self.input.text, self.input.cursor, self.input.anchor, 44.0)\n        root.add(input.node())\n        root.add_label(3, String(\"Submitted: \", self.submissions), 28.0)\n        root.add_button(4, \"Submit\", 40.0)\n        root.layout()\n        return root^",
+            "struct Form(Screen):\n    var name: String\n    var submissions: Int\n\n    def change_name(mut self, name: String):\n        self.name = name\n\n    def submit(mut self):\n        self.submissions += 1\n\n    def render(self, mut ui: UI[Self]):\n        ui.text_input(\"Name\", self.name, Self.change_name, show_label=False, hint=\"Enter your name\")\n        ui.label(\"Submitted: \" + String(self.submissions))\n        ui.button(\"Submit\", Self.submit)",
+        ))
+        self.entries.append(DemoEntry(
+            DEMO_EDITORS_ID,
+            "Editors",
+            DEMO_CATEGORY_COMPONENTS,
+            "Authoring: stable keyed editors keep their drafts while reordered.",
+            "src/moxi_demo/authoring_examples/editors.mojo",
+            "authoring-editors",
+            DEMO_PAGE_EDITORS,
+            True,
+            "struct Workspace(Screen):\n    var editors: Keyed[Editor]\n\n    def reverse(mut self):\n        var first = self.editors.entries[0]\n        self.editors.entries[0] = self.editors.entries[1]\n        self.editors.entries[1] = first\n\n    def render(self, mut ui: UI[Self]):\n        ui.button(\"Reverse\", Self.reverse)\n        ui.button(\"New drafts\", Self.new_drafts)\n        field[\"editors\"](ui, self, NoneType(), key=EDITORS)",
+        ))
+        self.entries.append(DemoEntry(
+            DEMO_SHARED_ID,
+            "Shared document",
+            DEMO_CATEGORY_COMPONENTS,
+            "Authoring: local drafts apply to or revert from one shared document.",
+            "src/moxi_demo/authoring_examples/shared.mojo",
+            "authoring-shared",
+            DEMO_PAGE_SHARED,
+            True,
+            "struct Draft(Pane):\n    comptime Context = Document\n    var text: String\n\n    def apply(mut self, mut document: Document):\n        document.title = self.text\n\n    def revert(mut self, document: Document):\n        self.text = document.title\n\n    def render(self, mut ui: UI[Self, Document], document: Document):\n        ui.text_input(\"Local draft\", self.text, Self.change)\n        ui.button(\"Apply\", Self.apply)\n        ui.button(\"Revert\", Self.revert)",
+        ))
+        self.entries.append(DemoEntry(
+            DEMO_WORKSPACE_ID,
+            "Workspace",
+            DEMO_CATEGORY_COMPONENTS,
+            "Authoring: keyed groups and drafts retain identity through nested edits.",
+            "src/moxi_demo/authoring_examples/workspace.mojo",
+            "authoring-workspace",
+            DEMO_PAGE_WORKSPACE,
+            True,
+            "struct Workspace(Screen):\n    var document: Document\n    var groups: Keyed[Group]\n\n    def route_groups(mut self, key: Int, action: Action[Keyed[Group], Document]):\n        if key == GROUPS:\n            action(self.groups, self.document)\n\n    def render(self, mut ui: UI[Self]):\n        ui.label(\"Saved: \" + self.document.title)\n        ui.button(\"Add group\", Self.add_group)\n        ui.button(\"Reverse groups\", Self.reverse_groups)\n        ui.button(\"Close first group\", Self.close_first_group)\n        ui.child(self.groups, self.document, Self.route_groups, key=GROUPS)",
         ))
         self.entries.append(DemoEntry(
             DEMO_NESTED_ID,
             "Nested Containers",
             DEMO_CATEGORY_COMPONENTS,
-            "An editable field and horizontal actions inside nested containers.",
+            "Explicit nested layout containers. Editors teaches keyed application children.",
             "examples/nested.mojo",
             "nested-demo",
             DEMO_PAGE_NESTED,
@@ -160,7 +199,7 @@ struct DemoCatalog:
             DEMO_COMPOSED_ID,
             "Composed Components",
             DEMO_CATEGORY_COMPONENTS,
-            "Typed child ownership, namespaced ids, and local event routing.",
+            "Lower-level typed slots and local event routing. Compare Editors for authoring children.",
             "examples/composed.mojo",
             "composed-demo",
             DEMO_PAGE_COMPOSED,
@@ -369,7 +408,9 @@ struct DemoCatalog:
         var registry = canonical_scenarios()
         for scenario_index in range(registry.count()):
             var scenario = registry.entry(scenario_index)
-            if scenario.source == item.source and scenario.task == item.task:
+            # Tasks identify runnable scenarios; source may point to a shared
+            # lesson model instead of the standalone entrypoint.
+            if scenario.task == item.task:
                 return scenario.id
         return SCENARIO_NONE
 
@@ -396,5 +437,4 @@ struct DemoCatalog:
             if self.matches(index, query, category):
                 result += 1
         return result
-
 

@@ -109,6 +109,7 @@ def run_demo(automated: Bool = False) raises:
     while window.is_open():
         window.wait_for_work(1.0 / 60.0)
         window.pump()
+        app.component.begin_input_batch()
         var event = window.poll_event()
         var changed = app.tick(1.0 / 60.0)
         if automated:
@@ -116,6 +117,9 @@ def run_demo(automated: Bool = False) raises:
         while event.kind != NONE_KIND:
             changed = app.dispatch_with_clipboard(event, clipboard) or changed
             event = window.poll_event()
+        if app.component.finish_input_batch():
+            app.rebuild()
+            changed = True
         changed = sync_live_script(app, live_watcher, live_script) or changed
 
         if changed:

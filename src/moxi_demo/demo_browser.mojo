@@ -16,6 +16,10 @@ from moxi.alignment import AlignmentState
 from moxi.authoring import HandlerHost
 from moxi.tasks import RequestScheduler
 from .authoring_examples.counter import Counter
+from .authoring_examples.form import Form
+from .authoring_examples.editors import Workspace as EditorWorkspace
+from .authoring_examples.shared import Desk
+from .authoring_examples.workspace import Workspace
 from moxi.capability_walkthrough import CapabilityWalkthroughState
 from moxi.component import Component, ComponentSlot
 from moxi.composed import ComposedState
@@ -42,7 +46,6 @@ from moxi.event import (
     SCROLL_KIND,
     TEXT_INPUT_KIND,
 )
-from moxi.form import FormState
 from moxi.fractal import FRACTAL_CANVAS_ID, FractalState
 from moxi.geometry import Rect
 from moxi.interaction_showcase import (
@@ -68,6 +71,12 @@ from .showcase import SHOWCASE_CANVAS_ID, SHOWCASE_HELLO_WINDOW, ShowcaseState
 from moxi.scene import Scene
 from .demo_entry import DemoCatalog, DemoEntry
 from .demo_style import (
+    DEMO_EDITORS_ID,
+    DEMO_PAGE_EDITORS,
+    DEMO_SHARED_ID,
+    DEMO_PAGE_SHARED,
+    DEMO_WORKSPACE_ID,
+    DEMO_PAGE_WORKSPACE,
     DEMO_ALIGNMENT_ID,
     DEMO_CAPABILITY_WALKTHROUGH_ID,
     DEMO_CATEGORY_ALL,
@@ -209,8 +218,11 @@ comptime DEMO_WX_STYLE_SLOT_ID = 8005
 comptime DEMO_ROW_SLOT_ID = 8006
 comptime DEMO_ALIGNMENT_SLOT_ID = 8007
 comptime DEMO_WRAPPED_SLOT_ID = 8008
-comptime DEMO_COUNTER_ID_OFFSET = 10000
-comptime DEMO_FORM_ID_OFFSET = 11000
+# Interleaved IDs never cross into another authoring host after repeated reset
+# or keyed-child replacement. Legacy component ranges stay below this namespace.
+comptime DEMO_AUTHORING_ID_STRIDE = 5
+comptime DEMO_COUNTER_ID_OFFSET = 100000
+comptime DEMO_FORM_ID_OFFSET = 100001
 comptime DEMO_NESTED_ID_OFFSET = 12000
 comptime DEMO_COMPOSED_ID_OFFSET = 13000
 comptime DEMO_WX_STYLE_ID_OFFSET = 14000
@@ -230,6 +242,30 @@ comptime DEMO_THEME_SHOWCASE_ID_OFFSET = 22000
 comptime DEMO_CAPABILITY_WALKTHROUGH_SLOT_ID = 8014
 comptime DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET = 23000
 
+comptime DEMO_EDITORS_SLOT_ID = 8015
+comptime DEMO_EDITORS_ID_OFFSET = 100002
+
+comptime DEMO_SHARED_SLOT_ID = 8016
+comptime DEMO_SHARED_ID_OFFSET = 100003
+
+comptime DEMO_WORKSPACE_SLOT_ID = 8017
+comptime DEMO_WORKSPACE_ID_OFFSET = 100004
+
+
+def _authoring_content_height(view: ColumnView) -> Float32:
+    """Measure the flat authoring column using the controls' layout heights."""
+    # Text inputs have explicit heights larger than their intrinsic content.
+    # Using intrinsic_size here would introduce a second, clipped scrollbar.
+    var height = view.layout_spec.padding * 2.0
+    var count = 0
+    for index in range(view.child_count()):
+        if view.child(index).parent_id == -1:
+            height += view.layout_height(index)
+            count += 1
+    if count > 1:
+        height += view.layout_spec.spacing * Float32(count - 1)
+    return height
+
 
 struct DemoBrowserState(Component):
     """A searchable, categorized browser for all checked-in Moxi examples."""
@@ -243,9 +279,14 @@ struct DemoBrowserState(Component):
     var pending_task: String
     var task_running: Bool
     var active_task: String
+    var input_batch_open: Bool
+    var pending_resets: Int
 
     var counter: ComponentSlot[HandlerHost[Counter]]
-    var form: ComponentSlot[FormState]
+    var form: ComponentSlot[HandlerHost[Form]]
+    var editors: ComponentSlot[HandlerHost[EditorWorkspace]]
+    var shared: ComponentSlot[HandlerHost[Desk]]
+    var workspace: ComponentSlot[HandlerHost[Workspace]]
     var nested: ComponentSlot[NestedState]
     var composed: ComponentSlot[ComposedState]
     var wx_style: ComponentSlot[WxStyleState]
@@ -269,11 +310,25 @@ struct DemoBrowserState(Component):
         self.pending_task = ""
         self.task_running = False
         self.active_task = ""
+        self.input_batch_open = False
+        self.pending_resets = 0
         self.counter = ComponentSlot[HandlerHost[Counter]](
-            HandlerHost(Counter()), DEMO_COUNTER_SLOT_ID, DEMO_COUNTER_ID_OFFSET
+            HandlerHost(Counter(), id_stride=DEMO_AUTHORING_ID_STRIDE), DEMO_COUNTER_SLOT_ID, DEMO_COUNTER_ID_OFFSET
         )
-        self.form = ComponentSlot[FormState](
-            FormState(), DEMO_FORM_SLOT_ID, DEMO_FORM_ID_OFFSET
+        self.form = ComponentSlot[HandlerHost[Form]](
+            HandlerHost(Form(), id_stride=DEMO_AUTHORING_ID_STRIDE), DEMO_FORM_SLOT_ID, DEMO_FORM_ID_OFFSET
+        )
+        self.editors = ComponentSlot(
+            HandlerHost(EditorWorkspace(), id_stride=DEMO_AUTHORING_ID_STRIDE),
+            DEMO_EDITORS_SLOT_ID, DEMO_EDITORS_ID_OFFSET,
+        )
+        self.shared = ComponentSlot(
+            HandlerHost(Desk(), id_stride=DEMO_AUTHORING_ID_STRIDE),
+            DEMO_SHARED_SLOT_ID, DEMO_SHARED_ID_OFFSET,
+        )
+        self.workspace = ComponentSlot(
+            HandlerHost(Workspace(), id_stride=DEMO_AUTHORING_ID_STRIDE),
+            DEMO_WORKSPACE_SLOT_ID, DEMO_WORKSPACE_ID_OFFSET,
         )
         self.nested = ComponentSlot[NestedState](
             NestedState(), DEMO_NESTED_SLOT_ID, DEMO_NESTED_ID_OFFSET
@@ -443,12 +498,48 @@ struct DemoBrowserState(Component):
 
     def reconcile_requests(mut self, mut requests: RequestScheduler):
         self.counter.component.reconcile_requests(requests)
+        self.form.component.reconcile_requests(requests)
+        self.editors.component.reconcile_requests(requests)
+        self.shared.component.reconcile_requests(requests)
+        self.workspace.component.reconcile_requests(requests)
+
+    def begin_input_batch(mut self):
+        """Defer authoring replacement until queued native input has drained."""
+        self.input_batch_open = True
+
+    def finish_input_batch(mut self) -> Bool:
+        """Replace requested pages; the host must rebuild before the next batch."""
+        self.input_batch_open = False
+        var changed = self.pending_resets != 0
+        for page in range(DEMO_WORKSPACE_ID + 1):
+            if self.pending_resets & (1 << page):
+                self._reset_authoring(page)
+        self.pending_resets = 0
+        return changed
+
+    def _reset_authoring(mut self, page: Int):
+        if page == DEMO_COUNTER_ID:
+            self.counter.component.reset_model(Counter())
+        elif page == DEMO_FORM_ID:
+            self.form.component.reset_model(Form())
+        elif page == DEMO_EDITORS_ID:
+            self.editors.component.reset_model(EditorWorkspace())
+        elif page == DEMO_SHARED_ID:
+            self.shared.component.reset_model(Desk())
+        elif page == DEMO_WORKSPACE_ID:
+            self.workspace.component.reset_model(Workspace())
 
     def _reset_active(mut self):
-        if self.selected_id == DEMO_COUNTER_ID:
-            self.counter.component.reset_model(Counter())
-        elif self.selected_id == DEMO_FORM_ID:
-            self.form.component = FormState()
+        if (
+            self.selected_id == DEMO_COUNTER_ID or self.selected_id == DEMO_FORM_ID
+            or self.selected_id == DEMO_EDITORS_ID
+            or self.selected_id == DEMO_SHARED_ID
+            or self.selected_id == DEMO_WORKSPACE_ID
+        ):
+            if self.input_batch_open:
+                self.pending_resets |= 1 << self.selected_id
+            else:
+                self._reset_authoring(self.selected_id)
         elif self.selected_id == DEMO_NESTED_ID:
             self.nested.component = NestedState()
         elif self.selected_id == DEMO_COMPOSED_ID:
@@ -1097,7 +1188,7 @@ struct DemoBrowserState(Component):
             root,
             parent_id,
             DEMO_CONTRACT_BODY_ID,
-            "Every item is backed by a real examples/ file. Pages exercise Moxi's value-based App, focus, event, component-slot, and canvas contracts in this window; the standalone task remains available when you want the exact command-line entrypoint.",
+            "Every item is backed by checked-in source. Pages exercise Moxi's value-based App, focus, event, component-slot, and canvas contracts in this window; the standalone task remains available when you want the exact command-line entrypoint.",
             width,
             _body_style(),
         )
@@ -1145,7 +1236,7 @@ struct DemoBrowserState(Component):
             root,
             parent_id,
             DEMO_SOURCE_HINT_ID,
-            "This is the implementation excerpt from the checked-in example. The command above runs the complete source, and the Demo tab mounts its Component in-process.",
+            "This is the implementation excerpt from the checked-in example. The command above runs the complete source, and the Demo tab mounts the same model in-process.",
             width,
             _body_style(),
         )
@@ -1165,6 +1256,22 @@ struct DemoBrowserState(Component):
         if page_height < 140.0:
             page_height = 140.0
 
+        var authoring_height: Float32 = 0.0
+        if entry.page_kind == DEMO_PAGE_COUNTER:
+            authoring_height = _authoring_content_height(self.counter.component.ui.view)
+        elif entry.page_kind == DEMO_PAGE_FORM:
+            authoring_height = _authoring_content_height(self.form.component.ui.view)
+        elif entry.page_kind == DEMO_PAGE_EDITORS:
+            authoring_height = _authoring_content_height(self.editors.component.ui.view)
+        elif entry.page_kind == DEMO_PAGE_SHARED:
+            authoring_height = _authoring_content_height(self.shared.component.ui.view)
+        elif entry.page_kind == DEMO_PAGE_WORKSPACE:
+            authoring_height = _authoring_content_height(self.workspace.component.ui.view)
+        # Include split padding (8), preview padding (16), kicker (18),
+        # and its following gap (8), so only the outer portal needs to scroll.
+        if authoring_height + 50.0 > page_height:
+            page_height = authoring_height + 50.0
+
         # Live pages are presented as a small Storybook-style workbench:
         # the actual Component view is mounted on the left and the executable
         # usage excerpt that mounts it stays visible on the right.
@@ -1183,27 +1290,29 @@ struct DemoBrowserState(Component):
         ):
             storybook_layout = False
         if storybook_layout:
-            var story = root.add_split_to(
-                parent_id,
-                DEMO_STORY_SPLIT_ID,
-                0.0,
-                page_height,
-                ROW_AXIS,
-                0.58,
-                4.0,
-                12.0,
-            )
+            var stacked = authoring_height > 0.0 and page_width < 720.0
+            var story: Int
+            if stacked:
+                story = root.add_column_to(
+                    parent_id, DEMO_STORY_SPLIT_ID,
+                    page_height + 312.0, 4.0, 12.0,
+                )
+            else:
+                story = root.add_split_to(
+                    parent_id, DEMO_STORY_SPLIT_ID, 0.0, page_height,
+                    ROW_AXIS, 0.58, 4.0, 12.0,
+                )
             var preview = root.add_column_to(
                 story,
                 DEMO_STORY_PREVIEW_ID,
-                0.0,
+                page_height - 8.0 if stacked else 0.0,
                 8.0,
                 8.0,
             )
             var code = root.add_column_to(
                 story,
                 DEMO_STORY_CODE_ID,
-                0.0,
+                Float32(300.0) if stacked else Float32(0.0),
                 8.0,
                 8.0,
             )
@@ -1219,7 +1328,7 @@ struct DemoBrowserState(Component):
                 root,
                 code,
                 DEMO_STORY_CODE_KICKER_ID,
-                "COMPONENT SOURCE",
+                "EXAMPLE SOURCE",
                 18.0,
                 _kicker_style(),
             )
@@ -1238,18 +1347,18 @@ struct DemoBrowserState(Component):
             root.set_enabled(DEMO_STORY_CODE_TEXT_ID, False)
             root.set_accessibility_label(
                 DEMO_STORY_CODE_TEXT_ID,
-                "Component usage code",
+                "Example code",
             )
             _add_wrapped_label_styled(
                 root,
                 code,
                 DEMO_STORY_CODE_HINT_ID,
-                "The preview runs a real Component; this panel shows the build code.",
-                page_width * 0.42,
+                "The preview uses the model shown here; the source path opens the full lesson.",
+                page_width - 24.0 if stacked else page_width * 0.42,
                 _small_style(),
             )
             component_parent = preview
-            component_height = page_height - 42.0
+            component_height = page_height - 50.0 if authoring_height > 0.0 else page_height - 42.0
             if component_height < 96.0:
                 component_height = 96.0
             # Match the child build width to the first split pane, including
@@ -1257,6 +1366,8 @@ struct DemoBrowserState(Component):
             # instead of building at the full browser width and overflowing
             # into the code panel.
             component_width = (width - 20.0) * 0.58 - 16.0
+            if stacked:
+                component_width = page_width - 24.0
             if component_width < 160.0:
                 component_width = 160.0
 
@@ -1278,6 +1389,27 @@ struct DemoBrowserState(Component):
                 child,
                 DEMO_FORM_ID_OFFSET,
                 component_height,
+            )
+            return
+        if entry.page_kind == DEMO_PAGE_EDITORS:
+            var child = self.editors.build(Rect(0.0, 0.0, component_width, component_height))
+            root.add_component_view_to(
+                component_parent, DEMO_EDITORS_SLOT_ID, child,
+                DEMO_EDITORS_ID_OFFSET, component_height,
+            )
+            return
+        if entry.page_kind == DEMO_PAGE_SHARED:
+            var child = self.shared.build(Rect(0.0, 0.0, component_width, component_height))
+            root.add_component_view_to(
+                component_parent, DEMO_SHARED_SLOT_ID, child,
+                DEMO_SHARED_ID_OFFSET, component_height,
+            )
+            return
+        if entry.page_kind == DEMO_PAGE_WORKSPACE:
+            var child = self.workspace.build(Rect(0.0, 0.0, component_width, component_height))
+            root.add_component_view_to(
+                component_parent, DEMO_WORKSPACE_SLOT_ID, child,
+                DEMO_WORKSPACE_ID_OFFSET, component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_NESTED:
@@ -1436,6 +1568,12 @@ struct DemoBrowserState(Component):
                 return self.counter.route(event, view)
             if self.selected_id == DEMO_FORM_ID and self.form.contains(event.target, view):
                 return self.form.route(event, view)
+            if self.selected_id == DEMO_EDITORS_ID and self.editors.contains(event.target, view):
+                return self.editors.route(event, view)
+            if self.selected_id == DEMO_SHARED_ID and self.shared.contains(event.target, view):
+                return self.shared.route(event, view)
+            if self.selected_id == DEMO_WORKSPACE_ID and self.workspace.contains(event.target, view):
+                return self.workspace.route(event, view)
             if self.selected_id == DEMO_NESTED_ID and self.nested.contains(event.target, view):
                 return self.nested.route(event, view)
             if self.selected_id == DEMO_COMPOSED_ID and self.composed.contains(event.target, view):
@@ -1668,6 +1806,12 @@ struct DemoBrowserState(Component):
         if self.tab == DEMO_TAB_DEMO:
             if self.selected_id == DEMO_FORM_ID and self.form.contains(target, view):
                 return self.form.clipboard_copy(target, view)
+            if self.selected_id == DEMO_EDITORS_ID and self.editors.contains(target, view):
+                return self.editors.clipboard_copy(target, view)
+            if self.selected_id == DEMO_SHARED_ID and self.shared.contains(target, view):
+                return self.shared.clipboard_copy(target, view)
+            if self.selected_id == DEMO_WORKSPACE_ID and self.workspace.contains(target, view):
+                return self.workspace.clipboard_copy(target, view)
             if self.selected_id == DEMO_NESTED_ID and self.nested.contains(target, view):
                 return self.nested.clipboard_copy(target, view)
             if self.selected_id == DEMO_WX_STYLE_ID and self.wx_style.contains(target, view):
@@ -1683,6 +1827,12 @@ struct DemoBrowserState(Component):
         if self.tab == DEMO_TAB_DEMO:
             if self.selected_id == DEMO_FORM_ID and self.form.contains(target, view):
                 return self.form.clipboard_cut(target, view)
+            if self.selected_id == DEMO_EDITORS_ID and self.editors.contains(target, view):
+                return self.editors.clipboard_cut(target, view)
+            if self.selected_id == DEMO_SHARED_ID and self.shared.contains(target, view):
+                return self.shared.clipboard_cut(target, view)
+            if self.selected_id == DEMO_WORKSPACE_ID and self.workspace.contains(target, view):
+                return self.workspace.clipboard_cut(target, view)
             if self.selected_id == DEMO_NESTED_ID and self.nested.contains(target, view):
                 return self.nested.clipboard_cut(target, view)
             if self.selected_id == DEMO_WX_STYLE_ID and self.wx_style.contains(target, view):
@@ -1703,6 +1853,12 @@ struct DemoBrowserState(Component):
         if self.tab == DEMO_TAB_DEMO:
             if self.selected_id == DEMO_FORM_ID and self.form.contains(target, view):
                 return self.form.clipboard_paste(target, text, view)
+            if self.selected_id == DEMO_EDITORS_ID and self.editors.contains(target, view):
+                return self.editors.clipboard_paste(target, text, view)
+            if self.selected_id == DEMO_SHARED_ID and self.shared.contains(target, view):
+                return self.shared.clipboard_paste(target, text, view)
+            if self.selected_id == DEMO_WORKSPACE_ID and self.workspace.contains(target, view):
+                return self.workspace.clipboard_paste(target, text, view)
             if self.selected_id == DEMO_NESTED_ID and self.nested.contains(target, view):
                 return self.nested.clipboard_paste(target, text, view)
             if self.selected_id == DEMO_WX_STYLE_ID and self.wx_style.contains(target, view):

@@ -54,9 +54,12 @@ The [authoring guide](docs/authoring/README.md) introduces ordinary fields and
 methods, keyed child models, and explicit reset lifetimes through four runnable
 examples. It includes an [application how-to](docs/authoring/application-guide.md)
 and [framework comparisons](docs/authoring/comparisons.md). These examples use
-`moxi.authoring`; run them with `python3 examples/authoring/run.py`. The
-`Component` API below remains available for lower-level use. Adoption is not
-repository-wide: the four authoring examples and the
+`moxi.authoring`; run their checks with `python3 examples/authoring/run.py` or
+open `pixi run demo` and choose Counter, Form, Editors, Shared document, or
+Workspace. Those Playground pages share their models with the standalone
+examples. Start with them for application state, methods, and child ownership.
+The `Component` API below remains available for layout, custom controls, and
+rendering integration. Adoption is not repository-wide: these lessons and the
 [Marko translator experiment](experiments/tags-authoring/README.md) use the new
 API, while demos such as [Data Workbench](src/moxi_demo/data_workbench.mojo)
 and the [graph app](examples/fdg/src/graph_app.mojo) still implement `Component`

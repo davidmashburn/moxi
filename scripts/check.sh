@@ -60,6 +60,7 @@ pixi run native-custom-rect-equivalence
 pixi run native-custom-paint-cache
 pixi run native-accessibility-abi
 pixi run native-authoring
+pixi run native-demo-authoring
 pixi run authoring-counter-build
 pixi run authoring-workspace-build
 mkdir -p dist

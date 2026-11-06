@@ -37,9 +37,10 @@ The window is organized like this:
 - `Run live page` mounts the selected `Component` page in-process, preserving
   the same event, focus, clipboard, and component-slot contracts as its
   standalone example;
-- ordinary live-component pages use a Storybook-style `Demo` surface: the
-  mounted `LIVE PREVIEW` sits beside a `COMPONENT SOURCE` code panel showing
-  the component's `build` and mounting code;
+- ordinary live pages use a Storybook-style `Demo` surface: the mounted
+  `LIVE PREVIEW` sits beside an `EXAMPLE SOURCE` code panel showing the
+  lesson's authoring `render` or component `build` code. At narrow widths,
+  authoring previews stack above their source panel;
 - scene and plotting pages declare a real `Canvas` node in that component;
   the host renders the component's `Scene` into that node in the same window;
 - `Editable Live Component` is a development page whose Mojo component is
@@ -73,8 +74,18 @@ truth for their own state.
 The browser teaches the boundary between Moxi's declarative component tree and
 the host: `Overview` explains the contract, `Source` shows a deterministic
 excerpt and command, and `Demo` mounts the component. Every entry points to a
-real `examples/` file and a checked-in Pixi task;
+checked-in source and a runnable Pixi task;
 `scripts/demo_catalog_check.sh` verifies both sides of that contract.
+
+Counter, Form, Editors, Shared, and Workspace teach ordinary model fields,
+methods, and pure `render`. Their shared models live in
+`src/moxi_demo/authoring_examples/`; the standalone entrypoints import those
+same models. Playground mounts them in `ComponentSlot[HandlerHost[...]]` and
+retains each model while navigating. Reset replaces only the selected model
+after the current native input batch finishes. Workspace's nested form remains
+reachable through the content portal. See the
+[authoring lessons](../examples/authoring/README.md) for the learning sequence,
+reset contract, and retained lower-level examples.
 
 ## Editable source and hot reload
 

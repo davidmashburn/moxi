@@ -70,6 +70,15 @@ comptime DEMO_INTERACTION_ID = 21
 comptime DEMO_THEME_SHOWCASE_ID = 22
 comptime DEMO_CAPABILITY_WALKTHROUGH_ID = 23
 
+comptime DEMO_EDITORS_ID = 24
+comptime DEMO_PAGE_EDITORS = 15
+
+comptime DEMO_SHARED_ID = 25
+comptime DEMO_PAGE_SHARED = 16
+
+comptime DEMO_WORKSPACE_ID = 26
+comptime DEMO_PAGE_WORKSPACE = 17
+
 
 def demo_category_name(category: Int) -> String:
     """Return the long display name for a catalog category."""

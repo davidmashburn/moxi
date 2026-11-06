@@ -18,6 +18,12 @@ SHOWCASE_PLOT_TOGGLE_MARKS_ID	moxi_demo.showcase	demo/support	examples, recipes,
 SHOWCASE_PLOT_STREAM_ID	moxi_demo.showcase	demo/support	examples, recipes, or validation support
 SHOWCASE_PLOT_STATUS_ID	moxi_demo.showcase	demo/support	examples, recipes, or validation support
 ShowcaseState	moxi_demo.showcase	demo/support	examples, recipes, or validation support
+DEMO_EDITORS_ID	moxi_demo.demo_style	demo/support	examples, recipes, or validation support
+DEMO_PAGE_EDITORS	moxi_demo.demo_style	demo/support	examples, recipes, or validation support
+DEMO_SHARED_ID	moxi_demo.demo_style	demo/support	examples, recipes, or validation support
+DEMO_PAGE_SHARED	moxi_demo.demo_style	demo/support	examples, recipes, or validation support
+DEMO_WORKSPACE_ID	moxi_demo.demo_style	demo/support	examples, recipes, or validation support
+DEMO_PAGE_WORKSPACE	moxi_demo.demo_style	demo/support	examples, recipes, or validation support
 DEMO_CATEGORY_ALL	moxi_demo.demo_style	demo/support	examples, recipes, or validation support
 DEMO_CATEGORY_START	moxi_demo.demo_style	demo/support	examples, recipes, or validation support
 DEMO_CATEGORY_COMPONENTS	moxi_demo.demo_style	demo/support	examples, recipes, or validation support

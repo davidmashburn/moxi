@@ -8,8 +8,9 @@ using only the normal `src` package path. The lower-level `Component`/`App` API
 remains available and is documented in [API.md](../API.md).
 
 Start here, then read [building an application](application-guide.md) and
-[how this compares with other systems](comparisons.md). The examples run headlessly;
-they exercise real Moxi controls but do not open a window.
+[how this compares with other systems](comparisons.md). The example runners
+execute headlessly. To interact with the same models, open
+`pixi run demo` and choose Counter, Form, Editors, Shared document, or Workspace.
 
 ## A counter
 
@@ -28,6 +29,7 @@ struct Counter(Screen):
         self.count += 1
 
     def render(self, mut ui: UI[Self]):
+        ui.label("Moxi Counter")
         ui.label("Count: " + String(self.count))
         ui.button("Increment", Self.increment)
 ```
@@ -71,7 +73,7 @@ pixi run --locked authoring-counter-build
 
 ## Several editors
 
-[editors.mojo](../../examples/authoring/editors.mojo) adds a `Pane`, a small
+[editors.mojo](../../src/moxi_demo/authoring_examples/editors.mojo) adds a `Pane`, a small
 model that renders as a child. Its `draft` is an ordinary string, and its `change`
 method receives text input. A `Keyed[Editor]` owns several such models:
 
@@ -105,7 +107,7 @@ safe to rearrange.
 
 ## Shared data and local drafts
 
-[shared.mojo](../../examples/authoring/shared.mojo) contains two drafts and
+[shared.mojo](../../src/moxi_demo/authoring_examples/shared.mojo) contains two drafts and
 one document. `Desk` owns all three. Each draft receives a `Document` as its typed
 context and edits the document only when Apply is clicked:
 
@@ -136,7 +138,7 @@ ambient global store or hidden subscription in this example.
 
 ## A workspace with nested collections
 
-[workspace.mojo](../../examples/authoring/workspace.mojo) puts these patterns
+[workspace.mojo](../../src/moxi_demo/authoring_examples/workspace.mojo) puts these patterns
 together. A workspace owns one document and a `Keyed[Group]`; each group owns a
 `Keyed[Draft]`. Drafts reuse the pane above. Add, close, reverse, and reset are
 ordinary model methods. One root route supplies the shared document; `field`

@@ -98,7 +98,7 @@ def action(target: Int) -> Event:
 
 def main() raises:
     var catalog = DemoCatalog()
-    test_check(catalog.count() == 23)
+    test_check(catalog.count() == 26)
     test_check(catalog.visible_count("plot", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("PLOT", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("", DEMO_CATEGORY_PLOTTING) == 4)
@@ -632,7 +632,7 @@ def main() raises:
     test_check(app.component.tab == 0)
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
     test_check(app.component.tab == DEMO_TAB_DEMO)
-    var increment = app.view.bounds_for(DEMO_COUNTER_ID_OFFSET + 3)
+    var increment = app.view.bounds_for(DEMO_COUNTER_ID_OFFSET + 11)
     test_check(increment.width > 0.0)
     var increment_point = Point(increment.x + 1.0, increment.y + 1.0)
     test_check(app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, increment_point))))
@@ -641,9 +641,9 @@ def main() raises:
 
     # A page keeps its model while hidden, but Reset retires its controls and
     # captures. Other pages and the launcher's own state keep their lifetime.
-    var captured_increment = app.component.counter.component.capture(3)
+    var captured_increment = app.component.counter.component.capture(11)
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_THEME_SHOWCASE_ID)))
-    test_check(not app.dispatch(action(DEMO_COUNTER_ID_OFFSET + 3)))
+    test_check(not app.dispatch(action(DEMO_COUNTER_ID_OFFSET + 11)))
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID)))
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
     test_check(app.component.counter.component.root.count == 1)
@@ -652,9 +652,9 @@ def main() raises:
     test_check(app.component.selected_id == DEMO_COUNTER_ID)
     test_check(app.component.theme_showcase.component.theme_mode == 1)
     test_check(not app.component.counter.component.deliver_action(captured_increment))
-    test_check(not app.dispatch(action(DEMO_COUNTER_ID_OFFSET + 3)))
+    test_check(not app.dispatch(action(DEMO_COUNTER_ID_OFFSET + 11)))
     var replacement_increment = app.component.counter.component.ui.controls[2].id
-    test_check(replacement_increment > 3)
+    test_check(replacement_increment > 11)
     test_check(app.dispatch(action(DEMO_COUNTER_ID_OFFSET + replacement_increment)))
     test_check(app.component.counter.component.root.count == 1)
 
