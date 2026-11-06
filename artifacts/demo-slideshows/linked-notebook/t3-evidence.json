@@ -1,0 +1,18 @@
+{
+  "capture": "T3 collaborative browser, actual local JupyterLab, 1280x800 CSS viewport",
+  "capturedAt": "2026-11-06T13:34:41.263695+00:00",
+  "files": {
+    "t3-initial.png": "7e57a0e07b7524815a9585deb26b5b38aeb6f4b92ab125dd252f21331f3882b6",
+    "t3-selection.png": "7015e1d9ed69b2014e5de980ed7f4a535d69c7d225e468630c2650f3a779639e"
+  },
+  "installedJS": "10f5a43b5834178468f846bf5343113e60aa2ccdb7e63d293bdd015a4d26c5bb",
+  "binarySha256": "22eb05983736049dc79b02216cd02a85a519ba836c432fbdd7c9c5cf5ec0458c",
+  "observedChecks": {
+    "twoLiveOutputs": true,
+    "actualCommSelectionKey": 2,
+    "selectedSemantic": 1,
+    "otherOutputUnselected": true
+  },
+  "installedPythonSha256": "e2b00b6366afcabd71065079728b9874c7107efe54166d67961e6b2481d0d807",
+  "scope": "Worker preview of the P05 precursor before parent boundary validation; parent installed-consumer recapture recorded separately in evidence.json"
+}

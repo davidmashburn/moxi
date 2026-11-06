@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "demo_id": "linked-notebook",
+  "title": "Linked notebook plot and record selection",
+  "scenario": "Real Mojo PlotSpec and Scene, source-key selection, linked details, independent outputs, bounded comm and lifecycle recovery",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "backend": "Mojo native Scene/SVG subprocess; installed anywidget; local JupyterLab and Chrome headless",
+  "fixture": "12 synthetic assay rows; 64-record capacity; two linked outputs and independent FDG",
+  "revision": "dc2b6c1a1ca9af6e5ad6f9f93559d8e77bb77f98",
+  "scale": 1,
+  "reproduce": "See examples/linked_notebook/README.md. Build wheel and native executable, assemble source-free bundle, install into clean environment, run capture.py with Python -I, then gallery.py. Parent used MOXI_P05_CONSUMER=/tmp/moxi-p05-parent-consumer and MOXI_NOTEBOOK_PORT=8919. Evidence includes emulated DPR2 and labeled synthetic cancellation; physical input, remote hosts and screen readers unverified.",
+  "slides": [
+    {
+      "image": "01-initial.png",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "dimensions": [
+        1500,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Initial real Mojo scatter plot and linked record table",
+      "action": "Initial real Mojo scatter plot and linked record table",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "2cdc819341e4646d1d1fd016fcfb0d32a8baa7e9c566914099b1fbaa9a76e7b5"
+    },
+    {
+      "image": "02-selection.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "dimensions": [
+        1500,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Pointer selection links actual Moxi mark, details and table; B and P04 FDG unchanged",
+      "action": "Pointer selection links actual Moxi mark, details and table; B and P04 FDG unchanged",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "80162ec490940202f04f42a5400cf4834e596f227c47c3ef1a0f69fc66b1902b"
+    },
+    {
+      "image": "03-keyboard.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "dimensions": [
+        1500,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Arrow-key focus and Enter selection survive the acknowledged frame",
+      "action": "Arrow-key focus and Enter selection survive the acknowledged frame",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "95780411f9230f89e210087fac8540fc7ae0162572977b38908b5d70958fa724"
+    },
+    {
+      "image": "04-filter.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1500,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Filter retains stable record keys and clears details for a removed selection",
+      "action": "Filter retains stable record keys and clears details for a removed selection",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "3be3dee815b2d5fe151799fe954263aec70ba951d4627322e2c15f0cb7d50a50"
+    },
+    {
+      "image": "05-update.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1500,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Atomic data replacement resets selection; independent output keeps 12 records",
+      "action": "Atomic data replacement resets selection; independent output keeps 12 records",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "6233e55de194a79e9aded7df4cd04483be37d1b98c4932d93405ca5df58b3f6d"
+    },
+    {
+      "image": "06-failure.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "dimensions": [
+        1500,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Real Python backend rejection preserves the last frame and exposes recovery",
+      "action": "Real Python backend rejection preserves the last frame and exposes recovery",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "dd66a649d8e27603d242d87978bc1c84b424fcd98ad6e39d787b4d1a9a1e4975"
+    },
+    {
+      "image": "07-recovery.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "dimensions": [
+        1500,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Explicit Retry reconnects and selection works again",
+      "action": "Explicit Retry reconnects and selection works again",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "6acd35c4ea10a070e208856b53075755c6e079e1517a219fbe5402d8ebac6a54"
+    },
+    {
+      "image": "08-narrow-dpr2.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "dimensions": [
+        620,
+        1100
+      ],
+      "scale": 2,
+      "caption": "620 CSS-pixel viewport at DPR 2; actual pointer hit after resize",
+      "action": "620 CSS-pixel viewport at DPR 2; actual pointer hit after resize",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "d03cba52175d9f876977ead142c24ead818d86ffdea11f9fe4fd8d16a80f62f7"
+    },
+    {
+      "image": "09-restart.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "dimensions": [
+        1500,
+        1100
+      ],
+      "scale": 1,
+      "caption": "After actual kernel restart and rerun: new session, live linked consumer",
+      "action": "After actual kernel restart and rerun: new session, live linked consumer",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; installed Google Chrome, headless Playwright, actual local JupyterLab",
+      "sha256": "c16881e54fd6e562c9a79415b845dc924b5cd61ad50aefebc4a4a9ffe956187d"
+    },
+    {
+      "image": "10-saved-fallback.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1100,
+        1100
+      ],
+      "scale": 1,
+      "caption": "Actual saved notebook HTML MIME reopened offline with JavaScript disabled; initial SVG and all 12 records",
+      "action": "Actual saved notebook HTML MIME reopened offline with JavaScript disabled; initial SVG and all 12 records",
+      "expected": "Actual installed-consumer state passes the corresponding checks in evidence.json; Chrome headless, persisted MIME output, offline/no JavaScript",
+      "sha256": "6997406088796322267344622c2cb370da37289221906941c14e14b8b3992e82"
+    }
+  ]
+}

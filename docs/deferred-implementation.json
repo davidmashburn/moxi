@@ -150,11 +150,25 @@
     {
       "id": "P05",
       "scope": "Reusable notebook adapter gate from the same [Jupyter plan](docs/design/jupyter-integration.md): add a genuinely distinct linked-selection plot consumer before generalizing; verify installation, keyboard/semantics and recovery.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "dc2b6c1"
+      ],
+      "verification": [
+        "Parent reviewed distinct real Mojo PlotSpec/PlotRuntime/Scene linked plot, record table and details; committed strict native response identities and bounded transport with atomic recovery.",
+        "45 Python tests and 10,000-update two-slot channel check passed; unchanged P04 three protocol tests and channel/closed-comm regressions passed.",
+        "Clean installed wheel and source-free native runtime bundle passed actual local Jupyter/Chrome selection, keyboard/semantics, two-output/FDG isolation, filtering/update, 64-record capacity, failure/timeout, rerun/disposal/kernel restart and offline fallback; zero page errors.",
+        "Ten genuine screenshots captured from clean dc2b6c1; 177 source hashes, installed Python/JS, runtime loading, PNG hashes/decode and visual inspection verified.",
+        "Browser slideshow loaded all 20 images and passed next/previous navigation; all 26 master-gallery manifests validated. Capture server closed and log token redacted."
+      ],
+      "remaining_gates": [
+        "Common notebook adapter extraction remains contingent on demonstrated shared contract and P04 remote-host gate; second consumer implemented, no premature public adapter.",
+        "Actual remote host/network, physical input, independent usability, screen readers, other frontends/browsers and Linux/Windows runtime unverified; VoiceOver paused.",
+        "Full unchanged core/native suite, remote CI, sustained performance and public distribution not checked; captures use Chrome headless, emulated DPR and explicitly synthetic cancellation. Existing dense tick formatting remains visible."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/linked-notebook/index.html"
+      ]
     },
     {
       "id": "P06",
