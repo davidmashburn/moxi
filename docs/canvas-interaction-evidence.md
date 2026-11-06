@@ -20,7 +20,7 @@ this evidence alone.
 | C2 graph geometry | Straight/cubic shared paint/hit geometry, offscreen crossing paths, screen-sized port tolerance at 0.1/1/4 zoom, target hysteresis, duplicate/self/capacity rejection, retained old edge during invalid reconnect, valid reconnect/undo, removed-port/cache invalidation |
 | C3 composition/commands | Groups move selected descendants once; ungroup preserves world position; create/delete/undo; minimap pan; command/object search; keyboard source/target/edge selection; platform Primary mappings and conflict checks; application bindings win in idle scope while text/session ownership wins within its scope |
 | Application semantic hooks | Destination preview/cancel/one-unit commit/undo and no-op rejection; mind-map-compatible Tab/Shift+Tab/Space/structural arrows/Escape command delivery, without implementing D04 |
-| C4 independent package | `moxi` and `moxi_canvas` precompiled; clean temporary-directory consumer imports only these packages and runs (`Public consumer: 18 7`) |
+| C4 independent package | `moxi` and `moxi_canvas` precompiled; clean temporary-directory consumer imports only these packages and runs (`Public consumer: 18 9`) |
 | Shared-core regression | Existing `layout`, `component`, and native `retained_layout` tests pass with `ColumnView.published_geometry` defaulting off |
 | Galleries | Eleven actual AppKit content-view bitmap renders per demo; separate version-1 manifests validated/rendered by the established gallery module; PNG/HTML remain ignored |
 
@@ -44,30 +44,31 @@ operation, nearest-rank percentiles; p99 equals maximum with this sample count.
 The timer includes view publication and Scene construction. Published geometry
 is consumed into a printed checksum after timing to keep the output observable.
 Native submission, display/presentation, allocations and GPU costs are excluded.
-These are local diagnostic measurements, not comparative renderer claims.
+These are parent measurements at `5db9a01`, with other workers active. They are
+local diagnostics, not isolated comparative renderer claims.
 
 | Fixture and operation | p95 ms | p99 / worst ms |
 | --- | ---: | ---: |
-| 100 simple nodes / 200 edges: pan | 2.617 | 2.680 |
-| Same: selection | 0.527 | 0.613 |
-| Same: move preview | 0.863 | 1.479 |
-| 1,000 visible simple nodes / 2,000 edges: pan | 29.210 | 34.356 |
-| Same: selection | 8.578 | 8.745 |
-| Same: move preview | 5.729 | 5.959 |
-| 100 rich nodes / 200 edges: pan | 2.058 | 2.101 |
-| Same: selection | 0.473 | 0.542 |
-| Same: move preview | 0.632 | 0.719 |
+| 100 simple nodes / 200 edges: pan | 2.067 | 2.226 |
+| Same: selection | 0.710 | 0.775 |
+| Same: move preview | 0.842 | 0.877 |
+| 1,000 visible simple nodes / 2,000 edges: pan | 24.982 | 41.792 |
+| Same: selection | 6.815 | 7.499 |
+| Same: move preview | 8.529 | 8.831 |
+| 100 rich nodes / 200 edges: pan | 2.043 | 2.160 |
+| Same: selection | 0.548 | 0.616 |
+| Same: move preview | 0.686 | 0.688 |
 
 The smaller fixtures use a 1,200×800 root and include culling. The 1,000-visible
 fixture uses a 7,000×4,000 root to include every node at the allowed scale;
 this is a CPU workload, not a claim of native presentation at that size.
-It publishes 3,015 view nodes and 8,441 Scene commands. Cold setup/publication:
-1.910 ms simple-100, 25.118 ms simple-1000, 1.631 ms rich-100. Transaction commit:
-0.113, 0.525 and 0.100 ms respectively. Selection causes zero object-index writes;
+It publishes 3,015 view nodes and 8,443 Scene commands. Cold setup/publication:
+1.727 ms simple-100, 22.807 ms simple-1000, 1.690 ms rich-100. Transaction commit:
+0.065, 0.578 and 0.090 ms respectively. Selection causes zero object-index writes;
 unrelated component measurements remain zero in all three fixtures.
 
 The 10,000-object / 20,000-edge high-degree stress case retains 20,000 cached
-paths: 153.456 ms cold fixture-plus-geometry and 16.023 ms hot publication, with
+paths: 153.819 ms cold fixture-plus-geometry and 14.312 ms hot publication, with
 20,000 route-cache hits. It is a geometry stress check, not an interactive claim.
 Full document/index copies and scans, screen-space path invalidation on camera
 movement, and full history snapshots remain significant. One 1,000-node commit
@@ -114,9 +115,18 @@ The parent reruns captures after the source commit to bind the gallery to that
 revision. These are `offscreen-render` captures of real AppKit content, not
 compositor window screenshots or evidence of physical device input.
 
-Worker logs remain local under `/tmp/d03-*.log`; parent logs use
-`/tmp/moxi-d03-parent-*.log`: four `canvas_*contract` logs,
-`consumer-clean`, `package-core`, `package-canvas`, native build/capture logs,
-`benchmark`, `gallery`, and `baseline-{layout,component,retained}`. Earlier failed
-experiments also remain in `/tmp`; use the final logs and asserted results above.
-No commits, pushes, shared messages or planning edits were performed.
+Parent verification at `5db9a01` passed all four canvas contracts, the clean
+precompiled-package consumer, both native demo replays, and the strict native
+layer pixel test. The layer test covers edge/control/overlay order, independent
+slice clipping, owner restoration, bounded capacity and reset. The F02 native
+ownership and full Mojo lifecycle checks pass after the renderer changes.
+All 22 captures were visually reviewed; source/PNG hashes and dimensions match,
+and both slideshow image-loading and navigation checks pass.
+
+Parent logs remain local: `/tmp/moxi-d03-final-check.log`,
+`/tmp/moxi-d03-final-consumer.log`, `/tmp/moxi-d03-final-layers-result.log`,
+`/tmp/moxi-d03-parent-ownership.log`, `/tmp/moxi-d03-committed-native.log`,
+`/tmp/moxi-d03-committed-gallery.log` and `/tmp/moxi-d03-measured-result.log`.
+The API inventory passed before the final native-only corrections. The full
+repository suite, sanitizers and remote CI were not rerun for this integration.
+No remote publication or shared-system communication was performed.

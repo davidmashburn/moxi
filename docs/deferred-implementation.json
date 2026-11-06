@@ -145,7 +145,7 @@
     {
       "id": "P06",
       "scope": "[FDG follow-ups](docs/design/fdg-port.md): proposed finite choices are PNG/PDF export, clean local package installation, and a Linux native lane. Keep existing solver/app; measure larger graphs before any capacity/solver redesign.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],
@@ -243,16 +243,30 @@
     {
       "id": "D03",
       "scope": "[Canvas C0\u2013C4](docs/design/canvas-interaction.md): transformed ordinary components, shared geometry/input/semantics, pan/zoom/select/move/resize/history, ports/edges/reconnect, groups/minimap/culling and public consumers.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "5db9a01"
+      ],
+      "verification": [
+        "Parent reviewed and corrected native edge/control/overlay layering, per-slice clips and owner restoration; negative edge IDs and no-op ungroup are rejected.",
+        "Four canvas contracts, clean precompiled-package consumer, strict native pixel-layer test and F02 ownership/lifecycle regressions passed. Both real native demo replays passed editor identity/frame/clip/font assertions.",
+        "Twenty-two AppKit offscreen renders visually reviewed; source/PNG hashes and dimensions verified; both galleries load all images and navigate.",
+        "Parent CPU benchmark: 100-node pan p95 2.067 ms; 1,000-visible-node pan p95 24.982 ms, before native submission. See docs/canvas-interaction-evidence.md."
+      ],
+      "remaining_gates": [
+        "The 8 ms large-graph budget fails before native submission; native 1,024 ordinary-slot capacity cannot present the 3,015-view workload. Allocation/GPU/input-to-presentation costs remain unmeasured.",
+        "Physical IME, trackpad, keyboard layouts, capture-loss feel and independent usability remain unverified. VoiceOver stays paused.",
+        "Dense edge labels overlap; compositor capture, other platforms, full repository suite, sanitizers and remote CI were not verified in parent integration."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/canvas-rich-node/index.html",
+        "artifacts/demo-slideshows/canvas-graph/index.html"
+      ]
     },
     {
       "id": "D04",
       "scope": "[Mind map N0\u2013N4](docs/design/mind-mapping.md): keyboard-first ordered tree/layout, branch movement/reparenting, folds/search/outline, crosslinks/notes/style metadata, local save/recovery, bounded Freeplane import and visible loss report.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],
@@ -283,7 +297,7 @@
     {
       "id": "D06",
       "scope": "[Spatial S1/S2](docs/design/3d-interaction.md): reactive geometry explorer, picking/selection/inspector, projected annotation, stale-work rejection, constrained transforms/snapping/numeric entry and shared undo.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],

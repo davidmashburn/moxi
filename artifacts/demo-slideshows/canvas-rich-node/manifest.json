@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "demo_id": "canvas-rich-node",
+  "title": "Moxi rich-node composition probe",
+  "scenario": "Real transformed ordinary controls, transactional manipulation, connections and groups.",
+  "revision": "5db9a010053fd05412ee02d11eed05cce82b2a3c",
+  "host": "Darwin 27.0.0 arm64",
+  "backend": "Moxi AppKit ordered controls + Scene slider presenter; NSView bitmap capture",
+  "scale": 2.0,
+  "fixture": "Committed checkout 5db9a010053fd05412ee02d11eed05cce82b2a3c; source SHA-256 7a068ce873d91e1e50666115de32848ad5ae355cfe315b3e1f8004f0c4d87cc4",
+  "source_state": {
+    "dirty": false,
+    "sha256": "7a068ce873d91e1e50666115de32848ad5ae355cfe315b3e1f8004f0c4d87cc4",
+    "files": {
+      "examples/canvas_demo/__init__.mojo": "a30e3e347be9ac70c2530df46f46ae0bef00543b31102bf24ab0c70bae0d9806",
+      "examples/canvas_demo/fixtures.mojo": "e8c559ab4c3b59675dfeb9663756ab8f66c3724531f23009fbdbaf6a2ded4b7b",
+      "examples/canvas_demo/host.mojo": "35737a08738c0d269b7ef8d1b2b0e9e32b8ee1dc0d20f83008373228dcfa64e2",
+      "examples/canvas_demo/nodes.mojo": "b924508aaf274eef51f6c7055c0832090b1174965901a643c09320e766ef78a6",
+      "examples/canvas_graph.mojo": "ac66250474673de3ef30fd0daeeb289c77aeb87aba043996cc534b64d956b018",
+      "examples/canvas_probe.mojo": "45c8a293ef899a5db096054f6f843b8efbb9b033af11995b84a1ca2fe5a18a09",
+      "native/macos_paragraph.h": "39d19b28f66d92d8bd699e5c0dca1b5af6b60634b5cf6a1be79efb2ed9725698",
+      "native/macos_window.m": "537407186176a233924d59d814e15b2faa058c990004dbeb2cf4c07e4b9bbb21",
+      "native/macos_window_state.h": "58aa5d2aa9695b78d1d7ab1de3b013cf63021a979d4144ec4ad7cbff6a668360",
+      "scripts/canvas_checks.sh": "cab76d86804d1d85409de5e2e1c1b6b6178d8f288138630e384d2ac7191a7306",
+      "scripts/canvas_gallery.py": "bfe25f5c759bc8934ffaa34070ce6a01b2b0b59bb3563c27d6945f2654f6ed9b",
+      "scripts/demo_slideshows.py": "d9bfa8ef8e7f23afdb3275fc492f6a930af4ea5cbd1bf7034b8c0f4826edc66d",
+      "src/moxi/column_view.mojo": "d7149f7151ec63903d54d72696d8f437275003d042a3d91c81b442c37f2e9ee6",
+      "src/moxi/native_window.mojo": "15593ad904001d8ebb175f847312c04e5c869464252e7bb5a278c6db71dc693b",
+      "src/moxi_canvas/__init__.mojo": "c6b188338c110a38aea9cb7332b77fba10860cce4064a7190572b39a798321db",
+      "src/moxi_canvas/commands.mojo": "4c9a1fc33fcafe58fc8045d712d4d2e08dff36134f226482730c55f0364fcc36",
+      "src/moxi_canvas/geometry.mojo": "f80bd9ac2b903adb362728e02393cd68e2331a5829c3887f6120df6b452f544c",
+      "src/moxi_canvas/index.mojo": "f74ab766dbfc14fb3a1420052606156dd874f95146c1b2b3893fd57b8f890671",
+      "src/moxi_canvas/interaction.mojo": "e23ee474e31c2771ddf25ac9478134cf783cbd0661c36e82b5a26b29b7b09666",
+      "src/moxi_canvas/model.mojo": "9d58437a83702921aa8c1dea59824aed8d346f7309309503349dbb8dee33ffd5",
+      "src/moxi_canvas/native.mojo": "35875b25f484fad511cbef32517f0201010b4d7cdbb19ccf9a9812db664f8cbb",
+      "src/moxi_canvas/runtime.mojo": "a3dc69f373031603f5ef8a8692159801896e249d8ab31d81e9445432e2852d80",
+      "src/moxi_canvas/surface.mojo": "96e1535bf8a8ed5a7ab5c6a6c61dd54dcea36dc55413bbaab313d9deb8dd9deb",
+      "tests/canvas/capture.m": "1047da601720ae770eb5b2b432ff3829f9ae08c2be4de39ca4b450b62f70d6f1",
+      "tests/canvas/native_layers.m": "c08997a5622e9d29d0c789d0341605100cdfaa12873d67ed38eb2a97f6d75680"
+    }
+  },
+  "reproduce": "pixi run canvas-native-check && pixi run canvas-gallery; see docs/canvas-interaction.md",
+  "slides": [
+    {
+      "image": "01-initial.png",
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "sha256": "def9d6c56e1fe248011ccddd2bdb8dc8eb16919ed9f048b8b4d2aad6a49a0483",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Ordinary components in a real Moxi window",
+      "action": "Launch the native demo.",
+      "expected": "Editable text, button, slider, fractional ports, edges and minimap appear."
+    },
+    {
+      "image": "10-control-ownership.png",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "sha256": "92543546d0029bf80fa8011780aaa4549625d2d683c2fe705995ab0f19edf68d",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Button and slider own their input",
+      "action": "Click Apply/Stage enabled, then drag the ordinary slider to 80%.",
+      "expected": "Controls change state without moving the node; rich probe content growth republishes ports."
+    },
+    {
+      "image": "05-native-editor.png",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "sha256": "35afd943788665f10c0122bfdaef7b0d5114d734c077dd03380ba7821e5f70c4",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Live AppKit editor in the transformed node",
+      "action": "Enter the first node controls and insert text.",
+      "expected": "An actual NSTextField owns editing; this is not a drawn input mock."
+    },
+    {
+      "image": "06-zoom-clip.png",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "sha256": "35b9341141b6bbe7f2d16bfd34ee3b19692fea185eb093c2032f0769b023cf33",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Zoomed editor in a scrolled parent",
+      "action": "Zoom to 80% and scroll the parent by 90 points.",
+      "expected": "The same native editor survives; frame, clip and font agree with published geometry and clipped semantics."
+    },
+    {
+      "image": "02-preview.png",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "sha256": "a1648181dafe29357fa582c4761e7f029fee6125e10e5fdcb48f095d627bbc4d",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Keyboard move preview",
+      "action": "Leave controls, press M, then Shift+Right seven times and Shift+Down once.",
+      "expected": "The preview moves the selected node and its connection without committing."
+    },
+    {
+      "image": "11-cancel.png",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "sha256": "954a9aedecc405ce41d52cdc13c6e896d1a1e5ef74d1af0a9de2b902e2682718",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Escape discards the move preview",
+      "action": "Press Escape.",
+      "expected": "The committed position returns without adding a history entry."
+    },
+    {
+      "image": "03-result.png",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "sha256": "4999ef83f5c23eec4e060dcb7200575af2606b988f761bd6a4bb8c72e745c567",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Committed move and resized ports",
+      "action": "Repeat and commit the move; press R, Shift+Right five times, Enter.",
+      "expected": "The node is wider and the output port/edge follow its published extent."
+    },
+    {
+      "image": "04-recovery.png",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "sha256": "12b6b8f36b0e9e50e2c6d899cc52e8311a8958d94f305d43ee46b03b9080f0f9",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Undo restores size and position",
+      "action": "Undo resize, then undo move.",
+      "expected": "Placement and connection anchors return; earlier control edits remain."
+    },
+    {
+      "image": "07-invalid-edge.png",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "sha256": "e0d7f02621e03c8ff934ce9456da7ddcb75d82269ab89645d9df49e4fc5ffc9e",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Invalid connection stays a preview",
+      "action": "Attempt a duplicate source-to-target connection.",
+      "expected": "A rejection reason is visible and the existing graph remains intact."
+    },
+    {
+      "image": "08-reconnected.png",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "sha256": "4d3d94f45b48e9d7e97ac419a0bcef774be4dc6d71b27f8cea68947488b3fdb3",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Reconnect retains the old edge until success",
+      "action": "Choose the existing edge and reconnect to an available input.",
+      "expected": "The rich probe uses the second node\u2019s alternate input; the graph frees the fourth input then reconnects edge 1."
+    },
+    {
+      "image": "09-group-fit.png",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "sha256": "771e064b4669ebd59a632a145927a9e8e2d8ddad3fde4e5ccc0ac3f138c5cbc9",
+      "dimensions": [
+        2120,
+        1560
+      ],
+      "caption": "Group move, fit and minimap",
+      "action": "Group nodes 1 and 2, move the group down once, commit, fit all.",
+      "expected": "Children move once with their group; ports, edges and minimap use the same world bounds."
+    }
+  ]
+}
