@@ -3,33 +3,32 @@
   "demo_id": "fdg-notebook",
   "title": "One graph in Jupyter and native Moxi",
   "scenario": "P03 local Python notebook: graph/SVG, nonblocking native viewer, actionable error, close/reopen and kernel restart. Native frames are live content-view captures with test-only injection, not desktop/compositor or physical-input acceptance.",
-  "revision": "7f8bc7de6e944a53b648f52d8f547d84b13c3c5a",
+  "revision": "5a92f0e39482cb16c408bdb8daeec3f05ac70401",
   "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
   "backend": "JupyterLab 4.4.10 / Chrome 156.0.8078.81; AppKit cacheDisplay content view",
   "scale": 1,
-  "fixture": "Five nodes: Data, Python, Mojo, Moxi, SVG & μ; five links; source SHA-256 fdec292be3e32e519a98e6f5b3b667b981304dce8e897cbcf3e97064c6883941",
+  "fixture": "Five nodes: Data, Python, Mojo, Moxi, SVG & μ; five links; source SHA-256 d541b30d7bc339fd42efc478fe83ad51a07fdb81d1cc0924ee8125388f01602d",
   "reproduce": "From repository root: bash examples/fdg/scripts/build.sh; install optional notebook/requirements-capture.txt; run examples/fdg/.venv-notebook/bin/python examples/fdg/notebook/verify.py, capture_frontend.py, then gallery.py (each at that same notebook/ path). See README.md for exact commands.",
   "source_provenance": {
-    "base_revision": "7f8bc7de6e944a53b648f52d8f547d84b13c3c5a",
-    "uncommitted_changes": true,
-    "source_sha256": "fdec292be3e32e519a98e6f5b3b667b981304dce8e897cbcf3e97064c6883941",
-    "binary_sha256": "7b5d6cab1c1618db46b92150e3088e57c558dfcffdce53d1e78c1a01c77d78ce",
-    "note": "Working-tree capture with uncommitted P03 additions; base revision is not a claim that the notebook is committed. Parent owns integration, commit and recapture."
+    "base_revision": "5a92f0e39482cb16c408bdb8daeec3f05ac70401",
+    "uncommitted_changes": false,
+    "source_sha256": "d541b30d7bc339fd42efc478fe83ad51a07fdb81d1cc0924ee8125388f01602d",
+    "binary_sha256": "cfcf44cdea6a3024d9e9dc49847d5ac1ae09f08f78c9590194eb7b44cc13145f",
+    "note": "Source inputs include native implementation, notebook, capture/check scripts and pinned dependencies; generated evidence and documentation are excluded from the dirty check."
   },
   "versions": {
     "Python": "3.13.11",
     "JupyterLab": "4.4.10",
     "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
     "Moxi": "0.6.0",
-    "binary source revision": "7f8bc7de6e944a53b648f52d8f547d84b13c3c5a",
+    "binary source revision": "5a92f0e39482cb16c408bdb8daeec3f05ac70401",
     "Mojo": "Mojo 1.1.0 (8189361e)"
   },
   "verification": {
     "kernel_rounds": [
       {
-        "kernel_pid": 39690,
         "code_cells": 8,
-        "responsive_cell_seconds": 0.0262,
+        "responsive_cell_seconds": 0.0292,
         "desktop_window_lookup_exit": 1,
         "desktop_window_lookup_output": "",
         "normal_close_codes": [
@@ -39,9 +38,8 @@
         "missing_binary_and_async_invalid_graph": "passed"
       },
       {
-        "kernel_pid": 39761,
         "code_cells": 8,
-        "responsive_cell_seconds": 0.0258,
+        "responsive_cell_seconds": 0.0298,
         "normal_close_codes": [
           0,
           0
@@ -65,14 +63,11 @@
       ],
       "frontend_run_all": "8 code cells passed",
       "frontend_restart_run_all": "8 code cells passed via Kernel menu",
-      "kernel_pids": [
-        48599,
-        48640
-      ],
       "notebook": "frontend-capture.ipynb",
       "notebook_sha256": "1a8bf8f97b23909a532d8a3b74ca12ba92781d4243e75329190891be02b985c6",
       "capture_script_sha256": "b1ecefd630eb51c31746ef744e8fe09a36abb4e72dd2cd4fded0db672bf6af25"
     },
+    "kernel_restart_changed_pid": true,
     "skipped": [
       "actual remote kernel",
       "VoiceOver (paused)",
@@ -94,7 +89,8 @@
       "scale": 1,
       "caption": "One graph defined in JupyterLab",
       "action": "Run all cells in a fresh local Python kernel",
-      "expected": "Five synthetic nodes and five links feed both helpers"
+      "expected": "Five synthetic nodes and five links feed both helpers",
+      "sha256": "33b4479349138afaa3e1e3f57082b0de7af99775b5df9ee539372042a345ed11"
     },
     {
       "image": "01-svg.png",
@@ -107,7 +103,8 @@
       "scale": 1,
       "caption": "Actual JupyterLab static SVG output",
       "action": "Render the graph with render_svg and IPython.display.SVG",
-      "expected": "All five labels are readable, including SVG & μ"
+      "expected": "All five labels are readable, including SVG & μ",
+      "sha256": "3d6377e56b74a64905c9f0b6f387827ff2cc7074a93e52da763348beb2fbe632"
     },
     {
       "image": "02-native.png",
@@ -120,7 +117,8 @@
       "scale": 2,
       "caption": "Live native content view; excludes window chrome",
       "action": "Launch twice; execute the computation cell while both viewers remain open",
-      "expected": "The same five-node graph renders in the compiled AppKit viewer"
+      "expected": "The same five-node graph renders in the compiled AppKit viewer",
+      "sha256": "091cf515c75a036b324b71020e27b21c33f08c2d0f4126f7d8ff556c60b529b2"
     },
     {
       "image": "03-error.png",
@@ -133,7 +131,8 @@
       "scale": 1,
       "caption": "Compiled diagnostic with an actionable repair",
       "action": "Try a link whose target is missing",
-      "expected": "Unknown link endpoint: Data -> missing; replace it with an existing ID"
+      "expected": "Unknown link endpoint: Data -> missing; replace it with an existing ID",
+      "sha256": "bfdf8a061ef9bf7c54e5f16a6121191e8f0c7a51d523ce15a7ad043902b4f267"
     },
     {
       "image": "04-reopen-native.png",
@@ -146,7 +145,8 @@
       "scale": 2,
       "caption": "Reopened native content view",
       "action": "Close both viewers through performClose, verify exit 0, then reopen",
-      "expected": "The original valid graph renders again in a fresh process"
+      "expected": "The original valid graph renders again in a fresh process",
+      "sha256": "091cf515c75a036b324b71020e27b21c33f08c2d0f4126f7d8ff556c60b529b2"
     },
     {
       "image": "05-restart-native.png",
@@ -159,7 +159,8 @@
       "scale": 2,
       "caption": "Native content view after kernel restart",
       "action": "Restart the test kernel, verify old globals are absent, and rerun every cell",
-      "expected": "A new viewer renders the reconstructed graph; final cleanup reaps it"
+      "expected": "A new viewer renders the reconstructed graph; final cleanup reaps it",
+      "sha256": "091cf515c75a036b324b71020e27b21c33f08c2d0f4126f7d8ff556c60b529b2"
     },
     {
       "image": "06-restart.png",
@@ -172,7 +173,8 @@
       "scale": 1,
       "caption": "JupyterLab restart and Run All completed",
       "action": "Use Kernel → Restart Kernel and Run All Cells and confirm Restart",
-      "expected": "Eight code cells finish in a new kernel PID, including reopen and final cleanup"
+      "expected": "Eight code cells finish in a new kernel PID, including reopen and final cleanup",
+      "sha256": "2bd7601153a5425226ba75d7e470acb039d117cfad2c108086d6245b35ff2265"
     }
   ]
 }

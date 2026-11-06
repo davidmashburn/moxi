@@ -62,3 +62,16 @@ kernel-restart outcome.
 Not tested: actual remote kernels, other frontends/platforms, desktop compositor or
 physical-input behavior, and independent human usability. **VoiceOver stays paused.**
 Native windows open on the kernel machine; SVG travels inline to the frontend.
+
+## Integrated verification
+
+The parent rebuilt and recaptured from `5a92f0e` on 2026-11-06. Both native
+kernel rounds, repeated launches, normal close/reopen, cleanup and the existing
+Python bridge check passed. JupyterLab Run All and its Kernel menu restart
+completed all eight cells with distinct kernel processes. All seven PNGs were
+visually inspected. The shared gallery validates seven manifests; this gallery's
+14 image elements load and next/previous/last/wrap navigation pass.
+
+Logs: `/tmp/moxi-p03-integrated-{build,notebook,frontend,gallery,python}.log`.
+The manifest records exact versions and hashes. Full repository tests and CI were
+skipped for this optional example; the manual and remote gates above remain open.

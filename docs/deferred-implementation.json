@@ -105,11 +105,24 @@
     {
       "id": "P03",
       "scope": "[Jupyter entry points](docs/design/jupyter-integration.md): fresh-kernel notebook using one graph for static SVG and nonblocking native launch, with repeated execution, errors, close/restart and explicit remote-kernel behavior.",
-      "state": "in_progress",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "implemented",
+      "commits": [
+        "5a92f0e"
+      ],
+      "verification": [
+        "Fresh integrated native build and Python bridge check pass.",
+        "Two actual kernel rounds execute all eight code cells; repeat launches keep two native viewers alive while computation runs, performClose returns zero, reopen and cleanup pass.",
+        "Actual JupyterLab/Chrome Run All and Kernel menu restart rerun pass with a different kernel process; all five SVG labels including Unicode render.",
+        "Seven fresh browser/native content-view captures inspected; executable source, binary and PNG hashes recorded. Seven gallery manifests validate; browser navigation and all 14 notebook gallery images pass."
+      ],
+      "remaining_gates": [
+        "Actual remote kernels and other frontends/platforms were not tested. Native viewers open on the kernel machine and early kernel restart does not automatically own or terminate them.",
+        "Physical input, desktop compositor/window chrome and independent human usability remain unverified; VoiceOver stays paused.",
+        "Full repository suite and CI were not run for this optional example."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/fdg-notebook/index.html"
+      ]
     },
     {
       "id": "P04",
@@ -235,7 +248,7 @@
     {
       "id": "D05",
       "scope": "[Spatial S0](docs/design/3d-interaction.md): compare existing bridge with one credible renderer; establish depth, perspective/orthographic, compositing, frame/resource/coordinate contracts and measured choice.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],
@@ -271,7 +284,7 @@
     {
       "id": "E01",
       "scope": "[Specialized Wave A](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-a): upstream-shaped layouts/fixtures for lollipop, waterfall, candlestick, bullet, grouped/stacked bar, Gantt/span, population pyramid.",
-      "state": "pending",
+      "state": "in_progress",
       "commits": [],
       "verification": [],
       "remaining_gates": [],
