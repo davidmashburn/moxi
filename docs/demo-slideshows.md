@@ -5,9 +5,14 @@ Capture the built application, then create a manifest in
 that directory. Each demo and distinct plot family has its own sequence.
 Do not reuse a polished end state as evidence of an intermediate interaction.
 
-Use the collaborative preview for browser captures. For native demos, capture
-the running application's window, excluding unrelated desktop content. Existing
-`native/macos_window_bounds.c` locates native windows for `screencapture`.
+Use the collaborative preview for browser captures. For native demos, package
+the executable in a local `.app` bundle with an `Info.plist`, bind that app with
+the native UI tool, and save the bytes returned by its screenshot operation.
+This captures just the application window and excludes unrelated desktop content.
+The native UI tool can also exercise actual controls before capturing the result.
+The existing `native/macos_window_bounds.c`/`screencapture` workflow is an
+alternative when the terminal has window-capture access. A running window may
+be accessible to the native UI tool while that helper cannot enumerate it.
 Record offscreen renders explicitly; they are not native-window evidence.
 
 The version 1 manifest has these required fields:
