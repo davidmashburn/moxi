@@ -1,0 +1,465 @@
+{
+  "version": 1,
+  "approved_planning_commit": "fe79a32",
+  "implementation_baseline": "6c92242",
+  "states": [
+    "pending",
+    "in_progress",
+    "implemented",
+    "partial",
+    "blocked",
+    "experiment_complete"
+  ],
+  "plans": [
+    {
+      "id": "F01",
+      "scope": "Portable font collections/fallback policy and richer paragraph corpus, preserving the existing CoreText/HarfBuzz ownership split. Verify mixed scripts, composed clusters, wrapping, selection, and invalidation; do not assume identical glyph IDs across engines.",
+      "state": "in_progress",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "F02",
+      "scope": "Native ownership and lifecycle: instance-owned window state or an explicitly enforced bounded profile, then prove two windows cannot cross-route events/resources. Cover deep collection editing, native menu/dialog lifecycle, drag/drop, and automated AX assertions incrementally. Existing portable menu/dialog models are reused.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P01",
+      "scope": "[Browser execution](docs/design/browser-execution.md): preserve the FDG probe, establish safe handles/capacity/runtime/toolchain boundaries, then connect actual Moxi events, scene output, rendering, semantics, and lifecycle. Define a supported subset before calling it a web target.",
+      "state": "in_progress",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P02",
+      "scope": "[Server-backed views](docs/design/server-backed-views.md): real delayed local transport, immediate client feedback, bounded queries/cancellation, stale-result rejection, capped exact-record details, disconnect/retry, and measured full-data comparison.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P03",
+      "scope": "[Jupyter entry points](docs/design/jupyter-integration.md): fresh-kernel notebook using one graph for static SVG and nonblocking native launch, with repeated execution, errors, close/restart and explicit remote-kernel behavior.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P04",
+      "scope": "[Interactive Jupyter](docs/design/jupyter-integration.md): example-local FDG widget/comm spike with bounded versioned messages, isolated outputs, disposal/rerun/restart, static saved fallback, and actual remote-kernel verification.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P05",
+      "scope": "Reusable notebook adapter gate from the same [Jupyter plan](docs/design/jupyter-integration.md): add a genuinely distinct linked-selection plot consumer before generalizing; verify installation, keyboard/semantics and recovery.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P06",
+      "scope": "[FDG follow-ups](docs/design/fdg-port.md): proposed finite choices are PNG/PDF export, clean local package installation, and a Linux native lane. Keep existing solver/app; measure larger graphs before any capacity/solver redesign.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P07",
+      "scope": "[SeedWaterSegmenter](docs/design/sws-port.md): reproducible reference fixtures, native stack/label viewer, generation-safe watershed, seed/polygon editing, undo/redo, persistence, cancellation and recovery. Preserve scientific algorithms first.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P08",
+      "scope": "[SWS4D](docs/design/sws4d-port.md): reference fixtures, linked XY/XZ/YZ/time viewer, explicit axes/spacing/connectivity, edits in each plane, watershed, stable IDs, bounded caches, persistence and recovery.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P09",
+      "scope": "[Linux GPU H4](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md): choose an adapter through a scene/packet probe, retain GTK host and software oracle, then implement the declared text/image/clip/resource subset with parity and hardware measurements.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P10",
+      "scope": "[Additional host H5](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md): separate iOS and Android compiler/runtime feasibility gates; promote each existing shell only when real shared Mojo application state executes.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "P11",
+      "scope": "[Host follow-through](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md): Wayland validation of the existing Linux host. Windows receives a bounded feasibility/design gate because only a portable descriptor exists; a full Windows host is not yet specified.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "D01",
+      "scope": "[Symbolic backend comparison](docs/design/math-backend-experiment.md): executable SymEngine wrapper and persistent SymPy worker against one exact-expression corpus; ownership, bounded work, revision/cancellation, editable result conversion, packaging and measured decision.",
+      "state": "in_progress",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "D02",
+      "scope": "[Math editor M0\u2013M4](docs/design/math-editing.md): lossless notation/text including holes/malformed edits; shared display/editor geometry, fractions/scripts/radicals/delimiters/matrices/functions/sums/integrals, navigation/selection, clipboard/history/persistence, one selected async backend, and second public-API consumer.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "D03",
+      "scope": "[Canvas C0\u2013C4](docs/design/canvas-interaction.md): transformed ordinary components, shared geometry/input/semantics, pan/zoom/select/move/resize/history, ports/edges/reconnect, groups/minimap/culling and public consumers.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "D04",
+      "scope": "[Mind map N0\u2013N4](docs/design/mind-mapping.md): keyboard-first ordered tree/layout, branch movement/reparenting, folds/search/outline, crosslinks/notes/style metadata, local save/recovery, bounded Freeplane import and visible loss report.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "D05",
+      "scope": "[Spatial S0](docs/design/3d-interaction.md): compare existing bridge with one credible renderer; establish depth, perspective/orthographic, compositing, frame/resource/coordinate contracts and measured choice.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "D06",
+      "scope": "[Spatial S1/S2](docs/design/3d-interaction.md): reactive geometry explorer, picking/selection/inspector, projected annotation, stale-work rejection, constrained transforms/snapping/numeric entry and shared undo.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "D07",
+      "scope": "[Spatial S3](docs/design/3d-interaction.md): second application with hierarchy, linked perspective/orthographic views, shared selection, measurement/clipping and resource/work reuse evidence.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "D08",
+      "scope": "[Spatial S4](docs/design/3d-interaction.md): planar world-space ordinary controls, ray/local mapping, occlusion/clip/capture/focus/IME/semantics; compare screen-space editing before promoting the API.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "E01",
+      "scope": "[Specialized Wave A](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-a): upstream-shaped layouts/fixtures for lollipop, waterfall, candlestick, bullet, grouped/stacked bar, Gantt/span, population pyramid.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "E02",
+      "scope": "[Specialized Wave B](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-b): pie/donut, radar, gauge, polar/radial bar, beeswarm, violin, ridgeline, Nightingale, streamgraph, contour; richer distributions/grids as needed.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "E03",
+      "scope": "[Specialized Wave C](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-c): treemap, sunburst, tree, Sankey, chord, graph, calendar, corrplot, punchcard, Marimekko, barbs, tricontour.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "E04",
+      "scope": "[Native Mojo/CPython extension](ECOSYSTEM-CONVERGENCE-PLAN.md#gate-e4-python-binding-proof-and-package-skeleton): clean-environment native import/render probe, typed-buffer lifetime/copy policy, stable failures, wheel/dependency inspection and deployment decision. Preserve existing compiler-independent facade.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "E05",
+      "scope": "[Cairo scene/export evaluation](PROJECT-PLANNING.md#gate-4-supported-2d-plotting-package): canonical scene corpus adapter and maintenance/coverage/cost comparison; adopt only if evidence warrants it. Portable wgpu evaluation is owned by P09, not a duplicate worker.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "E06",
+      "scope": "Full-catalog reconciliation gate: current capability inventory additionally names parallel, funnel, bump, effect_scatter and arc_diagram outside A\u2013C prose. Audit reference layouts and define remaining parity deltas before implementing any missing ones.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "N01",
+      "scope": "[NotImplemented component](docs/not-implemented-pattern.md): pure inert component, feature name/explanation, ordinary semantics, independent namespacing, public import, runnable example and Playground entry.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V01",
+      "scope": "Draw executable behavior: two-state motion model, parameter versus desired-curve editing, bounded candidate proposals.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V02",
+      "scope": "Compose worlds: seeded two-population 2D world with editable response rules and compared predictions.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V03",
+      "scope": "Invent notation: three phrase types with sequence/group/timing semantics and editable structural rules.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V04",
+      "scope": "Design across scales: planar spring linkage, force curve and two dimensions, compare sweep with hand tuning.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V05",
+      "scope": "Executable argument: two assumptions, one quantitative model, explicit limitation and reversal condition.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V06",
+      "scope": "Cross-media composition: motion path and sound envelope sharing editable timing.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V07",
+      "scope": "Learn by changing a system: oscillator prediction, manipulation, comparison, unfamiliar case.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V08",
+      "scope": "Perceptual instrument: finite probability distribution with normalized redistribution and optional fixed mean.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V09",
+      "scope": "Spatial experience: small scene, two routes, line-of-sight test and light envelope.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V10",
+      "scope": "Negotiate futures: fictional allocation, three separately owned preferences, finite alternatives and retained disagreement.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V11",
+      "scope": "Pattern to structure: known foldable motif with linked flat/folded parameters.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V12",
+      "scope": "Personal instrument: fixed creative operations, two input routes, editable response curve/mode graph, saved configuration.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V13",
+      "scope": "Executable instrument: recorded source, bounded processing nodes, explicit stateful node, plot and recorder.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V14",
+      "scope": "Chemical prediction investigation: replay one outcome/horizon with sensor traces, baseline comparison and held-out session evaluation.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "V15",
+      "scope": "Continuous hand control: one creative task, a small feature subset, direct versus pose-interpolated mappings, clutch and loss recovery.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "I10",
+      "scope": "Named cohort \u2192 explicit fit/residuals \u2192 alternatives \u2192 saved fixed panel.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "I11",
+      "scope": "Deterministic fake-worker proposal for two allowed values \u2192 inspect/reject/apply \u2192 stale rejection.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "I13",
+      "scope": "Action/subtree counters/frame preview \u2192 replay comparison \u2192 dropped-record indication.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "I15",
+      "scope": "Synthetic stream and async result capture \u2192 reopen episode \u2192 missing-result limitation.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "I18",
+      "scope": "Same observation in table/plot/canvas \u2192 filtered/deleted/aggregate mapping \u2192 second domain.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "I19",
+      "scope": "Numeric/drag preview \u2192 Escape revert \u2192 commit/one undo \u2192 changed-layout replay/stale rejection.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    },
+    {
+      "id": "I20",
+      "scope": "Button/keyboard/script produce same cohort operation \u2192 caller-policy rejection.",
+      "state": "pending",
+      "commits": [],
+      "verification": [],
+      "remaining_gates": [],
+      "slideshows": []
+    }
+  ]
+}

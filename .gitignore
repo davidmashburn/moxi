@@ -6,3 +6,5 @@ native/*.o
 .DS_Store
 __pycache__/
 *.py[cod]
+artifacts/demo-slideshows/**/*.png
+artifacts/demo-slideshows/**/*.html
