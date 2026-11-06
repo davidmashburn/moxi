@@ -17,9 +17,10 @@ These results are uncommitted and **not parent-verified**. Their worktrees and i
 | Proposal | Preserved worktree / branch | Worker-reported evidence | Next action |
 | --- | --- | --- | --- |
 | E02 Wave B | `t3-f9fb84ef`, `t3/wave-b-specialized-geometry`, base `aa64f9a` | 14 families, 196 Python tests, 89 native boundary cases, clean consumers; 98 slideshow frames | Review shared geometry/ScenePath/selection changes, integrate, rerun affected checks, recapture |
+| E03 Wave C | `t3-1bf5b67f`, `t3/implement-wave-c-specialized`, base `bd3cccd` | 12 families, 204 source/installed Python tests, 12 rendering/interaction contracts, 91 invalid and 10 degenerate cases, clean consumer; 72 slideshow frames | Review and reconcile with E02 before integration; rerun shared contracts |
 | E04 native Python extension | `t3-b54f0f39`, `t3/native-mojo-extension-proof`, base `8c70147` | 43 native tests, 85 facade regressions, clean wheel/dependency inspection and gallery | Review C/Mojo ownership and boundary checks; integrate after E02/E03 and rebuild |
 
-E02 lacks upstream contour APIs at its pinned reference, so full parity is unproven. E04 remains experimental: bundled proprietary-runtime redistribution is unreviewed; ABI/other-host/sanitizer gates remain; raster omits text and PDF is raster.
+E02 lacks upstream contour APIs and E03 lacks tricontour at their pinned reference, so full parity is unproven. E03 reports real upstream comparisons for its other eleven families, with visual differences documented. Its tests and screenshots have not been independently rerun or reviewed by the parent; only the preserved worktree, implementation notes and gallery index were checked. Logs are `/tmp/moxi-e03-r2-*.log`. E04 remains experimental: bundled proprietary-runtime redistribution is unreviewed; ABI/other-host/sanitizer gates remain; raster omits text and PDF is raster.
 
 ## Restarted workers
 
@@ -27,11 +28,11 @@ All r1 tasks below ended with the tool result “Your workspace is out of credit
 
 | Proposal | r1 state preserved | Stable r2 request ID |
 | --- | --- | --- |
-| E03 Wave C | Partial code in `t3-6ea44db8`, branch `t3/wave-c-specialized-geometry`, base `8c70147`; no completion claim | `moxi-deferred-e03-impl-r2` |
+| E03 Wave C (r2 completed) | Partial r1 code remains in `t3-6ea44db8`, branch `t3/wave-c-specialized-geometry`, base `8c70147`; completed r2 is listed above | `moxi-deferred-e03-impl-r2` |
 | D08 world-space controls | Clean `t3-a806ce82`; r1 delivered no edits | `moxi-deferred-d08-impl-r2` |
 | P07 SeedWaterSegmenter | Clean `t3-ab4e94c2`; `moxi-sws` destination absent at inspection | `moxi-deferred-p07-impl-r2` |
 
-E03 r2 must recover the old diff into its new isolated worktree, preserving the old worktree and newer shared code. P07 owns the approved separate local `moxi-sws` application destination plus narrow Moxi changes. Workers may not commit or start follow-on proposals. Exact task IDs, original failed attempts and dispatch policy are retained locally in ignored `dist/deferred-orchestration.json`.
+E03 r2 completed; its recovered implementation is listed above. The original partial worktree remains intact. D08 and P07 have no collected terminal result yet; do not infer completion from E03 finishing. P07 owns the approved separate local `moxi-sws` application destination plus narrow Moxi changes. Workers may not commit or start follow-on proposals. Exact task IDs, original failed attempts and dispatch policy are retained locally in ignored `dist/deferred-orchestration.json`.
 
 ## Resume order
 

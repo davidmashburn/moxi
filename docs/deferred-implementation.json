@@ -455,15 +455,19 @@
     {
       "id": "E03",
       "scope": "[Specialized Wave C](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-c): treemap, sunburst, tree, Sankey, chord, graph, calendar, corrplot, punchcard, Marimekko, barbs, tricontour.",
-      "state": "in_progress",
+      "state": "partial",
       "commits": [],
       "verification": [
-        "Partial uncommitted r1 code preserved on t3/wave-c-specialized-geometry; no completion claim."
+        "Worker r2 report only, not parent-verified: all 12 Wave C families; 204 source/installed Python tests, 12 rendering/interaction contracts, 91 invalid and 10 degenerate boundary cases, nine Wave A cases, affected Mojo regressions, clean consumer and inventories.",
+        "Worker reports 12 genuine galleries with 72 frames, including 37 T3 browser captures. Parent checked preserved worktree, implementation notes and gallery index only."
       ],
       "remaining_gates": [
-        "Initial worker stopped when workspace credits were exhausted. Separate Astra High r2 worker restarted at user request; parent review/integration deferred to resume."
+        "Review uncommitted t3/implement-wave-c-specialized (t3-1bf5b67f, base bd3cccd); reconcile E02 shared dispatcher, PlotSpec/parser, glyph, PlotView and registry changes before integration.",
+        "Pinned upstream tricontour is absent. Full repository/host suites, native windows, VoiceOver, human usability, large-data performance and E6 acceptance remain open."
       ],
-      "slideshows": []
+      "slideshows": [
+        "12 e03-* worker galleries; not integrated"
+      ]
     },
     {
       "id": "E04",
