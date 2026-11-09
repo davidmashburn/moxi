@@ -1,5 +1,90 @@
 # Moxi current-state audit
 
+## Current audit — November 9, 2026
+
+Implementation `main` and freshly fetched `origin/main` both point to
+[`b2361c2`](https://github.com/davidmashburn/moxi/tree/b2361c2d4131cb6bbc25ebf5e4816e2fe347250b).
+The deferred integration branch has the same tip. The 63 commits after
+`ba8fc93` include the Playground authoring migration, the implemented and partial
+proposal slices below, and the integration review fixes. Main was fast-forwarded
+and pushed November 6. Planning commits `090eb0f`, `c2a0755` and `fe79a32` preceded
+that integration; their local-only and awaiting-confirmation descriptions are
+superseded by this audit.
+
+### Delivery and acceptance
+
+The [50-plan delivery ledger](https://github.com/davidmashburn/moxi/blob/b2361c2d4131cb6bbc25ebf5e4816e2fe347250b/docs/deferred-implementation.json) records
+**7 implemented**, **2 experiment-complete**, **13 partial**, and **28 pending**
+tracks. These are scoped delivery states, not release or usability certification.
+The [master list](DEFERRED-IMPLEMENTATION-MASTER.md#current-delivery-status)
+contains the per-ID mapping; [remaining work](PROJECT-PLANNING.md#remaining-work--november-9-2026)
+is the current action list.
+
+| Scope | Current result | Boundary still open |
+| --- | --- | --- |
+| Playground authoring and S2 | Shared models/HandlerHost embedding landed; five structural owners retained under ADR-006 | Interactive launcher and independent human acceptance; no new structural rewrite |
+| F01 text and F02 lifecycle | Font fallback/paragraph corpus; isolated instance-owned AppKit windows | F02 is main-thread AppKit with eight explicit sessions, not a general multi-window platform promise; physical input/IME and broader hosts remain open |
+| P01–P03 browser, server, Jupyter entry | Actual Moxi browser event/render loop, delayed HTTP reductions, fresh-kernel notebook entry | Experimental LLVM retargeting; direct Mojo WASM unavailable; remote hosts/frontends and broader acceptance unverified |
+| P04–P07 notebook consumers, FDG distribution, watershed | Runnable local consumers and bounded distribution/scientific evidence | Remote notebook topology, clean distribution, native/manual/scientific acceptance; watershed app is in separate `moxi-sws`, only sampling hooks landed here |
+| D01/D02 symbolic math | Backend comparison complete; lossless text/2D editor and second consumer implemented | Physical keyboard/IME, typography, clean-host redistribution and lifecycle/leak evidence |
+| D03/D04 canvas and mindmap | Native rich-node composition, gestures, history and transactional persistence | Large graph exceeds the 8 ms CPU budget and native slot capacity; fresh galleries and human acceptance |
+| D05–D08 spatial | Renderer experiment complete; explorer, assembly and world-panel probes partial | Neither S0 candidate meets the large-viewport frame-to-image target; no production renderer selected; world-panel promotion rejected pending coherent transformed IME/semantics |
+| E01–E04 plotting/Python | Three plot waves and native extension experiment integrated with regression fixes | Visual/reference parity, clean redistribution, ABI/host/sanitizer coverage; E04 native raster text/vector PDF unsupported |
+| N01 NotImplemented | Reusable inert component implemented | Native/manual acceptance and existing narrow-panel character wrapping limits |
+| Remaining 28 tracks | No implementation recorded | P08–P11, E05–E06, V01–V15, I10/I11/I13/I15/I18/I19/I20 remain deferred |
+
+### Integration checks and a confirmed packaging blocker
+
+The [integration checkpoint](https://github.com/davidmashburn/moxi/blob/b2361c2d4131cb6bbc25ebf5e4816e2fe347250b/docs/deferred-pause-handoff.md) records
+portable checks and 89 core test files passing, then a rectangle-equivalence
+call correction in `d5f2b32`. Validation resumed at that check and the remaining
+native/package/doc/host/HarfBuzz/live-reload steps passed; the earlier stages
+were not repeated. Android/iOS checks were skipped for missing SDKs, and the
+pinned compiler lacks the direct WASM target. These are recorded implementation
+results, not fresh test executions for this planning update.
+
+[Main CI run 42307044304](https://github.com/davidmashburn/moxi/actions/runs/42307044304)
+at `b2361c2` **failed**: five jobs passed (`validate`, `headless-linux`,
+`native-layout-linux`, `retained-layout-linux`, `layout-candidate-macos`), while
+`package-consumer` failed building the native layout package. The diagnostic is
+`native/macos_window.m:230:10: fatal error: 'macos_window_state.h' file not found`.
+The header is tracked and included by the source, but omitted from
+[the package recipe](https://github.com/davidmashburn/moxi/blob/b2361c2d4131cb6bbc25ebf5e4816e2fe347250b/packages/moxi_layout_native/recipe.yaml).
+This is a packaging input defect; passing checkout builds do not close it.
+Audit the complete native include dependencies and prove a clean package build
+and installed consumer before claiming a fix.
+
+The checkpoint's “No push” / “Remote CI has not run” wording is historical and
+now superseded. Per-track ledger statements about checks not run describe their
+individual integrations; the later aggregate run above updates only the checks
+it actually covers. It does not establish every experimental Linux/runtime path.
+Updating the shipped checkpoint and contextualizing those ledger limits remains
+implementation-side documentation work.
+
+### Evidence limits and confidence
+
+Fresh integrated-source gallery certification is still missing. The mindmap
+20-frame manifest and spatial-assembly 14-frame candidate artifacts are
+untracked; other manifests retain worker provenance. Existing screenshots do not
+certify the reviewed main source or establish physical input/compositor behavior.
+VoiceOver remains paused by user instruction. Independent human acceptance,
+real scientific stacks, sustained presentation-inclusive performance, and
+unavailable hosts/devices remain separate gates.
+
+Confidence is **high** in branch containment, delivery-state counts and the
+packaging failure, based on Git history, ledger/source inspection and the exact
+main CI log. Confidence in broader support/performance/usability remains limited
+by the missing evidence above. A newer main revision, successful clean package CI,
+source-matched reviewed galleries or completed acceptance sessions would change
+this assessment. This reconciliation did not rerun builds, runtime tests,
+benchmarks, GUI sessions or human studies, and did not re-audit the separate
+watershed repository. Its app results are the recorded integration evidence.
+
+## Historical audit — September 10, 2026
+
+The audit below preserves its original baseline and findings. Its inventory,
+passing checks and recommendations are not a description of November main.
+
 Audited September 10, 2026 against `main` at `a34963f`. This document is based
 on source, tests, build scripts, and local validation. README, changelog, and
 older roadmap claims were treated as hypotheses until the implementation

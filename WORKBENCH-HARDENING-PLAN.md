@@ -1,5 +1,25 @@
 # Make the workbench a reliable desktop application
 
+## Current status — November 9, 2026
+
+The implementation and authoring follow-through are now on published `main`
+at `b2361c2`. The November 6 H2/H6 acceptance assessment below remains open;
+publication does not supply fresh native performance or independent human
+acceptance. Main CI has run: five jobs pass, but `package-consumer` fails on an
+omitted native header. Repair that packaging gate before treating checkout
+checks as evidence of a clean distributed consumer.
+
+See [current implementation and CI evidence](CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
 ## Execution status reviewed November 6, 2026
 
 The implementation source and existing evidence were audited at `fa42b6f`.

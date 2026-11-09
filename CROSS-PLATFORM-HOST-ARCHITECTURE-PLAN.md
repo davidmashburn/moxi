@@ -1,6 +1,28 @@
 # Moxi cross-platform host and renderer architecture plan
 
-Status: desktop architecture implemented; manual acceptance remains partial.
+## Current status — November 9, 2026
+
+Desktop H0–H3 implementation remains on `main` at `b2361c2` with the existing
+manual/platform gates. F02 adds isolated instance-owned native windows within
+an explicit main-thread AppKit profile of eight sessions; this does not promote
+Metal multi-window or alter the retained-layout profile by implication. P01's
+bounded experimental browser runtime is now implemented, but a general supported
+web adapter remains unproven. Linux GPU/H4 and additional adapters remain pending.
+Native package CI currently fails because its source recipe omits
+`macos_window_state.h`; checkout validation does not prove packaged delivery.
+
+See [current implementation and CI evidence](CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: desktop architecture implemented; manual acceptance remains partial.
 Linux GPU work and additional host adapters are deferred.
 
 Original planning baseline: October 4, 2026

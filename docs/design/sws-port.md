@@ -1,6 +1,28 @@
 # Native SeedWaterSegmenter application
 
-Status: proposed; planning only. Observed October 27, 2026.
+## Current status — November 9, 2026
+
+P07 is partial. Moxi sampling hooks landed in `dbd145e`, now on `main` at
+`b2361c2`; application commits `440abc2` and `3ac37ef` live in the separate
+`moxi-sws` repository. The integration checkpoint records 33 app tests, a native
+build and 18 comparisons with pinned scientific reference `45bd4bf`. These are
+recorded results, not a fresh app audit in this reconciliation. Native replay
+after recovery fixes, real external stacks, physical editing, independent
+scientific acceptance, power-loss durability and other hosts remain open.
+Publishing Moxi does not publish the separate application.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: proposed; planning only. Observed October 27, 2026.
 
 ## Outcome and evidence
 

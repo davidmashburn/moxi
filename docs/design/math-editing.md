@@ -1,6 +1,26 @@
 # Native mathematical typesetting and editing
 
-Status: proposed scope and implementation sequence. The editor, math layout
+## Current status — November 9, 2026
+
+D02's bounded editor is implemented in `5f9bb45`, now on `main` at `b2361c2`,
+with lossless text/2D structure, asynchronous symbolic integration and a second
+consumer. D01's backend comparison is complete. Physical US/non-US keyboard
+and IME, typography, simultaneous math font/view sessions, lifecycle/leak
+checks, fresh-host distribution/signing and independent human acceptance remain
+open. The original full product horizon below is not a completion claim.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: proposed scope and implementation sequence. The editor, math layout
 engine, and computation adapters described here are new work. This proposal
 does not change the release priorities in [project planning](../../PROJECT-PLANNING.md).
 

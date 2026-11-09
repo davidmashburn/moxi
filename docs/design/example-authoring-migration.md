@@ -1,6 +1,27 @@
 # Example authoring migration, preserving Moxi Playground
 
-Status: implementation complete locally through `fa42b6f` on
+## Current status — November 9, 2026
+
+Implementation is on published `main` at `b2361c2`, including `fa42b6f` and the
+follow-up documentation through `6c92242`. Counter, Form, Editors, Shared
+document and Workspace share standalone/Playground models through HandlerHost
+embedding. The migration is no longer unpublished local work. Interactive
+launcher, physical IME and independent human acceptance remain open; VoiceOver
+remains paused. Main CI ran and failed in native package inputs, outside the
+migration's passing local regression evidence.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: implementation complete locally through `fa42b6f` on
 `feat/playground-authoring`. Interactive launcher, physical IME and VoiceOver
 acceptance remain open. Publication and remote CI are outside the current
 local scope; see the reconciliation below.

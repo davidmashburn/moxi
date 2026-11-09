@@ -1,5 +1,81 @@
 # Moxi execution plan
 
+## Remaining work — November 9, 2026
+
+This is the current follow-through list for `main` at `b2361c2`.
+[Current state](CURRENT-STATE.md#current-audit--november-9-2026) records the
+implementation and CI evidence. The old proposal sequence below is historical;
+landed work must not be restarted from those instructions. This reconciliation
+adds no implementation or publication authorization and does not schedule the
+untouched proposals.
+
+### 1. Repair package CI and reconcile the published checkpoint
+
+- **Owner:** native layout package inputs, starting at
+  `packages/moxi_layout_native/recipe.yaml` in the implementation repository.
+  Include `macos_window_state.h` and audit all transitive native include inputs.
+  The current `package-consumer` CI fails before it can validate the consumer.
+- **Acceptance:** a clean package build and installed consumer pass, followed by
+  a green `package-consumer` job on the resulting commit. Report the other main
+  jobs independently; do not substitute the earlier local checkout checks.
+- **Documentation:** update `docs/deferred-pause-handoff.md` to distinguish its
+  original local checkpoint from the November 6 publication and failed CI.
+  Contextualize per-track “full suite/CI not run” entries in the delivery ledger
+  against the subsequent aggregate checks without inventing per-track coverage.
+  Correct any remaining local-only authoring status in shipped docs. Preserve
+  dated evidence and distinguish separate `moxi-sws` app work from Moxi commits.
+
+### 2. Certify the reviewed integration's demo evidence
+
+- **Owner:** demo replay/capture scripts and `artifacts/demo-slideshows` manifests.
+  Regenerate or verify provenance against the exact reviewed source, visually
+  inspect the outcomes, and record reproduction commands and limits.
+- **First outstanding artifacts:** D04 mindmap's 20-frame and D07 assembly's
+  14-frame candidate manifests are untracked and uncertified. E02/E03/E04 and
+  D08 still need fresh integrated-source gallery review. Audit the other
+  manifests before treating worker captures as evidence for fixed main.
+- **Acceptance:** source fingerprints match, gallery tooling passes, scenario
+  outcomes and images are reviewed, and offscreen/synthetic captures remain
+  labeled. Do not turn candidate files into accepted evidence merely by tracking
+  them. The implementation checkout's untracked artifacts are left untouched.
+
+### 3. Close the started tracks' explicit acceptance gaps
+
+| Owning plans | Remaining bounded work and acceptance signal |
+| --- | --- |
+| [Workbench](WORKBENCH-HARDENING-PLAN.md), [application validation](APPLICATION-VALIDATION-PLAN.md), [authoring migration](docs/design/example-authoring-migration.md) | Complete existing H2/H6/native workflow and independent authoring gates; exercise launcher, packaged workflow, chooser and physical input. Historical timings and agent exercises do not establish current human acceptance. |
+| F01/F02 and [host architecture](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md) | Verify the promised text/lifecycle paths on applicable hosts; physical IME, native menu/sheet presentation and sustained resource behavior remain open. Keep the eight-session AppKit profile distinct from retained-layout and Metal support. |
+| [Browser](docs/design/browser-execution.md) and [server views](docs/design/server-backed-views.md) | Test other browsers and supported toolchains, actual remote/authenticated transport, revision restart through the browser, disconnect/load/long-session behavior and human interaction before broader support claims. The reduction transfers fewer bytes but is slower in the Python sweep; no overall performance or memory win is established. |
+| [Jupyter](docs/design/jupyter-integration.md), P03–P05 | Verify actual remote kernel/network topology, other frontends and native-viewer restart ownership; resolve dense labels/overflow/narrow controls. Extract a shared notebook adapter only after the two consumers demonstrate a common contract and the P04 remote gate passes. |
+| [FDG](docs/design/fdg-port.md), P06 | Exercise actual Save-dialog save/cancel and a fresh distribution build/install. Existing Ubuntu GTK/Xvfb evidence is emulated; wheel is not manylinux and does not bundle system GTK or optional rsvg-convert. Verify claimed target hosts and distribution/license scope. |
+| [Watershed](docs/design/sws-port.md), P07 | In the separate app repo, rerun native smoke/replay after recovery fixes, test real external image stacks and power-loss recovery, and obtain human scientific acceptance. Retain pinned-reference equivalence evidence; do not infer app delivery from Moxi sampling hooks alone. |
+| [Math backend](docs/design/math-backend-experiment.md) / [editor](docs/design/math-editing.md), D01/D02 | Physical US/non-US keyboard/IME, typography, simultaneous font/view sessions, lifecycle/leak checks and fresh-host packaging/signing/runtime redistribution. D02 now exists; D01's old “editor integration must follow” is not unstarted work. |
+| [Canvas](docs/design/canvas-interaction.md) / [mindmap](docs/design/mind-mapping.md), D03/D04 | Resolve or explicitly narrow the 8 ms large-graph budget and 1,024-slot native capacity boundary; validate native capture-loss/editing/chooser interactions and independent usability. Measure allocation/GPU/input-to-presentation costs before promoting performance claims. |
+| [Spatial](docs/design/3d-interaction.md), D05–D08 | Keep S0's negative renderer decision. Production selection requires a public per-window compositable GPU interface, a maintained candidate and sustained presentation-inclusive measurements. D06/D07 consumers exist; D08 promotion stays rejected until transformed IME and semantic geometry agree. Retain screen-space controls as the supported alternative within the experiment. |
+| [Ecosystem](ECOSYSTEM-CONVERGENCE-PLAN.md), E01–E04 | Resolve labels/legends/theme and reference parity gaps. Contour/tricontour reference APIs are absent at pinned upstream; document a defensible reference strategy before parity claims. E04 remains experimental pending ABI/host/sanitizer/runtime redistribution evidence; native raster text/vector PDF are unsupported. |
+| [NotImplemented](docs/not-implemented-pattern.md), N01 | Native/manual acceptance and explicit character-wrapping limits; no new component implementation is needed. |
+
+VoiceOver remains **paused**. Record that gate as open; do not schedule or run a
+VoiceOver session without the user's decision to resume it. Accessibility models
+and automated semantics do not replace that human acceptance.
+
+### 4. Keep untouched proposals visible and deferred
+
+P08 SWS4D, P09 Linux GPU/H4, P10 additional mobile adapters, P11 additional host
+follow-through, E05 Cairo evaluation, E06 catalog reconciliation, V01–V15 and
+I10/I11/I13/I15/I18/I19/I20 remain pending. The
+[master list](DEFERRED-IMPLEMENTATION-MASTER.md#current-delivery-status) retains
+scope, dependencies and storyboards for all 50 IDs. Starting them needs a new
+implementation decision; this planning update does not reprioritize them.
+
+## Historical execution plan
+
+The material below preserves earlier design reasoning, milestone contracts and
+proposal sequences. “Next”, “proposed” and non-goals in those dated sections
+belong to their original baselines. Use the current list above for remaining
+work, and the master status table for delivery. Existing acceptance criteria
+remain valid unless an explicit later decision supersedes them.
+
 This plan converts the implementation audited in [CURRENT-STATE.md](CURRENT-STATE.md)
 into a supportable product boundary. It deliberately prioritizes contracts and
 evidence over more feature breadth.

@@ -1,5 +1,26 @@
 # Prove Moxi through one useful application
 
+## Current status — November 9, 2026
+
+The application, workbench hardening and authoring migration are on published
+`main` at `b2361c2`. The bounded application is implemented; its native,
+performance and independent human acceptance gates remain open. The broader
+deferred-proposal program also landed bounded slices without closing these
+milestone gates. Main CI has a confirmed native package input failure; current
+integration evidence and remaining work supersede historical “next feature”
+sequencing below.
+
+See [current implementation and CI evidence](CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
 ## Decision and evidence boundary
 
 Use a small macOS data exploration application to test whether Moxi's existing

@@ -1,6 +1,28 @@
 # Mojo and Moxi in Jupyter
 
-Status: proposed notebook integration; Python launch and SVG helpers implemented
+## Current status — November 9, 2026
+
+P03 entry is implemented (`5a92f0e`); P04 interactive FDG (`0cbd942`, `f8b8cc9`,
+`08303c8`) and P05 second linked plot/table/details consumer (`dc2b6c1`) are
+partial. All are on `main` at `b2361c2`. Fresh local kernels and actual notebook
+interaction now have evidence; this is no longer only a proposal. Actual remote
+kernel/network topology, other frontends, native-viewer restart ownership,
+dense/narrow layout and human acceptance remain open. A common public adapter
+is contingent on the shared contract and P04 remote gate, not automatically
+justified by a second consumer.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: proposed notebook integration; Python launch and SVG helpers implemented
 in the FDG example. Observed October 27, 2026.
 
 ## Outcome and current evidence

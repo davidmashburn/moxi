@@ -1,6 +1,30 @@
 # Moxi ecosystem convergence plan
 
-Status: E1-E8 local implementation plus D0 row-native catalog geometry complete; external publication and specialized upstream layout parity remain explicit boundaries
+## Current status — November 9, 2026
+
+The earlier E1–E8 milestone naming below is distinct from the master list's
+E01–E06 tracks. At `main` `b2361c2`, E01/E02/E03 plot waves and E04 native Python
+are partial; E05 Cairo evaluation and E06 catalog reconciliation remain pending.
+The three waves cover 9/14/12 families with integrated identity, resize/parser
+and attribution fixes. This is not full upstream or pixel parity: labels,
+legends, themes and other layout differences remain, while pinned upstream lacks
+contour/tricontour references. The installed native-wheel experiment has recorded
+46 consumer and 315 facade test passes, but supported ABI/hosts, sanitizers,
+runtime redistribution and native raster text/vector PDF remain open or
+unsupported. Fresh integrated galleries still need review.
+
+See [current implementation and CI evidence](CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: E1-E8 local implementation plus D0 row-native catalog geometry complete; external publication and specialized upstream layout parity remain explicit boundaries
 Planning baseline: September 7, 2026
 Implementation branch: `main`  
 Planning branch: `project-planning`

@@ -1,6 +1,27 @@
 # Native canvas interaction framework
 
-Status: proposed architecture and delivery plan; no framework implementation is
+## Current status — November 9, 2026
+
+D03 is partial, with implementation in `5db9a01` and integrated mount-identity
+fixes in `3c288b9`, now on `main` at `b2361c2`. Native transformed rich-node
+composition and two consumers exist. The large-graph 8 ms budget fails before
+native submission; the 1,024 ordinary-slot native capacity cannot present the
+3,015-view workload. Allocation/GPU/presentation costs, physical editing and
+capture-loss behavior, overlapping labels and independent usability remain open.
+The framework must not be presented as absent or performance-accepted.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: proposed architecture and delivery plan; no framework implementation is
 claimed. This is coordinated with the [mind-map application](mind-mapping.md)
 and does not override the [execution plan](../../PROJECT-PLANNING.md).
 The [3D interface scope](3d-interaction.md) explores related spatial components.

@@ -1,17 +1,66 @@
 # Deferred implementation master list
 
-Status: proposed for user confirmation; implementation has not started.
+Status: reconciled November 9, 2026 against published `main` at `b2361c2`.
+The scope inventoried at `fe79a32` was taken into implementation; it is no longer
+awaiting initial confirmation. Landed slices retain the acceptance limits in
+[current state](CURRENT-STATE.md) and the [remaining-work list](PROJECT-PLANNING.md#remaining-work--november-9-2026).
 
-Prepared November 6, 2026 against implementation `feat/playground-authoring`
-at `6c92242` and planning `project-planning` at `c2a0755`. The user requested
-all deferred proposals, separate Astra High workers, incremental commits,
-appropriate branches, and screenshot slideshows for every proposed demo.
-This document defines the scope to confirm before starting that work.
+## Current delivery status
 
-## What approval would mean
+The [implementation ledger](https://github.com/davidmashburn/moxi/blob/b2361c2d4131cb6bbc25ebf5e4816e2fe347250b/docs/deferred-implementation.json)
+records 50 tracks: **7 implemented, 2 experiment complete, 13 partial, 28 pending**.
+“Implemented” means the bounded slice exists, not that all acceptance/release gates
+have passed. “Experiment complete” includes a negative decision: D05 selected no
+production renderer. All listed Moxi commits are ancestors of main at `b2361c2`.
+P07's application is in separate `moxi-sws`; `dbd145e` is only the Moxi hook commit.
 
-Approve the concrete deliveries and experiments listed below, in dependency
-order. Detailed feature plans retain their stated acceptance criteria. Broad
+| ID | Scope | Delivery state | Moxi commits |
+| --- | --- | --- | --- |
+| F01 | Font fallback and paragraph corpus | implemented | [`4e34e5b`](https://github.com/davidmashburn/moxi/commit/4e34e5b), [`3b8182c`](https://github.com/davidmashburn/moxi/commit/3b8182c) |
+| F02 | Native ownership and lifecycle | implemented | [`c8d602a`](https://github.com/davidmashburn/moxi/commit/c8d602a) |
+| P01 | Browser execution | implemented | [`5921b47`](https://github.com/davidmashburn/moxi/commit/5921b47) |
+| P02 | Server-backed views | implemented | [`536442a`](https://github.com/davidmashburn/moxi/commit/536442a) |
+| P03 | Jupyter entry | implemented | [`5a92f0e`](https://github.com/davidmashburn/moxi/commit/5a92f0e) |
+| P04 | Interactive FDG notebook | partial | [`0cbd942`](https://github.com/davidmashburn/moxi/commit/0cbd942), [`f8b8cc9`](https://github.com/davidmashburn/moxi/commit/f8b8cc9), [`08303c8`](https://github.com/davidmashburn/moxi/commit/08303c8) |
+| P05 | Second notebook consumer | partial | [`dc2b6c1`](https://github.com/davidmashburn/moxi/commit/dc2b6c1) |
+| P06 | FDG export/distribution | partial | [`c44de8c`](https://github.com/davidmashburn/moxi/commit/c44de8c) |
+| P07 | Watershed app and sampling | partial | [`dbd145e`](https://github.com/davidmashburn/moxi/commit/dbd145e) |
+| D01 | Symbolic backend comparison | experiment complete | [`df1eff8`](https://github.com/davidmashburn/moxi/commit/df1eff8) |
+| D02 | Math editor | implemented | [`5f9bb45`](https://github.com/davidmashburn/moxi/commit/5f9bb45) |
+| D03 | Canvas interaction | partial | [`5db9a01`](https://github.com/davidmashburn/moxi/commit/5db9a01), [`3c288b9`](https://github.com/davidmashburn/moxi/commit/3c288b9) |
+| D04 | Mindmap | partial | [`bd3cccd`](https://github.com/davidmashburn/moxi/commit/bd3cccd), [`3c288b9`](https://github.com/davidmashburn/moxi/commit/3c288b9) |
+| D05 | Spatial S0 renderer comparison | experiment complete | [`c228b15`](https://github.com/davidmashburn/moxi/commit/c228b15) |
+| D06 | Spatial explorer | partial | [`b24045c`](https://github.com/davidmashburn/moxi/commit/b24045c) |
+| D07 | Spatial assembly | partial | [`d08538e`](https://github.com/davidmashburn/moxi/commit/d08538e) |
+| D08 | World panels | partial | [`511b60b`](https://github.com/davidmashburn/moxi/commit/511b60b) |
+| E01 | Plot wave A | partial | [`4706b42`](https://github.com/davidmashburn/moxi/commit/4706b42), [`95d6615`](https://github.com/davidmashburn/moxi/commit/95d6615) |
+| E02 | Plot wave B | partial | [`45cc7cf`](https://github.com/davidmashburn/moxi/commit/45cc7cf), [`9664137`](https://github.com/davidmashburn/moxi/commit/9664137), [`6a8b784`](https://github.com/davidmashburn/moxi/commit/6a8b784) |
+| E03 | Plot wave C | partial | [`9664137`](https://github.com/davidmashburn/moxi/commit/9664137), [`6a8b784`](https://github.com/davidmashburn/moxi/commit/6a8b784) |
+| E04 | Native Python experiment | partial | [`f68c965`](https://github.com/davidmashburn/moxi/commit/f68c965), [`6a8b784`](https://github.com/davidmashburn/moxi/commit/6a8b784), [`95d6615`](https://github.com/davidmashburn/moxi/commit/95d6615) |
+| N01 | NotImplemented component | implemented | [`b4d8109`](https://github.com/davidmashburn/moxi/commit/b4d8109) |
+
+Pending IDs are P08–P11 (4), E05–E06 (2), V01–V15 (15), and
+I10/I11/I13/I15/I18/I19/I20 (7). Their original scope rows below remain the
+inventory; no implementation is recorded. I01–I09/I12/I14/I16/I17/I21 are coverage
+mappings into other tracks, not extra independently completed or pending plans.
+
+Main CI is not green: the native package recipe omits a required header.
+See the [confirmed blocker](CURRENT-STATE.md#integration-checks-and-a-confirmed-packaging-blocker).
+Fresh integrated-source galleries and human/platform/performance gates remain
+open. VoiceOver remains paused. Untouched proposals remain deferred.
+
+## Original scope and execution design — November 6, 2026
+
+Prepared against implementation `6c92242` and planning `c2a0755`. The contracts,
+storyboards and dependency reasoning below are retained. Proposed branches and
+integration steps describe the original execution design, not instructions to
+recreate already-landed branches or redo completed slices. Current status above
+supersedes the original inventory’s delivery assumptions.
+
+## Original approved delivery contract
+
+The November 6 scope covered the concrete deliveries and experiments below,
+in dependency order. Detailed feature plans retain their stated acceptance criteria. Broad
 product visions receive bounded executable experiments, not a claim that their
 entire product horizon has been delivered. The 21 earlier concepts remain
 traceable through the coverage map rather than becoming duplicate applications.
@@ -22,9 +71,9 @@ gate is not permission to substitute a mock implementation or claim target
 support. Hardware, external data, compiler support, independent human trials,
 and production/publication actions remain explicit dependencies.
 
-No implementation branch, runtime change, dependency installation, or screenshot
-capture is part of this confirmation pass. Existing active-plan acceptance
-gaps remain open; this list does not silently close them.
+The inventory pass itself created no implementation branch, runtime change,
+dependency installation or screenshot capture. Subsequent work is recorded in
+the current status table; remaining acceptance gaps are still explicit.
 
 ## Execution and branch strategy
 
@@ -85,7 +134,7 @@ These are the still-relevant follow-ons from
 [execution-plan Gate 2](PROJECT-PLANNING.md#gate-2-text-and-native-macos-quality),
 not a replay of completed host or authoring work.
 
-| ID | Delivery to confirm | Demo and screenshot sequence | Branch |
+| ID | Original delivery scope | Demo and screenshot sequence | Branch |
 | --- | --- | --- | --- |
 | F01 | Portable font collections/fallback policy and richer paragraph corpus, preserving the existing CoreText/HarfBuzz ownership split. Verify mixed scripts, composed clusters, wrapping, selection, and invalidation; do not assume identical glyph IDs across engines. | Text laboratory: mixed-script paragraph → resize/wrap → fallback-font change → selection/caret and invalidation result. | `feat/text-fallback-policy` |
 | F02 | Native ownership and lifecycle: instance-owned window state or an explicitly enforced bounded profile, then prove two windows cannot cross-route events/resources. Cover deep collection editing, native menu/dialog lifecycle, drag/drop, and automated AX assertions incrementally. Existing portable menu/dialog models are reused. | Native lifecycle workbench: two independent windows → edit/selection in each → menu/dialog and drag/drop → close/reopen one while the other retains state. | `feat/native-window-ownership` |
@@ -98,7 +147,7 @@ existing pause on VoiceOver testing.
 
 ## Browser, notebooks, scientific applications, and hosts
 
-| ID | Delivery to confirm and source | Demo/slideshow coverage | Branch or dependency |
+| ID | Original delivery scope and source | Demo/slideshow coverage | Branch or dependency |
 | --- | --- | --- | --- |
 | P01 | [Browser execution](docs/design/browser-execution.md): preserve the FDG probe, establish safe handles/capacity/runtime/toolchain boundaries, then connect actual Moxi events, scene output, rendering, semantics, and lifecycle. Define a supported subset before calling it a web target. | Browser FDG: selected/dragged graph, pan/zoom/resize, pause/restart, two isolated instances, disposal/recreate, unsupported-runtime failure. | `feat/browser-moxi-runtime`; independent first track. |
 | P02 | [Server-backed views](docs/design/server-backed-views.md): real delayed local transport, immediate client feedback, bounded queries/cancellation, stale-result rejection, capped exact-record details, disconnect/retry, and measured full-data comparison. | Million-point density explorer: initial grid → pan while pending with retained data → fresh result → aggregate vs exact selection → disconnect/recovery and two views. | `feat/server-backed-views`; independent initially, integrate P01 later. |
@@ -113,7 +162,7 @@ existing pause on VoiceOver testing.
 | P11 | [Host follow-through](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md): Wayland validation of the existing Linux host. Windows receives a bounded feasibility/design gate because only a portable descriptor exists; a full Windows host is not yet specified. | Wayland canonical workbench; Windows gets a real scenario sequence only if the runtime/host probe succeeds. | `verify/wayland-host`, `experiment/windows-host`; browser host work stays P01. |
 
 P06's formats and Linux target, P07/P08's local application destinations, and
-P10/P11's finite target list are proposed choices for this confirmation, not
+P10/P11's finite target list were proposed choices in the original inventory, not
 facts already fixed by the older plans. No new remote repository is proposed.
 Scientific fixtures and current compiler/SDK/device availability must be checked
 before implementation commitments depend on them. A viewer alone does not
@@ -122,7 +171,7 @@ performance evidence.
 
 ## Math, canvas, mind maps, and spatial interaction
 
-| ID | Delivery to confirm and source | Demo/slideshow coverage | Branch and dependency |
+| ID | Original delivery scope and source | Demo/slideshow coverage | Branch and dependency |
 | --- | --- | --- | --- |
 | D01 | [Symbolic backend comparison](docs/design/math-backend-experiment.md): executable SymEngine wrapper and persistent SymPy worker against one exact-expression corpus; ownership, bounded work, revision/cancellation, editable result conversion, packaging and measured decision. | Backend comparison: exact arithmetic → expand/differentiate/substitute → assumptions/unsupported result → slow operation superseded → editable result and measured decision. | `experiment/math-backends`; parallel with backend-free editor. |
 | D02 | [Math editor M0–M4](docs/design/math-editing.md): lossless notation/text including holes/malformed edits; shared display/editor geometry, fractions/scripts/radicals/delimiters/matrices/functions/sums/integrals, navigation/selection, clipboard/history/persistence, one selected async backend, and second public-API consumer. | Native math workbench and reusable consumer: templates/nested edits → caret/selection/matrix/limits → exact text round-trip → clipboard/undo → pending/stale/result apply → reopen/narrow layout. | `feat/native-math-editor`; D01 gates computation, not editing. |
@@ -143,7 +192,7 @@ canvas, or rotating mesh alone does not complete those plans.
 Existing static/D0 plot names and Python PNG/SVG/PDF exports are already
 implemented. These rows target specialized layout parity or distinct adapters.
 
-| ID | Delivery to confirm and source | Demo/slideshow coverage | Branch |
+| ID | Original delivery scope and source | Demo/slideshow coverage | Branch |
 | --- | --- | --- | --- |
 | E01 | [Specialized Wave A](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-a): upstream-shaped layouts/fixtures for lollipop, waterfall, candlestick, bullet, grouped/stacked bar, Gantt/span, population pyramid. | One sequence per named family and distinct grouped/stacked/Gantt/span fixture: source → real reference → Moxi/difference → selection/table → export/update. | `feat/plot-specialized-wave-a` |
 | E02 | [Specialized Wave B](ECOSYSTEM-CONVERGENCE-PLAN.md#specialized-geometry-promotion-backlog--remaining-wave-b): pie/donut, radar, gauge, polar/radial bar, beeswarm, violin, ridgeline, Nightingale, streamgraph, contour; richer distributions/grids as needed. | Same per-family proof sequence; retain separate pie/donut, polar variants and contour/filled-contour cases from the authoritative inventory. | `feat/plot-specialized-wave-b` |
@@ -168,7 +217,7 @@ slideshow. Shared dependencies can be reused; each vision retains its distinct
 question. The concrete fixtures below are proposed experiment choices derived
 from the briefs, not complete specifications of commercial products.
 
-| ID | Experiment to confirm | Screenshot storyboard | Dependencies or nonvisual evidence |
+| ID | Original experiment scope | Screenshot storyboard | Dependencies or nonvisual evidence |
 | --- | --- | --- | --- |
 | [V01](ideas/v01-draw-executable-behavior.md) | Draw executable behavior: two-state motion model, parameter versus desired-curve editing, bounded candidate proposals. | Model → target edit → candidate comparison → failed fit/cancel/undo. | Canvas/math, explicit inverse-solving limits. |
 | [V02](ideas/v02-compose-worlds.md) | Compose worlds: seeded two-population 2D world with editable response rules and compared predictions. | Initial world → rule edit → branched outcomes → reset/replay. | Deterministic simulation and parameter history. |
@@ -222,7 +271,7 @@ The seven independent or architectural briefs I10, I11, I13, I15, I18, I19 and
 I20 each receive a separate Astra High worker/plan. They may share the example
 shell and capture infrastructure while preserving their own tested contracts.
 
-## Scope boundaries to confirm
+## Original scope boundaries
 
 The following are mentioned as possible extensions, discovery catalogs or
 explicit non-goals, rather than standalone implementable proposals. They remain
@@ -273,14 +322,12 @@ accessibility/IME, package clean installs and benchmarks are required where
 the corresponding source plan claims them. Offscreen snapshots and agent
 exercises do not silently substitute for unavailable human or platform checks.
 
-## Confirmation and evidence limits
+## Original inventory evidence and limits
 
-Confirm the 28 F/P/D/E/N workstreams, the 15 V experiments, all 21 I coverage
-scenarios (seven with separate implementation lanes), the branch/application
-choices, screenshot contract, and exclusions above. Changes can be stated by
-ID. In particular, the proposed scope includes finite experimental versions of
-all 15 visions; it does not commit to completing their unlimited product
-horizons or the unscheduled extension catalog.
+The original inventory covered 28 F/P/D/E/N workstreams, 15 V experiments and
+all 21 I coverage scenarios (seven with separate implementation lanes). The
+accepted scope included finite experiments for the visions, not their unlimited
+product horizons. This is retained scope history, not a new confirmation request.
 
 Confidence is **high** in the named proposal inventory and identification of
 already committed browser/server probes, **moderate** in the dependency and
@@ -288,7 +335,7 @@ branch grouping, and **low until tested** in hardware/runtime and empirical
 feasibility. New implementation evidence, compiler/device results, reference
 fixtures or the user's scope corrections could change those conclusions.
 
-This confirmation pass inspected repository plans, selected implementation
+The original inventory pass inspected repository plans, selected implementation
 sources/inventories, branch history and the experiment checkout, with three
 separate Astra High inventory workers. It did not build or test runtime code,
 install dependencies, run GUI sessions, capture screenshots, fetch external

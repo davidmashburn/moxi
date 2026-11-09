@@ -1,6 +1,27 @@
 # Native force-directed graph application
 
-Status: first slice implemented as a Moxi example; follow-ups remain proposed.
+## Current status — November 9, 2026
+
+The original native FDG slice is joined by partial P06 export/distribution
+work in `c44de8c`, now on `main` at `b2361c2`. Linux evidence uses emulated
+Ubuntu 24.04, GTK/Xvfb and software Cairo; it is not physical Wayland acceptance.
+The wheel is not manylinux and does not bundle system GTK or optional
+rsvg-convert. Actual native Save-dialog save/cancel, fresh image/install,
+distribution/license scope and independent human acceptance remain open.
+Notebook consumers are tracked separately under P04/P05.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: first slice implemented as a Moxi example; follow-ups remain proposed.
 Reconciled October 27, 2026.
 
 ## Outcome and evidence

@@ -1,6 +1,27 @@
 # Server-backed data with local Moxi interaction
 
-Status: initial in-process contract probe passed; browser/transport integration proposed. October 27, 2026.
+## Current status — November 9, 2026
+
+P02's real delayed HTTP transport and immediate client feedback are implemented
+in `536442a`, now on `main` at `b2361c2`. Identity/revision, bounded queues,
+stale-result rejection and disconnect behavior have local transport evidence.
+The sweep transfers about 17–18 KB versus 20 MB, but Python reduction is slower;
+no overall performance or total-memory win is claimed. Remote/authenticated
+transport, load/long sessions, browser-controlled backend revision restart and
+human acceptance remain open.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: initial in-process contract probe passed; browser/transport integration proposed. October 27, 2026.
 Implementation baseline: main `875f714`; no server data path is shipped.
 
 ## Direction and ownership

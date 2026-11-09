@@ -1,6 +1,30 @@
 # 3D interfaces, interaction, and components
 
-Status: broad scope and proposed architecture; no 3D implementation or delivery
+## Current status — November 9, 2026
+
+D05 renderer comparison is experiment-complete (`c228b15`); D06 explorer
+(`b24045c`), D07 assembly (`d08538e`) and D08 world panels (`511b60b`) are partial,
+all on `main` at `b2361c2`. Both renderer candidates miss the large-viewport
+frame-to-image target; no production renderer was selected. Production selection
+requires a public per-window compositable GPU interface, a maintained candidate
+and sustained presentation-inclusive measurements. Explorer and assembly are
+implemented consumers, not future proposals. World-panel promotion remains
+rejected until transformed native IME/semantic geometry agrees; retain the
+screen-space alternative. Fresh integrated galleries, sanitizers, physical
+interaction and human acceptance remain open.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: broad scope and proposed architecture; no 3D implementation or delivery
 schedule is claimed. This proposal complements the
 [canvas framework](canvas-interaction.md) and preserves the priorities and
 current plotting non-goals in the [execution plan](../../PROJECT-PLANNING.md).

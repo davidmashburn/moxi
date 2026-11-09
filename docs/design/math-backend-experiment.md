@@ -1,6 +1,26 @@
 # Symbolic backend integration experiment
 
-Status: planned experiment for [native math editing](math-editing.md).
+## Current status — November 9, 2026
+
+D01's backend comparison is experiment-complete in `df1eff8`, now on `main` at
+`b2361c2`. D02's real lossless text/2D editor and second consumer subsequently
+landed in `5f9bb45`; editor integration is no longer unstarted work. Preserve
+the experiment's bounded semantic/lifecycle evidence. Fresh-host packaging,
+runtime redistribution, physical input/IME and broader acceptance remain open;
+comparison completion does not establish all editor or distribution gates.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: planned experiment for [native math editing](math-editing.md).
 SymEngine and SymPy remain candidates; neither is selected by this document.
 The outcome is one initial adapter choice and a record of supported operations,
 integration costs, and limitations. Shipping both adapters is optional.

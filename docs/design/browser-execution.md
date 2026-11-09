@@ -1,6 +1,26 @@
 # Browser execution for Moxi and Jupyter
 
-Status: narrow feasibility demonstrated; full web target remains proposed.
+## Current status — November 9, 2026
+
+P01's bounded Moxi browser runtime is implemented in `5921b47`, now on `main`
+at `b2361c2`. Actual application input, scene/SVG output, semantics and lifecycle
+have native/WASM comparisons and browser evidence. This uses experimental host
+LLVM retargeting with pinned tools; direct Mojo WASM compilation still fails.
+A general supported web target, other browsers, human input/accessibility and
+physical display latency are not established.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: narrow feasibility demonstrated; full web target remains proposed.
 Observed October 27, 2026. Implementation baseline: main `875f714`.
 
 ## Decision and evidence

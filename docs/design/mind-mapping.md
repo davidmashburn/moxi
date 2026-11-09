@@ -1,6 +1,26 @@
 # Native mind mapping application
 
-Status: proposed scope and delivery plan. Build a Freeplane-inspired native
+## Current status — November 9, 2026
+
+D04 is partial in `bd3cccd` with transactional save/recovery fixes in `3c288b9`,
+now on `main` at `b2361c2`. Six Mojo suites, a 70-command inventory and native
+storage/save-session regressions provide bounded evidence. Fresh integrated
+native replay and the 20-frame gallery still need certification; the candidate
+manifest is untracked. Actual chooser/IME, live Freeplane comparison, independent
+usability and the canvas performance/capacity gates remain open.
+
+See [current implementation and CI evidence](../../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: proposed scope and delivery plan. Build a Freeplane-inspired native
 mind-mapping application on moxi, together with the reusable
 [canvas interaction framework](canvas-interaction.md). This plan describes a
 useful initial product and explicit follow-ups, not complete feature parity.

@@ -1,6 +1,25 @@
-# Proposed pattern: Not implemented
+# NotImplemented component
 
-Status: scoped; no implementation or public export is included in this plan.
+## Current status — November 9, 2026
+
+N01 is implemented in `b4d8109`, now on `main` at `b2361c2`. The reusable inert
+component has portable/native evidence and an AppKit offscreen gallery; this is
+no longer an unimplemented proposal. Live desktop interaction, compositor and
+non-macOS visuals remain unverified. Existing character wrapping may split words
+in narrow panels; no typography improvement is implied.
+
+See [current implementation and CI evidence](../CURRENT-STATE.md#current-audit--november-9-2026)
+and the [remaining-work list](../PROJECT-PLANNING.md#remaining-work--november-9-2026).
+VoiceOver remains paused. This update reconciles existing evidence; it does not
+rerun runtime or human acceptance checks.
+
+## Original scope and dated evidence
+
+The material below preserves its original baseline, design reasoning and
+acceptance criteria. Its historical status and future-tense steps are superseded
+by the current status above where implementation has since landed.
+
+Original status: scoped; no implementation or public export is included in this plan.
 
 This proposal was moved from `docs/project-planning.md` in the implementation
 worktree. Paths below refer to the implementation repository. It is a candidate
