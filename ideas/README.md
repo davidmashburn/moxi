@@ -68,6 +68,22 @@ Not every product needs every representation. A powerful 2D instrument can be
 more useful than adding 3D without a domain reason. The horizon stays broad
 while each experiment tests a specific interaction claim.
 
+## Composition experiments
+
+Three separate speculative briefs, captured October 22, 2026, explore the
+patterns enabled by a small compositional vocabulary. They supplement the
+portfolio without changing its vision counts, rankings, or execution priorities.
+
+- [Compositional plot instruments](compositional-plot-instruments.md): reusable
+  plot constructions, explicit selection algebra, and synchronized expression,
+  explanation, intermediate-data, and live-result views.
+- [Composition of the UI itself](compositional-ui-language.md): compose layout,
+  wrappers, repetition, and stateful relationships into reusable interface
+  phrases, with explicit identity laws and a live structural-editing horizon.
+- [Mathematical notation as compositional UI](math-notation-as-compositional-ui.md):
+  use nested math constructs to test composable editing behavior, contexts with
+  holes, and the boundary between structural edits and justified algebraic rewrites.
+
 ## Earlier concepts and supporting mechanisms
 
 The **21 earlier briefs** remain available under their original filenames.
