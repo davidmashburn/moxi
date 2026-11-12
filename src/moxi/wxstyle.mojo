@@ -291,6 +291,35 @@ struct WxStyleState(Component):
         root.set_accessibility_label(WX_PROGRESS_ID, "Activity progress")
         root.set_container_alignment(body, JUSTIFY_START, ALIGN_STRETCH)
 
+        # Keep the primary actions immediately after the form so they remain
+        # visible in the browser's first viewport.
+        var actions = root.add_row_to(panel, WX_ACTIONS_ID, 0.0, 52.0, 8.0, 8.0)
+        root.add_flexible_spacer_to(actions, WX_SPACER_ID)
+        var ok = ButtonControl(WX_OK_BUTTON_ID, "OK", 32.0)
+        root.add_to(actions, ok.node())
+        var cancel = ButtonControl(WX_CANCEL_BUTTON_ID, "Cancel", 32.0)
+        root.add_to(actions, cancel.node())
+        var reset = ButtonControl(WX_RESET_BUTTON_ID, "Reset", 32.0)
+        root.add_to(actions, reset.node())
+        root.set_action(WX_OK_BUTTON_ID, WX_SUBMIT_ACTION)
+        root.set_action(WX_CANCEL_BUTTON_ID, WX_CANCEL_ACTION)
+        root.set_action(WX_RESET_BUTTON_ID, WX_RESET_ACTION)
+        var agent_reset = ButtonControl(WX_AGENT_RESET_BUTTON_ID, "Agent reset", 32.0)
+        root.add_to(actions, agent_reset.node())
+        root.set_action(WX_AGENT_RESET_BUTTON_ID, WX_AGENT_RESET_ACTION)
+        root.set_intrinsic_width(WX_AGENT_RESET_BUTTON_ID)
+        var approve_reset = ButtonControl(WX_APPROVE_RESET_ID, "Approve reset", 32.0)
+        root.add_to(actions, approve_reset.node())
+        root.set_action(WX_APPROVE_RESET_ID, WX_APPROVE_RESET_ACTION)
+        root.set_enabled(
+            WX_APPROVE_RESET_ID,
+            self.pending_agent_reset_request_id.count_codepoints() > 0,
+        )
+        root.set_intrinsic_width(WX_APPROVE_RESET_ID)
+        root.set_intrinsic_width(WX_OK_BUTTON_ID)
+        root.set_intrinsic_width(WX_CANCEL_BUTTON_ID)
+        root.set_intrinsic_width(WX_RESET_BUTTON_ID)
+
         # Capability and backend status are visible in the same scenario so
         # the demo exercises the platform-neutral contracts, too.
         var details = root.add_column_to(panel, WX_CAPABILITIES_ID, 184.0, 8.0, 4.0)
@@ -375,34 +404,6 @@ struct WxStyleState(Component):
         root.set_accessibility_label(WX_APPROVAL_STATUS_ID, "Agent approval status")
         root.set_accessibility_value(WX_APPROVAL_STATUS_ID, approval_text)
         root.set_accessibility_label(details, "Runtime capabilities")
-
-        # A horizontal BoxSizer with a flexible spacer and three wx.Button-style controls.
-        var actions = root.add_row_to(panel, WX_ACTIONS_ID, 0.0, 52.0, 8.0, 8.0)
-        root.add_flexible_spacer_to(actions, WX_SPACER_ID)
-        var ok = ButtonControl(WX_OK_BUTTON_ID, "OK", 32.0)
-        root.add_to(actions, ok.node())
-        var cancel = ButtonControl(WX_CANCEL_BUTTON_ID, "Cancel", 32.0)
-        root.add_to(actions, cancel.node())
-        var reset = ButtonControl(WX_RESET_BUTTON_ID, "Reset", 32.0)
-        root.add_to(actions, reset.node())
-        root.set_action(WX_OK_BUTTON_ID, WX_SUBMIT_ACTION)
-        root.set_action(WX_CANCEL_BUTTON_ID, WX_CANCEL_ACTION)
-        root.set_action(WX_RESET_BUTTON_ID, WX_RESET_ACTION)
-        var agent_reset = ButtonControl(WX_AGENT_RESET_BUTTON_ID, "Agent reset", 32.0)
-        root.add_to(actions, agent_reset.node())
-        root.set_action(WX_AGENT_RESET_BUTTON_ID, WX_AGENT_RESET_ACTION)
-        root.set_intrinsic_width(WX_AGENT_RESET_BUTTON_ID)
-        var approve_reset = ButtonControl(WX_APPROVE_RESET_ID, "Approve reset", 32.0)
-        root.add_to(actions, approve_reset.node())
-        root.set_action(WX_APPROVE_RESET_ID, WX_APPROVE_RESET_ACTION)
-        root.set_enabled(
-            WX_APPROVE_RESET_ID,
-            self.pending_agent_reset_request_id.count_codepoints() > 0,
-        )
-        root.set_intrinsic_width(WX_APPROVE_RESET_ID)
-        root.set_intrinsic_width(WX_OK_BUTTON_ID)
-        root.set_intrinsic_width(WX_CANCEL_BUTTON_ID)
-        root.set_intrinsic_width(WX_RESET_BUTTON_ID)
 
         var help_style = default_label_style()
         help_style.font_size = 16.0

@@ -876,19 +876,6 @@ struct FractalState(Component):
         )
         root.set_container_alignment(status, JUSTIFY_START, ALIGN_CENTER)
 
-        root.add_label_to(content, FRACTAL_CLASSIC_LABEL_ID, "Classic Presets", 24.0)
-        self.build_preset_grid(root, content, FRACTAL_CLASSIC_GRID_ID, FRACTAL_GROUP_CLASSIC)
-        root.add_label_to(content, FRACTAL_EXPERIMENT_LABEL_ID, "Experimental Presets", 24.0)
-        self.build_preset_grid(root, content, FRACTAL_EXPERIMENT_GRID_ID, FRACTAL_GROUP_EXPERIMENT)
-
-        var reset = ButtonControl(
-            FRACTAL_RESET_ID,
-            "Reset current preset",
-            34.0,
-        )
-        root.add_to(content, reset.node())
-        root.set_intrinsic_width(FRACTAL_RESET_ID)
-
         var controls = root.add_row_to(
             content,
             FRACTAL_CONTROL_ROW_ID,
@@ -928,6 +915,13 @@ struct FractalState(Component):
             self.random_colors,
             32.0,
         )
+        root.add_button_to(
+            controls,
+            FRACTAL_RESET_ID,
+            "Reset current preset",
+            34.0,
+        )
+        root.set_intrinsic_width(FRACTAL_RESET_ID)
         root.set_container_alignment(controls, JUSTIFY_START, ALIGN_CENTER)
 
         root.add_canvas_to(
@@ -952,6 +946,10 @@ struct FractalState(Component):
             48.0,
         )
         root.set_wrap_text(FRACTAL_HELP_ID)
+        root.add_label_to(content, FRACTAL_CLASSIC_LABEL_ID, "Classic Presets", 24.0)
+        self.build_preset_grid(root, content, FRACTAL_CLASSIC_GRID_ID, FRACTAL_GROUP_CLASSIC)
+        root.add_label_to(content, FRACTAL_EXPERIMENT_LABEL_ID, "Experimental Presets", 24.0)
+        self.build_preset_grid(root, content, FRACTAL_EXPERIMENT_GRID_ID, FRACTAL_GROUP_EXPERIMENT)
         root.layout()
         return root^
 

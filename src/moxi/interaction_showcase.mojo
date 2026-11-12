@@ -782,17 +782,22 @@ struct InteractionShowcaseState(Component):
         return False
 
     def build(self, bounds: Rect) -> ColumnView:
-        var root = ColumnView(bounds, 18.0, 10.0)
+        var padding: Float32 = 18.0
+        var spacing: Float32 = 10.0
+        if bounds.height < 520.0:
+            padding = 12.0
+            spacing = 6.0
+        var root = ColumnView(bounds, padding, spacing)
         root.set_surface_style(default_surface_style())
-        var panel_width = bounds.width - 32.0
-        var panel_height = bounds.height - 32.0
+        var panel_width = bounds.width - padding * 2.0
+        var panel_height = bounds.height - padding * 2.0
         if panel_width < 0.0:
             panel_width = 0.0
         if panel_height < 0.0:
             panel_height = 0.0
         root.set_panel(
             0,
-            Rect(bounds.x + 16.0, bounds.y + 16.0, panel_width, panel_height),
+            Rect(bounds.x + padding, bounds.y + padding, panel_width, panel_height),
             default_panel_style(),
         )
 
@@ -907,7 +912,9 @@ struct InteractionShowcaseState(Component):
         root.set_fixed_width(INTERACTION_SHOWCASE_RESET_ID, 92.0)
 
         var canvas_height = bounds.height - 278.0
-        if canvas_height < 250.0:
+        if bounds.height < 520.0:
+            canvas_height = 180.0
+        elif canvas_height < 250.0:
             canvas_height = 250.0
         root.add_canvas(
             INTERACTION_SHOWCASE_CANVAS_ID,

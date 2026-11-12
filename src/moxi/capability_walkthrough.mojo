@@ -292,9 +292,14 @@ struct CapabilityWalkthroughState(Component):
         return True
 
     def build(self, bounds: Rect) -> ColumnView:
-        var root = ColumnView(bounds, 20.0, 12.0)
-        var panel_width = bounds.width - 40.0
-        var panel_height = bounds.height - 40.0
+        var padding: Float32 = 20.0
+        var spacing: Float32 = 12.0
+        if bounds.height < 520.0:
+            padding = 12.0
+            spacing = 8.0
+        var root = ColumnView(bounds, padding, spacing)
+        var panel_width = bounds.width - padding * 2.0
+        var panel_height = bounds.height - padding * 2.0
         if panel_width < 0.0:
             panel_width = 0.0
         if panel_height < 0.0:
@@ -302,7 +307,7 @@ struct CapabilityWalkthroughState(Component):
         root.set_surface_style(default_surface_style())
         root.set_panel(
             0,
-            Rect(bounds.x + 20.0, bounds.y + 20.0, panel_width, panel_height),
+            Rect(bounds.x + padding, bounds.y + padding, panel_width, panel_height),
             default_panel_style(),
         )
         root.set_clip_to_bounds()
@@ -335,7 +340,7 @@ struct CapabilityWalkthroughState(Component):
         root.add(body)
         root.set_preferred_width(
             CAPABILITY_WALKTHROUGH_BODY_ID,
-            bounds.width - 72.0,
+            bounds.width - padding * 2.0 - 32.0,
         )
         root.set_intrinsic_height(CAPABILITY_WALKTHROUGH_BODY_ID)
         root.add_progress(
@@ -451,7 +456,7 @@ struct CapabilityWalkthroughState(Component):
         root.add(hint)
         root.set_preferred_width(
             CAPABILITY_WALKTHROUGH_HINT_ID,
-            bounds.width - 72.0,
+            bounds.width - padding * 2.0 - 32.0,
         )
         root.set_intrinsic_height(CAPABILITY_WALKTHROUGH_HINT_ID)
         root.layout()

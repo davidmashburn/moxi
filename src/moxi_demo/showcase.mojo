@@ -297,7 +297,12 @@ struct ShowcaseState(Component):
         return _is_scene_mode(self.mode)
 
     def build(self, bounds: Rect) -> ColumnView:
-        var root = ColumnView(bounds, 24.0, 12.0)
+        var padding: Float32 = 24.0
+        var spacing: Float32 = 12.0
+        if bounds.height < 520.0:
+            padding = 16.0
+            spacing = 8.0
+        var root = ColumnView(bounds, padding, spacing)
         root.set_surface_style(default_surface_style())
         root.set_panel(0, _panel_bounds(bounds), default_panel_style())
 

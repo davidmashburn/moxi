@@ -87,7 +87,10 @@ def sync_live_script(
     return True
 
 
-def run_demo(automated: Bool = False) raises:
+def run_demo(
+    automated: Bool = False,
+    catalog_sweep: Bool = False,
+) raises:
     """Run the normal Playground, optionally driven through CapabilityBus."""
     var window = MacOSWindow()
     var renderer = MacOSRenderer()
@@ -103,7 +106,7 @@ def run_demo(automated: Bool = False) raises:
     var live_script = MacOSLiveScript()
     var walkthrough = DemoWalkthroughDriver()
     if automated:
-        walkthrough.start()
+        walkthrough.start(catalog_sweep)
 
     render_frame(app, renderer, scene_renderer, live_script)
     while window.is_open():

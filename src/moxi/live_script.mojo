@@ -31,13 +31,18 @@ struct LiveScriptState(Component):
         self.reload_status = status
 
     def build(self, bounds: Rect) -> ColumnView:
-        var root = ColumnView(bounds, 24.0, 12.0)
+        var padding: Float32 = 24.0
+        var spacing: Float32 = 12.0
+        if bounds.height < 520.0:
+            padding = 16.0
+            spacing = 8.0
+        var root = ColumnView(bounds, padding, spacing)
         root.set_surface_style(default_surface_style())
         var panel_bounds = Rect(
-            bounds.x + 16.0,
-            bounds.y + 16.0,
-            bounds.width - 32.0,
-            bounds.height - 32.0,
+            bounds.x + padding,
+            bounds.y + padding,
+            bounds.width - padding * 2.0,
+            bounds.height - padding * 2.0,
         )
         if panel_bounds.width < 0.0:
             panel_bounds.width = 0.0

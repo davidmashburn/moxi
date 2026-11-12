@@ -44,7 +44,7 @@ static void usage(const char *program) {
 int main(int argc, char **argv) {
     int requested_pid = 0;
     const char *requested_owner = NULL;
-    const char *requested_title = "Moxi Playground";
+    const char *requested_title = NULL;
 
     for (int index = 1; index < argc; index++) {
         if (strcmp(argv[index], "--pid") == 0 && index + 1 < argc) {

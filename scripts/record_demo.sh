@@ -9,13 +9,31 @@ if [[ $# -gt 1 ]]; then
   exit 2
 fi
 
-duration="${MOXI_RECORD_SECONDS:-30}"
+record_kind="${MOXI_DEMO_RECORD_KIND:-walkthrough}"
+case "$record_kind" in
+  walkthrough)
+    default_duration=30
+    default_output="output/moxi-capability-bus-walkthrough-30s.mov"
+    build_task=demo-walkthrough-build
+    ;;
+  catalog)
+    default_duration=55
+    default_output="output/moxi-demo-catalog-walkthrough-55s.mov"
+    build_task=demo-catalog-walkthrough-build
+    ;;
+  *)
+    echo "MOXI_DEMO_RECORD_KIND must be walkthrough or catalog" >&2
+    exit 2
+    ;;
+esac
+
+duration="${MOXI_RECORD_SECONDS:-$default_duration}"
 if [[ ! "$duration" =~ ^[0-9]+$ ]] || (( duration < 1 || duration > 300 )); then
   echo "MOXI_RECORD_SECONDS must be an integer from 1 to 300" >&2
   exit 2
 fi
 
-output_path="${1:-output/moxi-capability-bus-walkthrough-30s.mov}"
+output_path="${1:-$default_output}"
 if [[ "$output_path" != /* ]]; then
   output_path="$repo_dir/$output_path"
 fi
@@ -32,7 +50,7 @@ for command_name in clang screencapture ffprobe ffmpeg; do
 done
 
 mkdir -p "$repo_dir/dist" "$(dirname "$output_path")"
-pixi run demo-walkthrough-build
+pixi run "$build_task"
 clang \
   -O2 -Wall -Wextra -Werror \
   native/macos_window_bounds.c \
@@ -70,13 +88,13 @@ cp dist/moxi-demo-walkthrough "$record_app/Contents/MacOS/moxi-demo-recorder"
 chmod +x "$record_app/Contents/MacOS/moxi-demo-recorder"
 
 rm -f -- "$output_path"
-/usr/bin/open -n "$record_app" >"$record_log" 2>&1
+/usr/bin/open -n "$record_app" --args "$repo_dir" >"$record_log" 2>&1
 
 window_info=""
 deadline=$(( $(date +%s) + 20 ))
 while (( $(date +%s) < deadline )); do
   candidate=""
-  if candidate="$($window_helper --owner MoxiDemoRecorder --title "Moxi Playground" 2>/dev/null)"; then
+  if candidate="$($window_helper --owner MoxiDemoRecorder 2>/dev/null)"; then
     window_info="$candidate"
     break
   fi
@@ -102,7 +120,7 @@ sleep 0.25
 echo "Recording Moxi Playground window $window_id at $x,$y ${width}x${height} for ${duration}s"
 screencapture \
   "-R${x},${y},${width},${height}" \
-  -o -v "-V${duration}" -C -x "$output_path"
+  -v "-V${duration}" -C -x "$output_path"
 
 codec="$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$output_path")"
 width_px="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 "$output_path")"

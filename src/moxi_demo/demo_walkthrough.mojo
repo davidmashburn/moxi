@@ -23,6 +23,7 @@ from .demo_style import (
     DEMO_METAL_SCENE_ID,
     DEMO_PLOT_GALLERY_ID,
 )
+from .demo_entry import DemoCatalog
 from .demo_browser import (
     DEMO_COUNTER_ID_OFFSET,
     DEMO_ENTRY_VIEW_BASE,
@@ -166,6 +167,7 @@ struct DemoWalkthroughDriver:
     var observed_reorder: Bool
     var observed_plot: Bool
     var observed_metal: Bool
+    var catalog_sweep: Bool
 
     def __init__(out self):
         self.bus = CapabilityBus()
@@ -195,6 +197,7 @@ struct DemoWalkthroughDriver:
         self.observed_reorder = False
         self.observed_plot = False
         self.observed_metal = False
+        self.catalog_sweep = False
 
     def _register_handlers(mut self):
         self.bus = CapabilityBus()
@@ -445,10 +448,83 @@ struct DemoWalkthroughDriver:
         )
         self._append_approval(1.30)
 
-    def start(mut self):
-        """Reset and start the deterministic live-component replay."""
+    def _build_catalog_actions(mut self):
+        """Visit every live catalog page through the existing bus handlers."""
+        self.actions = List[DemoWalkthroughAction]()
+        var catalog = DemoCatalog()
+        for index in range(catalog.count()):
+            var entry = catalog.entry(index)
+            self._append_action(
+                "demo.select",
+                String("{\"demo\":\"", entry.task, "\"}"),
+                CALLER_UI,
+                DEMO_WALKTHROUGH_SELECT_HANDLER,
+                DEMO_ENTRY_VIEW_BASE + entry.id,
+                0.25,
+            )
+            self._append_action(
+                "demo.show",
+                "{\"tab\":\"demo\"}",
+                CALLER_UI,
+                DEMO_WALKTHROUGH_SHOW_HANDLER,
+                DEMO_TAB_DEMO_ID,
+                1.15,
+            )
+            if entry.id == DEMO_COUNTER_ID:
+                for step in range(1, 4):
+                    self._append_action(
+                        "counter.increment",
+                        String("{\"step\":", step, "}"),
+                        CALLER_UI,
+                        DEMO_WALKTHROUGH_COUNTER_HANDLER,
+                        DEMO_COUNTER_ID_OFFSET + 11,
+                        0.45,
+                    )
+            elif entry.id == DEMO_PLOT_GALLERY_ID:
+                self._append_action(
+                    "plot.toggle_marks",
+                    "{\"marks\":\"toggle\"}",
+                    CALLER_UI,
+                    DEMO_WALKTHROUGH_PLOT_MARKS_HANDLER,
+                    DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_PLOT_TOGGLE_MARKS_ID,
+                    0.55,
+                )
+                self._append_action(
+                    "plot.stream",
+                    "{\"streaming\":true}",
+                    CALLER_UI,
+                    DEMO_WALKTHROUGH_PLOT_STREAM_HANDLER,
+                    DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_PLOT_STREAM_ID,
+                    0.75,
+                )
+            elif entry.id == DEMO_INTERACTION_ID:
+                self._append_scroll(64.0, 0.45)
+                self._append_action(
+                    "interaction.select_next",
+                    "{\"selection\":\"next\"}",
+                    CALLER_UI,
+                    DEMO_WALKTHROUGH_SELECT_NEXT_HANDLER,
+                    DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_SELECT_NEXT_ID,
+                    0.45,
+                )
+                self._append_action(
+                    "interaction.move_selected",
+                    "{\"destination\":\"computed\"}",
+                    CALLER_UI,
+                    DEMO_WALKTHROUGH_MOVE_HANDLER,
+                    DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_MOVE_ID,
+                    0.55,
+                )
+                self._append_scroll(64.0, 0.45)
+
+    def start(mut self, catalog_sweep: Bool = False):
+        """Reset and start either the curated replay or full catalog sweep."""
         self._register_handlers()
-        self._build_actions()
+        if catalog_sweep:
+            self._build_catalog_actions()
+        else:
+            self._build_actions()
+        self.catalog_sweep = catalog_sweep
         self.action_index = 0
         self.wait_remaining = 3.50
         self.request_sequence = 0
@@ -703,6 +779,11 @@ struct DemoWalkthroughDriver:
             else self._dispatch_action(app, action)
         )
         if not changed:
+            if (
+                action.capability_name == "demo.select"
+                and app.component.selected_id == action.target - DEMO_ENTRY_VIEW_BASE
+            ):
+                return self._publish_result(app, action, result, "selection already active")
             self.failed = True
             self.running = False
             return self._publish(
@@ -739,6 +820,16 @@ struct DemoWalkthroughDriver:
         if self.action_index >= len(self.actions) and not self.failed:
             self.running = False
             self.finished = True
+            if self.catalog_sweep:
+                var catalog = DemoCatalog()
+                changed = self._publish(
+                    app,
+                    String(
+                        "CapabilityBus · catalog walkthrough complete · ",
+                        catalog.count(),
+                        " demos visited",
+                    ),
+                ) or changed
         return changed
 
     def is_running(self) -> Bool:

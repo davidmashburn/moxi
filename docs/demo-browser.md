@@ -15,11 +15,21 @@ embedded Metal Scene, scrolling, selection, reorder, and approval-gated reset
 without opening a second window. `pixi run demo` remains the manual-input
 version of that host.
 
+`pixi run demo-catalog-walkthrough` is a separate bus-driven sweep over every
+`DemoCatalog` entry. It selects each item and opens its `Demo` tab in the same
+window. It also increments Counter, toggles and streams Plot Gallery, and
+scrolls, selects, and reorders the Interaction Lab; the curated walkthrough
+remains the focused approval lesson.
+
 `pixi run demo-record` runs that same walkthrough without agent or GUI
 automation. It builds an isolated temporary app bundle, discovers the live
 Playground window bounds, records a 30-second region capture, validates the
 resulting H.264/60fps MOV, and cleans up its own process. Pass an output path as
 the first argument or set `MOXI_RECORD_SECONDS` to override the defaults.
+
+`pixi run demo-catalog-record` uses the same recorder for the full catalog
+sweep. Its default 55-second capture leaves time for the completion status;
+pass an output path or set `MOXI_RECORD_SECONDS` to change the capture.
 
 For a non-GUI host gate, run `pixi run browser-check`. It starts a local
 ephemeral-port server for `native/web/host_demo.html`, verifies the explicit

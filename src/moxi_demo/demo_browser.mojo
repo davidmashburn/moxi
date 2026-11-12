@@ -157,7 +157,6 @@ comptime DEMO_NAV_SEARCH_LABEL_ID = 108
 comptime DEMO_SEARCH_ROW_ID = 109
 comptime DEMO_CLEAR_SEARCH_ID = 110
 comptime DEMO_NAV_FILTER_LABEL_ID = 111
-comptime DEMO_NAV_TIP_ID = 112
 comptime DEMO_NAV_DIVIDER_ID = 113
 comptime DEMO_NAV_TREE_ID = 114
 comptime DEMO_NAV_COLLAPSED_ID = 115
@@ -654,7 +653,7 @@ struct DemoBrowserState(Component):
 
         var nav = root.add_column(DEMO_NAV_ID, 0.0, 14.0, 6.0)
         var main = root.add_column(DEMO_MAIN_ID, 0.0, 18.0, 8.0)
-        root.set_fixed_width(nav, 308.0)
+        root.set_fixed_width(nav, 284.0)
         root.set_container_alignment(nav, JUSTIFY_START, ALIGN_STRETCH)
         root.set_container_alignment(main, JUSTIFY_START, ALIGN_STRETCH)
 
@@ -671,15 +670,15 @@ struct DemoBrowserState(Component):
             nav,
             DEMO_TITLE_ID,
             "Moxi Playground",
-            34.0,
-            _title_style(),
+            30.0,
+            _label_style(26.0, _ink()),
         )
         _add_styled_label(
             root,
             nav,
             DEMO_METADATA_ID,
-            "Run, read, and inspect real examples from one native workbench.",
-            38.0,
+            "Explore runnable examples.",
+            22.0,
             _body_style(),
         )
         root.add_separator_to(nav, DEMO_NAV_DIVIDER_ID, 1.0)
@@ -694,11 +693,10 @@ struct DemoBrowserState(Component):
             root,
             nav,
             DEMO_NAV_SEARCH_LABEL_ID,
-            "FIND AN EXAMPLE",
-            18.0,
+            "SEARCH",
+            14.0,
             _kicker_style(),
         )
-
         var search_row = root.add_row_to(
             nav,
             DEMO_SEARCH_ROW_ID,
@@ -750,7 +748,7 @@ struct DemoBrowserState(Component):
             nav,
             DEMO_NAV_FILTER_LABEL_ID,
             "FILTER BY AREA",
-            18.0,
+            14.0,
             _kicker_style(),
         )
         var categories_one = root.add_row_to(
@@ -776,19 +774,11 @@ struct DemoBrowserState(Component):
             22.0,
             _small_style(),
         )
-        _add_styled_label(
-            root,
-            nav,
-            DEMO_NAV_TIP_ID,
-            "Tip: scroll catalog · type to filter · Esc clears",
-            22.0,
-            _subtle_style(),
-        )
 
         var tree_text = "Browse examples"
         if not self.nav_tree_expanded:
-            tree_text = "Browse examples (collapsed)"
-        root.add_tree_to(nav, DEMO_NAV_TREE_ID, tree_text, 72.0)
+            tree_text = "Examples (collapsed)"
+        root.add_tree_to(nav, DEMO_NAV_TREE_ID, tree_text, 40.0)
         root.set_expanded(DEMO_NAV_TREE_ID, self.nav_tree_expanded)
         root.set_accessibility_label(DEMO_NAV_TREE_ID, "Browse examples")
         root.set_accessibility_value(
@@ -801,7 +791,7 @@ struct DemoBrowserState(Component):
         )
 
         if self.nav_tree_expanded:
-            var nav_height = bounds.height - 475.0
+            var nav_height = bounds.height - 390.0
             if nav_height < 160.0:
                 nav_height = 160.0
             var nav_portal = root.add_portal_to(
@@ -854,7 +844,7 @@ struct DemoBrowserState(Component):
                     nav_portal,
                     DEMO_ENTRY_SUMMARY_BASE + item.id,
                     item.summary,
-                    280.0,
+                    256.0,
                     _subtle_style(),
                 )
                 added += 1
@@ -864,7 +854,7 @@ struct DemoBrowserState(Component):
                     nav_portal,
                     DEMO_CATEGORY_BUTTON_BASE + 100,
                     "No examples match. Clear the query or choose another area.",
-                    280.0,
+                    256.0,
                 )
         else:
             _add_wrapped_label_styled(
@@ -872,11 +862,11 @@ struct DemoBrowserState(Component):
                 nav,
                 DEMO_NAV_COLLAPSED_ID,
                 "Catalog collapsed. Expand Browse examples to navigate.",
-                280.0,
+                256.0,
                 _subtle_style(),
             )
 
-        var main_width = bounds.width - 384.0
+        var main_width = bounds.width - 360.0
         if main_width < 240.0:
             main_width = 240.0
 
@@ -899,13 +889,13 @@ struct DemoBrowserState(Component):
             return root^
 
         var entry = self.selected_entry()
-        var header = root.add_column_to(main, DEMO_HEADER_ID, 70.0, 0.0, 2.0)
+        var header = root.add_column_to(main, DEMO_HEADER_ID, 64.0, 0.0, 2.0)
         _add_styled_label(
             root,
             header,
             DEMO_HEADER_KICKER_ID,
             "SELECTED EXAMPLE",
-            16.0,
+            14.0,
             _kicker_style(),
         )
         _add_styled_label(
@@ -913,8 +903,8 @@ struct DemoBrowserState(Component):
             header,
             DEMO_HEADER_TITLE_ID,
             entry.name,
-            32.0,
-            _title_style(),
+            30.0,
+            _label_style(26.0, _ink()),
         )
         var metadata = String(demo_category_name(entry.category), " · ", entry.source)
         if entry.in_process:
@@ -926,16 +916,16 @@ struct DemoBrowserState(Component):
             header,
             DEMO_HEADER_METADATA_ID,
             metadata,
-            18.0,
+            16.0,
             _small_style(),
         )
 
-        var tabs = root.add_row_to(main, DEMO_TABS_ID, 0.0, 40.0, 0.0, 6.0)
+        var tabs = root.add_row_to(main, DEMO_TABS_ID, 0.0, 36.0, 0.0, 6.0)
         self.add_tab_button(root, tabs, DEMO_TAB_OVERVIEW, "Overview", DEMO_TAB_OVERVIEW_ID)
         self.add_tab_button(root, tabs, DEMO_TAB_SOURCE, "Source", DEMO_TAB_SOURCE_ID)
         self.add_tab_button(root, tabs, DEMO_TAB_DEMO, "Demo", DEMO_TAB_DEMO_ID)
 
-        var toolbar = root.add_row_to(main, DEMO_TOOLBAR_ID, 0.0, 46.0, 0.0, 8.0)
+        var toolbar = root.add_row_to(main, DEMO_TOOLBAR_ID, 0.0, 40.0, 0.0, 8.0)
         var run_text = "Run script"
         if entry.in_process:
             run_text = "Run live page"
@@ -985,13 +975,13 @@ struct DemoBrowserState(Component):
             toolbar,
             DEMO_RUN_INFO_ID,
             run_info,
-            26.0,
+            22.0,
             _small_style(),
         )
         root.set_accessibility_label(DEMO_RUN_INFO_ID, "Execution mode")
         root.set_accessibility_value(DEMO_RUN_INFO_ID, run_info)
 
-        var content_height = bounds.height - 284.0
+        var content_height = bounds.height - 262.0
         if content_height < 180.0:
             content_height = 180.0
         var content = root.add_portal_to(
@@ -1012,7 +1002,7 @@ struct DemoBrowserState(Component):
         var status_style = _small_style()
         if self.task_running:
             status_style.text = _accent_ink()
-        _add_styled_label(root, main, DEMO_STATUS_ID, self.status, 32.0, status_style)
+        _add_styled_label(root, main, DEMO_STATUS_ID, self.status, 26.0, status_style)
         root.set_accessibility_label(DEMO_STATUS_ID, "Demo browser status")
         root.set_accessibility_value(DEMO_STATUS_ID, self.status)
 
@@ -1304,6 +1294,8 @@ struct DemoBrowserState(Component):
             or entry.page_kind == DEMO_PAGE_FRACTAL
             or entry.page_kind == DEMO_PAGE_INTERACTION
             or entry.page_kind == DEMO_PAGE_LIVE_SCRIPT
+            or entry.page_kind == DEMO_PAGE_WX_STYLE
+            or entry.page_kind == DEMO_PAGE_CAPABILITY_WALKTHROUGH
         ):
             storybook_layout = False
         if storybook_layout:
@@ -1546,7 +1538,7 @@ struct DemoBrowserState(Component):
             )
             return
         if entry.page_kind == DEMO_PAGE_FRACTAL:
-            var child_height: Float32 = 1080.0
+            var child_height = component_height
             var child = self.fractal.build(
                 Rect(0.0, 0.0, component_width, child_height)
             )

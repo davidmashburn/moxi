@@ -606,6 +606,8 @@ pixi run component-demo
 pixi run capability-bus-demo
 pixi run demo-walkthrough
 pixi run demo-record
+pixi run demo-catalog-walkthrough
+pixi run demo-catalog-record
 pixi run form-demo
 pixi run row-demo
 pixi run alignment-demo
@@ -668,8 +670,11 @@ invocations and execute them through a typed `CapabilityBus` handler. The
 matching plain-text transcript and recording directions are in
 [capability-bus-walkthrough.txt](capability-bus-walkthrough.txt). `pixi run
 demo-record` produces the reproducible 30-second single-window capture from
-the same normal host; it needs no agent or manual UI interaction. The
-generated `dist/` files and native object file are local build artifacts.
+the same normal host; it needs no agent or manual UI interaction.
+`pixi run demo-catalog-record` captures the full catalog sweep in a
+55-second single-window video. Both recording tasks use the same validated
+H.264/60fps workflow. The generated `dist/` files and native object file are
+local build artifacts.
 
 The inline GIF below is an accelerated 10-second teaser of the normal live
 demo window, with the capability bus driving the counter, plot, Metal, and
