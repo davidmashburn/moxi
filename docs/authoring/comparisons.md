@@ -2,6 +2,7 @@
 
 > Status: `moxi.authoring` implements the selected, bounded authoring API.
 > This comparison explains mechanisms; it is not a performance ranking.
+> For a structural breakdown of the major ingredients of UI libraries (immediate vs. retained, reactivity models, ECS, VDOM vs. signals), see [UI Library Ingredients and Architecture](ui-ingredients.md).
 
 Moxi separates the authoring surface from the update machinery. Authors keep
 ordinary value-owned fields and methods. A pure render describes controls from

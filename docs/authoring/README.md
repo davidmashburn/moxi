@@ -7,8 +7,9 @@ The supported authoring API lives in `moxi.authoring`. The examples import it
 using only the normal `src` package path. The lower-level `Component`/`App` API
 remains available and is documented in [API.md](../API.md).
 
-Start here, then read [building an application](application-guide.md) and
-[how this compares with other systems](comparisons.md). The example runners
+Start here, then read [building an application](application-guide.md),
+[how this compares with other systems](comparisons.md), and
+[the architectural ingredients of a UI library](ui-ingredients.md). The example runners
 execute headlessly. To interact with the same models, open
 `pixi run demo` and choose Counter, Form, Editors, Shared document, or Workspace.
 
