@@ -92,8 +92,10 @@ if app.resize(Rect(0.0, 0.0, width, height)):
 ```
 
 `Component.build(bounds)` receives the current root rectangle. `update()` and
-`resize()` return whether `App` rebuilt its view and retained runtime. Components
-are static Mojo value types in this release. `ComponentSlot[Child]` lets a
+`resize()` return whether `App` rebuilt its view and retained runtime. See
+[responsive layout](responsive-layout.md) for the resize event path, the
+width-driven layout primitives, and the parts of adaptive layout that are not
+implemented. Components are static Mojo value types in this release. `ComponentSlot[Child]` lets a
 parent own a typed child, embed its view under a namespaced container, and
 route targeted events back to the child's local ids. Views can also expose
 stable action ids through `set_action()`/`set_action_id()`; `App` attaches the

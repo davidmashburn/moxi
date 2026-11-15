@@ -61,7 +61,7 @@ The window is organized like this:
 - standalone Pixi tasks remain available as companion commands, but the
   browser does not replace a page with a fake preview or a sibling window.
 
-## Interaction model
+## Interaction model & responsive layout
 
 Use `Find an example` to search the full catalog. Expand or collapse `Browse
 examples` to give the catalog more or less room while exploring. The catalog
@@ -80,6 +80,9 @@ When no entry matches, the detail pane switches to an explicit empty state so
 stale selection details are never mistaken for a result. `Reset` is enabled
 only for live in-browser components; standalone tasks remain the source of
 truth for their own state.
+
+For details on how window resizing, geometry invalidation, and declarative reflow
+function under the hood, see the [Responsive layout guide](responsive-layout.md).
 
 The browser teaches the boundary between Moxi's declarative component tree and
 the host: `Overview` explains the contract, `Source` shows a deterministic
