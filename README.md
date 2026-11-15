@@ -52,6 +52,7 @@ this reconciliation does not schedule them.
 - [Spatial renderer and applications](docs/design/3d-interaction.md)
 - [NotImplemented component](docs/not-implemented-pattern.md)
 - [UI architecture evolution plan](docs/design/ui-architecture-evolution-plan.md)
+- [Editable demo source and live re-runs plan](docs/design/editable-demo-source-plan.md)
 - [Idea collection](ideas/README.md),
   [composition experiments](ideas/README.md#composition-experiments),
   [rankings](ideas/RANKINGS.md) and
