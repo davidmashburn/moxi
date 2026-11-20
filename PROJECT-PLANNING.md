@@ -1,8 +1,34 @@
 # Moxi execution plan
 
+## Remaining work after the gallery review
+
+November 20, 2026. The package and checkpoint tasks from November 9 are complete.
+The repaired implementation passed all six [hosted checks](https://github.com/davidmashburn/moxi/actions/runs/44825872712).
+The first editable scene supports edit, asynchronous Run, compiler diagnostics,
+last-good rendering and Revert in the native Demo Browser.
+
+All 30 galleries named for fresh review have records in the
+[implementation handoff](https://github.com/davidmashburn/moxi/blob/5d85208e820446d0ebd4072987fce1f39fa1e8ed/docs/deferred-pause-handoff.md).
+The capture baseline is `d7fa3ed`. The following work is still open.
+
+1. Triage the four partial mindmap frames and stale clipping text in three
+   assembly frames. Refresh the affected captures after fixes. Audit the
+   remaining catalog manifests before citing them as integrated-source evidence.
+2. Address plot parity by family. The 26 families passed bounded semantic
+   checks. Across 156 scenarios, 36 were partial and six reference/comparison
+   scenarios were blocked by absent contour, contourf and tricontour APIs.
+   [Family results](https://github.com/davidmashburn/moxi/blob/5d85208e820446d0ebd4072987fce1f39fa1e8ed/artifacts/demo-slideshows/plot-wave-b-c-review/RESULTS.md)
+3. Keep the native Python extension experimental pending raster text, vector
+   PDF, fresh-host/ABI and redistribution evidence. Keep world-panel promotion
+   rejected pending transformed IME and semantic geometry plus physical input
+   and assistive-technology acceptance.
+4. Resume the existing packaged workbench, physical-input and independent
+   authoring acceptance tasks. The synthetic captures do not measure human
+   usability or sustained presentation performance.
+
 ## Remaining work — November 9, 2026
 
-This is the current follow-through list for `main` at `b2361c2`.
+This was the follow-through list for `main` at `b2361c2`.
 [Current state](CURRENT-STATE.md#current-audit--november-9-2026) records the
 implementation and CI evidence. The old proposal sequence below is historical;
 landed work must not be restarted from those instructions. This reconciliation

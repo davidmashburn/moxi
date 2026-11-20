@@ -1,5 +1,11 @@
 # Moxi current-state audit
 
+## November 20 follow-up
+
+The [current execution plan](PROJECT-PLANNING.md#remaining-work-after-the-gallery-review)
+records the successful package repair, editable demo and completed gallery review.
+The audit below preserves the November 9 baseline.
+
 ## Current audit — November 9, 2026
 
 Implementation `main` and freshly fetched `origin/main` both point to

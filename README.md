@@ -4,30 +4,26 @@ This orphan branch holds durable proposals and decisions. Product code and
 shipped-behavior documentation live on `main`; do not merge planning history
 into implementation. Edit this branch in its dedicated planning worktree.
 
-## Current status — November 11, 2026
+## Current status — November 20, 2026
 
-Published `main` is at [`b549166`](https://github.com/davidmashburn/moxi/tree/b54916651c1f2ae0e9512cd1da297ffeb885341b),
-which adds the signal-playground example. The latest delivery audit is dated
-November 9 and uses `b2361c2`; its ledger records 7 implemented, 2 experiments
-complete, 13 partial and 28 pending across 50 proposals. Those are bounded
-delivery states, not full support or human acceptance.
+The native package repair and one editable Demo Browser scene shipped at
+`d7fa3ed`. All six hosted jobs passed, including the installed-package
+consumer. The [gallery handoff](https://github.com/davidmashburn/moxi/blob/5d85208e820446d0ebd4072987fce1f39fa1e8ed/docs/deferred-pause-handoff.md)
+records the subsequent review of 30 galleries against that implementation.
+The [next acceptance work](PROJECT-PLANNING.md#remaining-work-after-the-gallery-review)
+covers unresolved visual differences, host behavior and independent use.
 
-The latest [Main CI run 42976072396](https://github.com/davidmashburn/moxi/actions/runs/42976072396)
-at `b549166` has five passing jobs and one failing job: `package-consumer` cannot
-build because the native layout recipe omits `macos_window_state.h`. The
-November 9 audit remains the detailed evidence baseline. It records fresh
-integrated-source galleries and native/human/performance acceptance as open;
-the signal-playground example has not been assessed against those gates.
-VoiceOver remains paused. See the audit for exact evidence and limits; the
-earlier “awaiting confirmation” and “unpublished” status is obsolete.
+The November 9 ledger counted 7 implemented proposals, 2 completed experiments,
+13 partial tracks and 28 pending proposals. The gallery review preserves those
+50 delivery states. VoiceOver remains paused.
 
 | Start here | Purpose |
 | --- | --- |
 | [Current-state audit](CURRENT-STATE.md#current-audit--november-9-2026) | November 9 audit against `b2361c2`, with delivered scope and evidence limits |
-| [Remaining work](PROJECT-PLANNING.md#remaining-work--november-9-2026) | Follow-up actions from the November 9 audit |
+| [Remaining work](PROJECT-PLANNING.md#remaining-work-after-the-gallery-review) | Current priorities after CI and gallery verification |
 | [50-plan master list](DEFERRED-IMPLEMENTATION-MASTER.md#current-delivery-status) | Per-ID delivery status plus original scope, dependencies and storyboards |
 | [Workbench hardening](WORKBENCH-HARDENING-PLAN.md) / [application validation](APPLICATION-VALIDATION-PLAN.md) | Existing native, performance and independent authoring acceptance |
-| [Host architecture](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md) | Desktop profile, package blocker and deferred host/GPU work |
+| [Host architecture](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md) | Desktop profile and deferred host/GPU work |
 | [Ecosystem convergence](ECOSYSTEM-CONVERGENCE-PLAN.md) | Partial plot waves/native Python and outstanding parity/distribution gates |
 
 The structural [S2 decision](PROJECT-PLANNING.md#s2-oversized-struct-boundary--settled)

@@ -1,6 +1,10 @@
 # Editable Demo Source and In-Browser Live Re-Runs Plan
 
-**Status:** Proposed architectural plan for Moxi Playground / Demo Browser.  
+**Status:** One scene-backed example shipped on macOS at `d7fa3ed`. Its Source
+and Demo tabs share a session draft. Run compiles asynchronously, diagnostics
+preserve the last good scene, and Revert restores the original example. The
+[Demo Browser guide](https://github.com/davidmashburn/moxi/blob/5d85208e820446d0ebd4072987fce1f39fa1e8ed/docs/demo-browser.md#editable-scene-source)
+describes the supported scope. Broader catalog coverage remains proposed.
 **References:**
 - `docs/demo-browser.md` (Moxi Playground architecture and Storybook-style workbench)
 - `docs/design/ui-architecture-evolution-plan.md` (UI architecture evolution plan)
