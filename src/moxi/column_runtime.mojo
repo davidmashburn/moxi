@@ -878,12 +878,25 @@ struct ColumnRuntime:
                 geometry.thumb,
                 geometry.visible,
             )
+            # Decorations share the portal's ancestor clips, just like its
+            # content. A scrolled nested portal can extend over fixed headers.
+            var clip = portal.bounds
             if self.clip_to_bounds or root_scrollable:
-                scrollbar_command.set_clip(
-                    self.root_bounds.intersection(portal.bounds)
-                )
-            elif portal.clip_children or scrollable.get(portal.id, False):
-                scrollbar_command.set_clip(portal.bounds)
+                clip = clip.intersection(self.root_bounds)
+            var parent_id = portal.parent_id
+            var clip_hops = 0
+            while parent_id != -1:
+                var parent_index = parents.get(parent_id, -1)
+                if parent_index == -1:
+                    break
+                var parent = self.widget(parent_index)
+                if parent.clip_children or scrollable.get(parent.id, False):
+                    clip = clip.intersection(parent.bounds)
+                parent_id = parent.parent_id
+                clip_hops += 1
+                if clip_hops > self.widget_count():
+                    break
+            scrollbar_command.set_clip(clip)
 
             var previous_index = prior.get((scrollbar_command.kind, scrollbar_command.id), -1)
             var changed = _indexed_changed(prior, self.previous_commands, scrollbar_command)

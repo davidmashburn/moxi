@@ -1,7 +1,7 @@
-"""Editable component used by the Moxi Playground hot-reload lesson.
+"""Editable scene used by the Moxi Playground Run lesson.
 
-Edit the component or its ``scene`` method, save the file, and the Playground
-rebuilds this module and swaps its canvas scene without replacing the window.
+Edit the full source draft in the Playground and click Run to rebuild the
+``scene`` without replacing the window. The original file stays unchanged.
 The exported function is the intentionally small development ABI; ordinary
 applications still compose ``EditableShowcase`` directly as a Component.
 """
@@ -54,7 +54,7 @@ struct EditableShowcase(Component):
         )
         scene.append_text(
             2,
-            "Edit me · save to reload",
+            "Edit me · Run to rebuild",
             Rect(bounds.x + 24.0, bounds.y + 22.0, bounds.width - 48.0, 28.0),
             Color(0.80, 0.94, 1.0, 1.0),
         )

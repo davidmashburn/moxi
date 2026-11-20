@@ -39,6 +39,8 @@ from moxi.event import (
     KEY_ENTER,
     KEY_ESCAPE,
     KEY_SPACE,
+    MOD_COMMAND,
+    MOD_CONTROL,
     POINTER_CANCEL_KIND,
     POINTER_DOWN_KIND,
     POINTER_MOVE_KIND,
@@ -71,6 +73,7 @@ from moxi.wxstyle import WxStyleState
 from .showcase import SHOWCASE_CANVAS_ID, SHOWCASE_HELLO_WINDOW, ShowcaseState
 from moxi.scene import Scene
 from .demo_entry import DemoCatalog, DemoEntry
+from .source_editor import DemoSourceEditor
 from .demo_style import (
     DEMO_NOT_IMPLEMENTED_ID,
     DEMO_PAGE_NOT_IMPLEMENTED,
@@ -209,6 +212,8 @@ comptime DEMO_STORY_CODE_ID = 3083
 comptime DEMO_STORY_CODE_KICKER_ID = 3084
 comptime DEMO_STORY_CODE_TEXT_ID = 3085
 comptime DEMO_STORY_CODE_HINT_ID = 3086
+comptime DEMO_EDITOR_DIAGNOSTICS_ID = 3087
+comptime DEMO_EDITOR_DIAGNOSTICS_PORTAL_ID = 3088
 
 # Component slots use distinct slot and id-offset pairs because the flat view
 # tree must remain globally unique even when the selected page changes.
@@ -285,6 +290,7 @@ struct DemoBrowserState(Component):
     var active_task: String
     var input_batch_open: Bool
     var pending_resets: Int
+    var source_editor: DemoSourceEditor
 
     var counter: ComponentSlot[HandlerHost[Counter]]
     var form: ComponentSlot[HandlerHost[Form]]
@@ -317,6 +323,7 @@ struct DemoBrowserState(Component):
         self.active_task = ""
         self.input_batch_open = False
         self.pending_resets = 0
+        self.source_editor = DemoSourceEditor()
         self.counter = ComponentSlot[HandlerHost[Counter]](
             HandlerHost(Counter(), id_stride=DEMO_AUTHORING_ID_STRIDE), DEMO_COUNTER_SLOT_ID, DEMO_COUNTER_ID_OFFSET
         )
@@ -374,6 +381,7 @@ struct DemoBrowserState(Component):
             DEMO_LIVE_SCRIPT_SLOT_ID,
             DEMO_LIVE_SCRIPT_ID_OFFSET,
         )
+        self.live_script.component.set_status(self.source_editor.status())
         self.theme_showcase = ComponentSlot[ThemeShowcaseState](
             ThemeShowcaseState(),
             DEMO_THEME_SHOWCASE_SLOT_ID,
@@ -398,6 +406,10 @@ struct DemoBrowserState(Component):
 
     def scroll_reset_target(self, event: Event) -> Int:
         """Reset the catalog viewport after a filter or category changes."""
+        # Run is global, including while search owns keyboard focus. It does
+        # not change the query and must not reset the catalog viewport.
+        if self._is_live_run_shortcut(event):
+            return -1
         if event.target == DEMO_SEARCH_ID:
             return DEMO_NAV_PORTAL_ID
         if event.target == DEMO_CLEAR_SEARCH_ID or event.target == DEMO_EMPTY_CLEAR_ID:
@@ -434,6 +446,18 @@ struct DemoBrowserState(Component):
         live.set_status(status)
         self.live_script.component = live
         self.status = status
+
+    def refresh_editor_status(mut self):
+        self.set_live_reload_status(self.source_editor.status())
+
+    def _is_source_editor(self, target: Int) -> Bool:
+        return self.has_live_script() and (
+            (self.tab == DEMO_TAB_SOURCE and target == DEMO_SOURCE_TEXT_ID)
+            or (self.tab == DEMO_TAB_DEMO and target == DEMO_STORY_CODE_TEXT_ID)
+        )
+
+    def _is_live_run_shortcut(self, event: Event) -> Bool:
+        return self.has_live_script() and event.kind == KEY_DOWN_KIND and event.key == KEY_ENTER and (event.modifiers & (MOD_COMMAND | MOD_CONTROL)) != 0
 
     def _activate_entry(mut self, id: Int):
         """Select the concrete component implementation for a catalog entry."""
@@ -930,6 +954,9 @@ struct DemoBrowserState(Component):
         if entry.in_process:
             run_text = "Run live page"
         var run_enabled = not self.task_running or entry.in_process
+        if self.has_live_script():
+            run_text = "Building…" if self.source_editor.building() else "Run (⌘/Ctrl+Enter)"
+            run_enabled = self.source_editor.available and not self.source_editor.building()
         var run_button = ButtonControl(
             DEMO_RUN_BUTTON_ID,
             run_text,
@@ -952,22 +979,24 @@ struct DemoBrowserState(Component):
         )
         var reset_button = ButtonControl(
             DEMO_RESET_BUTTON_ID,
-            "Reset",
+            "Revert" if self.has_live_script() else "Reset",
             36.0,
             _filter_button_style(False),
-            entry.in_process,
+            (self.source_editor.available and not self.source_editor.building()) if self.has_live_script() else entry.in_process,
         )
         root.add_to(toolbar, reset_button.node())
         root.set_intrinsic_width(DEMO_RESET_BUTTON_ID)
-        root.set_accessibility_label(DEMO_RESET_BUTTON_ID, "Reset live example")
+        root.set_accessibility_label(DEMO_RESET_BUTTON_ID, "Revert to original source" if self.has_live_script() else "Reset live example")
         root.set_accessibility_hint(
             DEMO_RESET_BUTTON_ID,
-            "Reset the selected in-browser component",
+            "Restore and run the original source" if self.has_live_script() else "Reset the selected in-browser component",
         )
         root.add_flexible_spacer_to(toolbar, DEMO_TOOLBAR_SPACER_ID)
         var run_info = "COMPANION SCRIPT · run separately from the browser"
         if entry.in_process:
             run_info = "LIVE COMPONENT · stays in this window"
+        if self.has_live_script():
+            run_info = "DRAFT · session only" if self.source_editor.input.text() != self.source_editor.original else "ORIGINAL SOURCE"
         if self.task_running:
             run_info = String("● RUNNING · ", self.active_task)
         _add_styled_label(
@@ -1205,7 +1234,7 @@ struct DemoBrowserState(Component):
             root,
             parent_id,
             DEMO_PAGE_KICKER_ID,
-            "IMPLEMENTATION EXCERPT",
+            "EDITABLE SOURCE" if entry.page_kind == DEMO_PAGE_LIVE_SCRIPT else "IMPLEMENTATION EXCERPT",
             18.0,
             _kicker_style(),
         )
@@ -1225,6 +1254,13 @@ struct DemoBrowserState(Component):
             38.0,
             _small_style(),
         )
+        if entry.page_kind == DEMO_PAGE_LIVE_SCRIPT:
+            self.source_editor.add_editor(root, parent_id, DEMO_SOURCE_TEXT_ID, 280.0)
+            self.build_editor_diagnostics(root, parent_id)
+            _add_wrapped_label_styled(root, parent_id, DEMO_SOURCE_HINT_ID,
+                "Edit the complete source here or beside the Demo. Run rebuilds the scene; Revert restores and runs the original. Drafts stay in this session; the example file is never overwritten.",
+                width, _body_style())
+            return
         root.add_multiline_text_to(
             parent_id,
             DEMO_SOURCE_TEXT_ID,
@@ -1241,6 +1277,17 @@ struct DemoBrowserState(Component):
             width,
             _body_style(),
         )
+
+    def build_editor_diagnostics(self, mut root: ColumnView, parent_id: Int):
+        var diagnostics = self.source_editor.diagnostics
+        if diagnostics.count_codepoints() == 0:
+            diagnostics = self.source_editor.status()
+        var portal = root.add_portal_to(parent_id, DEMO_EDITOR_DIAGNOSTICS_PORTAL_ID, 112.0, 2.0, 0.0, 0.0)
+        var lines = len(diagnostics.split("\n"))
+        root.add_multiline_text_to(portal, DEMO_EDITOR_DIAGNOSTICS_ID, diagnostics, max(Float32(104.0), Float32(lines) * 20.0))
+        root.set_style(DEMO_EDITOR_DIAGNOSTICS_ID, _code_style())
+        root.set_enabled(DEMO_EDITOR_DIAGNOSTICS_ID, False)
+        root.set_accessibility_label(DEMO_EDITOR_DIAGNOSTICS_ID, "Compiler diagnostics")
 
     def build_demo(
         self,
@@ -1288,23 +1335,26 @@ struct DemoBrowserState(Component):
         # Canvas-backed pages already need the full content width for their
         # renderer-owned surface. Keep those previews full-width while the
         # ordinary retained-view pages use the split workbench below.
+        var editable = entry.page_kind == DEMO_PAGE_LIVE_SCRIPT
+        if editable:
+            page_height = max(page_height, 470.0)
         var storybook_layout = entry.in_process
         if (
             entry.page_kind == DEMO_PAGE_SHOWCASE
             or entry.page_kind == DEMO_PAGE_FRACTAL
             or entry.page_kind == DEMO_PAGE_INTERACTION
-            or entry.page_kind == DEMO_PAGE_LIVE_SCRIPT
             or entry.page_kind == DEMO_PAGE_WX_STYLE
             or entry.page_kind == DEMO_PAGE_CAPABILITY_WALKTHROUGH
         ):
             storybook_layout = False
         if storybook_layout:
-            var stacked = authoring_height > 0.0 and page_width < 720.0
+            var stacked = (authoring_height > 0.0 or editable) and page_width < 720.0
+            var source_height: Float32 = 430.0 if editable else 300.0
             var story: Int
             if stacked:
                 story = root.add_column_to(
                     parent_id, DEMO_STORY_SPLIT_ID,
-                    page_height + 312.0, 4.0, 12.0,
+                    page_height + source_height + 12.0, 4.0, 12.0,
                 )
             else:
                 story = root.add_split_to(
@@ -1321,7 +1371,7 @@ struct DemoBrowserState(Component):
             var code = root.add_column_to(
                 story,
                 DEMO_STORY_CODE_ID,
-                Float32(300.0) if stacked else Float32(0.0),
+                source_height if stacked else Float32(0.0),
                 8.0,
                 8.0,
             )
@@ -1346,23 +1396,19 @@ struct DemoBrowserState(Component):
                 code_height = page_height - 86.0
             if code_height < 96.0:
                 code_height = 96.0
-            root.add_multiline_text_to(
-                code,
-                DEMO_STORY_CODE_TEXT_ID,
-                entry.source_excerpt,
-                code_height,
-            )
-            root.set_style(DEMO_STORY_CODE_TEXT_ID, _code_style())
-            root.set_enabled(DEMO_STORY_CODE_TEXT_ID, False)
-            root.set_accessibility_label(
-                DEMO_STORY_CODE_TEXT_ID,
-                "Example code",
-            )
+            if editable:
+                self.source_editor.add_editor(root, code, DEMO_STORY_CODE_TEXT_ID, 240.0)
+                self.build_editor_diagnostics(root, code)
+            else:
+                root.add_multiline_text_to(code, DEMO_STORY_CODE_TEXT_ID, entry.source_excerpt, code_height)
+                root.set_style(DEMO_STORY_CODE_TEXT_ID, _code_style())
+                root.set_enabled(DEMO_STORY_CODE_TEXT_ID, False)
+                root.set_accessibility_label(DEMO_STORY_CODE_TEXT_ID, "Example code")
             _add_wrapped_label_styled(
                 root,
                 code,
                 DEMO_STORY_CODE_HINT_ID,
-                "The preview uses the model shown here; the source path opens the full lesson.",
+                "Edit the scene, then Run. Revert restores and runs the original source." if editable else "The preview uses the model shown here; the source path opens the full lesson.",
                 page_width - 24.0 if stacked else page_width * 0.42,
                 _small_style(),
             )
@@ -1565,6 +1611,15 @@ struct DemoBrowserState(Component):
 
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         """Handle browser controls before routing to the active page."""
+        if self._is_live_run_shortcut(event):
+            var changed = self.source_editor.request_run()
+            self.refresh_editor_status()
+            return changed
+        if self._is_source_editor(event.target):
+            var changed = self.source_editor.update(event)
+            if changed:
+                self.refresh_editor_status()
+            return changed
         if self.tab == DEMO_TAB_DEMO:
             if event.kind == FRAME_TICK_KIND:
                 var frame = event
@@ -1797,6 +1852,11 @@ struct DemoBrowserState(Component):
 
             if event.target == DEMO_RUN_BUTTON_ID:
                 var entry = self.selected_entry()
+                if self.has_live_script():
+                    var requested = self.source_editor.request_run()
+                    self.tab = DEMO_TAB_DEMO
+                    self.refresh_editor_status()
+                    return requested
                 if self.task_running and not entry.in_process:
                     self.status = "A standalone task is already running."
                     return True
@@ -1810,6 +1870,10 @@ struct DemoBrowserState(Component):
                 return True
 
             if event.target == DEMO_RESET_BUTTON_ID:
+                if self.has_live_script():
+                    var reverted = self.source_editor.revert()
+                    self.refresh_editor_status()
+                    return reverted
                 self._reset_active()
                 self.status = String("Reset ", self.selected_entry().name, ".")
                 return True
@@ -1817,6 +1881,8 @@ struct DemoBrowserState(Component):
         return False
 
     def clipboard_copy(mut self, target: Int, view: ColumnView) -> String:
+        if self._is_source_editor(target):
+            return self.source_editor.input.input.selected_text()
         if target == DEMO_SEARCH_ID:
             var copied = self.search.selected_text()
             self.search.clipboard = copied
@@ -1837,6 +1903,10 @@ struct DemoBrowserState(Component):
         return ""
 
     def clipboard_cut(mut self, target: Int, view: ColumnView) -> String:
+        if self._is_source_editor(target):
+            _ = self.source_editor.input.input.cut_selection()
+            self.refresh_editor_status()
+            return self.source_editor.input.input.clipboard
         if target == DEMO_SEARCH_ID:
             var changed = self.search.cut_selection()
             if changed:
@@ -1863,6 +1933,10 @@ struct DemoBrowserState(Component):
         text: String,
         view: ColumnView,
     ) -> Bool:
+        if self._is_source_editor(target):
+            var changed = self.source_editor.input.insert_text(text)
+            self.refresh_editor_status()
+            return changed
         if target == DEMO_SEARCH_ID:
             var changed = self.search.insert_text(text)
             if changed:

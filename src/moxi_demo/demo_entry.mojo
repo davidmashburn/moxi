@@ -245,7 +245,7 @@ struct DemoCatalog:
             DEMO_LIVE_SCRIPT_ID,
             "Editable Live Component",
             DEMO_CATEGORY_COMPONENTS,
-            "Edit a real Mojo component, save it, and hot-reload its scene in this window.",
+            "Edit a real Mojo scene here, Run asynchronously, and keep the last good scene on errors.",
             "examples/editable_showcase.mojo",
             "live-script-demo",
             DEMO_PAGE_LIVE_SCRIPT,

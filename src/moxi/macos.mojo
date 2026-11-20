@@ -114,6 +114,55 @@ struct MacOSLiveScript:
 comptime MacOSClipboard = NativeClipboard
 
 
+struct LiveBuildStatus(ImplicitlyCopyable):
+    """Native asynchronous build results, converted at the FFI boundary."""
+    var value: Int32
+    comptime IDLE = Self(0)
+    comptime BUILDING = Self(1)
+    comptime SUCCEEDED = Self(2)
+    comptime FAILED = Self(3)
+
+    def __init__(out self, value: Int32):
+        self.value = value
+
+
+struct MacOSLiveEditor:
+    """Own an isolated scratch compiler; poll/load only on the UI thread."""
+    var handle: UInt64
+
+    def __init__(out self):
+        self.handle = external_call["moxi_dev_editor_create", UInt64]()
+
+    def __deinit__(deinit self):
+        external_call["moxi_dev_editor_destroy", NoneType](self.handle)
+
+    def start(mut self, source: String) -> Bool:
+        var text = source
+        if "\x00" in text:
+            return False
+        var utf8 = text.as_c_string_span()
+        return external_call["moxi_dev_editor_start", Int32](self.handle, utf8.ptr()) != 0
+
+    def poll(mut self) -> LiveBuildStatus:
+        return LiveBuildStatus(external_call["moxi_dev_editor_poll", Int32](self.handle))
+
+    def diagnostics(self) -> String:
+        var count = Int(external_call["moxi_dev_editor_diagnostics_count", Int32](self.handle))
+        var text = String("")
+        var index = 0
+        while index < count:
+            var unit = Int(external_call["moxi_dev_editor_diagnostics_utf16_at", Int32](self.handle, Int32(index)))
+            index += 1
+            if unit >= 0xD800 and unit <= 0xDBFF and index < count:
+                var low = Int(external_call["moxi_dev_editor_diagnostics_utf16_at", Int32](self.handle, Int32(index)))
+                if low >= 0xDC00 and low <= 0xDFFF:
+                    unit = 0x10000 + ((unit - 0xD800) << 10) + low - 0xDC00
+                    index += 1
+            if unit >= 0:
+                text += chr(unit)
+        return text
+
+
 struct MacOSDemoRunner:
     """Launch one validated Pixi task as a sibling demo process."""
 

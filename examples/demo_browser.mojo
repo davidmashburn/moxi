@@ -1,5 +1,6 @@
 """Full-scope wxPython-style browser for Moxi's runnable examples."""
 
+from std.ffi import external_call
 from moxi import (
     App,
     NONE_KIND,
@@ -10,10 +11,11 @@ from moxi_demo import (
     DemoBrowserState,
     DemoWalkthroughDriver,
 )
+from moxi_demo.live_editor_host import live_surface_clip, sync_live_editor
 from moxi.macos import (
     MacOSCanvasSceneRenderer,
     MacOSClipboard,
-    MacOSFileWatcher,
+    MacOSLiveEditor,
     MacOSLiveScript,
     MacOSRenderer,
     MacOSWindow,
@@ -35,56 +37,18 @@ def render_frame(
         scene_renderer.set_clip(Rect(0.0, 0.0, 0.0, 0.0))
         var empty = app.component.selected_scene(app.view)
         scene_renderer.render_scene(empty)
-        _ = live_script.render(surface)
+        var clip = live_surface_clip(app)
+        if clip.width > 0.0 and clip.height > 0.0:
+            _ = live_script.render(surface)
+            # The live ABI establishes its own full-canvas clip. Constrain the
+            # resulting commands to the same viewport as the retained canvas.
+            external_call["moxi_window_set_custom_clip", NoneType](
+                clip.x, clip.y, clip.width, clip.height,
+            )
     else:
         scene_renderer.set_clip(surface)
         var scene = app.component.selected_scene(app.view)
         scene_renderer.render_scene(scene)
-
-
-def sync_live_script(
-    mut app: App[DemoBrowserState],
-    mut watcher: MacOSFileWatcher,
-    mut live_script: MacOSLiveScript,
-) -> Bool:
-    """Build and atomically swap the selected editable module when it changes."""
-    if not app.component.has_live_script():
-        if watcher.path.count_codepoints() > 0:
-            watcher.clear()
-            live_script.clear()
-        return False
-
-    var source = app.component.selected_source_path()
-    var source_changed: Bool
-    if watcher.path != source:
-        source_changed = watcher.watch(source)
-        if not source_changed:
-            app.component.set_live_reload_status(
-                String("Cannot watch ", source, ".")
-            )
-            app.rebuild()
-            return True
-    else:
-        source_changed = watcher.changed()
-
-    if not source_changed:
-        return False
-
-    var loaded = live_script.reload(source, watcher.last_mtime)
-    if loaded:
-        app.component.set_live_reload_status(
-            "Live module ready · saved Mojo source is running in this window."
-        )
-    elif live_script.loaded:
-        app.component.set_live_reload_status(
-            "Live reload failed · the previous module is still running."
-        )
-    else:
-        app.component.set_live_reload_status(
-            "Live reload failed · see the compiler diagnostics in the terminal."
-        )
-    app.rebuild()
-    return True
 
 
 def run_demo(
@@ -102,7 +66,7 @@ def run_demo(
         Rect(0.0, 0.0, size.width, size.height),
     )
     var scene_renderer = MacOSCanvasSceneRenderer()
-    var live_watcher = MacOSFileWatcher()
+    var live_editor = MacOSLiveEditor()
     var live_script = MacOSLiveScript()
     var walkthrough = DemoWalkthroughDriver()
     if automated:
@@ -123,10 +87,12 @@ def run_demo(
         if app.component.finish_input_batch():
             app.rebuild()
             changed = True
-        changed = sync_live_script(app, live_watcher, live_script) or changed
+        changed = sync_live_editor(app, live_editor, live_script) or changed
 
         if changed:
             render_frame(app, renderer, scene_renderer, live_script)
+
+    live_script.clear()
 
 
 def main() raises:

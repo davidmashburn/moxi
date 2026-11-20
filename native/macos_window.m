@@ -22,17 +22,25 @@
 - (BOOL)isFlipped { return YES; }
 @end
 
-@interface MoxiCanvasView : NSView <NSTextInputClient, NSTextFieldDelegate>
+@interface MoxiCanvasView : NSView <NSTextInputClient, NSTextFieldDelegate, NSTextViewDelegate>
 @property(nonatomic, weak) MoxiWindowState *moxiOwner;
 @property(nonatomic, strong) NSTextField *nativeTextEditor;
 @property(nonatomic, strong) MoxiEditorClipView *nativeTextEditorClip;
 @property(nonatomic, strong) NSString *nativeTextEditorValue;
 @property(nonatomic, assign) BOOL synchronizingNativeTextEditor;
+@property(nonatomic, strong) NSScrollView *nativeMultilineScroll;
+@property(nonatomic, strong) NSTextView *nativeMultilineEditor;
+@property(nonatomic, copy) NSString *nativeMultilineValue;
+@property(nonatomic) int nativeMultilineKey;
 @property(nonatomic, strong) NSTrackingArea *moxiTrackingArea;
 - (void)hideNativeTextEditor;
 - (void)showNativeTextEditorForIndex:(int)index;
 - (void)finishMoxiFrame;
 - (BOOL)nativeTextEditorIsVisibleForIndex:(int)index;
+@end
+
+@interface MoxiCanvasView (MultilineEditor)
+- (void)showNativeMultilineEditorForIndex:(int)index;
 @end
 
 @interface MoxiAccessibilityElement : NSAccessibilityElement
@@ -1184,6 +1192,17 @@ static void moxi_queue_key_event(int key) {
     moxi_queue_event(MOXI_EVENT_KEY_DOWN);
 }
 
+static BOOL moxi_queue_modified_enter(NSEvent *event) {
+    NSString *chars = event.charactersIgnoringModifiers;
+    int modifiers = moxi_event_modifiers_for_flags(event.modifierFlags);
+    if (chars.length != 1 || [chars characterAtIndex:0] != MOXI_KEY_ENTER ||
+        !(modifiers & (MOXI_MOD_COMMAND | MOXI_MOD_CONTROL))) return NO;
+    moxi_interpreting_modifiers = modifiers;
+    moxi_queue_key_event(MOXI_KEY_ENTER);
+    moxi_interpreting_modifiers = 0;
+    return YES;
+}
+
 static void moxi_clear_marked_text(void) {
     moxi_marked_text = nil;
     moxi_marked_selection_start = 0;
@@ -1688,6 +1707,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 
 - (void)hideNativeTextEditor {
     MOXI_CALLBACK_SCOPE(return);
+    self.nativeMultilineScroll.hidden = YES;
     if (self.nativeTextEditor == nil) {
         return;
     }
@@ -1696,6 +1716,8 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
 
 - (BOOL)nativeTextEditorIsVisibleForIndex:(int)index {
     MOXI_CALLBACK_SCOPE(return 0);
+    if (self.nativeMultilineScroll != nil && !self.nativeMultilineScroll.hidden &&
+        index == moxi_active_text_input_index && index >= 0 && index < moxi_text_input_count && moxi_text_input_wraps[index]) return YES;
     return self.nativeTextEditor != nil &&
         !self.nativeTextEditor.hidden &&
         moxi_native_text_editor_seen &&
@@ -1711,6 +1733,7 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
         moxi_text_input_wraps[index]) {
         return;
     }
+    self.nativeMultilineScroll.hidden = YES;
     if (self.nativeTextEditor == nil) {
         self.nativeTextEditor = [[NSTextField alloc] initWithFrame:NSZeroRect];
         self.nativeTextEditor.delegate = self;
@@ -1797,12 +1820,17 @@ static NSString * const MoxiAccessibilityChildrenInNavigationOrderAttribute =
     BOOL shouldShow = moxi_native_text_editor_seen &&
         moxi_active_text_input_index >= 0 &&
         moxi_active_text_input_index < moxi_text_input_count &&
-        moxi_text_input_focused[moxi_active_text_input_index] &&
-        !moxi_text_input_wraps[moxi_active_text_input_index];
+        moxi_text_input_focused[moxi_active_text_input_index];
     if (shouldShow) {
-        [self showNativeTextEditorForIndex:moxi_active_text_input_index];
+        if (moxi_text_input_wraps[moxi_active_text_input_index])
+            [self showNativeMultilineEditorForIndex:moxi_active_text_input_index];
+        else
+            [self showNativeTextEditorForIndex:moxi_active_text_input_index];
         return;
     }
+    if (self.window.firstResponder == self.nativeMultilineEditor)
+        [self.window makeFirstResponder:self];
+    self.nativeMultilineScroll.hidden = YES;
     if (self.nativeTextEditor != nil) {
         NSText *fieldEditor = self.window == nil
             ? nil
@@ -1849,7 +1877,8 @@ doCommandBySelector:(SEL)commandSelector {
         return NO;
     }
     if (commandSelector == @selector(insertNewline:) ||
-        commandSelector == @selector(insertLineBreak:)) {
+        commandSelector == @selector(insertLineBreak:) ||
+        commandSelector == @selector(insertNewlineIgnoringFieldEditor:)) {
         moxi_interpreting_modifiers = moxi_event_modifiers_for_flags(
             [NSApp currentEvent].modifierFlags
         );
@@ -3371,6 +3400,13 @@ double moxi_window_benchmark_custom_paint(int iterations) {
     }
 }
 
+- (BOOL)performKeyEquivalent:(NSEvent *)event {
+    MOXI_CALLBACK_SCOPE(return NO);
+    // AppKit field editors consume Command-Return before doCommandBySelector:.
+    // Route the browser's Run chord even while the search field owns focus.
+    return moxi_queue_modified_enter(event) || [super performKeyEquivalent:event];
+}
+
 - (void)keyDown:(NSEvent *)event {
     MOXI_CALLBACK_SCOPE(return);
     moxi_interpreting_modifiers = moxi_event_modifiers_for_flags([event modifierFlags]);
@@ -3481,6 +3517,12 @@ void moxi_window_open(
             NSMenuItem *editItem = [[NSMenuItem alloc] initWithTitle:@"Edit"
                 action:nil keyEquivalent:@""];
             NSMenu *editMenu = [[NSMenu alloc] initWithTitle:@"Edit"];
+            [editMenu addItemWithTitle:@"Undo" action:@selector(undo:) keyEquivalent:@"z"];
+            NSMenuItem *redoItem = [editMenu addItemWithTitle:@"Redo"
+                action:@selector(redo:) keyEquivalent:@"z"];
+            redoItem.keyEquivalentModifierMask = NSEventModifierFlagCommand |
+                NSEventModifierFlagShift;
+            [editMenu addItem:[NSMenuItem separatorItem]];
             [editMenu addItemWithTitle:@"Cut" action:@selector(cut:) keyEquivalent:@"x"];
             [editMenu addItemWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"c"];
             [editMenu addItemWithTitle:@"Paste" action:@selector(paste:) keyEquivalent:@"v"];
@@ -4691,8 +4733,9 @@ void moxi_window_set_text_input_at(
         if (index + 1 > moxi_text_input_count) {
             moxi_text_input_count = index + 1;
         }
-        if (focused != 0 && !moxi_text_input_wraps[index]) {
-            [moxi_canvas showNativeTextEditorForIndex:index];
+        if (focused != 0) {
+            if (moxi_text_input_wraps[index]) [moxi_canvas showNativeMultilineEditorForIndex:index];
+            else [moxi_canvas showNativeTextEditorForIndex:index];
         }
         [moxi_canvas setNeedsDisplay:YES];
     }
@@ -4850,6 +4893,7 @@ void moxi_window_reset_input(void) {
             }
         }
         moxi_canvas.nativeTextEditorValue = nil;
+        moxi_canvas.nativeMultilineValue = nil;
         moxi_canvas.synchronizingNativeTextEditor = NO;
     }
     // AppKit's queue is process-wide. Remove only this window's pending input,
@@ -5148,6 +5192,8 @@ void moxi_dev_clear_live_script(void) {
     }
 }
 
+#include "macos_live_editor.inc"
+
 int moxi_demo_launch(const char *task) {
     @autoreleasepool {
         if (task == NULL) {
@@ -5220,6 +5266,7 @@ int moxi_window_destroy_instance(uint64_t handle) {
         moxi_native_timing_close_output();
         state->retired = YES;
         [moxi_canvas.nativeTextEditor setDelegate:nil];
+        [moxi_canvas.nativeMultilineEditor setDelegate:nil];
         [moxi_window setDelegate:nil];
         [moxi_window setContentView:nil];
         moxi_accessibility_reset_storage();
@@ -5289,3 +5336,4 @@ int moxi_window_dialog_show(int target, const char *title, const char *message) 
 
 /* Bounded owner-safe image composition (opt-in). */
 #import "macos_composition.inc"
+#import "macos_source_editor.inc"

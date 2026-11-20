@@ -53,8 +53,8 @@ The window is organized like this:
   authoring previews stack above their source panel;
 - scene and plotting pages declare a real `Canvas` node in that component;
   the host renders the component's `Scene` into that node in the same window;
-- `Editable Live Component` is a development page whose Mojo component is
-  rebuilt and swapped into that existing canvas when its source file changes;
+- `Editable Live Component` is a development page whose scene source is
+  edited and explicitly rebuilt into that existing canvas with Run;
 - `Capability Bus Walkthrough` is a ten-step live component whose navigation,
   typed handler execution, agent request, and trusted approval all cross the
   same in-process `CapabilityBus` boundary;
@@ -105,11 +105,18 @@ independent inert informational components, working surrounding controls, and
 host-owned replacement by an implemented counter. It is a runnable lesson about
 composition, not a substitute catalog entry for another unfinished feature.
 
-## Editable source and hot reload
+## Editable scene source
 
-`examples/editable_showcase.mojo` is the first explicitly reloadable script.
-It defines an ordinary `EditableShowcase(Component)` and exports this small
-development ABI:
+`Editable Live Component` is one complete editable example. Its Source and Demo
+tabs share the full `examples/editable_showcase.mojo` draft. The native multiline
+editor supports selection, scrolling, clipboard operations, and undo. Click
+`Run` (or Command/Control+Enter) to compile a snapshot in a private temporary
+directory. Editing, tabs, and catalog navigation remain available during the
+asynchronous build. A changed draft is identified separately from the running
+snapshot. `Revert` restores the original source and rebuilds it; neither action
+writes the example file. Drafts last only for the current browser session.
+
+The example defines an ordinary `EditableShowcase(Component)` and exports:
 
 ```mojo
 @export
@@ -117,18 +124,18 @@ def moxi_live_frame(x, y, width, height) abi("C") -> Int32:
     ...
 ```
 
-When `pixi run demo` has that page selected, the macOS host watches the source
-mtime. Saving the file runs `mojo build --emit shared-lib`, loads the new
-module, and calls the exported frame function into the existing component-owned
-canvas. The old module remains active if the rebuild fails, so a syntax error
-does not blank the window. The retained Moxi view tree still owns layout,
-events, focus, and accessibility; the reloadable module contributes the scene
-inside its declared canvas.
+A successful build replaces the scene in the existing component-owned canvas.
+Compiler diagnostics appear below the editor, with file/line locations. Compiler
+and missing-export failures retain the last successful scene. Only this explicit
+scene ABI is reloaded: the browser's retained shell still owns layout, focus,
+events, and accessibility, so editing `build()` does not replace shell widgets.
+Run the browser from the repository with `pixi run demo` so the source, compiler,
+and imports are available. Other examples retain their existing Source excerpts.
 
-This is an explicit opt-in ABI, not arbitrary runtime reflection. The Source
-tab remains a read-only, deterministic excerpt; edit the checked-in file in
-your editor and save it. The native integration contract can be exercised
-without a GUI with `pixi run live-reload-check`.
+`pixi run live-editor-check` exercises the browser's draft/run/revert path with
+the real compiler, including failure retention, edits during compilation, shared
+tab drafts, and catalog state. `pixi run live-reload-check` continues to cover
+the lower-level saved-file reload contract.
 
 ## Catalog coverage
 
@@ -165,6 +172,6 @@ The structure follows the actual wxPython Phoenix demo browser: a searchable
 sample tree, a selected-sample work area, separate overview/source/demo
 surfaces, and a distinction between the browser shell and the sample being
 run. Moxi maps those ideas to its value-based component model, mounting typed
-pages in-process. The editable page adds a real source-watch/build/load loop
-for an explicit ABI; a full in-browser source editor and modified-source
-persistence remain follow-up work.
+pages in-process. The editable page adds a session-local source editor and asynchronous
+build/load loop for an explicit scene ABI. Persisting modified drafts remains
+follow-up work.

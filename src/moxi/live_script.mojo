@@ -57,7 +57,7 @@ struct LiveScriptState(Component):
         )
         root.add_label(
             LIVE_SCRIPT_BODY_ID,
-            "Save examples/editable_showcase.mojo and this component reloads its scene in the same window.",
+            "Edit the scene source beside this preview, then Run. Builds replace only the scene in this window.",
             0.0,
         )
         root.set_preferred_width(LIVE_SCRIPT_BODY_ID, bounds.width - 64.0)
