@@ -1,0 +1,2702 @@
+[
+  {
+    "target": "artifacts/demo-slideshows/e02-beeswarm/01-source.png",
+    "page_path": "e02-beeswarm/source.html",
+    "captured_at": "2026-11-20T23:02:05.427263+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [
+      {
+        "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+        "location": {
+          "url": "http://127.0.0.1:8796/favicon.ico",
+          "line": 0,
+          "column": 0,
+          "lineNumber": 0,
+          "columnNumber": 0
+        }
+      }
+    ],
+    "failed_requests": [],
+    "sha256": "a8a3764a36c1024d58c58dd90f068f44ebbeea23caf05579d460f0b297fb6aa3"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-beeswarm/03-comparison.png",
+    "page_path": "e02-beeswarm/comparison.html",
+    "captured_at": "2026-11-20T23:02:06.285469+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-beeswarm/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-beeswarm/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "4c3887de047552801f2c099fe9db131fbff8f4a51abeb5fd9ac3ca1772351174"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-beeswarm/04-selection.png",
+    "page_path": "e02-beeswarm/selection.html",
+    "captured_at": "2026-11-20T23:02:07.633079+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-beeswarm/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "830a365aca57fb6e60e415b297803707ffad5730bc0c173b66bcce6f2e60bf60"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contour/01-source.png",
+    "page_path": "e02-contour/source.html",
+    "captured_at": "2026-11-20T23:02:08.937273+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "c4481f1d54870fb977255294f808d03f871b45096588035a74a962ff9d25c606"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contour/02-reference.png",
+    "page_path": "e02-contour/reference-gap.html",
+    "captured_at": "2026-11-20T23:02:12.476828+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "fe288a83d22b54f8c4f2efaae1067b43cc9469c8261ee17dec00410311270d11"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contour/03-comparison.png",
+    "page_path": "e02-contour/comparison.html",
+    "captured_at": "2026-11-20T23:02:15.467400+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-contour/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "925b5ee69dce3af2d9fb6d3b0c65f37ae52332a5465671f939ffd07d65563dc5"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contour/04-selection.png",
+    "page_path": "e02-contour/selection.html",
+    "captured_at": "2026-11-20T23:02:19.414010+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-contour/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "6b0a027c824ec0f6d8fa9aad7b723d1a2c8062276d7229e11fc49e6d043e5052"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contourf/01-source.png",
+    "page_path": "e02-contourf/source.html",
+    "captured_at": "2026-11-20T23:02:23.947809+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "81277a5c717946fa98b0dd14bdf849ad5bc9e60edfd3cbc85b6fb762af5e8118"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contourf/02-reference.png",
+    "page_path": "e02-contourf/reference-gap.html",
+    "captured_at": "2026-11-20T23:02:28.476891+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "620a0f5b19bed560db424106cbd9bd738f16577cd7fa08f523e9da083e33a0d6"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contourf/03-comparison.png",
+    "page_path": "e02-contourf/comparison.html",
+    "captured_at": "2026-11-20T23:02:30.144699+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-contourf/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "f4b03c45660144de3b79e4cd583931c7635e3a8eda723f623382b1bc7f53a6df"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contourf/04-selection.png",
+    "page_path": "e02-contourf/selection.html",
+    "captured_at": "2026-11-20T23:02:32.353452+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-contourf/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "85a2891a1949124dfe32f4c9695f007d60727ca9eb5fb0822ebe8a1747b91b63"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-donut/01-source.png",
+    "page_path": "e02-donut/source.html",
+    "captured_at": "2026-11-20T23:02:33.620031+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "95a0cf845cd897c5218d06c23dda3bd9a8c96139368d8897cb899aaab26ea5c4"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-donut/03-comparison.png",
+    "page_path": "e02-donut/comparison.html",
+    "captured_at": "2026-11-20T23:02:36.168366+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-donut/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-donut/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "d1c3b433119def32a2c53822724ed8fdd8028c79cada1a5d7b285913c645822b"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-donut/04-selection.png",
+    "page_path": "e02-donut/selection.html",
+    "captured_at": "2026-11-20T23:02:41.838989+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-donut/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "6e9fab6219bd611ce7a40fd2bf7424df8c606e4aad763567c736f87fe8e1ecc6"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-gauge/01-source.png",
+    "page_path": "e02-gauge/source.html",
+    "captured_at": "2026-11-20T23:02:46.406588+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "d40b647e396299027d7988072c38e11ba1f1def52cb3a0bd5895252d2bef0634"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-gauge/03-comparison.png",
+    "page_path": "e02-gauge/comparison.html",
+    "captured_at": "2026-11-20T23:02:50.502299+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-gauge/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-gauge/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "2d2cd6a887e18af5f77e056d0e8bbf7b9dda03fe06df018c60119b82fb6e8827"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-gauge/04-selection.png",
+    "page_path": "e02-gauge/selection.html",
+    "captured_at": "2026-11-20T23:02:54.115893+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-gauge/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "5d8e790a798b06985d9af1b3390a0327657b4e4d159f975e38fed5234e28a322"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-nightingale/01-source.png",
+    "page_path": "e02-nightingale/source.html",
+    "captured_at": "2026-11-20T23:02:56.151157+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "a5d42ec24e9621d4ee6edee492ba5e99d2938c6934ce26d6a6ded3f92e9e3a82"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-nightingale/03-comparison.png",
+    "page_path": "e02-nightingale/comparison.html",
+    "captured_at": "2026-11-20T23:03:02.346375+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-nightingale/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-nightingale/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "d5f61e4e1b3494aa491b65503ee395b1de70b383beb737e765fc29bafdcf64df"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-nightingale/04-selection.png",
+    "page_path": "e02-nightingale/selection.html",
+    "captured_at": "2026-11-20T23:03:06.432168+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-nightingale/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "7e4964c2dce97c34f3279f0be20406f427042a42d643ac60148415fab20a481f"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-pie/01-source.png",
+    "page_path": "e02-pie/source.html",
+    "captured_at": "2026-11-20T23:03:11.965712+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "03584203c96002ea4bdc0933f3e995a26ec898c8db61f9685f20f02188021485"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-pie/03-comparison.png",
+    "page_path": "e02-pie/comparison.html",
+    "captured_at": "2026-11-20T23:03:15.800703+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-pie/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-pie/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "e5a4f19dab9e2f08050524a2a0269d5d5d4ca82a1bd076d3e900c3a447d79d03"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-pie/04-selection.png",
+    "page_path": "e02-pie/selection.html",
+    "captured_at": "2026-11-20T23:03:19.317957+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-pie/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "045269cb8621b8d173179d0b63cbeb2d6e6a94f580a7df6689d508219539d318"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar/01-source.png",
+    "page_path": "e02-polar/source.html",
+    "captured_at": "2026-11-20T23:03:22.962609+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "eab2f2a125d47678ce5eec0001bdc6f41186e21c30f35315a6bdc38975d27e9c"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar/03-comparison.png",
+    "page_path": "e02-polar/comparison.html",
+    "captured_at": "2026-11-20T23:03:29.226443+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-polar/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-polar/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "26620a8d0d642fc12be220f0439218f13b405e6c9329d2dcfdd38ae44b59f4e6"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar/04-selection.png",
+    "page_path": "e02-polar/selection.html",
+    "captured_at": "2026-11-20T23:03:34.066850+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-polar/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "1394a1214cd1d7f47fc38f301d20c79badd9a853e21b41fbef35b445975bdb52"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar-bar/01-source.png",
+    "page_path": "e02-polar-bar/source.html",
+    "captured_at": "2026-11-20T23:03:37.281818+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "886ef17dc411e3bdf9fa7e932be5f7f464d6da9144fd56569a72c61344bbbb7f"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar-bar/03-comparison.png",
+    "page_path": "e02-polar-bar/comparison.html",
+    "captured_at": "2026-11-20T23:03:44.937532+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-polar-bar/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-polar-bar/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "c0ef4bed38744e2ca87e5d000ab8b29ab1812e25612e15e99e875ae64874295a"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar-bar/04-selection.png",
+    "page_path": "e02-polar-bar/selection.html",
+    "captured_at": "2026-11-20T23:03:50.682935+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-polar-bar/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "1d5eae93972b5398ec8acc9fec54049c4edfe3a159bdcfa16cdf38735f5acab2"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radar/01-source.png",
+    "page_path": "e02-radar/source.html",
+    "captured_at": "2026-11-20T23:03:55.266804+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "e285f66ec808838d0afd00c266c8ee0e4d5788208338526b077fc739784cb66a"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radar/03-comparison.png",
+    "page_path": "e02-radar/comparison.html",
+    "captured_at": "2026-11-20T23:04:01.650596+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-radar/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-radar/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "e56dbddde32923d204b734cd766daf1087f2c0741c1c7565fcf62f26d8079db9"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radar/04-selection.png",
+    "page_path": "e02-radar/selection.html",
+    "captured_at": "2026-11-20T23:04:07.626175+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-radar/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "442d8ce2b8887c05613c480dc3663c4dcf144023f6072bcb5c3ebbc511ea00c3"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radialbar/01-source.png",
+    "page_path": "e02-radialbar/source.html",
+    "captured_at": "2026-11-20T23:04:10.875321+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "60120e9b15a7c8d8aa886c6a0a4302f22a5ff980d675b7fa6bba81263fc4b25b"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radialbar/03-comparison.png",
+    "page_path": "e02-radialbar/comparison.html",
+    "captured_at": "2026-11-20T23:04:14.527979+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-radialbar/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-radialbar/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "ddcf31a11cd8c209d22d90e21d25d673df1292ccf12f3eb9b0ad80379c82f47d"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radialbar/04-selection.png",
+    "page_path": "e02-radialbar/selection.html",
+    "captured_at": "2026-11-20T23:04:16.265058+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-radialbar/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "43c5d146fcdce446c7a193a7479bffe4c2bd7e2132dcb960dc0a3227c25f2267"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-ridgeline/01-source.png",
+    "page_path": "e02-ridgeline/source.html",
+    "captured_at": "2026-11-20T23:04:17.534894+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "5e27672b17b20942cf741d42c36e3ace62324e0972a21f1135a86d42734cfbf5"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-ridgeline/03-comparison.png",
+    "page_path": "e02-ridgeline/comparison.html",
+    "captured_at": "2026-11-20T23:04:18.576950+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-ridgeline/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-ridgeline/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "45e6a006698d2f3515f749a75ba553fe7a0c6b5a6d9dc9834420263df865ad8b"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-ridgeline/04-selection.png",
+    "page_path": "e02-ridgeline/selection.html",
+    "captured_at": "2026-11-20T23:04:19.719678+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-ridgeline/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "2b56bb47b84474f44f497277671710780fd56838074910ee52d5f983dc84fe62"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-streamgraph/01-source.png",
+    "page_path": "e02-streamgraph/source.html",
+    "captured_at": "2026-11-20T23:04:20.696526+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "e6c72f581ed6a05edc35251509be45bdf170906e5658f4139683ae784c19a930"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-streamgraph/03-comparison.png",
+    "page_path": "e02-streamgraph/comparison.html",
+    "captured_at": "2026-11-20T23:04:22.150233+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-streamgraph/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-streamgraph/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "15aaa6ab1219309ca6463c6c55da9d4cdd0af81e124973f224a8791bbf8785e3"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-streamgraph/04-selection.png",
+    "page_path": "e02-streamgraph/selection.html",
+    "captured_at": "2026-11-20T23:04:23.084667+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-streamgraph/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "74b9f9def2ae0e4e5e14526a311674e8611e640291bcf400e39ac06053326b82"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-violin/01-source.png",
+    "page_path": "e02-violin/source.html",
+    "captured_at": "2026-11-20T23:04:25.096281+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "fc9af39cee1f09226fda4d43df164f21c7721498fd66b25a4fb6edc566f4393d"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-violin/03-comparison.png",
+    "page_path": "e02-violin/comparison.html",
+    "captured_at": "2026-11-20T23:04:29.050829+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-violin/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-violin/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "6eb410d589d0e6d1d20b5cccf7d38fcc6c2aa793b18c4fc97e8e792278f56909"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-violin/04-selection.png",
+    "page_path": "e02-violin/selection.html",
+    "captured_at": "2026-11-20T23:04:30.728113+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-violin/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "37de411c2ec6f8dd04f2cd01186f9f832b19f5bdc65d8136b60b4592e2493231"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-barbs/01-source.png",
+    "page_path": "e03-barbs/source.html",
+    "captured_at": "2026-11-20T23:04:32.026239+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "c733b349db475a3434eaa20f04862341c4e3e7162675ca9cf15188a6f9409061"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-barbs/03-comparison.png",
+    "page_path": "e03-barbs/comparison.html",
+    "captured_at": "2026-11-20T23:04:33.761418+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-barbs/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-barbs/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "4729342fa33c45e27e66bdf8de005532494e946d1fbe71fe8d3f080dfd062516"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-barbs/04-selection.png",
+    "page_path": "e03-barbs/selection.html",
+    "captured_at": "2026-11-20T23:04:35.094002+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-barbs/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "80982547e0f22574f0e5e19236e1882f25d2139137be0ac1320e4299731c209f"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-calendar-heatmap/01-source.png",
+    "page_path": "e03-calendar-heatmap/source.html",
+    "captured_at": "2026-11-20T23:04:36.374432+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "d839945f2977c85f0bb97a35ede2007aa3c78440d3f47666bd346b3a93293c8a"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-calendar-heatmap/03-comparison.png",
+    "page_path": "e03-calendar-heatmap/comparison.html",
+    "captured_at": "2026-11-20T23:04:38.036275+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-calendar-heatmap/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-calendar-heatmap/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "5501129a2fbbf28633540102e98359e8a1e86dc414cc5aeb1ae2dbe2d72be5a8"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-calendar-heatmap/04-selection.png",
+    "page_path": "e03-calendar-heatmap/selection.html",
+    "captured_at": "2026-11-20T23:04:39.400222+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-calendar-heatmap/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "40ce9215294e2281eb4827f00cf0881a3b191d1aa88eb12654b0214fd2b6615a"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-chord/01-source.png",
+    "page_path": "e03-chord/source.html",
+    "captured_at": "2026-11-20T23:04:40.324874+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "c3751c4f464cfaa4d18b08300beb4b2836f10807dc8c06920a9a3fa574408fc9"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-chord/03-comparison.png",
+    "page_path": "e03-chord/comparison.html",
+    "captured_at": "2026-11-20T23:04:42.463967+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-chord/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-chord/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "fd0ff786de194ab8421e08358d13aaf568cededb858346769ca9ca62c14c6ff0"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-chord/04-selection.png",
+    "page_path": "e03-chord/selection.html",
+    "captured_at": "2026-11-20T23:04:44.083199+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-chord/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "2c1f1a5e871c21547b7b671f30aba648f5c949b55327044fcc3a2ad418ead13c"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-corrplot/01-source.png",
+    "page_path": "e03-corrplot/source.html",
+    "captured_at": "2026-11-20T23:04:45.294418+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "c7ee0a8ebcf0c365a3094626cd1ee43186350f5123220d4daafe93ac0b792fbb"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-corrplot/03-comparison.png",
+    "page_path": "e03-corrplot/comparison.html",
+    "captured_at": "2026-11-20T23:04:46.319666+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-corrplot/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-corrplot/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "64a399b539f07138fabef07ec15588ed139d2125eba7fb15c93b3bc31fa1b082"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-corrplot/04-selection.png",
+    "page_path": "e03-corrplot/selection.html",
+    "captured_at": "2026-11-20T23:04:47.920173+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-corrplot/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "b7b6b69f802d8e5357ba47651c41bb0b1e6f013f4bff25bf3683cd8718308367"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-graph/01-source.png",
+    "page_path": "e03-graph/source.html",
+    "captured_at": "2026-11-20T23:04:49.568288+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "a54ea0f7d6e98fc36336424553836d6a61676fd9653705070f89e32dc7834120"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-graph/03-comparison.png",
+    "page_path": "e03-graph/comparison.html",
+    "captured_at": "2026-11-20T23:04:50.874198+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-graph/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-graph/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "82e62d386a3ded6878165289866f753e745f20260947e813ffc7d373080762d4"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-graph/04-selection.png",
+    "page_path": "e03-graph/selection.html",
+    "captured_at": "2026-11-20T23:04:52.739390+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-graph/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "48dbc343a56be2c93c53e8acdebd2178dace45fbd87a648ad939c3f4c9a22bee"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-marimekko/01-source.png",
+    "page_path": "e03-marimekko/source.html",
+    "captured_at": "2026-11-20T23:04:54.895932+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "90c74bcd862c54ea549247d417cf4161d06d3a1c455dcd63533b79e5297d048c"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-marimekko/03-comparison.png",
+    "page_path": "e03-marimekko/comparison.html",
+    "captured_at": "2026-11-20T23:04:55.987695+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-marimekko/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-marimekko/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "29bb47500ce954b764d360457b51edcfa33f82c6321baefc7331e472aa63c04f"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-marimekko/04-selection.png",
+    "page_path": "e03-marimekko/selection.html",
+    "captured_at": "2026-11-20T23:04:57.963258+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-marimekko/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "d811d2b5b6d73de80f85bb4e4cf290222ca01feefcf8dcbb59c1a5c62418ec5e"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-punchcard/01-source.png",
+    "page_path": "e03-punchcard/source.html",
+    "captured_at": "2026-11-20T23:04:59.570598+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "1f3013f73fe852594baa289cedd85845112a801338e039484020333a195ed403"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-punchcard/03-comparison.png",
+    "page_path": "e03-punchcard/comparison.html",
+    "captured_at": "2026-11-20T23:05:01.856373+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-punchcard/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-punchcard/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "ac6f017fdb72e746ebef046bd938312d9232005577e34b32d419b63dfb1e8282"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-punchcard/04-selection.png",
+    "page_path": "e03-punchcard/selection.html",
+    "captured_at": "2026-11-20T23:05:03.558957+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-punchcard/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "bd9471dc8a86f44cdfa262b68a535e787fafd9b42d5f9275d42e56cec0e7b591"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sankey/01-source.png",
+    "page_path": "e03-sankey/source.html",
+    "captured_at": "2026-11-20T23:05:05.401653+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "e8da2aa5f57dce3f03fb5efd33b1ef9897b07937582ebb5df1a1ec0f2a9f5aab"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sankey/03-comparison.png",
+    "page_path": "e03-sankey/comparison.html",
+    "captured_at": "2026-11-20T23:05:07.267091+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-sankey/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-sankey/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "a50a55905f1b36a539d237507694c63dc6be6c64a7e9e44fbdfe9b96b5d3754e"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sankey/04-selection.png",
+    "page_path": "e03-sankey/selection.html",
+    "captured_at": "2026-11-20T23:05:08.904764+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-sankey/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "5bba8a85e0bd9292ed1e8dfe27ad5e3f1dd81b2a491590dd21cd9bd78fd89af1"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sunburst/01-source.png",
+    "page_path": "e03-sunburst/source.html",
+    "captured_at": "2026-11-20T23:05:10.995246+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "78bab393774efab51cefba355f2120f8366e974d9270f87f1631c688579ebb91"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sunburst/03-comparison.png",
+    "page_path": "e03-sunburst/comparison.html",
+    "captured_at": "2026-11-20T23:05:12.754285+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-sunburst/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-sunburst/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "578599ec5772a3ffd5c207f6c4af21bb90d65d79a7d0b672c993754eae8a5fc4"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sunburst/04-selection.png",
+    "page_path": "e03-sunburst/selection.html",
+    "captured_at": "2026-11-20T23:05:13.769124+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-sunburst/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "fcb68dfd8835ab0510a31ad7fbf251a6352f2190674d5fabc81def2af96830fd"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tree/01-source.png",
+    "page_path": "e03-tree/source.html",
+    "captured_at": "2026-11-20T23:05:15.357536+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "eb59d18cd3388d39a7f705be13cf03d2fdeec2a34f384997d1d5c8317df12dbb"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tree/03-comparison.png",
+    "page_path": "e03-tree/comparison.html",
+    "captured_at": "2026-11-20T23:05:17.360560+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-tree/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-tree/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "595e7d0a62ca5044976828a9ca8ab7dbcd018c944cc2e1abda49bee66dd09d0f"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tree/04-selection.png",
+    "page_path": "e03-tree/selection.html",
+    "captured_at": "2026-11-20T23:05:18.553592+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-tree/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "67a97eec0342af6b321106393f07a43b561c0b069e6b7b289ea61ae22e3a5268"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-treemap/01-source.png",
+    "page_path": "e03-treemap/source.html",
+    "captured_at": "2026-11-20T23:05:19.675993+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "dc2923001a5ab7b6c074fca2101bdb6118f0aaa5c2cb4f8f83166bd1e99d5c25"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-treemap/03-comparison.png",
+    "page_path": "e03-treemap/comparison.html",
+    "captured_at": "2026-11-20T23:05:20.724781+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-treemap/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e03-treemap/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "06fbf952eeeba48ab8134db0515d3645fbb1d74ba2bd3b0e81b5c653212e41bd"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-treemap/04-selection.png",
+    "page_path": "e03-treemap/selection.html",
+    "captured_at": "2026-11-20T23:05:22.052776+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-treemap/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "23f0948084eed250fcc589cdd1682b7fddc7136be81138c3c22081f975c50d68"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/01-source.png",
+    "page_path": "e03-tricontour/source.html",
+    "captured_at": "2026-11-20T23:05:23.567861+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "d32d9aad7b4af244491cb67fc0eac3467742a44425edfee83f366a467c8c140b"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/02-reference.png",
+    "page_path": "e03-tricontour/reference.html",
+    "captured_at": "2026-11-20T23:05:25.386108+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "d4a281aa5be0d516ffc96e028d5b459a12aecdd969637a6a38288a46e28931d1"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/03-comparison.png",
+    "page_path": "e03-tricontour/comparison.html",
+    "captured_at": "2026-11-20T23:05:26.364142+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-tricontour/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "0d1824986388b79d30670e8279fe39ea239597537f66614cf2475b075b839c35"
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/04-selection.png",
+    "page_path": "e03-tricontour/selection.html",
+    "captured_at": "2026-11-20T23:05:27.944457+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.36",
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e03-tricontour/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [],
+    "failed_requests": [],
+    "sha256": "618a01e69a33ef9e8a9dfff752c5b7a42183d8237ce152a909825ac7a531b5ed"
+  }
+]

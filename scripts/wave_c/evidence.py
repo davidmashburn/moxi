@@ -6,6 +6,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 from fixtures import CASES,ROOT,figure
 from moxi.specialized import layout
+from verify import runtime_source_hash
 
 NOTES={
  'treemap':'Alternating slice/dice leaf rectangles; descendant sums ignore branch own values. Input-order siblings; branch colors.',
@@ -110,6 +111,8 @@ def structural(reference,name,g):
 def main():
  p=argparse.ArgumentParser();p.add_argument('reference',type=Path);p.add_argument('moxi',type=Path);a=p.parse_args()
  root=ROOT/'artifacts/demo-slideshows';revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+ results=json.loads((a.moxi/'results.json').read_text())
+ assert results['runtime_source_sha256'] == runtime_source_hash(), 'Runtime inputs differ from the verified/captured build'
  scopes=['python/moxi','src/moxi_plot','src/moxi/scenarios.mojo','scripts/wave_c','tests/plot_specialized_c.mojo','tests/test_specialized_c.py','tests/fixtures/wave_c/cases.json','pixi.toml','pixi.lock','docs/dataviz-capabilities.tsv','docs/plot-specialized-wave-c.md']
  files=sorted(p for name in scopes for p in ((ROOT/name).rglob('*') if (ROOT/name).is_dir() else [ROOT/name]) if p.is_file() and '__pycache__' not in p.parts)
  hashes={str(p.relative_to(ROOT)):digest(p) for p in files};source_hash=hashlib.sha256(json.dumps(hashes,sort_keys=True).encode()).hexdigest()
@@ -118,6 +121,7 @@ def main():
  selections=json.loads((a.moxi/'selections.json').read_text());bench=json.loads((a.moxi/'benchmarks.json').read_text());provenance=json.loads((a.reference/'provenance.json').read_text())
  provenance.update(moxi_canvas_revision='8fcb0c83966ef872248239f9dafd6baaba06204e',moxi_lock_sha256=digest(ROOT/'pixi.lock'))
  report=dict(revision=revision,source_state=source_state,upstream=provenance,host=platform.platform(),python=platform.python_version(),mojo=subprocess.check_output(['pixi','run','mojo','--version'],cwd=ROOT,text=True).strip(),common_differences=COMMON,cases={})
+ report.update(results)
  for case in CASES:
   name=case['id'];demo='e03-'+name.replace('_','-');out=root/demo;out.mkdir(parents=True,exist_ok=True);f=figure(case);g=layout(f.spec.layers[0],f.data)
   samples=[]

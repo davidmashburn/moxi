@@ -1,0 +1,488 @@
+[
+  {
+    "target": "artifacts/demo-slideshows/e02-beeswarm/01-source.png",
+    "page": "e02-beeswarm/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-beeswarm/03-comparison.png",
+    "page": "e02-beeswarm/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-beeswarm/04-selection.png",
+    "page": "e02-beeswarm/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contour/01-source.png",
+    "page": "e02-contour/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contour/02-reference.png",
+    "page": "e02-contour/reference-gap.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contour/03-comparison.png",
+    "page": "e02-contour/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contour/04-selection.png",
+    "page": "e02-contour/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contourf/01-source.png",
+    "page": "e02-contourf/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contourf/02-reference.png",
+    "page": "e02-contourf/reference-gap.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contourf/03-comparison.png",
+    "page": "e02-contourf/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-contourf/04-selection.png",
+    "page": "e02-contourf/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-donut/01-source.png",
+    "page": "e02-donut/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-donut/03-comparison.png",
+    "page": "e02-donut/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-donut/04-selection.png",
+    "page": "e02-donut/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-gauge/01-source.png",
+    "page": "e02-gauge/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-gauge/03-comparison.png",
+    "page": "e02-gauge/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-gauge/04-selection.png",
+    "page": "e02-gauge/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-nightingale/01-source.png",
+    "page": "e02-nightingale/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-nightingale/03-comparison.png",
+    "page": "e02-nightingale/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-nightingale/04-selection.png",
+    "page": "e02-nightingale/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-pie/01-source.png",
+    "page": "e02-pie/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-pie/03-comparison.png",
+    "page": "e02-pie/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-pie/04-selection.png",
+    "page": "e02-pie/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar/01-source.png",
+    "page": "e02-polar/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar/03-comparison.png",
+    "page": "e02-polar/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar/04-selection.png",
+    "page": "e02-polar/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar-bar/01-source.png",
+    "page": "e02-polar-bar/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar-bar/03-comparison.png",
+    "page": "e02-polar-bar/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-polar-bar/04-selection.png",
+    "page": "e02-polar-bar/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radar/01-source.png",
+    "page": "e02-radar/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radar/03-comparison.png",
+    "page": "e02-radar/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radar/04-selection.png",
+    "page": "e02-radar/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radialbar/01-source.png",
+    "page": "e02-radialbar/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radialbar/03-comparison.png",
+    "page": "e02-radialbar/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-radialbar/04-selection.png",
+    "page": "e02-radialbar/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-ridgeline/01-source.png",
+    "page": "e02-ridgeline/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-ridgeline/03-comparison.png",
+    "page": "e02-ridgeline/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-ridgeline/04-selection.png",
+    "page": "e02-ridgeline/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-streamgraph/01-source.png",
+    "page": "e02-streamgraph/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-streamgraph/03-comparison.png",
+    "page": "e02-streamgraph/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-streamgraph/04-selection.png",
+    "page": "e02-streamgraph/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-violin/01-source.png",
+    "page": "e02-violin/source.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-violin/03-comparison.png",
+    "page": "e02-violin/comparison.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e02-violin/04-selection.png",
+    "page": "e02-violin/selection.html",
+    "width": 1280,
+    "height": 900
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-barbs/01-source.png",
+    "page": "e03-barbs/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-barbs/03-comparison.png",
+    "page": "e03-barbs/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-barbs/04-selection.png",
+    "page": "e03-barbs/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-calendar-heatmap/01-source.png",
+    "page": "e03-calendar-heatmap/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-calendar-heatmap/03-comparison.png",
+    "page": "e03-calendar-heatmap/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-calendar-heatmap/04-selection.png",
+    "page": "e03-calendar-heatmap/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-chord/01-source.png",
+    "page": "e03-chord/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-chord/03-comparison.png",
+    "page": "e03-chord/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-chord/04-selection.png",
+    "page": "e03-chord/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-corrplot/01-source.png",
+    "page": "e03-corrplot/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-corrplot/03-comparison.png",
+    "page": "e03-corrplot/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-corrplot/04-selection.png",
+    "page": "e03-corrplot/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-graph/01-source.png",
+    "page": "e03-graph/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-graph/03-comparison.png",
+    "page": "e03-graph/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-graph/04-selection.png",
+    "page": "e03-graph/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-marimekko/01-source.png",
+    "page": "e03-marimekko/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-marimekko/03-comparison.png",
+    "page": "e03-marimekko/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-marimekko/04-selection.png",
+    "page": "e03-marimekko/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-punchcard/01-source.png",
+    "page": "e03-punchcard/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-punchcard/03-comparison.png",
+    "page": "e03-punchcard/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-punchcard/04-selection.png",
+    "page": "e03-punchcard/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sankey/01-source.png",
+    "page": "e03-sankey/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sankey/03-comparison.png",
+    "page": "e03-sankey/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sankey/04-selection.png",
+    "page": "e03-sankey/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sunburst/01-source.png",
+    "page": "e03-sunburst/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sunburst/03-comparison.png",
+    "page": "e03-sunburst/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-sunburst/04-selection.png",
+    "page": "e03-sunburst/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tree/01-source.png",
+    "page": "e03-tree/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tree/03-comparison.png",
+    "page": "e03-tree/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tree/04-selection.png",
+    "page": "e03-tree/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-treemap/01-source.png",
+    "page": "e03-treemap/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-treemap/03-comparison.png",
+    "page": "e03-treemap/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-treemap/04-selection.png",
+    "page": "e03-treemap/selection.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/01-source.png",
+    "page": "e03-tricontour/source.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/02-reference.png",
+    "page": "e03-tricontour/reference.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/03-comparison.png",
+    "page": "e03-tricontour/comparison.html",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/04-selection.png",
+    "page": "e03-tricontour/selection.html",
+    "width": 1280,
+    "height": 800
+  }
+]

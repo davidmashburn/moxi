@@ -1,0 +1,3717 @@
+{
+  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
+  "checked_at": "2026-11-20T23:25:24.114338+00:00",
+  "counts": {
+    "browser_frames": 81,
+    "svg_files": 40,
+    "pdf_files": 26,
+    "png_files": 248,
+    "families": 26,
+    "frames": 170,
+    "frames_matching_baseline": 89
+  },
+  "runtime_source_sha256": {
+    "b": "15128d0286167a9986c49ed2c0e490c606752d9a05d587719dd84433b4cea2f6",
+    "c": "8c80cebc674849c46dd1b3684071a3d2e086077d0595bf34ff00c7c0233f5b60"
+  },
+  "families": [
+    {
+      "demo_id": "e02-beeswarm",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "a8a3764a36c1024d58c58dd90f068f44ebbeea23caf05579d460f0b297fb6aa3",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "6fe6247b4bf441b4c2ba1d79e247fb16a9ccd2c40de165b4ccf470c84d4d458d",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "c7ff6d7b4454220a1b299f3b4990b8b7c3bd9bb3119cbd00a5afd639e147161f",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "c7ff6d7b4454220a1b299f3b4990b8b7c3bd9bb3119cbd00a5afd639e147161f",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "4c3887de047552801f2c099fe9db131fbff8f4a51abeb5fd9ac3ca1772351174",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "878afdfd692c994e2bbe0545d9329db8eadaa04234cbf0c5e20b96968ce870db",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "830a365aca57fb6e60e415b297803707ffad5730bc0c173b66bcce6f2e60bf60",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "ae4e49cbc894b85901da1c7575370c152293e39f5f56a89fad43fef8e9173724",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "476e743aad46e6454bbd42dfa72913b48b7bef6a978df68a362d6d919ba88862",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "476e743aad46e6454bbd42dfa72913b48b7bef6a978df68a362d6d919ba88862",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "476e743aad46e6454bbd42dfa72913b48b7bef6a978df68a362d6d919ba88862",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "476e743aad46e6454bbd42dfa72913b48b7bef6a978df68a362d6d919ba88862",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "646102f922daf7ab9a908a08ddb1ac3c5f8370ed7d245b48b893a8d5bbdbad44",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "646102f922daf7ab9a908a08ddb1ac3c5f8370ed7d245b48b893a8d5bbdbad44",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "a8a3764a36c1024d58c58dd90f068f44ebbeea23caf05579d460f0b297fb6aa3",
+        "02-reference.png": "c7ff6d7b4454220a1b299f3b4990b8b7c3bd9bb3119cbd00a5afd639e147161f",
+        "03-comparison.png": "4c3887de047552801f2c099fe9db131fbff8f4a51abeb5fd9ac3ca1772351174",
+        "04-selection.png": "830a365aca57fb6e60e415b297803707ffad5730bc0c173b66bcce6f2e60bf60",
+        "05-update.png": "476e743aad46e6454bbd42dfa72913b48b7bef6a978df68a362d6d919ba88862",
+        "06-rejected.png": "476e743aad46e6454bbd42dfa72913b48b7bef6a978df68a362d6d919ba88862",
+        "07-recovery.png": "646102f922daf7ab9a908a08ddb1ac3c5f8370ed7d245b48b893a8d5bbdbad44",
+        "moxi.png": "646102f922daf7ab9a908a08ddb1ac3c5f8370ed7d245b48b893a8d5bbdbad44",
+        "python-export.pdf": "c8cbc255ce369e9017b486a33284b6815843f818de21b3f220137bd5d3bf12f9",
+        "python-export.png": "c59df14212a99c2f3ba7f83c621c0c4ca8c14d0a4cde20e416a13b010936cce8",
+        "python-export.svg": "1680dfcace457e60b6e50b7a116ba6decee058536a8f818241697feaf4a9320b",
+        "scene.svg": "2600d078bb7b4b8c219e895668bf69c733cda1f380f99fa8ac0a25c99185e664",
+        "selected.png": "235d0b133e5cbeda65af21e6985479b4202f2113901eabd5e470f296aaa7c06e"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Pixel-rounded value sorting, neighbor-chain grouping and deterministic alternating horizontal offsets. Points retain source identities despite geometry ordering.",
+          "current": "Pixel-rounded value sorting, neighbor-chain grouping and deterministic alternating horizontal offsets. Points retain source identities despite geometry ordering."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 711,
+            "reference_colored_pixels": 742,
+            "silhouette_iou": 0.6954492415402567,
+            "max_vertex_or_anchor_pixel_error": 0.45454545454543904,
+            "assertion": "Pinned SVG vertices/row anchors within 1.0 px; raster IoU descriptive only"
+          },
+          "current": {
+            "moxi_colored_pixels": 711,
+            "reference_colored_pixels": 742,
+            "silhouette_iou": 0.6954492415402567,
+            "max_vertex_or_anchor_pixel_error": 0.45454545454543904,
+            "assertion": "Pinned SVG vertices/row anchors within 1.0 px; raster IoU descriptive only"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 24,
+          "current": 24
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 24,
+          "current": 24
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 24,
+          "current": 24
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 229,
+            "x": 141.33334,
+            "y": 109.93936
+          },
+          "current": {
+            "key": 229,
+            "x": 141.33334,
+            "y": 109.93936
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-contour",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "c4481f1d54870fb977255294f808d03f871b45096588035a74a962ff9d25c606",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "f9fb8414d417953fa8aace10b9572d9b8c08c8e567a5be7eeec77ce7a6cf7c31",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "fe288a83d22b54f8c4f2efaae1067b43cc9469c8261ee17dec00410311270d11",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "c334728f15be98d8053e557b372273215375e194067eebcd3ca5120207df231d",
+          "matches_baseline": false
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "925b5ee69dce3af2d9fb6d3b0c65f37ae52332a5465671f939ffd07d65563dc5",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "36449c79b9368f1ac5746b6ad5f9966946dbd5523b11496249561f92ca3d7997",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "6b0a027c824ec0f6d8fa9aad7b723d1a2c8062276d7229e11fc49e6d043e5052",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "72f01f68f80b778ff4dfa7fb6d9be27fdfece8f6edb5c1679d46b36b3e229b89",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "38e7bcfcdfb0ddc8245d3db934283144802e8e67add872bda80a23d173cf78d8",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "38e7bcfcdfb0ddc8245d3db934283144802e8e67add872bda80a23d173cf78d8",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "38e7bcfcdfb0ddc8245d3db934283144802e8e67add872bda80a23d173cf78d8",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "38e7bcfcdfb0ddc8245d3db934283144802e8e67add872bda80a23d173cf78d8",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "780a611495bcde767329d0a0c7eabb2f0e296eb80a19085d04b8b4c1b9cc2e27",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "780a611495bcde767329d0a0c7eabb2f0e296eb80a19085d04b8b4c1b9cc2e27",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "c4481f1d54870fb977255294f808d03f871b45096588035a74a962ff9d25c606",
+        "02-reference.png": "fe288a83d22b54f8c4f2efaae1067b43cc9469c8261ee17dec00410311270d11",
+        "03-comparison.png": "925b5ee69dce3af2d9fb6d3b0c65f37ae52332a5465671f939ffd07d65563dc5",
+        "04-selection.png": "6b0a027c824ec0f6d8fa9aad7b723d1a2c8062276d7229e11fc49e6d043e5052",
+        "05-update.png": "38e7bcfcdfb0ddc8245d3db934283144802e8e67add872bda80a23d173cf78d8",
+        "06-rejected.png": "38e7bcfcdfb0ddc8245d3db934283144802e8e67add872bda80a23d173cf78d8",
+        "07-recovery.png": "780a611495bcde767329d0a0c7eabb2f0e296eb80a19085d04b8b4c1b9cc2e27",
+        "moxi.png": "780a611495bcde767329d0a0c7eabb2f0e296eb80a19085d04b8b4c1b9cc2e27",
+        "python-export.pdf": "df84ea41fe6ef67fd143a7358e55c4cd48dcae66a4b7cbe8339eaea681e544fc",
+        "python-export.png": "25f9c913eaf35707443dd36b0d75f0a6997af14c330e1de8c0339bdbbf0d6038",
+        "python-export.svg": "6a69f48d75113c0b629eb054d3a7e2ec0c9f17b9350109b6ca6fad3ae072e938",
+        "scene.svg": "22df9293bbfabf327ce6c185dc3fad734058af449ad0af3e9b693bef8d2c410b",
+        "selected.png": "6ca48eb55f8682af3e105a8fa12fdd06e48af5a49bb06e1b562cc42411f63d07"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "No contour API exists at the pinned upstream revision. Moxi uses real fixed-diagonal piecewise-linear grid isolines, seven interior levels; no upstream parity claim.",
+          "current": "No contour API exists at the pinned upstream revision. Moxi uses real fixed-diagonal piecewise-linear grid isolines, seven interior levels; no upstream parity claim."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 11050
+          },
+          "current": {
+            "moxi_colored_pixels": 11050
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 25,
+          "current": 25
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 92,
+          "current": 92
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 184,
+          "current": 184
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 213,
+            "x": 81.25817,
+            "y": 438.2441
+          },
+          "current": {
+            "key": 213,
+            "x": 81.25817,
+            "y": 438.2441
+          }
+        }
+      },
+      "upstream_reference_available": false
+    },
+    {
+      "demo_id": "e02-contourf",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "81277a5c717946fa98b0dd14bdf849ad5bc9e60edfd3cbc85b6fb762af5e8118",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "94dfd2513785c7f1c0849c445be9a0d9fe64df62d78f2c7194f811c4d4ab4403",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "620a0f5b19bed560db424106cbd9bd738f16577cd7fa08f523e9da083e33a0d6",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "5e07b4f48783a743605b0fa82c6a6b18ea2bbe514c085e7e7ae99c57a1f8f987",
+          "matches_baseline": false
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "f4b03c45660144de3b79e4cd583931c7635e3a8eda723f623382b1bc7f53a6df",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "68bfae60ca5d954e65540ac15cdb5f3d5a79787ba1b78bc01733bd17439a28ae",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "85a2891a1949124dfe32f4c9695f007d60727ca9eb5fb0822ebe8a1747b91b63",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "78727c0ef8fda9794d7eecb86d6b585282965ee10316b1742f304bba9c294d58",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "b98942344aebf0ee646a4a4b8ec0b9b081821aa47141a9ec785514b9e8b11e79",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "b98942344aebf0ee646a4a4b8ec0b9b081821aa47141a9ec785514b9e8b11e79",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "b98942344aebf0ee646a4a4b8ec0b9b081821aa47141a9ec785514b9e8b11e79",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "b98942344aebf0ee646a4a4b8ec0b9b081821aa47141a9ec785514b9e8b11e79",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "ded9cb7299620eced53c5083ca5c17537eb53e5aed9b17ce059f60bf372c8170",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "ded9cb7299620eced53c5083ca5c17537eb53e5aed9b17ce059f60bf372c8170",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "81277a5c717946fa98b0dd14bdf849ad5bc9e60edfd3cbc85b6fb762af5e8118",
+        "02-reference.png": "620a0f5b19bed560db424106cbd9bd738f16577cd7fa08f523e9da083e33a0d6",
+        "03-comparison.png": "f4b03c45660144de3b79e4cd583931c7635e3a8eda723f623382b1bc7f53a6df",
+        "04-selection.png": "85a2891a1949124dfe32f4c9695f007d60727ca9eb5fb0822ebe8a1747b91b63",
+        "05-update.png": "b98942344aebf0ee646a4a4b8ec0b9b081821aa47141a9ec785514b9e8b11e79",
+        "06-rejected.png": "b98942344aebf0ee646a4a4b8ec0b9b081821aa47141a9ec785514b9e8b11e79",
+        "07-recovery.png": "ded9cb7299620eced53c5083ca5c17537eb53e5aed9b17ce059f60bf372c8170",
+        "moxi.png": "ded9cb7299620eced53c5083ca5c17537eb53e5aed9b17ce059f60bf372c8170",
+        "python-export.pdf": "913c30185dbde1581900b01f9643cd83debc70a1572ad662e69c505940a89073",
+        "python-export.png": "c70a6febfd251067e65264b848e8644d18ba6188dd51f582d76f1902d2e57d5e",
+        "python-export.svg": "789c2ef93d1caea85dc41b6586f317c6eef3996e0de70bb02d66908451ded8ea",
+        "scene.svg": "930c40d381a210f757fa391ea224d7a8e466eefc952cbd0437e0358318ebeda8",
+        "selected.png": "f68b0885d012f47330072b4abc0c9dbb6069c9203d30558a215e95116d505c2b"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "No contourf API exists at the pinned upstream revision. Moxi clips each scalar triangle into eight bands, with explicit boundary ownership; no upstream parity claim.",
+          "current": "No contourf API exists at the pinned upstream revision. Moxi clips each scalar triangle into eight bands, with explicit boundary ownership; no upstream parity claim."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 231600
+          },
+          "current": {
+            "moxi_colored_pixels": 231600
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 25,
+          "current": 25
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 124,
+          "current": 124
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 464,
+          "current": 464
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 214,
+            "x": 48.0,
+            "y": 444.0
+          },
+          "current": {
+            "key": 214,
+            "x": 48.0,
+            "y": 444.0
+          }
+        }
+      },
+      "upstream_reference_available": false
+    },
+    {
+      "demo_id": "e02-donut",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "95a0cf845cd897c5218d06c23dda3bd9a8c96139368d8897cb899aaab26ea5c4",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "e71b21ea2c77fc618b7a14264893fd3eb68917dd1d111ad4d5aa5ac540d8d872",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "84e1d475b4371e9e0508d020bf7fff67ee13fffcbac4a05603f4db28dc1bf3af",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "84e1d475b4371e9e0508d020bf7fff67ee13fffcbac4a05603f4db28dc1bf3af",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "d1c3b433119def32a2c53822724ed8fdd8028c79cada1a5d7b285913c645822b",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "3d2a8948f1b3e7c217284a5a4d9388c58f52919f6fe7af4ec26e58f6cd451d69",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "6e9fab6219bd611ce7a40fd2bf7424df8c606e4aad763567c736f87fe8e1ecc6",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "5beef0d204730cfc045389afdcb866afbb21984095febf3f70b911b622e28945",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "ee812613a66370fadd06f74272d87f9799a5b3b99e43bad3be7cff7ed29cac0b",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "ee812613a66370fadd06f74272d87f9799a5b3b99e43bad3be7cff7ed29cac0b",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "ee812613a66370fadd06f74272d87f9799a5b3b99e43bad3be7cff7ed29cac0b",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "ee812613a66370fadd06f74272d87f9799a5b3b99e43bad3be7cff7ed29cac0b",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "26ddac5f076f6c31b6cedbca40277cab82d2da9d2c6f935ed4b2734638c8b772",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "26ddac5f076f6c31b6cedbca40277cab82d2da9d2c6f935ed4b2734638c8b772",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "95a0cf845cd897c5218d06c23dda3bd9a8c96139368d8897cb899aaab26ea5c4",
+        "02-reference.png": "84e1d475b4371e9e0508d020bf7fff67ee13fffcbac4a05603f4db28dc1bf3af",
+        "03-comparison.png": "d1c3b433119def32a2c53822724ed8fdd8028c79cada1a5d7b285913c645822b",
+        "04-selection.png": "6e9fab6219bd611ce7a40fd2bf7424df8c606e4aad763567c736f87fe8e1ecc6",
+        "05-update.png": "ee812613a66370fadd06f74272d87f9799a5b3b99e43bad3be7cff7ed29cac0b",
+        "06-rejected.png": "ee812613a66370fadd06f74272d87f9799a5b3b99e43bad3be7cff7ed29cac0b",
+        "07-recovery.png": "26ddac5f076f6c31b6cedbca40277cab82d2da9d2c6f935ed4b2734638c8b772",
+        "moxi.png": "26ddac5f076f6c31b6cedbca40277cab82d2da9d2c6f935ed4b2734638c8b772",
+        "python-export.pdf": "387ed55dc09c82fd5b9288c97f02deb747ceb89c5f3f40f4e4484da673570579",
+        "python-export.png": "7caef5542d5d24c2eef0faf441fa00bca275eabe73ffe9e7b5ddb74ebacc244c",
+        "python-export.svg": "d33abf5c8fabed6a3c110770ded549d1fde27ffeff20ec51753bdb81d794b5f6",
+        "scene.svg": "036a0b50e70ce0a4b5eeb52280bf9f3fb1d6e83990a1515e7309783ff87a17a3",
+        "selected.png": "52b522f2bdef304a9fc5fb6fdd848312d9a19e088c780ca9e0e922d63883d1fb"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Value-proportional annular sectors; the center is excluded from hit-testing. Inner radius 0.5.",
+          "current": "Value-proportional annular sectors; the center is excluded from hit-testing. Inner radius 0.5."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 82567,
+            "reference_colored_pixels": 82437,
+            "silhouette_iou": 0.9927056663929279,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 82567,
+            "reference_colored_pixels": 82437,
+            "silhouette_iou": 0.9927056663929279,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 268,
+          "current": 268
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 205,
+            "x": 438.0334,
+            "y": 387.44797
+          },
+          "current": {
+            "key": 205,
+            "x": 438.0334,
+            "y": 387.44797
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-gauge",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "d40b647e396299027d7988072c38e11ba1f1def52cb3a0bd5895252d2bef0634",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "6220824431b8afd3e1072ff458b04fd0cd12d22fcb21229362cf2b221b124f3f",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "d86571f193cd4766b4d851d2ea3fd5becd5b7116b770ef7e0cbab0820fd94a75",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "d86571f193cd4766b4d851d2ea3fd5becd5b7116b770ef7e0cbab0820fd94a75",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "2d2cd6a887e18af5f77e056d0e8bbf7b9dda03fe06df018c60119b82fb6e8827",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "14b43662db793016d30186b4607be7fc6d53b65da674286ec4f71ec72b1aa194",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "5d8e790a798b06985d9af1b3390a0327657b4e4d159f975e38fed5234e28a322",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "c884073d56c00a7e8e35f450d8792b20eece383884ad7f610f7e6bacc2584fc6",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "e21606428d98297f0f2c7ed0e26894f02679aedc9a79e30be61c67d2b1b65f57",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "e21606428d98297f0f2c7ed0e26894f02679aedc9a79e30be61c67d2b1b65f57",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "e21606428d98297f0f2c7ed0e26894f02679aedc9a79e30be61c67d2b1b65f57",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "e21606428d98297f0f2c7ed0e26894f02679aedc9a79e30be61c67d2b1b65f57",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "8f4c88d714b8eb122a9d622ed95b4503c50dfc5572f610aeaf40a5b376ffe5f0",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "8f4c88d714b8eb122a9d622ed95b4503c50dfc5572f610aeaf40a5b376ffe5f0",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "d40b647e396299027d7988072c38e11ba1f1def52cb3a0bd5895252d2bef0634",
+        "02-reference.png": "d86571f193cd4766b4d851d2ea3fd5becd5b7116b770ef7e0cbab0820fd94a75",
+        "03-comparison.png": "2d2cd6a887e18af5f77e056d0e8bbf7b9dda03fe06df018c60119b82fb6e8827",
+        "04-selection.png": "5d8e790a798b06985d9af1b3390a0327657b4e4d159f975e38fed5234e28a322",
+        "05-update.png": "e21606428d98297f0f2c7ed0e26894f02679aedc9a79e30be61c67d2b1b65f57",
+        "06-rejected.png": "e21606428d98297f0f2c7ed0e26894f02679aedc9a79e30be61c67d2b1b65f57",
+        "07-recovery.png": "8f4c88d714b8eb122a9d622ed95b4503c50dfc5572f610aeaf40a5b376ffe5f0",
+        "moxi.png": "8f4c88d714b8eb122a9d622ed95b4503c50dfc5572f610aeaf40a5b376ffe5f0",
+        "python-export.pdf": "51e66e5421dce0c4bcaff4665ede2d542ed95c0a916afdc5d1eeb079f3f0ae7b",
+        "python-export.png": "f5f113adbde258dda757245b7922df4844713b6d7075909c5bf6dfea91454be4",
+        "python-export.svg": "aa8118cd5cda325c1b4f2334800fc620f4724fe388f8c4072da64ddfed3c3ee1",
+        "scene.svg": "c674d54efca93fdc223f59366b960dbf92e72e33ed45f091829a0176ad292b12",
+        "selected.png": "6c4345dd0027b7fd44b1a0137e2ab086e078348209e9e542026f80ac7fc86a7e"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "270-degree dial, 20/80 percent thresholds and clamped needle. Palette, needle ink and numeric label differ.",
+          "current": "270-degree dial, 20/80 percent thresholds and clamped needle. Palette, needle ink and numeric label differ."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 42060,
+            "reference_colored_pixels": 42735,
+            "silhouette_iou": 0.9699609701700586,
+            "assertion": "Colored silhouette IoU > 0.96; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 42060,
+            "reference_colored_pixels": 42735,
+            "silhouette_iou": 0.9699609701700586,
+            "assertion": "Colored silhouette IoU > 0.96; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 1,
+          "current": 1
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 5,
+          "current": 5
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 205,
+          "current": 205
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 204,
+            "x": 388.49493,
+            "y": 177.3763
+          },
+          "current": {
+            "key": 204,
+            "x": 388.49493,
+            "y": 177.3763
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-nightingale",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "a5d42ec24e9621d4ee6edee492ba5e99d2938c6934ce26d6a6ded3f92e9e3a82",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "340b7374affbc2b1c07db2e6306e181c912ebd9112f4fe74ba186f18cddc4af2",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "4cacaece9b4e63e327a141d927048c452a307c7234181c03130b2431dc49f855",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "4cacaece9b4e63e327a141d927048c452a307c7234181c03130b2431dc49f855",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "d5f61e4e1b3494aa491b65503ee395b1de70b383beb737e765fc29bafdcf64df",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "f327870e841733169b304ea73af29693fea6b45d682a09747ff6804056b20a58",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "7e4964c2dce97c34f3279f0be20406f427042a42d643ac60148415fab20a481f",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "f2ed844413848859091ea75d8ade7ccb8666621f3262a157983d3c6974a5304e",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "12572ddf42f5b8a183a0096575fa84a7b6d27fabc549f2534bbc7791dbb5b660",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "12572ddf42f5b8a183a0096575fa84a7b6d27fabc549f2534bbc7791dbb5b660",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "12572ddf42f5b8a183a0096575fa84a7b6d27fabc549f2534bbc7791dbb5b660",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "12572ddf42f5b8a183a0096575fa84a7b6d27fabc549f2534bbc7791dbb5b660",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "eb8e3b00cf28994a7c6416caa34780390493eb5105f0f4d69aba4562088262d2",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "eb8e3b00cf28994a7c6416caa34780390493eb5105f0f4d69aba4562088262d2",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "a5d42ec24e9621d4ee6edee492ba5e99d2938c6934ce26d6a6ded3f92e9e3a82",
+        "02-reference.png": "4cacaece9b4e63e327a141d927048c452a307c7234181c03130b2431dc49f855",
+        "03-comparison.png": "d5f61e4e1b3494aa491b65503ee395b1de70b383beb737e765fc29bafdcf64df",
+        "04-selection.png": "7e4964c2dce97c34f3279f0be20406f427042a42d643ac60148415fab20a481f",
+        "05-update.png": "12572ddf42f5b8a183a0096575fa84a7b6d27fabc549f2534bbc7791dbb5b660",
+        "06-rejected.png": "12572ddf42f5b8a183a0096575fa84a7b6d27fabc549f2534bbc7791dbb5b660",
+        "07-recovery.png": "eb8e3b00cf28994a7c6416caa34780390493eb5105f0f4d69aba4562088262d2",
+        "moxi.png": "eb8e3b00cf28994a7c6416caa34780390493eb5105f0f4d69aba4562088262d2",
+        "python-export.pdf": "2261a77e6ed12ec8245746e10c13b8584ca43f6e2895234bd85b180da1da043a",
+        "python-export.png": "2071054fe404db6d97bf17c35c98eaf4ca8f042ff6402213f9a7459b98a82156",
+        "python-export.svg": "668e296bd3bd41b27adcf6b6d8406b84a2f3fa13729ea624d1396f52af0b26d6",
+        "scene.svg": "bd67b634cfb93d36d36836291a90fa27c373999306b282fcb95637474ca85bf4",
+        "selected.png": "8cda3e98cb266af031404e419d874323f7ccf05715e4d0f2496ad74e685bdb4d"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Equal angles with radius proportional to value: the pinned default radius mode, not area mode.",
+          "current": "Equal angles with radius proportional to value: the pinned default radius mode, not area mode."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 51445,
+            "reference_colored_pixels": 51588,
+            "silhouette_iou": 0.9882480075645009,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 51445,
+            "reference_colored_pixels": 51588,
+            "silhouette_iou": 0.9882480075645009,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 136,
+          "current": 136
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 211,
+            "x": 515.19995,
+            "y": 236.0
+          },
+          "current": {
+            "key": 211,
+            "x": 515.19995,
+            "y": 236.0
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-pie",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "03584203c96002ea4bdc0933f3e995a26ec898c8db61f9685f20f02188021485",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "c15a9c75e90dd509db42efaab72078fdebdffca261f16f142100a55f7f8d0e5e",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "6bee334cca1c08398b6920450ad7dd09cef39056b3ab73b28952c9808fc6ce2c",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "6bee334cca1c08398b6920450ad7dd09cef39056b3ab73b28952c9808fc6ce2c",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "e5a4f19dab9e2f08050524a2a0269d5d5d4ca82a1bd076d3e900c3a447d79d03",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "d4b8287971ec79f3b59230ae6db7c2c05de78e8396f1e006086485c6d9dba345",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "045269cb8621b8d173179d0b63cbeb2d6e6a94f580a7df6689d508219539d318",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "d2e5aa9182859cbf060e24c3834ee00dbf04aff89f5e7b1b229dcb153ce496d9",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "ccb4aa00801ff76577024d1df47f16d6883eed76b8b0229e304a62d111b3557f",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "ccb4aa00801ff76577024d1df47f16d6883eed76b8b0229e304a62d111b3557f",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "ccb4aa00801ff76577024d1df47f16d6883eed76b8b0229e304a62d111b3557f",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "ccb4aa00801ff76577024d1df47f16d6883eed76b8b0229e304a62d111b3557f",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "7bae05c3eb4d1fc4fd491b1080ef7d1772eb01caee4f1b35ba518c2a414ca195",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "7bae05c3eb4d1fc4fd491b1080ef7d1772eb01caee4f1b35ba518c2a414ca195",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "03584203c96002ea4bdc0933f3e995a26ec898c8db61f9685f20f02188021485",
+        "02-reference.png": "6bee334cca1c08398b6920450ad7dd09cef39056b3ab73b28952c9808fc6ce2c",
+        "03-comparison.png": "e5a4f19dab9e2f08050524a2a0269d5d5d4ca82a1bd076d3e900c3a447d79d03",
+        "04-selection.png": "045269cb8621b8d173179d0b63cbeb2d6e6a94f580a7df6689d508219539d318",
+        "05-update.png": "ccb4aa00801ff76577024d1df47f16d6883eed76b8b0229e304a62d111b3557f",
+        "06-rejected.png": "ccb4aa00801ff76577024d1df47f16d6883eed76b8b0229e304a62d111b3557f",
+        "07-recovery.png": "7bae05c3eb4d1fc4fd491b1080ef7d1772eb01caee4f1b35ba518c2a414ca195",
+        "moxi.png": "7bae05c3eb4d1fc4fd491b1080ef7d1772eb01caee4f1b35ba518c2a414ca195",
+        "python-export.pdf": "891eafa9437f873f6b28f932e54bf7f850c0e70a07153aa1e05e4a107cd338f7",
+        "python-export.png": "11b2be6d799f4ba9cacb11a66e79d74aa1a08dc23bc10703c1674f01e2475bf9",
+        "python-export.svg": "cfa8f38d3f316d1c7545fdc84204db032237ce3de27467ea18e0df1afe52c6d9",
+        "scene.svg": "45e9ba42b585eba773e661e334aa212b66ef772cea3a92967e442d76a03113e6",
+        "selected.png": "e2884025e2a9e6a557461cd78c5d721ced35f35dcf5b36c672193b5337426748"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Value-proportional clockwise wedges from twelve o\u2019clock; sampled arcs versus analytic upstream arcs.",
+          "current": "Value-proportional clockwise wedges from twelve o\u2019clock; sampled arcs versus analytic upstream arcs."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 109967,
+            "reference_colored_pixels": 109958,
+            "silhouette_iou": 0.9958526558430362,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 109967,
+            "reference_colored_pixels": 109958,
+            "silhouette_iou": 0.9958526558430362,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 138,
+          "current": 138
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 204,
+            "x": 438.0334,
+            "y": 387.44797
+          },
+          "current": {
+            "key": 204,
+            "x": 438.0334,
+            "y": 387.44797
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-polar",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "eab2f2a125d47678ce5eec0001bdc6f41186e21c30f35315a6bdc38975d27e9c",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "083a396746a5820af72cbc60a61445bdb7a0522080f4fb0056c7d98bd5fb3fa6",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "a9c0a0191f51ea8727ebb0f4caa49adf11f6a920a46ecda5d8f98d30a5dcdc57",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "a9c0a0191f51ea8727ebb0f4caa49adf11f6a920a46ecda5d8f98d30a5dcdc57",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "26620a8d0d642fc12be220f0439218f13b405e6c9329d2dcfdd38ae44b59f4e6",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "5bb097e2c8efb67f861e89bd40844c4b37748724b25a1774fd5b71367f0de9f8",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "1394a1214cd1d7f47fc38f301d20c79badd9a853e21b41fbef35b445975bdb52",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "fd29e45951279b9e004768ade498f0ea85bd002aedaa9322d17e2085b9730b3e",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "7186c4c2706b0b44263ea23a13d72be1ca3b0960c26b70db8edffdad819ada62",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "7186c4c2706b0b44263ea23a13d72be1ca3b0960c26b70db8edffdad819ada62",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "7186c4c2706b0b44263ea23a13d72be1ca3b0960c26b70db8edffdad819ada62",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "7186c4c2706b0b44263ea23a13d72be1ca3b0960c26b70db8edffdad819ada62",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "c455688a7757de0b0b3b3c1d28163e6e5095bed0f65fe3b966ac4d946bc1ace5",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "c455688a7757de0b0b3b3c1d28163e6e5095bed0f65fe3b966ac4d946bc1ace5",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "eab2f2a125d47678ce5eec0001bdc6f41186e21c30f35315a6bdc38975d27e9c",
+        "02-reference.png": "a9c0a0191f51ea8727ebb0f4caa49adf11f6a920a46ecda5d8f98d30a5dcdc57",
+        "03-comparison.png": "26620a8d0d642fc12be220f0439218f13b405e6c9329d2dcfdd38ae44b59f4e6",
+        "04-selection.png": "1394a1214cd1d7f47fc38f301d20c79badd9a853e21b41fbef35b445975bdb52",
+        "05-update.png": "7186c4c2706b0b44263ea23a13d72be1ca3b0960c26b70db8edffdad819ada62",
+        "06-rejected.png": "7186c4c2706b0b44263ea23a13d72be1ca3b0960c26b70db8edffdad819ada62",
+        "07-recovery.png": "c455688a7757de0b0b3b3c1d28163e6e5095bed0f65fe3b966ac4d946bc1ace5",
+        "moxi.png": "c455688a7757de0b0b3b3c1d28163e6e5095bed0f65fe3b966ac4d946bc1ace5",
+        "python-export.pdf": "93a7485e69cfd2d80061006afb80eeab2d39fcf7c42bdb50bd4b788f1de4262c",
+        "python-export.png": "fe6d2d555900d74602b12c5b2bad29d80b01e0ba97c4bc404be985c2aaf749aa",
+        "python-export.svg": "e6afc282e96784d9d48b5be8ed4c785289780caf2389703b3b3d458a089a786b",
+        "scene.svg": "5f38d206496237681de11ac6cef3f7acb9dbde3b0f5fd6c54d45b57a360db991",
+        "selected.png": "171b2ee54b7aab6a3ee83bef6f308b43297e500148491c5b31781214cb963b51"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Clockwise radians, connected source points and shared radius maximum. Float projection versus upstream integer-rounded circle centers.",
+          "current": "Clockwise radians, connected source points and shared radius maximum. Float projection versus upstream integer-rounded circle centers."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 1745,
+            "reference_colored_pixels": 1849,
+            "silhouette_iou": 0.7704433497536946,
+            "max_vertex_or_anchor_pixel_error": 6.48479906715238e-05,
+            "assertion": "Pinned SVG vertices/row anchors within 0.001 px; raster IoU descriptive only"
+          },
+          "current": {
+            "moxi_colored_pixels": 1745,
+            "reference_colored_pixels": 1849,
+            "silhouette_iou": 0.7704433497536946,
+            "max_vertex_or_anchor_pixel_error": 6.48479906715238e-05,
+            "assertion": "Pinned SVG vertices/row anchors within 0.001 px; raster IoU descriptive only"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 7,
+          "current": 7
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 13,
+          "current": 13
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 19,
+          "current": 19
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 205,
+            "x": 390.4,
+            "y": 290.03998
+          },
+          "current": {
+            "key": 205,
+            "x": 390.4,
+            "y": 290.03998
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-polar-bar",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "886ef17dc411e3bdf9fa7e932be5f7f464d6da9144fd56569a72c61344bbbb7f",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "86c7bb5528388529fbc4e29081ea2c4f7f1789302dbeba0474bebe462a3b7533",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "acaa07974484f2268597d142e7a42bac4426ef6c84635d5916011d0c969964f7",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "acaa07974484f2268597d142e7a42bac4426ef6c84635d5916011d0c969964f7",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "c0ef4bed38744e2ca87e5d000ab8b29ab1812e25612e15e99e875ae64874295a",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "068bd74e4ea40f0dc5af0351c95f50354d6e13316a31c7c47238ac785367c446",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "1d5eae93972b5398ec8acc9fec54049c4edfe3a159bdcfa16cdf38735f5acab2",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "97e74c9290c3abeed44c044c64d47c5eb92f952ac475b3117a83afd4ab4d1699",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "7851b1f2ff9270d867856e18d71ef3f6f0e38137d5bd2e198d453d0ee7e1da3f",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "7851b1f2ff9270d867856e18d71ef3f6f0e38137d5bd2e198d453d0ee7e1da3f",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "7851b1f2ff9270d867856e18d71ef3f6f0e38137d5bd2e198d453d0ee7e1da3f",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "7851b1f2ff9270d867856e18d71ef3f6f0e38137d5bd2e198d453d0ee7e1da3f",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "32a58f6a3995f2b5b75d3d1b81862563e3c4182804f641564a9caedb1d53bb6b",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "32a58f6a3995f2b5b75d3d1b81862563e3c4182804f641564a9caedb1d53bb6b",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "886ef17dc411e3bdf9fa7e932be5f7f464d6da9144fd56569a72c61344bbbb7f",
+        "02-reference.png": "acaa07974484f2268597d142e7a42bac4426ef6c84635d5916011d0c969964f7",
+        "03-comparison.png": "c0ef4bed38744e2ca87e5d000ab8b29ab1812e25612e15e99e875ae64874295a",
+        "04-selection.png": "1d5eae93972b5398ec8acc9fec54049c4edfe3a159bdcfa16cdf38735f5acab2",
+        "05-update.png": "7851b1f2ff9270d867856e18d71ef3f6f0e38137d5bd2e198d453d0ee7e1da3f",
+        "06-rejected.png": "7851b1f2ff9270d867856e18d71ef3f6f0e38137d5bd2e198d453d0ee7e1da3f",
+        "07-recovery.png": "32a58f6a3995f2b5b75d3d1b81862563e3c4182804f641564a9caedb1d53bb6b",
+        "moxi.png": "32a58f6a3995f2b5b75d3d1b81862563e3c4182804f641564a9caedb1d53bb6b",
+        "python-export.pdf": "5aa7ec5f23ae0cf9cbe13900280a54c618de44cffcdc61d90a5a9fd42c829c6f",
+        "python-export.png": "22347a0582d44b372f5e4d4b2445746e498fa201bff1def5de06f9d59a86ad5c",
+        "python-export.svg": "d5c2ee88618de5a355c1a230809d553a6285a7a5c2d0e6ae9d2e539c239e110e",
+        "scene.svg": "5b6d66130a1c5f35028880bdf7f2c55b475b511bd1b91dee492057c4b037e3da",
+        "selected.png": "198a64640e144caaefd3ccd14f14f8b0d9eaa6b45968ef9cff8666de76ef3b13"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Equal angles, linear radius and 20 percent angular padding; sampled sectors.",
+          "current": "Equal angles, linear radius and 20 percent angular padding; sampled sectors."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 41355,
+            "reference_colored_pixels": 41207,
+            "silhouette_iou": 0.9885832650898405,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 41355,
+            "reference_colored_pixels": 41207,
+            "silhouette_iou": 0.9885832650898405,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 112,
+          "current": 112
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 206,
+            "x": 512.89526,
+            "y": 206.71549
+          },
+          "current": {
+            "key": 206,
+            "x": 512.89526,
+            "y": 206.71549
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-radar",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "e285f66ec808838d0afd00c266c8ee0e4d5788208338526b077fc739784cb66a",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "ab94e4aa7853fe507069f948d7b58acaaf1b2bc049d4cd7331e0b664fba1382e",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "725d5d122cb5a9667cb195a6f9faafc6744755619c51c77c52be501d234dc643",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "725d5d122cb5a9667cb195a6f9faafc6744755619c51c77c52be501d234dc643",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "e56dbddde32923d204b734cd766daf1087f2c0741c1c7565fcf62f26d8079db9",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "78e18dd3e94eb3aa8a9f09263d625a11579e5c5ddc3bf28e347668af91bab526",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "442d8ce2b8887c05613c480dc3663c4dcf144023f6072bcb5c3ebbc511ea00c3",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "899c66059632d09eeb69ef024c395182afca8a0a81c33eb7e3799ee2f8db3acf",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "c9ac9c1c8d067fc777e42b4b3a469a205a67a239a15cb5fc3db21f28b99ad6a5",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "c9ac9c1c8d067fc777e42b4b3a469a205a67a239a15cb5fc3db21f28b99ad6a5",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "c9ac9c1c8d067fc777e42b4b3a469a205a67a239a15cb5fc3db21f28b99ad6a5",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "c9ac9c1c8d067fc777e42b4b3a469a205a67a239a15cb5fc3db21f28b99ad6a5",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "5fd6e18bcaf7a71516f695f3e898f4c2555bb48d15f6dce6d3795a66dc244464",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "5fd6e18bcaf7a71516f695f3e898f4c2555bb48d15f6dce6d3795a66dc244464",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "e285f66ec808838d0afd00c266c8ee0e4d5788208338526b077fc739784cb66a",
+        "02-reference.png": "725d5d122cb5a9667cb195a6f9faafc6744755619c51c77c52be501d234dc643",
+        "03-comparison.png": "e56dbddde32923d204b734cd766daf1087f2c0741c1c7565fcf62f26d8079db9",
+        "04-selection.png": "442d8ce2b8887c05613c480dc3663c4dcf144023f6072bcb5c3ebbc511ea00c3",
+        "05-update.png": "c9ac9c1c8d067fc777e42b4b3a469a205a67a239a15cb5fc3db21f28b99ad6a5",
+        "06-rejected.png": "c9ac9c1c8d067fc777e42b4b3a469a205a67a239a15cb5fc3db21f28b99ad6a5",
+        "07-recovery.png": "5fd6e18bcaf7a71516f695f3e898f4c2555bb48d15f6dce6d3795a66dc244464",
+        "moxi.png": "5fd6e18bcaf7a71516f695f3e898f4c2555bb48d15f6dce6d3795a66dc244464",
+        "python-export.pdf": "800c72cdc4369091e047d27c555172edc4816d79d2cbaa4deea6ced0506e4cb2",
+        "python-export.png": "51139404893c24ae3c6638232973da83bfbbf9ae3fd6f52ee9204ae32f2e3c60",
+        "python-export.svg": "b1113ff175d7023b9bc7108375a1f6cd056f813677b7c8be5bd1861c333d9e65",
+        "scene.svg": "169f0001d2d457e3fab66276e6fad66d6b3407f39669a8f8c4ed6bab9502f490",
+        "selected.png": "a8f1262fa868fac19f57cb134928ef70990441651724d19afa3131374f2b5f51"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Indicator-wise maxima and closed series polygons match upstream vertices. Moxi translucent fill differs from upstream white-lightened fill; Moxi adds sample anchors.",
+          "current": "Indicator-wise maxima and closed series polygons match upstream vertices. Moxi translucent fill differs from upstream white-lightened fill; Moxi adds sample anchors."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 3196,
+            "reference_colored_pixels": 36893,
+            "silhouette_iou": 0.07890841564173641,
+            "max_vertex_or_anchor_pixel_error": 0.0004130571069254074,
+            "assertion": "Pinned SVG vertices/row anchors within 0.001 px; raster IoU descriptive only"
+          },
+          "current": {
+            "moxi_colored_pixels": 3196,
+            "reference_colored_pixels": 36893,
+            "silhouette_iou": 0.07890841564173641,
+            "max_vertex_or_anchor_pixel_error": 0.0004130571069254074,
+            "assertion": "Pinned SVG vertices/row anchors within 0.001 px; raster IoU descriptive only"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 5,
+          "current": 5
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 22,
+          "current": 22
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 40,
+          "current": 40
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 203,
+            "x": 328.0,
+            "y": 123.68001
+          },
+          "current": {
+            "key": 203,
+            "x": 328.0,
+            "y": 123.68001
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-radialbar",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "60120e9b15a7c8d8aa886c6a0a4302f22a5ff980d675b7fa6bba81263fc4b25b",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "586cac0e94fefa37e05a4f318c1378b37d2a2c02e55844d4488cba42315701e7",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "5f6323d356e4ec254601ad5dabbd6a94ed965fdca44a0abdde91a0908b94734c",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "5f6323d356e4ec254601ad5dabbd6a94ed965fdca44a0abdde91a0908b94734c",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "ddcf31a11cd8c209d22d90e21d25d673df1292ccf12f3eb9b0ad80379c82f47d",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "c53dbbe00be488b4df5cc6db7cdc61e6de1f07c3ae7a0902a7250c344a57024f",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "43c5d146fcdce446c7a193a7479bffe4c2bd7e2132dcb960dc0a3227c25f2267",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "0fe461d775ae058828fb002f546388af65c0e680dd151fd7f768861b53f4b6fa",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "5203a8d6f522ffd4302ec781bc1d74ceecef9784c71f65fd4094ac52ae224d2a",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "5203a8d6f522ffd4302ec781bc1d74ceecef9784c71f65fd4094ac52ae224d2a",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "5203a8d6f522ffd4302ec781bc1d74ceecef9784c71f65fd4094ac52ae224d2a",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "5203a8d6f522ffd4302ec781bc1d74ceecef9784c71f65fd4094ac52ae224d2a",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "92fa3d29e0c07fcd4d220ab520ef32cb624a7ed38ee76026bc015e29397e5da9",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "92fa3d29e0c07fcd4d220ab520ef32cb624a7ed38ee76026bc015e29397e5da9",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "60120e9b15a7c8d8aa886c6a0a4302f22a5ff980d675b7fa6bba81263fc4b25b",
+        "02-reference.png": "5f6323d356e4ec254601ad5dabbd6a94ed965fdca44a0abdde91a0908b94734c",
+        "03-comparison.png": "ddcf31a11cd8c209d22d90e21d25d673df1292ccf12f3eb9b0ad80379c82f47d",
+        "04-selection.png": "43c5d146fcdce446c7a193a7479bffe4c2bd7e2132dcb960dc0a3227c25f2267",
+        "05-update.png": "5203a8d6f522ffd4302ec781bc1d74ceecef9784c71f65fd4094ac52ae224d2a",
+        "06-rejected.png": "5203a8d6f522ffd4302ec781bc1d74ceecef9784c71f65fd4094ac52ae224d2a",
+        "07-recovery.png": "92fa3d29e0c07fcd4d220ab520ef32cb624a7ed38ee76026bc015e29397e5da9",
+        "moxi.png": "92fa3d29e0c07fcd4d220ab520ef32cb624a7ed38ee76026bc015e29397e5da9",
+        "python-export.pdf": "712c569d3b72416bfda61f553c256cb5cfe4b19905cc532e4d4741be158c2429",
+        "python-export.png": "b6dcc9db0381c818f8133725e643b55af3a8f10ff6d0ea300660078b948bb6d2",
+        "python-export.svg": "5ff7882321e929c8a717ab3d21a1a40d9215bf375c7bc2cce57a6d8d55bf8aa9",
+        "scene.svg": "b9a459b26ca5ca0a52fee2d855dbf6f585a331efd65123e3687098f9516b5ed2",
+        "selected.png": "e95ce38c4362117b0e823ee80b61f61d6c797721121c11b2c8ac27b5bed57815"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Outside-in rings, 25 percent slot gap, value/max sweep and noninteractive full tracks.",
+          "current": "Outside-in rings, 25 percent slot gap, value/max sweep and noninteractive full tracks."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 62338,
+            "reference_colored_pixels": 62076,
+            "silhouette_iou": 0.9817773459277784,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 62338,
+            "reference_colored_pixels": 62076,
+            "silhouette_iou": 0.9817773459277784,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 4,
+          "current": 4
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 8,
+          "current": 8
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 1680,
+          "current": 1680
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 207,
+            "x": 328.0,
+            "y": 54.650017
+          },
+          "current": {
+            "key": 207,
+            "x": 328.0,
+            "y": 54.650017
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-ridgeline",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "5e27672b17b20942cf741d42c36e3ace62324e0972a21f1135a86d42734cfbf5",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "c93fcf274e5498f1e12ecfaef75a9537bae4dce5238499b1fc2d64fc140657ef",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "943f19456d00d02070b351d7673fd67af77758ee912bcb059df44aebfb1137c9",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "943f19456d00d02070b351d7673fd67af77758ee912bcb059df44aebfb1137c9",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "45e6a006698d2f3515f749a75ba553fe7a0c6b5a6d9dc9834420263df865ad8b",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "1463a29cf8f22d7b4bebe75079d0c1bbf9c4b94800d23e9bcf3b39eea491cf6b",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "2b56bb47b84474f44f497277671710780fd56838074910ee52d5f983dc84fe62",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "89f4d2cfc4753183023763da345d22e0f7c840d15a201fe9edf7da75d17646b9",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "12008da555e191fd21ecf8b9d97ffe58881ba7937613d9e02726bb7e39b23f9b",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "12008da555e191fd21ecf8b9d97ffe58881ba7937613d9e02726bb7e39b23f9b",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "12008da555e191fd21ecf8b9d97ffe58881ba7937613d9e02726bb7e39b23f9b",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "12008da555e191fd21ecf8b9d97ffe58881ba7937613d9e02726bb7e39b23f9b",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "dd7943612a0fdb77d26e77f758698601f46793dd6714a00b2098db4dd53d7b14",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "dd7943612a0fdb77d26e77f758698601f46793dd6714a00b2098db4dd53d7b14",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "5e27672b17b20942cf741d42c36e3ace62324e0972a21f1135a86d42734cfbf5",
+        "02-reference.png": "943f19456d00d02070b351d7673fd67af77758ee912bcb059df44aebfb1137c9",
+        "03-comparison.png": "45e6a006698d2f3515f749a75ba553fe7a0c6b5a6d9dc9834420263df865ad8b",
+        "04-selection.png": "2b56bb47b84474f44f497277671710780fd56838074910ee52d5f983dc84fe62",
+        "05-update.png": "12008da555e191fd21ecf8b9d97ffe58881ba7937613d9e02726bb7e39b23f9b",
+        "06-rejected.png": "12008da555e191fd21ecf8b9d97ffe58881ba7937613d9e02726bb7e39b23f9b",
+        "07-recovery.png": "dd7943612a0fdb77d26e77f758698601f46793dd6714a00b2098db4dd53d7b14",
+        "moxi.png": "dd7943612a0fdb77d26e77f758698601f46793dd6714a00b2098db4dd53d7b14",
+        "python-export.pdf": "dc613fb6428c64f4101b626a401040b3e2ec5c7314c92a57fab848ba74e570bf",
+        "python-export.png": "870e71b697f4435ab4be8063d8275d6fc08125c7c0361897297d0adb44d04772",
+        "python-export.svg": "892b31a399b79fad938a714109928980492d36f76b5a50d2e9bb03823dc9ae68",
+        "scene.svg": "416c3a070a9b0f64144496d6728a1fad289abd66fb672cef332e29ea8734f5a1",
+        "selected.png": "a8481b2b9b035161c46acfed7d3d37cafe92e403149a84dc4a4e07e6a7bf7632"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Same KDE; first group at top, 1.3-unit peak height and overlapping filled baselines. Moxi clamps the top ridge to the plot boundary; upstream overflows into the margin. The silhouette check covers only the shared plot rectangle.",
+          "current": "Same KDE; first group at top, 1.3-unit peak height and overlapping filled baselines. Moxi clamps the top ridge to the plot boundary; upstream overflows into the margin. The silhouette check covers only the shared plot rectangle."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 122269,
+            "reference_colored_pixels": 122900,
+            "silhouette_iou": 0.9946872126986194,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 122269,
+            "reference_colored_pixels": 122900,
+            "silhouette_iou": 0.9946872126986194,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 24,
+          "current": 24
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 3,
+          "current": 3
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 96,
+          "current": 96
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 210,
+            "x": 158.30302,
+            "y": 166.66666
+          },
+          "current": {
+            "key": 210,
+            "x": 158.30302,
+            "y": 166.66666
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-streamgraph",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "e6c72f581ed6a05edc35251509be45bdf170906e5658f4139683ae784c19a930",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "1b9fd1a61e9a816e2b52f2accd348dd3f36a72a7aa1009a9665029d1f57c7aa1",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "e9dbdf84e1cdb659cdfc2cb66b58d9091d8c14e4f5d6ebf7ba41f5de5381ddea",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "e9dbdf84e1cdb659cdfc2cb66b58d9091d8c14e4f5d6ebf7ba41f5de5381ddea",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "15aaa6ab1219309ca6463c6c55da9d4cdd0af81e124973f224a8791bbf8785e3",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "74aa8b68410cf4f4d2f6710f581e3cd2f6e7526716653968ce199f976b3efcfe",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "74b9f9def2ae0e4e5e14526a311674e8611e640291bcf400e39ac06053326b82",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "d21872f737f4b9dfa0b376aeea71d6ea783ea314b2651888fb27c909735847a1",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "3c4e73f2ca2efc2034d80910c574af07d60db321c36b0857ab31dca7042d5f04",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "3c4e73f2ca2efc2034d80910c574af07d60db321c36b0857ab31dca7042d5f04",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "3c4e73f2ca2efc2034d80910c574af07d60db321c36b0857ab31dca7042d5f04",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "3c4e73f2ca2efc2034d80910c574af07d60db321c36b0857ab31dca7042d5f04",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "1c09d437fb09fbc911df93a53e92d5115e5baa6ab1ba46d06896ee4fa642ee46",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "1c09d437fb09fbc911df93a53e92d5115e5baa6ab1ba46d06896ee4fa642ee46",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "e6c72f581ed6a05edc35251509be45bdf170906e5658f4139683ae784c19a930",
+        "02-reference.png": "e9dbdf84e1cdb659cdfc2cb66b58d9091d8c14e4f5d6ebf7ba41f5de5381ddea",
+        "03-comparison.png": "15aaa6ab1219309ca6463c6c55da9d4cdd0af81e124973f224a8791bbf8785e3",
+        "04-selection.png": "74b9f9def2ae0e4e5e14526a311674e8611e640291bcf400e39ac06053326b82",
+        "05-update.png": "3c4e73f2ca2efc2034d80910c574af07d60db321c36b0857ab31dca7042d5f04",
+        "06-rejected.png": "3c4e73f2ca2efc2034d80910c574af07d60db321c36b0857ab31dca7042d5f04",
+        "07-recovery.png": "1c09d437fb09fbc911df93a53e92d5115e5baa6ab1ba46d06896ee4fa642ee46",
+        "moxi.png": "1c09d437fb09fbc911df93a53e92d5115e5baa6ab1ba46d06896ee4fa642ee46",
+        "python-export.pdf": "870dd51c68bb2c459c812d0213c60624702d71aa10db0251d2f06799ab2226e5",
+        "python-export.png": "0913291b71c9f83c21894aa9e6d4bbb392e9a0ac4877f111445ff1b3e1a7f466",
+        "python-export.svg": "133a48fe34188b1914af90caa58fb314900d4795b336d749970e765bea60584d",
+        "scene.svg": "b4db3595bbe003a231d46e0c6fd31d74781fb205750c97f33ccb3d84354355d2",
+        "selected.png": "05bb91e169d633d6dfe0bccfe4fe63eccea40aa1e7768ae17bb76d6e05e05074"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Declared series order, source-order categories, centered total baseline and linear segment polygons (upstream smoothing=0). Each interval retains both rows.",
+          "current": "Declared series order, source-order categories, centered total baseline and linear segment polygons (upstream smoothing=0). Each interval retains both rows."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 153437,
+            "reference_colored_pixels": 153123,
+            "silhouette_iou": 0.9932379713914175,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 153437,
+            "reference_colored_pixels": 153123,
+            "silhouette_iou": 0.9932379713914175,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 6,
+          "current": 6
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 15,
+          "current": 15
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 60,
+          "current": 60
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 212,
+            "x": 94.66667,
+            "y": 273.81818
+          },
+          "current": {
+            "key": 212,
+            "x": 94.66667,
+            "y": 273.81818
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e02-violin",
+      "baseline_revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "fc9af39cee1f09226fda4d43df164f21c7721498fd66b25a4fb6edc566f4393d",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "12c74c05855fee37008692f1bd48ec657a37fc28841846a04a0b70240b7ec590",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "ab0ddb3758e2728861e4b4bf6f9d577888d950c613eb619b2433fc3f1ccd0e18",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "ab0ddb3758e2728861e4b4bf6f9d577888d950c613eb619b2433fc3f1ccd0e18",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "6eb410d589d0e6d1d20b5cccf7d38fcc6c2aa793b18c4fc97e8e792278f56909",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "cf15290b501dd4666f2dd847aaca2e9894beb8e5964b4d2e8d53d9badf1944fe",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "37de411c2ec6f8dd04f2cd01186f9f832b19f5bdc65d8136b60b4592e2493231",
+          "dimensions": [
+            1280,
+            900
+          ],
+          "baseline_sha256": "69511beff2d7313f96b5d886e32e1b3bca36d75043eacd85327c6c1daee39642",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "cb16a4f39d6b1f87b14c785173c5e828d8ae42fd914bab8267f955ec8bf0bfb5",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "cb16a4f39d6b1f87b14c785173c5e828d8ae42fd914bab8267f955ec8bf0bfb5",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-rejected.png",
+          "sha256": "cb16a4f39d6b1f87b14c785173c5e828d8ae42fd914bab8267f955ec8bf0bfb5",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "cb16a4f39d6b1f87b14c785173c5e828d8ae42fd914bab8267f955ec8bf0bfb5",
+          "matches_baseline": true
+        },
+        {
+          "image": "07-recovery.png",
+          "sha256": "4d96a9c451dccb755a4150c908e645f582a16ebcdbb6098306d16263e00a05c4",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "4d96a9c451dccb755a4150c908e645f582a16ebcdbb6098306d16263e00a05c4",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "fc9af39cee1f09226fda4d43df164f21c7721498fd66b25a4fb6edc566f4393d",
+        "02-reference.png": "ab0ddb3758e2728861e4b4bf6f9d577888d950c613eb619b2433fc3f1ccd0e18",
+        "03-comparison.png": "6eb410d589d0e6d1d20b5cccf7d38fcc6c2aa793b18c4fc97e8e792278f56909",
+        "04-selection.png": "37de411c2ec6f8dd04f2cd01186f9f832b19f5bdc65d8136b60b4592e2493231",
+        "05-update.png": "cb16a4f39d6b1f87b14c785173c5e828d8ae42fd914bab8267f955ec8bf0bfb5",
+        "06-rejected.png": "cb16a4f39d6b1f87b14c785173c5e828d8ae42fd914bab8267f955ec8bf0bfb5",
+        "07-recovery.png": "4d96a9c451dccb755a4150c908e645f582a16ebcdbb6098306d16263e00a05c4",
+        "moxi.png": "4d96a9c451dccb755a4150c908e645f582a16ebcdbb6098306d16263e00a05c4",
+        "python-export.pdf": "da1a4389040256c6476beae0635fbb714a2b16a8332b571ea83f4c90f5e1a378",
+        "python-export.png": "58820283c8d3132aa452cd8191cbac93bd5af1fbeee10dce79197f09119f6673",
+        "python-export.svg": "cdbf312c44688662836405b76258d9c58d9881053298fc0f82106a4dc3bb44e7",
+        "scene.svg": "ec7a20171676d27f5c2f3edba3dcf6630428e3dde1cb2d9bb32ae8151b0f8a1c",
+        "selected.png": "de79df34bc078764342343bd3ad5fc0c0f65126349cd0f6e896ce7f81c3a58c2"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Thirty-point Gaussian KDE, standard-deviation Silverman bandwidth and peak-normalized mirrored width. Constant groups yield zero-area silhouettes.",
+          "current": "Thirty-point Gaussian KDE, standard-deviation Silverman bandwidth and peak-normalized mirrored width. Constant groups yield zero-area silhouettes."
+        },
+        "comparison": {
+          "matches": true,
+          "previous": {
+            "moxi_colored_pixels": 63506,
+            "reference_colored_pixels": 63367,
+            "silhouette_iou": 0.9893533617661816,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          },
+          "current": {
+            "moxi_colored_pixels": 63506,
+            "reference_colored_pixels": 63367,
+            "silhouette_iou": 0.9893533617661816,
+            "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          }
+        },
+        "rows": {
+          "matches": true,
+          "previous": 24,
+          "current": 24
+        },
+        "glyphs": {
+          "matches": true,
+          "previous": 3,
+          "current": 3
+        },
+        "vertices": {
+          "matches": true,
+          "previous": 180,
+          "current": 180
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "key": 209,
+            "x": 158.41038,
+            "y": 362.0606
+          },
+          "current": {
+            "key": 209,
+            "x": 158.41038,
+            "y": 362.0606
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-barbs",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "c733b349db475a3434eaa20f04862341c4e3e7162675ca9cf15188a6f9409061",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "8440d3f8bb45eaef87c2ee7fb846b3df7e429ca68147d18fd6d3db3674a19ca8",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "3a1d555fdc2aa4935a1c0d6fcbf3e94bc498c65c37486cb6272609adbc358333",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "3a1d555fdc2aa4935a1c0d6fcbf3e94bc498c65c37486cb6272609adbc358333",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "4729342fa33c45e27e66bdf8de005532494e946d1fbe71fe8d3f080dfd062516",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "458e57718e643f1d4f5d388d8e685298c02e3cbe39f805de63de3d9d0ab28e72",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "80982547e0f22574f0e5e19236e1882f25d2139137be0ac1320e4299731c209f",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "3daca41ab791b8c7c8e70752e573098928f1b04e9a5154f1965627fd0a9eb020",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "c5eb78312c9aeee58db12e2daed65df781fce16fa9918819d596a3c43eaba66e",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "c5eb78312c9aeee58db12e2daed65df781fce16fa9918819d596a3c43eaba66e",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "5d493ab94454a2d9bd60eabdc71733fb65c54e07c172394e5d59857d820e74e5",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "5d493ab94454a2d9bd60eabdc71733fb65c54e07c172394e5d59857d820e74e5",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "c733b349db475a3434eaa20f04862341c4e3e7162675ca9cf15188a6f9409061",
+        "02-reference.png": "3a1d555fdc2aa4935a1c0d6fcbf3e94bc498c65c37486cb6272609adbc358333",
+        "03-comparison.png": "4729342fa33c45e27e66bdf8de005532494e946d1fbe71fe8d3f080dfd062516",
+        "04-selection.png": "80982547e0f22574f0e5e19236e1882f25d2139137be0ac1320e4299731c209f",
+        "05-update.png": "c5eb78312c9aeee58db12e2daed65df781fce16fa9918819d596a3c43eaba66e",
+        "06-recovery.png": "5d493ab94454a2d9bd60eabdc71733fb65c54e07c172394e5d59857d820e74e5",
+        "export.pdf": "aec7312099c2868479ca6cbd5bc89a5fe246b29913ac0dff5e6a7cd1b894f8ed",
+        "export.png": "e532b65ed9ba4e2f1e8d8f780bfd4a9ccc68545ac124ab392157a2851eedd03d",
+        "export.svg": "39214ca84b93616352afcf264b89d9fdcec919345b73f9f157b8bc8c2bc7b785",
+        "moxi.png": "5d493ab94454a2d9bd60eabdc71733fb65c54e07c172394e5d59857d820e74e5",
+        "selected.png": "0f6e9f45ced9b489522790e446a7a959f956e36d942f8442c5a51957b95e2d01"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Round speed to nearest five; upwind staff, 50-unit flags, 10-unit full ticks, 5-unit half ticks and calm circles. No arrow substitution.",
+          "current": "Round speed to nearest five; upwind staff, 50-unit flags, 10-unit full ticks, 5-unit half ticks and calm circles. No arrow substitution."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "segment": 43,
+            "triangle": 2
+          },
+          "current": {
+            "segment": 43,
+            "triangle": 2
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 6,
+          "current": 6
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 134.65543,
+            "y": 383.59753,
+            "source_keys": "100"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 134.65543,
+            "y": 383.59753,
+            "source_keys": "100"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 18,
+              "ellipse": 1,
+              "path": 7,
+              "text": 8
+            },
+            "assertions": [
+              "All staff, full/half tick and flag vertices agree within .002 px after translation and 28 px length normalization; default hemisphere orientation checked"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 18,
+              "ellipse": 1,
+              "path": 7,
+              "text": 8
+            },
+            "assertions": [
+              "All staff, full/half tick and flag vertices agree within .002 px after translation and 28 px length normalization; default hemisphere orientation checked"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-calendar-heatmap",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "d839945f2977c85f0bb97a35ede2007aa3c78440d3f47666bd346b3a93293c8a",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "bd618cb2a9eaed7e1a6aaec8e96901189c80b4aa8cf16dbd0741c0e88cd590cc",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "88a353449c05a6bb429e7034880026a6b38bdb7fe88ebb080ba0dd54f9190eb8",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "88a353449c05a6bb429e7034880026a6b38bdb7fe88ebb080ba0dd54f9190eb8",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "5501129a2fbbf28633540102e98359e8a1e86dc414cc5aeb1ae2dbe2d72be5a8",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "c4a1ae5da997fe94b0a9ccc968918fa5d2013dbc0279033ee43bfc22b504d1b5",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "40ce9215294e2281eb4827f00cf0881a3b191d1aa88eb12654b0214fd2b6615a",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "baf4d0f7ec9dbcbf7a831e0b9dc37ce44f3066dd17c51538a2c5cc4aaa3a69f8",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "07b92f56c13dc84c52ccf74a614f5131a0f8f90039229ce44575a467fea72263",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "07b92f56c13dc84c52ccf74a614f5131a0f8f90039229ce44575a467fea72263",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "d0732f7e4992a16cfd774ba05f8df6aabbf18478f1aff6794ebd0782a2b0d01a",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "d0732f7e4992a16cfd774ba05f8df6aabbf18478f1aff6794ebd0782a2b0d01a",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "d839945f2977c85f0bb97a35ede2007aa3c78440d3f47666bd346b3a93293c8a",
+        "02-reference.png": "88a353449c05a6bb429e7034880026a6b38bdb7fe88ebb080ba0dd54f9190eb8",
+        "03-comparison.png": "5501129a2fbbf28633540102e98359e8a1e86dc414cc5aeb1ae2dbe2d72be5a8",
+        "04-selection.png": "40ce9215294e2281eb4827f00cf0881a3b191d1aa88eb12654b0214fd2b6615a",
+        "05-update.png": "07b92f56c13dc84c52ccf74a614f5131a0f8f90039229ce44575a467fea72263",
+        "06-recovery.png": "d0732f7e4992a16cfd774ba05f8df6aabbf18478f1aff6794ebd0782a2b0d01a",
+        "export.pdf": "c1b53ece686ebec75a7b8cae11bc3a1478749d315379def3f41c9ae2ac1148d5",
+        "export.png": "e48e5711dc784e43123c5167dfb0f9da2ae2e224844ed932b6afd5013bc9e41a",
+        "export.svg": "b971e60c609ef2442843541d718c1e1af13ce53fe7a05bc96b481b11a80f845b",
+        "moxi.png": "d0732f7e4992a16cfd774ba05f8df6aabbf18478f1aff6794ebd0782a2b0d01a",
+        "selected.png": "47eacc556998b9eb3107e6093ed5661fcf93ac6145ec4476aa3d102db0e713d7"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Validated ISO dates in one Gregorian year, Sunday-first weeks and leap-day handling. Source dates map to exact week/day cells.",
+          "current": "Validated ISO dates in one Gregorian year, Sunday-first weeks and leap-day handling. Source dates map to exact week/day cells."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "rect": 5
+          },
+          "current": {
+            "rect": 5
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 5,
+          "current": 5
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 53.28302,
+            "y": 117.14287,
+            "source_keys": "100"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 53.28302,
+            "y": 117.14287,
+            "source_keys": "100"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 6,
+              "text": 19
+            },
+            "assertions": [
+              "All five week/day bounds within 1.1 px after accounting for upstream month-label reserve of 16 px"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 6,
+              "text": 19
+            },
+            "assertions": [
+              "All five week/day bounds within 1.1 px after accounting for upstream month-label reserve of 16 px"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-chord",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "c3751c4f464cfaa4d18b08300beb4b2836f10807dc8c06920a9a3fa574408fc9",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "7c9dd303388750b211e76b84c03cf2c4d45d663891a260818def24b587374808",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "c80556552e2da5194dcc88ced48d2b3ec630e774fb18f0da1c8ba31aa4c8667f",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "c80556552e2da5194dcc88ced48d2b3ec630e774fb18f0da1c8ba31aa4c8667f",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "fd0ff786de194ab8421e08358d13aaf568cededb858346769ca9ca62c14c6ff0",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "5cbb14c78fc5b3f52bcba7b950654c339db4881b47bc136c20bfb07803f12ac6",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "2c1f1a5e871c21547b7b671f30aba648f5c949b55327044fcc3a2ad418ead13c",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "2156c887cdc7a389dd84cb453c1940295f3ed80a25f69355af2522b89b8a2fa1",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "755277d43628527ad7d49d0d7923958fa65cbd9576356a9a754c24f9d435f6e8",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "755277d43628527ad7d49d0d7923958fa65cbd9576356a9a754c24f9d435f6e8",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "5864c8ecbf32e1ca7245e3246b87a3c005b005f35d833cd17e8be22e522553b2",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "5864c8ecbf32e1ca7245e3246b87a3c005b005f35d833cd17e8be22e522553b2",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "c3751c4f464cfaa4d18b08300beb4b2836f10807dc8c06920a9a3fa574408fc9",
+        "02-reference.png": "c80556552e2da5194dcc88ced48d2b3ec630e774fb18f0da1c8ba31aa4c8667f",
+        "03-comparison.png": "fd0ff786de194ab8421e08358d13aaf568cededb858346769ca9ca62c14c6ff0",
+        "04-selection.png": "2c1f1a5e871c21547b7b671f30aba648f5c949b55327044fcc3a2ad418ead13c",
+        "05-update.png": "755277d43628527ad7d49d0d7923958fa65cbd9576356a9a754c24f9d435f6e8",
+        "06-recovery.png": "5864c8ecbf32e1ca7245e3246b87a3c005b005f35d833cd17e8be22e522553b2",
+        "export.pdf": "82abe11de4c583a8bd9d722ba8474c140966d55713766a35479702da377e2faa",
+        "export.png": "1cec556d5714e4278b79961b0a66c4393c3937492cf76eb8ce92b8940d4c6a50",
+        "export.svg": "d65b76a62323ab9f66374f253d723ac00241dfaaff428af6b1124e9e12b0057f",
+        "moxi.png": "5864c8ecbf32e1ca7245e3246b87a3c005b005f35d833cd17e8be22e522553b2",
+        "selected.png": "904ee79ef0b3368ebdd526a0929681304c13fe53a5ba5610e1636a7ff6e24e23"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Incident flow totals partition the ring; row-order subarcs connect via quadratic ribbons through the center. Tessellation replaces analytic arcs. Aggregate rim nodes are table-only targets.",
+          "current": "Incident flow totals partition the ring; row-order subarcs connect via quadratic ribbons through the center. Tessellation replaces analytic arcs. Aggregate rim nodes are table-only targets."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "triangle": 530
+          },
+          "current": {
+            "triangle": 530
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 5,
+          "current": 5
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 441.70142,
+            "y": 107.81803,
+            "source_keys": "100"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 441.70142,
+            "y": 107.81803,
+            "source_keys": "100"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 1,
+              "path": 9
+            },
+            "assertions": [
+              "Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 1,
+              "path": 9
+            },
+            "assertions": [
+              "Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-corrplot",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "c7ee0a8ebcf0c365a3094626cd1ee43186350f5123220d4daafe93ac0b792fbb",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "3645bd72b54acc199ed2223ad105d30f6939d5f0cf85cf2514fb6de6d50cbe64",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "4c74b2cfafcff5ef1c37a69d282c0d5c61473cf24d3cb16a5ed882c625ea3d41",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "4c74b2cfafcff5ef1c37a69d282c0d5c61473cf24d3cb16a5ed882c625ea3d41",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "64a399b539f07138fabef07ec15588ed139d2125eba7fb15c93b3bc31fa1b082",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "10f30582499a05695d83b24f2a32cee2ca2b658eb60722731b691631e5471238",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "b7b6b69f802d8e5357ba47651c41bb0b1e6f013f4bff25bf3683cd8718308367",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "9952464da7ab035b85b1338d1775b0e6ca3f05f2405eea8d71499b94e859ee06",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "e826536b79fe28fc71e02e950258aa35ee8f8bb63db1bde73d8088270bac1822",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "e826536b79fe28fc71e02e950258aa35ee8f8bb63db1bde73d8088270bac1822",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "61b9e3f4f402d4f630605ab0032005d9006629d5c8bf272800f543e14bd40e6a",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "61b9e3f4f402d4f630605ab0032005d9006629d5c8bf272800f543e14bd40e6a",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "c7ee0a8ebcf0c365a3094626cd1ee43186350f5123220d4daafe93ac0b792fbb",
+        "02-reference.png": "4c74b2cfafcff5ef1c37a69d282c0d5c61473cf24d3cb16a5ed882c625ea3d41",
+        "03-comparison.png": "64a399b539f07138fabef07ec15588ed139d2125eba7fb15c93b3bc31fa1b082",
+        "04-selection.png": "b7b6b69f802d8e5357ba47651c41bb0b1e6f013f4bff25bf3683cd8718308367",
+        "05-update.png": "e826536b79fe28fc71e02e950258aa35ee8f8bb63db1bde73d8088270bac1822",
+        "06-recovery.png": "61b9e3f4f402d4f630605ab0032005d9006629d5c8bf272800f543e14bd40e6a",
+        "export.pdf": "13940b1c707581e2873fedb10307f77f89f35445d7b1f58b57d433d2a4c01983",
+        "export.png": "5b84302fab983ee52723b272527994af083fd5cc62dd3be9e172aea3b76ecdb4",
+        "export.svg": "cc208f3e8dfb3b16f7e02451c58edec9d6c84c1e6463a62372462d2c096e291a",
+        "moxi.png": "61b9e3f4f402d4f630605ab0032005d9006629d5c8bf272800f543e14bd40e6a",
+        "selected.png": "de8d7b7848d2f68c8862770f97aa94ae95593977c56de496de72bc04f7c28b1e"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Full square matrix, radius proportional to absolute correlation; range [-1,1], cell identity is source row plus series column. Zero radius is invisible.",
+          "current": "Full square matrix, radius proportional to absolute correlation; range [-1,1], cell identity is source row plus series column. Zero radius is invisible."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "triangle": 288
+          },
+          "current": {
+            "triangle": 288
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 3,
+          "current": 3
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 190.63289,
+            "y": 93.72631,
+            "source_keys": "100"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 190.63289,
+            "y": 93.72631,
+            "source_keys": "100"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 8,
+              "circle": 9,
+              "text": 15
+            },
+            "assertions": [
+              "All nine centers and absolute-correlation radii within .51 px after public bubble_fraction=.8 normalization; Moxi x radius stretches with aspect"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 8,
+              "circle": 9,
+              "text": 15
+            },
+            "assertions": [
+              "All nine centers and absolute-correlation radii within .51 px after public bubble_fraction=.8 normalization; Moxi x radius stretches with aspect"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-graph",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "a54ea0f7d6e98fc36336424553836d6a61676fd9653705070f89e32dc7834120",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "2fc18ce5e221d2f0f2ff3fdd365a34bda05c96d35c8eb61466bb785152bcfbe3",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "08779278f85fe66a1d003e60b059a52dae326ce0f1e9a093706a924e61bbd1a2",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "08779278f85fe66a1d003e60b059a52dae326ce0f1e9a093706a924e61bbd1a2",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "82e62d386a3ded6878165289866f753e745f20260947e813ffc7d373080762d4",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "e8ce2ed750465bddb4db70bdb30bae5c7c619dbfbba5549f5fbf77bc0e24316a",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "48dbc343a56be2c93c53e8acdebd2178dace45fbd87a648ad939c3f4c9a22bee",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "a14e3153f281b43857cc336f35bf346479e0c652dfa71df86eca700dca6d2d7e",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "71f81576946cfae51b551306b9caf28e4595bb38392a2cfdd54907d24c2c23c4",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "71f81576946cfae51b551306b9caf28e4595bb38392a2cfdd54907d24c2c23c4",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "f53fa254c4596d2a8fe6b040dbcb138d0f93a1ba137787e56a3a0739bd264df1",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "f53fa254c4596d2a8fe6b040dbcb138d0f93a1ba137787e56a3a0739bd264df1",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "a54ea0f7d6e98fc36336424553836d6a61676fd9653705070f89e32dc7834120",
+        "02-reference.png": "08779278f85fe66a1d003e60b059a52dae326ce0f1e9a093706a924e61bbd1a2",
+        "03-comparison.png": "82e62d386a3ded6878165289866f753e745f20260947e813ffc7d373080762d4",
+        "04-selection.png": "48dbc343a56be2c93c53e8acdebd2178dace45fbd87a648ad939c3f4c9a22bee",
+        "05-update.png": "71f81576946cfae51b551306b9caf28e4595bb38392a2cfdd54907d24c2c23c4",
+        "06-recovery.png": "f53fa254c4596d2a8fe6b040dbcb138d0f93a1ba137787e56a3a0739bd264df1",
+        "export.pdf": "28fd76610680f4f914879d62b738289c2666316f4f2ba8590cda0cb90e486a50",
+        "export.png": "69260d74866cc8ee22de48f0ef0b79fb8be67f894afcd2b2e48a38302a7ee8d5",
+        "export.svg": "342cbbbc8331c8f33563c6bbaf8a57f4b8bd75522119ca9fad0816d4a86088a9",
+        "moxi.png": "f53fa254c4596d2a8fe6b040dbcb138d0f93a1ba137787e56a3a0739bd264df1",
+        "selected.png": "d0fc04a5f03718768cfbb7b35e00be4bfe373975c025c6c72a534b4b183ee7b7"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Deterministic circular nodes; source-list then target-list first-seen ordering. Weighted edge width. Self loops omitted. Nodes retain all incident edge identities and are table-only targets.",
+          "current": "Deterministic circular nodes; source-list then target-list first-seen ordering. Weighted edge width. Self loops omitted. Nodes retain all incident edge identities and are table-only targets."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "segment": 5,
+            "point": 4
+          },
+          "current": {
+            "segment": 5,
+            "point": 4
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 5,
+          "current": 5
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 453.99997,
+            "y": 142.4,
+            "source_keys": "100"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 453.99997,
+            "y": 142.4,
+            "source_keys": "100"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 5,
+              "circle": 4,
+              "text": 4
+            },
+            "assertions": [
+              "Five source edges, four nodes, exact relative edge stroke widths; aspect differs"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 5,
+              "circle": 4,
+              "text": 4
+            },
+            "assertions": [
+              "Five source edges, four nodes, exact relative edge stroke widths; aspect differs"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-marimekko",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "90c74bcd862c54ea549247d417cf4161d06d3a1c455dcd63533b79e5297d048c",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "51b3458920ef40991b8c98619c1ff87319ee1bd7617903aff06c2d3a4c46358f",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "9c3cf7ed525b03c829fc808960fea3540ca8281ec17cf14ab821fdfd834f89af",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "9c3cf7ed525b03c829fc808960fea3540ca8281ec17cf14ab821fdfd834f89af",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "29bb47500ce954b764d360457b51edcfa33f82c6321baefc7331e472aa63c04f",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "72025252531b779f09ab899b8f703cfaaa6bfdd56a1e104f3d65077f7d67965d",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "d811d2b5b6d73de80f85bb4e4cf290222ca01feefcf8dcbb59c1a5c62418ec5e",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "01824f7e7f31a09349ffe769e630af8e2aed78a01536f2cfbaa4f408c8bac79a",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "9c7e6ab81534c2a155249b60be39c52392251e3cc298c0992da795977e485202",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "9c7e6ab81534c2a155249b60be39c52392251e3cc298c0992da795977e485202",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "ae4332d3f7c9e11307e6223a91f6264a2b7807e609e5c51542329508372d4b1a",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "ae4332d3f7c9e11307e6223a91f6264a2b7807e609e5c51542329508372d4b1a",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "90c74bcd862c54ea549247d417cf4161d06d3a1c455dcd63533b79e5297d048c",
+        "02-reference.png": "9c3cf7ed525b03c829fc808960fea3540ca8281ec17cf14ab821fdfd834f89af",
+        "03-comparison.png": "29bb47500ce954b764d360457b51edcfa33f82c6321baefc7331e472aa63c04f",
+        "04-selection.png": "d811d2b5b6d73de80f85bb4e4cf290222ca01feefcf8dcbb59c1a5c62418ec5e",
+        "05-update.png": "9c7e6ab81534c2a155249b60be39c52392251e3cc298c0992da795977e485202",
+        "06-recovery.png": "ae4332d3f7c9e11307e6223a91f6264a2b7807e609e5c51542329508372d4b1a",
+        "export.pdf": "1af60f6d1f058079a90359feda662e53b5c6b8e10276c232e3f6b0c4dde2b2a3",
+        "export.png": "9ee3541b9ef47810999340c5e2fbb8ba7094fb632544b2eb72bae24259835b0d",
+        "export.svg": "fd274a65367f9f10ebe1396d54d0ecdf732b9ae10e8b050aa6f86c4157da3813",
+        "moxi.png": "ae4332d3f7c9e11307e6223a91f6264a2b7807e609e5c51542329508372d4b1a",
+        "selected.png": "af464452ac8bf97450d1630c37bbe00c96acb97355de37ac81f11471e961fa64"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Wide series/category matrix. Category width is column total/grand total; stack heights normalize within each column.",
+          "current": "Wide series/category matrix. Category width is column total/grand total; stack heights normalize within each column."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "rect": 6
+          },
+          "current": {
+            "rect": 6
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 3,
+          "current": 3
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 172.44444,
+            "y": 288.0,
+            "source_keys": "100"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 172.44444,
+            "y": 288.0,
+            "source_keys": "100"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 7,
+              "text": 3
+            },
+            "assertions": [
+              "Six matrix rectangle bounds within 1.1 px of upstream rounding"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 7,
+              "text": 3
+            },
+            "assertions": [
+              "Six matrix rectangle bounds within 1.1 px of upstream rounding"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-punchcard",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "1f3013f73fe852594baa289cedd85845112a801338e039484020333a195ed403",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "7bf157a314ad1e8f25bc69097d98e3bade29fda7411f3f99466cae867d8040cf",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "e8710959ed560ec5e32bf65fff412b26bc49d5fc24842b675e54728526f73cf5",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "e8710959ed560ec5e32bf65fff412b26bc49d5fc24842b675e54728526f73cf5",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "ac6f017fdb72e746ebef046bd938312d9232005577e34b32d419b63dfb1e8282",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "bd749189d924c89d5ca938cd92eec9c67ed621f7aba428dc5a1a16e81a892c55",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "bd9471dc8a86f44cdfa262b68a535e787fafd9b42d5f9275d42e56cec0e7b591",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "80f1ab13bbf70190581d6cb8ccebea44b44c5eb7ba78c181f181c1283662f693",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "6c1ac67c338b4e72d2c1c0d6b52b6079a11381b0aff1117c4c462e52b11e5456",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "6c1ac67c338b4e72d2c1c0d6b52b6079a11381b0aff1117c4c462e52b11e5456",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "aaac0e360ea5feff2189046fc095ddb0878dae956f21956721a509dfabc6883f",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "aaac0e360ea5feff2189046fc095ddb0878dae956f21956721a509dfabc6883f",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "1f3013f73fe852594baa289cedd85845112a801338e039484020333a195ed403",
+        "02-reference.png": "e8710959ed560ec5e32bf65fff412b26bc49d5fc24842b675e54728526f73cf5",
+        "03-comparison.png": "ac6f017fdb72e746ebef046bd938312d9232005577e34b32d419b63dfb1e8282",
+        "04-selection.png": "bd9471dc8a86f44cdfa262b68a535e787fafd9b42d5f9275d42e56cec0e7b591",
+        "05-update.png": "6c1ac67c338b4e72d2c1c0d6b52b6079a11381b0aff1117c4c462e52b11e5456",
+        "06-recovery.png": "aaac0e360ea5feff2189046fc095ddb0878dae956f21956721a509dfabc6883f",
+        "export.pdf": "b630a29b924bd022bebf4a6deff965f7261de55d20a5f516def57c1829230880",
+        "export.png": "c1aa30f235313298636931f3286d985d60839763cdc68d7381ea00ec07e5db25",
+        "export.svg": "3a0c4c3fb8bc33c6b8321236a6d98c13f752cf4a3362122d9e95062946614388",
+        "moxi.png": "aaac0e360ea5feff2189046fc095ddb0878dae956f21956721a509dfabc6883f",
+        "selected.png": "44ff519f7acb1902824ce300b0d9d44a9d0068ae341b3ff962458c30aa0caf99"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "First-seen categorical axes; bubble radius equals size/10 pixels. Duplicate cells retain separate source rows; overlap selection is bounded to the topmost matching glyph.",
+          "current": "First-seen categorical axes; bubble radius equals size/10 pixels. Duplicate cells retain separate source rows; overlap selection is bounded to the topmost matching glyph."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "point": 5
+          },
+          "current": {
+            "point": 5
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 5,
+          "current": 5
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 141.33334,
+            "y": 132.0,
+            "source_keys": "100"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 141.33334,
+            "y": 132.0,
+            "source_keys": "100"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 7,
+              "circle": 5,
+              "text": 5
+            },
+            "assertions": [
+              "Five bubbles with upstream integer-rounded size/10 radii"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 7,
+              "circle": 5,
+              "text": 5
+            },
+            "assertions": [
+              "Five bubbles with upstream integer-rounded size/10 radii"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-sankey",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "e8da2aa5f57dce3f03fb5efd33b1ef9897b07937582ebb5df1a1ec0f2a9f5aab",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "d3dc7d78f43f92b1a307d6b62827a1b9f06d9a93541fca017512485be3133de3",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "448a58f2ff8f963ab42a1eaf8c3ec35f79fa51710510a5da5d6dfb8738bd6b5f",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "448a58f2ff8f963ab42a1eaf8c3ec35f79fa51710510a5da5d6dfb8738bd6b5f",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "a50a55905f1b36a539d237507694c63dc6be6c64a7e9e44fbdfe9b96b5d3754e",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "643dffd93163648519329b45069a55b74a6655e21c0d1df3ca5cc4ca95f04c93",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "5bba8a85e0bd9292ed1e8dfe27ad5e3f1dd81b2a491590dd21cd9bd78fd89af1",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "8225d451a4bee05642e8d3d8fc9856e913a080e3548c1d41571fc2fae859b294",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "d5d2c5788092d7a12f92a9379b32eecbf047495737544a543fd6336bef8a067b",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "d5d2c5788092d7a12f92a9379b32eecbf047495737544a543fd6336bef8a067b",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "844f568f39ac9fcb3a6cc3bd110001933c9f8aaaefc1f9f292b2c71bce1cf418",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "844f568f39ac9fcb3a6cc3bd110001933c9f8aaaefc1f9f292b2c71bce1cf418",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "e8da2aa5f57dce3f03fb5efd33b1ef9897b07937582ebb5df1a1ec0f2a9f5aab",
+        "02-reference.png": "448a58f2ff8f963ab42a1eaf8c3ec35f79fa51710510a5da5d6dfb8738bd6b5f",
+        "03-comparison.png": "a50a55905f1b36a539d237507694c63dc6be6c64a7e9e44fbdfe9b96b5d3754e",
+        "04-selection.png": "5bba8a85e0bd9292ed1e8dfe27ad5e3f1dd81b2a491590dd21cd9bd78fd89af1",
+        "05-update.png": "d5d2c5788092d7a12f92a9379b32eecbf047495737544a543fd6336bef8a067b",
+        "06-recovery.png": "844f568f39ac9fcb3a6cc3bd110001933c9f8aaaefc1f9f292b2c71bce1cf418",
+        "export.pdf": "64972b96ed423b08ef131e52d0fa7a5222e88c8e69ce94719e5cdcb2ce8b6426",
+        "export.png": "c714cd53cb38b8e0ba23562ba6a27946d985f359dcc3ef368e4e970880f350c3",
+        "export.svg": "8281d5b4cc53eb37e4d73063e671dc653a6f4df2722c28bb29ccdc30ab7d2ad8",
+        "moxi.png": "844f568f39ac9fcb3a6cc3bd110001933c9f8aaaefc1f9f292b2c71bce1cf418",
+        "selected.png": "97fc784ab58a08bf4f13dd2957ff470d00348f2c3aab6413c5a1afa9ec30664e"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "DAG longest-path columns, pass-through nodes for long edges, per-column normalization and edge-order strips. Aggregate nodes expose incident edge keys and are table-only selection targets.",
+          "current": "DAG longest-path columns, pass-through nodes for long edges, per-column normalization and edge-order strips. Aggregate nodes expose incident edge keys and are table-only selection targets."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "triangle": 12,
+            "rect": 4
+          },
+          "current": {
+            "triangle": 12,
+            "rect": 4
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 5,
+          "current": 5
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 152.53334,
+            "y": 166.66666,
+            "source_keys": "100"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 152.53334,
+            "y": 166.66666,
+            "source_keys": "100"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 5,
+              "path": 6,
+              "text": 4
+            },
+            "assertions": [
+              "All six flow-strip vertices within 1.1 px; includes long-edge splitting and unequal column totals"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 5,
+              "path": 6,
+              "text": 4
+            },
+            "assertions": [
+              "All six flow-strip vertices within 1.1 px; includes long-edge splitting and unequal column totals"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-sunburst",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "78bab393774efab51cefba355f2120f8366e974d9270f87f1631c688579ebb91",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "ffe383beaee5958422c6f3a58cb15eeb910239dadb3b9c2fa2f8fd12820d45b6",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "0bc9391f6e955514bc52207eec9f458045b22f1032c3b8a2525259a33115baec",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "0bc9391f6e955514bc52207eec9f458045b22f1032c3b8a2525259a33115baec",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "578599ec5772a3ffd5c207f6c4af21bb90d65d79a7d0b672c993754eae8a5fc4",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "5bc0485e1954add5798756706e94865ced9115c7502e9c3e23c617ce3a5e8d24",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "fcb68dfd8835ab0510a31ad7fbf251a6352f2190674d5fabc81def2af96830fd",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "d894c495ffce68c9f6fef44b4671eb39e74d513e48c47adaab664a29f9bf2cd1",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "12ec26526d341656f1c3e428861dd24abe1862356c3e0e6db1a2296f8292c922",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "12ec26526d341656f1c3e428861dd24abe1862356c3e0e6db1a2296f8292c922",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "17d3dcf0b11b2843d3692a1f227c98ea444e438595dcef2b22274c349644ea83",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "17d3dcf0b11b2843d3692a1f227c98ea444e438595dcef2b22274c349644ea83",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "78bab393774efab51cefba355f2120f8366e974d9270f87f1631c688579ebb91",
+        "02-reference.png": "0bc9391f6e955514bc52207eec9f458045b22f1032c3b8a2525259a33115baec",
+        "03-comparison.png": "578599ec5772a3ffd5c207f6c4af21bb90d65d79a7d0b672c993754eae8a5fc4",
+        "04-selection.png": "fcb68dfd8835ab0510a31ad7fbf251a6352f2190674d5fabc81def2af96830fd",
+        "05-update.png": "12ec26526d341656f1c3e428861dd24abe1862356c3e0e6db1a2296f8292c922",
+        "06-recovery.png": "17d3dcf0b11b2843d3692a1f227c98ea444e438595dcef2b22274c349644ea83",
+        "export.pdf": "fcfd76b6c4f5d33aa45196bd35db31e2314c0fc8c968123473bbcf7ee69a7caf",
+        "export.png": "19e214ed684938b9765ebe285f11bbfe9d9adc17971f690b8c15c6212c6a4cbd",
+        "export.svg": "3f59383c0b83d3d2f8bc837e45504774f1bf5e98d55933fe7106a45a5a014193",
+        "moxi.png": "17d3dcf0b11b2843d3692a1f227c98ea444e438595dcef2b22274c349644ea83",
+        "selected.png": "72eaefb92dd6aee8ff1971a46d1490927c3f31711790e4f18d72cbd6df44f320"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Depth rings and descendant-weight angles; root hidden. Tessellated sectors replace analytic arcs.",
+          "current": "Depth rings and descendant-weight angles; root hidden. Tessellated sectors replace analytic arcs."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "triangle": 264
+          },
+          "current": {
+            "triangle": 264
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 7,
+          "current": 7
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 107,
+            "row_index": 1,
+            "x": 332.0849,
+            "y": 173.74791,
+            "source_keys": "107"
+          },
+          "current": {
+            "row_key": 107,
+            "row_index": 1,
+            "x": 332.0849,
+            "y": 173.74791,
+            "source_keys": "107"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 1,
+              "path": 6
+            },
+            "assertions": [
+              "Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 1,
+              "path": 6
+            },
+            "assertions": [
+              "Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-tree",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "eb59d18cd3388d39a7f705be13cf03d2fdeec2a34f384997d1d5c8317df12dbb",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "81e83f40b3ee62d567177c00ebbcfd8f6f2d1bb110d4975b11ae116f41c04ac0",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "fd6b8142a5001f3cc0f12497e29281ddaf8b712a8a9d8092fa93c0d24a745a39",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "fd6b8142a5001f3cc0f12497e29281ddaf8b712a8a9d8092fa93c0d24a745a39",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "595e7d0a62ca5044976828a9ca8ab7dbcd018c944cc2e1abda49bee66dd09d0f",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "ca2a5ba48b1ad4e67092458db8d74459b881118bb62632f825e5a717cab9d24a",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "67a97eec0342af6b321106393f07a43b561c0b069e6b7b289ea61ae22e3a5268",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "d35195f1eaa0f1fbce0eae89a9ad1ba0e3fa5419e48039694040f216ecb93cd6",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "e3e1b5e4562a1dc554eb1205e2eace4a812e0aefb261228b8c1c9bff34ea5534",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "e3e1b5e4562a1dc554eb1205e2eace4a812e0aefb261228b8c1c9bff34ea5534",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "6674a935897e1aea803c658358824a20861ec78ba8f98131acff7811b263656b",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "6674a935897e1aea803c658358824a20861ec78ba8f98131acff7811b263656b",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "eb59d18cd3388d39a7f705be13cf03d2fdeec2a34f384997d1d5c8317df12dbb",
+        "02-reference.png": "fd6b8142a5001f3cc0f12497e29281ddaf8b712a8a9d8092fa93c0d24a745a39",
+        "03-comparison.png": "595e7d0a62ca5044976828a9ca8ab7dbcd018c944cc2e1abda49bee66dd09d0f",
+        "04-selection.png": "67a97eec0342af6b321106393f07a43b561c0b069e6b7b289ea61ae22e3a5268",
+        "05-update.png": "e3e1b5e4562a1dc554eb1205e2eace4a812e0aefb261228b8c1c9bff34ea5534",
+        "06-recovery.png": "6674a935897e1aea803c658358824a20861ec78ba8f98131acff7811b263656b",
+        "export.pdf": "2ba4df9775223e1d0e9022b3d176d55af028e3a6b9f22b1f304596c71ec89374",
+        "export.png": "9aafb168701e2307ac3a8e2d7d488fc571c69af3325e41ccb28bd0e7f14fafa1",
+        "export.svg": "430e7467dca5e29098568035a665014f36476b59fc9aa8bec5cee7f8896b0689",
+        "moxi.png": "6674a935897e1aea803c658358824a20861ec78ba8f98131acff7811b263656b",
+        "selected.png": "f1aa1aad00a19d3297899a67a8044aa22922621bf6f84dbe1d18899371dffa5d"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "DFS leaf slots, arithmetic mean child positions, depth levels; parent-child source pairs retained. This is the upstream tree algorithm.",
+          "current": "DFS leaf slots, arithmetic mean child positions, depth levels; parent-child source pairs retained. This is the upstream tree algorithm."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "segment": 6,
+            "point": 7
+          },
+          "current": {
+            "segment": 6,
+            "point": 7
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 7,
+          "current": 7
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 107,
+            "row_index": 1,
+            "x": 234.66667,
+            "y": 132.0,
+            "source_keys": "100,107"
+          },
+          "current": {
+            "row_key": 107,
+            "row_index": 1,
+            "x": 234.66667,
+            "y": 132.0,
+            "source_keys": "100,107"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 6,
+              "circle": 7,
+              "text": 7
+            },
+            "assertions": [
+              "Six parent-child edge endpoints within 1.1 px; seven nodes"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 1,
+              "line": 6,
+              "circle": 7,
+              "text": 7
+            },
+            "assertions": [
+              "Six parent-child edge endpoints within 1.1 px; seven nodes"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-treemap",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "dc2923001a5ab7b6c074fca2101bdb6118f0aaa5c2cb4f8f83166bd1e99d5c25",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "f22b162d7028d349d7155ce22c2cc07dfd178478972e71e4992c79f953442446",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "312bc43d78f94ddf1188dff45d1806c17cf277fb4f785a1d615cb15b51e984c6",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "312bc43d78f94ddf1188dff45d1806c17cf277fb4f785a1d615cb15b51e984c6",
+          "matches_baseline": true
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "06fbf952eeeba48ab8134db0515d3645fbb1d74ba2bd3b0e81b5c653212e41bd",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "5f078ac91a2f6c2c88f300a40758c92f26e6ee901bb1ec12a80eac9de191d4ce",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "23f0948084eed250fcc589cdd1682b7fddc7136be81138c3c22081f975c50d68",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "a41a64a7305753fb71bc870e712774942131bb6f8ece5426ece24dfb76266f87",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "d11b2873e2ff8a61760e8b06f986c5422255198cbebd1a9952ba3f166edd62cb",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "d11b2873e2ff8a61760e8b06f986c5422255198cbebd1a9952ba3f166edd62cb",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "8f6a007eb5c8cdb1bfdd6f075ad87ddc0f819d1980f40d304eea7d5291dd86c4",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "8f6a007eb5c8cdb1bfdd6f075ad87ddc0f819d1980f40d304eea7d5291dd86c4",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "dc2923001a5ab7b6c074fca2101bdb6118f0aaa5c2cb4f8f83166bd1e99d5c25",
+        "02-reference.png": "312bc43d78f94ddf1188dff45d1806c17cf277fb4f785a1d615cb15b51e984c6",
+        "03-comparison.png": "06fbf952eeeba48ab8134db0515d3645fbb1d74ba2bd3b0e81b5c653212e41bd",
+        "04-selection.png": "23f0948084eed250fcc589cdd1682b7fddc7136be81138c3c22081f975c50d68",
+        "05-update.png": "d11b2873e2ff8a61760e8b06f986c5422255198cbebd1a9952ba3f166edd62cb",
+        "06-recovery.png": "8f6a007eb5c8cdb1bfdd6f075ad87ddc0f819d1980f40d304eea7d5291dd86c4",
+        "export.pdf": "bca217756985685446847d6af655e83833d330af9db67b1d302111d22ec5c849",
+        "export.png": "af2c2c5d55f77871396c8f2a09618dc289e257641e60f742037a4908def12e50",
+        "export.svg": "48ac4df249f2a979af5c8e500326d887b05028c5b2a851ab4d149f0356fc1dbd",
+        "moxi.png": "8f6a007eb5c8cdb1bfdd6f075ad87ddc0f819d1980f40d304eea7d5291dd86c4",
+        "selected.png": "58f12e307bd1c6c417f8ce984f8b7fb06c5a402f5ebba18eeec3de810a4c5f1c"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Alternating slice/dice leaf rectangles; descendant sums ignore branch own values. Input-order siblings; branch colors.",
+          "current": "Alternating slice/dice leaf rectangles; descendant sums ignore branch own values. Input-order siblings; branch colors."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "rect": 4
+          },
+          "current": {
+            "rect": 4
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 7,
+          "current": 7
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 121,
+            "row_index": 3,
+            "x": 234.66667,
+            "y": 184.0,
+            "source_keys": "121"
+          },
+          "current": {
+            "row_key": 121,
+            "row_index": 3,
+            "x": 234.66667,
+            "y": 184.0,
+            "source_keys": "121"
+          }
+        },
+        "upstream_structure": {
+          "matches": true,
+          "previous": {
+            "svg_elements": {
+              "rect": 5,
+              "text": 4
+            },
+            "assertions": [
+              "All four leaf rectangle bounds within 1.1 px of integer-rounded upstream"
+            ]
+          },
+          "current": {
+            "svg_elements": {
+              "rect": 5,
+              "text": 4
+            },
+            "assertions": [
+              "All four leaf rectangle bounds within 1.1 px of integer-rounded upstream"
+            ]
+          }
+        }
+      },
+      "upstream_reference_available": true
+    },
+    {
+      "demo_id": "e03-tricontour",
+      "baseline_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "baseline_source_dirty": true,
+      "frames": [
+        {
+          "image": "01-source.png",
+          "sha256": "d32d9aad7b4af244491cb67fc0eac3467742a44425edfee83f366a467c8c140b",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "0eff9f46d458f617900271b1b219e9d198538ca36636a88ada6446be6661c33a",
+          "matches_baseline": false
+        },
+        {
+          "image": "02-reference.png",
+          "sha256": "d4a281aa5be0d516ffc96e028d5b459a12aecdd969637a6a38288a46e28931d1",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "f221f4a6c678db74550c1725d0a798342fea9e4084f7e312f28a63bdc7ae4060",
+          "matches_baseline": false
+        },
+        {
+          "image": "03-comparison.png",
+          "sha256": "0d1824986388b79d30670e8279fe39ea239597537f66614cf2475b075b839c35",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "4af90370c7c2f2ff17b77482366640335a826de41e1ba7893de67174f83db309",
+          "matches_baseline": false
+        },
+        {
+          "image": "04-selection.png",
+          "sha256": "618a01e69a33ef9e8a9dfff752c5b7a42183d8237ce152a909825ac7a531b5ed",
+          "dimensions": [
+            1280,
+            800
+          ],
+          "baseline_sha256": "0b8468d454310c8620f0262ec200a182c27f1cf2383462ebc23cf0071e10b25c",
+          "matches_baseline": false
+        },
+        {
+          "image": "05-update.png",
+          "sha256": "652aa09e51114c5debd3f8aff9f747673b769cd65bc941951b2a6e470241d682",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "652aa09e51114c5debd3f8aff9f747673b769cd65bc941951b2a6e470241d682",
+          "matches_baseline": true
+        },
+        {
+          "image": "06-recovery.png",
+          "sha256": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85",
+          "dimensions": [
+            640,
+            480
+          ],
+          "baseline_sha256": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85",
+          "matches_baseline": true
+        }
+      ],
+      "artifact_sha256": {
+        "01-source.png": "d32d9aad7b4af244491cb67fc0eac3467742a44425edfee83f366a467c8c140b",
+        "02-reference.png": "d4a281aa5be0d516ffc96e028d5b459a12aecdd969637a6a38288a46e28931d1",
+        "03-comparison.png": "0d1824986388b79d30670e8279fe39ea239597537f66614cf2475b075b839c35",
+        "04-selection.png": "618a01e69a33ef9e8a9dfff752c5b7a42183d8237ce152a909825ac7a531b5ed",
+        "05-update.png": "652aa09e51114c5debd3f8aff9f747673b769cd65bc941951b2a6e470241d682",
+        "06-recovery.png": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85",
+        "export.pdf": "c2d34078229ddce753007fca8db4c7d181cc97b88352ca8bcd7ee284d65b3bda",
+        "export.png": "53c3627e0cbc8e48a8caed6f773a8457734bc94ca10004b6824e88002e8875e2",
+        "export.svg": "fe2f664c857b446a0197d681108991fd19852faf44e4e1c9e6b1ce5027147392",
+        "moxi.png": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85",
+        "selected.png": "c5c909153df7d8d6e266333d9ca7d8911f0f0f8f77ded2144192f0fa60cfdaa2"
+      },
+      "baseline_observations": {
+        "classification": {
+          "matches": true,
+          "previous": "Explicit validated triangle mesh and strictly increasing levels; marching triangles with half-open vertex ownership. All three vertex keys retained. Pinned upstream has no tricontour module/API: reference gate is missing.",
+          "current": "Explicit validated triangle mesh and strictly increasing levels; marching triangles with half-open vertex ownership. All three vertex keys retained. Pinned upstream has no tricontour module/API: reference gate is missing."
+        },
+        "geometry": {
+          "matches": true,
+          "previous": {
+            "segment": 12
+          },
+          "current": {
+            "segment": 12
+          }
+        },
+        "source_rows": {
+          "matches": true,
+          "previous": 5,
+          "current": 5
+        },
+        "selection": {
+          "matches": true,
+          "previous": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 328.0,
+            "y": 392.0,
+            "source_keys": "100,107,128"
+          },
+          "current": {
+            "row_key": 100,
+            "row_index": 0,
+            "x": 328.0,
+            "y": 392.0,
+            "source_keys": "100,107,128"
+          }
+        },
+        "missing_gate": {
+          "matches": true,
+          "previous": "No tricontour implementation in pinned dataviz; no reference image substituted",
+          "current": "No tricontour implementation in pinned dataviz; no reference image substituted"
+        }
+      },
+      "upstream_reference_available": false
+    }
+  ],
+  "visual_review_checked": true,
+  "evidence_tool_sha256": {
+    "scripts/capture_plot_gallery_evidence.py": "42f4356fd8c3b18aa0506ecb88fbde53bf3d8937f77f46395bc23f4b74e885a9",
+    "scripts/check_plot_gallery_evidence.py": "7618a44b661e6e85e97fd20b5649388b19315239e7887e69080a14a2d8e016df"
+  },
+  "baseline_image_limit": "Old PNG files were absent; compare their committed hashes and observations, not an invented side-by-side image review."
+}

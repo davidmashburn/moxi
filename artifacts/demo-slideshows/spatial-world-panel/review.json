@@ -1,0 +1,572 @@
+{
+  "version": 1,
+  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
+  "recorded_at": "2026-11-20T22:58:40.454049+00:00",
+  "planning": {
+    "ref": "origin/project-planning",
+    "revision": "2e46d93667166d077e47311277689c54d35942dc",
+    "document": "PROJECT-PLANNING.md",
+    "section": "2. Certify the reviewed integration's demo evidence"
+  },
+  "environment": {
+    "capture_started_at": "2026-11-20T22:49:57Z",
+    "toolchain": {
+      "mojo": "Mojo 1.1.0 (8189361e)",
+      "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+      "sdk": "27.0",
+      "pixi_lock_sha256": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0",
+      "host": "macOS-27.2-arm64-arm-64bit-Mach-O"
+    },
+    "browser": "not used; native AppKit/Metal replay",
+    "fixture": "ordinary synthetic Controls model; no account/customer fixture",
+    "canvas_points": [
+      1000,
+      710
+    ],
+    "capture_pixels": [
+      2000,
+      1420
+    ],
+    "capture_pixels_per_point": 2,
+    "source_owner_points": [
+      400,
+      240
+    ],
+    "metal_target_pixels": [
+      940,
+      420
+    ],
+    "camera": {
+      "yaw": 0.55,
+      "pitch": 0.22,
+      "distance": 6
+    },
+    "plane": {
+      "origin": [
+        -2,
+        1.2,
+        0
+      ],
+      "u": [
+        4,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        -2.4,
+        0
+      ]
+    },
+    "scoped_git_status_before_capture": "",
+    "application_source_mismatch": false
+  },
+  "counts": {
+    "pass": 4,
+    "partial": 2,
+    "blocked": 0
+  },
+  "scenarios": [
+    {
+      "scenario_id": "01-oblique",
+      "outcome": "pass",
+      "replay_assertions": "pass",
+      "frame": "01-oblique.png",
+      "png_sha256": "f6cb8ec12904f2c18886a345d62f3bf78c9b8f366261a333612fb2ebdcfd2274",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "steps": "Launch native probe",
+      "expected": "Perspective-correct texture in the existing depth pass",
+      "observed": "Legible oblique panel with text Spatial ordinary controls, Apply 0 and shared level 40. Genuine perspective texture draw/snapshot succeeded; text is visibly rasterized/softer than the screen editor.",
+      "limits": [
+        "One fixed camera/plane and native capture scale; appearance does not prove compositor display, multi-DPI quality or native world text usability."
+      ],
+      "visually_inspected": true,
+      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "assertion_source": "examples/spatial-world-panel/main.mojo",
+      "native_contract_source": "examples/spatial-world-panel/host.m",
+      "evidence_logs": [
+        "review-logs/replay-0.log",
+        "review-logs/replay-1.log",
+        "review-logs/replay-2.log"
+      ]
+    },
+    {
+      "scenario_id": "02-capture-outside",
+      "outcome": "pass",
+      "replay_assertions": "pass",
+      "frame": "02-capture-outside.png",
+      "png_sha256": "27233aa84e1ee6a813cf3370cd0805b6848c86119f68c8670146c75d0ff80eb7",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "steps": "Drag local x=100 to x=500 on a 400-point panel",
+      "expected": "Slider reaches 100; capture remains active until release",
+      "observed": "Shared level 100 and slider at right endpoint are visible. Replay asserts value 100 and active drag before capture, then releases capture afterward.",
+      "limits": [
+        "Injected NSEvent/ordinary runtime replay, not a physical pointer or hardware capture-loss exercise. Still frame alone does not prove capture."
+      ],
+      "visually_inspected": true,
+      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "assertion_source": "examples/spatial-world-panel/main.mojo",
+      "native_contract_source": "examples/spatial-world-panel/host.m",
+      "evidence_logs": [
+        "review-logs/replay-0.log",
+        "review-logs/replay-1.log",
+        "review-logs/replay-2.log"
+      ]
+    },
+    {
+      "scenario_id": "03-text-focus-failure",
+      "outcome": "partial",
+      "replay_assertions": "pass",
+      "frame": "03-text-focus-failure.png",
+      "png_sha256": "72bd2838a17413cbd6a8853c9a9d2defb17727ab7bf6c3c513da47e18a100c25",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "steps": "Click button and text; compare actual caret with its world projection",
+      "expected": "One click and stable focus; source-local IME coordinates explicitly unsupported",
+      "observed": "Apply 1 and shared level 100; WORLD FAILED message. Replay asserts focus ID 1 and retained field identity. Native source caret (26,58) requires world projection (388.62122951131903,259.6678344576862); native world IME geometry fails. Both world owners suppress semantic children/focus.",
+      "limits": [
+        "Geometry rejection verified; native world IME/semantic support remains unsupported. Source-owner marked-text callbacks are synthetic. World text-input rejection branch was source-inspected, not separately driven in the recorded replay."
+      ],
+      "visually_inspected": true,
+      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "assertion_source": "examples/spatial-world-panel/main.mojo",
+      "native_contract_source": "examples/spatial-world-panel/host.m",
+      "evidence_logs": [
+        "review-logs/replay-0.log",
+        "review-logs/replay-1.log",
+        "review-logs/replay-2.log"
+      ]
+    },
+    {
+      "scenario_id": "04-hidden-click",
+      "outcome": "pass",
+      "replay_assertions": "pass",
+      "frame": "04-hidden-click.png",
+      "png_sha256": "3fa393fe4eb9dfd029a9b86a6558ab3b984b0e6104dcb493f5b6c22985c02607",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "steps": "Clip x<0; add foreground geometry; attempt both hidden targets",
+      "expected": "Clipped and depth-occluded clicks return HIDDEN",
+      "observed": "Left side of panel is visibly clipped; red scene geometry occludes controls. Both clipped and depth-occluded direct route calls assert HIDDEN.",
+      "limits": [
+        "Direct picking calls and rendered state; no physical pointer or accessibility hit testing."
+      ],
+      "visually_inspected": true,
+      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "assertion_source": "examples/spatial-world-panel/main.mojo",
+      "native_contract_source": "examples/spatial-world-panel/host.m",
+      "evidence_logs": [
+        "review-logs/replay-0.log",
+        "review-logs/replay-1.log",
+        "review-logs/replay-2.log"
+      ]
+    },
+    {
+      "scenario_id": "05-screen-editor",
+      "outcome": "partial",
+      "replay_assertions": "pass",
+      "frame": "05-screen-editor.png",
+      "png_sha256": "4d13fdd5ab589393e77e4567fa97dd5ede448fcf2ea27f46800ffb079897e12d",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "steps": "Switch mode; replay native text protocols, selection, clipboard and keyboard",
+      "expected": "Same text/count/level; actual native roles and coherent screen caret",
+      "observed": "Crisp axis-aligned screen controls show Spatial ordinary controls · native, Apply 2 and shared level 99. Caret (398.093017578125,273.0361328125) is contained in the screen field. Native text/button/slider roles and owner-local frames, selection, named pasteboard, marked-text/insertion, ordinary App clipboard and Tab/Enter/arrows pass.",
+      "limits": [
+        "Screen alternative verified only within the experiment. No physical keyboard/IME candidates, non-US layout, VoiceOver, assistive-technology client, or human acceptance. Owner-local frame equality does not establish AT usability."
+      ],
+      "visually_inspected": true,
+      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "assertion_source": "examples/spatial-world-panel/main.mojo",
+      "native_contract_source": "examples/spatial-world-panel/host.m",
+      "evidence_logs": [
+        "review-logs/replay-0.log",
+        "review-logs/replay-1.log",
+        "review-logs/replay-2.log"
+      ]
+    },
+    {
+      "scenario_id": "06-cancel-recovery",
+      "outcome": "pass",
+      "replay_assertions": "pass",
+      "frame": "06-cancel-recovery.png",
+      "png_sha256": "2ebb16fab862d5560df953fd4de0acacde36f6f66efd2010d8748b62e1c31fb0",
+      "dimensions": [
+        2000,
+        1420
+      ],
+      "steps": "Return to world; drag slider then Escape",
+      "expected": "Level restored to 99; explicit supported geometry and failed world IME/AX cases",
+      "observed": "After returning to world mode, edited text and Apply 2 persist in memory; shared level 99 is visible. Escape restores 99 and clears drag. NOT PROMOTED message remains legible.",
+      "limits": [
+        "Synthetic Escape and mode transition; only in-memory shared state, not persistence across restart."
+      ],
+      "visually_inspected": true,
+      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "assertion_source": "examples/spatial-world-panel/main.mojo",
+      "native_contract_source": "examples/spatial-world-panel/host.m",
+      "evidence_logs": [
+        "review-logs/replay-0.log",
+        "review-logs/replay-1.log",
+        "review-logs/replay-2.log"
+      ]
+    }
+  ],
+  "decision": {
+    "world_promotion": "rejected",
+    "confidence": "high",
+    "evidence": "Measured source/world caret mismatch; source-local native role/frame contract; world semantic children/focus explicitly suppressed. Screen owner-local contracts and same-model replay pass.",
+    "evidence_to_reconsider": "Coherent transformed native IME/semantic geometry followed by physical IME, human and AT acceptance.",
+    "production_renderer": "D05 remains unselected/OPEN"
+  },
+  "baseline_comparison": {
+    "artifact_commit": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
+    "recorded_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "captured_before_build_at": "2026-11-06T18:12:22Z",
+    "recorded_uncommitted_source": true,
+    "old_source_sha256": "f6093658eb10a518d2e93b585bce59d0d59195424f76309a811a01fcdf2099f2",
+    "new_source_sha256": "3a5c2de74340be52b381b84f7e5f8802a7325adb513797be706b6129a722667a",
+    "old_source_files": 186,
+    "new_source_files": 189,
+    "source_files_added": [
+      "native/macos_live_editor.inc",
+      "native/macos_source_editor.inc",
+      "tests/spatial/composition_sampling.m"
+    ],
+    "source_files_removed": [],
+    "source_files_changed": [
+      "native/macos_composition.h",
+      "native/macos_composition.inc",
+      "native/macos_metal.m",
+      "native/macos_window.m",
+      "native/macos_window_state.h",
+      "native/mindmap/storage.h",
+      "native/mindmap/storage.m",
+      "pixi.toml",
+      "src/moxi/__init__.mojo",
+      "src/moxi/capability_walkthrough.mojo",
+      "src/moxi/column_runtime.mojo",
+      "src/moxi/fractal.mojo",
+      "src/moxi/interaction_showcase.mojo",
+      "src/moxi/live_script.mojo",
+      "src/moxi/macos.mojo",
+      "src/moxi/scenarios.mojo",
+      "src/moxi/scene_path.mojo",
+      "src/moxi/wxstyle.mojo"
+    ],
+    "frames": [
+      {
+        "scenario_id": "01-oblique",
+        "old_sha256": "7ca11f8f1ddea23a205797d269c65a44fa56d6627a4eb2ea89515a02c319787a",
+        "new_sha256": "f6cb8ec12904f2c18886a345d62f3bf78c9b8f366261a333612fb2ebdcfd2274",
+        "hash_equal": false,
+        "dimensions_equal": true
+      },
+      {
+        "scenario_id": "02-capture-outside",
+        "old_sha256": "96054790c33e71e2f1ce1302777d21761a9fce333c3e410436ccd92651b9a51e",
+        "new_sha256": "27233aa84e1ee6a813cf3370cd0805b6848c86119f68c8670146c75d0ff80eb7",
+        "hash_equal": false,
+        "dimensions_equal": true
+      },
+      {
+        "scenario_id": "03-text-focus-failure",
+        "old_sha256": "dbfe6e3c517006a2d9a8a4d65301a1c441e87f73194cb39de5db065bb082c837",
+        "new_sha256": "72bd2838a17413cbd6a8853c9a9d2defb17727ab7bf6c3c513da47e18a100c25",
+        "hash_equal": false,
+        "dimensions_equal": true
+      },
+      {
+        "scenario_id": "04-hidden-click",
+        "old_sha256": "044b01e373d2d34a464122a1288e1862444095ab02dbc53467138715102ad02d",
+        "new_sha256": "3fa393fe4eb9dfd029a9b86a6558ab3b984b0e6104dcb493f5b6c22985c02607",
+        "hash_equal": false,
+        "dimensions_equal": true
+      },
+      {
+        "scenario_id": "05-screen-editor",
+        "old_sha256": "ecc99b3c5637e66c817920999f706e6e65a0ccb04bb7ce49015200e169251fde",
+        "new_sha256": "4d13fdd5ab589393e77e4567fa97dd5ede448fcf2ea27f46800ffb079897e12d",
+        "hash_equal": false,
+        "dimensions_equal": true
+      },
+      {
+        "scenario_id": "06-cancel-recovery",
+        "old_sha256": "d05c4a330e5781c3b7ce9a785549fa16b20f23d39a2da0c09175c944b4393bfd",
+        "new_sha256": "2ebb16fab862d5560df953fd4de0acacde36f6f66efd2010d8748b62e1c31fb0",
+        "hash_equal": false,
+        "dimensions_equal": true
+      }
+    ],
+    "baseline_png_bytes_available": false,
+    "pixel_and_baseline_visual_comparison": "blocked: old PNGs absent in this checkout and main implementation checkout; only metadata/hash comparison possible",
+    "scenario_definitions_unchanged": true,
+    "old_host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "new_host": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "timing_comparison": "not controlled across source, host version and concurrent load; no regression or production-performance conclusion"
+  },
+  "checks": [
+    {
+      "name": "panel",
+      "outcome": "pass",
+      "log": "review-logs/check-panel.log",
+      "expected_marker": "PASS D08 portable plane:"
+    },
+    {
+      "name": "contract",
+      "outcome": "pass",
+      "log": "review-logs/check-contract.log",
+      "expected_marker": "PASS spatial-contract + spatial-interaction: 1832 assertions"
+    },
+    {
+      "name": "assembly",
+      "outcome": "pass",
+      "log": "review-logs/check-assembly.log",
+      "expected_marker": "PASS assembly hierarchy/shared views/probes/clipping/lifecycle: 2522 assertions"
+    },
+    {
+      "name": "panel_native",
+      "outcome": "pass",
+      "log": "review-logs/check-panel_native.log",
+      "expected_marker": "PASS D08 native owner snapshot isolation, bounds, source retirement and mount rejection"
+    },
+    {
+      "name": "native",
+      "outcome": "pass",
+      "log": "review-logs/check-native.log",
+      "expected_marker": "PASS spatial native composition/F02/Metal: 143 assertions"
+    },
+    {
+      "name": "assembly_native",
+      "outcome": "pass",
+      "log": "review-logs/check-assembly_native.log",
+      "expected_marker": "PASS assembly native shared Metal geometry/independent owners: 140 assertions"
+    },
+    {
+      "name": "public_panel",
+      "outcome": "pass",
+      "log": "review-logs/check-public_panel.log",
+      "expected_marker": "PASS D08 clean public panel boundary / invalid wire mode / stale handle"
+    },
+    {
+      "name": "public_consumer",
+      "outcome": "pass",
+      "log": "review-logs/check-public_consumer.log",
+      "expected_marker": "PASS clean public moxi_spatial consumer (packaged module; operations, projection, history, lifecycle)"
+    },
+    {
+      "name": "public_assembly",
+      "outcome": "pass",
+      "log": "review-logs/check-public_assembly.log",
+      "expected_marker": "PASS clean packaged assembly consumer: hierarchy, linked views, measurement, clip, history, origin close"
+    },
+    {
+      "name": "public_composition",
+      "outcome": "pass",
+      "log": "review-logs/check-public_composition.log",
+      "expected_marker": "PASS public Mojo CompositionSurface (owned copy, serial, slot, release)"
+    },
+    {
+      "name": "packaged-spatial-world-panel",
+      "outcome": "pass",
+      "log": "review-logs/check-packaged-spatial-world-panel.log",
+      "expected_marker": "PASS D08 ordinary component native replay; synthetic protocols only; world promotion rejected"
+    },
+    {
+      "name": "packaged-spatial-explorer",
+      "outcome": "pass",
+      "log": "review-logs/check-packaged-spatial-explorer.log",
+      "expected_marker": "PASS native public Mojo replay: 17 captures;"
+    },
+    {
+      "name": "packaged-spatial-assembly",
+      "outcome": "pass",
+      "log": "review-logs/check-packaged-spatial-assembly.log",
+      "expected_marker": "PASS assembly native public replay: 14 captures;"
+    }
+  ],
+  "check_command": "bash examples/spatial-world-panel/check.sh --skip-build",
+  "check_exit_code": 0,
+  "capture_command": "python3 artifacts/demo-slideshows/spatial-world-panel/capture.py",
+  "capture_exit_code": 0,
+  "logs": [
+    {
+      "path": "review-logs/attempt-01-build.log",
+      "sha256": "bbcef135f7c23211976ef192f7ed7382bac92d1d0f0b4dfabb09c6bf97dde05f",
+      "original_sha256": "3923b7ca3c606e6281fdab40c6fb8e1e57064af32c29b161b64e0bcaa2424281"
+    },
+    {
+      "path": "review-logs/attempt-01-gallery.log",
+      "sha256": "484b6305c8479947320eede1ded826bef7c43155648084cb2a85fb5f74f7eb01",
+      "original_sha256": "e0ead24fa31b5ecdb47275956eafe034638be3157f375ffb6c72b70d6e83c777"
+    },
+    {
+      "path": "review-logs/build.log",
+      "sha256": "66dd06ea989a8b72c4bbdf165f7f656a6f17fbb5d1d07bda8fe517cb5e7cf53c",
+      "original_sha256": "afd044f5d99fdab8637b199db758979b3a41d2e5eb544fb7e3682597c64046a4"
+    },
+    {
+      "path": "review-logs/capture.log",
+      "sha256": "2183391296143294051cbfdcdbe173c22bc3760376a60c7e7e281682e387be94"
+    },
+    {
+      "path": "review-logs/check-assembly.log",
+      "sha256": "a6b71e5ac6430ecb6b3ea79121d8726a24c03024d708a225be59634e925bd01a"
+    },
+    {
+      "path": "review-logs/check-assembly_native.log",
+      "sha256": "253643a90f0dbe4ab49229f1d63a7d194638e854669063ce30c44f73a9a855b8"
+    },
+    {
+      "path": "review-logs/check-contract.log",
+      "sha256": "bbf3ff519a3bb37f7137113d7275797786ea2079c8e54fca07f0f948c381d3a8"
+    },
+    {
+      "path": "review-logs/check-native.log",
+      "sha256": "763f706cfe6b4a8fe7645cdde000292ed4dca22dfb4268c86f2148f71af6076d"
+    },
+    {
+      "path": "review-logs/check-package.log",
+      "sha256": "5192f5d5fdc06297b2135f4359097570a9cc1d7bf88652a4891e508f446aa8b2"
+    },
+    {
+      "path": "review-logs/check-packaged-spatial-assembly-build.log",
+      "sha256": "50e8ac0ddf9917e23c52fe26d7ce0f9566c28981f7a2f136a5c61d042f7719a1",
+      "original_sha256": "5d0602c3e229f8e744a53c9470a8409cbad7d87df449966ab0420351683ed3e9"
+    },
+    {
+      "path": "review-logs/check-packaged-spatial-assembly.log",
+      "sha256": "1543c2c4deed1ad8d6b34580a0a11235dc5393aa97d516717e86b084511607c8"
+    },
+    {
+      "path": "review-logs/check-packaged-spatial-explorer-build.log",
+      "sha256": "926d478c9ebfc2d8816b11678ce7e3c594ba15cb4d22bafabdfae190e16f45f4",
+      "original_sha256": "6063e3411954a971a900394c0610ac7f033a91e8850517198b8a190e96a2d35f"
+    },
+    {
+      "path": "review-logs/check-packaged-spatial-explorer.log",
+      "sha256": "339475a241f88b89f9ea64949b3d7fec3bf3a1107b4f2aee6d02b905dac8f305"
+    },
+    {
+      "path": "review-logs/check-packaged-spatial-world-panel-build.log",
+      "sha256": "d9aa248aeae4e3b225ae729dac4cdf64d7e1a2e970cc1666305a826912403278",
+      "original_sha256": "4321616fb7c2b66a62b12cb7961de3c78009bddef74460991e5e0aad1ba1910d"
+    },
+    {
+      "path": "review-logs/check-packaged-spatial-world-panel.log",
+      "sha256": "1b889a905f21327b7244701698c8a7d7cee83869b72c5ac386ad02cfab20602d"
+    },
+    {
+      "path": "review-logs/check-panel.log",
+      "sha256": "ff93af60e86669b072d94120e12cecee25b9b19be24ce50e186fa76cf32cebe7"
+    },
+    {
+      "path": "review-logs/check-panel_native.log",
+      "sha256": "92e81bfdc30ef70322231e60fab084e73845ca7ef039f60694ba8e84f07e78fd"
+    },
+    {
+      "path": "review-logs/check-public_assembly-build.log",
+      "sha256": "2452926edbb77a571a2874105bd9f6b415861608865f04ee80996189a1d04c9b",
+      "original_sha256": "76a1523b9b53a2dac3a6b99a1cea9b12a81d7766f891d647f31515ddec6883e8"
+    },
+    {
+      "path": "review-logs/check-public_assembly.log",
+      "sha256": "92c1d836eb2e606ecb8510049cd5887d214fec3d54b2c1a32bcec3ecadb688a3"
+    },
+    {
+      "path": "review-logs/check-public_composition-build.log",
+      "sha256": "14f84cc83db2d904c0c0f02ee19a215c84e636f039ac09ade75764eec33b1117",
+      "original_sha256": "959e628e90e3ade885d70ee294ac37441eac85648fe12b8969e2f0d9b7be5202"
+    },
+    {
+      "path": "review-logs/check-public_composition.log",
+      "sha256": "9da790564382347f8d8c6783cc8d748bf93c0711bfef3a47baad831e7426ce23"
+    },
+    {
+      "path": "review-logs/check-public_consumer-build.log",
+      "sha256": "723f9eced7234afb926f2c98d2c5d95548b44bfc8fa9156296ddbc3d9faf0e93",
+      "original_sha256": "e92628e594a8abfeddce1dbc391bf58a5f57527559653b2d4e6ef70f72661836"
+    },
+    {
+      "path": "review-logs/check-public_consumer.log",
+      "sha256": "a1bd306bf8c9289c2e5a629018778d408c429ef0fd8a596fc8310c48dbd8a0e7"
+    },
+    {
+      "path": "review-logs/check-public_panel-build.log",
+      "sha256": "9a88eaa627cb255d8f7180f63e0a0bc1fb47a6b5b297c0339a5402f57ef8bb97",
+      "original_sha256": "dee232366300081d85fe32bcea949807b143b7a5fe5cef72e7f01b3c48e8de89"
+    },
+    {
+      "path": "review-logs/check-public_panel.log",
+      "sha256": "6aad68d7e8f96b85fab902534f07b4240c79ed0558221214c17a483626120a93"
+    },
+    {
+      "path": "review-logs/checks.log",
+      "sha256": "8073f0f4641f1e8dd07842bef1dd4e19d6393885aaff70f57e320a3cdc358246"
+    },
+    {
+      "path": "review-logs/replay-0.log",
+      "sha256": "e6144f1d6cab61de9a949938ca0ffb6929764dba12f428995cfc004081955b59"
+    },
+    {
+      "path": "review-logs/replay-1.log",
+      "sha256": "7e6461d07741d51451b39f32951169af577156e32cddd493cbd29020c5066167"
+    },
+    {
+      "path": "review-logs/replay-2.log",
+      "sha256": "5149d9a3c4762f1fe58c8a805240f6d4adedcdccf8d7680e96a970286c1c4269"
+    }
+  ],
+  "not_verified": [
+    "physical pointer/keyboard/IME and actual candidate placement",
+    "VoiceOver (paused), assistive-technology client and human acceptance",
+    "compositor/window visibility, scanout or input-to-photon",
+    "multi-DPI native visual quality and physical capture-loss",
+    "sustained/thermal, memory pressure or fresh-host distribution installation",
+    "full repository suite or GitHub CI",
+    "visual certification of D06/D07 packaged replay frames; assertions only",
+    "baseline image pixel/visual comparison; original PNGs unavailable"
+  ],
+  "retention": {
+    "tracked_refreshed": [
+      "README.md",
+      "manifest.json",
+      "provenance.json",
+      "timing.json"
+    ],
+    "tracked_unchanged": [
+      "decision.json"
+    ],
+    "new_untracked": [
+      "REVIEW.md",
+      "review.json",
+      "capture.py",
+      "verify.py",
+      "review-logs/"
+    ],
+    "ignored_local": [
+      "01-oblique.png",
+      "02-capture-outside.png",
+      "03-text-focus-failure.png",
+      "04-hidden-click.png",
+      "05-screen-editor.png",
+      "06-cancel-recovery.png",
+      "index.html"
+    ],
+    "ignored_binary": "dist/spatial-world-panel/panel",
+    "other_galleries_or_shared_indexes_updated": false
+  },
+  "verify_command": "python3 artifacts/demo-slideshows/spatial-world-panel/verify.py"
+}

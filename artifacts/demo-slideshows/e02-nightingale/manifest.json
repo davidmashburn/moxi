@@ -3,15 +3,15 @@
   "demo_id": "e02-nightingale",
   "title": "E02 nightingale",
   "scenario": "Equal angles with radius proportional to value: the pinned default radius mode, not area mode. Same 640\u00d7480 canvas, 48/32/28/36 margins and source values. Canvas lacks text/legend labels. Moxi retains Cartesian axes/grid even for radial marks; upstream uses its own radial/category presentation. Palette differences, arc tessellation and antialiasing remain. No physical input, native, VoiceOver or human-performance claim.",
-  "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
   "source_dirty": true,
   "source_state_path": "tests/fixtures/wave_b/source-state.json",
-  "source_state_sha256": "250840991d3d8f5bbc9682600874d62ff85bf0f1f0645d063cfcfbb0d7790289",
-  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
-  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; T3 browser evidence replay",
+  "source_state_sha256": "542af1058a86ea0e67d4146baa65f1987534042fcd54c4232c7bbcfd139cd55b",
+  "host": "macOS-27.2-arm64-arm-64bit-Mach-O",
+  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; local headless Chrome evidence replay",
   "scale": 1,
   "fixture": "tests/fixtures/wave_b/nightingale.json",
-  "reproduce": "Follow docs/plot-specialized-wave-b.md; run registry, verify, upstream, compare and evidence. Capture source/comparison/selection (and absent reference report) in T3 preview at 1280\u00d7900. Run scripts/wave_b/slideshows.py.",
+  "reproduce": "See ../plot-wave-b-c-review/REPRODUCE.md for this integrated-source batch and checks.",
   "missing_gates": [
     "contour/contourf pinned upstream output",
     "native window input/rendering",
@@ -31,7 +31,17 @@
       "caption": "Source data/schema",
       "action": "Open source.html",
       "expected": "Source fields and nontrivial stable keys",
-      "sha256": "340b7374affbc2b1c07db2e6306e181c912ebd9112f4fe74ba186f18cddc4af2"
+      "sha256": "a5d42ec24e9621d4ee6edee492ba5e99d2938c6934ce26d6a6ded3f92e9e3a82",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "initial",
@@ -57,7 +67,30 @@
       "caption": "Actual Moxi comparison with narrow assertions",
       "action": "Open comparison.html",
       "expected": "Real Canvas output and classified remaining differences",
-      "sha256": "f327870e841733169b304ea73af29693fea6b45d682a09747ff6804056b20a58"
+      "sha256": "d5f61e4e1b3494aa491b65503ee395b1de70b383beb737e765fc29bafdcf64df",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-nightingale/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-nightingale/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "interaction",
@@ -70,7 +103,24 @@
       "caption": "Source-key selection/table fallback: recorded event replay",
       "action": "Runner dispatches recorded click; open selection.html",
       "expected": "Selected key and exported source table agree",
-      "sha256": "f2ed844413848859091ea75d8ade7ccb8666621f3262a157983d3c6974a5304e"
+      "sha256": "7e4964c2dce97c34f3279f0be20406f427042a42d643ac60148415fab20a481f",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-nightingale/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "result",
@@ -111,5 +161,6 @@
       "expected": "Actual restored output equals initial Canvas pixels",
       "sha256": "eb8e3b00cf28994a7c6416caa34780390493eb5105f0f4d69aba4562088262d2"
     }
-  ]
+  ],
+  "runtime_source_sha256": "15128d0286167a9986c49ed2c0e490c606752d9a05d587719dd84433b4cea2f6"
 }

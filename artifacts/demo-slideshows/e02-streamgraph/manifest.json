@@ -3,15 +3,15 @@
   "demo_id": "e02-streamgraph",
   "title": "E02 streamgraph",
   "scenario": "Declared series order, source-order categories, centered total baseline and linear segment polygons (upstream smoothing=0). Each interval retains both rows. Same 640\u00d7480 canvas, 48/32/28/36 margins and source values. Canvas lacks text/legend labels. Moxi retains Cartesian axes/grid even for radial marks; upstream uses its own radial/category presentation. Palette differences, arc tessellation and antialiasing remain. No physical input, native, VoiceOver or human-performance claim.",
-  "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
   "source_dirty": true,
   "source_state_path": "tests/fixtures/wave_b/source-state.json",
-  "source_state_sha256": "250840991d3d8f5bbc9682600874d62ff85bf0f1f0645d063cfcfbb0d7790289",
-  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
-  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; T3 browser evidence replay",
+  "source_state_sha256": "542af1058a86ea0e67d4146baa65f1987534042fcd54c4232c7bbcfd139cd55b",
+  "host": "macOS-27.2-arm64-arm-64bit-Mach-O",
+  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; local headless Chrome evidence replay",
   "scale": 1,
   "fixture": "tests/fixtures/wave_b/streamgraph.json",
-  "reproduce": "Follow docs/plot-specialized-wave-b.md; run registry, verify, upstream, compare and evidence. Capture source/comparison/selection (and absent reference report) in T3 preview at 1280\u00d7900. Run scripts/wave_b/slideshows.py.",
+  "reproduce": "See ../plot-wave-b-c-review/REPRODUCE.md for this integrated-source batch and checks.",
   "missing_gates": [
     "contour/contourf pinned upstream output",
     "native window input/rendering",
@@ -31,7 +31,17 @@
       "caption": "Source data/schema",
       "action": "Open source.html",
       "expected": "Source fields and nontrivial stable keys",
-      "sha256": "1b9fd1a61e9a816e2b52f2accd348dd3f36a72a7aa1009a9665029d1f57c7aa1"
+      "sha256": "e6c72f581ed6a05edc35251509be45bdf170906e5658f4139683ae784c19a930",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "initial",
@@ -57,7 +67,30 @@
       "caption": "Actual Moxi comparison with narrow assertions",
       "action": "Open comparison.html",
       "expected": "Real Canvas output and classified remaining differences",
-      "sha256": "74aa8b68410cf4f4d2f6710f581e3cd2f6e7526716653968ce199f976b3efcfe"
+      "sha256": "15aaa6ab1219309ca6463c6c55da9d4cdd0af81e124973f224a8791bbf8785e3",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-streamgraph/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-streamgraph/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "interaction",
@@ -70,7 +103,24 @@
       "caption": "Source-key selection/table fallback: recorded event replay",
       "action": "Runner dispatches recorded click; open selection.html",
       "expected": "Selected key and exported source table agree",
-      "sha256": "d21872f737f4b9dfa0b376aeea71d6ea783ea314b2651888fb27c909735847a1"
+      "sha256": "74b9f9def2ae0e4e5e14526a311674e8611e640291bcf400e39ac06053326b82",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-streamgraph/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "result",
@@ -111,5 +161,6 @@
       "expected": "Actual restored output equals initial Canvas pixels",
       "sha256": "1c09d437fb09fbc911df93a53e92d5115e5baa6ab1ba46d06896ee4fa642ee46"
     }
-  ]
+  ],
+  "runtime_source_sha256": "15128d0286167a9986c49ed2c0e490c606752d9a05d587719dd84433b4cea2f6"
 }

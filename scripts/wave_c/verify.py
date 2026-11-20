@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 """Real Mojo/Python contracts, geometry, identity, rendering, events and recovery."""
-import argparse, copy, csv, json, statistics, subprocess
+import argparse, copy, csv, hashlib, json, statistics, subprocess
 from pathlib import Path
 from PIL import Image, ImageChops
 from fixtures import CASES,ROOT,figure
 from moxi.specialized import layout,GlyphKind
+
+def runtime_source_hash():
+    paths = sorted(p for folder in ('src/moxi', 'src/moxi_plot', 'python/moxi', 'scripts/wave_c')
+                   for p in (ROOT/folder).rglob('*') if p.is_file() and p.suffix in ('.mojo', '.py'))
+    paths += [ROOT/name for name in ('tests/fixtures/wave_c/cases.json',
+              'tests/plot_specialized_c.mojo', 'docs/dataviz-capabilities.tsv', 'pixi.lock')]
+    inputs = {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+    return hashlib.sha256(json.dumps(inputs,sort_keys=True).encode()).hexdigest()
 
 def changed(case):
     c=copy.deepcopy(case['columns']); name=case['id']
@@ -62,6 +70,7 @@ def generate(output):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('output',type=Path);a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
+    source_hash=runtime_source_hash()
     driver=out/'driver.mojo';driver.write_text(generate(out))
     r=subprocess.run(['pixi','run','mojo','run','-I','src','-I','tests',str(driver)],cwd=ROOT,text=True,capture_output=True)
     (out/'run.log').write_text(r.stdout+r.stderr)
@@ -98,5 +107,8 @@ def main():
         assert ImageChops.difference(original,Image.open(out/(name+'-updated.png')).convert('RGB')).getbbox() is not None,name+' update'
     summary={k:dict(samples_seconds=v,n=len(v),iterations=10,median=statistics.median(v),stdev=statistics.stdev(v),excludes='Compilation, rasterization, PNG/SVG export, browser, native input') for k,v in bench.items()}
     (out/'benchmarks.json').write_text(json.dumps(summary,indent=2));(out/'selections.json').write_text(json.dumps(selections,indent=2))
+    assert source_hash == runtime_source_hash(), 'Runtime inputs changed during verification; rerun before recording evidence'
+    (out/'results.json').write_text(json.dumps(dict(runtime_source_sha256=source_hash,
+        driver_sha256=hashlib.sha256(driver.read_bytes()).hexdigest(), case_count=len(CASES)),indent=2)+'\n')
     print('12 Wave C geometry/source-key/contract/Scene/Canvas/event/update/recovery cases passed; '+str(out/'run.log'))
 if __name__=='__main__':main()

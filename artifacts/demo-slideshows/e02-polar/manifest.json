@@ -3,15 +3,15 @@
   "demo_id": "e02-polar",
   "title": "E02 polar",
   "scenario": "Clockwise radians, connected source points and shared radius maximum. Float projection versus upstream integer-rounded circle centers. Same 640\u00d7480 canvas, 48/32/28/36 margins and source values. Canvas lacks text/legend labels. Moxi retains Cartesian axes/grid even for radial marks; upstream uses its own radial/category presentation. Palette differences, arc tessellation and antialiasing remain. No physical input, native, VoiceOver or human-performance claim.",
-  "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
   "source_dirty": true,
   "source_state_path": "tests/fixtures/wave_b/source-state.json",
-  "source_state_sha256": "250840991d3d8f5bbc9682600874d62ff85bf0f1f0645d063cfcfbb0d7790289",
-  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
-  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; T3 browser evidence replay",
+  "source_state_sha256": "542af1058a86ea0e67d4146baa65f1987534042fcd54c4232c7bbcfd139cd55b",
+  "host": "macOS-27.2-arm64-arm-64bit-Mach-O",
+  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; local headless Chrome evidence replay",
   "scale": 1,
   "fixture": "tests/fixtures/wave_b/polar.json",
-  "reproduce": "Follow docs/plot-specialized-wave-b.md; run registry, verify, upstream, compare and evidence. Capture source/comparison/selection (and absent reference report) in T3 preview at 1280\u00d7900. Run scripts/wave_b/slideshows.py.",
+  "reproduce": "See ../plot-wave-b-c-review/REPRODUCE.md for this integrated-source batch and checks.",
   "missing_gates": [
     "contour/contourf pinned upstream output",
     "native window input/rendering",
@@ -31,7 +31,17 @@
       "caption": "Source data/schema",
       "action": "Open source.html",
       "expected": "Source fields and nontrivial stable keys",
-      "sha256": "083a396746a5820af72cbc60a61445bdb7a0522080f4fb0056c7d98bd5fb3fa6"
+      "sha256": "eab2f2a125d47678ce5eec0001bdc6f41186e21c30f35315a6bdc38975d27e9c",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "initial",
@@ -57,7 +67,30 @@
       "caption": "Actual Moxi comparison with narrow assertions",
       "action": "Open comparison.html",
       "expected": "Real Canvas output and classified remaining differences",
-      "sha256": "5bb097e2c8efb67f861e89bd40844c4b37748724b25a1774fd5b71367f0de9f8"
+      "sha256": "26620a8d0d642fc12be220f0439218f13b405e6c9329d2dcfdd38ae44b59f4e6",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-polar/02-reference.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          },
+          {
+            "src": "/e02-polar/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "interaction",
@@ -70,7 +103,24 @@
       "caption": "Source-key selection/table fallback: recorded event replay",
       "action": "Runner dispatches recorded click; open selection.html",
       "expected": "Selected key and exported source table agree",
-      "sha256": "fd29e45951279b9e004768ade498f0ea85bd002aedaa9322d17e2085b9730b3e"
+      "sha256": "1394a1214cd1d7f47fc38f301d20c79badd9a853e21b41fbef35b445975bdb52",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-polar/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "result",
@@ -111,5 +161,6 @@
       "expected": "Actual restored output equals initial Canvas pixels",
       "sha256": "c455688a7757de0b0b3b3c1d28163e6e5095bed0f65fe3b966ac4d946bc1ace5"
     }
-  ]
+  ],
+  "runtime_source_sha256": "15128d0286167a9986c49ed2c0e490c606752d9a05d587719dd84433b4cea2f6"
 }

@@ -3,15 +3,15 @@
   "demo_id": "e02-contour",
   "title": "E02 contour",
   "scenario": "No contour API exists at the pinned upstream revision. Moxi uses real fixed-diagonal piecewise-linear grid isolines, seven interior levels; no upstream parity claim. Same 640\u00d7480 canvas, 48/32/28/36 margins and source values. Canvas lacks text/legend labels. Moxi retains Cartesian axes/grid even for radial marks; upstream uses its own radial/category presentation. Palette differences, arc tessellation and antialiasing remain. No physical input, native, VoiceOver or human-performance claim.",
-  "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
   "source_dirty": true,
   "source_state_path": "tests/fixtures/wave_b/source-state.json",
-  "source_state_sha256": "250840991d3d8f5bbc9682600874d62ff85bf0f1f0645d063cfcfbb0d7790289",
-  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
-  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; T3 browser evidence replay",
+  "source_state_sha256": "542af1058a86ea0e67d4146baa65f1987534042fcd54c4232c7bbcfd139cd55b",
+  "host": "macOS-27.2-arm64-arm-64bit-Mach-O",
+  "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; local headless Chrome evidence replay",
   "scale": 1,
   "fixture": "tests/fixtures/wave_b/contour.json",
-  "reproduce": "Follow docs/plot-specialized-wave-b.md; run registry, verify, upstream, compare and evidence. Capture source/comparison/selection (and absent reference report) in T3 preview at 1280\u00d7900. Run scripts/wave_b/slideshows.py.",
+  "reproduce": "See ../plot-wave-b-c-review/REPRODUCE.md for this integrated-source batch and checks.",
   "missing_gates": [
     "contour/contourf pinned upstream output",
     "native window input/rendering",
@@ -31,7 +31,17 @@
       "caption": "Source data/schema",
       "action": "Open source.html",
       "expected": "Source fields and nontrivial stable keys",
-      "sha256": "f9fb8414d417953fa8aace10b9572d9b8c08c8e567a5be7eeec77ce7a6cf7c31"
+      "sha256": "c4481f1d54870fb977255294f808d03f871b45096588035a74a962ff9d25c606",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "initial",
@@ -44,7 +54,17 @@
       "caption": "Missing pinned upstream API: primary-source evidence",
       "action": "Open reference-gap.html",
       "expected": "Explicit absence; no substitute chart",
-      "sha256": "c334728f15be98d8053e557b372273215375e194067eebcd3ca5120207df231d"
+      "sha256": "fe288a83d22b54f8c4f2efaae1067b43cc9469c8261ee17dec00410311270d11",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "result",
@@ -57,7 +77,24 @@
       "caption": "Actual Moxi comparison with narrow assertions",
       "action": "Open comparison.html",
       "expected": "Real Canvas output and classified remaining differences",
-      "sha256": "36449c79b9368f1ac5746b6ad5f9966946dbd5523b11496249561f92ca3d7997"
+      "sha256": "925b5ee69dce3af2d9fb6d3b0c65f37ae52332a5465671f939ffd07d65563dc5",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-contour/moxi.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "interaction",
@@ -70,7 +107,24 @@
       "caption": "Source-key selection/table fallback: recorded event replay",
       "action": "Runner dispatches recorded click; open selection.html",
       "expected": "Selected key and exported source table agree",
-      "sha256": "72f01f68f80b778ff4dfa7fb6d9be27fdfece8f6edb5c1679d46b36b3e229b89"
+      "sha256": "6b0a027c824ec0f6d8fa9aad7b723d1a2c8062276d7229e11fc49e6d043e5052",
+      "browser_metrics": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": [
+          {
+            "src": "/e02-contour/selected.png",
+            "complete": true,
+            "naturalWidth": 640,
+            "naturalHeight": 480
+          }
+        ]
+      },
+      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
     },
     {
       "phase": "result",
@@ -111,5 +165,6 @@
       "expected": "Actual restored output equals initial Canvas pixels",
       "sha256": "780a611495bcde767329d0a0c7eabb2f0e296eb80a19085d04b8b4c1b9cc2e27"
     }
-  ]
+  ],
+  "runtime_source_sha256": "15128d0286167a9986c49ed2c0e490c606752d9a05d587719dd84433b4cea2f6"
 }

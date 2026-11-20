@@ -1,0 +1,245 @@
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:863:28: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_title = title.as_c_string_slice()
+                      ~~~~~^~~~~~~~~~~~~~~~~~
+                            as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:277:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:338:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:380:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:382:40: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_composition = composition.as_c_string_slice()
+                            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+                                        as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:418:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:460:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:484:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:531:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:578:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:744:30: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+            var c_text = text.as_c_string_slice()
+                         ~~~~^~~~~~~~~~~~~~~~~~
+                              as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:100:28: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_label = label.as_c_string_slice()
+                      ~~~~~^~~~~~~~~~~~~~~~~~
+                            as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:101:28: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_value = value.as_c_string_slice()
+                      ~~~~~^~~~~~~~~~~~~~~~~~
+                            as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:102:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_hint = hint.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:10:
+Imported from src/moxi/native_frame.mojo:12:
+src/moxi/native_paragraph.mojo:36:30: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_source = source.as_c_string_slice()
+                       ~~~~~~^~~~~~~~~~~~~~~~~~
+                              as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:10:
+Imported from src/moxi/native_frame.mojo:12:
+src/moxi/native_paragraph.mojo:50:30: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_source = source.as_c_string_slice()
+                       ~~~~~~^~~~~~~~~~~~~~~~~~
+                              as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-explorer/main.mojo:6:
+Imported from src/moxi/native_instance.mojo:9:
+src/moxi/native_window.mojo:299:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+ld: warning: object file (<temporary-root>/T/mojo_archive-f4b3f09.a) was built for newer 'macOS' version (27.2) than being linked (27.0)
+Built dist/spatial-explorer/explorer and dist/MoxiSpatial.app
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:863:28: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_title = title.as_c_string_slice()
+                      ~~~~~^~~~~~~~~~~~~~~~~~
+                            as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:744:30: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+            var c_text = text.as_c_string_slice()
+                         ~~~~^~~~~~~~~~~~~~~~~~
+                              as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:277:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:338:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:380:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:382:40: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_composition = composition.as_c_string_slice()
+                            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+                                        as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:418:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:460:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:484:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:531:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:578:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:9:
+Imported from src/moxi/native_instance.mojo:10:
+Imported from src/moxi/native_frame.mojo:12:
+src/moxi/native_paragraph.mojo:36:30: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_source = source.as_c_string_slice()
+                       ~~~~~~^~~~~~~~~~~~~~~~~~
+                              as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:9:
+Imported from src/moxi/native_instance.mojo:10:
+Imported from src/moxi/native_frame.mojo:12:
+src/moxi/native_paragraph.mojo:50:30: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_source = source.as_c_string_slice()
+                       ~~~~~~^~~~~~~~~~~~~~~~~~
+                              as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:100:28: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_label = label.as_c_string_slice()
+                      ~~~~~^~~~~~~~~~~~~~~~~~
+                            as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:101:28: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_value = value.as_c_string_slice()
+                      ~~~~~^~~~~~~~~~~~~~~~~~
+                            as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:102:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_hint = hint.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+Imported from <capture-checkout>/examples/spatial-world-panel/main.mojo:8:
+Imported from src/moxi/macos.mojo:10:
+src/moxi/native_window.mojo:299:26: warning: 'as_c_string_slice' is deprecated, use 'as_c_string_span' instead
+        var c_text = text.as_c_string_slice()
+                     ~~~~^~~~~~~~~~~~~~~~~~
+                          as_c_string_span
+<unknown>:0: note: 'as_c_string_slice' declared here
+ld: warning: object file (<temporary-root>/T/mojo_archive-5e7cc11.a) was built for newer 'macOS' version (27.2) than being linked (27.0)

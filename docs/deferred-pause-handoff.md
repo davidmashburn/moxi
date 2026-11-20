@@ -51,7 +51,19 @@ Separate local replays at `d7fa3ed` produced 20 [mindmap frames](../artifacts/de
 and 14 [spatial assembly frames](../artifacts/demo-slideshows/spatial-assembly/validation.json).
 Frame hashes and source provenance passed for both galleries. Visual review
 recorded four partial outcomes in the mindmap and three in spatial assembly.
-Gallery review for E02, E03, E04 and D08, physical input/IME/chooser
+The [D08 review](../artifacts/demo-slideshows/spatial-world-panel/REVIEW.md)
+verified six offscreen frames. Four scenarios passed and two text-input
+scenarios had partial visual outcomes. World-panel promotion remains rejected.
+The [E04 review](../artifacts/demo-slideshows/e04-python-native/REVIEW.md)
+verified five frames and eight exports from the installed native extension and
+comparison facade. Three scenarios passed. Renderer comparison and
+packaging/timing had partial outcomes; raster text, vector PDF and fresh-host
+distribution remain open.
+The [E02/E03 review](../artifacts/demo-slideshows/plot-wave-b-c-review/RESULTS.md)
+covers 26 plot families and 170 slideshow frames. All families passed the
+tested geometry, source-key and event checks. Of 156 scenarios, 114 passed,
+36 were partial and six lacked upstream references for comparison.
+Physical input/IME/chooser
 interaction, independent usability/scientific acceptance, broader hosts and
 runtime redistribution remain open. VoiceOver remains paused. The separate
 `moxi-sws` app is outside this Moxi push and CI run. The original local SDK/WASM

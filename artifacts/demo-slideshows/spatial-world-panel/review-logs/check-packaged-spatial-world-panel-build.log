@@ -1,0 +1,1 @@
+ld: warning: object file (<temporary-root>/T/mojo_archive-7b9a739.a) was built for newer 'macOS' version (27.2) than being linked (27.0)

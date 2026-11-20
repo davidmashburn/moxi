@@ -1,0 +1,184 @@
+[
+  {
+    "demo_id": "e02-beeswarm",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-contour",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-contourf",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-donut",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-gauge",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-nightingale",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-pie",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-polar",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-polar-bar",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-radar",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-radialbar",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-ridgeline",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-streamgraph",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e02-violin",
+    "revision": "aa64f9a41af2ebe011e1dfa77d25015853459cfa",
+    "source_dirty": true,
+    "slides": 7,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-barbs",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-calendar-heatmap",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-chord",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-corrplot",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-graph",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-marimekko",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-punchcard",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-sankey",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-sunburst",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-tree",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-treemap",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  },
+  {
+    "demo_id": "e03-tricontour",
+    "revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+    "source_dirty": true,
+    "slides": 6,
+    "old_pngs_present": 0
+  }
+]
