@@ -42,16 +42,16 @@
       "signature": {
         "metric_lines": [
           "Moxi benchmark average operations/frame:  176.0",
-          "Moxi benchmark rasterized pixels/frame:  179558",
+          "Moxi benchmark rasterized pixels/frame:  182810",
           "Moxi paint benchmark commands:  42",
           "Moxi retained pipeline benchmark passes:  100",
-          "Moxi scene benchmark checksum:  334525300",
+          "Moxi scene benchmark checksum:  337221208",
           "Moxi variable virtual benchmark visible:  107 .. 130",
           "Moxi variable virtual retained slots:  24",
           "Moxi virtual benchmark visible:  48 .. 69"
         ],
         "checksums": [
-          "334525300"
+          "337221208"
         ]
       }
     },

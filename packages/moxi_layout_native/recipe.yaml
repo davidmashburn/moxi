@@ -10,6 +10,12 @@ source:
     target_directory: native
   - path: ../../native/macos_paragraph.h
     target_directory: native
+  - path: ../../native/macos_window_state.h
+    target_directory: native
+  - path: ../../native/macos_composition.inc
+    target_directory: native
+  - path: ../../native/macos_composition.h
+    target_directory: native
   - path: ../../experiments/layout-kiwi/src/bridge.cpp
     target_directory: kiwi_bridge
   - path: ../../experiments/layout-kiwi/include/layout_kiwi.h

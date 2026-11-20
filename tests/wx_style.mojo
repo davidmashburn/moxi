@@ -66,8 +66,10 @@ def main() raises:
     var actions = app.view.bounds_for(WX_ACTIONS_ID)
     var help = app.view.bounds_for(WX_HELP_ID)
     var component = app.view.bounds_for(WX_COMPONENT_SLOT_ID)
-    test_check(details.y + details.height <= actions.y)
-    test_check(actions.y + actions.height <= help.y)
+    var body = app.view.bounds_for(WX_BODY_ID)
+    test_check(body.y + body.height <= actions.y)
+    test_check(actions.y + actions.height <= details.y)
+    test_check(details.y + details.height <= help.y)
     test_check(help.y + help.height <= component.y)
     test_check(app.focus_id() == WX_NAME_FIELD_ID)
 
