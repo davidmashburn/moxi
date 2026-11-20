@@ -1,0 +1,369 @@
+{
+  "base_revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
+  "verified_at": "2026-11-20T22:16:23.372065+00:00",
+  "worktree": ".",
+  "scope": "D04/D07 gallery capture and evidence only. Application, capture recipes, master gallery, planning branch and original candidates were not edited. No commits, pushes, shared-system writes or delegated workers.",
+  "result": "Capture/provenance/schema checks pass; visual review has explicit partial outcomes. This does not promote native/human/performance acceptance gates.",
+  "confidence": {
+    "level": "high for exact-source capture provenance and the recorded pixel observations",
+    "would_change_conclusion": [
+      "Any source, manifest, PNG or executable hash mismatch",
+      "A new capture after implementation changes",
+      "Physical/human acceptance evidence for the currently unverified gates"
+    ]
+  },
+  "environment": {
+    "observed_at": "2026-11-20T22:12:14.450710+00:00",
+    "macos": "27.2",
+    "architecture": "arm64",
+    "mojo": "Mojo 1.1.0 (8189361e)",
+    "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "sdk": "27.0",
+    "pixi": "pixi 0.81.0",
+    "host": "native AppKit local process",
+    "browser": "not used; direct PNG inspection with contact sheets and selected full-resolution frames",
+    "viewport_points": [
+      1200,
+      790
+    ],
+    "capture_pixels": [
+      2400,
+      1580
+    ],
+    "backing_scale": 2,
+    "fixture": "4 objects; 3 hierarchy levels; 18,240 shared expanded vertices; 583,680 GPU geometry bytes; source SHA-256 5b9103208c63407ae06ea7a887f41ee2218bd84370a9a9144801fdce39b3cf09; uncommitted scoped source: False",
+    "capture_window_utc": [
+      "2026-11-20T22:09:43.982808+00:00",
+      "2026-11-20T22:09:46.405178+00:00"
+    ]
+  },
+  "source_state": "clean reviewed implementation; only evidence files are new/modified",
+  "source_verification": {
+    "resolved_frames": 14,
+    "images": [
+      "01-initial.png",
+      "02-linked-views.png",
+      "03-hierarchy-preview.png",
+      "04-transform-commit.png",
+      "05-measurement.png",
+      "06-clipping.png",
+      "07-plane-moved.png",
+      "08-clip-undo.png",
+      "09-cancel-preview.png",
+      "10-cancelled.png",
+      "11-numeric.png",
+      "12-stale-rejected.png",
+      "13-right-disposed.png",
+      "14-recovered.png"
+    ],
+    "unreferenced_pngs": [],
+    "recorded_source_files": 153,
+    "supplemental_source_sha256": {
+      "native/macos_live_editor.inc": "bb24f5fa57d9f2591b2b39f2de67a56e186dee01a98b9543a124f63c7560672c",
+      "native/macos_source_editor.inc": "7a28f5564d6f8a41254bcaf40325b15809bc3bedbd5c9db9ff9738390831721c"
+    },
+    "sources_equal_reviewed_git_blobs": 155,
+    "executable_sha256": "0795e66fe854720f6818cc62eee2d338224808cae5b1d6b217ec520564ab440c",
+    "recorded_source_aggregate_sha256": "5b9103208c63407ae06ea7a887f41ee2218bd84370a9a9144801fdce39b3cf09",
+    "native_include_snapshot_before_capture": "2026-11-20T22:08:33.835721+00:00",
+    "native_includes_unchanged_after_replay": true
+  },
+  "manifest_sha256": "10344b9d817fa348478927afbe400bbc35ee006b2deda69c68c0489f61bfcb50",
+  "original_candidate": {
+    "revision": "bb4eaf944c7aa3bcac2cc61ee37ed99b1e4f2487",
+    "slides": 14,
+    "capture_kinds": [
+      "offscreen-render"
+    ],
+    "source_count": 147,
+    "source_mismatch": [
+      "examples/spatial-assembly/gallery.py",
+      "native/macos_composition.h",
+      "native/macos_composition.inc",
+      "native/macos_metal.m",
+      "native/macos_window.m",
+      "native/macos_window_state.h",
+      "native/spatial/api.cpp",
+      "native/spatial/api.h",
+      "native/spatial/renderer.h",
+      "native/spatial/renderer.m",
+      "pixi.toml",
+      "src/moxi/__init__.mojo",
+      "src/moxi/capability_walkthrough.mojo",
+      "src/moxi/column_runtime.mojo",
+      "src/moxi/event.mojo",
+      "src/moxi/fractal.mojo",
+      "src/moxi/interaction_showcase.mojo",
+      "src/moxi/live_script.mojo",
+      "src/moxi/macos.mojo",
+      "src/moxi/native_window.mojo",
+      "src/moxi/scenarios.mojo",
+      "src/moxi/scene_path.mojo",
+      "src/moxi/wxstyle.mojo",
+      "src/moxi_spatial/__init__.mojo"
+    ],
+    "missing_images": [
+      "01-initial.png",
+      "02-linked-views.png",
+      "03-hierarchy-preview.png",
+      "04-transform-commit.png",
+      "05-measurement.png",
+      "06-clipping.png",
+      "07-plane-moved.png",
+      "08-clip-undo.png",
+      "09-cancel-preview.png",
+      "10-cancelled.png",
+      "11-numeric.png",
+      "12-stale-rejected.png",
+      "13-right-disposed.png",
+      "14-recovered.png"
+    ],
+    "manifest_sha256": "6fcb10736f1398e3de02010d26a67e0d6f62a25ed49cf8dfdf7abf0c3a18fb1f",
+    "original_root": "original candidate checkout",
+    "original_metadata_sha256": {
+      "artifacts/demo-slideshows/spatial-assembly/manifest.json": "6fcb10736f1398e3de02010d26a67e0d6f62a25ed49cf8dfdf7abf0c3a18fb1f",
+      "artifacts/demo-slideshows/spatial-assembly/provenance.json": "0b75ad6d1946524ac1f5e15984962cc059ef1b5bb9ea3e6d8b303308487f888d",
+      "artifacts/demo-slideshows/spatial-assembly/timing.json": "9f16bc76a08d9f6465bc76074ce80c434310d43d67d49d23dce62af887da7eb9",
+      "artifacts/demo-slideshows/spatial-assembly/validation.json": "f08141e5d8ac15aa127a0362e64413cefa0fc82663500c3447faf1b130afcf95"
+    },
+    "originals_unchanged": true,
+    "disposition": "Read-only audit; stale source fingerprints and absent PNGs prevent certification of original candidate. Regenerated in the isolated checkout."
+  },
+  "commands": [
+    {
+      "command": "python3 examples/spatial-assembly/gallery.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/demo_slideshows.py /tmp/moxi-d04-d07-d7fa3ed-evidence/galleries --check",
+      "exit_code": 0,
+      "result": "Validated 2 demo slideshow manifests; scoped root has only mindmap and spatial-assembly symlinks."
+    },
+    {
+      "command": "python3 artifacts/demo-slideshows/check_d04_d07.py --revision d7fa3ed",
+      "exit_code": 0,
+      "result": "34/34 distinct referenced PNGs resolve with matching dimensions and SHA-256; exact recorded source inventories and supplemental includes match reviewed Git blobs."
+    }
+  ],
+  "checker_negative_cases": {
+    "missing_frame": "rejected",
+    "wrong_png_hash": "rejected",
+    "wrong_source_hash": "rejected",
+    "initial_harness_limit": "An initial symlink-based temporary fixture was correctly rejected by gallery path containment; the hash cases were rerun with copied PNGs. No captured files were mutated.",
+    "initial_harness_log": "/tmp/moxi-d04-d07-d7fa3ed-evidence/checker-negative-first-attempt.log"
+  },
+  "gallery_html": {
+    "path": "index.html",
+    "sha256": "c068eecb6edf40244b252577d1a03eeed363d21df397942103783eeaed01cab2",
+    "generated_by": "Existing schema-v1 renderer during the successful gallery recipe; native frame outcomes inspected directly. Browser slideshow navigation was not exercised."
+  },
+  "visual_review": {
+    "reviewer": "implementation agent; not independent human acceptance",
+    "method": "Every manifest frame inspected in labeled 2x2 contact sheets; mixed editor and semantic/pointer previews also inspected at original resolution. Each observation is separate from replay assertion evidence.",
+    "partial_frames": [
+      "07-plane-moved.png",
+      "08-clip-undo.png",
+      "09-cancel-preview.png"
+    ],
+    "frames": [
+      {
+        "image": "01-initial.png",
+        "sha256": "a0010d9f3020a874bdb59680f1ae5307ca87c0188b4693c684ca3fca00b8eea4",
+        "steps": "Launch the assembly inspector",
+        "expected": "Four stable IDs, a three-level hierarchy, perspective and orthographic targets sharing one geometry buffer",
+        "observed": "Four hierarchy rows and colored objects are visible in distinct perspective and orthographic views.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay checks one shared geometry buffer and distinct targets; pixels alone do not prove buffer sharing."
+      },
+      {
+        "image": "02-linked-views.png",
+        "sha256": "8d62926af5d4aabc39fa5e5f1787e7d8f7dd6b7f81f30495a48ef8135cbc4768",
+        "steps": "Orbit only the perspective view",
+        "expected": "Right camera revision remains unchanged; both views retain the same document and geometry",
+        "observed": "Perspective orientation changes while the orthographic composition stays fixed; camera labels change only on the left.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay additionally checks the right camera revision and upload count."
+      },
+      {
+        "image": "03-hierarchy-preview.png",
+        "sha256": "bc66292cd2a42bd5bb0a914b99633ae8b065aec5e654384c952e9f258d581b86",
+        "steps": "Select Arm in the hierarchy; drag its X handle in the right view",
+        "expected": "Arm and Joint move together in both views; history remains unchanged",
+        "observed": "Arm is selected and Arm/Joint shift together in both views with an X handle. History remains 1 on screen.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay checks unchanged history and equal child world-X preview across views."
+      },
+      {
+        "image": "04-transform-commit.png",
+        "sha256": "4fa831e87e197bb9d23585b61808298b9b28889cfbb42ca6b05c6a6b60aed92b",
+        "steps": "Release the Arm drag",
+        "expected": "One history entry; child local coordinates account for parent scale and Joint follows the composed transform",
+        "observed": "Arm/Joint positions remain after release; document/history labels advance once to doc 3 / history 2.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay asserts exactly one history increment."
+      },
+      {
+        "image": "05-measurement.png",
+        "sha256": "191180aa4566c4b5be6ea3d3331b1e4485ab06e877bce4a2844074b25d4b767d",
+        "steps": "Pick Carrier in perspective and Arm in orthographic",
+        "expected": "Two local surface anchors produce the same world distance and cyan segment in both views",
+        "observed": "Cyan segment and endpoints appear in both views; probe label reads 1.783 world units.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay checks positive equal cross-view distances. No external scientific accuracy or unit calibration is established."
+      },
+      {
+        "image": "06-clipping.png",
+        "sha256": "4e979528081d8e3ccc60c1a3b00ddd46b87ef4b435c8333a9c79727b1dc94496",
+        "steps": "Enable the X >= 0 plane",
+        "expected": "Both targets omit the same half-space; clipped triangles also drive picking; no cap surface",
+        "observed": "Purple clipping outline appears; the negative-X objects disappear in both views, with enabled X >= 0 controls.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Rendering is visible; the caption claim about picking/occlusion uses the shared implementation, not a separate picking assertion at this step."
+      },
+      {
+        "image": "07-plane-moved.png",
+        "sha256": "251c1c07aec466088899cdcc8aaae361ecc53895f078c01f77295da92081bbd4",
+        "steps": "Advance the plane offset by 0.25",
+        "expected": "Both views update from one derived geometry rebuild/upload",
+        "observed": "Clipping control shows offset 0.25 and outlines shift in both views. The explanatory status still says Retain X >= 0.",
+        "outcome": "partial",
+        "limits_or_assertion_evidence": "Geometry/offset outcome is visible; status prose is stale. No cap surface is generated."
+      },
+      {
+        "image": "08-clip-undo.png",
+        "sha256": "83591c1ac22f12727ec4f748f30d043a40ba14346bde31a1ea57389efecc70e5",
+        "steps": "Undo both the offset edit and enabling the plane",
+        "expected": "Unclipped geometry returns in both views",
+        "observed": "All four objects return in both views and clipping controls read disabled / offset 0. The explanatory status still says Retain X >= 0.",
+        "outcome": "partial",
+        "limits_or_assertion_evidence": "Replay checks clipping is disabled; stale status prose contradicts that state."
+      },
+      {
+        "image": "09-cancel-preview.png",
+        "sha256": "10480b57d39040cc5ef5f01c0f0d3b29e110b994acd737db5b4d3c7a727028d1",
+        "steps": "Drag the Arm X handle again",
+        "expected": "Both views display a shared preview before commit",
+        "observed": "Arm/Joint shift in both views, probe distance changes to 2.223, and history stays 2. The clipping status remains stale.",
+        "outcome": "partial",
+        "limits_or_assertion_evidence": "This is an uncommitted preview, not a second history entry."
+      },
+      {
+        "image": "10-cancelled.png",
+        "sha256": "9e09e9e425a965d26093d6eddcbd4d07459358a2cf19fccd80b100ffd55f9a52",
+        "steps": "Send Escape through the native event queue",
+        "expected": "Committed transforms and history are restored in both views",
+        "observed": "Arm/Joint return to the prior committed positions; probe distance returns to 1.783 and history remains 2.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay explicitly checks unchanged history and descendant transform after synthetic native Escape."
+      },
+      {
+        "image": "11-numeric.png",
+        "sha256": "debcfe9ccc9010141041303ba2c0d8f7306fd4f27992b4580a64c41b661a1c62",
+        "steps": "Enter 0.25 via the native text callback, press Enter then Escape",
+        "expected": "Same public operation validator and shared history as pointer manipulation",
+        "observed": "Numeric field shows 0.25; Arm/Joint shift and history advances to 3, with distance 2.011.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay checks one commit through the native text callback; no physical keyboard or IME exercise."
+      },
+      {
+        "image": "12-stale-rejected.png",
+        "sha256": "80f28dddd45ba08e99a5264ed18fa7f2b6773a8115a7209f3793138300a23f2c",
+        "steps": "Undo numeric edit; request a delayed mesh, supersede it and poll its old completion",
+        "expected": "Old completion is rejected; both views retain the last accepted mesh while the latest work remains pending",
+        "observed": "Both views retain rendered objects and status reports old worker completion rejection.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Rejection counter is asserted by replay; the screenshot alone cannot prove which completion was rejected or pending-worker ownership."
+      },
+      {
+        "image": "13-right-disposed.png",
+        "sha256": "a4ed45976dec1c14df7147356f026be0d9fa6957197f751c1720de4579ae0e32",
+        "steps": "Dispose the right view",
+        "expected": "Right image is removed; left target, document and GPU geometry remain usable",
+        "observed": "Right target shows View disposed / unavailable and Recreate to recover; left remains rendered and usable.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay checks left READY after disposal. Latest synthetic slow geometry has settled before this frame."
+      },
+      {
+        "image": "14-recovered.png",
+        "sha256": "24cf533e0b89d3bb3113550f0ece20585d073a3e3f95f78f247f1bbb7c00b4d6",
+        "steps": "Recreate under its existing owner",
+        "expected": "New right target consumes the surviving GPU geometry without another upload",
+        "observed": "Right view is rendered again next to the surviving left view; shared-upload count stays 11 across disposal/recreation.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay checks identical surviving geometry ID and no additional upload, beyond the pixels."
+      }
+    ],
+    "contact_sheets": [
+      {
+        "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/spatial-assembly-01-04.png",
+        "sha256": "0ab7873ebea0d064be0589576b6d6487bcb650bf436baec03c857c98469b1c7b"
+      },
+      {
+        "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/spatial-assembly-05-08.png",
+        "sha256": "044565865f346a204d78a9396f1f5df93e4f76f1880d0a6dcf047795311c6078"
+      },
+      {
+        "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/spatial-assembly-09-12.png",
+        "sha256": "486d3e452c681f703b68511db6b246f50306259f1e61b1406a119348c2edb4b6"
+      },
+      {
+        "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/spatial-assembly-13-14.png",
+        "sha256": "d1f4648b29a4b80405a73dd50808c1180d71da9f0fdd2a9331734d7a84a5bbb7"
+      }
+    ]
+  },
+  "local_attachments": [
+    {
+      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/d07-gallery.log",
+      "sha256": "fe6502ec9eda8f41fc1cf20722e11f4e8b0d8c1246ac74679a6f6a88004ad620"
+    },
+    {
+      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/moxi-d07-gallery-build.log",
+      "sha256": "cee87c7f506ed53f5b716f2c19efae6d04453c2e208a89dcc26ef72015348178"
+    },
+    {
+      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/moxi-d07-gallery-replay.log",
+      "sha256": "0d64bdd3a0c69230d8b8e70481bad61a6ecfbdae8a47cbc5aca899a86f25783d"
+    },
+    {
+      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/checker-negative-cases.log",
+      "sha256": "7a2f2b321fb202ee767839e599b2e3a310e54d12d1600f9819890e7069e47c57"
+    },
+    {
+      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/checks.json",
+      "sha256": "335578f93aafcb33be5abc55adf47c902b204d24c0a6b5d30dd1f37c4752cddd"
+    },
+    {
+      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/original-audit.json",
+      "sha256": "ff2ee035f33089947365b62e4da10c6eeed7a1f1e4964665b07432dd187ef954"
+    },
+    {
+      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/native-includes-before.json",
+      "sha256": "9c8a0ac503bb16ab1e78da9a0004747de0519908cdf9d2f80bdaf1fd630430ea"
+    },
+    {
+      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/environment.json",
+      "sha256": "1b70a80a429fc679d1d2bb5d844b01b62f2c0d580863994dfc13cf2224a4c59c"
+    }
+  ],
+  "build_diagnostics": {
+    "result": "Build exited 0 with warnings; these are not warning-free builds.",
+    "warnings": [
+      "Deprecated as_c_string_slice",
+      "Object code built for macOS 27.2 linked against target 27.0"
+    ]
+  },
+  "unverified": [
+    "Physical pointer/keyboard, non-US input/IME, native chooser and actual OS capture loss",
+    "VoiceOver and independent human usability",
+    "Compositor/scanout, latency, allocation/GPU residency, sustained performance or thermal behavior",
+    "Other viewport sizes, hosts, browsers or fresh-machine packaging",
+    "Broad repository tests, clean packaged-consumer suites, sanitizer runs and GitHub CI",
+    "Other gallery candidates (E02/E03/E04, D08 and remaining manifest audit)"
+  ],
+  "timing_scope": "120 samples / 60 sequential view pairs, one shared 18,240-vertex / 583,680-byte geometry buffer and two targets. D04 capture overlapped this run; timing was not isolated. Timed endpoint is host-image publication, before compositor/scanout. No performance promotion.",
+  "remaining_gates": [
+    "Clipping explanatory status is stale in frames 07, 08 and 09; use offset/enabled labels and replay assertions for state.",
+    "D05 performance/production renderer gate remains OPEN; synthetic four-object geometry is not imported CAD or large-assembly acceptance."
+  ]
+}

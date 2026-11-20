@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "demo_id": "spatial-assembly",
+  "title": "D07 \u2014 native assembly inspector / S3",
+  "scenario": "Real AppKit+Metal app content, cacheDisplay offscreen-render captures. Synthetic native event queue and native text callback replay; no physical input, human, IME, VoiceOver or compositor evidence. D05 performance/production gate remains OPEN.",
+  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
+  "host": "macOS 27.2 / arm64",
+  "backend": "Moxi AppKit + shared bounded Metal geometry + public owner-scoped copied-image composition",
+  "scale": 2.0,
+  "fixture": "4 objects; 3 hierarchy levels; 18,240 shared expanded vertices; 583,680 GPU geometry bytes; source SHA-256 5b9103208c63407ae06ea7a887f41ee2218bd84370a9a9144801fdce39b3cf09; uncommitted scoped source: False",
+  "reproduce": "python3 examples/spatial-assembly/gallery.py",
+  "slides": [
+    {
+      "scenario_id": "01-initial",
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "01-initial.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "One assembly, two public views",
+      "action": "Launch the assembly inspector",
+      "expected": "Four stable IDs, a three-level hierarchy, perspective and orthographic targets sharing one geometry buffer",
+      "png_sha256": "a0010d9f3020a874bdb59680f1ae5307ca87c0188b4693c684ca3fca00b8eea4"
+    },
+    {
+      "scenario_id": "02-linked-views",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "02-linked-views.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Independent camera, shared document",
+      "action": "Orbit only the perspective view",
+      "expected": "Right camera revision remains unchanged; both views retain the same document and geometry",
+      "png_sha256": "8d62926af5d4aabc39fa5e5f1787e7d8f7dd6b7f81f30495a48ef8135cbc4768"
+    },
+    {
+      "scenario_id": "03-hierarchy-preview",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "03-hierarchy-preview.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Parent transform preview",
+      "action": "Select Arm in the hierarchy; drag its X handle in the right view",
+      "expected": "Arm and Joint move together in both views; history remains unchanged",
+      "png_sha256": "bc66292cd2a42bd5bb0a914b99633ae8b065aec5e654384c952e9f258d581b86"
+    },
+    {
+      "scenario_id": "04-transform-commit",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "04-transform-commit.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Commit hierarchy transform",
+      "action": "Release the Arm drag",
+      "expected": "One history entry; child local coordinates account for parent scale and Joint follows the composed transform",
+      "png_sha256": "4fa831e87e197bb9d23585b61808298b9b28889cfbb42ca6b05c6a6b60aed92b"
+    },
+    {
+      "scenario_id": "05-measurement",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "05-measurement.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Shared surface measurement",
+      "action": "Pick Carrier in perspective and Arm in orthographic",
+      "expected": "Two local surface anchors produce the same world distance and cyan segment in both views",
+      "png_sha256": "191180aa4566c4b5be6ea3d3331b1e4485ab06e877bce4a2844074b25d4b767d"
+    },
+    {
+      "scenario_id": "06-clipping",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "06-clipping.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Shared clipping plane",
+      "action": "Enable the X >= 0 plane",
+      "expected": "Both targets omit the same half-space; clipped triangles also drive picking; no cap surface",
+      "png_sha256": "4e979528081d8e3ccc60c1a3b00ddd46b87ef4b435c8333a9c79727b1dc94496"
+    },
+    {
+      "scenario_id": "07-plane-moved",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "07-plane-moved.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Move the clipping plane",
+      "action": "Advance the plane offset by 0.25",
+      "expected": "Both views update from one derived geometry rebuild/upload",
+      "png_sha256": "251c1c07aec466088899cdcc8aaae361ecc53895f078c01f77295da92081bbd4"
+    },
+    {
+      "scenario_id": "08-clip-undo",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "08-clip-undo.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Shared clipping undo",
+      "action": "Undo both the offset edit and enabling the plane",
+      "expected": "Unclipped geometry returns in both views",
+      "png_sha256": "83591c1ac22f12727ec4f748f30d043a40ba14346bde31a1ea57389efecc70e5"
+    },
+    {
+      "scenario_id": "09-cancel-preview",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "09-cancel-preview.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Uncommitted transform",
+      "action": "Drag the Arm X handle again",
+      "expected": "Both views display a shared preview before commit",
+      "png_sha256": "10480b57d39040cc5ef5f01c0f0d3b29e110b994acd737db5b4d3c7a727028d1"
+    },
+    {
+      "scenario_id": "10-cancelled",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "10-cancelled.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Cancel without history",
+      "action": "Send Escape through the native event queue",
+      "expected": "Committed transforms and history are restored in both views",
+      "png_sha256": "9e09e9e425a965d26093d6eddcbd4d07459358a2cf19fccd80b100ffd55f9a52"
+    },
+    {
+      "scenario_id": "11-numeric",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "11-numeric.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Native numeric input",
+      "action": "Enter 0.25 via the native text callback, press Enter then Escape",
+      "expected": "Same public operation validator and shared history as pointer manipulation",
+      "png_sha256": "debcfe9ccc9010141041303ba2c0d8f7306fd4f27992b4580a64c41b661a1c62"
+    },
+    {
+      "scenario_id": "12-stale-rejected",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "12-stale-rejected.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Stale worker result rejected",
+      "action": "Undo numeric edit; request a delayed mesh, supersede it and poll its old completion",
+      "expected": "Old completion is rejected; both views retain the last accepted mesh while the latest work remains pending",
+      "png_sha256": "80f28dddd45ba08e99a5264ed18fa7f2b6773a8115a7209f3793138300a23f2c"
+    },
+    {
+      "scenario_id": "13-right-disposed",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "13-right-disposed.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Independent view disposal",
+      "action": "Dispose the right view",
+      "expected": "Right image is removed; left target, document and GPU geometry remain usable",
+      "png_sha256": "a4ed45976dec1c14df7147356f026be0d9fa6957197f751c1720de4579ae0e32"
+    },
+    {
+      "scenario_id": "14-recovered",
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "14-recovered.png",
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "caption": "Recreate the right view",
+      "action": "Recreate under its existing owner",
+      "expected": "New right target consumes the surviving GPU geometry without another upload",
+      "png_sha256": "24cf533e0b89d3bb3113550f0ece20585d073a3e3f95f78f247f1bbb7c00b4d6"
+    }
+  ]
+}

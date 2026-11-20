@@ -1,5 +1,75 @@
 # Deferred implementation integration checkpoint
 
+## Published main verification — November 20, 2026
+
+The deferred integration is published on `main`. Its November 6 publication at
+[`b2361c2`](https://github.com/davidmashburn/moxi/tree/b2361c2d4131cb6bbc25ebf5e4816e2fe347250b)
+was followed by [CI run 42307044304](https://github.com/davidmashburn/moxi/actions/runs/42307044304):
+five jobs passed, but `package-consumer` failed with
+`native/macos_window.m:230:10: fatal error: 'macos_window_state.h' file not found`.
+The original local checkpoint below predates that publication and CI result.
+
+[CI run 44825872712](https://github.com/davidmashburn/moxi/actions/runs/44825872712) is now **completed / success**
+for exact published `main` commit
+[`d7fa3ed563948860f4baf18bcc9f3eb279197135`](https://github.com/davidmashburn/moxi/tree/d7fa3ed563948860f4baf18bcc9f3eb279197135),
+event `push`, attempt 1. Verified at `2026-11-20T22:25:38.343056+00:00` using one bounded
+`gh run watch --exit-status`, which exited 0, followed by the terminal run and
+complete job list. All six declared jobs completed successfully:
+
+| Job | Conclusion |
+| --- | --- |
+| [headless-linux](https://github.com/davidmashburn/moxi/actions/runs/44825872712/job/136598204860) | success |
+| [validate](https://github.com/davidmashburn/moxi/actions/runs/44825872712/job/136598204274) | success |
+| [package-consumer](https://github.com/davidmashburn/moxi/actions/runs/44825872712/job/136606750179) | success |
+| [retained-layout-linux](https://github.com/davidmashburn/moxi/actions/runs/44825872712/job/136598204703) | success |
+| [native-layout-linux](https://github.com/davidmashburn/moxi/actions/runs/44825872712/job/136598205562) | success |
+| [layout-candidate-macos](https://github.com/davidmashburn/moxi/actions/runs/44825872712/job/136598204797) | success |
+
+The native package inputs were repaired in
+[`9d15954`](https://github.com/davidmashburn/moxi/commit/9d15954cf5874767c223db215af929c42b244bfc),
+with the live/source editor includes added in `d7fa3ed`.
+The hosted `package-consumer` log confirms a native package build and
+`Installed native layout package consumer passed`: archives were built into a
+temporary local channel and installed into a fresh consumer environment. This
+closes the missing-header packaging blocker on this revision. `validate` also
+passed `pixi run check`, the repeated quick benchmark and its
+host-independent contract; the other job conclusions are reported separately
+above. Hosted host checks built the Android APK and iOS simulator app; direct
+Mojo/WASM packaging remains blocked by the pinned compiler target set. These
+are build/harness results, without physical mobile-device acceptance.
+
+### Aggregate coverage and remaining acceptance
+
+The [delivery ledger](deferred-implementation.json) preserves the original
+per-track checks and “full suite/CI not run” observations. Those describe the
+individual integrations; the later aggregate hosted result covers the commands
+in [this revision's workflow](https://github.com/davidmashburn/moxi/blob/d7fa3ed563948860f4baf18bcc9f3eb279197135/.github/workflows/ci.yml).
+It does not establish every experimental runtime path or new per-track coverage.
+All 50 plan states and their acceptance gates remain unchanged.
+
+Separate local replays at `d7fa3ed` produced 20 [mindmap frames](../artifacts/demo-slideshows/mindmap/validation.json)
+and 14 [spatial assembly frames](../artifacts/demo-slideshows/spatial-assembly/validation.json).
+Frame hashes and source provenance passed for both galleries. Visual review
+recorded four partial outcomes in the mindmap and three in spatial assembly.
+Gallery review for E02, E03, E04 and D08, physical input/IME/chooser
+interaction, independent usability/scientific acceptance, broader hosts and
+runtime redistribution remain open. VoiceOver remains paused. The separate
+`moxi-sws` app is outside this Moxi push and CI run. The original local SDK/WASM
+skips and worker evidence below remain historical; no full local runtime suite
+or new manual/browser acceptance was performed for this documentation
+reconciliation. Hosted results apply to `d7fa3ed` before these documentation
+edits.
+
+This reconciles the published-checkpoint and ledger context required by
+[planning section 1](https://github.com/davidmashburn/moxi/blob/2e46d93667166d077e47311277689c54d35942dc/PROJECT-PLANNING.md#1-repair-package-ci-and-reconcile-the-published-checkpoint).
+
+## Original local checkpoint — November 6, 2026
+
+The dated record below is retained as historical evidence. Its local-only,
+publication and CI statements refer to that checkpoint and are superseded by
+the published verification above. Remaining manual and per-track acceptance
+gates still apply.
+
 The started work is preserved and integrated on `feat/deferred-proposals`. The
 November 6 review found eight P2 issues; all eight now have local fixes and
 regression coverage. No push, PR, merge, package publication or production write
@@ -10,7 +80,7 @@ scope and outstanding acceptance gates. This checkpoint does not mark all plans
 complete. Original worker worktrees and ignored screenshot artifacts remain
 intact; obsolete pause details are recoverable in the previous Git revision.
 
-## Commits and review fixes
+### Commits and review fixes
 
 | Scope | Integrated/checkpoint commits | Result |
 | --- | --- | --- |
@@ -26,7 +96,7 @@ E02 `5439d4b`, E03 `bd86363`, E04 `56e4813`, D08 `9916f68`, P07 hooks
 `90ef14d`, and the app's initial `440abc2`. The app is a separate local repository;
 its code is not included by pushing the Moxi branch.
 
-## Verified locally
+### Verified locally
 
 - Plotting: 315 combined Python tests; native A/B/C contracts for 9/14/12
   families; 89 B boundaries and 91 negative/10 positive C boundaries; parser,
@@ -58,7 +128,7 @@ Local logs: `/tmp/moxi-review-full-check.log`, `/tmp/moxi-review-check-tail.log`
 `/tmp/moxi-review-native-check.log`, and `/tmp/moxi-sws-integrated-science.json`.
 These temporary logs may expire; the outcomes above are the durable record.
 
-## Remaining acceptance and publication gates
+### Remaining acceptance and publication gates
 
 1. Complete remote CI and human review before merging. The local native extension
    remains an experiment; preserving notices does not approve runtime redistribution.
@@ -77,7 +147,7 @@ These temporary logs may expire; the outcomes above are the durable record.
 5. Untouched P08–P11, E05–E06, V01–V15 and I10/I11/I13/I15/I18/I19/I20 remain
    deferred. Resume them only under a new implementation decision.
 
-## Content review and confidence
+### Content review and confidence
 
 Source changes, filenames and commit messages were reviewed before the local
 commits. The outgoing-history scan includes intermediate file versions; targeted

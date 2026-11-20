@@ -10,6 +10,12 @@
     "blocked",
     "experiment_complete"
   ],
+  "verification_context": [
+    "Per-track verification and full suite/CI not run statements retain the evidence available at each original integration. Later aggregate checks do not invent per-track coverage or change delivery states and acceptance gates.",
+    "November 6, 2026: main b2361c2d4131cb6bbc25ebf5e4816e2fe347250b was published. Push run 42307044304 had five successful jobs and a package-consumer failure for missing native/macos_window_state.h: https://github.com/davidmashburn/moxi/actions/runs/42307044304.",
+    "November 20, 2026: push run 44825872712, attempt 1, completed successfully on exact published main d7fa3ed563948860f4baf18bcc9f3eb279197135; all six workflow jobs, including package-consumer, succeeded: https://github.com/davidmashburn/moxi/actions/runs/44825872712. See deferred-pause-handoff.md#published-main-verification--november-20-2026 for job evidence and coverage limits.",
+    "Hosted aggregate success does not close manual, gallery, broader-host, scientific or redistribution gates. VoiceOver remains paused; the separate moxi-sws app is outside this Moxi push and CI run."
+  ],
   "plans": [
     {
       "id": "F01",
