@@ -14,6 +14,17 @@ and the [remaining-work list](../../PROJECT-PLANNING.md#remaining-work--november
 VoiceOver remains paused. This update reconciles existing evidence; it does not
 rerun runtime or human acceptance checks.
 
+## Browser API follow-up — November 20, 2026
+
+The [browser API usability proposal](browser-api-usability.md) defines the next
+bounded authoring improvements: separate the FDG-specific ABI from shared runtime
+support, own mounting/input/rendering/teardown in a reusable web layer, and prove
+the boundary with an existing authoring model as a second application. It is
+based on source inspection at `main` `b99d9f2`; no fresh runtime tests were run.
+Compiler portability, full text/accessibility and broader browser support remain
+separate gates. The proposal does not authorize implementation or change the
+historical acceptance evidence below.
+
 ## Original scope and dated evidence
 
 The material below preserves its original baseline, design reasoning and

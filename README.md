@@ -39,6 +39,8 @@ this reconciliation does not schedule them.
 ## Owning plans
 
 - [Example authoring migration](docs/design/example-authoring-migration.md)
+- [Browser API usability](docs/design/browser-api-usability.md) — proposed reusable
+  mount lifecycle and second-application proof; observed November 20, 2026
 - [Browser execution](docs/design/browser-execution.md),
   [server-backed views](docs/design/server-backed-views.md) and
   [Jupyter integration](docs/design/jupyter-integration.md)
