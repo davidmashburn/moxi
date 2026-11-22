@@ -848,7 +848,8 @@ struct FractalState(Component):
             panel,
             FRACTAL_SCROLL_ID,
             viewport_height,
-            4.0,
+            # Keep the overlay scrollbar on the panel beside the drawing.
+            12.0,
             10.0,
             0.0,
         )

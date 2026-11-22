@@ -166,6 +166,9 @@ def main() raises:
                 if command.kind == SCROLLBAR_KIND:
                     test_check(command.id != DEMO_STORY_PREVIEW_ID)
                     test_check(command.id != DEMO_CATEGORY_ROW_TWO_ID)
+                    if entry.id == DEMO_FRACTAL_ID and command.id == DEMO_FRACTAL_ID_OFFSET + FRACTAL_SCROLL_ID:
+                        var canvas = preview_app.component.selected_surface_bounds(preview_app.view)
+                        test_check(canvas.x + canvas.width <= command.bounds.x)
 
     # Custom scenes retain full canvas geometry but inherit every viewport
     # clip, including when wheel scrolling moves the canvas off screen.
