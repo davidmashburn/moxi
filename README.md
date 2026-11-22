@@ -34,6 +34,8 @@ this reconciliation does not schedule them.
 
 ## Owning plans
 
+- [Style, alignment and scrolling defaults](docs/design/style-layout-defaults.md)
+
 - [Example authoring migration](docs/design/example-authoring-migration.md)
 - [Browser API usability](docs/design/browser-api-usability.md) — proposed reusable
   mount lifecycle and second-application proof; observed November 20, 2026
