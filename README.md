@@ -248,6 +248,43 @@ the window and input, Cairo for drawing, and Pango for native paragraphs.
 lifecycle in full. [SPEC.md](SPEC.md) is long-term design material and
 includes ideas that are not implemented in this release.
 
+### Styling a view tree
+
+Set the application theme on the root. A container can supply a theme for
+its subtree, including children added later. The closest theme supplies
+the palette and control defaults. Each control keeps its recipe, so a
+primary button stays primary when the palette changes.
+
+For a screen built with the authoring API, pass the theme to its host. Mark
+the primary action where the button is declared.
+
+```mojo
+# In Counter.render
+ui.button("Increment", Self.increment, role=RecipeRole.primary())
+
+# In main
+var app = App(HandlerHost(Counter(), theme=light_theme()), Rect(0, 0, 320, 200))
+```
+
+Import `RecipeRole` and `light_theme` from `moxi`. The host keeps the theme
+when it rebuilds the screen. Keyed authoring scopes group control identities.
+To give a region its own palette, set a theme on its view container or mount a
+component that supplies its own theme.
+
+For a lower-level `ColumnView`, apply the theme and any local overrides directly.
+
+```mojo
+view.set_theme(light_theme())
+view.set_theme_for(sidebar_id, dark_theme())
+view.set_corner_radius(save_button_id, 8.0)
+```
+
+The radius applies only to that button. Its colors still follow the nearest
+theme. Use `set_style(id, style)` to own the entire appearance of a node,
+and `clear_theme_for(sidebar_id)` to resume inheriting the enclosing theme.
+Ordinary buttons use a neutral surface. Use `primary_button` for the action
+that should stand out.
+
 ## Attribution
 
 The capability-bus concept is credited to David Ash and was seeded from [The

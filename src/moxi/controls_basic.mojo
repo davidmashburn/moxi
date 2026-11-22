@@ -34,6 +34,7 @@ struct LabelControl(ImplicitlyCopyable):
     var text: String
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
 
     def __init__(
         out self,
@@ -45,6 +46,7 @@ struct LabelControl(ImplicitlyCopyable):
         self.text = text
         self.preferred_height = preferred_height
         self.style = default_label_style()
+        self.has_explicit_style = False
 
     def __init__(
         out self,
@@ -57,15 +59,19 @@ struct LabelControl(ImplicitlyCopyable):
         self.text = text
         self.preferred_height = preferred_height
         self.style = style
+        self.has_explicit_style = True
 
     def node(self) -> ViewNode:
-        return ViewNode(
+        var node = ViewNode(
             LABEL_KIND,
             self.id,
             self.text,
             self.preferred_height,
             self.style,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
+        return node
 
 
 struct ButtonControl(ImplicitlyCopyable):
@@ -75,6 +81,7 @@ struct ButtonControl(ImplicitlyCopyable):
     var text: String
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
     var enabled: Bool
 
     def __init__(
@@ -87,6 +94,7 @@ struct ButtonControl(ImplicitlyCopyable):
         self.text = text
         self.preferred_height = preferred_height
         self.style = default_button_style()
+        self.has_explicit_style = False
         self.enabled = True
 
     def __init__(
@@ -101,6 +109,7 @@ struct ButtonControl(ImplicitlyCopyable):
         self.text = text
         self.preferred_height = preferred_height
         self.style = style
+        self.has_explicit_style = True
         self.enabled = enabled
 
     def node(self) -> ViewNode:
@@ -111,6 +120,8 @@ struct ButtonControl(ImplicitlyCopyable):
             self.preferred_height,
             self.style,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.enabled = self.enabled
         node.semantics.enabled = self.enabled
         return node
@@ -124,6 +135,7 @@ struct CheckboxControl(ImplicitlyCopyable):
     var checked: Bool
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
     var enabled: Bool
 
     def __init__(
@@ -138,6 +150,7 @@ struct CheckboxControl(ImplicitlyCopyable):
         self.checked = checked
         self.preferred_height = preferred_height
         self.style = default_checkbox_style()
+        self.has_explicit_style = False
         self.enabled = True
 
     def __init__(
@@ -154,6 +167,7 @@ struct CheckboxControl(ImplicitlyCopyable):
         self.checked = checked
         self.preferred_height = preferred_height
         self.style = style
+        self.has_explicit_style = True
         self.enabled = enabled
 
     def node(self) -> ViewNode:
@@ -164,6 +178,8 @@ struct CheckboxControl(ImplicitlyCopyable):
             self.preferred_height,
             self.style,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.set_checked(self.checked)
         node.enabled = self.enabled
         node.semantics.enabled = self.enabled
@@ -178,6 +194,7 @@ struct ProgressControl(ImplicitlyCopyable):
     var progress: Float32
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
 
     def __init__(
         out self,
@@ -191,6 +208,7 @@ struct ProgressControl(ImplicitlyCopyable):
         self.progress = progress
         self.preferred_height = preferred_height
         self.style = default_progress_style()
+        self.has_explicit_style = False
 
     def __init__(
         out self,
@@ -205,6 +223,7 @@ struct ProgressControl(ImplicitlyCopyable):
         self.progress = progress
         self.preferred_height = preferred_height
         self.style = style
+        self.has_explicit_style = True
 
     def node(self) -> ViewNode:
         var node = ViewNode(
@@ -214,6 +233,8 @@ struct ProgressControl(ImplicitlyCopyable):
             self.preferred_height,
             self.style,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.set_progress(self.progress)
         return node
 
@@ -229,6 +250,7 @@ struct SliderControl(ImplicitlyCopyable):
     var step: Float32
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
     var enabled: Bool
 
     def __init__(
@@ -249,6 +271,7 @@ struct SliderControl(ImplicitlyCopyable):
         self.step = step if step > 0.0 else 1.0
         self.preferred_height = preferred_height
         self.style = default_slider_style()
+        self.has_explicit_style = False
         self.enabled = True
 
     def normalized(self) -> Float32:
@@ -269,6 +292,8 @@ struct SliderControl(ImplicitlyCopyable):
             self.preferred_height,
             self.style,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.set_progress(self.normalized())
         node.set_accessibility_value(String("value ", self.value))
         node.set_accessibility_value_range(self.minimum, self.maximum, self.value)
@@ -285,6 +310,7 @@ struct SwitchControl(ImplicitlyCopyable):
     var checked: Bool
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
     var enabled: Bool
 
     def __init__(
@@ -299,6 +325,7 @@ struct SwitchControl(ImplicitlyCopyable):
         self.checked = checked
         self.preferred_height = preferred_height
         self.style = default_switch_style()
+        self.has_explicit_style = False
         self.enabled = True
 
     def node(self) -> ViewNode:
@@ -309,6 +336,8 @@ struct SwitchControl(ImplicitlyCopyable):
             self.preferred_height,
             self.style,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.set_checked(self.checked)
         node.enabled = self.enabled
         node.semantics.enabled = self.enabled
@@ -324,6 +353,7 @@ struct RadioControl(ImplicitlyCopyable):
     var selected: Bool
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
     var enabled: Bool
 
     def __init__(
@@ -340,6 +370,7 @@ struct RadioControl(ImplicitlyCopyable):
         self.selected = selected
         self.preferred_height = preferred_height
         self.style = default_radio_style()
+        self.has_explicit_style = False
         self.enabled = True
 
     def node(self) -> ViewNode:
@@ -350,6 +381,8 @@ struct RadioControl(ImplicitlyCopyable):
             self.preferred_height,
             self.style,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.set_selected(self.selected)
         node.enabled = self.enabled
         node.semantics.enabled = self.enabled
@@ -365,6 +398,7 @@ struct ImageControl(ImplicitlyCopyable):
     var resource_id: Int
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
 
     def __init__(
         out self,
@@ -378,6 +412,7 @@ struct ImageControl(ImplicitlyCopyable):
         self.resource_id = resource_id
         self.preferred_height = preferred_height
         self.style = default_image_style()
+        self.has_explicit_style = False
 
     def node(self) -> ViewNode:
         var node = ViewNode(
@@ -387,6 +422,8 @@ struct ImageControl(ImplicitlyCopyable):
             self.preferred_height,
             self.style,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.set_resource_id(self.resource_id)
         return node
 

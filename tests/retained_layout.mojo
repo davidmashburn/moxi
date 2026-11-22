@@ -1,7 +1,9 @@
 """Native integration contracts for the optional retained layout adapter."""
 from moxi.retained_layout import RetainedLayout, RetainedStyle, RetainedTrack, RetainedSnapshot, RetainedPlacement, COLUMN, ROW, WRAP, GRID, STACK, LEAF, CONTENT, FIXED
 from moxi.geometry import Point, Size, Rect
-from moxi.retained_leaf import RetainedPresentation
+from moxi.retained_leaf import declare_leaf, RetainedPresentation
+from moxi.recipes import badge
+from moxi.frame import SurfaceMetrics
 from std.collections import List
 from moxi.content_layout import AxisSize, LayoutStyle, LayoutNode, LayoutTree
 from std.testing import assert_true, assert_equal, assert_almost_equal
@@ -58,6 +60,22 @@ def shared_geometry_profile() raises:
 
 
 def main() raises:
+    # Badges retain padded control geometry and do not bind a leading-aligned
+    # paragraph over their centered native text.
+    var badge_tree = RetainedLayout()
+    badge_tree.set_region(1, RetainedStyle(COLUMN, align=1))
+    var tag = badge(2, "Theme: Light", 24, True)
+    declare_leaf(badge_tree, tag, RetainedStyle(LEAF))
+    badge_tree.children(1, [2])
+    var badge_snapshot = badge_tree.layout(1, Size(320,160))
+    assert_almost_equal(badge_snapshot.bounds(2).width, tag.intrinsic_size().width)
+    assert_almost_equal(badge_snapshot.bounds(2).height, Float32(24))
+    assert_true(not badge_snapshot.output(2).has_paragraph)
+    var badge_presentation = RetainedPresentation(badge_snapshot, [tag])
+    assert_true(badge_presentation.commands[0].badge_label)
+    var badge_packet = badge_presentation.packet(SurfaceMetrics(Size(320,160)))
+    assert_true(badge_packet.commands[0].badge_label)
+    assert_equal(len(badge_packet.resources), 0)
     shared_geometry_profile()
     var tree = RetainedLayout()
     tree.set_region(1, RetainedStyle(padding=12, gap=8))

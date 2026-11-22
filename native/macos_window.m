@@ -1,4 +1,5 @@
 #import "macos_paragraph.h"
+#include "button_state.h"
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
 #include <dlfcn.h>
@@ -369,6 +370,46 @@ static NSColor *moxi_color(const float color[4]) {
                                      green:color[1]
                                       blue:color[2]
                                      alpha:color[3]];
+}
+
+static CGFloat moxi_linear_channel(CGFloat value) {
+    return value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4);
+}
+
+static NSColor *moxi_switch_knob_color(const float track[4]) {
+    CGFloat luminance = 0.2126 * moxi_linear_channel(track[0]) +
+                        0.7152 * moxi_linear_channel(track[1]) +
+                        0.0722 * moxi_linear_channel(track[2]);
+    // Choose the greater contrast ratio against the painted track.
+    return (luminance + 0.05) / 0.05 >= 1.05 / (luminance + 0.05)
+        ? NSColor.blackColor : NSColor.whiteColor;
+}
+
+static void moxi_draw_control_text(
+    NSString *text,
+    NSRect frame,
+    NSDictionary *attributes,
+    NSTextAlignment alignment
+) {
+    if (text.length == 0 || frame.size.width <= 0.0 || frame.size.height <= 0.0) {
+        return;
+    }
+    NSMutableDictionary *textAttributes = [attributes mutableCopy];
+    NSMutableParagraphStyle *paragraph = [attributes[NSParagraphStyleAttributeName] mutableCopy];
+    if (paragraph == nil) paragraph = [[NSMutableParagraphStyle alloc] init];
+    paragraph.alignment = alignment;
+    textAttributes[NSParagraphStyleAttributeName] = paragraph;
+    NSRect measured = [text boundingRectWithSize:NSMakeSize(frame.size.width, CGFLOAT_MAX)
+        options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
+        attributes:textAttributes];
+    NSRect textFrame = frame;
+    textFrame.origin.y += MAX(0.0, (frame.size.height - ceil(measured.size.height)) * 0.5);
+    // Keep oversized and wrapped titles inside the control, including when the
+    // containing view did not submit a separate paint clip.
+    [NSGraphicsContext saveGraphicsState];
+    NSRectClip(frame);
+    [text drawInRect:textFrame withAttributes:textAttributes];
+    [NSGraphicsContext restoreGraphicsState];
 }
 
 static BOOL moxi_custom_line_style_equal(int left, int right) {
@@ -984,6 +1025,8 @@ static void moxi_reset_commands(void) {
         moxi_copy_color(moxi_label_text_colors[i], 1.0, 1.0, 1.0, 1.0);
         moxi_label_font_sizes[i] = 24.0;
         moxi_label_wraps[i] = NO;
+        moxi_label_badges[i] = NO;
+        moxi_label_padding[i] = 0.0;
         moxi_label_clip_enabled[i] = NO;
         moxi_label_clip_frames[i] = NSZeroRect;
 
@@ -2442,6 +2485,16 @@ double moxi_window_benchmark_custom_paint(int iterations) {
     }
     if (kind == 1) {
         moxi_begin_clip(moxi_label_clip_enabled[i], moxi_label_clip_frames[i]);
+        if (moxi_label_fills[i][3] > 0.0f) {
+            [moxi_color(moxi_label_fills[i]) setFill];
+            CGFloat radius = moxi_label_radii[i];
+            if (moxi_label_badges[i]) {
+                radius = MIN(radius, MIN(moxi_label_frames[i].size.width,
+                    moxi_label_frames[i].size.height) * 0.5);
+            }
+            [[NSBezierPath bezierPathWithRoundedRect:moxi_label_frames[i]
+                xRadius:radius yRadius:radius] fill];
+        }
         if (moxi_label_paragraphs[i] != nil) {
             [NSGraphicsContext saveGraphicsState];
             NSRectClip(moxi_label_frames[i]);
@@ -2456,42 +2509,45 @@ double moxi_window_benchmark_custom_paint(int iterations) {
             ? NSLineBreakByCharWrapping
             : NSLineBreakByClipping;
         NSDictionary *attributes = @{
-            NSFontAttributeName: [NSFont systemFontOfSize:moxi_label_font_sizes[i]
-                                                       weight:NSFontWeightSemibold],
+            NSFontAttributeName: [NSFont systemFontOfSize:moxi_label_font_sizes[i]],
             NSForegroundColorAttributeName: moxi_color(moxi_label_text_colors[i]),
             NSParagraphStyleAttributeName: labelParagraph,
         };
-        [moxi_label_texts[i] drawInRect:moxi_label_frames[i]
-                          withAttributes:attributes];
+        if (moxi_label_badges[i]) {
+            NSRect textFrame = moxi_label_frames[i];
+            textFrame.origin.x += moxi_label_padding[i];
+            textFrame.size.width = MAX(0.0, textFrame.size.width - moxi_label_padding[i] * 2.0);
+            moxi_draw_control_text(moxi_label_texts[i], textFrame, attributes, NSTextAlignmentCenter);
+        } else {
+            [moxi_label_texts[i] drawInRect:moxi_label_frames[i]
+                              withAttributes:attributes];
+        }
         moxi_end_clip(moxi_label_clip_enabled[i]);
 
         return;
     }
     if (kind == 2) {
         moxi_begin_clip(moxi_button_clip_enabled[i], moxi_button_clip_frames[i]);
-        float fill[4] = {
-            moxi_button_fill_colors[i][0],
-            moxi_button_fill_colors[i][1],
-            moxi_button_fill_colors[i][2],
-            moxi_button_fill_colors[i][3],
-        };
-        if (!moxi_button_enabled[i]) {
-            fill[0] = 0.30;
-            fill[1] = 0.33;
-            fill[2] = 0.40;
-        } else if (moxi_button_pressed[i]) {
-            fill[0] *= 0.78;
-            fill[1] *= 0.78;
-            fill[2] *= 0.78;
-        } else if (moxi_button_hovered[i]) {
-            fill[0] += (1.0 - fill[0]) * 0.12;
-            fill[1] += (1.0 - fill[1]) * 0.12;
-            fill[2] += (1.0 - fill[2]) * 0.12;
-        }
-        [moxi_color(fill) setFill];
+        const float *base = moxi_button_fill_colors[i];
+        const float *ink = moxi_button_text_colors[i];
+        MoxiButtonColor fill = moxi_button_state_fill(
+            (MoxiButtonColor){base[0], base[1], base[2], base[3]},
+            (MoxiButtonColor){ink[0], ink[1], ink[2], ink[3]},
+            moxi_button_enabled[i], moxi_button_hovered[i], moxi_button_pressed[i]);
+        [moxi_color((float[]){fill.r, fill.g, fill.b, fill.a}) setFill];
         [[NSBezierPath bezierPathWithRoundedRect:moxi_button_frames[i]
                                           xRadius:moxi_button_radii[i]
                                           yRadius:moxi_button_radii[i]] fill];
+        CGFloat border = moxi_button_border_widths[i];
+        if (border > 0) {
+            [moxi_color(moxi_button_borders[i]) setStroke];
+            NSRect bounds = NSInsetRect(moxi_button_frames[i], border / 2, border / 2);
+            CGFloat radius = MAX(0, moxi_button_radii[i] - border / 2);
+            NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:bounds
+                xRadius:radius yRadius:radius];
+            [path setLineWidth:border];
+            [path stroke];
+        }
         if (moxi_button_focused[i]) {
             [[NSColor keyboardFocusIndicatorColor] setStroke];
             NSBezierPath *focusPath = [NSBezierPath bezierPathWithRoundedRect:
@@ -2507,28 +2563,19 @@ double moxi_window_benchmark_custom_paint(int iterations) {
             moxi_button_text_colors[i][2],
             moxi_button_text_colors[i][3],
         };
-        if (!moxi_button_enabled[i]) {
-            textColor[0] = 0.70;
-            textColor[1] = 0.72;
-            textColor[2] = 0.78;
-        }
-        NSDictionary *buttonAttributes = @{
-            NSFontAttributeName: [NSFont systemFontOfSize:moxi_button_font_sizes[i]
-                                                       weight:NSFontWeightSemibold],
-            NSForegroundColorAttributeName: moxi_color(textColor),
-        };
+        if (!moxi_button_enabled[i]) textColor[3] *= 0.55f;
         NSMutableParagraphStyle *buttonParagraph = [[NSMutableParagraphStyle alloc] init];
         buttonParagraph.lineBreakMode = moxi_button_wraps[i]
             ? NSLineBreakByCharWrapping
             : NSLineBreakByClipping;
-        buttonAttributes = @{
+        NSDictionary *buttonAttributes = @{
             NSFontAttributeName: [NSFont systemFontOfSize:moxi_button_font_sizes[i]
-                                                       weight:NSFontWeightSemibold],
+                                                       weight:NSFontWeightMedium],
             NSForegroundColorAttributeName: moxi_color(textColor),
             NSParagraphStyleAttributeName: buttonParagraph,
         };
-        [moxi_button_texts[i] drawInRect:moxi_button_frames[i]
-                          withAttributes:buttonAttributes];
+        moxi_draw_control_text(moxi_button_texts[i], moxi_button_frames[i],
+            buttonAttributes, NSTextAlignmentCenter);
         moxi_end_clip(moxi_button_clip_enabled[i]);
 
         return;
@@ -2843,8 +2890,8 @@ double moxi_window_benchmark_custom_paint(int iterations) {
             MAX(0.0, frame.size.width - boxSize - 10.0),
             frame.size.height
         );
-        [moxi_checkbox_texts[i] drawInRect:textFrame
-                             withAttributes:checkboxAttributes];
+        moxi_draw_control_text(moxi_checkbox_texts[i], textFrame,
+            checkboxAttributes, NSTextAlignmentNatural);
         moxi_end_clip(moxi_checkbox_clip_enabled[i]);
     }
 
@@ -2943,12 +2990,12 @@ double moxi_window_benchmark_custom_paint(int iterations) {
             NSFontAttributeName: [NSFont systemFontOfSize:slot.fontSize],
             NSForegroundColorAttributeName: moxi_color(slot.textColor),
         };
-        [slot.text drawInRect:NSMakeRect(
+        moxi_draw_control_text(slot.text, NSMakeRect(
             frame.origin.x,
             frame.origin.y,
             labelWidth,
             frame.size.height
-        ) withAttributes:sliderAttributes];
+        ), sliderAttributes, NSTextAlignmentNatural);
         if (slot.focused) {
             [[NSColor keyboardFocusIndicatorColor] setStroke];
             NSBezierPath *focusPath = [NSBezierPath bezierPathWithRoundedRect:
@@ -2963,6 +3010,7 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 
     for (int i = 0; i < moxi_toggle_count; i++) {
         MoxiToggleSlot slot = moxi_toggle_slots[i];
+        if (NSIsEmptyRect(slot.frame)) continue;
         moxi_begin_clip(slot.clipEnabled, slot.clipFrame);
         NSRect frame = slot.frame;
         float textColor[4] = {
@@ -2997,12 +3045,12 @@ double moxi_window_benchmark_custom_paint(int iterations) {
                 NSFontAttributeName: [NSFont systemFontOfSize:slot.fontSize],
                 NSForegroundColorAttributeName: moxi_color(textColor),
             };
-            [slot.text drawInRect:NSMakeRect(
+            moxi_draw_control_text(slot.text, NSMakeRect(
                 frame.origin.x + size + 10.0,
                 frame.origin.y,
                 MAX(0.0, frame.size.width - size - 10.0),
                 frame.size.height
-            ) withAttributes:radioAttributes];
+            ), radioAttributes, NSTextAlignmentNatural);
         } else {
             CGFloat width = MIN(42.0, MAX(30.0, frame.size.height * 1.55));
             CGFloat height = MIN(22.0, MAX(16.0, frame.size.height - 6.0));
@@ -3040,18 +3088,18 @@ double moxi_window_benchmark_custom_paint(int iterations) {
                 knobSize,
                 knobSize
             );
-            [[NSColor whiteColor] setFill];
+            [moxi_switch_knob_color(trackColor) setFill];
             [[NSBezierPath bezierPathWithOvalInRect:knob] fill];
             NSDictionary *switchAttributes = @{
                 NSFontAttributeName: [NSFont systemFontOfSize:slot.fontSize],
                 NSForegroundColorAttributeName: moxi_color(textColor),
             };
-            [slot.text drawInRect:NSMakeRect(
+            moxi_draw_control_text(slot.text, NSMakeRect(
                 frame.origin.x + width + 10.0,
                 frame.origin.y,
                 MAX(0.0, frame.size.width - width - 10.0),
                 frame.size.height
-            ) withAttributes:switchAttributes];
+            ), switchAttributes, NSTextAlignmentNatural);
         }
         if (slot.focused) {
             [[NSColor keyboardFocusIndicatorColor] setStroke];
@@ -4272,6 +4320,25 @@ void moxi_window_set_image_at(
     }
 }
 
+
+void moxi_window_set_label_background(int index, float r, float g, float b, float a, float radius) {
+    if (index < 0 || index >= moxi_label_count) return;
+    moxi_copy_color(moxi_label_fills[index], r, g, b, a);
+    moxi_label_radii[index] = radius;
+}
+
+void moxi_window_set_label_badge(int index, int enabled, float horizontal_padding) {
+    if (index < 0 || index >= moxi_label_count) return;
+    moxi_label_badges[index] = enabled != 0;
+    moxi_label_padding[index] = MAX(0.0, horizontal_padding);
+}
+
+void moxi_window_set_button_border(int index, float r, float g, float b, float a, float width) {
+    if (index < 0 || index >= moxi_button_count) return;
+    moxi_copy_color(moxi_button_borders[index], r, g, b, a);
+    moxi_button_border_widths[index] = width;
+}
+
 void moxi_window_set_label_at(
     int index,
     const char *text,
@@ -4297,6 +4364,9 @@ void moxi_window_set_label_at(
         NSString *label = text == NULL
             ? @""
             : [NSString stringWithUTF8String:text];
+        moxi_label_fills[index][3] = 0;
+        moxi_label_badges[index] = NO;
+        moxi_label_padding[index] = 0.0;
         moxi_label_texts[index] = label;
         moxi_label_paragraphs[index] = nil;
         moxi_label_frames[index] = NSMakeRect(x, y, width, height);
@@ -4382,6 +4452,7 @@ void moxi_window_set_button_at(
         moxi_button_frames[index] = NSMakeRect(x, y, width, height);
         moxi_copy_color(moxi_button_fill_colors[index], fill_red, fill_green, fill_blue, fill_alpha);
         moxi_copy_color(moxi_button_text_colors[index], text_red, text_green, text_blue, text_alpha);
+        moxi_button_border_widths[index] = 0;
         moxi_button_radii[index] = radius;
         moxi_button_font_sizes[index] = font_size;
         moxi_button_wraps[index] = wrap_text != 0;

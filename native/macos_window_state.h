@@ -71,6 +71,10 @@ typedef struct {
     NSString *moxi_label_texts[MOXI_MAX_DRAW_COMMANDS];
     id<MoxiParagraphDrawing> moxi_label_paragraphs[MOXI_MAX_DRAW_COMMANDS];
     NSRect moxi_label_frames[MOXI_MAX_DRAW_COMMANDS];
+    float moxi_label_fills[MOXI_MAX_DRAW_COMMANDS][4];
+    float moxi_label_radii[MOXI_MAX_DRAW_COMMANDS];
+    BOOL moxi_label_badges[MOXI_MAX_DRAW_COMMANDS];
+    float moxi_label_padding[MOXI_MAX_DRAW_COMMANDS];
     float moxi_label_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
     float moxi_label_font_sizes[MOXI_MAX_DRAW_COMMANDS];
     BOOL moxi_label_wraps[MOXI_MAX_DRAW_COMMANDS];
@@ -82,6 +86,8 @@ typedef struct {
     float moxi_button_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
     float moxi_button_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
     float moxi_button_radii[MOXI_MAX_DRAW_COMMANDS];
+    float moxi_button_borders[MOXI_MAX_DRAW_COMMANDS][4];
+    float moxi_button_border_widths[MOXI_MAX_DRAW_COMMANDS];
     float moxi_button_font_sizes[MOXI_MAX_DRAW_COMMANDS];
     BOOL moxi_button_wraps[MOXI_MAX_DRAW_COMMANDS];
     BOOL moxi_button_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
@@ -352,6 +358,10 @@ int moxi_window_select_instance(uint64_t handle) {
 #define moxi_label_texts (moxi_current_context()->moxi_label_texts)
 #define moxi_label_paragraphs (moxi_current_context()->moxi_label_paragraphs)
 #define moxi_label_frames (moxi_current_context()->moxi_label_frames)
+#define moxi_label_fills (moxi_current_context()->moxi_label_fills)
+#define moxi_label_radii (moxi_current_context()->moxi_label_radii)
+#define moxi_label_badges (moxi_current_context()->moxi_label_badges)
+#define moxi_label_padding (moxi_current_context()->moxi_label_padding)
 #define moxi_label_text_colors (moxi_current_context()->moxi_label_text_colors)
 #define moxi_label_font_sizes (moxi_current_context()->moxi_label_font_sizes)
 #define moxi_label_wraps (moxi_current_context()->moxi_label_wraps)
@@ -363,6 +373,8 @@ int moxi_window_select_instance(uint64_t handle) {
 #define moxi_button_fill_colors (moxi_current_context()->moxi_button_fill_colors)
 #define moxi_button_text_colors (moxi_current_context()->moxi_button_text_colors)
 #define moxi_button_radii (moxi_current_context()->moxi_button_radii)
+#define moxi_button_borders (moxi_current_context()->moxi_button_borders)
+#define moxi_button_border_widths (moxi_current_context()->moxi_button_border_widths)
 #define moxi_button_font_sizes (moxi_current_context()->moxi_button_font_sizes)
 #define moxi_button_wraps (moxi_current_context()->moxi_button_wraps)
 #define moxi_button_clip_enabled (moxi_current_context()->moxi_button_clip_enabled)

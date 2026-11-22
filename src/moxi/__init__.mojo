@@ -601,6 +601,7 @@ from .view_node import (
     SPACER_KIND,
     CONTAINER_KIND,
     TEXT_INPUT_VIEW_KIND,
+    RecipeRole,
     ViewNode,
 )
 from .view_leaf import Button, Label

@@ -5,6 +5,7 @@ from moxi import (
     App,
     NONE_KIND,
     Rect,
+    Scene,
     WindowConfig,
 )
 from moxi_demo import (
@@ -46,8 +47,11 @@ def render_frame(
                 clip.x, clip.y, clip.width, clip.height,
             )
     else:
-        scene_renderer.set_clip(surface)
-        var scene = app.component.selected_scene(app.view)
+        var clip = app.component.selected_surface_clip(app.view, app.runtime.previous_commands)
+        scene_renderer.set_clip(clip)
+        var scene = Scene()
+        if clip.width > 0.0 and clip.height > 0.0:
+            scene = app.component.selected_scene(app.view)
         scene_renderer.render_scene(scene)
 
 

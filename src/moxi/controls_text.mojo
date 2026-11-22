@@ -42,6 +42,7 @@ struct TextInputControl(ImplicitlyCopyable):
     var composition_selection_end: Int
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
     var enabled: Bool
 
     def __init__(
@@ -60,6 +61,7 @@ struct TextInputControl(ImplicitlyCopyable):
         self.composition_selection_end = 0
         self.preferred_height = preferred_height
         self.style = default_text_input_style()
+        self.has_explicit_style = False
         self.enabled = True
 
     def __init__(
@@ -79,6 +81,7 @@ struct TextInputControl(ImplicitlyCopyable):
         self.composition_selection_end = 0
         self.preferred_height = preferred_height
         self.style = default_text_input_style()
+        self.has_explicit_style = False
         self.enabled = True
 
     def __init__(
@@ -99,6 +102,7 @@ struct TextInputControl(ImplicitlyCopyable):
         self.composition_selection_end = 0
         self.preferred_height = preferred_height
         self.style = style
+        self.has_explicit_style = True
         self.enabled = enabled
 
     def __init__(
@@ -120,6 +124,7 @@ struct TextInputControl(ImplicitlyCopyable):
         self.composition_selection_end = 0
         self.preferred_height = preferred_height
         self.style = style
+        self.has_explicit_style = True
         self.enabled = enabled
 
     def set_composition(
@@ -143,6 +148,8 @@ struct TextInputControl(ImplicitlyCopyable):
             self.cursor,
             self.selection_anchor,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.set_composition(
             self.composition,
             self.composition_selection_start,
@@ -445,6 +452,7 @@ struct MultilineTextControl(ImplicitlyCopyable):
     var selection_anchor: Int
     var preferred_height: Float32
     var style: Style
+    var has_explicit_style: Bool
     var enabled: Bool
 
     def __init__(
@@ -459,6 +467,7 @@ struct MultilineTextControl(ImplicitlyCopyable):
         self.selection_anchor = -1
         self.preferred_height = preferred_height
         self.style = default_multiline_style()
+        self.has_explicit_style = False
         self.enabled = True
 
     def node(self) -> ViewNode:
@@ -471,6 +480,8 @@ struct MultilineTextControl(ImplicitlyCopyable):
             self.cursor,
             self.selection_anchor,
         )
+        if not self.has_explicit_style:
+            node._inherit_control_style()
         node.set_wrap_text()
         node.enabled = self.enabled
         node.semantics.enabled = self.enabled

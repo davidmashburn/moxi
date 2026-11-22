@@ -47,8 +47,18 @@ int main(void) {
         moxi_window_ordered_paint(2,1);
         NSColor *blue = [[render(canvas) colorAtX:40 y:40] colorUsingColorSpace:NSColorSpace.deviceRGBColorSpace];
         assert(blue.blueComponent>0.9 && blue.greenComponent<0.3);
-        // Retained AX identity follows keys, not frame order; retired keys leave the cache.
         moxi_canvas = canvas;
+        moxi_window_set_button_border(0, 0, 1, 0, 1, 4);
+        moxi_window_ordered_paint_begin();
+        moxi_window_ordered_paint(2, 0);
+        NSColor *border = [[render(canvas) colorAtX:2 y:40] colorUsingColorSpace:NSColorSpace.deviceRGBColorSpace];
+        assert(border.greenComponent > 0.9 && border.redComponent < 0.1);
+        moxi_window_set_label_at(0, "", 20, 20, 40, 40, 1, 1, 1, 1, 14, 0);
+        moxi_window_set_label_background(0, 0, 1, 1, 1, 6);
+        moxi_window_ordered_paint(1, 0);
+        NSColor *badge = [[render(canvas) colorAtX:40 y:40] colorUsingColorSpace:NSColorSpace.deviceRGBColorSpace];
+        assert(badge.greenComponent > 0.9 && badge.blueComponent > 0.9);
+        // Retained AX identity follows keys, not frame order; retired keys leave the cache.
         moxi_window_begin_accessibility();
         moxi_accessibility_count = 2;
         moxi_accessibility_ids[0] = 1;
@@ -159,6 +169,18 @@ int main(void) {
         assert(!moxi_ordered_paint_enabled && moxi_ordered_paint_count==0);
         moxi_window_begin_accessibility();
         assert(moxi_retained_accessibility_elements==nil);
+        // The checked track follows the theme's foreground. The thumb must
+        // remain visible on both light and dark tracks.
+        for (int lightTrack = 0; lightTrack <= 1; lightTrack++) {
+            moxi_window_begin_frame();
+            moxi_window_set_toggle_at(0, "", 0, 20, 80, 40,
+                0, 0, 0, 1, lightTrack, lightTrack, lightTrack, 1,
+                6, 14, 0, 0, 0, 1, 1, 0);
+            NSBitmapImageRep *toggle = render(canvas);
+            NSColor *track = [[toggle colorAtX:10 y:40] colorUsingColorSpace:NSColorSpace.deviceRGBColorSpace];
+            NSColor *thumb = [[toggle colorAtX:31 y:40] colorUsingColorSpace:NSColorSpace.deviceRGBColorSpace];
+            assert(fabs(track.redComponent - thumb.redComponent) > 0.9);
+        }
         puts("Retained native paint, AX identity and field-editor marked-range retention passed");
     }
     return 0;

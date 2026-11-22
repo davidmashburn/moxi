@@ -10,6 +10,7 @@ from moxi import (
     FRACTAL_GROUP_EXPERIMENT,
     FRACTAL_PRESET_COUNT,
     FRACTAL_PRESET_BUTTON_BASE,
+    FRACTAL_SCROLL_ID,
     FractalState,
     ActionEvent,
     Event,
@@ -19,10 +20,14 @@ from moxi import (
     POINTER_UP_KIND,
     Point,
     Rect,
+    ROOT_SCROLL_ID,
+    SCROLLBAR_KIND,
+    ScrollEvent,
     fractal_preset_geometry,
     fractal_preset_group,
     test_check,
 )
+from moxi.fractal import FRACTAL_PANEL_ID
 
 
 def action(target: Int) -> Event:
@@ -52,6 +57,25 @@ def main():
     )
     test_check(app.view.is_valid())
     test_check(app.runtime.widget_count() > 0)
+    test_check(app.view.scroll_max_offset(ROOT_SCROLL_ID) == 0.0)
+    test_check(app.view.scroll_max_offset(FRACTAL_PANEL_ID) == 0.0)
+    test_check(app.view.scroll_max_offset(FRACTAL_SCROLL_ID) > 0.0)
+    var commands = app.paint()
+    var scrollbar_count = 0
+    for index in range(commands.count()):
+        var command = commands.command(index)
+        if command.kind == SCROLLBAR_KIND:
+            scrollbar_count += 1
+            test_check(command.id == FRACTAL_SCROLL_ID)
+    test_check(scrollbar_count == 1)
+    var portal = app.view.bounds_for(FRACTAL_SCROLL_ID)
+    test_check(app.dispatch(Event(ScrollEvent(
+        Point(portal.x + 1.0, portal.y + 1.0), Point(0.0, 30.0),
+    ))))
+    test_check(app.view.scroll_offset_for(FRACTAL_SCROLL_ID) > 0.0)
+    test_check(app.view.scroll_offset_for(FRACTAL_PANEL_ID) == 0.0)
+    app.reset_scroll(FRACTAL_SCROLL_ID)
+    app.rebuild()
     var canvas = app.view.bounds_for(FRACTAL_CANVAS_ID)
     test_check(canvas.width > 0.0)
     test_check(canvas.height > 0.0)

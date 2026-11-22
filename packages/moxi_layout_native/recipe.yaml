@@ -10,6 +10,8 @@ source:
     target_directory: native
   - path: ../../native/macos_paragraph.h
     target_directory: native
+  - path: ../../native/button_state.h
+    target_directory: native
   - path: ../../native/macos_window_state.h
     target_directory: native
   - path: ../../native/macos_composition.inc

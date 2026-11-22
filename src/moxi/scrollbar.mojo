@@ -19,6 +19,12 @@ comptime SCROLLBAR_HOME = 5
 comptime SCROLLBAR_END = 6
 
 
+def scroll_overflow_extent(content: Float32, viewport: Float32) -> Float32:
+    """Ignore subpixel Float32 layout rounding when deciding overflow."""
+    var overflow = content - viewport
+    return overflow if overflow > 0.001 else 0.0
+
+
 def _positive(value: Float32) -> Float32:
     return value if value > 0.0 else 0.0
 
@@ -76,8 +82,7 @@ struct ScrollbarState(ImplicitlyCopyable):
         )
 
     def max_offset(self) -> Float32:
-        var result = self.content_extent - self.viewport_extent
-        return result if result > 0.0 else 0.0
+        return scroll_overflow_extent(self.content_extent, self.viewport_extent)
 
     def can_scroll(self) -> Bool:
         return self.max_offset() > 0.0

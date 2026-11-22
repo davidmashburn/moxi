@@ -1,6 +1,252 @@
 """Contract tests for style composition and theme replacement."""
 
-from moxi import Color, ColumnView, Rect, Theme, default_button_style, test_check
+from moxi import (
+    BUTTON_KIND, ButtonControl, CheckboxControl, Color, ColumnRuntime, ColumnView,
+    LabelControl, MultilineTextControl, Rect, Style, SwitchControl,
+    TextInputControl, Theme, ThemeShowcaseState, ViewNode,
+    badge, dark_theme, default_button_style, destructive_button,
+    emerald_theme, ghost_button, light_theme, outline_button,
+    primary_button, secondary_button, test_check, zinc_theme, PANEL_KIND,
+)
+
+
+def check_color(actual: Color, expected: Color):
+    test_check(actual.red == expected.red)
+    test_check(actual.green == expected.green)
+    test_check(actual.blue == expected.blue)
+    test_check(actual.alpha == expected.alpha)
+
+
+def node_with_id(view: ColumnView, id: Int) -> ViewNode:
+    for index in range(view.child_count()):
+        if view.child(index).id == id:
+            return view.child(index)
+    test_check(False)
+    return ViewNode(BUTTON_KIND, -1, "Missing", 1.0)
+
+
+def check_insertion_and_overrides():
+    var light = light_theme()
+    var dark = dark_theme()
+    var view = ColumnView(Rect(0.0, 0.0, 400.0, 400.0), 4.0, 4.0)
+    view.set_theme(light)
+    view.set_panel(0, Rect(0.0, 0.0, 400.0, 400.0))
+    view.add_button(1, "Later button", 30.0)
+    view.add_label(2, "Later label", 30.0)
+    view.add_text_input(3, "Text", 30.0)
+    view.add_multiline_text(4, "Lines", 60.0)
+    check_color(view.child(0).style.fill, light.button.fill)
+    check_color(view.child(1).style.text, light.label.text)
+    check_color(view.child(2).style.fill, light.text_input.fill)
+    check_color(view.child(3).style.fill, light.multiline.fill)
+    test_check(view.child(2).cursor == 4)
+    test_check(view.child(3).cursor == 5)
+    check_color(view.surface_style.fill, light.surface.fill)
+    check_color(view.panel.style.fill, light.panel.fill)
+
+    # Setting a property to its current value is still an intentional override.
+    view.set_font_size(2, light.label.font_size)
+    view.set_corner_radius(1, light.button.corner_radius)
+    view.set_text_color(1, Color(0.3, 0.4, 0.5, 1.0))
+    dark.label.font_size = 29.0
+    dark.button.corner_radius = 19.0
+    view.set_theme(dark)
+    test_check(view.child(1).style.font_size == light.label.font_size)
+    test_check(view.child(0).style.corner_radius == light.button.corner_radius)
+    check_color(view.child(0).style.text, Color(0.3, 0.4, 0.5, 1.0))
+    check_color(view.child(0).style.fill, dark.button.fill)
+    check_color(view.child(1).style.text, dark.label.text)
+    check_color(view.surface_style.fill, dark.surface.fill)
+    check_color(view.panel.style.fill, dark.panel.fill)
+
+    var explicit_style = light.button.with_opacity(0.37)
+    view.add_button_styled(5, "Explicit constructor", 30.0, explicit_style)
+    view.set_style(3, explicit_style)
+    var edited = ViewNode(BUTTON_KIND, 6, "Editable fields", 30.0)
+    edited.style.corner_radius = 27.0
+    edited.style.font_size = 19.0
+    view.add(edited)
+    view.set_surface_style(light.surface)
+    view.set_panel(0, Rect(0.0, 0.0, 400.0, 400.0), light.panel)
+    view.set_theme(emerald_theme())
+    test_check(node_with_id(view, 5).style.opacity == 0.37)
+    check_color(node_with_id(view, 5).style.fill, light.button.fill)
+    test_check(node_with_id(view, 3).style.opacity == 0.37)
+    test_check(node_with_id(view, 6).style.corner_radius == 27.0)
+    test_check(node_with_id(view, 6).style.font_size == 19.0)
+    check_color(node_with_id(view, 6).style.fill, emerald_theme().button.fill)
+    check_color(view.surface_style.fill, light.surface.fill)
+    check_color(view.panel.style.fill, light.panel.fill)
+
+
+def check_scopes_and_components():
+    var view = ColumnView(Rect(0.0, 0.0, 400.0, 400.0), 0.0, 4.0)
+    var light = light_theme()
+    var dark = dark_theme()
+    var emerald = emerald_theme()
+    light.label = light.label.with_fill(Color(0.9, 0.3, 0.4, 1.0)).with_border(Color(1.0, 0.0, 0.0, 1.0), 3.0)
+    emerald.label = emerald.label.with_fill(Color(0.2, 0.3, 0.4, 1.0)).with_border(Color(0.0, 1.0, 0.0, 1.0), 4.0)
+    view.set_theme(light)
+    _ = view.add_column(10, 150.0, 0.0, 4.0)
+    view.set_theme_for(10, dark)
+    view.add_button_to(10, 11, "Scoped later", 30.0)
+    _ = view.add_column_to(10, 20, 100.0, 0.0, 4.0)
+    view.set_theme_for(20, emerald)
+    view.add_label_to(20, 21, "Nested scope", 30.0)
+    _ = view.add_column_to(20, 22, 40.0, 0.0, 0.0)
+    _ = view.add_column(40, 40.0, 0.0, 0.0)
+    view.set_style(40, light.panel)
+    view.set_theme_for(40, dark)
+    view.add_button_to(40, 41, "Decorated scope", 30.0)
+    view.add_button(30, "App scope", 30.0)
+    check_color(node_with_id(view, 10).style.fill, dark.surface.fill)
+    check_color(node_with_id(view, 20).style.fill, emerald.surface.fill)
+    test_check(node_with_id(view, 22).style.fill.alpha == 0.0)
+    test_check(node_with_id(view, 22).style.border_width == 0.0)
+    check_color(node_with_id(view, 22).style.text, emerald.surface.text)
+    check_color(node_with_id(view, 40).style.fill, light.panel.fill)
+    check_color(node_with_id(view, 41).style.fill, dark.button.fill)
+    view.clear_theme_for(40)
+    check_color(node_with_id(view, 40).style.fill, light.panel.fill)
+    check_color(node_with_id(view, 41).style.fill, light.button.fill)
+    check_color(node_with_id(view, 11).style.fill, dark.button.fill)
+    check_color(node_with_id(view, 21).style.text, emerald.label.text)
+    check_color(node_with_id(view, 30).style.fill, light.button.fill)
+    view.set_theme(zinc_theme())
+    check_color(node_with_id(view, 11).style.fill, dark.button.fill)
+    view.layout()
+    var runtime = ColumnRuntime()
+    runtime.reconcile(view)
+    var commands = runtime.paint()
+    var scoped_surface_found = False
+    for index in range(commands.count()):
+        if commands.command(index).kind == PANEL_KIND and commands.command(index).id == 10:
+            scoped_surface_found = True
+            check_color(commands.command(index).style.fill, dark.surface.fill)
+    test_check(scoped_surface_found)
+    view.clear_theme_for(10)
+    test_check(node_with_id(view, 10).style.fill.alpha == 0.0)
+    test_check(node_with_id(view, 10).style.border_width == 0.0)
+    view.layout()
+    runtime.reconcile(view)
+    commands = runtime.paint()
+    for index in range(commands.count()):
+        test_check(not (commands.command(index).kind == PANEL_KIND
+                        and commands.command(index).id == 10))
+    view.add_button_to(10, 12, "After clearing scope", 30.0)
+    check_color(node_with_id(view, 11).style.fill, zinc_theme().button.fill)
+    check_color(node_with_id(view, 12).style.fill, zinc_theme().button.fill)
+    check_color(node_with_id(view, 21).style.text, emerald.label.text)
+
+    var child = ColumnView(Rect(0.0, 0.0, 200.0, 100.0), 0.0, 4.0)
+    child.add_button(1, "Inherited component", 30.0)
+    child.add(primary_button(2, "Inherited recipe"))
+    _ = child.add_column(3, 40.0, 0.0, 0.0)
+    child.set_theme_for(3, dark)
+    child.add_button_to(3, 4, "Component subtree", 30.0)
+    view.add_component_view_to(-1, 100, child, 1000)
+    check_color(node_with_id(view, 1001).style.fill, zinc_theme().button.fill)
+    check_color(node_with_id(view, 1002).style.fill, zinc_theme().tokens.colors.primary)
+    check_color(node_with_id(view, 1004).style.fill, dark.button.fill)
+    check_color(node_with_id(view, 100).style.fill, zinc_theme().surface.fill)
+    child.set_theme(light)
+    view.add_component_view_to(-1, 200, child, 2000)
+    view.set_theme(emerald)
+    check_color(node_with_id(view, 1001).style.fill, emerald.button.fill)
+    check_color(node_with_id(view, 1002).style.fill, emerald.tokens.colors.primary)
+    check_color(node_with_id(view, 1004).style.fill, dark.button.fill)
+    check_color(node_with_id(view, 2001).style.fill, light.button.fill)
+    check_color(node_with_id(view, 2004).style.fill, dark.button.fill)
+    var cloned = view.clone()
+    cloned.add_button_to(200, 2005, "Later mounted child", 30.0)
+    check_color(node_with_id(cloned, 2005).style.fill, light.button.fill)
+
+
+def check_recipe_retention():
+    var view = ColumnView(Rect(0.0, 0.0, 400.0, 400.0), 0.0, 4.0)
+    var explicit_tokens = primary_button(9, "Explicit tokens", tokens=zinc_theme().tokens)
+    view.add(explicit_tokens)
+    check_color(node_with_id(view, 9).style.fill, zinc_theme().tokens.colors.primary)
+    var mounted = ColumnView(Rect(0.0, 0.0, 400.0, 400.0), 0.0, 4.0)
+    mounted.add_component_view_to(-1, 90, view, 100)
+    check_color(node_with_id(mounted, 109).style.fill, zinc_theme().tokens.colors.primary)
+    mounted.set_theme(emerald_theme())
+    check_color(node_with_id(mounted, 109).style.fill, emerald_theme().tokens.colors.primary)
+    view.set_theme_for(9, light_theme())
+    check_color(node_with_id(view, 9).style.fill, light_theme().tokens.colors.primary)
+    view.clear_theme_for(9)
+    check_color(node_with_id(view, 9).style.fill, zinc_theme().tokens.colors.primary)
+    view.add(primary_button(1, "Primary", 30.0, 71))
+    view.add(secondary_button(2, "Secondary"))
+    view.add(destructive_button(3, "Delete"))
+    view.add(outline_button(4, "Outline"))
+    view.add(ghost_button(5, "Ghost"))
+    view.add(badge(6, "Neutral"))
+    view.add(badge(7, "Accent", 22.0, True))
+    view.set_corner_radius(1, 12.0)
+    var theme = zinc_theme()
+    view.set_theme(theme)
+    check_color(node_with_id(view, 9).style.fill, theme.tokens.colors.primary)
+    check_color(node_with_id(view, 1).style.fill, theme.tokens.colors.primary)
+    check_color(node_with_id(view, 1).style.text, theme.tokens.colors.primary_text)
+    test_check(node_with_id(view, 1).style.corner_radius == 12.0)
+    test_check(node_with_id(view, 1).action_id == 71)
+    check_color(node_with_id(view, 2).style.fill, theme.tokens.colors.secondary)
+    check_color(node_with_id(view, 3).style.fill, theme.tokens.colors.destructive)
+    check_color(node_with_id(view, 3).style.text, Color(1.0, 1.0, 1.0, 1.0))
+    test_check(node_with_id(view, 4).style.fill.alpha == 0.0)
+    check_color(node_with_id(view, 4).style.border, theme.tokens.colors.border)
+    test_check(node_with_id(view, 4).style.border_width == 1.0)
+    test_check(node_with_id(view, 5).style.border_width == 0.0)
+    check_color(node_with_id(view, 5).style.text, theme.tokens.colors.text_muted)
+    check_color(node_with_id(view, 6).style.fill, theme.tokens.colors.surface_raised)
+    check_color(node_with_id(view, 7).style.fill, theme.tokens.colors.primary)
+    check_color(node_with_id(view, 7).style.text, theme.tokens.colors.primary_text)
+    test_check(node_with_id(view, 6).use_intrinsic_width)
+    view.add(destructive_button(8, "Later recipe"))
+    check_color(node_with_id(view, 8).style.fill, theme.tokens.colors.destructive)
+    view.set_style(4, dark_theme().button)
+    view.set_theme(light_theme())
+    check_color(node_with_id(view, 1).style.fill, light_theme().tokens.colors.primary)
+    check_color(node_with_id(view, 4).style.fill, dark_theme().button.fill)
+
+
+def check_control_inheritance():
+    var view = ColumnView(Rect(0.0, 0.0, 400.0, 400.0), 0.0, 4.0)
+    var light = light_theme()
+    view.set_theme(light)
+    view.add(LabelControl(1, "Control label", 30.0).node())
+    view.add(ButtonControl(2, "Control button", 30.0).node())
+    view.add(CheckboxControl(3, "Control checkbox", True, 30.0).node())
+    view.add(SwitchControl(4, "Control switch", True, 30.0).node())
+    view.add(TextInputControl(5, "Text", 2, 1, 30.0).node())
+    view.add(MultilineTextControl(6, "Multiline", 60.0).node())
+    var edited = ButtonControl(7, "Control local property", 30.0)
+    edited.style.corner_radius = 31.0
+    view.add(edited.node())
+    # An explicit style is intentional even when equal to the default.
+    view.add(ButtonControl(8, "Explicit control", 30.0, dark_theme().button).node())
+    check_color(node_with_id(view, 1).style.text, light.label.text)
+    check_color(node_with_id(view, 2).style.fill, light.button.fill)
+    check_color(node_with_id(view, 3).style.fill, light.control.fill)
+    check_color(node_with_id(view, 4).style.fill, light.switch_style.fill)
+    check_color(node_with_id(view, 5).style.fill, light.text_input.fill)
+    check_color(node_with_id(view, 6).style.fill, light.multiline.fill)
+    test_check(node_with_id(view, 5).cursor == 2)
+    test_check(node_with_id(view, 5).selection_anchor == 1)
+    test_check(node_with_id(view, 3).checked)
+    view.set_theme(emerald_theme())
+    test_check(node_with_id(view, 7).style.corner_radius == 31.0)
+    check_color(node_with_id(view, 7).style.fill, emerald_theme().button.fill)
+    check_color(node_with_id(view, 8).style.fill, dark_theme().button.fill)
+
+    var showcase = ThemeShowcaseState()
+    var showcase_view = showcase.build(Rect(0.0, 0.0, 780.0, 480.0))
+    showcase_view.set_theme(light)
+    check_color(node_with_id(showcase_view, 1001).style.text, light.label.text)
+    test_check(node_with_id(showcase_view, 1001).style.font_size == light.tokens.typography.text_xl)
+    check_color(node_with_id(showcase_view, 3101).style.fill, light.text_input.fill)
+    check_color(node_with_id(showcase_view, 20).style.fill, light.tokens.colors.primary)
 
 
 def main():
@@ -38,4 +284,8 @@ def main():
     catalog.set_theme(theme)
     for index in range(catalog.child_count()):
         test_check(catalog.child(index).style.opacity == 0.25)
+    check_insertion_and_overrides()
+    check_scopes_and_components()
+    check_recipe_retention()
+    check_control_inheritance()
     print("Moxi style-theme test passed")

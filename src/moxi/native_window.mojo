@@ -51,6 +51,7 @@ from .scene import (
 )
 from .style import Color
 from .view_node import (
+    BADGE_HORIZONTAL_PADDING,
     BUTTON_KIND,
     CHECKBOX_KIND,
     LABEL_KIND,
@@ -292,6 +293,16 @@ struct NativeRenderer[backend_kind: Int](Renderer):
             command.style.font_size,
             wrap_text,
         )
+        if command.style.fill.alpha > 0.0:
+            var color = command.style.fill
+            external_call["moxi_window_set_label_background", NoneType](
+                Int32(command.slot), color.red, color.green, color.blue,
+                color.alpha, command.style.corner_radius,
+            )
+        if command.badge_label:
+            external_call["moxi_window_set_label_badge", NoneType](
+                Int32(command.slot), Int32(1), BADGE_HORIZONTAL_PADDING,
+            )
 
     def draw_native_widget(mut self, command: PaintCommand, kind: Int) raises:
         """Present a semantic collection widget through the AppKit bridge."""
@@ -374,6 +385,12 @@ struct NativeRenderer[backend_kind: Int](Renderer):
             pressed,
             enabled,
         )
+        if command.style.border_width > 0.0:
+            var color = command.style.border
+            external_call["moxi_window_set_button_border", NoneType](
+                Int32(command.slot), color.red, color.green, color.blue,
+                color.alpha, command.style.border_width,
+            )
 
     def draw_text_input(mut self, command: PaintCommand) raises:
         var text = command.text

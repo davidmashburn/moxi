@@ -8,7 +8,7 @@
       "state": "dark",
       "width": 240,
       "height": 160,
-      "checksum": 119968364,
+      "checksum": 119148624,
       "image": "tests/goldens/images/theme-dark.ppm"
     },
     {
@@ -17,7 +17,7 @@
       "state": "light",
       "width": 240,
       "height": 160,
-      "checksum": 212454688,
+      "checksum": 213221196,
       "image": "tests/goldens/images/theme-light.ppm"
     },
     {
@@ -26,7 +26,7 @@
       "state": "emerald",
       "width": 240,
       "height": 160,
-      "checksum": 117390320,
+      "checksum": 116501004,
       "image": "tests/goldens/images/theme-emerald.ppm"
     },
     {
@@ -53,7 +53,7 @@
       "state": "focused-control",
       "width": 240,
       "height": 128,
-      "checksum": 97207920,
+      "checksum": 95080488,
       "image": "tests/goldens/images/accessibility-focused-control.ppm"
     },
     {

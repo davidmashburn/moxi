@@ -55,6 +55,7 @@ clang -Wall -Wextra -Werror -fobjc-arc -fmodules \
 pixi run native-text-parity
 pixi run native-paragraph-test
 pixi run native-screenshot-check
+pixi run native-control-text-alignment
 pixi run native-workbench-capacity
 pixi run native-custom-rect-equivalence
 pixi run native-custom-paint-cache

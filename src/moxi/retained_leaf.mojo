@@ -1,7 +1,7 @@
 """Explicit legacy leaf presentation on retained geometry; no legacy layout pass."""
 from std.collections import List, Dict
 from std.ffi import external_call
-from .retained_layout import RetainedLayout, RetainedStyle, RetainedSnapshot
+from .retained_layout import RetainedLayout, RetainedStyle, RetainedSnapshot, CONTENT
 from .view_node import ViewNode, LABEL_KIND, BUTTON_KIND, TEXT_INPUT_VIEW_KIND, CANVAS_KIND
 from .paint import PaintCommand
 from .accessibility import AccessibilitySnapshot, ROLE_CONTAINER, ROLE_LABEL
@@ -15,11 +15,22 @@ def declare_leaf(mut layout: RetainedLayout, node: ViewNode, style: RetainedStyl
     """Supported modes are label, button, single-line editor and canvas.
 
     Reject other legacy modes until they have an explicit adapter. Controls own
-    their state; the retained tree supplies all geometry. Labels use the identical
-    native paragraph payload for measurement and drawing. Fixed-allocation controls use
+    their state; the retained tree supplies all geometry. Ordinary labels use the
+    identical native paragraph payload for measurement and drawing. Badges use
+    their padded control extent and native centered text. Other controls use
     their existing native rendering and text-editing implementation.
     """
-    if node.kind == LABEL_KIND:
+    if node.kind == LABEL_KIND and node.badge_label:
+        var allocation = style
+        var intrinsic = node.intrinsic_size()
+        if allocation.width_kind == CONTENT:
+            allocation.min_width = max(allocation.min_width,
+                min(intrinsic.width, allocation.max_width))
+        if allocation.height_kind == CONTENT:
+            allocation.min_height = max(allocation.min_height,
+                min(max(intrinsic.height, node.preferred_height), allocation.max_height))
+        layout.set_box(node.id,allocation,node.text)
+    elif node.kind == LABEL_KIND:
         layout.set_paragraph(node.id,node.text,node.style.font_size,style)
     elif node.kind == BUTTON_KIND or node.kind == TEXT_INPUT_VIEW_KIND or node.kind == CANVAS_KIND:
         layout.set_box(node.id,style,node.text)
@@ -65,6 +76,9 @@ struct RetainedPresentation:
                 command.kind = node.kind
                 command.text = node.text
                 command.style = node.style
+                command.badge_label = node.badge_label
+                if node.badge_label:
+                    command.wrap_text = node.wrap_text
                 command.cursor = node.cursor
                 command.set_selection(node.selection_anchor,node.cursor)
                 command.set_composition(node.composition,node.composition_selection_start,node.composition_selection_end)
@@ -91,7 +105,7 @@ struct RetainedPresentation:
         packet.invalidation.invalidate(INVALIDATE_ALL, metrics.bounds())
         for index in range(len(self.commands)):
             var output = self.snapshot.output(self.commands[index].id)
-            if output.has_paragraph and self.commands[index].kind == LABEL_KIND:
+            if output.has_paragraph and self.commands[index].kind == LABEL_KIND and not self.commands[index].badge_label:
                 packet.commands[index].resource_id = output.key
                 packet.resources.append(FrameResource(output.key, output.mount, index))
         return packet^
@@ -109,7 +123,7 @@ struct RetainedPresentation:
             if command.id==custom_layer:
                 external_call["moxi_window_ordered_paint", NoneType](Int32(100),Int32(command.slot))
             var output = self.snapshot.output(command.id)
-            if output.has_paragraph and command.kind == LABEL_KIND:
+            if output.has_paragraph and command.kind == LABEL_KIND and not command.badge_label:
                 external_call["moxi_window_set_paragraph_at", NoneType](Int32(command.slot),output.paragraph._storage[].handle)
 
     def accessibility(self) raises -> AccessibilitySnapshot:

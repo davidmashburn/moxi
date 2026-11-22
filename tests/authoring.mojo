@@ -2,6 +2,8 @@
 
 from moxi import (
     App,
+    Color,
+    ColumnView,
     CompositionEvent,
     SemanticActionEvent,
     ACTION_PRESS,
@@ -12,6 +14,7 @@ from moxi import (
     PointerEvent,
     POINTER_DOWN_KIND,
     Rect,
+    RecipeRole,
     RequestScopeHandle,
     ResizeEvent,
     Size,
@@ -22,6 +25,9 @@ from moxi import (
     TestWindow,
     WindowBackend,
     WindowConfig,
+    dark_theme,
+    emerald_theme,
+    light_theme,
     test_check,
 )
 from moxi.authoring import (
@@ -419,6 +425,88 @@ def visible_and_accessible_labels():
         test_check(app.view.child(offset + 4).text == "")
         test_check(app.view.child(offset + 4).semantics.label == "Named check")
 
+struct ThemedPane(Pane):
+    comptime Context = NoneType
+
+    def __init__(out self):
+        pass
+
+    def tap(mut self):
+        pass
+
+    def tap_context(mut self, mut context: NoneType):
+        pass
+
+    def render(self, mut ui: UI[Self, Self.Context], context: NoneType):
+        ui.button("Child primary", Self.tap, role=RecipeRole.primary())
+        ui.button("Child destructive", Self.tap_context, False, role=RecipeRole.destructive())
+
+struct ThemedRoot(Screen):
+    var count: Int
+
+    def __init__(out self):
+        self.count = 0
+
+    def increment(mut self):
+        self.count += 1
+
+    def route(mut self, key: Int, action: Action[ThemedPane]):
+        pass
+
+    def route_context(mut self, mut context: NoneType, key: Int, action: Action[ThemedPane]):
+        pass
+
+    def render(self, mut ui: UI[Self]):
+        ui.button("Primary " + String(self.count), Self.increment, role=RecipeRole.primary())
+        ui.button("Ordinary", Self.increment)
+        ui.child(ThemedPane(), NoneType(), Self.route, key=1)
+        ui.child(ThemedPane(), NoneType(), Self.route_context, key=2)
+
+def check_authoring_color(actual: Color, expected: Color):
+    test_check(actual.red == expected.red and actual.green == expected.green)
+    test_check(actual.blue == expected.blue and actual.alpha == expected.alpha)
+
+def persistent_host_theme_and_recipe_roles():
+    var bounds = Rect(0, 0, 520, 600)
+    var light = light_theme()
+    var app = App(HandlerHost(ThemedRoot(), theme=light), bounds)
+    test_check(app.view.has_explicit_theme)
+    test_check(app.view.child_count() == 6)
+    check_authoring_color(app.view.surface_style.fill, light.surface.fill)
+    check_authoring_color(app.view.child(0).style.fill, light.tokens.colors.primary)
+    check_authoring_color(app.view.child(1).style.fill, light.button.fill)
+    # Both child routes and both callback signatures preserve the recipe role.
+    for offset in range(2, 6, 2):
+        check_authoring_color(app.view.child(offset).style.fill, light.tokens.colors.primary)
+        check_authoring_color(app.view.child(offset + 1).style.fill, light.tokens.colors.destructive)
+        test_check(not app.view.child(offset + 1).enabled)
+        test_check(not app.view.child(offset + 1).semantics.enabled)
+    var target = app.view.child(0).id
+    test_check(app.dispatch(Event(SemanticActionEvent(target, ACTION_PRESS))))
+    test_check(app.component.root.count == 1)
+    test_check(app.view.child(0).id == target)
+    test_check(app.view.child(0).text == "Primary 1")
+    check_authoring_color(app.view.child(0).style.fill, light.tokens.colors.primary)
+    check_authoring_color(app.view.surface_style.fill, light.surface.fill)
+    var copied = app.component
+    copied.refresh()
+    check_authoring_color(copied.build(bounds).child(0).style.fill, light.tokens.colors.primary)
+    reset_headless(app, ThemedRoot())
+    check_authoring_color(app.view.child(0).style.fill, light.tokens.colors.primary)
+    test_check(app.view.has_explicit_theme)
+
+    var inherited = HandlerHost(ThemedRoot()).build(bounds)
+    test_check(not inherited.has_explicit_theme)
+    var parent = ColumnView(bounds, 0, 0)
+    parent.set_theme(emerald_theme())
+    parent.add_component_view_to(-1, 100, inherited, 1000)
+    check_authoring_color(parent.child(1).style.fill, emerald_theme().tokens.colors.primary)
+    check_authoring_color(parent.child(2).style.fill, emerald_theme().button.fill)
+    parent.add_component_view_to(-1, 200, app.component.build(bounds), 2000)
+    parent.set_theme(dark_theme())
+    check_authoring_color(parent.child(1).style.fill, dark_theme().tokens.colors.primary)
+    check_authoring_color(parent.child(8).style.fill, light.tokens.colors.primary)
+
 def reset_preserves_unrelated_queue_capacity():
     var app = App(HandlerHost(Root()), Rect(0, 0, 520, 320))
     var owned = schedule_action(app, root_button_id(app), 1, "owned", 60.0)
@@ -481,6 +569,7 @@ def main() raises:
     integrated_reset_and_backend_guard()
     existing_app_loop_and_editing_state()
     visible_and_accessible_labels()
+    persistent_host_theme_and_recipe_roles()
     reset_preserves_unrelated_queue_capacity()
     embedded_model_reset()
     interleaved_control_ids()

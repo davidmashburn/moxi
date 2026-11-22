@@ -252,6 +252,10 @@ void moxi_window_set_image_at(
     float radius
 );
 
+void moxi_window_set_label_background(int index, float r, float g, float b, float a, float radius);
+void moxi_window_set_label_badge(int index, int enabled, float horizontal_padding);
+void moxi_window_set_button_border(int index, float r, float g, float b, float a, float width);
+
 void moxi_window_set_label_at(
     int index,
     const char *text,

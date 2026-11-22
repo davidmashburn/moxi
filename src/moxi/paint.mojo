@@ -109,6 +109,7 @@ struct PaintCommand(ImplicitlyCopyable):
     var composition_selection_end: Int
     var semantics: Semantics
     var wrap_text: Bool
+    var badge_label: Bool
     var action_id: Int
     var has_clip: Bool
     var clip_bounds: Rect
@@ -140,6 +141,7 @@ struct PaintCommand(ImplicitlyCopyable):
         self.semantics = default_semantics(0, LABEL_KIND, text)
         self.semantics.bounds = bounds
         self.wrap_text = False
+        self.badge_label = False
         self.action_id = -1
         self.has_clip = False
         self.clip_bounds = Rect(0.0, 0.0, 0.0, 0.0)
@@ -179,6 +181,7 @@ struct PaintCommand(ImplicitlyCopyable):
         self.semantics = default_semantics(id, kind, text)
         self.semantics.bounds = bounds
         self.wrap_text = False
+        self.badge_label = False
         self.action_id = -1
         self.has_clip = False
         self.clip_bounds = Rect(0.0, 0.0, 0.0, 0.0)
@@ -223,6 +226,7 @@ struct PaintCommand(ImplicitlyCopyable):
         self.semantics = default_semantics(id, kind, text)
         self.semantics.bounds = bounds
         self.wrap_text = False
+        self.badge_label = False
         self.action_id = -1
         self.has_clip = False
         self.clip_bounds = Rect(0.0, 0.0, 0.0, 0.0)
@@ -277,6 +281,7 @@ struct PaintCommand(ImplicitlyCopyable):
             and self.composition_selection_end == other.composition_selection_end
             and paint_semantics_equal(self.semantics, other.semantics)
             and self.wrap_text == other.wrap_text
+            and self.badge_label == other.badge_label
             and self.action_id == other.action_id
             and self.has_clip == other.has_clip
             and paint_rects_equal(self.clip_bounds, other.clip_bounds)

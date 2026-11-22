@@ -67,6 +67,7 @@ struct Widget(ImplicitlyCopyable):
     var use_intrinsic_width: Bool
     var use_intrinsic_height: Bool
     var wrap_text: Bool
+    var badge_label: Bool
     var action_id: Int
     var clip_children: Bool
     var checked: Bool
@@ -107,6 +108,7 @@ struct Widget(ImplicitlyCopyable):
         self.use_intrinsic_width = False
         self.use_intrinsic_height = False
         self.wrap_text = False
+        self.badge_label = False
         self.action_id = NO_ACTION
         self.clip_children = False
         self.checked = False
@@ -148,6 +150,7 @@ struct Widget(ImplicitlyCopyable):
         self.use_intrinsic_width = node.use_intrinsic_width
         self.use_intrinsic_height = node.use_intrinsic_height
         self.wrap_text = node.wrap_text
+        self.badge_label = node.badge_label
         self.action_id = node.action_id
         self.clip_children = node.clip_children
         self.checked = node.checked
@@ -195,6 +198,7 @@ struct Widget(ImplicitlyCopyable):
             or self.use_intrinsic_width != node.use_intrinsic_width
             or self.use_intrinsic_height != node.use_intrinsic_height
             or self.wrap_text != node.wrap_text
+            or self.badge_label != node.badge_label
             or self.action_id != node.action_id
             or self.clip_children != node.clip_children
             or self.checked != node.checked
@@ -234,6 +238,7 @@ struct Widget(ImplicitlyCopyable):
         self.use_intrinsic_width = node.use_intrinsic_width
         self.use_intrinsic_height = node.use_intrinsic_height
         self.wrap_text = node.wrap_text
+        self.badge_label = node.badge_label
         self.action_id = node.action_id
         self.clip_children = node.clip_children
         self.checked = node.checked

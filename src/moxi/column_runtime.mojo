@@ -34,7 +34,9 @@ from .paint import PANEL_KIND, SURFACE_KIND, PaintCommand, PaintCommands
 from .scrollbar import (
     SCROLLBAR_HORIZONTAL,
     SCROLLBAR_VERTICAL,
+    ScrollbarGeometry,
     ScrollbarState,
+    scroll_overflow_extent,
 )
 from .style import Color, Panel, Style, default_panel_style, default_surface_style
 from .column_view import ColumnView
@@ -60,6 +62,26 @@ from .view_node import (
     ROOT_SCROLL_ID,
 )
 from .widget import Widget
+
+
+def _scrollbar_command(
+    id: Int, slot: Int, orientation: Int, geometry: ScrollbarGeometry, ink: Color,
+) -> PaintCommand:
+    # Keep the full track available for clicking and dragging. Inset only
+    # the painted thumb so a long document does not acquire a solid rail.
+    var thumb = geometry.thumb
+    if orientation == SCROLLBAR_VERTICAL:
+        thumb.x += 1.5
+        thumb.width = max(thumb.width - 3.0, 0.0)
+    else:
+        thumb.y += 1.5
+        thumb.height = max(thumb.height - 3.0, 0.0)
+    var style = Style(
+        Color(0, 0, 0, 0), Color(ink.red, ink.green, ink.blue, 0.50), 2.5, 0,
+    )
+    var command = PaintCommand(SCROLLBAR_KIND, id, slot, "", geometry.track, style)
+    command.set_scrollbar(orientation, thumb, geometry.visible)
+    return command
 
 
 def _indexed_changed(
@@ -490,8 +512,10 @@ struct ColumnRuntime:
         ):
             return False
         return (
-            self._container_content_extent(container)
-            > self._container_viewport_extent(container)
+            scroll_overflow_extent(
+                self._container_content_extent(container),
+                self._container_viewport_extent(container),
+            ) > 0.0
         )
 
     def _root_is_scrollable(self) -> Bool:
@@ -499,7 +523,7 @@ struct ColumnRuntime:
         var viewport = self.root_bounds.height
         if self.root_axis == ROW_AXIS:
             viewport = self.root_bounds.width
-        return self._root_content_extent() > viewport
+        return scroll_overflow_extent(self._root_content_extent(), viewport) > 0.0
 
     def scroll_target(self, position: Point) -> Int:
         """Return the deepest overflowing container containing a scroll position."""
@@ -668,7 +692,8 @@ struct ColumnRuntime:
         for index in range(self.widget_count()):
             var widget = self.widget(index)
             if widget.kind == CONTAINER_KIND:
-                if widget.component_surface:
+                if (widget.component_surface or widget.style.fill.alpha > 0.0
+                    or widget.style.border_width > 0.0):
                     var component_panel = PaintCommand(
                         PANEL_KIND,
                         widget.id,
@@ -776,6 +801,7 @@ struct ColumnRuntime:
                 widget.composition_selection_end,
             )
             command.set_wrap_text(widget.wrap_text)
+            command.badge_label = widget.badge_label
             command.set_checked(widget.checked)
             command.set_progress(widget.progress)
             command.set_resource_id(widget.resource_id)
@@ -860,23 +886,8 @@ struct ColumnRuntime:
             if not geometry.visible:
                 continue
 
-            var scrollbar_command = PaintCommand(
-                SCROLLBAR_KIND,
-                portal.id,
-                scrollbar_slot,
-                "",
-                geometry.track,
-                Style(
-                    Color(0.055, 0.075, 0.125, 0.72),
-                    Color(0.48, 0.79, 1.0, 0.94),
-                    4.0,
-                    0.0,
-                ),
-            )
-            scrollbar_command.set_scrollbar(
-                orientation,
-                geometry.thumb,
-                geometry.visible,
+            var scrollbar_command = _scrollbar_command(
+                portal.id, scrollbar_slot, orientation, geometry, portal.style.text,
             )
             # Decorations share the portal's ancestor clips, just like its
             # content. A scrolled nested portal can extend over fixed headers.
@@ -938,23 +949,9 @@ struct ColumnRuntime:
                 _ = root_scrollbar.set_offset(self.root_scroll_offset)
                 var root_geometry = root_scrollbar.geometry(root_track)
                 if root_geometry.visible:
-                    var root_command = PaintCommand(
-                        SCROLLBAR_KIND,
-                        ROOT_SCROLL_ID,
-                        scrollbar_slot,
-                        "",
-                        root_geometry.track,
-                        Style(
-                            Color(0.055, 0.075, 0.125, 0.72),
-                            Color(0.48, 0.79, 1.0, 0.94),
-                            4.0,
-                            0.0,
-                        ),
-                    )
-                    root_command.set_scrollbar(
-                        root_orientation,
-                        root_geometry.thumb,
-                        root_geometry.visible,
+                    var root_command = _scrollbar_command(
+                        ROOT_SCROLL_ID, scrollbar_slot, root_orientation,
+                        root_geometry, self.surface_style.text,
                     )
                     root_command.set_clip(self.root_bounds)
                     var previous_index = prior.get((root_command.kind, root_command.id), -1)

@@ -3,6 +3,7 @@
 from moxi import (
     ACTION_PRESS,
     App,
+    FRACTAL_SCROLL_ID,
     ClickEvent,
     CAPABILITY_WALKTHROUGH_AGENT_RESET_ID,
     CAPABILITY_WALKTHROUGH_APPROVE_ID,
@@ -55,6 +56,7 @@ from moxi_demo import (
     DEMO_STORY_SPLIT_ID,
     DEMO_STORY_CODE_TEXT_ID,
     DEMO_FRACTAL_ID,
+    DEMO_FRACTAL_ID_OFFSET,
     DEMO_HEADER_KICKER_ID,
     DEMO_INTERACTION_ID,
     DEMO_INTERACTION_ID_OFFSET,
@@ -87,6 +89,10 @@ from moxi_demo import (
     SHOWCASE_PLOT_STREAM_ID,
     SHOWCASE_PLOT_TOGGLE_MARKS_ID,
     SHOWCASE_PLOT,
+)
+from moxi.wxstyle import WX_PANEL_ID
+from moxi_demo.demo_browser import (
+    DEMO_CATEGORY_ROW_TWO_ID, DEMO_STORY_PREVIEW_ID,
 )
 
 
@@ -133,6 +139,63 @@ def main() raises:
     test_check(app.view.bounds_for(DEMO_HEADER_KICKER_ID).height > 0.0)
     test_check(app.view.bounds_for(DEMO_PAGE_QUICKSTART_ID).height > 0.0)
     test_check(app.accessibility().count() > 12)
+    test_check(app.view.scroll_max_offset(DEMO_CATEGORY_ROW_TWO_ID) == 0.0)
+
+    # Preview chrome fits ordinary components at both split-pane widths.
+    # Each demo keeps any scroll containers it intentionally owns internally.
+    var preview_app = App[DemoBrowserState](
+        DemoBrowserState(), Rect(0.0, 0.0, 1180.0, 760.0),
+    )
+    for width_index in range(2):
+        var width: Float32 = 1180.0 if width_index == 0 else 900.0
+        _ = preview_app.resize(Rect(0.0, 0.0, width, 760.0))
+        for entry_index in range(catalog.count()):
+            var entry = catalog.entry(entry_index)
+            if not entry.in_process:
+                continue
+            preview_app.component.selected_id = entry.id
+            preview_app.component.tab = DEMO_TAB_DEMO
+            preview_app.rebuild()
+            test_check(preview_app.view.scroll_max_offset(DEMO_CATEGORY_ROW_TWO_ID) == 0.0)
+            test_check(preview_app.view.scroll_max_offset(DEMO_STORY_PREVIEW_ID) == 0.0)
+            if entry.id == DEMO_WX_STYLE_ID:
+                test_check(preview_app.view.scroll_max_offset(DEMO_WX_STYLE_ID_OFFSET + WX_PANEL_ID) == 0.0)
+            var preview_commands = preview_app.paint()
+            for command_index in range(preview_commands.count()):
+                var command = preview_commands.command(command_index)
+                if command.kind == SCROLLBAR_KIND:
+                    test_check(command.id != DEMO_STORY_PREVIEW_ID)
+                    test_check(command.id != DEMO_CATEGORY_ROW_TWO_ID)
+
+    # Custom scenes retain full canvas geometry but inherit every viewport
+    # clip, including when wheel scrolling moves the canvas off screen.
+    preview_app.component.selected_id = DEMO_FRACTAL_ID
+    preview_app.component.tab = DEMO_TAB_DEMO
+    _ = preview_app.resize(Rect(0.0, 0.0, 1180.0, 760.0))
+    preview_app.rebuild()
+    var clip_commands = preview_app.paint()
+    var surface = preview_app.component.selected_surface_bounds(preview_app.view)
+    var surface_clip = preview_app.component.selected_surface_clip(preview_app.view, clip_commands.commands)
+    var fractal_portal = preview_app.view.bounds_for(DEMO_FRACTAL_ID_OFFSET + FRACTAL_SCROLL_ID)
+    test_check(surface_clip.height > 0.0 and surface_clip.height < surface.height)
+    test_check(surface_clip.y >= fractal_portal.y)
+    test_check(surface_clip.y + surface_clip.height <= fractal_portal.y + fractal_portal.height)
+    var canvas_scroll = surface.y - fractal_portal.y + surface.height * 0.5
+    test_check(preview_app.dispatch(Event(ScrollEvent(
+        Point(fractal_portal.x + 1.0, fractal_portal.y + 1.0), Point(0.0, canvas_scroll),
+    ))))
+    clip_commands = preview_app.paint()
+    surface = preview_app.component.selected_surface_bounds(preview_app.view)
+    surface_clip = preview_app.component.selected_surface_clip(preview_app.view, clip_commands.commands)
+    test_check(surface.y < fractal_portal.y)
+    test_check(surface_clip.y >= fractal_portal.y)
+    test_check(surface_clip.height > 0.0 and surface_clip.height < surface.height)
+    test_check(preview_app.dispatch(Event(ScrollEvent(
+        Point(fractal_portal.x + 1.0, fractal_portal.y + 1.0), Point(0.0, 100000.0),
+    ))))
+    clip_commands = preview_app.paint()
+    surface_clip = preview_app.component.selected_surface_clip(preview_app.view, clip_commands.commands)
+    test_check(surface_clip.height == 0.0)
 
     # The catalog is a real collapsible tree entrypoint, and its existing
     # portal remains wheel-scrollable when expanded.

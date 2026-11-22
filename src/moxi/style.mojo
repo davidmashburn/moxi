@@ -1,27 +1,7 @@
 """Backend-neutral colors and simple view styles."""
 
 from .geometry import Rect
-
-
-struct Color(ImplicitlyCopyable):
-    """An RGBA color represented in normalized float components."""
-
-    var red: Float32
-    var green: Float32
-    var blue: Float32
-    var alpha: Float32
-
-    def __init__(
-        out self,
-        red: Float32,
-        green: Float32,
-        blue: Float32,
-        alpha: Float32,
-    ):
-        self.red = red
-        self.green = green
-        self.blue = blue
-        self.alpha = alpha
+from .palette import Color, ThemeTokens, dark_tokens
 
 
 struct Style(ImplicitlyCopyable):
@@ -125,28 +105,150 @@ struct Theme(ImplicitlyCopyable):
     var canvas_style: Style
     var separator_style: Style
 
-    def __init__(out self):
-        self.surface = default_surface_style()
-        self.panel = default_panel_style()
-        self.label = default_label_style()
-        self.button = default_button_style()
-        self.text_input = default_text_input_style()
-        self.control = default_checkbox_style()
-        self.image = default_image_style()
-        self.progress = default_progress_style()
-        self.slider = default_slider_style()
-        self.switch_style = default_switch_style()
-        self.radio = default_radio_style()
-        self.multiline = default_multiline_style()
-        self.combo_box = default_text_input_style()
-        self.list_style = default_text_input_style()
-        self.table_style = default_text_input_style()
-        self.tree_style = default_text_input_style()
-        self.menu_style = default_text_input_style()
-        self.dialog_style = default_panel_style()
-        self.tabs_style = default_text_input_style()
-        self.canvas_style = default_panel_style()
-        self.separator_style = default_progress_style()
+    var tokens: ThemeTokens
+
+    def __init__(out self, tokens: ThemeTokens = dark_tokens()):
+        self.tokens = tokens
+        var c = tokens.colors
+        var r = tokens.radius
+        var t = tokens.typography
+
+        # Surface & Panel
+        self.surface = Style(
+            c.background,
+            c.text,
+            r.radius_none,
+            t.text_base,
+        )
+        self.panel = Style(
+            c.surface,
+            c.text,
+            r.radius_lg,
+            t.text_base,
+            c.border,
+            1.0,
+            1.0,
+        )
+
+        # Label
+        self.label = Style(
+            Color(0.0, 0.0, 0.0, 0.0),
+            c.text,
+            r.radius_none,
+            t.text_base,
+        )
+
+        # Button
+        self.button = Style(
+            c.secondary,
+            c.text,
+            r.radius_md,
+            t.text_base,
+            c.border,
+            1.0,
+            1.0,
+        )
+
+        # Text Input & Multiline
+        self.text_input = Style(
+            c.surface_raised,
+            c.text,
+            r.radius_md,
+            t.text_base,
+            c.border,
+            1.0,
+            1.0,
+        )
+        self.multiline = self.text_input
+
+        # Controls: Checkbox, Switch, Radio
+        self.control = Style(
+            c.surface_raised,
+            c.text,
+            r.radius_sm,
+            t.text_base,
+            c.border,
+            1.0,
+            1.0,
+        )
+        self.switch_style = Style(
+            c.secondary,
+            c.text,
+            r.radius_full,
+            t.text_base,
+            c.border,
+            1.0,
+            1.0,
+        )
+        self.radio = Style(
+            c.surface_raised,
+            c.text,
+            r.radius_full,
+            t.text_base,
+            c.border,
+            1.0,
+            1.0,
+        )
+
+        # Progress & Slider
+        self.progress = Style(
+            c.muted,
+            c.primary,
+            r.radius_full,
+            t.text_sm,
+        )
+        self.slider = self.progress
+
+        # Image
+        self.image = Style(
+            c.surface_raised,
+            c.text,
+            r.radius_md,
+            t.text_sm,
+            c.border_subtle,
+            1.0,
+            1.0,
+        )
+
+        # Complex Catalog Controls
+        self.combo_box = self.text_input
+        self.list_style = Style(
+            c.surface,
+            c.text,
+            r.radius_md,
+            t.text_base,
+            c.border,
+            1.0,
+            1.0,
+        )
+        self.table_style = self.list_style
+        self.tree_style = self.list_style
+        self.menu_style = self.text_input
+        self.dialog_style = Style(
+            c.surface,
+            c.text,
+            r.radius_xl,
+            t.text_base,
+            c.border,
+            1.5,
+            1.0,
+        )
+        self.tabs_style = Style(
+            c.surface_raised,
+            c.text,
+            r.radius_md,
+            t.text_base,
+            c.border_subtle,
+            1.0,
+            1.0,
+        )
+        self.canvas_style = self.list_style
+        self.separator_style = Style(
+            c.border_subtle,
+            c.text_muted,
+            r.radius_none,
+            t.text_xs,
+        )
 
     def with_button(mut self, style: Style):
         self.button = style
@@ -211,115 +313,48 @@ struct Panel(ImplicitlyCopyable):
 
 
 def default_surface_style() -> Style:
-    return Style(
-        Color(0.08, 0.10, 0.16, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        0.0,
-        0.0,
-    )
+    return Theme().surface
 
 
 def default_panel_style() -> Style:
-    return Style(
-        Color(0.16, 0.20, 0.30, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        14.0,
-        0.0,
-    )
+    return Theme().panel
 
 
 def default_label_style() -> Style:
-    return Style(
-        Color(0.0, 0.0, 0.0, 0.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        0.0,
-        24.0,
-    )
+    return Theme().label
 
 
 def default_button_style() -> Style:
-    return Style(
-        Color(0.18, 0.48, 0.92, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        10.0,
-        16.0,
-    )
+    return Theme().button
 
 
 def default_text_input_style() -> Style:
-    return Style(
-        Color(0.07, 0.09, 0.14, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        8.0,
-        18.0,
-    )
+    return Theme().text_input
 
 
 def default_checkbox_style() -> Style:
-    """Return a compact style shared by checkbox renderers."""
-    return Style(
-        Color(0.07, 0.09, 0.14, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        5.0,
-        16.0,
-    )
+    return Theme().control
 
 
 def default_progress_style() -> Style:
-    """Return the track/fill style for a progress indicator."""
-    return Style(
-        Color(0.10, 0.14, 0.22, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        8.0,
-        14.0,
-    )
+    return Theme().progress
 
 
 def default_slider_style() -> Style:
-    """Return the track style for a scalar slider control."""
-    return Style(
-        Color(0.10, 0.14, 0.22, 1.0),
-        Color(0.35, 0.72, 1.0, 1.0),
-        8.0,
-        14.0,
-    )
+    return Theme().slider
 
 
 def default_switch_style() -> Style:
-    """Return the visual style for a boolean switch control."""
-    return Style(
-        Color(0.14, 0.18, 0.28, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        12.0,
-        16.0,
-    )
+    return Theme().switch_style
 
 
 def default_radio_style() -> Style:
-    """Return the visual style for a radio control."""
-    return Style(
-        Color(0.10, 0.14, 0.22, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        10.0,
-        16.0,
-    )
+    return Theme().radio
 
 
 def default_image_style() -> Style:
-    """Return a neutral style for an image resource placeholder."""
-    return Style(
-        Color(0.12, 0.15, 0.22, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        4.0,
-        14.0,
-    )
+    return Theme().image
 
 
 def default_multiline_style() -> Style:
-    """Return the editor style for multiline text controls."""
-    return Style(
-        Color(0.07, 0.09, 0.14, 1.0),
-        Color(1.0, 1.0, 1.0, 1.0),
-        8.0,
-        18.0,
-    )
+    return Theme().multiline

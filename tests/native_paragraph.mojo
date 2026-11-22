@@ -5,6 +5,13 @@ from moxi.native_paragraph import NativeParagraph, draw_box_snapshot
 from moxi.geometry import Rect, Size
 from moxi.macos import MacOSRenderer
 from moxi.testing import test_check
+from moxi.retained_layout import RetainedLayout, RetainedStyle, COLUMN, LEAF, FIXED
+from moxi.retained_leaf import declare_leaf, RetainedPresentation
+from moxi.recipes import badge
+from moxi.view_node import ViewNode, LABEL_KIND
+from moxi.frame import SurfaceMetrics
+from moxi.native_frame import NativeFrameRenderer
+from moxi.backend import BACKEND_MACOS_APPKIT
 from paragraph_layout_policy import ParagraphFormLayout
 
 
@@ -19,8 +26,65 @@ def detached_snapshot() raises -> GeometrySnapshot[NativeParagraph]:
     return context.snapshot()
 
 
+def retained_badge_presentation() raises:
+    var tree = RetainedLayout()
+    tree.set_region(1, RetainedStyle(COLUMN, padding=24, align=1))
+    var tag = badge(2, "Theme: Light", 24, True)
+    var allocation = RetainedStyle(LEAF, width_kind=FIXED, width=120,
+        height_kind=FIXED, height=24)
+    var renderer = MacOSRenderer()
+    var frame_renderer = NativeFrameRenderer[BACKEND_MACOS_APPKIT]()
+    for fixture in range(2):
+        if fixture == 0:
+            declare_leaf(tree, tag, allocation)
+        else:
+            # A badge supplied to an existing paragraph snapshot must also
+            # keep its centered control text instead of binding the paragraph.
+            tree.set_paragraph(2, tag.text, tag.style.font_size, allocation)
+        tree.children(1, [2])
+        var snapshot = tree.layout(1, Size(320,160))
+        var presentation = RetainedPresentation(snapshot, [tag])
+        test_check(presentation.commands[0].badge_label)
+        var packet = presentation.packet(SurfaceMetrics(Size(320,160)))
+        test_check(packet.commands[0].badge_label)
+        test_check(len(packet.resources) == 0)
+        renderer.begin_frame()
+        presentation.draw_commands(renderer)
+        renderer.update_accessibility(presentation.accessibility())
+        renderer.end_frame()
+        test_check(external_call["moxi_test_retained_badge_pixels", Int32](Int32(0), Int32(fixture)) == 1)
+        frame_renderer.bind_resources(snapshot)
+        frame_renderer.render(packet)
+        test_check(external_call["moxi_test_retained_badge_pixels", Int32](Int32(0), Int32(fixture)) == 1)
+
+    # Replacing the badge with an ordinary wrapping label restores the exact
+    # measured paragraph payload, and the canvas still matches its reference.
+    var label = ViewNode(LABEL_KIND, 2,
+        "Ordinary retained labels draw their measured paragraph. 日本語.", 80)
+    declare_leaf(tree, label, RetainedStyle(LEAF, width_kind=FIXED, width=230,
+        height_kind=FIXED, height=80))
+    var ordinary_snapshot = tree.layout(1, Size(320,160))
+    var ordinary = RetainedPresentation(ordinary_snapshot, [label])
+    test_check(not ordinary.commands[0].badge_label)
+    var ordinary_packet = ordinary.packet(SurfaceMetrics(Size(320,160)))
+    test_check(len(ordinary_packet.resources) == 1)
+    renderer.begin_frame()
+    ordinary.draw_commands(renderer)
+    renderer.update_accessibility(ordinary.accessibility())
+    renderer.end_frame()
+    var output = ordinary_snapshot.output(2)
+    test_check(external_call["moxi_test_paragraph_geometry", Int32](Int32(0), Int32(2),
+        output.rect.x, output.rect.y, output.rect.width, output.rect.height,
+        output.paragraph._storage[].handle) == 1)
+    test_check(external_call["moxi_test_paragraph_pixels", Int32](Int32(0)) == 1)
+    frame_renderer.bind_resources(ordinary_snapshot)
+    frame_renderer.render(ordinary_packet)
+    test_check(external_call["moxi_test_paragraph_pixels", Int32](Int32(0)) == 1)
+
+
 def main() raises:
     external_call["moxi_test_paragraph_host", NoneType]()
+    retained_badge_presentation()
     var text = String("Measured and drawn with the same CoreText paragraph. Café, 日本語, العربية.")
     var source = text.as_c_string_slice()
     var paragraph = NativeParagraph.create(text, 18, 230, 0)

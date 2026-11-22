@@ -564,6 +564,7 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `SPACER_KIND` | `moxi.view_node` | stable-core | portable view declarations and composition |
 | `CONTAINER_KIND` | `moxi.view_node` | stable-core | portable view declarations and composition |
 | `TEXT_INPUT_VIEW_KIND` | `moxi.view_node` | stable-core | portable view declarations and composition |
+| `RecipeRole` | `moxi.view_node` | stable-core | portable view declarations and composition |
 | `ViewNode` | `moxi.view_node` | stable-core | portable view declarations and composition |
 | `Button` | `moxi.view_leaf` | stable-core | portable view declarations and composition |
 | `Label` | `moxi.view_leaf` | stable-core | portable view declarations and composition |

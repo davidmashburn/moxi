@@ -3,6 +3,7 @@
  * published semantics through GTK's AT-SPI service. */
 #include "linux_window.h"
 #include "linux_text.h"
+#include "button_state.h"
 #include <gtk/gtk.h>
 #include <math.h>
 #include <stdio.h>
@@ -22,7 +23,11 @@ typedef struct { float r, g, b, a; } Color;
 typedef struct {
     Box box, clip, thumb;
     Color fill, ink;
+    Color border;
+    float border_width;
     float radius, font, value;
+    float label_padding;
+    int badge_label;
     int present, clipped, focused, cursor, start, end, enabled;
     int composition_start, composition_end;
     char *text, *composition;
@@ -621,13 +626,14 @@ static PangoLayout *text_layout(cairo_t *cr, const char *text, float font, int w
 static void draw_text(cairo_t *cr, const char *text, Box box, Color color,
                        float font, int wrap, int centered) {
     PangoLayout *layout = text_layout(cr,text,font,wrap ? (int)(fmax(0,box.width)*PANGO_SCALE) : -1);
+    if (wrap && centered) pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
     PangoRectangle logical;
     pango_layout_get_extents(layout,NULL,&logical);
     float w = (float)logical.width/PANGO_SCALE, h = (float)logical.height/PANGO_SCALE;
     cairo_save(cr);
     cairo_rectangle(cr,box.x,box.y,fmax(0,box.width),fmax(0,box.height)); cairo_clip(cr);
     cairo_move_to(cr,box.x+(centered ? (box.width-w)/2 : 0)-(float)logical.x/PANGO_SCALE,
-                  box.y+(centered ? (box.height-h)/2 : 0)-(float)logical.y/PANGO_SCALE);
+                  box.y+(centered ? fmax(0,(box.height-h)/2) : 0)-(float)logical.y/PANGO_SCALE);
     set_color(cr,color); pango_cairo_show_layout(cr,layout);
     cairo_restore(cr);
     g_object_unref(layout);
@@ -720,14 +726,30 @@ static void draw_slot(cairo_t *cr, int kind, int index) {
         cairo_clip(cr);
     }
     if (kind == 1) {
+        if (slot->fill.a > 0) fill_box(cr,slot->box,slot->fill,slot->radius);
         if (slot->paragraph) moxi_linux_paragraph_draw(cr,slot->paragraph,slot->box.x,slot->box.y,
             slot->box.width,slot->box.height,slot->ink.r,slot->ink.g,slot->ink.b,slot->ink.a);
-        else draw_text(cr,slot->text,slot->box,slot->ink,slot->font,slot->value != 0,0);
+        else if (slot->badge_label) {
+            Box text_box = slot->box;
+            text_box.x += slot->label_padding;
+            text_box.width = fmax(0, text_box.width - slot->label_padding * 2);
+            draw_text(cr,slot->text,text_box,slot->ink,slot->font,slot->value != 0,1);
+        } else draw_text(cr,slot->text,slot->box,slot->ink,slot->font,slot->value != 0,0);
     } else {
         fill_box(cr,slot->box,slot->fill,slot->radius);
+        if (kind == 2 && slot->border_width > 0) {
+            float inset = slot->border_width / 2;
+            Box b = slot->box;
+            box_path(cr,(Box){b.x+inset,b.y+inset,fmax(0,b.width-2*inset),fmax(0,b.height-2*inset)},
+                     fmax(0,slot->radius-inset));
+            set_color(cr,slot->border);
+            cairo_set_line_width(cr,slot->border_width);
+            cairo_stroke(cr);
+        }
         if (kind == 24) fill_box(cr,slot->thumb,slot->ink,slot->radius);
         else if (kind == 5) draw_editor(cr,slot);
-        else if (kind != 3) draw_text(cr,slot->text,slot->box,slot->ink,slot->font,0,1);
+        else if (kind != 3) draw_text(cr,slot->text,slot->box,slot->ink,slot->font,
+                                      kind == 2 && slot->value != 0,1);
         if (slot->focused) {
             box_path(cr,slot->box,slot->radius);
             set_color(cr,(Color){0.35f,0.85f,0.75f,1}); cairo_set_line_width(cr,2); cairo_stroke(cr);
@@ -855,6 +877,21 @@ void moxi_window_set_panel(BOX_ARGS, COLOR_ARGS(fill), float radius) {
     moxi_window_set_panel_at(0,x,y,width,height,fill_r,fill_g,fill_b,fill_a,radius,
                             clipped,clip.x,clip.y,clip.width,clip.height);
 }
+void moxi_window_set_label_background(int index, COLOR_ARGS(fill), float radius) {
+    if (index < 0 || index >= SLOT_CAPACITY) return;
+    slots[1][index].fill = COLOR(fill);
+    slots[1][index].radius = radius;
+}
+void moxi_window_set_label_badge(int index, int enabled, float horizontal_padding) {
+    if (index < 0 || index >= SLOT_CAPACITY) return;
+    slots[1][index].badge_label = enabled != 0;
+    slots[1][index].label_padding = fmax(0, horizontal_padding);
+}
+void moxi_window_set_button_border(int index, COLOR_ARGS(border), float width) {
+    if (index < 0 || index >= SLOT_CAPACITY) return;
+    slots[2][index].border = COLOR(border);
+    slots[2][index].border_width = width;
+}
 void moxi_window_set_label_at(int index, const char *text, BOX_ARGS, COLOR_ARGS(ink),
                               float font, int wrap) {
     Slot *slot = put_slot(1,index,text,BOX,(Color){0},COLOR(ink),0,font);
@@ -873,9 +910,13 @@ void moxi_window_set_paragraph_at(int index, uintptr_t handle) {
 void moxi_window_set_button_at(int index, const char *text, BOX_ARGS,
     COLOR_ARGS(fill), COLOR_ARGS(ink), float radius, float font, int wrap,
     int focused, int hovered, int pressed, int enabled) {
-    (void)wrap; (void)hovered; (void)pressed;
-    Slot *slot = put_slot(2,index,text,BOX,COLOR(fill),COLOR(ink),radius,font);
-    if (slot) { slot->focused = focused; slot->enabled = enabled; }
+    MoxiButtonColor state = moxi_button_state_fill(
+        (MoxiButtonColor){fill_r, fill_g, fill_b, fill_a},
+        (MoxiButtonColor){ink_r, ink_g, ink_b, ink_a}, enabled, hovered, pressed);
+    if (!enabled) ink_a *= 0.55f;
+    Slot *slot = put_slot(2,index,text,BOX,
+                          (Color){state.r, state.g, state.b, state.a},COLOR(ink),radius,font);
+    if (slot) { slot->focused = focused; slot->enabled = enabled; slot->value = wrap; }
 }
 void moxi_window_set_button(const char *text, BOX_ARGS) {
     moxi_window_set_button_at(0,text,x,y,width,height,0.15f,0.25f,0.35f,1,

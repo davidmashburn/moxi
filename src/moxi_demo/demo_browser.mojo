@@ -57,6 +57,7 @@ from moxi.interaction_showcase import (
 from moxi.layout import ALIGN_STRETCH, JUSTIFY_START, ROW_AXIS
 from moxi.live_script import LIVE_SCRIPT_CANVAS_ID, LiveScriptState
 from moxi.nested import NestedState
+from moxi.paint import CANVAS_KIND, PaintCommand
 from moxi.row import RowState
 from moxi.theme_showcase import ThemeShowcaseState
 from moxi.style import (
@@ -629,27 +630,36 @@ struct DemoBrowserState(Component):
             return self.fractal.component.build_scene(canvas)
         return empty^
 
-    def selected_surface_bounds(self, view: ColumnView) -> Rect:
-        """Return the active component canvas bounds for a scene host."""
+    def selected_surface_id(self) -> Int:
+        """Identify the selected component canvas independently of its clip."""
         if self.tab != DEMO_TAB_DEMO:
-            return Rect(0.0, 0.0, 0.0, 0.0)
+            return -1
         var entry = self.selected_entry()
         if entry.page_kind == DEMO_PAGE_INTERACTION:
-            return view.bounds_for(
-                DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_CANVAS_ID
-            )
+            return DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_CANVAS_ID
         if entry.page_kind == DEMO_PAGE_SHOWCASE and self.showcase.component.has_scene():
-            return view.bounds_for(
-                DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_CANVAS_ID
-            )
+            return DEMO_SHOWCASE_ID_OFFSET + SHOWCASE_CANVAS_ID
         if entry.page_kind == DEMO_PAGE_FRACTAL:
-            return view.bounds_for(
-                DEMO_FRACTAL_ID_OFFSET + FRACTAL_CANVAS_ID
-            )
+            return DEMO_FRACTAL_ID_OFFSET + FRACTAL_CANVAS_ID
         if entry.page_kind == DEMO_PAGE_LIVE_SCRIPT:
-            return view.bounds_for(
-                DEMO_LIVE_SCRIPT_ID_OFFSET + LIVE_SCRIPT_CANVAS_ID
-            )
+            return DEMO_LIVE_SCRIPT_ID_OFFSET + LIVE_SCRIPT_CANVAS_ID
+        return -1
+
+    def selected_surface_bounds(self, view: ColumnView) -> Rect:
+        """Return the full canvas geometry used to build a component scene."""
+        return view.bounds_for(self.selected_surface_id())
+
+    def selected_surface_clip(self, view: ColumnView, commands: List[PaintCommand]) -> Rect:
+        """Keep custom scenes inside the retained canvas's scrolling ancestors."""
+        var id = self.selected_surface_id()
+        if id != -1:
+            var surface = self.selected_surface_bounds(view)
+            for index in range(len(commands)):
+                var command = commands[index]
+                if command.kind == CANVAS_KIND and command.id == id:
+                    if command.has_clip:
+                        return surface.intersection(command.clip_bounds)
+                    return surface
         return Rect(0.0, 0.0, 0.0, 0.0)
 
     def build(self, bounds: Rect) -> ColumnView:
@@ -1106,7 +1116,8 @@ struct DemoBrowserState(Component):
             _filter_button_style(self.category == category),
         )
         root.add_to(parent_id, button.node())
-        root.set_fixed_width(DEMO_CATEGORY_BUTTON_BASE + category, 62.0)
+        # Four buttons plus three gaps must fit the 256 px sidebar interior.
+        root.set_fixed_width(DEMO_CATEGORY_BUTTON_BASE + category, 61.0)
         root.set_selected(
             DEMO_CATEGORY_BUTTON_BASE + category,
             self.category == category,
@@ -1413,7 +1424,9 @@ struct DemoBrowserState(Component):
                 _small_style(),
             )
             component_parent = preview
-            component_height = page_height - 50.0 if authoring_height > 0.0 else page_height - 42.0
+            # Split padding (8), preview padding (16), kicker (18), and gap (8)
+            # apply to every preview, including ordinary Component examples.
+            component_height = page_height - 50.0
             if component_height < 96.0:
                 component_height = 96.0
             # Match the child build width to the first split pane, including
@@ -1488,7 +1501,8 @@ struct DemoBrowserState(Component):
             )
             return
         if entry.page_kind == DEMO_PAGE_WX_STYLE:
-            var child_height: Float32 = 1080.0
+            # The teaching panel needs 1052 px plus its two 20 px insets.
+            var child_height: Float32 = 1092.0
             var child = self.wx_style.build(Rect(0.0, 0.0, component_width, child_height))
             root.add_component_view_to(
                 component_parent,

@@ -2,9 +2,7 @@
 
 from moxi import App, Rect
 from moxi.macos import MacOSLiveEditor, MacOSLiveScript, LiveBuildStatus
-from moxi.paint import CANVAS_KIND
-from moxi.live_script import LIVE_SCRIPT_CANVAS_ID
-from .demo_browser import DemoBrowserState, DEMO_LIVE_SCRIPT_ID_OFFSET
+from .demo_browser import DemoBrowserState
 
 
 def live_surface_clip(app: App[DemoBrowserState]) -> Rect:
@@ -13,13 +11,7 @@ def live_surface_clip(app: App[DemoBrowserState]) -> Rect:
     Call after painting the retained frame. The ABI still receives the full
     canvas geometry, while its custom paint stays inside the browser viewport.
     """
-    var surface = app.component.selected_surface_bounds(app.view)
-    for command in app.runtime.previous_commands:
-        if command.kind == CANVAS_KIND and command.id == DEMO_LIVE_SCRIPT_ID_OFFSET + LIVE_SCRIPT_CANVAS_ID:
-            if command.has_clip:
-                return surface.intersection(command.clip_bounds)
-            return surface
-    return Rect(0.0, 0.0, 0.0, 0.0)
+    return app.component.selected_surface_clip(app.view, app.runtime.previous_commands)
 
 
 def sync_live_editor(

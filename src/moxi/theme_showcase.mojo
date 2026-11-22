@@ -15,6 +15,7 @@ from .event import (
     TEXT_INPUT_KIND,
 )
 from .geometry import Rect
+from .layout import ALIGN_CENTER, JUSTIFY_START
 from .recipes import (
     badge,
     destructive_button,
@@ -98,10 +99,10 @@ struct ThemeShowcaseState(Component):
 
         var view = ColumnView(bounds, sp.space_lg, sp.space_md)
         view.set_theme(theme)
-        view.set_surface_style(theme.surface)
 
         # Header Row: Title & Badges
         _ = view.add_row(1000, 0.0, 36.0, 0.0, sp.space_sm)
+        view.set_container_alignment(1000, JUSTIFY_START, ALIGN_CENTER)
         view.add_label_to(1000, 1001, canonical_theme_title(), 36.0)
         var mode_name = String("Theme: ", canonical_theme_mode_name(self.theme_mode))
         var theme_badge = badge(1002, mode_name, 24.0, True, tokens)
@@ -111,14 +112,13 @@ struct ThemeShowcaseState(Component):
         _ = view.add_row(1100, 0.0, 34.0, 0.0, sp.space_sm)
         view.add_label_to(1100, 1101, canonical_theme_selector_label(), 34.0)
         var modes = canonical_theme_modes()
-        var b_dark = secondary_button(BTN_THEME_DARK, modes[0].button_label, 32.0, modes[0].action_id, tokens)
-        var b_light = secondary_button(BTN_THEME_LIGHT, modes[1].button_label, 32.0, modes[1].action_id, tokens)
-        var b_zinc = secondary_button(BTN_THEME_ZINC, modes[2].button_label, 32.0, modes[2].action_id, tokens)
-        var b_emerald = secondary_button(BTN_THEME_EMERALD, modes[3].button_label, 32.0, modes[3].action_id, tokens)
-        view.add_to(1100, b_dark)
-        view.add_to(1100, b_light)
-        view.add_to(1100, b_zinc)
-        view.add_to(1100, b_emerald)
+        for mode in modes:
+            var id = BTN_THEME_DARK + mode.mode
+            var button = secondary_button(id, mode.button_label, 32.0, mode.action_id, tokens)
+            if mode.mode == self.theme_mode:
+                button = primary_button(id, mode.button_label, 32.0, mode.action_id, tokens)
+                button.set_selected(True)
+            view.add_to(1100, button)
 
         # Section 1: Button Variants
         view.add_label(2000, "Button Recipes", 28.0)
@@ -143,7 +143,6 @@ struct ThemeShowcaseState(Component):
             self.input.cursor,
             self.input.anchor,
             34.0,
-            theme.text_input,
         )
         input.set_composition(
             self.input.composition,
@@ -156,7 +155,6 @@ struct ThemeShowcaseState(Component):
             "Checkbox option",
             self.checkbox_checked,
             34.0,
-            theme.control,
         )
         view.add_to(3100, checkbox.node())
         var switch_node = SwitchControl(
@@ -165,31 +163,18 @@ struct ThemeShowcaseState(Component):
             self.switch_checked,
             34.0,
         ).node()
-        switch_node.set_style(theme.switch_style)
         view.add_to(3100, switch_node)
 
         # Section 3: Status & Feedback
         view.add_separator(4000)
         view.add_label(4001, self.status_message, 24.0)
 
-        # `set_theme` retains the selected theme for callers that add nodes
-        # incrementally. This declarative build adds a few recipe-specific
-        # nodes afterwards, so apply the semantic styles explicitly while
-        # preserving the typography hierarchy and button variants above.
-        var title_style = theme.label
-        title_style.font_size = typography.text_xl
-        view.set_style(1001, title_style)
-        var toolbar_label_style = theme.label
-        toolbar_label_style.font_size = typography.text_base
-        view.set_style(1101, toolbar_label_style)
-        var section_style = theme.label
-        section_style.font_size = typography.text_lg
-        view.set_style(2000, section_style)
-        view.set_style(3000, section_style)
-        var status_style = theme.label
-        status_style.font_size = typography.text_sm
-        view.set_style(4001, status_style)
-        view.set_style(4000, theme.separator_style)
+        # Local hierarchy overrides typography; palette colors stay inherited.
+        view.set_font_size(1001, typography.text_xl)
+        view.set_font_size(1101, typography.text_base)
+        view.set_font_size(2000, typography.text_lg)
+        view.set_font_size(3000, typography.text_lg)
+        view.set_font_size(4001, typography.text_sm)
 
         view.layout()
         return view^

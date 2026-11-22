@@ -5,6 +5,7 @@ from std.collections import Dict, List
 
 
 from .geometry import Point, Rect, Size
+from .scrollbar import scroll_overflow_extent
 from .content_layout import AxisSize, LayoutStyle, LayoutNode, LayoutTree
 from .layout import (
     ALIGN_CENTER,
@@ -25,13 +26,12 @@ from .layout import (
     RowLayout,
 )
 from .style import (
+    Color,
     Panel,
     Style,
     Theme,
     default_panel_style,
     default_surface_style,
-    default_text_input_style,
-    default_multiline_style,
 )
 from .view_node import (
     BUTTON_KIND,
@@ -75,11 +75,9 @@ def make_counter_column(count: Int, bounds: Rect) -> ColumnView:
         panel_width = 0.0
     if panel_height < 0.0:
         panel_height = 0.0
-    column.set_surface_style(default_surface_style())
     column.set_panel(
         0,
         Rect(bounds.x + 20.0, bounds.y + 20.0, panel_width, panel_height),
-        default_panel_style(),
     )
     column.add_label(1, "Moxi Counter", 28.0)
     column.add_label(2, count_text, 40.0)
@@ -103,6 +101,11 @@ struct ColumnView:
     var clip_to_bounds: Bool
     var root_scroll_offset: Float32
     var theme: Theme
+    var has_explicit_theme: Bool
+    var _theme_scopes: Dict[Int, Theme]
+    var _theme_parent_ids: Dict[Int, Int]
+    var has_explicit_surface_style: Bool
+    var has_explicit_panel_style: Bool
     # A spatial presenter may publish final bounds for an already laid-out tree.
     var published_geometry: Bool
     var content_layout_enabled: Bool
@@ -133,6 +136,11 @@ struct ColumnView:
         self.clip_to_bounds = False
         self.root_scroll_offset = 0.0
         self.theme = Theme()
+        self.has_explicit_theme = False
+        self._theme_scopes = Dict[Int, Theme]()
+        self._theme_parent_ids = Dict[Int, Int]()
+        self.has_explicit_surface_style = False
+        self.has_explicit_panel_style = False
         self.published_geometry = False
         self.content_layout_enabled = False
         self.content_layout_active = False
@@ -143,6 +151,8 @@ struct ColumnView:
     def add(mut self, child: ViewNode):
         """Append a declarative child before running layout."""
         self.children.append(child)
+        self._theme_parent_ids[child.id] = child.parent_id
+        self._resolve_child_theme(len(self.children) - 1)
 
     def clone(self) -> Self:
         """Copy a view declaration for retained parent composition."""
@@ -162,6 +172,11 @@ struct ColumnView:
         result.clip_to_bounds = self.clip_to_bounds
         result.root_scroll_offset = self.root_scroll_offset
         result.theme = self.theme
+        result.has_explicit_theme = self.has_explicit_theme
+        result._theme_scopes = self._theme_scopes.copy()
+        result._theme_parent_ids = self._theme_parent_ids.copy()
+        result.has_explicit_surface_style = self.has_explicit_surface_style
+        result.has_explicit_panel_style = self.has_explicit_panel_style
         result.published_geometry = self.published_geometry
         result.content_layout_enabled = self.content_layout_enabled
         result.content_layout_active = self.content_layout_active
@@ -175,7 +190,7 @@ struct ColumnView:
         var nested = child
         nested.parent_id = parent_id
         nested.semantics.parent_id = parent_id
-        self.children.append(nested)
+        self.add(nested)
 
     def add_component_view_to(
         mut self,
@@ -196,10 +211,11 @@ struct ColumnView:
         if height <= 0.0:
             height = child.intrinsic_size().height
         var slot = ViewNode(CONTAINER_KIND, slot_id, "", height)
-        # A component owns the surface it was built with. Preserve that
-        # decoration on the embedding slot so theme changes are visible when
-        # the component is mounted inside another view.
+        # Explicit component surfaces remain local. Ordinary component
+        # surfaces inherit the enclosing theme just like the child controls.
         slot.style = child.surface_style
+        slot._resolved_style = child.surface_style
+        slot.has_explicit_style = child.has_explicit_surface_style
         slot.component_surface = True
         slot.container_axis = child.axis
         slot.container_padding = child.layout_spec.padding
@@ -210,6 +226,12 @@ struct ColumnView:
         slot.parent_id = parent_id
         slot.semantics.parent_id = parent_id
         slot.semantics.label = "Component"
+        if child.has_explicit_theme:
+            self._theme_scopes[slot_id] = child.theme
+        for scope_id in child._theme_scopes.keys():
+            self._theme_scopes[scope_id + id_offset] = child._theme_scopes.get(
+                scope_id, child.theme,
+            )
         self.add(slot)
 
         for index in range(child.child_count()):
@@ -575,8 +597,8 @@ struct ColumnView:
             var extent = self.content_layout_tree.content_extent(tree_index)
             var viewport = self.content_layout_tree.bounds(tree_index)
             if axis == ROW_AXIS:
-                return max(extent.width - viewport.width, 0.0)
-            return max(extent.height - viewport.height, 0.0)
+                return scroll_overflow_extent(extent.width, viewport.width)
+            return scroll_overflow_extent(extent.height, viewport.height)
         if id == ROOT_SCROLL_ID:
             var content = self._linear_content_extent(
                 -1,
@@ -587,8 +609,7 @@ struct ColumnView:
             var viewport = self.layout_spec.bounds.height
             if self.axis == ROW_AXIS:
                 viewport = self.layout_spec.bounds.width
-            var maximum = content - viewport
-            return maximum if maximum > 0.0 else 0.0
+            return scroll_overflow_extent(content, viewport)
         for index in range(len(self.children)):
             if (
                 self.children[index].id == id
@@ -608,10 +629,7 @@ struct ColumnView:
                 var viewport = node.bounds.height
                 if node.container_axis == ROW_AXIS:
                     viewport = node.bounds.width
-                    var horizontal = content - viewport
-                    return horizontal if horizontal > 0.0 else 0.0
-                var vertical = content - viewport
-                return vertical if vertical > 0.0 else 0.0
+                return scroll_overflow_extent(content, viewport)
         return 0.0
 
     def add_label_to(
@@ -642,17 +660,9 @@ struct ColumnView:
         preferred_height: Float32,
     ):
         """Append a text input to a nested container."""
-        self.add_to(
-            parent_id,
-            ViewNode(
-                TEXT_INPUT_VIEW_KIND,
-                id,
-                text,
-                preferred_height,
-                default_text_input_style(),
-                text.count_codepoints(),
-            ),
-        )
+        var child = ViewNode(TEXT_INPUT_VIEW_KIND, id, text, preferred_height)
+        child.cursor = text.count_codepoints()
+        self.add_to(parent_id, child)
 
     def add_checkbox_to(
         mut self,
@@ -745,9 +755,8 @@ struct ColumnView:
             id,
             text,
             preferred_height,
-            default_multiline_style(),
-            text.count_codepoints(),
         )
+        child.cursor = text.count_codepoints()
         child.set_wrap_text()
         self.add_to(parent_id, child)
 
@@ -889,9 +898,8 @@ struct ColumnView:
             id,
             text,
             preferred_height,
-            default_multiline_style(),
-            text.count_codepoints(),
         )
+        child.cursor = text.count_codepoints()
         child.set_wrap_text()
         self.add(child)
 
@@ -956,16 +964,9 @@ struct ColumnView:
         text: String,
         preferred_height: Float32,
     ):
-        self.add(
-            ViewNode(
-                TEXT_INPUT_VIEW_KIND,
-                id,
-                text,
-                preferred_height,
-                default_text_input_style(),
-                text.count_codepoints(),
-            )
-        )
+        var child = ViewNode(TEXT_INPUT_VIEW_KIND, id, text, preferred_height)
+        child.cursor = text.count_codepoints()
+        self.add(child)
 
     def add_text_input_styled(
         mut self,
@@ -1173,6 +1174,24 @@ struct ColumnView:
             if self.children[index].id == id:
                 self.children[index].set_style(style)
 
+    def set_font_size(mut self, id: Int, size: Float32):
+        """Override a node's font size while retaining its theme colors."""
+        for index in range(len(self.children)):
+            if self.children[index].id == id:
+                self.children[index].set_font_size(size)
+
+    def set_text_color(mut self, id: Int, color: Color):
+        """Override a node's foreground without replacing its full style."""
+        for index in range(len(self.children)):
+            if self.children[index].id == id:
+                self.children[index].set_text_color(color)
+
+    def set_corner_radius(mut self, id: Int, radius: Float32):
+        """Override a node's radius while retaining its other theme defaults."""
+        for index in range(len(self.children)):
+            if self.children[index].id == id:
+                self.children[index].set_corner_radius(radius)
+
     def set_checked(mut self, id: Int, checked: Bool):
         """Update checkbox state and its semantic value by stable id."""
         for index in range(len(self.children)):
@@ -1199,59 +1218,74 @@ struct ColumnView:
         self.add(child)
 
     def set_surface_style(mut self, style: Style):
+        """Set an explicit root surface that takes precedence over themes."""
         self.surface_style = style
+        self.has_explicit_surface_style = True
 
     def set_theme(mut self, theme: Theme):
-        """Apply a complete visual theme to the current view tree."""
+        """Set the app theme, preserving subtree themes and local styles."""
         self.theme = theme
+        self.has_explicit_theme = True
+        self.apply_theme()
+
+    def _theme_scope_id(self, id: Int) -> Int:
+        if len(self._theme_scopes) == 0:
+            return -1
+        var ancestor = id
+        for _ in range(len(self.children) + 1):
+            if ancestor == -1:
+                break
+            if ancestor in self._theme_scopes:
+                return ancestor
+            ancestor = self._theme_parent_ids.get(ancestor, -1)
+        return -1
+
+    def theme_for(self, id: Int) -> Theme:
+        """Return the closest explicit subtree theme, or the app theme."""
+        return self._theme_scopes.get(self._theme_scope_id(id), self.theme)
+
+    def _resolve_child_theme(mut self, index: Int):
+        var scope = self._theme_scope_id(self.children[index].id)
+        var theme = self._theme_scopes.get(scope, self.theme)
+        var owns_surface = (scope == self.children[index].id
+                            and self.children[index].kind == CONTAINER_KIND)
+        self.children[index].resolve_theme(
+            theme, self.has_explicit_theme or scope != -1, owns_surface,
+        )
+
+    def set_theme_for(mut self, id: Int, theme: Theme):
+        """Set a theme for a subtree, including children inserted later."""
+        if id == -1:
+            self.set_theme(theme)
+            return
+        self._theme_scopes[id] = theme
+        self.apply_theme()
+
+    def clear_theme_for(mut self, id: Int):
+        """Restore a subtree's inheritance from its enclosing scope."""
+        _ = self._theme_scopes.pop(id, self.theme)
         self.apply_theme()
 
     def apply_theme(mut self):
-        """Apply the stored theme while retaining view identity and state."""
+        """Resolve the tree without changing identity, state, or local styles."""
+        if not self.has_explicit_surface_style:
+            self.surface_style = self.theme.surface
+        if not self.has_explicit_panel_style:
+            self.panel.style = self.theme.panel
         for index in range(len(self.children)):
-            var kind = self.children[index].kind
-            if kind == LABEL_KIND:
-                self.children[index].set_style(self.theme.label)
-            elif kind == BUTTON_KIND:
-                self.children[index].set_style(self.theme.button)
-            elif kind == TEXT_INPUT_VIEW_KIND:
-                self.children[index].set_style(self.theme.text_input)
-            elif kind == CHECKBOX_KIND:
-                self.children[index].set_style(self.theme.control)
-            elif kind == PROGRESS_KIND:
-                self.children[index].set_style(self.theme.progress)
-            elif kind == SLIDER_KIND:
-                self.children[index].set_style(self.theme.slider)
-            elif kind == SWITCH_KIND:
-                self.children[index].set_style(self.theme.switch_style)
-            elif kind == RADIO_KIND:
-                self.children[index].set_style(self.theme.radio)
-            elif kind == IMAGE_KIND:
-                self.children[index].set_style(self.theme.image)
-            elif kind == MULTILINE_TEXT_KIND:
-                self.children[index].set_style(self.theme.multiline)
-            elif kind == COMBO_BOX_KIND:
-                self.children[index].set_style(self.theme.combo_box)
-            elif kind == LIST_KIND:
-                self.children[index].set_style(self.theme.list_style)
-            elif kind == TABLE_KIND:
-                self.children[index].set_style(self.theme.table_style)
-            elif kind == TREE_KIND:
-                self.children[index].set_style(self.theme.tree_style)
-            elif kind == MENU_KIND:
-                self.children[index].set_style(self.theme.menu_style)
-            elif kind == DIALOG_KIND:
-                self.children[index].set_style(self.theme.dialog_style)
-            elif kind == TABS_KIND:
-                self.children[index].set_style(self.theme.tabs_style)
-            elif kind == CANVAS_KIND:
-                self.children[index].set_style(self.theme.canvas_style)
-            elif kind == SEPARATOR_KIND:
-                self.children[index].set_style(self.theme.separator_style)
+            self._resolve_child_theme(index)
+
+    def set_panel(mut self, id: Int, bounds: Rect):
+        """Decorate the root with a panel that follows the app theme."""
+        self.panel = Panel(id, bounds, self.theme.panel)
+        self.has_panel = True
+        self.has_explicit_panel_style = False
 
     def set_panel(mut self, id: Int, bounds: Rect, style: Style):
+        """Decorate the root with an explicit panel style."""
         self.panel = Panel(id, bounds, style)
         self.has_panel = True
+        self.has_explicit_panel_style = True
 
     def set_row_layout(mut self):
         """Switch this container to a horizontal layout."""
@@ -1532,9 +1566,9 @@ struct ColumnView:
             if self.children[index].kind == CONTAINER_KIND:
                 var extent = self.content_layout_tree.content_extent(index + 1)
                 var viewport = self.content_layout_tree.bounds(index + 1)
-                var maximum = max(extent.height - viewport.height, 0.0)
+                var maximum = scroll_overflow_extent(extent.height, viewport.height)
                 if self.children[index].container_axis == ROW_AXIS:
-                    maximum = max(extent.width - viewport.width, 0.0)
+                    maximum = scroll_overflow_extent(extent.width, viewport.width)
                 self.children[index].container_scroll_offset = min(max(self.children[index].container_scroll_offset, 0.0), maximum)
                 has_nested_scroll = has_nested_scroll or self.children[index].container_scroll_offset > 0.0
         for index in range(len(self.children)):
@@ -1671,9 +1705,7 @@ struct ColumnView:
             var child_viewport = child_bounds.height
             if child_axis == ROW_AXIS:
                 child_viewport = child_bounds.width
-            var child_max = child_content - child_viewport
-            if child_max < 0.0:
-                child_max = 0.0
+            var child_max = scroll_overflow_extent(child_content, child_viewport)
             if child_scroll > child_max:
                 child_scroll = child_max
             if child_scroll < 0.0:
@@ -1941,7 +1973,7 @@ struct ColumnView:
             if self.children[index].parent_id != parent_id:
                 continue
             var height = self.layout_height(index)
-            var width = content_width
+            var width: Float32
             var left = bounds.x + padding
             var requested_width = self.layout_width(index)
             if cross_alignment == ALIGN_STRETCH:
@@ -1949,8 +1981,11 @@ struct ColumnView:
                 # cap or expand the result. Without this, max-width is ignored
                 # for ordinary column children.
                 width = self.children[index].constrained_width(content_width)
-            elif requested_width > 0.0:
-                width = requested_width
+            else:
+                if requested_width > 0.0:
+                    width = requested_width
+                else:
+                    width = self.children[index].constrained_width(content_width)
                 if width > content_width:
                     width = content_width
                 if cross_alignment == ALIGN_CENTER:
@@ -2062,7 +2097,7 @@ struct ColumnView:
         var viewport = node.bounds.height
         if node.container_axis == ROW_AXIS:
             viewport = node.bounds.width
-        return content > viewport
+        return scroll_overflow_extent(content, viewport) > 0.0
 
 
 def make_row(bounds: Rect, padding: Float32, spacing: Float32) -> ColumnView:

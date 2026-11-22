@@ -37,12 +37,18 @@ static void check_ordered_clipped_paint(void) {
     moxi_window_set_button_at(0, "", 12, 12, 20, 20,
                                0, 1, 0, 1, 0, 0, 0, 0,
                                0, 16, 0, 0, 0, 0, 1);
+    moxi_window_set_button_border(0, 1, 1, 1, 1, 2);
+    moxi_window_set_label_at(0, "", 45, 45, 12, 12, 0, 0, 0, 1, 12, 0);
+    moxi_window_set_label_background(0, 0, 1, 1, 1, 2);
     moxi_window_ordered_paint_begin();
     moxi_window_ordered_paint(3, 0);
     moxi_window_ordered_paint(100, 0);
     moxi_window_ordered_paint(3, 1);
     moxi_window_ordered_paint(2, 0);
+    moxi_window_ordered_paint(1, 0);
     cairo_surface_t *surface = render(64, 64);
+    assert(pixel(surface, 13, 20) == UINT32_C(0xffffffff));
+    assert(pixel(surface, 50, 50) == UINT32_C(0xff00ffff));
     assert(pixel(surface, 40, 40) == UINT32_C(0xffff0000));
     assert(pixel(surface, 4, 10) == UINT32_C(0xffffff00));
     assert(pixel(surface, 10, 10) == UINT32_C(0xff0000ff));
@@ -50,6 +56,64 @@ static void check_ordered_clipped_paint(void) {
     assert(pixel(surface, 28, 5) == UINT32_C(0xffffff00));
     assert(moxi_window_command_overflow_count() == 0);
     cairo_surface_destroy(surface);
+}
+
+/* Ghost buttons blend their own ink over a transparent fill. */
+static void check_button_states(void) {
+    moxi_window_begin_frame();
+    moxi_window_set_surface(1, 1, 1, 1);
+    moxi_window_ordered_paint_begin();
+    for (int i = 0; i < 4; ++i) {
+        moxi_window_set_button_at(i, "", 10 * i, 0, 10, 10,
+            0, 0, 0, 0, 0, 0, 0, 1, 0, 12, 0, 0, i > 0, i > 1, i != 3);
+        moxi_window_ordered_paint(2, i);
+    }
+    cairo_surface_t *surface = render(40, 10);
+    uint32_t idle = pixel(surface, 5, 5);
+    uint32_t hovered = pixel(surface, 15, 5);
+    uint32_t pressed = pixel(surface, 25, 5);
+    assert(idle == UINT32_C(0xffffffff));
+    assert(hovered < idle && pressed < hovered);
+    assert(pixel(surface, 35, 5) == idle);
+    cairo_surface_destroy(surface);
+}
+
+/* Badge placement is explicit; a filled ordinary label retains its alignment. */
+static void check_badge_label_alignment(void) {
+    moxi_window_begin_frame();
+    moxi_window_set_surface(0, 0, 0, 1);
+    moxi_window_set_clip(0, 0, 0, 160, 100);
+    moxi_window_ordered_paint_begin();
+    moxi_window_ordered_paint(1, 0);
+    for (int scenario = 0; scenario < 3; ++scenario) {
+        moxi_window_set_label_at(0, scenario == 2 ? "HH\nHH" : "HH",
+                                 20, 20, 120, 40, 1, 1, 1, 1, 12, 0);
+        moxi_window_set_label_background(0, 0, 0, 1, 1, 999);
+        if (scenario == 0) moxi_window_set_label_badge(0, 1, 12);
+        cairo_surface_t *surface = render(160, 100);
+        int min_x = 160, min_y = 100, max_x = -1, max_y = -1;
+        for (int y = 0; y < 100; ++y) for (int x = 0; x < 160; ++x) {
+            uint32_t color = pixel(surface, x, y);
+            if (((color >> 16) & 255) >= 160 &&
+                ((color >> 8) & 255) >= 160 && (color & 255) >= 160) {
+                if (x < min_x) min_x = x;
+                if (y < min_y) min_y = y;
+                if (x > max_x) max_x = x;
+                if (y > max_y) max_y = y;
+            }
+        }
+        assert(max_x >= min_x && max_y >= min_y);
+        if (scenario == 0) {
+            assert(min_x + max_x >= 156 && min_x + max_x <= 164);
+            assert(min_y + max_y >= 72 && min_y + max_y <= 88);
+            assert(min_x >= 32 && max_x < 128);
+            assert((pixel(surface, 36, 21) & 255) >= 160);
+        } else {
+            // Reusing the badge slot must clear its centering and padding.
+            assert(min_x < 26 && min_y < 29);
+        }
+        cairo_surface_destroy(surface);
+    }
 }
 
 static void check_paragraph_ownership(void) {
@@ -166,6 +230,8 @@ static void check_command_capacity(void) {
 int main(void) {
     assert(moxi_window_is_open() == 0);
     check_ordered_clipped_paint();
+    check_button_states();
+    check_badge_label_alignment();
     check_paragraph_ownership();
     check_unicode_event_abi();
     check_event_coalescing_and_capacity();

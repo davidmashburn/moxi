@@ -86,6 +86,55 @@ int moxi_test_paragraph_pixels(int slot) {
     return equal && ink > 20;
 }
 
+int moxi_test_retained_badge_pixels(int slot, int fixture) {
+    if (slot < 0 || slot >= moxi_label_count || !moxi_label_badges[slot] ||
+        moxi_label_paragraphs[slot] != nil) return 0;
+    const size_t width = 800, height = 700, stride = width * 4;
+    unsigned char *pixels = calloc(height, stride);
+    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+    CGContextRef cg = CGBitmapContextCreate(pixels, width, height, 8, stride,
+        space, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
+    NSGraphicsContext *ns = [NSGraphicsContext graphicsContextWithCGContext:cg flipped:YES];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:ns];
+    CGContextTranslateCTM(cg, 0, height);
+    CGContextScaleCTM(cg, 1, -1);
+    [moxi_canvas drawRect:moxi_canvas.bounds];
+    [NSGraphicsContext restoreGraphicsState];
+    NSRect frame = moxi_label_frames[slot];
+    NSInteger minX = width, minY = height, maxX = -1, maxY = -1;
+    for (NSInteger y = NSMinY(frame); y < NSMaxY(frame); ++y) {
+        for (NSInteger x = NSMinX(frame); x < NSMaxX(frame); ++x) {
+            unsigned char *pixel = pixels + y * stride + x * 4;
+            if (fabs(pixel[0] - moxi_label_text_colors[slot][0] * 255) > 16 ||
+                fabs(pixel[1] - moxi_label_text_colors[slot][1] * 255) > 16 ||
+                fabs(pixel[2] - moxi_label_text_colors[slot][2] * 255) > 16) continue;
+            minX = MIN(minX, x); minY = MIN(minY, y);
+            maxX = MAX(maxX, x); maxY = MAX(maxY, y);
+        }
+    }
+    BOOL centered = maxX >= minX && maxY >= minY &&
+        fabs((minX + maxX + 1) * 0.5 - NSMidX(frame)) <= 2 &&
+        fabs((minY + maxY + 1) * 0.5 - NSMidY(frame)) <= 4 &&
+        minX >= NSMinX(frame) + 12 && maxX + 1 <= NSMaxX(frame) - 12;
+    const char *artifactDirectory = getenv("MOXI_RETAINED_BADGE_ARTIFACT_DIR");
+    if (artifactDirectory != NULL) {
+        NSString *directory = [NSString stringWithUTF8String:artifactDirectory];
+        [[NSFileManager defaultManager] createDirectoryAtPath:directory
+            withIntermediateDirectories:YES attributes:nil error:nil];
+        CGImageRef image = CGBitmapContextCreateImage(cg);
+        NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithCGImage:image];
+        NSString *name = fixture == 0 ? @"retained-badge-declared.png" : @"retained-badge-paragraph.png";
+        [[bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}]
+            writeToFile:[directory stringByAppendingPathComponent:name] atomically:YES];
+        CGImageRelease(image);
+    }
+    CGContextRelease(cg);
+    CGColorSpaceRelease(space);
+    free(pixels);
+    return centered;
+}
+
 int moxi_test_paragraph_slot_lifetime(void) {
     __weak id weak;
     @autoreleasepool {

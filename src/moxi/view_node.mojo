@@ -8,24 +8,13 @@ Also defines the view-kind discriminant constants that tag every
 from .accessibility import Semantics, default_semantics
 from .geometry import Rect, Size
 from .layout import ALIGN_STRETCH, COLUMN_AXIS, JUSTIFY_START, LAYOUT_LINEAR
-from .style import (
-    Style,
-    default_button_style,
-    default_label_style,
-    default_panel_style,
-    default_text_input_style,
-    default_checkbox_style,
-    default_progress_style,
-    default_slider_style,
-    default_switch_style,
-    default_radio_style,
-    default_image_style,
-    default_multiline_style,
-)
+from .style import Color, Style, Theme
 from .measure import measure_text, measure_text_wrapped
 
 
 comptime LABEL_KIND = 1
+comptime BADGE_HORIZONTAL_PADDING: Float32 = 12.0
+comptime BADGE_VERTICAL_PADDING: Float32 = 4.0
 comptime BUTTON_KIND = 2
 comptime TEXT_INPUT_VIEW_KIND = 5
 comptime SPACER_KIND = 6
@@ -52,6 +41,184 @@ comptime SCROLLBAR_KIND = 24
 comptime ROOT_SCROLL_ID = -2
 
 
+comptime _RECIPE_NONE = 0
+comptime _RECIPE_PRIMARY = 1
+comptime _RECIPE_SECONDARY = 2
+comptime _RECIPE_DESTRUCTIVE = 3
+comptime _RECIPE_OUTLINE = 4
+comptime _RECIPE_GHOST = 5
+comptime _RECIPE_BADGE = 6
+comptime _RECIPE_ACCENT_BADGE = 7
+
+
+struct RecipeRole(ImplicitlyCopyable):
+    """Retained recipe identity, resolved from the enclosing theme."""
+
+    var kind: Int
+
+    def __init__(out self, kind: Int = _RECIPE_NONE):
+        self.kind = kind
+
+    @staticmethod
+    def primary() -> Self:
+        return Self(_RECIPE_PRIMARY)
+
+    @staticmethod
+    def secondary() -> Self:
+        return Self(_RECIPE_SECONDARY)
+
+    @staticmethod
+    def destructive() -> Self:
+        return Self(_RECIPE_DESTRUCTIVE)
+
+    @staticmethod
+    def outline() -> Self:
+        return Self(_RECIPE_OUTLINE)
+
+    @staticmethod
+    def ghost() -> Self:
+        return Self(_RECIPE_GHOST)
+
+    @staticmethod
+    def badge() -> Self:
+        return Self(_RECIPE_BADGE)
+
+    @staticmethod
+    def accent_badge() -> Self:
+        return Self(_RECIPE_ACCENT_BADGE)
+
+    def is_none(self) -> Bool:
+        return self.kind == _RECIPE_NONE
+
+    def is_badge(self) -> Bool:
+        return self.kind == _RECIPE_BADGE or self.kind == _RECIPE_ACCENT_BADGE
+
+    def resolve(self, theme: Theme) -> Style:
+        if self.is_none():
+            return theme.button
+        var c = theme.tokens.colors
+        var r = theme.tokens.radius
+        var t = theme.tokens.typography
+        if self.kind == _RECIPE_PRIMARY:
+            return Style(c.primary, c.primary_text, r.radius_md, t.text_base,
+                         c.border_subtle, 0.0, 1.0)
+        if self.kind == _RECIPE_SECONDARY:
+            return Style(c.secondary, c.text, r.radius_md, t.text_base,
+                         c.border_subtle, 1.0, 1.0)
+        if self.kind == _RECIPE_DESTRUCTIVE:
+            return Style(c.destructive, Color(1.0, 1.0, 1.0, 1.0),
+                         r.radius_md, t.text_base, c.border_subtle, 0.0, 1.0)
+        if self.kind == _RECIPE_OUTLINE:
+            return Style(Color(0.0, 0.0, 0.0, 0.0), c.text,
+                         r.radius_md, t.text_base, c.border, 1.0, 1.0)
+        if self.kind == _RECIPE_GHOST:
+            return Style(Color(0.0, 0.0, 0.0, 0.0), c.text_muted,
+                         r.radius_md, t.text_base,
+                         Color(0.0, 0.0, 0.0, 0.0), 0.0, 1.0)
+        var fill = c.surface_raised
+        var text_color = c.text_muted
+        if self.kind == _RECIPE_ACCENT_BADGE:
+            fill = c.primary
+            text_color = c.primary_text
+        return Style(fill, text_color, r.radius_full, t.text_xs,
+                     c.border_subtle, 1.0, 1.0)
+
+
+def _same_color(a: Color, b: Color) -> Bool:
+    return (a.red == b.red and a.green == b.green and a.blue == b.blue
+            and a.alpha == b.alpha)
+
+
+struct _StyleOverrides(ImplicitlyCopyable):
+    """Properties changed locally after the last theme resolution."""
+
+    var fill: Bool
+    var text: Bool
+    var corner_radius: Bool
+    var font_size: Bool
+    var border: Bool
+    var border_width: Bool
+    var opacity: Bool
+
+    def __init__(out self):
+        self.fill = False
+        self.text = False
+        self.corner_radius = False
+        self.font_size = False
+        self.border = False
+        self.border_width = False
+        self.opacity = False
+
+    def apply(mut self, current: Style, previous: Style, base: Style) -> Style:
+        # Public style fields remain editable; remember changes made directly
+        # as well as changes made through the property setters below.
+        self.fill = self.fill or not _same_color(current.fill, previous.fill)
+        self.text = self.text or not _same_color(current.text, previous.text)
+        self.corner_radius = self.corner_radius or current.corner_radius != previous.corner_radius
+        self.font_size = self.font_size or current.font_size != previous.font_size
+        self.border = self.border or not _same_color(current.border, previous.border)
+        self.border_width = self.border_width or current.border_width != previous.border_width
+        self.opacity = self.opacity or current.opacity != previous.opacity
+        var result = base
+        if self.fill:
+            result.fill = current.fill
+        if self.text:
+            result.text = current.text
+        if self.corner_radius:
+            result.corner_radius = current.corner_radius
+        if self.font_size:
+            result.font_size = current.font_size
+        if self.border:
+            result.border = current.border
+        if self.border_width:
+            result.border_width = current.border_width
+        if self.opacity:
+            result.opacity = current.opacity
+        return result
+
+
+def _style_for_kind(theme: Theme, kind: Int) -> Style:
+    if kind == CONTAINER_KIND:
+        return Style(Color(0.0, 0.0, 0.0, 0.0), theme.surface.text, 0.0, theme.surface.font_size)
+    if kind == BUTTON_KIND:
+        return theme.button
+    if kind == TEXT_INPUT_VIEW_KIND:
+        return theme.text_input
+    if kind == CHECKBOX_KIND:
+        return theme.control
+    if kind == PROGRESS_KIND:
+        return theme.progress
+    if kind == SLIDER_KIND:
+        return theme.slider
+    if kind == SWITCH_KIND:
+        return theme.switch_style
+    if kind == RADIO_KIND:
+        return theme.radio
+    if kind == IMAGE_KIND:
+        return theme.image
+    if kind == MULTILINE_TEXT_KIND:
+        return theme.multiline
+    if kind == COMBO_BOX_KIND:
+        return theme.combo_box
+    if kind == LIST_KIND:
+        return theme.list_style
+    if kind == TABLE_KIND:
+        return theme.table_style
+    if kind == TREE_KIND:
+        return theme.tree_style
+    if kind == MENU_KIND:
+        return theme.menu_style
+    if kind == DIALOG_KIND:
+        return theme.dialog_style
+    if kind == TABS_KIND:
+        return theme.tabs_style
+    if kind == CANVAS_KIND:
+        return theme.canvas_style
+    if kind == SEPARATOR_KIND:
+        return theme.separator_style
+    return theme.label
+
+
 struct ViewNode(ImplicitlyCopyable):
     """A lightweight leaf in a declarative Moxi view tree."""
 
@@ -67,12 +234,18 @@ struct ViewNode(ImplicitlyCopyable):
     var use_intrinsic_width: Bool
     var use_intrinsic_height: Bool
     var wrap_text: Bool
+    var badge_label: Bool
     var action_id: Int
     var clip_children: Bool
     var checked: Bool
     var progress: Float32
     var bounds: Rect
     var style: Style
+    var has_explicit_style: Bool
+    var recipe: RecipeRole
+    var _resolved_style: Style
+    var _recipe_style: Style
+    var _style_overrides: _StyleOverrides
     var component_surface: Bool
     var focusable: Bool
     var enabled: Bool
@@ -101,38 +274,7 @@ struct ViewNode(ImplicitlyCopyable):
         text: String,
         preferred_height: Float32,
     ):
-        var style = default_label_style()
-        if kind == BUTTON_KIND:
-            style = default_button_style()
-        elif kind == TEXT_INPUT_VIEW_KIND:
-            style = default_text_input_style()
-        elif kind == CHECKBOX_KIND:
-            style = default_checkbox_style()
-        elif kind == PROGRESS_KIND:
-            style = default_progress_style()
-        elif kind == SLIDER_KIND:
-            style = default_slider_style()
-        elif kind == SWITCH_KIND:
-            style = default_switch_style()
-        elif kind == RADIO_KIND:
-            style = default_radio_style()
-        elif kind == IMAGE_KIND:
-            style = default_image_style()
-        elif kind == MULTILINE_TEXT_KIND:
-            style = default_multiline_style()
-        elif (
-            kind == COMBO_BOX_KIND
-            or kind == LIST_KIND
-            or kind == TABLE_KIND
-            or kind == TREE_KIND
-            or kind == MENU_KIND
-            or kind == TABS_KIND
-        ):
-            style = default_text_input_style()
-        elif kind == DIALOG_KIND or kind == CANVAS_KIND:
-            style = default_panel_style()
-        elif kind == SEPARATOR_KIND:
-            style = default_progress_style()
+        var style = _style_for_kind(Theme(), kind)
         self.kind = kind
         self.id = id
         self.text = text
@@ -145,12 +287,18 @@ struct ViewNode(ImplicitlyCopyable):
         self.use_intrinsic_width = False
         self.use_intrinsic_height = False
         self.wrap_text = False
+        self.badge_label = False
         self.action_id = -1
         self.clip_children = False
         self.checked = False
         self.progress = 0.0
         self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
         self.style = style
+        self.has_explicit_style = False
+        self.recipe = RecipeRole()
+        self._resolved_style = style
+        self._recipe_style = style
+        self._style_overrides = _StyleOverrides()
         self.component_surface = False
         self.focusable = (
             kind == BUTTON_KIND
@@ -208,12 +356,18 @@ struct ViewNode(ImplicitlyCopyable):
         self.use_intrinsic_width = False
         self.use_intrinsic_height = False
         self.wrap_text = False
+        self.badge_label = False
         self.action_id = -1
         self.clip_children = False
         self.checked = False
         self.progress = 0.0
         self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
         self.style = style
+        self.has_explicit_style = True
+        self.recipe = RecipeRole()
+        self._resolved_style = style
+        self._recipe_style = style
+        self._style_overrides = _StyleOverrides()
         self.component_surface = False
         self.focusable = (
             kind == BUTTON_KIND
@@ -272,12 +426,18 @@ struct ViewNode(ImplicitlyCopyable):
         self.use_intrinsic_width = False
         self.use_intrinsic_height = False
         self.wrap_text = False
+        self.badge_label = False
         self.action_id = -1
         self.clip_children = False
         self.checked = False
         self.progress = 0.0
         self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
         self.style = style
+        self.has_explicit_style = True
+        self.recipe = RecipeRole()
+        self._resolved_style = style
+        self._recipe_style = style
+        self._style_overrides = _StyleOverrides()
         self.component_surface = False
         self.focusable = (
             kind == BUTTON_KIND
@@ -337,12 +497,18 @@ struct ViewNode(ImplicitlyCopyable):
         self.use_intrinsic_width = False
         self.use_intrinsic_height = False
         self.wrap_text = False
+        self.badge_label = False
         self.action_id = -1
         self.clip_children = False
         self.checked = False
         self.progress = 0.0
         self.bounds = Rect(0.0, 0.0, 0.0, 0.0)
         self.style = style
+        self.has_explicit_style = True
+        self.recipe = RecipeRole()
+        self._resolved_style = style
+        self._recipe_style = style
+        self._style_overrides = _StyleOverrides()
         self.component_surface = False
         self.focusable = (
             kind == BUTTON_KIND
@@ -386,6 +552,69 @@ struct ViewNode(ImplicitlyCopyable):
     def set_style(mut self, style: Style):
         """Replace the backend-neutral style of this node."""
         self.style = style
+        self.has_explicit_style = True
+        self._resolved_style = style
+        self._recipe_style = style
+        self._style_overrides = _StyleOverrides()
+
+    def set_font_size(mut self, size: Float32):
+        """Override only typography size, retaining inherited colors."""
+        self.style.font_size = size
+        self._style_overrides.font_size = True
+
+    def set_text_color(mut self, color: Color):
+        """Override only the foreground color."""
+        self.style.text = color
+        self._style_overrides.text = True
+
+    def set_corner_radius(mut self, radius: Float32):
+        """Override only corner rounding."""
+        self.style.corner_radius = radius
+        self._style_overrides.corner_radius = True
+
+    def inherit_style(mut self):
+        """Restore theme defaults and clear local style overrides."""
+        self.has_explicit_style = False
+        self.recipe = RecipeRole()
+        self.badge_label = False
+        self.style = _style_for_kind(Theme(), self.kind)
+        self._resolved_style = self.style
+        self._style_overrides = _StyleOverrides()
+
+    def _inherit_control_style(mut self):
+        # Control descriptors expose an editable style field. Compare that
+        # field with the ordinary default to retain any local property edits.
+        self.has_explicit_style = False
+        self._resolved_style = _style_for_kind(Theme(), self.kind)
+
+    def set_recipe(mut self, role: RecipeRole, theme: Theme = Theme()):
+        """Retain a variant rather than a snapshot of its initial palette."""
+        self.recipe = role
+        self.badge_label = self.kind == LABEL_KIND and role.is_badge()
+        self.has_explicit_style = False
+        self.style = role.resolve(theme)
+        self._resolved_style = self.style
+        self._recipe_style = self.style
+        self._style_overrides = _StyleOverrides()
+
+    def resolve_theme(
+        mut self,
+        theme: Theme,
+        has_explicit_theme: Bool = True,
+        owns_theme_surface: Bool = False,
+    ):
+        """Resolve inherited defaults, then retain local property overrides."""
+        if self.has_explicit_style:
+            return
+        var base = _style_for_kind(theme, self.kind)
+        if self.component_surface or owns_theme_surface:
+            base = theme.surface
+        elif not self.recipe.is_none():
+            base = self._recipe_style
+            if has_explicit_theme:
+                base = self.recipe.resolve(theme)
+        self.style = self._style_overrides.apply(self.style, self._resolved_style, base)
+        self._resolved_style = self.style
 
     def set_accessibility_value(mut self, value: String):
         self.semantics.value = value
@@ -572,7 +801,10 @@ struct ViewNode(ImplicitlyCopyable):
                 measured = measure_text(self.text, self.style)
         else:
             measured = measure_text(self.text, self.style)
-        if self.kind == BUTTON_KIND:
+        if self.kind == LABEL_KIND and self.badge_label:
+            measured.width += BADGE_HORIZONTAL_PADDING * 2.0
+            measured.height += BADGE_VERTICAL_PADDING * 2.0
+        elif self.kind == BUTTON_KIND:
             measured.width += 32.0
             measured.height += 12.0
         elif self.kind == TEXT_INPUT_VIEW_KIND:

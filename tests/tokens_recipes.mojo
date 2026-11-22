@@ -5,6 +5,8 @@ from moxi import (
     ClickEvent,
     Color,
     ColumnView,
+    ColumnRuntime,
+    default_button_style,
     Event,
     LABEL_KIND,
     Point,
@@ -31,7 +33,37 @@ from moxi import (
     ThemeShowcaseState,
     TextInputEvent,
     test_check,
+    measure_text,
 )
+
+
+def linear_channel(value: Float32) -> Float32:
+    if value <= 0.04045:
+        return value / 12.92
+    return ((value + 0.055) / 1.055) ** 2.4
+
+
+def luminance(color: Color) -> Float32:
+    return (
+        0.2126 * linear_channel(color.red)
+        + 0.7152 * linear_channel(color.green)
+        + 0.0722 * linear_channel(color.blue)
+    )
+
+
+def check_text_contrast(text: Color, fill: Color):
+    var a = luminance(text)
+    var b = luminance(fill)
+    test_check((max(a, b) + 0.05) / (min(a, b) + 0.05) >= 4.5)
+
+
+def check_palette(tokens: ThemeTokens):
+    var colors = tokens.colors
+    check_text_contrast(colors.text, colors.secondary)
+    check_text_contrast(colors.primary_text, colors.primary)
+    check_text_contrast(Color(1, 1, 1, 1), colors.destructive)
+    check_text_contrast(colors.text_muted, colors.background)
+    check_text_contrast(colors.text_muted, colors.surface_raised)
 
 
 def main():
@@ -52,19 +84,25 @@ def main():
     test_check(typography.text_2xl == 28.0)
 
     # 2. Preset theme validation
+    check_palette(dark_tokens())
+    check_palette(light_tokens())
+    check_palette(zinc_tokens())
+    check_palette(emerald_tokens())
     var dark = dark_theme()
+    test_check(default_button_style().fill.blue == dark.button.fill.blue)
+    test_check(default_button_style().font_size == dark.tokens.typography.text_base)
     test_check(dark.surface.fill.red < 0.15)
-    test_check(dark.button.fill.blue > 0.8)
+    test_check(dark.button.fill.blue == dark_tokens().colors.secondary.blue)
 
     var light = light_theme()
     test_check(light.surface.fill.red > 0.9)
     test_check(light.text_input.border_width == 1.0)
 
     var zinc = zinc_theme()
-    test_check(zinc.button.fill.red > 0.9)
+    test_check(zinc.button.fill.red == zinc_tokens().colors.secondary.red)
 
     var emerald = emerald_theme()
-    test_check(emerald.button.fill.green > 0.6)
+    test_check(emerald.button.fill.green == emerald_tokens().colors.secondary.green)
 
     # 3. Recipe builder validations
     var dt = dark_tokens()
@@ -90,6 +128,27 @@ def main():
     test_check(badge_node.kind == LABEL_KIND)
     test_check(badge_node.text == "v0.6.0")
     test_check(badge_node.use_intrinsic_width)
+    test_check(badge_node.badge_label)
+    var badge_text_size = measure_text(badge_node.text, badge_node.style)
+    test_check(badge_node.intrinsic_size().width == badge_text_size.width + 24.0)
+    test_check(badge_node.intrinsic_size().height == badge_text_size.height + 8.0)
+
+    # Badge identity survives explicit restyling and reaches retained paint.
+    var restyled_badge = badge(203, "Tag", 24.0, True, dt)
+    restyled_badge.set_style(default_button_style())
+    test_check(restyled_badge.badge_label)
+    var badge_view = ColumnView(Rect(0.0, 0.0, 200.0, 40.0), 0.0, 0.0)
+    badge_view.add(restyled_badge)
+    badge_view.layout()
+    var badge_runtime = ColumnRuntime()
+    badge_runtime.reconcile(badge_view)
+    var badge_commands = badge_runtime.paint()
+    test_check(badge_commands.command(1).badge_label)
+    badge_view.children[0].badge_label = False
+    badge_runtime.reconcile(badge_view)
+    var plain_commands = badge_runtime.paint()
+    test_check(not plain_commands.command(1).badge_label)
+    test_check(plain_commands.command(1).is_changed())
 
     var badge_accent = badge(202, "PRO", 20.0, True, dt)
     test_check(badge_accent.style.fill.blue > 0.8)
@@ -102,12 +161,15 @@ def main():
     var view = ColumnView(Rect(0.0, 0.0, 300.0, 300.0), 8.0, 8.0)
     view.add_button(1, "Themed", 32.0)
     view.set_theme(emerald)
-    test_check(view.child(0).style.fill.green > 0.6)
+    test_check(view.child(0).style.fill.green == emerald.button.fill.green)
 
     # The interactive showcase applies the selected palette to its surface
     # and built-in controls while recipe variants retain their own styling.
     var showcase = ThemeShowcaseState()
     var showcase_view = showcase.build(Rect(0.0, 0.0, 780.0, 480.0))
+    test_check(showcase_view.bounds_for(1002).height == 24.0)
+    test_check(showcase_view.bounds_for(1002).y == showcase_view.bounds_for(1000).y + 6.0)
+    test_check(showcase_view.bounds_for(1002).width >= 24.0)
     test_check(showcase_view.surface_style.fill.red < 0.1)
     for index in range(showcase_view.child_count()):
         var node = showcase_view.child(index)
@@ -121,6 +183,8 @@ def main():
     test_check(light_showcase_view.surface_style.fill.red > 0.9)
     for index in range(light_showcase_view.child_count()):
         var node = light_showcase_view.child(index)
+        if node.id == 10 or node.id == 11:
+            test_check(node.semantics.selected == (node.id == 11))
         if node.id == 3101:
             test_check(node.style.fill.red > 0.9)
         if node.id == 4001:

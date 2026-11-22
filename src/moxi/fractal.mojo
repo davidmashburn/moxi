@@ -841,9 +841,9 @@ struct FractalState(Component):
         root.set_clip_to_bounds()
         var panel = root.add_column(FRACTAL_PANEL_ID, panel_height, 14.0, 10.0)
         root.set_clip_children(panel)
-        var viewport_height = panel_height - 12.0
-        if viewport_height < 180.0:
-            viewport_height = 180.0
+        # The portal owns scrolling; leave room for both 14 px panel insets
+        # instead of overflowing its parent by 16 px.
+        var viewport_height = max(panel_height - 28.0, 0.0)
         var content = root.add_portal_to(
             panel,
             FRACTAL_SCROLL_ID,

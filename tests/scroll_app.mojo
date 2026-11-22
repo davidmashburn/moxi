@@ -20,6 +20,7 @@ from moxi import (
     SCROLLBAR_HORIZONTAL,
     SCROLL_KIND,
     SCROLLBAR_KIND,
+    ScrollbarState,
     scene_from_paint,
     test_check,
 )
@@ -151,7 +152,74 @@ struct NestedScrollState(Component):
         return False
 
 
+struct FractionalFitState(Component):
+    """A fitted row can accumulate a tiny Float32 size discrepancy."""
+
+    var nested: Bool
+    var modern: Bool
+    var extra: Float32
+
+    def __init__(out self, nested: Bool, modern: Bool, extra: Float32 = 0.00005):
+        self.nested = nested
+        self.modern = modern
+        self.extra = extra
+
+    def build(self, bounds: Rect) -> ColumnView:
+        var view = ColumnView(bounds, 0.0, 0.0)
+        var parent_id = -1
+        if self.nested:
+            parent_id = view.add_row(10, 100.0, 30.0, 0.0, 0.0)
+        else:
+            view.set_row_layout()
+        view.add_label_to(parent_id, 11, "one", 20.0)
+        view.add_label_to(parent_id, 12, "two", 20.0)
+        view.set_fixed_width(11, 50.0)
+        view.set_fixed_width(12, 50.0 + self.extra)
+        if self.modern:
+            view.enable_content_layout()
+        view.layout()
+        return view^
+
+    def update(mut self, event: Event, view: ColumnView) -> Bool:
+        return False
+
+
+def check_fractional_fit(nested: Bool, modern: Bool):
+    var app = App[FractionalFitState](
+        FractionalFitState(nested, modern), Rect(0.0, 0.0, 100.0, 50.0),
+    )
+    var id = 10 if nested else ROOT_SCROLL_ID
+    test_check(app.view.scroll_max_offset(id) == 0.0)
+    test_check(app.runtime.scroll_target(Point(5.0, 5.0)) == -1)
+    test_check(app.scrollbar_target_at(Point(50.0, 25.0)) == -1)
+    test_check(not app.dispatch(Event(ScrollEvent(
+        Point(5.0, 5.0), Point(10.0, 10.0),
+    ))))
+    var commands = app.paint()
+    for index in range(commands.count()):
+        test_check(commands.command(index).kind != SCROLLBAR_KIND)
+
+    # Real fractional-pixel overflow still has a usable scroll range.
+    var overflow = App[FractionalFitState](
+        FractionalFitState(nested, modern, 0.25),
+        Rect(0.0, 0.0, 100.0, 50.0),
+    )
+    test_check(overflow.view.scroll_max_offset(id) == 0.25)
+    test_check(overflow.runtime.scroll_target(Point(5.0, 5.0)) == id)
+
+
 def main():
+    check_fractional_fit(False, False)
+    check_fractional_fit(True, False)
+    check_fractional_fit(False, True)
+    check_fractional_fit(True, True)
+    var fractional_scrollbar = ScrollbarState(SCROLLBAR_HORIZONTAL)
+    fractional_scrollbar.set_metrics(100.00005, 100.0)
+    test_check(not fractional_scrollbar.can_scroll())
+    test_check(not fractional_scrollbar.geometry(Rect(0, 0, 100, 8)).visible)
+    fractional_scrollbar.set_metrics(100.25, 100.0)
+    test_check(fractional_scrollbar.max_offset() == 0.25)
+
     var root_app = App[RootOverflowState](
         RootOverflowState(),
         Rect(0.0, 0.0, 200.0, 70.0),
@@ -173,6 +241,10 @@ def main():
             root_scrollbar_count += 1
             test_check(command.id == ROOT_SCROLL_ID)
             test_check(command.scrollbar_visible)
+            test_check(command.style.fill.alpha == 0.0)
+            test_check(command.style.text.red == root_app.view.surface_style.text.red)
+            test_check(command.scrollbar_thumb.width == 5.0)
+            test_check(command.bounds.width == 8.0)
     test_check(root_scrollbar_count == 1)
 
     # A painted scrollbar is an overlay. Pointer hover and click must not

@@ -1,5 +1,5 @@
 """Direct method bindings over ephemeral declarations and retained controls."""
-from std.collections import List, Dict
+from std.collections import List, Dict, Optional
 from .delivery import DeliveryScope, QueuedEvent, CapturedAction
 from .identity import key_path
 from .actions import Action, child_action, _local, _text, _toggle, _write_context
@@ -8,13 +8,14 @@ from ..app_runtime import App
 from ..column_view import ColumnView
 from ..component import Component
 from ..geometry import Rect
+from ..style import Theme
 from ..controls_text import TextInputControl, TextInputState
 from ..event import (
     Event, KeyEvent, TextInputEvent, ACTION_KIND, CLICK_KIND, KEY_DOWN_KIND,
     TEXT_INPUT_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND,
     KEY_ENTER, KEY_SPACE, KEY_X, MOD_COMMAND, TASK_RESULT_KIND,
 )
-from ..view_node import BUTTON_KIND, CHECKBOX_KIND, TEXT_INPUT_VIEW_KIND, LABEL_KIND, CONTAINER_KIND
+from ..view_node import ViewNode, RecipeRole, BUTTON_KIND, CHECKBOX_KIND, TEXT_INPUT_VIEW_KIND, LABEL_KIND, CONTAINER_KIND
 from ..tasks import RequestScheduler, RequestHandle, RequestScopeHandle, RequestResult, TASK_COMPLETED
 from ..column_runtime import ColumnRuntime
 from ..window import WindowBackend
@@ -100,8 +101,9 @@ struct Declaration[S: ImplicitlyCopyable, C: ImplicitlyCopyable](ImplicitlyCopya
     var show_label: Bool
     var hint: String
     var action: Action[Self.S, Self.C]
+    var role: RecipeRole
 
-    def __init__(out self, path: String, kind: Int, label: String = "", value: String = "", action: Action[Self.S, Self.C] = Action[Self.S, Self.C](), enabled: Bool = True, checked: Bool = False, show_label: Bool = True, hint: String = ""):
+    def __init__(out self, path: String, kind: Int, label: String = "", value: String = "", action: Action[Self.S, Self.C] = Action[Self.S, Self.C](), enabled: Bool = True, checked: Bool = False, show_label: Bool = True, hint: String = "", role: RecipeRole = RecipeRole()):
         self.path = path
         self.kind = kind
         self.label = label
@@ -111,6 +113,7 @@ struct Declaration[S: ImplicitlyCopyable, C: ImplicitlyCopyable](ImplicitlyCopya
         self.checked = checked
         self.show_label = show_label
         self.hint = hint
+        self.role = role
 
 
 trait Pane(ImplicitlyCopyable):
@@ -156,11 +159,12 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
     def label(mut self, text: String):
         self.declarations.append(Declaration[Self.S, Self.C](self.path(), LABEL_KIND, text))
 
-    def button(mut self, text: String, on_click: def(mut Self.S) thin -> None, enabled: Bool = True):
-        self.declarations.append(Declaration[Self.S, Self.C](self.path(), BUTTON_KIND, text, action=Action[Self.S, Self.C](payload=on_click, invoke=_local[Self.S, Self.C]), enabled=enabled))
+    def button(mut self, text: String, on_click: def(mut Self.S) thin -> None, enabled: Bool = True, *, role: RecipeRole = RecipeRole()):
+        """Declare a button with an optional theme-resolved recipe role."""
+        self.declarations.append(Declaration[Self.S, Self.C](self.path(), BUTTON_KIND, text, action=Action[Self.S, Self.C](payload=on_click, invoke=_local[Self.S, Self.C]), enabled=enabled, role=role))
 
-    def button(mut self, text: String, on_click: def(mut Self.S, mut Self.C) thin -> None, enabled: Bool = True):
-        self.declarations.append(Declaration[Self.S, Self.C](self.path(), BUTTON_KIND, text, action=Action[Self.S, Self.C](payload=on_click, invoke=_write_context[Self.S, Self.C]), enabled=enabled))
+    def button(mut self, text: String, on_click: def(mut Self.S, mut Self.C) thin -> None, enabled: Bool = True, *, role: RecipeRole = RecipeRole()):
+        self.declarations.append(Declaration[Self.S, Self.C](self.path(), BUTTON_KIND, text, action=Action[Self.S, Self.C](payload=on_click, invoke=_write_context[Self.S, Self.C]), enabled=enabled, role=role))
 
     def text_input(mut self, label: String, value: String, on_change: def(mut Self.S, String) thin -> None, *, show_label: Bool = True, hint: String = ""):
         """Declare an editor; show_label=False keeps only its accessible name.
@@ -186,7 +190,7 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
             var action = Action[Self.S, Self.C]()
             if item.action._storage:
                 action = child_action[Self.S, Self.C, Child, Child.Context, K](key, route, item.action)
-            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label, item.hint))
+            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label, item.hint, item.role))
         self.end_scope()
 
 
@@ -200,7 +204,7 @@ struct UI[S: ImplicitlyCopyable, C: ImplicitlyCopyable = NoneType](ImplicitlyCop
             var action = Action[Self.S, Self.C]()
             if item.action._storage:
                 action = child_action[Self.S, Self.C, Child, Child.Context, K](key, route, item.action)
-            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label, item.hint))
+            self.declarations.append(Declaration[Self.S, Self.C](prefix + item.path, item.kind, item.label, item.value, action, item.enabled, item.checked, item.show_label, item.hint, item.role))
         self.end_scope()
 
 
@@ -287,15 +291,22 @@ struct RetainedUI[S: ImplicitlyCopyable](ImplicitlyCopyable):
         self.view.add(control.node())
         self.view.set_accessibility_label(self.controls[i].id, label)
 
-    def rebuild(mut self, declarations: List[Declaration[Self.S, NoneType]]):
+    def rebuild(mut self, declarations: List[Declaration[Self.S, NoneType]], theme: Optional[Theme] = None):
         self.begin()
+        if theme:
+            self.view.set_theme(theme.value())
         for item in declarations:
             var i = self.claim(item.path, item.kind)
             self.controls[i].action = item.action
             if item.kind == LABEL_KIND:
                 self.view.add_label(self.controls[i].id, item.label, 24)
             elif item.kind == BUTTON_KIND:
-                self.view.add_button_enabled(self.controls[i].id, item.label, 36, item.enabled)
+                var node = ViewNode(BUTTON_KIND, self.controls[i].id, item.label, 36)
+                node.enabled = item.enabled
+                node.semantics.enabled = item.enabled
+                if not item.role.is_none():
+                    node.set_recipe(item.role)
+                self.view.add(node)
             elif item.kind == CHECKBOX_KIND:
                 self.controls[i].checked = item.checked
                 self.view.add_checkbox(self.controls[i].id, item.label if item.show_label else "", item.checked, 28)
@@ -369,22 +380,25 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
     """
     var root: Self.Root
     var ui: RetainedUI[Self.Root]
+    var theme: Optional[Theme]
     var renders: Int
     var scope: DeliveryScope
     var _request_scopes: List[_OwnedRequestScope]
     var _pending_requests: List[ActionRequest[Self.Root]]
 
-    def __init__(out self, root: Self.Root, *, id_stride: Int = 1):
+    def __init__(out self, root: Self.Root, *, id_stride: Int = 1, theme: Optional[Theme] = None):
         """Create a host with monotonic control IDs.
 
         Embedded hosts can share an ID region: use the same positive id_stride
         and slot offsets with distinct residues modulo that stride. Keep this
         region above the parent and any fixed-ID components.
+        A supplied theme survives refresh and reset; None inherits when mounted.
         """
         _require(id_stride > 0, "control ID stride must be positive")
         self.root = root
         self.ui = RetainedUI[Self.Root]()
         self.ui.id_stride = id_stride
+        self.theme = theme
         self.renders = 0
         self.scope = DeliveryScope()
         self._request_scopes = List[_OwnedRequestScope]()
@@ -394,6 +408,7 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
     def __init__(out self, *, copy: Self):
         self.root = copy.root
         self.ui = copy.ui
+        self.theme = copy.theme
         self.renders = copy.renders
         # A copied runtime can allocate independently. It needs a new delivery
         # namespace even though its initial view IDs/model keys are identical.
@@ -486,7 +501,7 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
         var ui = UI[Self.Root]()
         self.root.render(ui)
         _require(len(ui.frames) == 1, "unclosed scope")
-        self.ui.rebuild(ui.declarations)
+        self.ui.rebuild(ui.declarations, self.theme)
         self.renders += 1
 
     def build(self, bounds: Rect) -> ColumnView:

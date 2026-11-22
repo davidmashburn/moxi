@@ -1,9 +1,9 @@
-"""Reusable component recipes built on top of Moxi's design tokens."""
+"""Reusable recipes whose identities survive theme changes."""
 
 from .geometry import Rect
-from .style import Color, Panel, Style
+from .style import Panel, Style, Theme
 from .tokens import ThemeTokens, dark_tokens
-from .view_node import BUTTON_KIND, LABEL_KIND, ViewNode
+from .view_node import BUTTON_KIND, LABEL_KIND, RecipeRole, ViewNode
 
 
 def primary_button(
@@ -13,20 +13,9 @@ def primary_button(
     action_id: Int = -1,
     tokens: ThemeTokens = dark_tokens(),
 ) -> ViewNode:
-    """A prominent action button with primary accent styling."""
-    var c = tokens.colors
-    var r = tokens.radius
-    var t = tokens.typography
-    var style = Style(
-        c.primary,
-        Color(1.0, 1.0, 1.0, 1.0),
-        r.radius_md,
-        t.text_base,
-        c.border_subtle,
-        0.0,
-        1.0,
-    )
-    var node = ViewNode(BUTTON_KIND, id, text, preferred_height, style)
+    """A prominent action using the inherited primary palette."""
+    var node = ViewNode(BUTTON_KIND, id, text, preferred_height)
+    node.set_recipe(RecipeRole.primary(), Theme(tokens))
     if action_id >= 0:
         node.set_action_id(action_id)
     return node
@@ -39,20 +28,9 @@ def secondary_button(
     action_id: Int = -1,
     tokens: ThemeTokens = dark_tokens(),
 ) -> ViewNode:
-    """A secondary action button using surface/secondary background."""
-    var c = tokens.colors
-    var r = tokens.radius
-    var t = tokens.typography
-    var style = Style(
-        c.secondary,
-        c.text,
-        r.radius_md,
-        t.text_base,
-        c.border_subtle,
-        1.0,
-        1.0,
-    )
-    var node = ViewNode(BUTTON_KIND, id, text, preferred_height, style)
+    """A secondary action using the inherited secondary palette."""
+    var node = ViewNode(BUTTON_KIND, id, text, preferred_height)
+    node.set_recipe(RecipeRole.secondary(), Theme(tokens))
     if action_id >= 0:
         node.set_action_id(action_id)
     return node
@@ -65,20 +43,9 @@ def destructive_button(
     action_id: Int = -1,
     tokens: ThemeTokens = dark_tokens(),
 ) -> ViewNode:
-    """An action button indicating a destructive or dangerous operation."""
-    var c = tokens.colors
-    var r = tokens.radius
-    var t = tokens.typography
-    var style = Style(
-        c.destructive,
-        Color(1.0, 1.0, 1.0, 1.0),
-        r.radius_md,
-        t.text_base,
-        c.border_subtle,
-        0.0,
-        1.0,
-    )
-    var node = ViewNode(BUTTON_KIND, id, text, preferred_height, style)
+    """A destructive action retaining its role across theme changes."""
+    var node = ViewNode(BUTTON_KIND, id, text, preferred_height)
+    node.set_recipe(RecipeRole.destructive(), Theme(tokens))
     if action_id >= 0:
         node.set_action_id(action_id)
     return node
@@ -91,20 +58,9 @@ def outline_button(
     action_id: Int = -1,
     tokens: ThemeTokens = dark_tokens(),
 ) -> ViewNode:
-    """A subtle button with a transparent background and visible border."""
-    var c = tokens.colors
-    var r = tokens.radius
-    var t = tokens.typography
-    var style = Style(
-        Color(0.0, 0.0, 0.0, 0.0),
-        c.text,
-        r.radius_md,
-        t.text_base,
-        c.border,
-        1.0,
-        1.0,
-    )
-    var node = ViewNode(BUTTON_KIND, id, text, preferred_height, style)
+    """A transparent action with an inherited visible border."""
+    var node = ViewNode(BUTTON_KIND, id, text, preferred_height)
+    node.set_recipe(RecipeRole.outline(), Theme(tokens))
     if action_id >= 0:
         node.set_action_id(action_id)
     return node
@@ -117,20 +73,9 @@ def ghost_button(
     action_id: Int = -1,
     tokens: ThemeTokens = dark_tokens(),
 ) -> ViewNode:
-    """A minimal button that blends into the background until hovered."""
-    var c = tokens.colors
-    var r = tokens.radius
-    var t = tokens.typography
-    var style = Style(
-        Color(0.0, 0.0, 0.0, 0.0),
-        c.text_muted,
-        r.radius_md,
-        t.text_base,
-        Color(0.0, 0.0, 0.0, 0.0),
-        0.0,
-        1.0,
-    )
-    var node = ViewNode(BUTTON_KIND, id, text, preferred_height, style)
+    """A minimal action using the inherited muted foreground."""
+    var node = ViewNode(BUTTON_KIND, id, text, preferred_height)
+    node.set_recipe(RecipeRole.ghost(), Theme(tokens))
     if action_id >= 0:
         node.set_action_id(action_id)
     return node
@@ -143,25 +88,12 @@ def badge(
     is_accent: Bool = False,
     tokens: ThemeTokens = dark_tokens(),
 ) -> ViewNode:
-    """A compact badge / tag for metadata or status indicators."""
-    var c = tokens.colors
-    var r = tokens.radius
-    var t = tokens.typography
-    var fill = c.surface_raised
-    var text_color = c.text_muted
+    """A compact tag retaining its neutral or accent role when themed."""
+    var node = ViewNode(LABEL_KIND, id, text, preferred_height)
+    var role = RecipeRole.badge()
     if is_accent:
-        fill = c.primary
-        text_color = Color(1.0, 1.0, 1.0, 1.0)
-    var style = Style(
-        fill,
-        text_color,
-        r.radius_full,
-        t.text_xs,
-        c.border_subtle,
-        1.0,
-        1.0,
-    )
-    var node = ViewNode(LABEL_KIND, id, text, preferred_height, style)
+        role = RecipeRole.accent_badge()
+    node.set_recipe(role, Theme(tokens))
     node.set_intrinsic_width(True)
     return node
 

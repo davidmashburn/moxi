@@ -3,6 +3,8 @@
 from moxi import test_check
 from moxi import (
     ALIGN_CENTER,
+    ALIGN_END,
+    ALIGN_START,
     AlignmentState,
     App,
     ButtonControl,
@@ -60,4 +62,22 @@ def main():
     column.layout()
     test_check(column.child(0).bounds.x == 60.0)
     test_check(column.child(0).bounds.y == 100.0)
+
+    # A maximum width also constrains a child without a preferred width.
+    # Its resulting width determines the offset for each cross alignment.
+    var capped = ColumnView(Rect(40.0, 20.0, 200.0, 200.0), 10.0, 0.0)
+    capped.add(ButtonControl(30, "Capped", 40.0).node())
+    capped.set_max_width(30, 80.0)
+    capped.set_cross_alignment(ALIGN_CENTER)
+    capped.layout()
+    test_check(capped.child(0).bounds.width == 80.0)
+    test_check(capped.child(0).bounds.x == 100.0)
+    capped.set_cross_alignment(ALIGN_END)
+    capped.layout()
+    test_check(capped.child(0).bounds.width == 80.0)
+    test_check(capped.child(0).bounds.x == 150.0)
+    capped.set_cross_alignment(ALIGN_START)
+    capped.layout()
+    test_check(capped.child(0).bounds.width == 80.0)
+    test_check(capped.child(0).bounds.x == 50.0)
     print("Moxi alignment test passed")

@@ -157,9 +157,9 @@ allocate recycling, measured item extents, cumulative offsets, binary-search
 range lookup, clamped offsets, and `ensure_visible()`. `VirtualizedList` builds
 only active slots through a typed item builder; `set_item_height_preserving_offset()`
 keeps the current content anchor stable when an earlier item changes size.
-Overflow track/thumb painting is emitted as a backend-neutral command and is
-visible in the native and scene paths; interactive scrollbar input remains a
-separate follow-up.
+Overflow produces a backend-neutral scrollbar command. The thumb takes its
+color from the viewport's foreground and occupies five points of an
+eight-point track. Clicking and dragging use the full track width.
 
 Text measurement is deterministic and backend-neutral. `measure_text()` uses
 the current style's font size and codepoint count to provide a stable
@@ -189,9 +189,13 @@ do not cycle. `ColumnRuntime.reconcile()` refuses an invalid tree without
 discarding the previously retained runtime and exposes the result through
 `validation_failed()`.
 
-`ColumnView` can carry one optional `Panel` and a root surface `Style`. Leaf
-styles are selected by the default constructors or supplied with styled
-helpers. The public descriptors cover the complete 0.5 catalog, and
+`ColumnView` can carry one optional `Panel` and a root surface `Style`.
+Controls resolve their defaults or semantic recipes against the closest
+theme in the view tree. Component mounts preserve their own explicit themes.
+Setting one local style property leaves the other properties themeable.
+Passing a complete explicit style gives the node ownership of all its
+properties. See [Styling a view tree](README.md#styling-a-view-tree).
+The public descriptors cover the complete 0.5 catalog, and
 `SelectionState`, `ComboBoxState`, `ListState`, `TableState`, `TreeState`,
 `MenuState`, `DialogState`, `TabsState`, and `CanvasState` provide small
 portable state machines for the stateful catalog controls. Buttons, toggles,
