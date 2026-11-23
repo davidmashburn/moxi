@@ -79,7 +79,7 @@ def main():
     revision, files = source_snapshot()
     DEST.mkdir(parents=True, exist_ok=True)
     build_command = ["bash", "examples/spatial-assembly/build.sh"]
-    replay_command = [str(ROOT / "dist/spatial-assembly/assembly"), "--replay", str(DEST)]
+    replay_command = ["./dist/spatial-assembly/assembly", "--replay", "artifacts/demo-slideshows/spatial-assembly"]
     build_seconds = run(build_command, "/tmp/moxi-d07-gallery-build.log")
     replay_seconds = run(replay_command, LOG)
     lines = LOG.read_text().splitlines()
@@ -120,7 +120,7 @@ def main():
                       mojo=subprocess.check_output(["pixi", "run", "mojo", "--version"], cwd=ROOT, text=True).strip(),
                       sdk=subprocess.check_output(["xcrun", "--show-sdk-version"], text=True).strip(),
                       executable_sha256=sha(executable.read_bytes()), executable_bytes=executable.stat().st_size,
-                      build_command=build_command, replay_command=replay_command,
+                      cwd=".", build_command=build_command, replay_command=replay_command,
                       build_wall_seconds=build_seconds, replay_wall_seconds=replay_seconds,
                       logs=["/tmp/moxi-d07-gallery-build.log", str(LOG)], replay_log_sha256=sha(LOG.read_bytes()))
     (DEST / "provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")

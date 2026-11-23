@@ -2,8 +2,11 @@
 from std.collections import List, Dict
 from moxi import App, Rect, Event, Point
 from moxi.controls_text import TextInputState
+from moxi.measure import measure_text_wrapped
+from moxi.style import default_panel_style
 from moxi.event import *
 from moxi_canvas import CanvasView, CanvasCommand, CanvasBinding, ShortcutModifier, HostPlatform, dispatch_canvas, invoke_canvas, SessionKind, CanvasHistory, resolve_modifier, CanvasDocument
+from moxi_canvas.geometry import overlaps, union
 from .model import *
 from .layout import MapLayout
 from .history import MapHistory, copy_forest, paste_forest
@@ -107,7 +110,18 @@ struct MindMapApp:
         self.dwell = 0
         self.reflow = NeighborReflow()
         _ = invoke_canvas(self.app, CanvasCommand.FIT_ALL)
+        self.readable_initial_camera()
         self.status("Tab child · Enter sibling · F2 edit · Space fold · F6 toolbar / Commands")
+
+    @no_inline
+    def readable_initial_camera(mut self):
+        # Fit is an overview, not a readable initial view for very large maps.
+        # Start those documents at ordinary topic scale around the selected root.
+        if self.app.component.state.camera.zoom < 0.5:
+            var root_bounds = self.app.component.document.world_bounds(self.doc.root)
+            self.app.component.state.camera.zoom = 1
+            self.app.component.state.camera.x = Float64(root_bounds.x + root_bounds.width / 2 - self.app.component.state.camera.viewport.width / 2)
+            self.app.component.state.camera.y = Float64(root_bounds.y + root_bounds.height / 2 - self.app.component.state.camera.viewport.height / 2)
 
     @staticmethod
     def subtitle(doc: MindMapDocument, id: Int) -> String:
@@ -219,7 +233,39 @@ struct MindMapApp:
         self.app.component.mounts[index].child.field = field
         self.app.component.mounts[index].refresh(self.app.component.document.world_bounds(topic.id))
         _ = invoke_canvas(self.app, CanvasCommand.ENTER_CONTROLS)
+        self.refresh_editor()
         self.status("Editing · Enter commits · Shift+Enter newline · Escape cancels · composition owns Enter/Escape")
+
+    @no_inline
+    def refresh_editor(mut self) raises:
+        # Editing is presentation state. Reserve the wrapped draft's height
+        # without committing it or changing semantic history.
+        var mount = self.app.component.mount_index(self.edit_id)
+        var bounds = self.layout.boxes[self.edit_id]
+        bounds.width = max(bounds.width, Float32(280))
+        var style = default_panel_style()
+        style.font_size = 15
+        var draft = self.app.component.mounts[mount].child.input.text + self.app.component.mounts[mount].child.input.composition
+        # The native wrapped editor has fixed-point insets and supports full-em
+        # glyphs. Reserve those as well as the ordinary control/footer space.
+        var measured = measure_text_wrapped(draft, style, (bounds.width - 36) * 0.56)
+        bounds.height = max(bounds.height, min(Float32(300), measured.size.height + 87 + Float32(24 / self.app.component.state.camera.zoom)))
+        var published = self.app.component.document.world_bounds(self.edit_id)
+        if published.width == bounds.width and published.height == bounds.height:
+            return
+        var editing_layout = self.layout
+        # A temporary size in the layout cache reflows neighbors without
+        # mutating semantic text or the committed layout's measurement cache.
+        editing_layout.sizes[self.edit_id] = bounds
+        editing_layout.compute(self.doc, self.reveal, self.filter, self.partial)
+        for i in range(len(self.app.component.document.objects)):
+            var id = self.app.component.document.objects[i].id
+            if id in editing_layout.boxes:
+                var edited_bounds = editing_layout.boxes[id]
+                self.app.component.document.objects[i].bounds = edited_bounds
+                self.app.component.mounts[i].refresh(edited_bounds)
+        self.app.component.state.camera.reveal(editing_layout.boxes[self.edit_id])
+        self.app.rebuild_localized()
 
     @no_inline
     def editor_text(self, index: Int) -> String:
@@ -386,25 +432,53 @@ struct MindMapApp:
 
     @no_inline
     def publish_proposal(mut self, candidate: MindMapDocument) raises:
+        if len(self.selection) == 0 or not candidate.contains(self.destination):
+            raise Error("Destination preview requires a branch and parent")
+        var moving = Dict[Int, Bool]()
+        for id in self.app.component.state.selected:
+            if not candidate.contains(id):
+                raise Error("Destination preview contains a stale moving topic")
+            moving[id] = True
+        for root in self.selection:
+            if not candidate.contains(root) or root not in moving:
+                raise Error("Destination preview lost its selected branch")
         var layout = self.layout
         var preview_reveal = self.reveal.copy()
         for root in self.selection:
             preview_reveal.append(root)
         layout.compute(candidate, preview_reveal, self.filter, self.partial)
         var projection = layout.project(candidate)
-        var drag = self.app.component.state.preview(self.app.component.document)
         # Keep destination hit regions and neighbors stationary during preview.
-        # Pointer-owned branches follow the shared drag immediately; keyboard
-        # moves show their final destination. Only commit animates neighbors.
+        # A valid semantic target places the branch at its proposed destination,
+        # for keyboard and pointer alike, instead of occluding its parent.
+        # Only commit animates neighbors.
         for i in range(len(projection.objects)):
-            var moving = False
-            for id in self.app.component.state.selected:
-                moving = moving or id == projection.objects[i].id
             var old = self.app.component.document.objects[i]
-            if not moving and not old.hidden and not projection.objects[i].hidden:
+            if projection.objects[i].id not in moving and not old.hidden and not projection.objects[i].hidden:
                 projection.objects[i].bounds = old.bounds
-            elif moving and not self.choosing and self.mode == MapMode.MOVE:
-                projection.objects[i].bounds = drag.objects[i].bounds
+        # The proposed layout may reserve space by moving a neighbor which is
+        # deliberately stationary during preview. Keep the branch clear of
+        # those cards until commit makes the new sibling layout authoritative.
+        var branch_bounds = projection.world_bounds(self.selection[0])
+        for id in self.app.component.state.selected:
+            var index = projection.object_index[id]
+            if not projection.objects[index].hidden:
+                branch_bounds = union(branch_bounds, projection.world_bounds(id))
+        var offset: Float32 = 0
+        for _ in range(len(projection.objects)):
+            var shift: Float32 = 0
+            for item in projection.objects:
+                if item.id not in moving and not item.hidden and overlaps(branch_bounds, item.bounds):
+                    shift = max(shift, item.bounds.y + item.bounds.height + 26 - branch_bounds.y)
+            if shift == 0:
+                break
+            branch_bounds.y += shift
+            offset += shift
+        if offset != 0:
+            for id in self.app.component.state.selected:
+                projection.objects[projection.object_index[id]].bounds.y += offset
+        if self.app.component.state.pointer < 0:
+            self.app.component.state.camera.reveal(union(branch_bounds, projection.world_bounds(self.destination)))
         _ = self.app.component.propose_destination(projection, String("parent #", self.destination, " / slot ", self.slot), self.app.component.document.revision, semantic_graph=True)
         self.app.rebuild_localized()
 
@@ -778,13 +852,17 @@ struct MindMapApp:
                         var newline = Event()
                         newline.kind = TEXT_INPUT_KIND
                         newline.text = "\n"
-                        return dispatch_canvas(self.app, newline)
+                        var newline_changed = dispatch_canvas(self.app, newline)
+                        self.refresh_editor()
+                        return newline_changed
                     self.finish_edit()
                     return True
             if event.kind == POINTER_DOWN_KIND and self.app.component.control_at(event.position, self.app.view) < 0:
                 self.finish_edit()
             else:
-                return dispatch_canvas(self.app, event)
+                var editor_changed = dispatch_canvas(self.app, event)
+                self.refresh_editor()
+                return editor_changed
         if self.app.component.searching:
             if event.kind == TEXT_INPUT_KIND:
                 if self.mode == MapMode.REPORT:
@@ -920,7 +998,9 @@ struct MindMapApp:
             self.begin_edit()
             var editor_index = self.app.component.mount_index(self.edit_id)
             _ = self.app.component.mounts[editor_index].child.input.select_all()
-            return dispatch_canvas(self.app, event)
+            var editor_changed = dispatch_canvas(self.app, event)
+            self.refresh_editor()
+            return editor_changed
         var changed = dispatch_canvas(self.app, event)
         var pending = self.app.component.take_application_command()
         if pending != CanvasCommand.NONE:

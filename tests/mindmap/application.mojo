@@ -3,7 +3,9 @@ from moxi_mindmap.application import MindMapApp, MapMode
 from moxi_mindmap.commands import MapCommand
 from moxi_mindmap.codec import encode
 from moxi import Event, Point
-from moxi_mindmap.fixtures import useful_map
+from moxi_mindmap.fixtures import useful_map, large_map
+from moxi_mindmap.layout import MapLayout
+from moxi_canvas.geometry import overlaps
 from moxi.event import *
 
 def main() raises:
@@ -47,6 +49,15 @@ def main() raises:
     if not map.app.component.has_destination:
         raise Error("Cross-side semantic edge/port preview rejected")
     var proposal = map.app.component.destination
+    var proposed_layout = MapLayout()
+    proposed_layout.compute(map.proposed)
+    var final_branch = proposed_layout.boxes[5]
+    var preview_branch = proposal.world_bounds(5)
+    if preview_branch.x != final_branch.x or overlaps(preview_branch, proposal.world_bounds(3)):
+        raise Error("Keyboard preview must show the destination lane without overlapping a stationary sibling")
+    var shown_branch = map.app.component.state.camera.rect(preview_branch)
+    if shown_branch.x < map.app.component.state.camera.viewport.x or shown_branch.y < map.app.component.state.camera.viewport.y:
+        raise Error("Keyboard destination must be revealed inside the viewport")
     var revision = map.app.component.document.revision
     if map.app.component.propose_destination(proposal, "Not opted in", revision):
         raise Error("Geometry-only default accepted semantic graph change")
@@ -83,10 +94,42 @@ def main() raises:
     _ = map.dispatch(event)
     if map.destination != 6 or not map.app.component.has_destination or encode(map.doc) != before:
         raise Error("Pointer preview must be published without changing content")
+    preview_branch = map.app.component.destination.world_bounds(5)
+    var preview_parent = map.app.component.destination.world_bounds(6)
+    if preview_branch.x < preview_parent.x + preview_parent.width:
+        raise Error("Valid pointer destination must not hide the parent beneath the dragged card")
     event.kind = POINTER_CANCEL_KIND
     _ = map.dispatch(event)
     if encode(map.doc) != before or map.history.generation != generation:
         raise Error("Pointer cancel changed semantic history")
+    map.select(4)
+    map.begin_edit()
+    var edit_before = encode(map.doc)
+    var height_before = map.app.component.document.world_bounds(4).height
+    var neighbor_mount = map.app.component.mount_index(6)
+    var neighbor_builds = map.app.component.mounts[neighbor_mount].builds
+    event = Event()
+    event.kind = KEY_DOWN_KIND
+    event.key = KEY_LEFT
+    _ = map.dispatch(event)
+    event.kind = TEXT_INPUT_KIND
+    event.text = "!"
+    _ = map.dispatch(event)
+    if map.app.component.mounts[neighbor_mount].builds != neighbor_builds:
+        raise Error("Caret and same-size text edits must not relayout neighboring controls")
+    if "!" not in map.editor_text(map.app.component.mount_index(4)):
+        raise Error("Same-size draft input was not dispatched")
+    event = Event()
+    event.kind = TEXT_INPUT_KIND
+    event.text = " · 한국어 עברית 🙂\nAnother wrapped draft row"
+    _ = map.dispatch(event)
+    if map.app.component.document.world_bounds(4).height <= height_before or encode(map.doc) != edit_before:
+        raise Error("Wrapped draft must grow its editor without committing semantic text")
+    if overlaps(map.app.component.document.world_bounds(4), map.app.component.document.world_bounds(6)):
+        raise Error("Growing the native editor must reflow its neighbor")
+    map.finish_edit(True)
+    if encode(map.doc) != edit_before:
+        raise Error("Cancelling a grown editor changed semantic content")
     map.select(5)
     source = map.app.component.state.camera.rect(map.app.component.document.world_bounds(5))
     event.kind = POINTER_DOWN_KIND
@@ -178,4 +221,7 @@ def main() raises:
     map.execute(MapCommand.SAVE_AS)
     if map.pending != MapCommand.SAVE_AS:
         raise Error("Save As command unavailable")
+    map = MindMapApp(large_map(1000))
+    if map.app.component.state.camera.zoom != 1 or map.app.paint().count() >= 1000:
+        raise Error("Large maps must open at readable topic scale with viewport culling")
     print("mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS")
