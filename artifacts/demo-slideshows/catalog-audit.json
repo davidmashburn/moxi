@@ -1,29 +1,25 @@
 {
-  "checked_at": "2026-11-23T07:26:47.078327+00:00",
-  "checkout_revision": "158c67a36c376bbc0f88eaf363669a0485473343",
-  "audited_source_worktree_status": [
-    " M experiments/python-native/README.md",
-    " M experiments/python-native/inspect_wheel.py",
-    " M experiments/python-native/setup.py"
-  ],
+  "checked_at": "2026-11-23T07:56:33.504802+00:00",
+  "checkout_revision": "e9fd68f799760d46381a014d483b39fee09db9a5",
+  "audited_source_worktree_status": [],
   "scope": "All one-level catalog manifests: schema, image presence/dimensions, recorded PNG checksums and recorded per-file source fingerprints. No capture, visual review, dependency-completeness certification, binary verification or acceptance promotion.",
   "source_status_meaning": "Recorded-files-match verifies only the explicit inventory; omitted dependencies and provenance completeness remain unverified. Old revision equality alone is not current-source evidence.",
-  "manifest_count": 58,
-  "frame_count": 476,
-  "image_hashes_verified": 395,
+  "manifest_count": 59,
+  "frame_count": 481,
+  "image_hashes_verified": 413,
   "images_without_recorded_hash": 68,
   "image_hash_mismatches": 0,
-  "missing_images": 13,
-  "committed_image_references": 12,
-  "local_uncommitted_image_references": 451,
-  "absent_uncommitted_image_references": 13,
+  "missing_images": 0,
+  "committed_image_references": 95,
+  "local_uncommitted_image_references": 386,
+  "absent_uncommitted_image_references": 0,
   "image_availability_basis": "Committed PNG paths at checkout_revision count as fresh-clone artifacts. Staged, ignored and other uncommitted local PNGs do not. missing_images is a working-tree absence count, not a fresh-clone absence count.",
   "source_status_counts": {
     "no-per-file-source-hashes": 8,
-    "recorded-source-differs": 47,
-    "recorded-files-match": 3
+    "recorded-source-differs": 45,
+    "recorded-files-match": 6
   },
-  "schema_pass_count": 57,
+  "schema_pass_count": 59,
   "demos": [
     {
       "demo_id": "browser-fdg",
@@ -1008,11 +1004,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1081,11 +1078,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1154,11 +1152,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1227,11 +1226,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1300,11 +1300,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1373,11 +1374,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1446,11 +1448,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1519,11 +1522,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1592,11 +1596,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1665,11 +1670,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1738,11 +1744,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1811,11 +1818,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1884,11 +1892,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -1957,11 +1966,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-rejected.png",
@@ -2030,11 +2040,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2083,11 +2094,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2136,11 +2148,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2189,11 +2202,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2242,11 +2256,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2295,11 +2310,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2348,11 +2364,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2401,11 +2418,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2454,11 +2472,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2507,11 +2526,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2560,11 +2580,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2613,11 +2634,12 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
+      "committed_images": [
+        "03-comparison.png"
+      ],
       "local_uncommitted_images": [
         "01-source.png",
         "02-reference.png",
-        "03-comparison.png",
         "04-selection.png",
         "05-update.png",
         "06-recovery.png"
@@ -2653,8 +2675,8 @@
     },
     {
       "demo_id": "e04-python-native",
-      "manifest_sha256": "d4ab42b62c84e93aa45fe6ac3341797a6b0675359217f0ecd637cf339e09751f",
-      "captured_revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
+      "manifest_sha256": "c8def994473728a9e1e0cb15353c6ed68b48f61c9e86cadb701596529169e925",
+      "captured_revision": "424126e12385c1cc74335e2384b6bc90fb084f9a",
       "frames": 5,
       "schema_and_images": "pass",
       "capture_errors": [],
@@ -2665,52 +2687,33 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
-      "local_uncommitted_images": [
+      "committed_images": [
         "01-import.png",
         "02-render.png",
         "03-comparison.png",
         "04-recovery.png",
         "05-packaging.png"
       ],
+      "local_uncommitted_images": [],
       "absent_uncommitted_images": [],
-      "source_status": "recorded-source-differs",
+      "source_status": "recorded-files-match",
       "source_inventories": [
         {
           "path": "artifacts/demo-slideshows/e04-python-native/manifest.json",
-          "sha256": "d4ab42b62c84e93aa45fe6ac3341797a6b0675359217f0ecd637cf339e09751f",
-          "entries": 27
+          "sha256": "c8def994473728a9e1e0cb15353c6ed68b48f61c9e86cadb701596529169e925",
+          "entries": 31
         },
         {
-          "path": "artifacts/demo-slideshows/e04-python-native/build.json",
-          "sha256": "3f4cec3d3eb9d8d33c1be09b4883acd7fbcb70d09c587d5fcc3a35371759bb56",
-          "entries": 140
+          "path": "artifacts/demo-slideshows/e04-python-native/publication.json",
+          "sha256": "5b1e2df0d4b8f57d5ad6ee88f4f14d0351343585e436ee24cf8b1f1ac16daa51",
+          "entries": 150
         }
       ],
       "external_source_inventories": [],
-      "recorded_source_files": 160,
-      "changed_source_files": [
-        "LICENSE",
-        "experiments/python-native/README.md",
-        "experiments/python-native/check.sh",
-        "experiments/python-native/evidence.py",
-        "experiments/python-native/inspect_wheel.py",
-        "experiments/python-native/setup.py",
-        "experiments/python-native/tests/test_native.py",
-        "python/moxi/figure.py",
-        "python/moxi/specialized.py",
-        "python/moxi/specialized_c.py",
-        "python/moxi/wave_b.py"
-      ],
+      "recorded_source_files": 161,
+      "changed_source_files": [],
       "missing_source_files": [],
-      "conflicting_source_hashes": [
-        "experiments/python-native/build_native.py",
-        "experiments/python-native/moxi_native/__init__.py",
-        "experiments/python-native/moxi_native/formats.py",
-        "experiments/python-native/native/module.c",
-        "experiments/python-native/native/render.mojo",
-        "experiments/python-native/setup.py"
-      ]
+      "conflicting_source_hashes": []
     },
     {
       "demo_id": "fdg-clean-consumer",
@@ -3194,8 +3197,8 @@
     },
     {
       "demo_id": "mindmap",
-      "manifest_sha256": "b35c09ae70ad07b4270663c37377158807d2ac9915fc8bc2696f70a486861a9b",
-      "captured_revision": "158c67a36c376bbc0f88eaf363669a0485473343",
+      "manifest_sha256": "b84081feaf981e5b075febf2497d70b8b6cfec644cd06f6d8e2c872c28985379",
+      "captured_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
       "frames": 20,
       "schema_and_images": "pass",
       "capture_errors": [],
@@ -3206,8 +3209,7 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
-      "local_uncommitted_images": [
+      "committed_images": [
         "01-initial.png",
         "02-mixed-edit.png",
         "03-fold-search.png",
@@ -3229,12 +3231,13 @@
         "12-large-folded.png",
         "13-large-expanded.png"
       ],
+      "local_uncommitted_images": [],
       "absent_uncommitted_images": [],
       "source_status": "recorded-files-match",
       "source_inventories": [
         {
           "path": "artifacts/demo-slideshows/mindmap/manifest.json",
-          "sha256": "b35c09ae70ad07b4270663c37377158807d2ac9915fc8bc2696f70a486861a9b",
+          "sha256": "b84081feaf981e5b075febf2497d70b8b6cfec644cd06f6d8e2c872c28985379",
           "entries": 184
         }
       ],
@@ -3336,8 +3339,8 @@
     },
     {
       "demo_id": "plot-contour-followup",
-      "manifest_sha256": "20d90347f5724d977ab6aa0e1516a7f105b3c88b23bd9eec5510e846fa2ff8fb",
-      "captured_revision": "fcc05cc41598137dff8a5e3f04db4e325729e759",
+      "manifest_sha256": "64f6acdf1a2ca5efbe94546380918ac4501447c62444afd43fb93479d68b4dc7",
+      "captured_revision": "424126e12385c1cc74335e2384b6bc90fb084f9a",
       "frames": 12,
       "schema_and_images": "pass",
       "capture_errors": [],
@@ -3368,12 +3371,49 @@
       "source_inventories": [
         {
           "path": "artifacts/demo-slideshows/plot-contour-followup/source-state.json",
-          "sha256": "9864d9640ee0af05e78559fb07afc6340b4e026efab6d2bb7d730da569f9fc13",
+          "sha256": "9adc6182d6d97f425bd23f62013140468cae4b4624271184f275ead7a64eb8d7",
           "entries": 65
         }
       ],
       "external_source_inventories": [],
       "recorded_source_files": 65,
+      "changed_source_files": [],
+      "missing_source_files": [],
+      "conflicting_source_hashes": []
+    },
+    {
+      "demo_id": "plot-ridgeline-followup",
+      "manifest_sha256": "30083772ec830008ecc0f081f13c43e7bfb83080296aee9ec10f5d9bf7668fd9",
+      "captured_revision": "eed5663db962acc448a8e0c0c79ae0abd63a5eee",
+      "frames": 5,
+      "schema_and_images": "pass",
+      "capture_errors": [],
+      "capture_kinds": {
+        "browser": 5
+      },
+      "image_hashes_verified": 5,
+      "images_without_recorded_hash": [],
+      "image_hash_mismatches": [],
+      "missing_images": [],
+      "committed_images": [
+        "native-frame.png",
+        "interaction-frame.png",
+        "python-frame.png",
+        "reference-frame.png",
+        "recovery-frame.png"
+      ],
+      "local_uncommitted_images": [],
+      "absent_uncommitted_images": [],
+      "source_status": "recorded-files-match",
+      "source_inventories": [
+        {
+          "path": "artifacts/demo-slideshows/plot-ridgeline-followup/manifest.json",
+          "sha256": "30083772ec830008ecc0f081f13c43e7bfb83080296aee9ec10f5d9bf7668fd9",
+          "entries": 73
+        }
+      ],
+      "external_source_inventories": [],
+      "recorded_source_files": 73,
       "changed_source_files": [],
       "missing_source_files": [],
       "conflicting_source_hashes": []
@@ -3437,8 +3477,7 @@
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
       "missing_images": [],
-      "committed_images": [],
-      "local_uncommitted_images": [
+      "committed_images": [
         "01-initial.png",
         "02-linked-views.png",
         "03-hierarchy-preview.png",
@@ -3454,6 +3493,7 @@
         "13-right-disposed.png",
         "14-recovered.png"
       ],
+      "local_uncommitted_images": [],
       "absent_uncommitted_images": [],
       "source_status": "recorded-files-match",
       "source_inventories": [
@@ -3675,20 +3715,19 @@
     },
     {
       "demo_id": "sws-native",
-      "manifest_sha256": "938c56c978a224848f9d20852ccfc5b1f4921d20c8fb99d08a821bcaed3d5307",
-      "captured_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+      "manifest_sha256": "01ff485e215c466a26d53349f2d955fa5adb94232ad6bbf9c8b551af2730f0eb",
+      "captured_revision": "1c2e2a63a909425cc3775801062201f2032d9e6d",
       "frames": 13,
-      "schema_and_images": "fail",
-      "capture_errors": [
-        "[Errno 2] No such file or directory: 'artifacts/demo-slideshows/sws-native/01-asymmetric.png'"
-      ],
+      "schema_and_images": "pass",
+      "capture_errors": [],
       "capture_kinds": {
         "offscreen-render": 13
       },
-      "image_hashes_verified": 0,
+      "image_hashes_verified": 13,
       "images_without_recorded_hash": [],
       "image_hash_mismatches": [],
-      "missing_images": [
+      "missing_images": [],
+      "committed_images": [
         "01-asymmetric.png",
         "02-navigation.png",
         "03-edit-watershed.png",
@@ -3703,163 +3742,26 @@
         "12-resize.png",
         "13-recreated.png"
       ],
-      "committed_images": [],
       "local_uncommitted_images": [],
-      "absent_uncommitted_images": [
-        "01-asymmetric.png",
-        "02-navigation.png",
-        "03-edit-watershed.png",
-        "04-undo.png",
-        "05-redo.png",
-        "06-save-reopen.png",
-        "07-pending.png",
-        "08-stale.png",
-        "09-failure.png",
-        "10-cancel.png",
-        "11-recovery.png",
-        "12-resize.png",
-        "13-recreated.png"
-      ],
-      "source_status": "recorded-source-differs",
+      "absent_uncommitted_images": [],
+      "source_status": "recorded-files-match",
       "source_inventories": [
         {
           "path": "artifacts/demo-slideshows/sws-native/source-hashes.json",
-          "sha256": "887ead3dcf30a75140e5f83e1e9321feffcec92a87682986a497793a25aa186a",
-          "entries": 1279
+          "sha256": "059b4147c63b534ee6d8552bfa552bde3cf6027fd04a0103a3cfabaf75ea1775",
+          "entries": 1396
         }
       ],
       "external_source_inventories": [
         {
           "path": "artifacts/demo-slideshows/sws-native/source-hashes.json",
           "namespace": "application",
-          "recorded_files": 26,
+          "recorded_files": 27,
           "reason": "Separate application repository; not checked against Moxi paths."
         }
       ],
-      "recorded_source_files": 1279,
-      "changed_source_files": [
-        ".gitignore",
-        "ARCHITECTURE.md",
-        "README.md",
-        "benchmarks/results/portable-quick-contract.json",
-        "docs/api-status.md",
-        "docs/api-surface.tsv",
-        "docs/authoring/README.md",
-        "docs/authoring/comparisons.md",
-        "docs/dataviz-capabilities.tsv",
-        "docs/deferred-implementation.json",
-        "docs/demo-browser.md",
-        "docs/features.md",
-        "docs/mindmap.md",
-        "docs/python.md",
-        "docs/workbench-native-acceptance.md",
-        "examples/demo_browser.mojo",
-        "examples/editable_showcase.mojo",
-        "examples/mindmap_native_app.mojo",
-        "examples/spatial-assembly/gallery.py",
-        "examples/spatial-assembly/main.mojo",
-        "native/linux_window.c",
-        "native/linux_window.h",
-        "native/macos_composition.h",
-        "native/macos_composition.inc",
-        "native/macos_metal.m",
-        "native/macos_window.m",
-        "native/macos_window_bounds.c",
-        "native/macos_window_state.h",
-        "native/mindmap/storage.h",
-        "native/mindmap/storage.m",
-        "native/spatial/api.cpp",
-        "native/spatial/api.h",
-        "native/spatial/renderer.h",
-        "native/spatial/renderer.m",
-        "native/tests/linux_window_test.c",
-        "native/web/host_demo.html",
-        "packages/moxi_layout_native/recipe.yaml",
-        "pixi.toml",
-        "pyproject.toml",
-        "python/moxi/figure.py",
-        "python/moxi/spec.py",
-        "python/moxi/specialized.py",
-        "scripts/check.sh",
-        "scripts/mindmap/check.sh",
-        "scripts/mindmap/manifest.py",
-        "scripts/python_package_consumer.sh",
-        "scripts/record_demo.sh",
-        "scripts/scenario_check.sh",
-        "src/moxi/__init__.mojo",
-        "src/moxi/authoring/runtime.mojo",
-        "src/moxi/capability_walkthrough.mojo",
-        "src/moxi/column_runtime.mojo",
-        "src/moxi/column_view.mojo",
-        "src/moxi/controls_basic.mojo",
-        "src/moxi/controls_text.mojo",
-        "src/moxi/fractal.mojo",
-        "src/moxi/interaction_showcase.mojo",
-        "src/moxi/live_script.mojo",
-        "src/moxi/macos.mojo",
-        "src/moxi/native_window.mojo",
-        "src/moxi/paint.mojo",
-        "src/moxi/recipes.mojo",
-        "src/moxi/retained_leaf.mojo",
-        "src/moxi/scenarios.mojo",
-        "src/moxi/scene_path.mojo",
-        "src/moxi/scrollbar.mojo",
-        "src/moxi/style.mojo",
-        "src/moxi/theme_showcase.mojo",
-        "src/moxi/tokens.mojo",
-        "src/moxi/view_node.mojo",
-        "src/moxi/widget.mojo",
-        "src/moxi/wxstyle.mojo",
-        "src/moxi_canvas/runtime.mojo",
-        "src/moxi_demo/demo_browser.mojo",
-        "src/moxi_demo/demo_entry.mojo",
-        "src/moxi_demo/demo_walkthrough.mojo",
-        "src/moxi_demo/showcase.mojo",
-        "src/moxi_mindmap/application.mojo",
-        "src/moxi_mindmap/commands.mojo",
-        "src/moxi_mindmap/storage.mojo",
-        "src/moxi_plot/plot_layout.mojo",
-        "src/moxi_plot/plot_point.mojo",
-        "src/moxi_plot/plot_runtime.mojo",
-        "src/moxi_plot/plot_spec.mojo",
-        "src/moxi_plot/plot_spec_json.mojo",
-        "src/moxi_plot/plot_spec_types.mojo",
-        "src/moxi_plot/plot_view.mojo",
-        "src/moxi_plot/plotting.mojo",
-        "src/moxi_spatial/__init__.mojo",
-        "tests/alignment.mojo",
-        "tests/authoring.mojo",
-        "tests/canvas_keyboard_contract.mojo",
-        "tests/canvas_scene_checksums.tsv",
-        "tests/canvas_scene_parity.mojo",
-        "tests/clipping.mojo",
-        "tests/demo_browser.mojo",
-        "tests/fractal.mojo",
-        "tests/goldens/images/accessibility-focused-control.ppm",
-        "tests/goldens/images/plot-gallery.ppm",
-        "tests/goldens/images/theme-dark.ppm",
-        "tests/goldens/images/theme-emerald.ppm",
-        "tests/goldens/images/theme-light.ppm",
-        "tests/goldens/manifest.json",
-        "tests/mindmap/application.mojo",
-        "tests/mindmap/freeplane-reference.json",
-        "tests/native_custom_rect_equivalence.m",
-        "tests/native_paragraph.mojo",
-        "tests/native_paragraph_probe.m",
-        "tests/native_retained_presentation.m",
-        "tests/package_consumer.mojo",
-        "tests/plot_spec.mojo",
-        "tests/plot_specialized.mojo",
-        "tests/plotting.mojo",
-        "tests/python/test_specialized.py",
-        "tests/retained_layout.mojo",
-        "tests/scenarios.mojo",
-        "tests/scene_renderer.mojo",
-        "tests/scroll_app.mojo",
-        "tests/style_theme.mojo",
-        "tests/tokens_recipes.mojo",
-        "tests/wx_style.mojo"
-      ],
+      "recorded_source_files": 1396,
+      "changed_source_files": [],
       "missing_source_files": [],
       "conflicting_source_hashes": []
     },

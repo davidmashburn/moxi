@@ -1,58 +1,24 @@
 # Demo catalog audit — November 23, 2026
 
-All **58 catalog manifests / 476 frame references** were audited against checkout
-`158c67a36c376bbc0f88eaf363669a0485473343` at 07:26 UTC. The full
-[catalog-audit.json](catalog-audit.json) records each manifest’s SHA-256, source
-inventory checks, PNG checks and local-versus-committed image availability.
-This audit does not recapture or visually review the older galleries.
+All 59 manifests loaded and all 481 referenced PNGs were present in the review workspace. A clean clone contains 95 of those frames. The audit ran at 2026-11-23T07:56:33.504802+00:00 against [`e9fd68f`](https://github.com/davidmashburn/moxi/tree/e9fd68f799760d46381a014d483b39fee09db9a5). The [machine-readable results](catalog-audit.json) identify each manifest, image and recorded source inventory.
 
 | Check | Result |
 | --- | --- |
-| Schema, image presence and dimensions | 57 pass; `sws-native` fails for 13 locally absent PNGs |
-| Recorded PNG SHA-256 | 395 match, 0 mismatch, 68 existing images lack a recorded hash, 13 images absent |
-| Explicit recorded source inventory | 3 match current bytes, 47 differ, 8 have no per-file hashes |
-| Referenced PNGs committed at the audit revision | 12 / 476 |
-| Referenced PNGs present only in the working tree | 451 / 476, including the 34 refreshed D04/D07 frames before their artifact commit |
-| Referenced PNGs absent and uncommitted | 13 / 476 |
+| Schema, image presence and dimensions in the review workspace | 59/59 pass |
+| Recorded image SHA-256 | 413 match, 0 mismatch |
+| Images with no recorded SHA-256 | 68 |
+| Frame references backed by PNGs in Git | 95/481 |
+| Frame references available only as local generated files | 386/481 |
+| Recorded source inventories | 6 match the audited files, 45 differ, 8 lack per-file hashes |
 
-**Local presence is not clean-clone availability.** The 13 absent SWS images are
-the count missing from this working tree, not the number missing on a clean
-clone. At the audit revision, 464 referenced PNGs are uncommitted. This change
-retains all 34 refreshed D04/D07 native PNGs through per-directory ignore
-exceptions; those frames become available with the evidence commit. The other
-417 locally present frames are not added by this change. HTML and native
-binaries remain generated. Counts in the JSON deliberately describe the named
-Git revision, rather than assuming a later artifact commit.
+The matching source inventories are `e04-python-native`, `mindmap`, `plot-contour-followup`, `plot-ridgeline-followup`, `spatial-assembly`, `sws-native`. A match covers the files the producer actually recorded. The JSON lists changed and absent files for each differing inventory. Eight older galleries carry no per-file inventory. The external SeedWater application was verified separately in its [packaged replay](sws-native/README.md). The catalog auditor checks its Moxi namespace.
 
-The three matching explicit inventories are `mindmap` (184 source files),
-`spatial-assembly` (156) and `plot-contour-followup`. The first two also have
-current native replay, committed-source/PNG checks and per-frame visual records:
-[D04](mindmap/REPRODUCE.md), [D07](spatial-assembly/README.md).
-`plot-contour-followup` has its own [evidence record](plot-contour-followup/README.md);
-this audit checks its recorded inventory and image bytes without adopting its
-visual or performance claims.
+The [November 23 baseline](https://github.com/davidmashburn/moxi/blob/eed5663/artifacts/demo-slideshows/CATALOG-AUDIT.md) identified 13 missing SeedWater frames. All 13 [historical originals](https://github.com/davidmashburn/moxi/tree/f253097/artifacts/demo-slideshows/sws-native) were recovered at their recorded hashes. The current catalog carries a new source-bound replay. The [26 historical plot family comparisons](plot-wave-b-c-review/RESULTS.md) also open directly from Git.
 
-The eight galleries without per-file source hashes are `browser-fdg`,
-`d01-math-backends`, `d02-native-math-editor`, `fdg-notebook`, `native-lifecycle`,
-`not-implemented`, `server-backed-views` and `text-laboratory`. The JSON identifies
-all 47 differing inventories and their changed or missing source paths. The SWS
-application namespace belongs to a separate repository; its 26 application files
-were not compared with Moxi paths.
+The [mindmap](mindmap/REPRODUCE.md), [assembly](spatial-assembly/README.md), [contour and radial plots](plot-contour-followup/README.md), [ridgeline](plot-ridgeline-followup/README.md) and [installed Python renderer](e04-python-native/REVIEW.md) have dedicated visual and interaction records. Other generated galleries may require their documented replay on a new checkout. This catalog check does not independently establish visual quality, complete dependency coverage, physical-input behavior or performance.
 
-A matching explicit inventory certifies only the files actually recorded.
-Dependency completeness, capture origin, native binary identity, visual quality,
-physical-input/accessibility/human acceptance and performance were not audited
-for the remaining catalog. No old gallery is promoted to integrated-source
-acceptance on revision labels or image presence alone. Uncommitted status is
-reported only for the union of recorded source inputs; unrelated worktree edits
-are excluded.
-
-Re-run the read-only audit from the repository root:
+Run the audit from the repository root.
 
 ```sh
 python3 scripts/audit_demo_manifests.py --output artifacts/demo-slideshows/catalog-audit.json
 ```
-
-Refreshing it after an artifact commit updates the committed-image counts. A
-future source/capture change also requires a new dated interpretation before
-these records can support current implementation claims.
