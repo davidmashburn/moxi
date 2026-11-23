@@ -68,8 +68,8 @@ def check_fixture(fixture_index: Int) raises -> Int:
         expected_software = 25434784
         expected_canvas = 25721197
     elif fixture.id == 3:
-        expected_software = 852464264
-        expected_canvas = 853858008
+        expected_software = 852992492
+        expected_canvas = 854630626
     test_check(software.checksum() == expected_software)
     test_check(canvas.checksum() == expected_canvas)
     test_check(svg.frame_count == 1)

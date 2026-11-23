@@ -518,7 +518,7 @@ def canonical_canvas_scene_fixtures() -> List[CanvasSceneFixture]:
         640,
         420,
         Color(0.0, 0.0, 0.0, 0.0),
-        65,
+        67,
         15,
     ))
     return result^
