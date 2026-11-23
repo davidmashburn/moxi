@@ -42,6 +42,14 @@ def main() raises:
     plot.fit_to_data()
     var scene = plot.build_scene()
     test_check(scene.count() > 10)
+    var tick_bottom: Float32 = -1
+    var legend_top: Float32 = -1
+    for command in scene.commands:
+        if command.id == 700:
+            tick_bottom = command.bounds.y + command.bounds.height
+        if command.id == 600 + line:
+            legend_top = command.bounds.y
+    test_check(tick_bottom > 0 and legend_top >= tick_bottom + 6)
     var renderer = SoftwareSceneRenderer(320, 240)
     renderer.render_scene(scene)
     test_check(renderer.checksum() > 0)

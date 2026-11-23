@@ -206,7 +206,9 @@ struct Plot:
 
     def update_plot_area(mut self):
         var width = self.bounds.width - 80.0
-        var height = self.bounds.height - 64.0
+        # Below the data area, ticks and their labels take 22 points. Leave a
+        # separate row for the legend, with six points between the text rows.
+        var height = self.bounds.height - 28.0 - 52.0
         if width < 0.0:
             width = 0.0
         if height < 0.0:
