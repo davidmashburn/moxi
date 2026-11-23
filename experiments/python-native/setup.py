@@ -7,7 +7,7 @@ obj = here / "dist" / "render.o"
 if not obj.exists():
     raise RuntimeError("Run build.sh first; source installation requires a build-time Mojo compiler")
 setup(ext_modules=[Extension("moxi_native._core", ["native/module.c", "native/graphics.c"],
-                            depends=["native/graphics.h"],
+                            depends=["native/graphics.h", str(obj)],
                             extra_objects=[str(obj)],
                             libraries=["KGENCompilerRTShared"],
                             library_dirs=[str(here / "moxi_native/.libs")],

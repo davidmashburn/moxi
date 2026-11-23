@@ -1,0 +1,108 @@
+name: Experimental native Python consumer
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/python-native-experimental.yml
+      - experiments/python-native/**
+      - python/**
+      - tests/python/**
+      - tests/fixtures/**
+      - tests/test_specialized_c.py
+      - scripts/wave_b/fixtures.py
+      - scripts/wave_b/boundaries.py
+      - scripts/wave_c/fixtures.py
+      - scripts/wave_c/boundaries.py
+      - docs/dataviz-capabilities.tsv
+      - src/moxi/**
+      - src/moxi_plot/**
+      - pyproject.toml
+      - pixi.toml
+      - pixi.lock
+  pull_request:
+    paths:
+      - .github/workflows/python-native-experimental.yml
+      - experiments/python-native/**
+      - python/**
+      - tests/python/**
+      - tests/fixtures/**
+      - tests/test_specialized_c.py
+      - scripts/wave_b/fixtures.py
+      - scripts/wave_b/boundaries.py
+      - scripts/wave_c/fixtures.py
+      - scripts/wave_c/boundaries.py
+      - docs/dataviz-capabilities.tsv
+      - src/moxi/**
+      - src/moxi_plot/**
+      - pyproject.toml
+      - pixi.toml
+      - pixi.lock
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-python-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  installed-consumer:
+    runs-on: macos-15
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.13", "3.14"]
+    env:
+      MOXI_E04_PYTHON: python
+      PIP_NO_CACHE_DIR: "1"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Select the CPython ABI
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Pixi without saving its environment
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: v0.81.0
+          cache: false
+      - name: Install the locked compiler on this fresh host
+        run: pixi install --locked
+      - name: Build the experimental wheel for this host
+        run: |
+          if ! bash experiments/python-native/build.sh > "$RUNNER_TEMP/e04-build.log" 2>&1; then
+            tail -80 "$RUNNER_TEMP/e04-build.log"
+            exit 1
+          fi
+          tail -12 "$RUNNER_TEMP/e04-build.log"
+      - name: Check isolated installation and real render outputs
+        env:
+          MOXI_E04_ARTIFACTS: ${{ runner.temp }}/e04-evidence
+        run: |
+          if ! bash experiments/python-native/check.sh > "$RUNNER_TEMP/e04-consumer.log" 2>&1; then
+            tail -100 "$RUNNER_TEMP/e04-consumer.log"
+            test ! -f /tmp/moxi-e04-native-tests.log || tail -80 /tmp/moxi-e04-native-tests.log
+            exit 1
+          fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          evidence = Path(os.environ['MOXI_E04_ARTIFACTS'])
+          initial = json.loads((evidence / '01-import.json').read_text())
+          package = json.loads((evidence / 'packaging.json').read_text())
+          print(json.dumps({key: initial[key] for key in ('python', 'platform', 'isolated', 'mojo_on_path', 'process_audit')}, indent=2))
+          print(json.dumps({key: package[key] for key in ('wheel', 'sha256', 'dependency_check', 'abi3', 'production_gate')}, indent=2))
+          print((evidence / 'native-tests.log').read_text().strip())
+          print((evidence / 'facade-tests.log').read_text().strip())
+          PY
+      # No wheel, runtime, Pixi cache or binary evidence is uploaded. This job
+      # validates internal use on a fresh host; distribution approval stays open.
+      - name: Remove temporary bundled runtime outputs
+        if: always()
+        run: |
+          rm -rf experiments/python-native/dist experiments/python-native/build \
+            experiments/python-native/moxi_native/.libs \
+            experiments/python-native/moxi_native/runtime-notices

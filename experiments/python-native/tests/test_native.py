@@ -80,6 +80,26 @@ def test_raster_title_glyphs_and_pdf_text_follow_native_scene():
     assert 'Title (A&B) <C>' in pdf.pages[0].extract_text()
 
 
+def test_axis_labels_remain_visible_outside_the_data_clip():
+    svg = ET.fromstring(call(format=native.RenderFormat.SVG))
+    namespace = {'svg': 'http://www.w3.org/2000/svg'}
+    data_clip = svg.find('svg:clipPath/svg:rect', namespace)
+    bottom = float(data_clip.attrib['y']) + float(data_clip.attrib['height'])
+    numeric_labels = [label for label in svg.findall('.//svg:text', namespace)
+                      if label.text and label.text.replace('.', '').isdigit()]
+    x_label = next(label for label in numeric_labels if float(label.attrib['y']) > bottom)
+    y_label = next(label for label in numeric_labels
+                   if float(label.attrib['x']) == 2 and 60 < float(label.attrib['y']) < bottom - 15)
+    pixels = Image.frombytes('RGBA', (WIDTH, HEIGHT), call())
+    for label in (x_label, y_label):
+        x, baseline = int(float(label.attrib['x'])), int(float(label.attrib['y']))
+        glyphs = np.asarray(pixels.crop((x, baseline - 12, x + 20, baseline)))
+        # These margin crops contain glyphs, with neither grid nor axis strokes.
+        assert np.count_nonzero(np.all(glyphs[:, :, :3] > 90, axis=2)) > 15
+    page = PdfReader(io.BytesIO(call(format=native.RenderFormat.PDF))).pages[0]
+    assert x_label.text in page.extract_text() and y_label.text in page.extract_text()
+
+
 @pytest.mark.parametrize('dtype', ['float32', 'float64', 'int32', 'int64'])
 def test_numeric_dtypes_and_owned_result(dtype):
     spec, cols = canonical()

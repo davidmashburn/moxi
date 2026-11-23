@@ -39,8 +39,11 @@ def pre(value): return '<pre>' + html.escape(value if isinstance(value, str) els
 def verify_inputs():
     """Bind installed outputs to this checkout, not just an advertised revision."""
     build = read('build.json'); packaging = read('packaging.json')
-    revision = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
-    assert build['revision'] == revision, 'Build is from another revision'
+    revision = build['revision']
+    # Other units can be integrated after this build. Permit those descendants
+    # only while every compiled/facade source still matches the tested commit.
+    subprocess.run(['git', '-C', str(ROOT), 'merge-base', '--is-ancestor', revision, 'HEAD'],
+                   check=True, capture_output=True)
     sources = build['sources']
     assert hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest() == build['sources_sha256']
     for name, digest in sources.items():
@@ -202,7 +205,7 @@ def finalize():
             note=capture['note']),
         gates=dict(clean_installed_native='passed', facade_regression='passed', repeated_lifetime='bounded pass',
                    dependency_inspection=packaging['dependency_check'], native_abi3='not claimed',
-                   production='open', runtime_redistribution='unreviewed', other_hosts='not tested',
+                   production='open', runtime_redistribution='unreviewed', other_hosts='not included in this local capture',
                    voiceover='paused; not exercised', sanitizer_or_leak_detector='not run',
                    screenshot_scope='browser evidence pages of actual terminal logs and renderer outputs; not native UI captures'),
         slides=slides)

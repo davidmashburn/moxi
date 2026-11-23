@@ -131,10 +131,20 @@ importing the extension. Consumer directories are retained for inspection.
 Set `MOXI_E04_PYTHON` for another locally installed CPython and
 `MOXI_E04_ARTIFACTS` to keep its evidence in a separate directory. A new venv
 on this build host is an isolated consumer, not fresh-host distribution proof.
+The compiled object is an explicit extension dependency, so a new Mojo build
+relinks the C extension even when the C sources have not changed.
+
+[The targeted hosted check](../../.github/workflows/python-native-experimental.yml)
+is configured to build CPython 3.13 and 3.14 wheels on fresh macOS 15 ARM64 runners and exercise
+the installed consumers there. It runs only for relevant paths or an explicit
+dispatch. Compiler environments and wheels are not cached or uploaded; temporary
+bundled runtime outputs are removed at the end. A successful run supplies another
+host check without publishing wheels; runtime redistribution approval stays open.
 
 The native suite decodes PNG/PDF with independent libraries, validates SVG,
 requires selectable PDF title/legend text and vector strokes without page
-images, checks title-only raster pixel changes and JSON-punctuation labels,
+images, checks title-only raster pixel changes, visible axis labels outside the
+data clip and JSON-punctuation labels,
 compares all four facade contracts, tests accepted/rejected dtypes and masks,
 checks private C extents and malformed Mojo JSON, and runs 500 successful
 renders alternating public and native failures, retaining outputs across GC
