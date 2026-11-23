@@ -153,5 +153,6 @@
     "level": "high for exact archived PNG recovery only",
     "would_change_conclusion": "Any mismatch with the original PNG hashes, dimensions or unchanged manifest; a fresh source replay is needed for current-source claims"
   },
-  "comparison_revision": "424126e12385c1cc74335e2384b6bc90fb084f9a"
+  "comparison_revision": "424126e12385c1cc74335e2384b6bc90fb084f9a",
+  "historical_artifacts_commit": "f253097dda2bdabe26a2161d20b863cbafa1b093"
 }
