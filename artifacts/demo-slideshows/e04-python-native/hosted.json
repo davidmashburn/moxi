@@ -1,0 +1,63 @@
+{
+  "run_id": 45131806275,
+  "url": "https://github.com/davidmashburn/moxi/actions/runs/45131806275",
+  "revision": "424126e12385c1cc74335e2384b6bc90fb084f9a",
+  "status": "completed",
+  "conclusion": "success",
+  "checked_at": "2026-11-23T07:46:24Z",
+  "runner": "macos-15 ARM64",
+  "jobs": [
+    {
+      "job_id": 137548777924,
+      "url": "https://github.com/davidmashburn/moxi/actions/runs/45131806275/job/137548777924",
+      "status": "completed",
+      "conclusion": "success",
+      "python": "3.13.17",
+      "platform": "Darwin-24.6.0-arm64",
+      "isolated": 1,
+      "mojo_on_path": false,
+      "process_audit": "enabled",
+      "wheel": "moxi_native_experimental-0.1.0-cp313-cp313-macosx_15_0_arm64.whl",
+      "sha256": "3939cc57fae5a55f1c15570540d57bc72b51e234c7bcb7100bf426f0c5d30c6b",
+      "dependency_check": "PASS: bundled or system only",
+      "abi3": false,
+      "production_gate": "OPEN: proprietary runtime redistribution unreviewed; tested CPython/macOS/arm64 pairs only; bounded render coverage",
+      "test_counts": {
+        "native": 48,
+        "facade": 364
+      },
+      "binary_count": 4,
+      "architecture": "arm64",
+      "summary": "hosted-cp313.log",
+      "summary_sha256": "5b4ee706ead687f9d33c23f1c42f287a70715ea731655c778b1f987e008aff5c",
+      "local_only_raw_job_log_sha256": "483867b97315f3a478f673b475a4c1424b6cde396e95c32df412371ce01f7e7a"
+    },
+    {
+      "job_id": 137548777471,
+      "url": "https://github.com/davidmashburn/moxi/actions/runs/45131806275/job/137548777471",
+      "status": "completed",
+      "conclusion": "success",
+      "python": "3.14.10",
+      "platform": "Darwin-24.6.0-arm64",
+      "isolated": 1,
+      "mojo_on_path": false,
+      "process_audit": "enabled",
+      "wheel": "moxi_native_experimental-0.1.0-cp314-cp314-macosx_15_0_arm64.whl",
+      "sha256": "c56437742e31146f3599b9238731c475a9ac937a477de79f237eaab23b752228",
+      "dependency_check": "PASS: bundled or system only",
+      "abi3": false,
+      "production_gate": "OPEN: proprietary runtime redistribution unreviewed; tested CPython/macOS/arm64 pairs only; bounded render coverage",
+      "test_counts": {
+        "native": 48,
+        "facade": 364
+      },
+      "binary_count": 4,
+      "architecture": "arm64",
+      "summary": "hosted-cp314.log",
+      "summary_sha256": "2571a0304d282dd8131544073e6f25e9c5616aa179d525a5a89cfa09b80ab4b0",
+      "local_only_raw_job_log_sha256": "fd4cade30d43b766f2f524603510f88d1ff67defe778d78d8e9595ce046ea8c1"
+    }
+  ],
+  "scope": "Fresh hosted temporary builds and isolated consumers; no wheel/compiler cache or binary artifact upload. Actual consumer summaries are retained; raw job logs remain local.",
+  "distribution": "Experimental; runtime redistribution review remains open"
+}

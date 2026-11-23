@@ -1,0 +1,17 @@
+{
+  "renderer": "5.15.2",
+  "pdfium": "159.0.8149.0@sourcebuild-toolchained",
+  "source_sha256": "327617d52c4560d1dc588a6f9c9e1db96d4d26ea186b8cb6c953d80e66d91335",
+  "page_count": 1,
+  "page_size": [
+    320.0,
+    240.0
+  ],
+  "preview_size": [
+    640,
+    480
+  ],
+  "preview_sha256": "70ee2350b57d71fa26310aeb549c0f88b4209a9bb378bbef8eb91d0477594809",
+  "visual_outcome": "pass",
+  "visual_observation": "The final native PDF was independently rendered through PDFium. Its title, both numeric axes, line/scatter geometry and both legend labels are visible in the complete 640x480 page preview; selectable text and vector/no-image structure are checked separately by the native suite."
+}

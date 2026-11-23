@@ -1,0 +1,189 @@
+{
+  "captured_at": "2026-11-23T07:46:23.653Z",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+  "viewport_css": [
+    1400,
+    1100
+  ],
+  "device_pixel_ratio": 1,
+  "note": "Connected Playwright fallback after Chrome browser access host was unavailable; isolated context, PNG saved directly at CSS scale with no resizing or image edits. Browser pages contain actual installed outputs and recorded test logs. Absolute temporary-directory prefixes are omitted from the import evidence page; full unmodified probe reports remain local.",
+  "frames": {
+    "01-import": {
+      "page_errors": [],
+      "console_errors": [],
+      "failed_requests": [],
+      "resources": [
+        {
+          "url": "http://127.0.0.1:8764/01-import.html",
+          "status": 200
+        }
+      ],
+      "images": [],
+      "scenario_outcome": "pass",
+      "visual_outcome": "pass",
+      "visual_observation": "Compiled ABI 2, copy-per-call policy and isolated mode are fully readable. Consumer-relative facade/wrapper/extension paths are complete; the page explicitly identifies the omitted absolute temporary prefix.",
+      "captured_at": "2026-11-23T07:46:21.248Z",
+      "url": "http://127.0.0.1:8764/01-import.html",
+      "http_status": 200,
+      "viewport_css": [
+        1400,
+        1100
+      ],
+      "device_pixel_ratio": 1,
+      "document_scroll_height": 1100,
+      "document_scroll_width": 1400,
+      "sha256": "1bef7d675708b1e4bcb95bde170ebe0480919f1e8c2620db632d1435f7aacde3",
+      "page_sha256": "ad0fd9d43f77c570001d78b85e2a57b581c2167549c0657b4782290ecfc6173a"
+    },
+    "02-render": {
+      "page_errors": [],
+      "console_errors": [],
+      "failed_requests": [],
+      "resources": [
+        {
+          "url": "http://127.0.0.1:8764/02-render.html",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:8764/native.svg",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:8764/native.png",
+          "status": 200
+        }
+      ],
+      "images": [
+        {
+          "url": "http://127.0.0.1:8764/native.svg",
+          "complete": true,
+          "natural_width": 320,
+          "natural_height": 240
+        },
+        {
+          "url": "http://127.0.0.1:8764/native.png",
+          "complete": true,
+          "natural_width": 320,
+          "natural_height": 240
+        }
+      ],
+      "scenario_outcome": "pass",
+      "visual_outcome": "pass",
+      "visual_observation": "Both loaded native images show the title, numeric x/y labels outside the data clip, line/scatter geometry and both legend labels. SVG and PNG fonts differ; all four byte counts and hashes fit.",
+      "captured_at": "2026-11-23T07:46:21.876Z",
+      "url": "http://127.0.0.1:8764/02-render.html",
+      "http_status": 200,
+      "viewport_css": [
+        1400,
+        1100
+      ],
+      "device_pixel_ratio": 1,
+      "document_scroll_height": 1100,
+      "document_scroll_width": 1400,
+      "sha256": "f2cf0f9c03db7a7ee2bc7aa43b66b32b626d228aa71d3fb3d6163cb2d430d5c4",
+      "page_sha256": "640b615d6193f1fe9a136df1e5fa62fe936415abd7bc0ea4213ebdbe19afcde4"
+    },
+    "03-comparison": {
+      "page_errors": [],
+      "console_errors": [],
+      "failed_requests": [],
+      "resources": [
+        {
+          "url": "http://127.0.0.1:8764/03-comparison.html",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:8764/native.png",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:8764/facade.png",
+          "status": 200
+        }
+      ],
+      "images": [
+        {
+          "url": "http://127.0.0.1:8764/native.png",
+          "complete": true,
+          "natural_width": 320,
+          "natural_height": 240
+        },
+        {
+          "url": "http://127.0.0.1:8764/facade.png",
+          "complete": true,
+          "natural_width": 320,
+          "natural_height": 240
+        }
+      ],
+      "scenario_outcome": "partial",
+      "visual_outcome": "pass",
+      "visual_observation": "Both actual PNGs and all four export rows fit. Native text, dark background/grid and axis layout visibly differ from the white facade result; visual and scientific parity remain partial.",
+      "captured_at": "2026-11-23T07:46:22.465Z",
+      "url": "http://127.0.0.1:8764/03-comparison.html",
+      "http_status": 200,
+      "viewport_css": [
+        1400,
+        1100
+      ],
+      "device_pixel_ratio": 1,
+      "document_scroll_height": 1100,
+      "document_scroll_width": 1400,
+      "sha256": "e87de988d9348d2e98c5bd80b8963207f793a5dc830c32868fbbf5e3e430a03f",
+      "page_sha256": "28ec6f91dfe59444b6430365fa59dd5aa9f639a6d776e1989de5b299537d1c7e"
+    },
+    "04-recovery": {
+      "page_errors": [],
+      "console_errors": [],
+      "failed_requests": [],
+      "resources": [
+        {
+          "url": "http://127.0.0.1:8764/04-recovery.html",
+          "status": 200
+        }
+      ],
+      "images": [],
+      "scenario_outcome": "pass",
+      "visual_outcome": "pass",
+      "visual_observation": "All three rejection examples and the distinct 48-native/364-facade summaries are readable. The stated lifetime/thread limits and unrun sanitizer/free-threaded checks fit.",
+      "captured_at": "2026-11-23T07:46:23.053Z",
+      "url": "http://127.0.0.1:8764/04-recovery.html",
+      "http_status": 200,
+      "viewport_css": [
+        1400,
+        1100
+      ],
+      "device_pixel_ratio": 1,
+      "document_scroll_height": 1100,
+      "document_scroll_width": 1400,
+      "sha256": "593e8d2442895c7704804bd5a1b337d80cb8c4c7fc9865ab50d8fc1352163600",
+      "page_sha256": "530b0fc0b3b7a145c94cff17d65b40d44397612ed8221d70dc6757025a6ac9d3"
+    },
+    "05-packaging": {
+      "page_errors": [],
+      "console_errors": [],
+      "failed_requests": [],
+      "resources": [
+        {
+          "url": "http://127.0.0.1:8764/05-packaging.html",
+          "status": 200
+        }
+      ],
+      "images": [],
+      "scenario_outcome": "partial",
+      "visual_outcome": "pass",
+      "visual_observation": "The open production gate, arm64 wheel/hash, three runtime names and all four timing rows are complete and readable; redistribution remains unreviewed.",
+      "captured_at": "2026-11-23T07:46:23.653Z",
+      "url": "http://127.0.0.1:8764/05-packaging.html",
+      "http_status": 200,
+      "viewport_css": [
+        1400,
+        1100
+      ],
+      "device_pixel_ratio": 1,
+      "document_scroll_height": 1100,
+      "document_scroll_width": 1400,
+      "sha256": "67e3c6bfed2a8bc1eb16bca6125320301654b2f0eacc9a4e85754d5b549d9f9b",
+      "page_sha256": "3bce3a5344a55e63ac2ba7f7f451271bc04d5e10291292e8243fd62c62872a35"
+    }
+  }
+}

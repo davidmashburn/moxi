@@ -1,0 +1,284 @@
+{
+  "version": 1,
+  "revision": "424126e12385c1cc74335e2384b6bc90fb084f9a",
+  "native_sources": {
+    "experiments/python-native/build_native.py": "64bb658ace6616a9bbcd455757eee5cae8feea538a07ba9d2a03141e15ad8ece",
+    "experiments/python-native/moxi_native/__init__.py": "dbae4b622224db927c9f887a33b1874607aa1d59c45701dfd52b3dec2b22871c",
+    "experiments/python-native/moxi_native/formats.py": "cd3f8535ac7636e1d8c1f26afc2fca9d31c75717f51a4a5b207f8b7b99599b3e",
+    "experiments/python-native/native/graphics.c": "88fe479540af50b2e79f996c784f6b9e358007f3cefe73d14ba7e42ee1482749",
+    "experiments/python-native/native/graphics.h": "0856f76cdf9aa192fc261a3c40c658bfa9dbf4ec9230c06f61d24c8fcbab5945",
+    "experiments/python-native/native/module.c": "5a4daa0ad108fa113daaae5c0fb6d91722f2c940fdc155e70db8557df049f880",
+    "experiments/python-native/native/render.mojo": "8ee20456ef3744f56dfe982d770e12c99e7b5c38e3a6b2fa6499b1959a47eec3",
+    "experiments/python-native/pyproject.toml": "51cc746e008c5aa555a19ab6bc20f8cee0daed823713deca46a40711d5f233bc",
+    "experiments/python-native/setup.py": "9159b51fa56dc98ae2329dfc533d0aa89b191c5bab5abf48553f24d30f7163d4",
+    "src/moxi/__init__.mojo": "fae3230cf72c84a26e0ad2d4ed14ef3f72a6a4e1a680e6f04e7e803e54ec9d12",
+    "src/moxi/accessibility.mojo": "d29e1e34e9d095cbe76dddf4966b29f6ad939262a790cadad4acef6c5ece81a4",
+    "src/moxi/alignment.mojo": "5931badead771e2fa75a64d740270ca7fda2ea000ce6b7a0d89b670fd6596ee0",
+    "src/moxi/animation.mojo": "ea33f3dd8adee133ac8f275fc0190fccada373bc87f2d95f2b4d7c5976393f16",
+    "src/moxi/app.mojo": "fb435d4a1d2086335828449a1b7b21708ad4cd8d287594291303ea3064a6cf94",
+    "src/moxi/app_runtime.mojo": "a7fcca461584e678597e30a8ab3174c0efae1e47111c039a594adac9f4f79716",
+    "src/moxi/authoring/__init__.mojo": "abbb1eddf41d137618a0652f68b5419a79d2eebb856ac71ec67045b64212f647",
+    "src/moxi/authoring/actions.mojo": "5cbede1f5f32ab53ff94a046b33953e9e79d5b8c998f125832f9d2f477671dcd",
+    "src/moxi/authoring/composition.mojo": "2a0865b5cc7a1bd3d73d7529b2b0be212f6e9ec1688325f090bd31a10146ccd8",
+    "src/moxi/authoring/delivery.mojo": "aaed0d115a5c2a6927c572989d31abb26456c047a83edf50b39a3788f85a58c9",
+    "src/moxi/authoring/identity.mojo": "f660a1ca4a43b6ba0e14162c7b89b1e8793d25cd1b8a3aa4ec215a19f99b1ad4",
+    "src/moxi/authoring/runtime.mojo": "a5da99d23bdfbff8de1d93babc8b67cb303c73cb3a4b9913d7325f49d1f58795",
+    "src/moxi/backend.mojo": "5e5a6274e6ef045277c707037c5a035570d3169de5e97b8d95f6d4ee22cc48e1",
+    "src/moxi/box_layout.mojo": "463462f5c6ce4e2492cae5c70b52bbe3742b7039645aec84e49618fad3d792ff",
+    "src/moxi/canvas_renderer.mojo": "f9d2e4999ebca1639ba2951e9edbceac1faf09ac6f6beae9f6434c1d93567a5e",
+    "src/moxi/capability_bus.mojo": "0d5fa801264905e71fb409ed9067fc5aada36d36eb3cce4c702501ecc6a1d828",
+    "src/moxi/capability_types.mojo": "09bac64889c7cb98c8926b14135768b8762e076a31b8bf82b6a2f02083aa8553",
+    "src/moxi/capability_walkthrough.mojo": "675862552681643d85fa56583e59ef7b17fbf3b720860e13dd2fab2f74fb7291",
+    "src/moxi/clipboard.mojo": "02a43b14fb863eeed539cd7ba84719f902a767fae015f5d70efb3bf3244ef2f9",
+    "src/moxi/collection_layout.mojo": "69d609055750c0251c5142ac534c0ff9b7a39154d781c467b428b027f021c0c3",
+    "src/moxi/collection_state.mojo": "494f09c4a2aaa0cdabb191f6ea117ce30fcd3af78d7872f705b2ba621bbbdbdd",
+    "src/moxi/column_runtime.mojo": "bad8a2de58c8e5e59f75191e5f5cf38148cede1ce1f33463ecacd8301adffe8e",
+    "src/moxi/column_view.mojo": "a3883e6966c08191cf1a57dcefe78a895039eefc0de4c07f181a14dc985ee073",
+    "src/moxi/component.mojo": "a672fae9c629e794dd8bee0a7eca3ef5140a48a55dadb8e9057c6d3f710266c6",
+    "src/moxi/composed.mojo": "4756ad2546d119e31c99e064eec7ebedb8ed6caca2130a1b5c3512d53177cd1d",
+    "src/moxi/constraint_layout.mojo": "9ea65b40a11f94bda9a2d4407d49047dd83f7e8b1e9aedd44730e26ab18c1b30",
+    "src/moxi/content_layout.mojo": "ffcd4cc2a8429659862b9f44179e2f2666edeaf3716cb51ec0d6c12a5ce28255",
+    "src/moxi/control_state.mojo": "6b5eefeaab66479a3eba93a80e2311d987b4ade9c72f09609f55a71328f40627",
+    "src/moxi/controls_basic.mojo": "8e51a4e3b51c4e9c1725d7670bd7bcb9b625ed604797e4ec7cb8febf7d7cc6cf",
+    "src/moxi/controls_collection.mojo": "4c6efa43ec922257cc3886816d303d4ec70f651b59a91de298a91de0154ea5ef",
+    "src/moxi/controls_state.mojo": "c510d88923eddb9c53b6bd5d1ea0748f916120c521a1b619b74da9f4c4db1269",
+    "src/moxi/controls_text.mojo": "94e3f04f600eb43d5d44b17eb2cd663b3dbf824e3bc9489815d97beb9731dd73",
+    "src/moxi/conversation.mojo": "bb4cd611cd4c41a1598e04a0ccad955620b541d0b0dc3ef6f2d6d4222af12df5",
+    "src/moxi/coretext.mojo": "12b4199372b9f5c4a6193936b818660448eb68479b51203cd79f353cc2b319df",
+    "src/moxi/counter_view.mojo": "d81fec1dc82d52e10b006522bc0b09c514828254064a66f2c57741590c63c3ec",
+    "src/moxi/event.mojo": "bceed2b707446d5d34a7117562eee467908008dd7b09456f46a631864be41dbd",
+    "src/moxi/event_replay.mojo": "4cbe87438b6366967b088e8ab7466dda7d34a90813d8d198fafd1b3c8228bfd6",
+    "src/moxi/execution.mojo": "5f9196f4f24f7295d23a4fd89a9eef5a31dab1b44362f11f7fc5f713eacb5a95",
+    "src/moxi/experimental_api.mojo": "28e07a142ae5ae84d90d998bce297974964655c96a2d067543d56ce9eda0d8d1",
+    "src/moxi/font_collection.mojo": "c75964b5b2bfeb5e0a593442155a8ae0ce8fb28d2036b82d62ff554f05a5a712",
+    "src/moxi/form.mojo": "2bb062b685ed697a7e7b0f6469edf28b504372aeadb0327ada4999996e729e17",
+    "src/moxi/fractal.mojo": "86cee90718a9884edaf08cffb86168adb38a42e2998b8de5c00a2ba281c6de60",
+    "src/moxi/frame.mojo": "6bd19bd7c66bb552efa5d57a54c4cb68ff370884a871b2aab13aa6f0c5a4d89e",
+    "src/moxi/geometry.mojo": "2687739f1fb85e27b1ec56c959cac28b01a665f045f469fb67d816bd390e9b0f",
+    "src/moxi/harfbuzz.mojo": "dfaf392747ff0dd88e00a9102108a676e2b82d9204163577bbcc253efdc1d0d5",
+    "src/moxi/host_api.mojo": "3c8bf7fdde5694dc962f3d93edbf0246246ce3ea5af2b604cb21a21a78640334",
+    "src/moxi/host_contract.mojo": "c4b3f4c10e68a75ecf6d156d28ecf57fc286a29d6877cb6309620f96b48fec8a",
+    "src/moxi/interaction_showcase.mojo": "6f06b3d19a40045b9df60a886a8cd3536b131b5032ba89bef74c318509ee3e76",
+    "src/moxi/invalidation.mojo": "fedb2fe4ff93a15d1708669ae88c76a9a1ea9b02bee526ae353f5ce1fdbdb970",
+    "src/moxi/json.mojo": "3afc7b5e1d018d2747423c5d2f17608db3e705753f228ce8663e8a8d9fb3da61",
+    "src/moxi/layout.mojo": "2e16b040c48bd899a3c27139a07c71433b3f8356bcb86c0bb57ca607517e050a",
+    "src/moxi/layout_primitives.mojo": "4458a815df8167b9108d255437a9c24170bef1f5c5319d3699629c3662f3b598",
+    "src/moxi/layout_workbench.mojo": "fe0ce5df3a7250069af93b4584beb0e5d4b4991f4f19b58f09db84dcec4037e1",
+    "src/moxi/layout_workbench_replay.mojo": "9ffa3db7cd02d18e02d56695b72e583b6eb91e69b6940e0d048e120ca4dfcdfb",
+    "src/moxi/legacy_runtime.mojo": "f7dd8a07fffa97d50e62abe0c7e8223d6d56873f7e794353ec771c8bfbcd5635",
+    "src/moxi/lifecycle_workbench.mojo": "8506933395f9ee7123c823527d2e20c10714f2a038bba542a2064613f49000f7",
+    "src/moxi/linux.mojo": "5cf2eab96d1c0e4f772e7a15e71fac3c324905932ad8dabaf2bf680abed4a000",
+    "src/moxi/live_script.mojo": "1f16449ce9b93496a75d20a171ce6f6140e8e92678f1a8e001d65a7a0caa9691",
+    "src/moxi/macos.mojo": "959b65905c9b3155759657fa0a7dbba3427b57f28354b377e336140ee1877891",
+    "src/moxi/measure.mojo": "929c182664bcb735048fe30f33f2141f26d8bd64a1209e4bb593b78204ca4796",
+    "src/moxi/metal.mojo": "b04315f43b7783b88f616d5a81c1e40ae3f1cd79eeaecc4e3175d5ba56133aca",
+    "src/moxi/native_clipboard.mojo": "93e34963eb64ca3e919f99ce89e6e1c1e31190b98f13ac17c68708f82a07dfca",
+    "src/moxi/native_frame.mojo": "7889a52f5a5abd98746e5a484219515efbfc6511939dad73c658b907e75f441e",
+    "src/moxi/native_instance.mojo": "b1982643457a8ed062071f8f2da8722246a0993da1f912a248565a81a72675be",
+    "src/moxi/native_paragraph.mojo": "565a4bd98ea07eb433c6f7b7532e4e9e249b1b0c5a0d95345ae5e86ac0e7c90a",
+    "src/moxi/native_widgets.mojo": "fba58857891568cc7ed0743588eae27ef9aaee96d2db822e58ac0d78e18c21b4",
+    "src/moxi/native_window.mojo": "788b40c6e1d4d9761eef551fa1f6234182e03b5aa197ade7dda95340014e340a",
+    "src/moxi/nested.mojo": "0878f9224758826adc3dfcd69b1927826b459dad8371e0ffdd5a8a7cf6975387",
+    "src/moxi/not_implemented.mojo": "92631ed278ff0ea4bfbb4d17a0eafbdaa9d0861d8bb772c5dcef1275db331fb5",
+    "src/moxi/overlay_layout.mojo": "5f1f8c60f0d5b11164e0cf0059f3117dbc0bc383fde93f74529ff73c94d422a5",
+    "src/moxi/paint.mojo": "224e53d94b90bdcb9676e5b36ed07633ee21138a0b51ea5b6c2f95c8ca26a81b",
+    "src/moxi/palette.mojo": "8aa1fbc3fc05e49f8ce1bddc26ea3776c7b9c51e7ab9fc489d932c1a5b80810b",
+    "src/moxi/performance.mojo": "45a68093995c3904bdaa5f3465d91956fe45497bbd96ef12fe1becbb89b83461",
+    "src/moxi/platform.mojo": "dd42aa869c3bed155876ac0e3cc8e832398c3299aa39acb2c198e0640460ac04",
+    "src/moxi/platform_adapters.mojo": "06c6126450a10ba46d2aba66b2a31248a55227688948c89b9b593bf02f2250c7",
+    "src/moxi/plot_render.mojo": "90695fc61fdeb167233793307f4d520a3033c80debb5a9f4ebef256c0960f3ac",
+    "src/moxi/plot_selection.mojo": "74cf545579729c07673bfd55a3867354f5df8c53d2cc66d944a4861e80de8952",
+    "src/moxi/popup.mojo": "092ea7a01496dc70997ffb2e357ea957ddfb0a6491c8054ef5ef63401e0d80bf",
+    "src/moxi/reactivity.mojo": "58c199692f507b678d74960230401d2970c8c51f85e2c344a5f99ac27435a926",
+    "src/moxi/recipes.mojo": "551c67c0effa255c95cac85ff6be28d7657dc2568c9afc3c5b94e6ed7bf15eac",
+    "src/moxi/reorder.mojo": "318527154d57fc012980008637436d9e8c45c6ab7e25d04f275dfccf99949dcd",
+    "src/moxi/resources.mojo": "804a878f32e78bc32f5db0f0b3ae7c7b7ddf3be4821ae75ab53892f06cee8047",
+    "src/moxi/retained_engine.mojo": "b1d408d2bca3402b221717414796d47b9846b9bcb81cd46d151c599e7563cd90",
+    "src/moxi/retained_layout.mojo": "ba1004f6eb3c12bb2dfb63539c68beead4c29babe619c24dadb0741b37f38e2e",
+    "src/moxi/retained_leaf.mojo": "e7a993ee0171ecfe1e6486b9b9db43a04db2d2aff534e89a093d223cf4c75fea",
+    "src/moxi/row.mojo": "de5d0b1bab1918a6f6e8de69a7857fe48eb96ac853595994cf88861201138f74",
+    "src/moxi/scenarios.mojo": "6d55f73a504eb73c9420cd1f7581b7827c6da3eecaaf3e8d0a0ff642cd6abef8",
+    "src/moxi/scene.mojo": "a5cda5456f30dfb70e0befab7ca599963607169f5bfc65391ec267bdf0e85306",
+    "src/moxi/scene_path.mojo": "2a546e53b3e1f38dc06e98ac24a0c735ad3399fb7cfe83ace7f7da2f88d792eb",
+    "src/moxi/scene_text.mojo": "b83fe59cd1c6afa8777426ba77173650a8edab90cc7954f60a6ab103e2730055",
+    "src/moxi/scrollbar.mojo": "aafdb947004b6859198ee30891db959c6fb207b50799a110272e4ae43b9f3621",
+    "src/moxi/software.mojo": "9651333f00080da46a691d5afa3befcb09903edd7adcf2ed252294fe6e69c75c",
+    "src/moxi/style.mojo": "70d7587ab8424172aa949525a58c9a354d110daaaadeb2c1ac4fcb4b1679600b",
+    "src/moxi/svg.mojo": "363dfe99eabdbab6aec7acb60d78c6acdfd462cd0d00c899b5d2a137b0002611",
+    "src/moxi/targets.mojo": "1917e2d85aaebfbd79294da564e363d26ae576dcd18ee44c77c92e784a4716d9",
+    "src/moxi/tasks.mojo": "2875db5280fe6f8668da1eb0c7ebd724bb8dfb1c564c4b4bce29897179646b55",
+    "src/moxi/testing.mojo": "3d672fcb2c183c748f23c28314c3c2a49af2819067b8500cb05f9e30fc4f9bad",
+    "src/moxi/text_boundary.mojo": "c1b83f9ad8113a7fe53a8bca0d4fe76acef4b5d3d687d3e8a0f24eb19146aa0e",
+    "src/moxi/text_layout.mojo": "0fe75f6844119eb16f9c45d17172520b5100937fde8f5f4347a871763efac28c",
+    "src/moxi/text_shaping.mojo": "7d4f3ef6418a81f1722acbea6279799abb005d28d11977e8f4d18fc0a29d1d3e",
+    "src/moxi/theme_showcase.mojo": "a6f4d44b4a52acc0be848e837274122ace886cfc7fdb6bd8bec6d1358fb3b1be",
+    "src/moxi/tokens.mojo": "1a4a0087ebd6b901fdf8610f494d0199b87a22c7c0fc1e0737c4b7dcfac02f6f",
+    "src/moxi/view_leaf.mojo": "c67c8788762bae97336eafcee0afd9fc923801549e3e59b141b8a0bb5e104551",
+    "src/moxi/view_node.mojo": "2836b2073de6793570192d565c4d1e660a4934431f18a8308c92c1ace0a2ee6f",
+    "src/moxi/virtual_view.mojo": "9c2e95483e31789d6cf4062192d0ff27932847285b9d7783cfb22e5d3b5c2ef2",
+    "src/moxi/widget.mojo": "21ec416f327acc331ddb045745889cc5d73a42bf4c32e7555aff2d2d0630ff58",
+    "src/moxi/window.mojo": "c807095aa8bd861eb574eaf304afdc5a84d85ffeacb40d07993c78873f574a2a",
+    "src/moxi/windowing.mojo": "553bb95c77328a5a24db52164cb1f34cfe25d6fa1edcec361568d6471ea6c0c2",
+    "src/moxi/wrapped.mojo": "08fe3e6b65ec072061633b382137e127a4304c0ae9bf2f99471003d70eea3ea4",
+    "src/moxi/wxstyle.mojo": "e994a236e37233ad2650a7baad5f112794fd7c8c70a6757b409db3c9ebad2505",
+    "src/moxi_plot/__init__.mojo": "873bfc2034dde5d330376ec28ac0cedba4d95d70bdfebee85b9ee73f97020405",
+    "src/moxi_plot/fixtures.mojo": "01040a0a82c300d588a28a6454c013d7b71dccca650e02775246c3496eaa337c",
+    "src/moxi_plot/plot_api.mojo": "4b908f7797981e170343437d8540b69ed08b62792c432664528bd15b12b57af7",
+    "src/moxi_plot/plot_data.mojo": "b09eede22382f09ceeacdb92e74116bdb8c7d7743adf8d94026db0dbb76c77e7",
+    "src/moxi_plot/plot_layout.mojo": "561005a23c381c8ea9fc1c8229d262db052df6fbeddd573b070acda1aae0483c",
+    "src/moxi_plot/plot_layout_c.mojo": "830aa684d5ad70e99bd2be704442472a4195f1ba80a8f5ac16f116c066dbe507",
+    "src/moxi_plot/plot_link.mojo": "0d4ac57a0682e1a608dfec77b50c5e84f12047b6b46936250d21e3fcf59fccfd",
+    "src/moxi_plot/plot_marks.mojo": "dd366e7b71fa49bc3b5ce9f3a10ee383c41c1e58ee8007ef176961b6bd21ee8c",
+    "src/moxi_plot/plot_point.mojo": "056c5e063a04c8be5e67775f59c22b21a5e5c31ea4d56f1603615e2be28cf3c3",
+    "src/moxi_plot/plot_render_bridge.mojo": "1596ad378aa0805e51e8c08197041a4e59fea88fb87428ab92f40d0a71f27971",
+    "src/moxi_plot/plot_runtime.mojo": "36811ee7c46fc36a3a57259551472767eca128dd2120cb62261fab914519547c",
+    "src/moxi_plot/plot_scalar.mojo": "e048be20fd2c05478300dc005bc0dd4e19028994c00cf50c6764298b17dd3b99",
+    "src/moxi_plot/plot_series.mojo": "20e242dcf618cb2140ac49ab1b92382a1360b55f397edb890880b85acf1cd231",
+    "src/moxi_plot/plot_spec.mojo": "90800e3fe815ceac43c14a676be3d00817959189b4b2444b0b3793d486a2fefb",
+    "src/moxi_plot/plot_spec_json.mojo": "cea36aedf55da9a048518ea10d7e2da35f061ac02ef24fec5e2f4e3809059f23",
+    "src/moxi_plot/plot_spec_names.mojo": "00500b4c82a44703b36bfcfcf8105bfaf4af29d567acf9f08102aec4f6c3a34c",
+    "src/moxi_plot/plot_spec_types.mojo": "fdf9bc34b60e91037f704901e88f5ace32a439041eb5308ce956ef0dd39ea3ec",
+    "src/moxi_plot/plot_view.mojo": "981d3ac266bd0d6045e7672fc7918270ebcfed20bb35adc45213a75cacac5429",
+    "src/moxi_plot/plot_wave_b.mojo": "e5a4fbd267cd90bdf882299fb70ac25f1856f54baf4f06c763f3753fa0f18fb6",
+    "src/moxi_plot/plotting.mojo": "8c5c125de47116b4fb215279287829b9546c3a4adab7cd6955aeb113bdfda8c8"
+  },
+  "native_sources_sha256": "044258a1cd389d6e4237f5d05fd8975484787ff85f8844098595bebdb040c532",
+  "facade_sources": {
+    "python/moxi/__init__.py": "e1e11a733aba7af7ddc057e5ef76b3b96ddbc9e426da7baaf6e9a5a839c3ed45",
+    "python/moxi/_scalar.py": "7808f94826864da0d37621f225cb024aa4d5e83561e095e9e5a81ebabbd8ea18",
+    "python/moxi/data.py": "19bdda0fc073c9cbaae1b086973600914b1ffa0096c7f8d17bb0ed76ac9427bf",
+    "python/moxi/figure.py": "80aa13c6bb628bd886be981363253940c58cfeddb13a1c887870cfc08b7846ef",
+    "python/moxi/py.typed": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "python/moxi/scenarios.py": "f94faeaf8e0fdbf382a27a8f79ea43bcc4bd20f1e85c76192b804f9fefa7af6c",
+    "python/moxi/spec.py": "8d1db4aa9cd8975e6ac909f5beaefe70984ce0fcc7fbd753dc409023aa0141b8",
+    "python/moxi/specialized.py": "882f0d2edbec4fc7d377dca645d1e8d329676054cbbba50f2825168974e42112",
+    "python/moxi/specialized_c.py": "e0b9ea0c95a06a5259938338893917d03dc6cadc80793e140e08f53259bb7aa8",
+    "python/moxi/wave_b.py": "28803283e98570ff3296bd31f72d3fcc0f0dac866d64bf3d0d4fcbaf1e1fd5d7",
+    "python/moxi/licenses/DATAVIZ-LICENSE.txt": "b250879b37f4d06f9ed70bfff6cf8cc2644c506c0efdbc0e948b00973d6733b5"
+  },
+  "compiler": "Mojo 1.1.0 (8189361e)",
+  "compiler_sha256": "b90f394cd44d1d1041493af512074eb606b33294202b053a2fe299ab8bde2e8f",
+  "object_sha256": "9a132759e96ad6ee06888682f8bb7b031ef175b7cd879fc0374b0f2c551860e9",
+  "consumers": [
+    {
+      "python": "3.14.7",
+      "platform": "Darwin-27.2.0-arm64",
+      "isolated": 1,
+      "mojo_on_path": false,
+      "process_audit": "enabled",
+      "wheel": "moxi_native_experimental-0.1.0-cp314-cp314-macosx_26_0_arm64.whl",
+      "wheel_sha256": "814a01d6560edb95cfae5a0e72b6f2860adf74d8415d04fc34689cea2af64ff5",
+      "wheel_bytes": 908752,
+      "tests": {
+        "native-tests.log": {
+          "passed": 48,
+          "sha256": "12c0f1901fdb3ef581bb25a2ecd530de345bf1bc561f4409197d113f8800e5d4"
+        },
+        "facade-tests.log": {
+          "passed": 364,
+          "sha256": "f8f012a97a22713a0b76ba3687f3b71e77ae9c8ba623cb436f806d07158c7b2c"
+        }
+      },
+      "dependency_check": "PASS: bundled or system only",
+      "binaries": {
+        "moxi_native/_core.cpython-314-darwin.so": {
+          "sha256": "ec556cdc786e45d1a8d5e89a8e5f1ba21d631925e95206b9f7a50671cef9ee29",
+          "architectures": [
+            "arm64"
+          ]
+        },
+        "moxi_native/.libs/libAsyncRTRuntimeGlobals.dylib": {
+          "sha256": "406c5b72267433b235464e1043a4beacf5bf08733231d99643d26b72d754e1b8",
+          "architectures": [
+            "arm64"
+          ]
+        },
+        "moxi_native/.libs/libMSupportGlobals.dylib": {
+          "sha256": "de5444cc552073d55e1cc3ca8fd50ffafda8721ad966c03759b1b713df57d660",
+          "architectures": [
+            "arm64"
+          ]
+        },
+        "moxi_native/.libs/libKGENCompilerRTShared.dylib": {
+          "sha256": "4ae03c8a089bcb73110bc101ef311eb6cb9e004385464fbe49220409fdf4fbf0",
+          "architectures": [
+            "arm64"
+          ]
+        }
+      },
+      "source_verification": {
+        "native_source_count": 139,
+        "native_sources_match_revision": true,
+        "installed_binary_count": 4,
+        "installed_binaries_match_wheel": true,
+        "exports_checked": 8
+      },
+      "local_only_report_hashes": {
+        "01-import.json": "c04cadae1251b23fce8c7f849565e1d5f2a3c1855ef182ea09805bcb48095f23",
+        "packaging.json": "a24704b10c6a08ba5cba3c6a54fbd8853218647ccc837362968947514440029f",
+        "source-verification.json": "574fcc3486ad1402a5de20728378872fb00fccebe679a660b64a4dffd5bdd891"
+      }
+    },
+    {
+      "python": "3.13.15",
+      "platform": "Darwin-27.2.0-arm64",
+      "isolated": 1,
+      "mojo_on_path": false,
+      "process_audit": "enabled",
+      "wheel": "moxi_native_experimental-0.1.0-cp313-cp313-macosx_26_0_arm64.whl",
+      "wheel_sha256": "bc67c746fe17ec42a16a4f70eb9cafad5b5336284887d6a686baa85b2f5e90a3",
+      "wheel_bytes": 908747,
+      "tests": {
+        "cp313-native-tests.log": {
+          "passed": 48,
+          "sha256": "9656025094a585cff8afe52b38a36c1653a1cdf5fd84cc693d3ce7c91a16710e"
+        },
+        "cp313-facade-tests.log": {
+          "passed": 364,
+          "sha256": "45ffe157c61517618734fa0aeff5cdb77cd1d6b4bd20505ac07ee19942550dab"
+        }
+      },
+      "dependency_check": "PASS: bundled or system only",
+      "binaries": {
+        "moxi_native/_core.cpython-313-darwin.so": {
+          "sha256": "8cb6394d037015ee421c9a9fe42cef628f18cfa455094e836d96bb7ef87ae73a",
+          "architectures": [
+            "arm64"
+          ]
+        },
+        "moxi_native/.libs/libAsyncRTRuntimeGlobals.dylib": {
+          "sha256": "406c5b72267433b235464e1043a4beacf5bf08733231d99643d26b72d754e1b8",
+          "architectures": [
+            "arm64"
+          ]
+        },
+        "moxi_native/.libs/libMSupportGlobals.dylib": {
+          "sha256": "de5444cc552073d55e1cc3ca8fd50ffafda8721ad966c03759b1b713df57d660",
+          "architectures": [
+            "arm64"
+          ]
+        },
+        "moxi_native/.libs/libKGENCompilerRTShared.dylib": {
+          "sha256": "4ae03c8a089bcb73110bc101ef311eb6cb9e004385464fbe49220409fdf4fbf0",
+          "architectures": [
+            "arm64"
+          ]
+        }
+      },
+      "source_verification": {
+        "native_source_count": 139,
+        "native_sources_match_revision": true,
+        "installed_binary_count": 4,
+        "installed_binaries_match_wheel": true,
+        "exports_checked": 8
+      },
+      "local_only_report_hashes": {
+        "01-import.json": "3e348394ea8238ec76c2b84aa716fd425587677dd5735e849c2d5d841cf3c70e",
+        "packaging.json": "06311682f0e2932b0a0333794d7b822065fd34d009301c6951698136fe2940bd",
+        "source-verification.json": "70206fa70b56a0533f0de7a28e7158a794153463840ab316a83c40722c2e95b3"
+      }
+    }
+  ],
+  "scope": "Portable summaries derived from locally verified reports. Raw reports and binary artifacts remain local; hashes identify those retained reports without publishing their paths.",
+  "runtime_redistribution": "unreviewed; experimental gate remains open"
+}

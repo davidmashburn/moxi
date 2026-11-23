@@ -1,159 +1,151 @@
-# E04 gallery review — November 20, 2026
+# E04 gallery review — November 23, 2026
 
-Five regenerated browser frames were visually reviewed against the actual built
-native extension: **3 scenarios pass, 2 are partial, 0 are blocked; all 5 visual
-checks pass**. This certifies the bounded local evidence below. The experimental
-native-extension production gate remains open.
+The final installed renderer supplies raster text and searchable vector PDF.
+Both local CPython consumers pass **48 native and 364 facade tests**. Five fresh
+browser frames were directly reviewed: **3 scenarios pass, 2 remain partial,
+and all 5 visual checks pass**. The native-extension production gate stays open
+because runtime redistribution and wider support remain unreviewed.
 
-The reviewed implementation is `d7fa3ed563948860f4baf18bcc9f3eb279197135`.
-The acceptance basis is [planning section 2 at its inspected revision](https://github.com/davidmashburn/moxi/blob/2e46d93667166d077e47311277689c54d35942dc/PROJECT-PLANNING.md#2-certify-the-reviewed-integrations-demo-evidence).
-No shared handoff, master index, project feature, commit, push or external system
-was changed. The capture/provenance tool was updated separately from native and
-facade inputs.
+The tested source is `424126e12385c1cc74335e2384b6bc90fb084f9a`. This addresses the native Python
+part of remaining item 3 in the project's planning branch; it does not promote
+the experimental wheel to a distributed product.
 
-## Tested environment and provenance
+## Tested environment and source binding
 
-- Build and clean consumer: Darwin 27.2.0 arm64, CPython 3.14.7, Mojo
-  `1.1.0 (8189361e)`. The consumer uses NumPy 2.5.5, Pillow 13.0.0, pypdf 7.1.1
-  and pytest 9.2.0. This is a fresh venv on the build host, not a fresh host.
-- Actual backend: installed `moxi_native._core` CPython C extension → compiled
-  Mojo PlotSpec/table/Scene → `SoftwareSceneRenderer` RGBA or `SvgSceneRenderer`.
-  Python wraps the native pixels as PNG or raster RGB PDF. The unchanged `moxi`
-  facade is installed from its own wheel for comparison.
-- All 135 native build inputs match both the current checkout and the reviewed
-  commit. Their aggregate SHA-256 is
-  `96057c8f4856523dfa00d2fa3f9e76ab5f59ab62036b992c7ffc2c0f39b84937`.
-  Facade wheel and installed source bytes match the corresponding commit inputs.
-  Build metadata records `dirty: true`: capture-tool edits were present, while
-  the verified native/facade inputs have no diff from that commit. The manifest
-  separately hashes the experiment's 17 proof sources, including the updated tool.
-- Native object SHA-256:
-  `60985ea3942126696c0559eb5c74e2f3405f6f2a9295fc3ecc7eafc79f34f970`.
-  Compiler SHA-256 was independently rehashed and matches
-  `b90f394cd44d1d1041493af512074eb606b33294202b053a2fe299ab8bde2e8f`.
-- Built wheel:
-  `moxi_native_experimental-0.1.0-cp314-cp314-macosx_26_0_arm64.whl`,
-  907300 bytes, SHA-256
-  `f0e57d6637c9db613d4b2eecef455fc1a488b3b3ee27478cd68349083d15cbe4`.
-  All 4 installed binaries match the inspected wheel. The loaded-image report
-  locates all 3 Mojo runtime libraries in that installed wheel's `.libs`, with
-  no Pixi image loaded. This does not establish portability of that tag.
-- The probe runs with `env -i`, Python `-I`, no Mojo executable on PATH, and an
-  audit hook rejecting process creation during import/render. It proves this
-  import/render path does not invoke a compiler or subprocess; the build machine
-  still has development tools installed.
-- Browser evidence was served only on loopback at port 8764. Connected Playwright
-  used isolated context `moxi-e04-d7fa3ed`, Chromium UA version 158.0.0.0,
-  viewport 1400×1100 CSS pixels, DPR 1, unaltered CSS-scale 1400×1100 PNGs.
-  The UA's Intel/macOS compatibility text is not a host-architecture claim.
-  Final-frame captures span `2026-11-20T22:57:48.274Z` to
-  `2026-11-20T23:01:57.495Z`; per-frame timestamps, image loads, dimensions,
-  document bounds, errors and visual observations are in [capture.json](capture.json).
-  Every page fits without horizontal clipping; all referenced images loaded.
-  Final captures have no page/console errors or failed requests.
-- T3 snapshot capture timed out twice after 15000 ms; preferred Chrome's browser
-  access host was unavailable. Playwright supplied the successful replacement
-  captures. These are browser evidence pages containing real outputs/logs,
-  not native application-window or terminal screenshots.
+- Local host: macOS 27.2.1, Darwin 27.2.0 arm64; Mojo
+  `1.1.0 (8189361e)`; separate CPython 3.14.7 and 3.13.15 consumers.
+  Each consumer is a new venv outside the repository on the build host.
+- Actual path: installed CPython C extension → compiled Mojo PlotSpec/table/Scene
+  → CoreGraphics/CoreText for RGBA/PDF, or Mojo SVG serialization. Python encodes
+  the exact RGBA bytes as PNG. The private ABI version is 2; `abi3` is false.
+- All 139 recorded native inputs and all
+  11 facade files match the tested commit,
+  wheel and installed bytes. Each ABI's four installed binaries match its wheel;
+  all three loaded Mojo runtimes come from that wheel's `.libs` directory.
+  The build records `dirty: true` for surrounding integration/evidence changes;
+  selected native/facade inputs have no diff from the tested commit.
+- Native source aggregate: `044258a1cd389d6e4237f5d05fd8975484787ff85f8844098595bebdb040c532`.
+  Native object: `9a132759e96ad6ee06888682f8bb7b031ef175b7cd879fc0374b0f2c551860e9`.
+  Compiler: `b90f394cd44d1d1041493af512074eb606b33294202b053a2fe299ab8bde2e8f`.
+  The manifest separately hashes 20 experiment/proof sources.
+- Local CPython 3.14 wheel: `moxi_native_experimental-0.1.0-cp314-cp314-macosx_26_0_arm64.whl`,
+  908752 bytes, SHA-256 `814a01d6560edb95cfae5a0e72b6f2860adf74d8415d04fc34689cea2af64ff5`.
+  CPython 3.13 wheel: `moxi_native_experimental-0.1.0-cp313-cp313-macosx_26_0_arm64.whl`,
+  908747 bytes, SHA-256 `bc67c746fe17ec42a16a4f70eb9cafad5b5336284887d6a686baa85b2f5e90a3`.
+  The macOS 26 tags are local interpreter-derived tags, not a macOS 26 test claim.
+- The probe uses `env -i`, Python `-I`, no Mojo executable on PATH and an audit
+  hook rejecting process creation before Moxi import/render. This establishes
+  the tested import/render path without a compiler or subprocess invocation;
+  development tools remain installed on the build host.
+- Both ABI logs are byte-for-byte copies of their own retained consumer logs,
+  without shared temporary log names. The [portable summary](publication.json)
+  retains both ABI results, input fingerprints and wheel/binary hashes. Raw
+  source-verification reports retain full consumer paths locally and are
+  excluded from publication.
 
-## Scenarios and visual observations
+## Fresh hosted consumer
+
+The [matching hosted run](https://github.com/davidmashburn/moxi/actions/runs/45131806275)
+completed successfully from `424126e12385c1cc74335e2384b6bc90fb084f9a` on fresh
+macOS 15 ARM64 runners. CPython **3.13.17 and 3.14.10 each passed 48 native and
+364 facade tests**, isolated import/render, dependency, architecture and signature
+checks. [Run/job provenance](hosted.json) and actual consumer summaries:
+[3.13](hosted-cp313.log), [3.14](hosted-cp314.log).
+
+The packaging check previously exposed a universal2 tag and an invalid extension
+signature. The repaired build selects arm64, labels the wheel arm64, verifies
+all four Mach-O architectures and ad hoc signs the final extension. Inspector
+failures retain tool diagnostics. The hosted workflow caches/uploads neither
+wheels nor compiler environments and removes temporary bundled runtimes.
+No wheel, object or runtime library is included in shared gallery artifacts.
+This is validation evidence; the proprietary runtime redistribution review
+remains open.
+
+## Browser scenarios and direct observations
+
+Pages were served on loopback port 8764 and captured in an isolated connected
+Playwright context after preferred Chrome's browser access host was unavailable.
+The actual browser is Chromium 158.0.0.0; its UA's Intel/macOS compatibility text
+is not a host-architecture claim. All PNGs are unaltered CSS-scale 1400×1100
+captures, DPR 1, from `2026-11-23T07:46:23.653Z`.
+All referenced images loaded, every page fit the viewport, and there were no
+page/console errors or failed requests. Per-frame timestamps, loaded resources,
+viewport and observations are in [capture.json](capture.json). These are browser
+evidence pages containing actual outputs/logs, not native application windows
+or terminal screenshots. The import page displays consumer-relative module paths
+and explicitly identifies the omitted absolute temporary-directory prefix. Full
+unmodified probe reports remain local.
 
 | Scenario | Exercise and expected result | Observed result | Outcome and evidence |
 | --- | --- | --- | --- |
-| 01 import | Build/install both wheels in the retained clean consumer; import under isolation, report ABI/copy policy and actual paths. Expect compiled native module and wheel-local runtime. | Installed paths, ABI version 1, `abi3: false` and copy-per-call are legible; source and binary hashes agree. | **Pass**. [Frame](01-import.png), [page](01-import.html), [import report](01-import.json), [loaded images](loaded-runtime.json). |
-| 02 native scene | Render the canonical six-row, two-layer line/scatter fixture at 320×240 through all 4 formats. Expect nonempty native scene, valid extents, PNG decoded equal to RGBA and PDF image decoded equal to native RGB. | Tests establish the stated native decoder checks. Both pictured images load. SVG shows title/legend; PNG omits their text and shows approximate line/corner pixels. Byte counts/hashes are fully visible. | **Pass within the declared rendering slice**. [Frame](02-render.png), [page](02-render.html), [exports report](02-render.json), [native tests](native-tests.log). |
-| 03 comparison | Run the unchanged facade on the same fixture/dimensions; compare returned bytes and inspect both PNGs. Expect explicit renderer/export limits rather than equality. | All 8 current exports are hashed. Images visibly differ in background, axes, grids, legend swatches and endpoint margins. Unaligned mean RGBA byte difference is 168.5723/255, descriptive only. Native decoder checks are labeled as such; native PDF remains raster. | **Partial**: local export contracts pass; visual, text/layout and scientific parity remain unestablished. [Frame](03-comparison.png), [page](03-comparison.html), [facade tests](facade-tests.log). |
-| 04 recovery | Reject 3 malformed examples, then render valid input. Run 500 successful renders alternating with 500 public failures and 500 native-parser failures, retained outputs/GC/mutation checks, and 40 calls from 4 threads under the GIL. Expect recovery and owned output bytes. | All 46 native and 315 facade tests pass. Three exception reports, test summaries and bounded claims are readable without clipping. | **Pass for the tested bounds**. [Frame](04-recovery.png), [page](04-recovery.html), [errors](04-errors.json), [native tests](native-tests.log), [full consumer log](clean-check.log). No sanitizer/leak or parallel-execution inference. |
-| 05 packaging/timing | Inspect wheel dependencies/tags/runtime notices and loaded runtime; measure 30 calls per format after 3 warmups. Expect honest same-host scope and an open deployment gate. | Bundled/system dependency inspection passes; wheel tag/hash, 3 runtime names, 4 timing rows and the open production gate are complete and legible. Timings include validation/copies/native render/encoding, exclude build/install/import/initial warmup/file IO/capture, and have no facade speed comparison. | **Partial**: same-host inspection passes; ABI/host portability, sanitizer evidence and runtime redistribution review are absent. [Frame](05-packaging.png), [page](05-packaging.html), [wheel inspection](packaging.json), [timing samples](benchmark.json). |
+| Import | Import both installed wheels under isolation; expect compiled ABI/version, copied ownership and wheel-local runtime. | ABI 2, `abi3: false`, copy-per-call and consumer-relative module paths are complete and readable. Local source/binary binding checks pass. | **Pass**. [Frame](01-import.png), [page](01-import.html), [portable import/ABI records](publication.json). |
+| Native scene | Render six samples and two line/scatter layers at 320×240 in four formats. Expect PNG decoded equal to native RGBA and vector PDF with selectable text. | Native SVG and PNG both visibly contain the title, both numeric axes outside the data clip and both legend labels. Independent tests establish exact PNG pixels, PDF text/fonts, vector strokes and no embedded page images. All output byte counts/hashes fit. | **Pass for the declared slice**. [Frame](02-render.png), [page](02-render.html), [exports](02-render.json), [native tests](native-tests.log). |
+| Facade comparison | Export the same fixture through the existing facade; inspect all eight exports and both PNGs. | All eight exports are bound to current bytes. Native text, grid, background and layout visibly differ from the facade. Unaligned mean RGBA difference is 164.5243/255, a description without a parity threshold. | **Partial**: export contracts pass; visual/layout and scientific parity remain unestablished. [Frame](03-comparison.png), [page](03-comparison.html), [facade tests](facade-tests.log). |
+| Rejection/recovery | Reject malformed inputs, recover valid rendering, exercise repeated calls and owned output lifetimes. | Three example exceptions and the 48-native/364-facade summaries are fully readable. Tests cover 500 successful renders alternating with 500 public failures and 500 Mojo-parser failures, GC/input mutation/destruction, and 40 calls from four threads with the GIL held. | **Pass within those bounds**. [Frame](04-recovery.png), [page](04-recovery.html), [errors](04-errors.json), [native tests](native-tests.log). |
+| Packaging/timing | Inspect wheel tags, signatures, runtime notices/dependencies and loaded libraries; measure 30 calls/format after three warmups. | Arm64 wheel/hash, three runtime names, four timing rows and the open production gate are complete and legible. Includes validation/copies/native render/encoding; excludes build/install/import, initial warmup, file IO and screenshots. | **Partial**: tested host/ABI pairs pass; distribution approval and wider support are open. [Frame](05-packaging.png), [page](05-packaging.html), [portable wheel records](publication.json), [samples](benchmark.json). |
 
-The [native contract](../../../experiments/python-native/README.md#declared-rendering-slice)
-is intentionally bounded: 1–4 ordinary line/scatter layers, 1–8 numeric columns,
-1–4096 rows, 64–1024 pixels per side, ASCII labels, constant styles and bounded
-JSON/SVG. Numeric buffers are copied synchronously with explicit validity masks;
-scene coordinates remain Float32 even for Float64/Int64 input. Category, string,
-timestamp, strided buffers and richer rendering features are unsupported.
-Neither screenshot similarity nor the format containers establish the facade's
-text/layout/visual fidelity, vector PDF behavior or scientific equivalence.
+The final [native PDF](native.pdf) was also independently rendered by
+pypdfium2 5.15.2 / PDFium 159.0.8149.0. Its complete 640×480
+[page preview](native-pdf-preview.png) visibly contains the title, axes,
+line/scatter geometry and both legend labels. [Viewer record](pdf-viewer.json).
+Selectable text and vector structure are established separately by pypdf tests.
 
-## Comparison with previous evidence
+The [declared contract](../../../experiments/python-native/README.md#declared-rendering-slice)
+remains bounded: 1–4 ordinary line/scatter layers, 1–8 numeric columns,
+1–4096 rows, 64–1024 pixels per side, printable ASCII labels, constant mark
+styles and copied numeric buffers/validity masks. Coordinates remain Float32.
+Unsupported encodings, transforms, non-default scales, facets and richer scene
+operations fail explicitly. This evidence does not establish a general renderer.
 
-The preserved [previous manifest](baseline/prior.json) reports dirty revision
-`8c7014763753f6fe9fb07f01654b4b1dcd39293a`, 133 build inputs and aggregate
-`405b47aa2fbb84da7a505de42b67b10a3e19bb173900dbc83c09f434eaeb6a10`.
-It is not evidence for the current source without regeneration. The compiler
-hash is unchanged, but current native object and wheel hashes differ.
-All **8 current native/facade export hashes equal the previous manifest's
-recorded hashes**. The [comparison report](comparison.json) retains those pairs.
-Previous PNGs, pages and reports were absent in this checkout: old image bytes
-could not be checked and a side-by-side visual comparison was not possible.
+## Comparison, reproduction and retained proof
 
-All five current screenshots have new hashes, reflecting the current source
-header, evidence, wording and capture environment. The old recorded DPR 2 and
-1280×1006 PNG dimensions were replaced by observed DPR 1 and 1400×1100 outputs;
-the difference is not a rendering-regression measurement. No current screenshot
-has been resized or edited after browser capture.
+The locally retained previous manifest (`baseline/prior.json`) records source
+`d7fa3ed563948860f4baf18bcc9f3eb279197135` and 135 build inputs. All four current
+native export hashes differ; all four facade export hashes match its recorded
+hashes. [Hash pairs](comparison.json). The previous output bytes were not
+independently re-rendered or verified. This is not a before/after visual or
+scientific regression measurement. All five browser frames were freshly captured.
 
-## Reproduction and retained artifacts
+Use the [build/capture recipe](README.md) and
+[experiment prerequisites](../../../experiments/python-native/README.md#reproduce-locally).
+`evidence.py verify` checks recorded native/facade inputs, object/wheels,
+installed binaries/wrappers, all eight exports, proof sources, report hashes and
+every referenced frame/page. Both retained consumer venvs and the local build
+must remain available for that source-bound check. Raw build, packaging, import,
+loaded-runtime and source-verification reports, verbose build/check logs, prior
+manifest and ABI-specific raw directories stay local because they include machine
+paths. Their hashes are identified as local-only in the manifest; they are not
+links to published files. Wheel/object/runtime binaries are excluded.
 
-Use the portable [capture/build recipe](README.md), the
-[experiment prerequisites](../../../experiments/python-native/README.md#reproduce-locally)
-and these repository-root commands:
+The scoped ignore allowlist publishes the five captures, evidence pages, offline
+gallery, selected actual exports and portable JSON/test summaries. A Git-only
+copy can run `evidence.py verify-publication` without local wheels or consumer
+venvs. This checks the published bytes and gallery provenance; it does not rerun
+the native binary checks. Portable paired test output is retained for
+[3.14 native](native-tests.log), [3.14 facade](facade-tests.log),
+[3.13 native](cp313-native-tests.log) and [3.13 facade](cp313-facade-tests.log).
 
-```sh
-# Optional: MOXI_E04_MANIFEST=/path/to/an/installed/moxi/pixi.toml
-bash experiments/python-native/build.sh > /tmp/moxi-e04-build.log 2>&1
-bash experiments/python-native/check.sh > /tmp/moxi-e04-clean-check.log 2>&1
-python3 experiments/python-native/evidence.py pages
-# Capture/review the 5 HTML pages as described in README.md; retain capture.json.
-python3 experiments/python-native/evidence.py finalize
-python3 experiments/python-native/evidence.py verify
-python3 tests/demo_slideshows_test.py
-python3 experiments/python-native/test_build_notices.py
-git diff --check
-```
+The [self-contained slideshow](index.html) was exercised with the network offline:
+all ten embedded images loaded; 15 interactions verified next/previous,
+wraparound, every contact-sheet jump, keyboard navigation and reload. Sixteen
+states including the initial load pass with no browser errors. Its checked
+index SHA-256 is pinned in [gallery-check.json](gallery-check.json).
+Seven in-memory stale-evidence controls reject changed native fingerprints,
+proof/export/image/page hashes, frame counts and outcomes without modifying
+source or image bytes. [Negative controls](verification-tests.log).
+A separate copy containing only the allowlisted files passed portable
+verification without build binaries or consumer venvs. Its negative controls
+rejected changed PNG bytes and a temporary-directory path, including when the
+altered report's hash matched the manifest.
+Four gallery-tool tests, three Mach-O-inspector tests and two notice-retention
+tests pass. [Tooling output](tooling-tests.log). The common root gallery was not
+regenerated by this E04-specific recipe.
 
-The actual build reused the already-installed Pixi environment at
-`<environment-checkout>/pixi.toml` through `MOXI_E04_MANIFEST`; it compiled this
-worktree's absolute source path, not that other checkout's sources. That path is
-an environment-specific observation, not a reproduction prerequisite. The
-retained consumer for this run is `/tmp/moxi-e04-consumer.4qjnjr`; paths in the
-import report are diagnostic and will change on a rerun.
-
-`verify` rehashes all native/facade inputs, the object/wheels and installed
-binaries/wrappers, all 8 exports, 17 proof sources, recorded evidence artifacts,
-and every referenced PNG/page. It rejects stale fingerprints, artifacts and
-frames. It requires the local build and retained consumer to remain available.
-The common gallery validator is also invoked on this gallery alone; the common
-root index is not rebuilt. The self-contained [slideshow](index.html) embeds all
-5 PNGs and is checked locally with the network offline: every frame, next/previous,
-wraparound, contact-sheet jumps, keyboard navigation and reload are exercised.
-The [slideshow check](gallery-check.json) and [verification checks](verification-tests.log)
-record results; native/facade test logs retain their original run output.
-The local check totals are 46 native tests, 315 facade tests, 4 gallery-tooling
-tests and 2 notice-retention tests passing, plus 15 offline slideshow interactions
-and 7 rejected in-memory stale-evidence controls. The latter deliberately alter
-the native fingerprint, proof-source hash, export hash, referenced PNG/page hash,
-frame count and scenario outcome; they do not modify source or image bytes.
-See [tooling test output](tooling-tests.log). Final verification covers 36 hashed
-gallery artifacts; the self-contained index is separately pinned by the
-slideshow check.
-
-Tracked/reviewable changes are this review, [README.md](README.md),
-[manifest.json](manifest.json) and the necessary
-[capture/provenance tool](../../../experiments/python-native/evidence.py).
-The review is newly untracked until integrated; nothing was staged or committed.
-The **5 PNG frames, 5 HTML pages, self-contained index, 8 exports, JSON/log
-reports and baseline manifest are ignored local files**. All remain under this
-gallery directory for integration: 37 ignored gallery files in total. The native object and two wheels also remain
-ignored under `experiments/python-native/dist/`. Preserve those local artifacts
-with the manifest when moving the evidence; a Git-only checkout lacks them.
-
-Confidence is **high for these local, bounded observations**. No fresh-host,
-other-Python/OS/architecture, abi3/universal, sanitizer/leak-detector, free-threaded
-Python, broader rendering/scientific parity, production-load, full Mojo suite,
-remote CI, native-window usability or VoiceOver check was performed. VoiceOver
-remains paused. PDF image data was independently decoded, but no separate PDF-page
-viewer/visual check was performed. Redistribution/legal permission was not reviewed. Broader support
-would require the relevant independent host/ABI installs, sanitizer/lifetime
-evidence, parity reference tests and a runtime redistribution review; these
-captures do not supply them.
+Confidence is **high for these bounded local observations and the completed
+two-ABI hosted matrix**.
+Sanitizers/leak detectors, free-threaded Python, subinterpreters, other
+architectures, Linux/Windows, abi3/universal support, broader visual/scientific
+parity, production load, native-window usability and the full Mojo suite were
+not checked by this work. VoiceOver remains paused. Runtime redistribution/legal
+permission was not reviewed. Wider claims require those independent checks;
+this wheel remains experimental.

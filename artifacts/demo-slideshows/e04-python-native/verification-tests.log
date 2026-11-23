@@ -1,0 +1,12 @@
+PASS rejected native fingerprint : AssertionError
+PASS rejected proof-source hash : AssertionError
+PASS rejected export hash : AssertionError
+PASS rejected frame PNG hash : AssertionError
+PASS rejected frame HTML hash : AssertionError
+PASS rejected frame count : AssertionError
+PASS rejected scenario outcome : AssertionError
+7 stale-evidence negative controls rejected; no source or image bytes changed
+
+PASS Git-only portable copy: 37 allowlisted files, no binary or consumer directories
+PASS portable verifier rejected changed PNG bytes
+PASS portable verifier rejected a temporary-directory path even with matching artifact hash

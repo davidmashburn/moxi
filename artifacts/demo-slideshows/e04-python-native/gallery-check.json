@@ -1,0 +1,181 @@
+{
+  "captured_at": "2026-11-23T07:49:38.369Z",
+  "url": "file:index.html",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36",
+  "viewport_css": [
+    1400,
+    1100
+  ],
+  "offline": true,
+  "images": [
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    },
+    {
+      "complete": true,
+      "natural_width": 1400,
+      "natural_height": 1100
+    }
+  ],
+  "checks": [
+    {
+      "action": "initial load",
+      "expected": "1 / 5",
+      "observed": "1 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "next to 2",
+      "expected": "2 / 5",
+      "observed": "2 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "next to 3",
+      "expected": "3 / 5",
+      "observed": "3 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "next to 4",
+      "expected": "4 / 5",
+      "observed": "4 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "next to 5",
+      "expected": "5 / 5",
+      "observed": "5 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "next wraps",
+      "expected": "1 / 5",
+      "observed": "1 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "previous wraps",
+      "expected": "5 / 5",
+      "observed": "5 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "next after previous",
+      "expected": "1 / 5",
+      "observed": "1 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "contact sheet to 1",
+      "expected": "1 / 5",
+      "observed": "1 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "contact sheet to 2",
+      "expected": "2 / 5",
+      "observed": "2 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "contact sheet to 3",
+      "expected": "3 / 5",
+      "observed": "3 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "contact sheet to 4",
+      "expected": "4 / 5",
+      "observed": "4 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "contact sheet to 5",
+      "expected": "5 / 5",
+      "observed": "5 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "keyboard next wraps",
+      "expected": "1 / 5",
+      "observed": "1 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "keyboard previous wraps",
+      "expected": "5 / 5",
+      "observed": "5 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    },
+    {
+      "action": "reload restores initial frame",
+      "expected": "1 / 5",
+      "observed": "1 / 5",
+      "visible_frames": 1,
+      "outcome": "pass"
+    }
+  ],
+  "page_errors": [],
+  "console_errors": [],
+  "failed_requests": [],
+  "url_note": "Opened the actual local index file with network offline; the absolute account directory is omitted in this portable record.",
+  "index_sha256": "9d25767dc9b9197f7cf336d729a54abde4e48a572a789739e685f027aad37869"
+}

@@ -1,0 +1,30 @@
+{
+  "rgba": {
+    "native_bytes": 307200,
+    "native_sha256": "6a5bd3b2130008d1d15e6419a128084b51ed16a56eaf30bbf5990ef4fd69b405",
+    "facade_bytes": 307200,
+    "facade_sha256": "eccac440111034653a80d8ef2fa06de6483ea83668ad0ed6a225cf8eec2f166b",
+    "first_call_ms": 35.935042
+  },
+  "png": {
+    "native_bytes": 11871,
+    "native_sha256": "e993fa6dc9ddb3953773a9576f954de8489b02ebe388f634969119b01d6fee9b",
+    "facade_bytes": 1631,
+    "facade_sha256": "1d0f0b1a4119fed49f267d34cf30b0a44b5797d07e11b471d8914bbba747a268",
+    "first_call_ms": 20.783167
+  },
+  "svg": {
+    "native_bytes": 5559,
+    "native_sha256": "802afa4ff1f9d55c1d76ae40309d82af70adf5e595069931adcbf109b105c8a4",
+    "facade_bytes": 1086,
+    "facade_sha256": "b5918db469d6e574e22b7f73b720d7f096cc247037159be99bccfba73e0f8cc9",
+    "first_call_ms": 19.507584
+  },
+  "pdf": {
+    "native_bytes": 13658,
+    "native_sha256": "327617d52c4560d1dc588a6f9c9e1db96d4d26ea186b8cb6c953d80e66d91335",
+    "facade_bytes": 915,
+    "facade_sha256": "f59086bdfaa91ce958b52dba3357ad111b0742ce01d95a6a7d981e6f8112fde6",
+    "first_call_ms": 21.665625
+  }
+}

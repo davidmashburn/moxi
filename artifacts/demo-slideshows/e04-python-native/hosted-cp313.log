@@ -1,0 +1,47 @@
+{
+  "python": "3.13.17",
+  "platform": "Darwin-24.6.0-arm64",
+  "isolated": 1,
+  "mojo_on_path": false,
+  "process_audit": "enabled"
+}
+{
+  "wheel": "moxi_native_experimental-0.1.0-cp313-cp313-macosx_15_0_arm64.whl",
+  "sha256": "3939cc57fae5a55f1c15570540d57bc72b51e234c7bcb7100bf426f0c5d30c6b",
+  "dependency_check": "PASS: bundled or system only",
+  "abi3": false,
+  "production_gate": "OPEN: proprietary runtime redistribution unreviewed; tested CPython/macOS/arm64 pairs only; bounded render coverage"
+}
+{
+  "moxi_native/_core.cpython-313-darwin.so": {
+    "file": "_core.cpython-313-darwin.so: Mach-O 64-bit bundle arm64",
+    "rpaths": [
+      "@loader_path/.libs"
+    ],
+    "build_version": "_core.cpython-313-darwin.so:\nLoad command 8\n      cmd LC_BUILD_VERSION\n  cmdsize 32\n platform MACOS\n    minos 15.0\n      sdk 15.5\n   ntools 1\n     tool LD\n  version 1167.5\n"
+  },
+  "moxi_native/.libs/libAsyncRTRuntimeGlobals.dylib": {
+    "file": "libAsyncRTRuntimeGlobals.dylib: Mach-O 64-bit dynamically linked shared library arm64",
+    "rpaths": [],
+    "build_version": "libAsyncRTRuntimeGlobals.dylib:\nLoad command 9\n      cmd LC_BUILD_VERSION\n  cmdsize 32\n platform MACOS\n    minos 11.0\n      sdk 11.0\n   ntools 1\n     tool 4\n  version 22.1.4\n"
+  },
+  "moxi_native/.libs/libMSupportGlobals.dylib": {
+    "file": "libMSupportGlobals.dylib: Mach-O 64-bit dynamically linked shared library arm64",
+    "rpaths": [],
+    "build_version": "libMSupportGlobals.dylib:\nLoad command 9\n      cmd LC_BUILD_VERSION\n  cmdsize 32\n platform MACOS\n    minos 11.0\n      sdk 11.0\n   ntools 1\n     tool 4\n  version 22.1.4\n"
+  },
+  "moxi_native/.libs/libKGENCompilerRTShared.dylib": {
+    "file": "libKGENCompilerRTShared.dylib: Mach-O 64-bit dynamically linked shared library arm64",
+    "rpaths": [],
+    "build_version": "libKGENCompilerRTShared.dylib:\nLoad command 9\n      cmd LC_BUILD_VERSION\n  cmdsize 32\n platform MACOS\n    minos 11.0\n      sdk 11.0\n   ntools 1\n     tool 4\n  version 22.1.4\n"
+  }
+}
+................................................                         [100%]
+48 passed in 29.48s
+........................................................................ [ 19%]
+........................................................................ [ 39%]
+........................................................................ [ 59%]
+........................................................................ [ 79%]
+........................................................................ [ 98%]
+....                                                                     [100%]
+364 passed in 15.93s

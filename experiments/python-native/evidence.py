@@ -24,6 +24,18 @@ STEPS = (
     ('04-recovery', 'recovery', 'Malformed input rejection and repeated lifetime recovery'),
     ('05-packaging', 'result', 'Inspected wheel, bounded timing and deployment decision'),
 )
+# Publication is an allowlist. Full consumer/build reports retain local paths
+# and stay available for verify_inputs(), outside the portable gallery bundle.
+PUBLICATION_FILES = frozenset({
+    '.gitignore', 'README.md', 'REVIEW.md', 'manifest.json', 'index.html',
+    'capture.json', 'gallery-check.json', 'pdf-viewer.json', 'publication.json',
+    'hosted.json', 'hosted-cp313.log', 'hosted-cp314.log', 'comparison.json',
+    '02-render.json', '04-errors.json', 'benchmark.json',
+    'native.png', 'native.svg', 'native.pdf', 'native-pdf-preview.png',
+    'facade.png', 'native-tests.log', 'facade-tests.log',
+    'cp313-native-tests.log', 'cp313-facade-tests.log',
+    'tooling-tests.log', 'verification-tests.log',
+} | {stem + suffix for stem, _, _ in STEPS for suffix in ('.html', '.png')})
 
 
 class Outcome(str, Enum):
@@ -36,9 +48,10 @@ def read(name): return json.loads((OUT / name).read_text())
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def pre(value): return '<pre>' + html.escape(value if isinstance(value, str) else json.dumps(value, indent=2)) + '</pre>'
 
-def verify_inputs():
+def verify_inputs(out=OUT):
     """Bind installed outputs to this checkout, not just an advertised revision."""
-    build = read('build.json'); packaging = read('packaging.json')
+    def read_report(name): return json.loads((out / name).read_text())
+    build = read_report('build.json'); packaging = read_report('packaging.json')
     revision = build['revision']
     # Other units can be integrated after this build. Permit those descendants
     # only while every compiled/facade source still matches the tested commit.
@@ -58,11 +71,11 @@ def verify_inputs():
         assert embedded == build, 'Installed report differs from wheel build metadata'
         for name, record in packaging['binaries'].items():
             assert hashlib.sha256(archive.read(name)).hexdigest() == record['sha256'], name
-    initial = read('01-import.json')
+    initial = read_report('01-import.json')
     package = Path(initial['import_paths'][1]).parent
     assert initial['isolated'] == 1 and initial['mojo_on_path'] is False
     assert initial['process_audit'] == 'enabled'
-    loaded = read('loaded-runtime.json')
+    loaded = read_report('loaded-runtime.json')
     assert len(loaded) == 3 and all(Path(p).parent == package / '.libs' for p in loaded)
     for name, record in packaging['binaries'].items():
         installed = package / Path(name).relative_to('moxi_native')
@@ -86,16 +99,16 @@ def verify_inputs():
                 facade_sources[str(source.relative_to(ROOT))] = sha(source)
     subprocess.run(['git', '-C', str(ROOT), 'diff', '--exit-code', revision, '--', *facade_sources],
                    check=True, capture_output=True)
-    exports = read('02-render.json')
+    exports = read_report('02-render.json')
     assert set(exports) == {'rgba', 'png', 'svg', 'pdf'}
     for kind, record in exports.items():
         for backend in ('native', 'facade'):
-            artifact = OUT / (backend + '.' + kind)
+            artifact = out / (backend + '.' + kind)
             assert artifact.stat().st_size == record[backend + '_bytes'], artifact.name
             assert sha(artifact) == record[backend + '_sha256'], artifact.name
     counts = {}
     for name in ('native-tests.log', 'facade-tests.log'):
-        log = (OUT / name).read_text()
+        log = (out / name).read_text()
         assert not re.search(r'\b[1-9]\d* (failed|errors?)\b', log), name
         counts[name] = int(re.search(r'\b(\d+) passed\b', log).group(1))
     return dict(native_source_count=len(sources), native_sources_match_revision=True,
@@ -128,7 +141,10 @@ def pages():
     small.update(compiler=build['compiler'], abi_version=initial['capabilities']['abi_version'],
                  abi3=False, copy_policy=initial['capabilities']['copy_policy'])
     body = '<p>Fresh venv outside the repository. <code>env -i</code>, Python isolated mode, no Mojo/Python import paths, no Mojo compiler on PATH. Process creation is rejected by the probe audit hook.</p>'
-    body += pre(small) + '<h2>Actual import locations</h2>' + pre(initial['import_paths'])
+    locations = ['<isolated-consumer>/site-packages/' + p.split('/site-packages/', 1)[1]
+                 for p in initial['import_paths']]
+    body += pre(small) + '<h2>Installed modules (consumer-relative locations)</h2>' + pre(locations)
+    body += '<p>The absolute temporary directory is omitted here; the local probe retains and verifies the full installed paths.</p>'
     body += '<p>Compiled Mojo called through the CPython extension; the base <code>moxi</code> facade remains a separate compiler-independent wheel.</p>'
     (OUT / '01-import.html').write_text(page('01-import', body, revision))
     body = '<p>Fixture: six samples, two line/scatter layers, 320×240. Both images below come from the installed native extension. The compiled Mojo scene drives SVG serialization and a CoreGraphics/CoreText sink; PNG includes title, tick and legend glyphs.</p>'
@@ -165,6 +181,47 @@ def pages():
 def finalize():
     verification = verify_inputs()
     build = read('build.json'); packaging = read('packaging.json')
+    consumers = []
+    directories = [(OUT, '')]
+    if (OUT / 'abi-cp313/01-import.json').is_file():
+        directories.append((OUT / 'abi-cp313', 'cp313-'))
+    for directory, prefix in directories:
+        initial = json.loads((directory / '01-import.json').read_text())
+        package = json.loads((directory / 'packaging.json').read_text())
+        checked = verification if directory == OUT else verify_inputs(directory)
+        assert checked['native_sources_match_revision'] and checked['installed_binaries_match_wheel']
+        assert checked['native_source_count'] == len(build['sources'])
+        logs = {}
+        for name in ('native-tests.log', 'facade-tests.log'):
+            data = (directory / name).read_bytes()
+            count = int(re.search(rb'\b(\d+) passed\b', data).group(1))
+            assert count == checked['test_counts'][name]
+            target = prefix + name
+            if prefix:
+                (OUT / target).write_bytes(data)
+            logs[target] = dict(passed=count, sha256=sha(OUT / target))
+        consumers.append(dict(python=initial['python'], platform=initial['platform'],
+            isolated=initial['isolated'], mojo_on_path=initial['mojo_on_path'],
+            process_audit=initial['process_audit'], wheel=package['wheel'],
+            wheel_sha256=package['sha256'], wheel_bytes=package['bytes'], tests=logs,
+            dependency_check=package['dependency_check'],
+            binaries={name: {key: record[key] for key in ('sha256', 'architectures')}
+                      for name, record in package['binaries'].items()},
+            source_verification={key: checked[key] for key in
+                ('native_source_count', 'native_sources_match_revision', 'installed_binary_count',
+                 'installed_binaries_match_wheel', 'exports_checked')},
+            local_only_report_hashes={name: sha(directory / name) for name in
+                ('01-import.json', 'packaging.json', 'source-verification.json')
+                if (directory / name).is_file()}))
+    (OUT / 'publication.json').write_text(json.dumps(dict(version=1,
+        revision=build['revision'], native_sources=build['sources'],
+        native_sources_sha256=build['sources_sha256'], facade_sources=verification['facade_sources'],
+        compiler=build['compiler'], compiler_sha256=build['compiler_sha256'],
+        object_sha256=build['object_sha256'], consumers=consumers,
+        scope='Portable summaries derived from locally verified reports. Raw reports and binary artifacts remain local; hashes identify those retained reports without publishing their paths.',
+        runtime_redistribution='unreviewed; experimental gate remains open'), indent=2) + '\n')
+    (OUT / '.gitignore').write_text('# Only the portable evidence bundle is publishable.\n*\n' +
+                                  ''.join('!' + name + '\n' for name in sorted(PUBLICATION_FILES)))
     files = subprocess.check_output(['git', '-C', str(ROOT), 'ls-files', 'experiments/python-native'], text=True).splitlines()
     sources = {name: sha(ROOT / name) for name in files}
     capture = read('capture.json')
@@ -187,6 +244,8 @@ def finalize():
     artifacts = {str(p.relative_to(OUT)): sha(p) for p in sorted(OUT.rglob('*')) if p.is_file()
                  and p.suffix in ('.svg', '.pdf', '.rgba', '.json', '.log', '.png', '.html')
                  and p.name not in ('manifest.json', 'index.html')}
+    published = {name: digest for name, digest in artifacts.items() if name in PUBLICATION_FILES}
+    local = {name: digest for name, digest in artifacts.items() if name not in PUBLICATION_FILES}
     manifest = dict(version=1, demo_id='e04-python-native', title='E04: native Mojo/CPython boundary proof',
         scenario='Clean same-host wheel import, actual native exports, unchanged facade comparison, malformed/lifetime recovery, inspected deployment decision',
         revision=build['revision'], host=platform.platform(), backend='CPython C ABI → Mojo PlotSpec/Scene → CoreGraphics/CoreText RGBA/PDF and native SVG', scale=capture['device_pixel_ratio'],
@@ -198,7 +257,8 @@ def finalize():
         binary_provenance=dict(compiler=build['compiler'], compiler_sha256=build['compiler_sha256'],
                                object_sha256=build['object_sha256'], wheel=packaging['wheel'], wheel_sha256=packaging['sha256'],
                                runtime_hashes=build['runtimes']),
-        artifacts_sha256=artifacts,
+        artifacts_sha256=published,
+        local_only_artifacts_sha256=local,
         capture_environment=dict(captured_at=capture['captured_at'], browser=capture['browser'],
             viewport_css=capture['viewport_css'], device_pixel_ratio=capture['device_pixel_ratio'],
             saved_png_dimensions=[slide['dimensions'] for slide in slides],
@@ -236,7 +296,7 @@ def verify():
     assert manifest['verification'] == verification, 'Stale verification metadata'
     for name, digest in manifest['source_state']['proof_sources'].items():
         assert sha(ROOT / name) == digest, 'Stale evidence source: ' + name
-    for name, digest in manifest['artifacts_sha256'].items():
+    for name, digest in (manifest['artifacts_sha256'] | manifest.get('local_only_artifacts_sha256', {})).items():
         assert sha(OUT / name) == digest, 'Stale evidence artifact: ' + name
     assert len(manifest['slides']) == len(STEPS)
     for slide, (stem, phase, title) in zip(manifest['slides'], STEPS):
@@ -252,9 +312,38 @@ def verify():
         assert data[:8] == b'\x89PNG\r\n\x1a\n' and list(struct.unpack('>II', data[16:24])) == slide['dimensions']
     print('E04 verified:', verification['native_source_count'], 'build sources,', len(verification['facade_sources']),
           'facade files,', len(manifest['source_state']['proof_sources']), 'proof sources,',
-          len(manifest['artifacts_sha256']), 'artifacts, 5 frames/pages, 8 exports, 4 installed binaries')
+          len(manifest['artifacts_sha256']), 'portable artifacts,',
+          len(manifest.get('local_only_artifacts_sha256', {})),
+          'local-only artifacts, 5 frames/pages, 8 exports, 4 installed binaries')
+
+
+def verify_publication():
+    """Check portable files without requiring local wheels or consumer venvs."""
+    manifest = read('manifest.json')
+    capture = read('capture.json')
+    assert len(manifest['slides']) == len(STEPS) == len(capture['frames'])
+    for name, digest in manifest['artifacts_sha256'].items():
+        assert name in PUBLICATION_FILES, 'Not approved for publication: ' + name
+        assert sha(OUT / name) == digest, 'Stale portable artifact: ' + name
+    for slide, (stem, _, _) in zip(manifest['slides'], STEPS):
+        assert slide['image'] == stem + '.png' and slide['evidence_page'] == stem + '.html'
+        assert slide['sha256'] == sha(OUT / slide['image']) == capture['frames'][stem]['sha256']
+        assert slide['page_sha256'] == sha(OUT / slide['evidence_page']) == capture['frames'][stem]['page_sha256']
+        assert slide['visual_outcome'] == Outcome.PASS
+    gallery = read('gallery-check.json')
+    assert sha(OUT / 'index.html') == gallery['index_sha256']
+    assert gallery['offline'] is True and len(gallery['images']) == 10
+    assert all(image['complete'] and image['natural_width'] for image in gallery['images'])
+    assert len(gallery['checks']) == 16 and all(check['outcome'] == Outcome.PASS for check in gallery['checks'])
+    assert not any(gallery[key] for key in ('page_errors', 'console_errors', 'failed_requests'))
+    for name in PUBLICATION_FILES:
+        path = OUT / name
+        if path.is_file() and path.suffix in ('.md', '.json', '.html', '.log'):
+            assert not re.search(r'/Users/|/private/(?:tmp|var)/|file:///|moxi-e04-consumer\.', path.read_text()), name
+    print('E04 portable publication verified:', len(manifest['artifacts_sha256']),
+          'hashed artifacts, 5 captures and offline gallery; local binary/consumer proof is separate')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(); parser.add_argument('mode', choices=('pages', 'finalize', 'verify'))
+    parser = argparse.ArgumentParser(); parser.add_argument('mode', choices=('pages', 'finalize', 'verify', 'verify-publication'))
     args = parser.parse_args()
-    dict(pages=pages, finalize=finalize, verify=verify)[args.mode]()
+    {'pages': pages, 'finalize': finalize, 'verify': verify, 'verify-publication': verify_publication}[args.mode]()

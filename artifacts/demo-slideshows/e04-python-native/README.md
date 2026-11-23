@@ -1,12 +1,14 @@
 # E04 native extension screenshot evidence
 
 This sequence shows actual clean-installed command results and native renderer
-outputs in browser evidence pages. The wheel runs in a fresh venv on the build
-host; this is not a fresh-host install or native-window capture. VoiceOver remains
-unexercised. See [the dated scenario review](REVIEW.md) for outcomes, the comparison
-with the previous manifest and the evidence limits.
+outputs in browser evidence pages. The captured CPython 3.14 wheel runs in a fresh
+venv on the build host. A separate CPython 3.13 consumer and the
+[targeted hosted workflow](../../../.github/workflows/python-native-experimental.yml)
+extend installation checks; their results are distinguished in the
+[dated scenario review](REVIEW.md). These are browser evidence pages; VoiceOver
+and native-window usability remain unexercised.
 
-From the repository root at `d7fa3ed`, use
+From the repository root at the build revision recorded in [manifest.json](manifest.json), use
 [the experiment's build prerequisites and contract](../../../experiments/python-native/README.md):
 
 ```sh
@@ -34,24 +36,32 @@ the previous manifest's device scale or saved-image dimensions.
 5. `05-packaging.html` → `05-packaging.png`: inspected dependencies, timings, gate.
 
 If T3 snapshot capture is unavailable, use a connected Playwright browser in an
-isolated context. The reviewed run used this fallback after two T3 snapshot
-timeouts and an unavailable Chrome browser access host. Its screenshots use CSS
+isolated context. The reviewed run used this fallback after an unavailable
+Chrome browser access host. Its screenshots use CSS
 scale at an actual 1400×1100 viewport and DPR 1, producing 1400×1100 PNGs. Through
-`browser_run_code_unsafe`, set `page.setViewportSize({width:1400,height:1100})`
-and run the following for each stem (set `gallery` to the absolute gallery path):
+`browser_run_code_unsafe`, create an isolated context and run the following for
+each stem (set `gallery` to the absolute gallery path):
 
 ```js
-await page.goto(`http://127.0.0.1:8764/${stem}.html`, {waitUntil:'load'});
-await page.evaluate(async () => {
-  await document.fonts.ready;
-  await Promise.all([...document.images].map(image => image.decode()));
+const context = await page.context().browser().newContext({
+  viewport:{width:1400,height:1100}, deviceScaleFactor:1
 });
-// Record actual viewport/DPR, page errors, image states and content bounds.
-// Increase height and recapture all frames if content extends below the viewport.
-await page.screenshot({path:`${gallery}/${stem}.png`, scale:'css', fullPage:false});
+try {
+  const frame = await context.newPage();
+  await frame.goto(`http://127.0.0.1:8764/${stem}.html`, {waitUntil:'networkidle'});
+  await frame.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all([...document.images].map(image => image.decode()));
+  });
+  // Record viewport/DPR, errors, image states and content bounds.
+  // Increase height and recapture all frames if any content is cut off.
+  await frame.screenshot({path:`${gallery}/${stem}.png`, scale:'css', fullPage:false});
+} finally {
+  await context.close();
+}
 ```
 
-Visually inspect all five saved PNGs. Retain the actual capture metadata in ignored
+Visually inspect all five saved PNGs. Retain the actual capture metadata in
 `capture.json`, using this shape (repeat the frame entry for all five stems):
 
 ```json
@@ -84,15 +94,18 @@ Hash with `shasum -a 256 <file>` or Python `hashlib.sha256`.
 ```sh
 python3 experiments/python-native/evidence.py finalize
 python3 experiments/python-native/evidence.py verify
+python3 experiments/python-native/evidence.py verify-publication
 python3 tests/demo_slideshows_test.py
+python3 experiments/python-native/test_inspect_wheel.py
 python3 experiments/python-native/test_build_notices.py
 ```
 
 Finalization uses `scripts/demo_slideshows.py` to validate the version-1 manifest
 and render only this demo's self-contained `index.html`. It does not regenerate
-the parent-owned root gallery. All images, exported files, evidence JSON/logs,
-and generated HTML remain ignored local artifacts; the compact manifest and
-this recipe and the scenario review are reviewable. `verify` checks all recorded
+the parent-owned root gallery. A strict, generated `.gitignore` allowlist exposes
+only the portable publication bundle: five captures and evidence pages, the
+offline gallery, selected exports, and JSON/test summaries without account or
+temporary-directory paths. `verify` checks all recorded
 build inputs against the checkout and revision, the object/wheel and installed
 binary hashes, facade source/wheel/install bytes, all eight exports, proof sources,
 report hashes and every referenced frame/page. Keep the build and retained clean
@@ -100,10 +113,20 @@ consumer venv in place for this local check. Capture-tool changes are distinct f
 the verified native/facade inputs. Regenerating pages invalidates their captures;
 do not finalize until the corresponding screenshots have been recaptured/reviewed.
 
-The self-contained [local slideshow](index.html) embeds all five PNGs. The HTML,
-PNGs, JSON/log reports and export files are ignored, local integration artifacts;
-they must be copied along with the tracked manifest if another checkout needs the
-images. No common gallery index or handoff is regenerated by this recipe.
+The self-contained [slideshow](index.html) embeds all five PNGs. The
+[portable source/ABI record](publication.json) and [hosted results](hosted.json)
+support the [dated review](REVIEW.md). `verify-publication` checks this bundle in
+a Git-only copy without local wheel, object or consumer directories. It verifies
+published bytes and capture/gallery provenance; it does not repeat binary checks.
+
+Full `build.json`, `packaging.json`, `01-import.json`, `loaded-runtime.json`,
+`source-verification.json`, raw ABI directories, verbose logs and the preserved
+previous manifest remain ignored and local. The manifest labels their hashes
+as `local_only_artifacts_sha256`; these names are not links to published files.
+No wheels, objects, extension modules or runtime libraries enter the bundle.
+The import evidence page explicitly omits the absolute temporary-directory
+prefix. Raw reports still retain and verify the actual full paths locally.
+No common gallery index or handoff is regenerated by this recipe.
 
 The production gate remains open. No screenshot establishes redistribution
 permission, cross-platform/abi3 support, sanitizer coverage, screen-reader

@@ -1,0 +1,17 @@
+[
+  {
+    "input": "{bad}",
+    "exception": "InputError",
+    "message": "malformed or unsupported PlotSpec"
+  },
+  {
+    "input": "[]",
+    "exception": "InputError",
+    "message": "PlotSpec version must be integer 1"
+  },
+  {
+    "input": "{\"version\":1,\"layers\":[null]}",
+    "exception": "InputError",
+    "message": "malformed or unsupported PlotSpec"
+  }
+]

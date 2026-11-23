@@ -7,9 +7,12 @@ Binding code lives here, outside the stable Mojo package roots. No subprocess,
 CLI renderer, JIT, runtime compiler, Mojo import path, or retained Mojo handle
 is used by `render`.
 
-The local proof targets Mojo **1.1.0 (8189361e)**, macOS arm64 and the CPython
-used to build the wheel. The captured wheel is CPython 3.14/macOS 26/arm64,
-**not abi3**, universal, cross-platform, or a production distribution.
+The local proof targets Mojo **1.1.0 (8189361e)** and separate CPython 3.13
+and 3.14 wheels on macOS arm64. The local wheels carry macOS 26 tags from
+their build interpreters; the actual local test host runs macOS 27.2.1.
+These wheels are **not abi3**, universal, cross-platform, or a production
+distribution. The [dated evidence record](../../artifacts/demo-slideshows/e04-python-native/REVIEW.md)
+identifies exact tested versions, hosts, source hashes and remaining checks.
 `--emit object` is explicitly experimental in this compiler's build help.
 The first minimal C export needed only libSystem after object linking; the
 actual Moxi scene renderer additionally needs the Mojo runtime.
@@ -144,6 +147,13 @@ dispatch. Compiler environments and wheels are not cached or uploaded; temporary
 bundled runtime outputs are removed at the end. A successful run supplies another
 host check without publishing wheels; runtime redistribution approval stays open.
 
+The [November 23 matching run](https://github.com/davidmashburn/moxi/actions/runs/45131806275)
+passed on source `424126e12385`: CPython 3.13.17 and 3.14.10 each passed
+48 native and 364 facade tests on macOS 15 arm64, including isolated import/render
+and wheel dependency, architecture and signature checks. The
+[portable evidence](../../artifacts/demo-slideshows/e04-python-native/hosted.json)
+retains job links and actual consumer summaries.
+
 The native suite decodes PNG/PDF with independent libraries, validates SVG,
 requires selectable PDF title/legend text and vector strokes without page
 images, checks title-only raster pixel changes, visible axis labels outside the
@@ -169,7 +179,7 @@ The shared host was not load-controlled; the recorded dispersion is substantial.
 open.** The installed artifact works without a compiler or Mojo import paths,
 but the runtime dependency has not disappeared: it is bundled. Installed
 compiler metadata says `LicenseRef-Modular-Proprietary`. Redistribution terms
-were not reviewed and no publication is authorized. A production decision also
+were not reviewed and wheel publication is not authorized. A production decision also
 needs a supported ABI/runtime distribution policy, other supported hosts and
 Python versions, and a deliberate render-coverage policy. Host success alone
 does not establish any of these.

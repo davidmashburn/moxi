@@ -1,0 +1,18 @@
+<!doctype html><html lang='en'><meta charset='utf-8'><link rel='icon' href='data:,'><title>E04 Canonical native scene: SVG and raster PNG</title><style>body{font:18px system-ui;margin:28px;color:#17233a;background:#f7f9fc}h1{font-size:28px;margin:12px 0}h2{font-size:21px}small{color:#46576d}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px ui-monospace,monospace;background:#e9eef5;padding:16px}.pair{display:flex;gap:24px}.pair>div{width:48%}img{width:480px;height:360px;border:1px solid #bec8d7;background:white}table{border-collapse:collapse;font-size:16px}td,th{border:1px solid #bec8d7;padding:9px;text-align:left}.gate{border-left:6px solid #af6313;padding:16px;background:#fff1d8}p{max-width:1200px;line-height:1.5}</style><small>E04 · Actual installed outputs and captured test logs · browser evidence page, not a terminal emulator</small><h1>Canonical native scene: SVG and raster PNG</h1><small>Built source 424126e12385; native and facade fingerprints verified against that revision. Capture-tool edits are recorded separately in the manifest.</small><p>Fixture: six samples, two line/scatter layers, 320×240. Both images below come from the installed native extension. The compiled Mojo scene drives SVG serialization and a CoreGraphics/CoreText sink; PNG includes title, tick and legend glyphs.</p><div class='pair'><div><h2>Mojo SVG</h2><img src='native.svg'></div><div><h2>Mojo RGBA → PNG</h2><img src='native.png'></div></div><h2>Actual returned bytes</h2><pre>{
+  &quot;rgba&quot;: {
+    &quot;bytes&quot;: 307200,
+    &quot;sha256&quot;: &quot;6a5bd3b2130008d1d15e6419a128084b51ed16a56eaf30bbf5990ef4fd69b405&quot;
+  },
+  &quot;png&quot;: {
+    &quot;bytes&quot;: 11871,
+    &quot;sha256&quot;: &quot;e993fa6dc9ddb3953773a9576f954de8489b02ebe388f634969119b01d6fee9b&quot;
+  },
+  &quot;svg&quot;: {
+    &quot;bytes&quot;: 5559,
+    &quot;sha256&quot;: &quot;802afa4ff1f9d55c1d76ae40309d82af70adf5e595069931adcbf109b105c8a4&quot;
+  },
+  &quot;pdf&quot;: {
+    &quot;bytes&quot;: 13658,
+    &quot;sha256&quot;: &quot;327617d52c4560d1dc588a6f9c9e1db96d4d26ea186b8cb6c953d80e66d91335&quot;
+  }
+}</pre></html>
