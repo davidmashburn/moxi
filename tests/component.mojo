@@ -1,6 +1,7 @@
 """Component lifecycle and trait-conformance contract test."""
 
 from moxi import test_check
+from moxi import ComponentSlot
 from moxi import App, ClickEvent, ColumnView, Component, CounterState, Point, Rect
 
 
@@ -23,6 +24,25 @@ def built_child_count[ComponentType: Component](component: ComponentType) -> Int
 def main():
     var greeting = GreetingComponent()
     test_check(built_child_count(greeting) == 1)
+
+    # Two instances of the same child mount under a nested parent without
+    # sharing identity. Default height must retain intrinsic measurement.
+    var parent = ColumnView(Rect(0.0, 0.0, 400.0, 240.0), 0.0, 0.0)
+    var container = parent.add_column_to(-1, 90, 200.0, 0.0, 0.0)
+    var first = ComponentSlot(GreetingComponent(), 91, 100)
+    var second = ComponentSlot(GreetingComponent(), 92, 200)
+    first.mount(parent, container, Rect(0.0, 0.0, 400.0, 60.0))
+    second.mount(parent, container, Rect(0.0, 0.0, 400.0, 60.0), 60.0)
+    parent.layout()
+    test_check(first.contains(107, parent))
+    test_check(not first.contains(207, parent))
+    test_check(second.contains(207, parent))
+    test_check(parent.bounds_for(91).height > 24.0)
+    test_check(parent.bounds_for(91).height < 60.0)
+    test_check(parent.bounds_for(92).height == 60.0)
+    var projected = first.project_view(parent)
+    test_check(projected.child(0).id == 7)
+    test_check(projected.child(0).text == "Hello from a component")
 
     var component = CounterState()
     test_check(built_child_count(component) == 3)

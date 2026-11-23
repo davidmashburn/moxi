@@ -41,8 +41,14 @@ and host. A real browser can inspect the same page's
 The browser's implementation keeps catalog classification and search in
 `moxi_demo.catalog_types`, entry metadata in `demo_entry`, and component mode
 routing in `showcase`. Presentation helpers in `demo_style` depend only on core
-controls and semantic dark-theme tokens. The `moxi_demo` package continues to
-export the catalog IDs and category names for consumers.
+controls and semantic dark-theme tokens. Each browser owns one catalog inventory
+throughout its lifetime, so rendering and filtering reuse the same metadata. The
+`moxi_demo` package continues to export the catalog IDs and category names for
+consumers.
+
+Typed previews use `ComponentSlot.mount(parent, parent_id, bounds, height)` to
+build and embed with the slot's own identity and namespace. Child measurement
+uses the available pane width after split spacing and padding.
 
 Demos share `Event.is_activation()` for click, Enter/Space, and accessibility
 press handling; each component still validates its routed target. Width-aware

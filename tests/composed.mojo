@@ -70,26 +70,8 @@ struct LocalizedPreservationHost(Component):
         var child_width = bounds.width - 16.0
         if child_width < 0.0:
             child_width = 0.0
-        var form = self.form.build(
-            Rect(bounds.x, bounds.y, child_width, 180.0)
-        )
-        var interaction = self.interaction.build(
-            Rect(bounds.x, bounds.y, child_width, 280.0)
-        )
-        root.add_component_view_to(
-            -1,
-            PRESERVATION_FORM_SLOT_ID,
-            form,
-            PRESERVATION_FORM_ID_OFFSET,
-            180.0,
-        )
-        root.add_component_view_to(
-            -1,
-            PRESERVATION_INTERACTION_SLOT_ID,
-            interaction,
-            PRESERVATION_INTERACTION_ID_OFFSET,
-            280.0,
-        )
+        self.form.mount(root, -1, Rect(0.0, 0.0, child_width, 180.0), 180.0)
+        self.interaction.mount(root, -1, Rect(0.0, 0.0, child_width, 280.0), 280.0)
         root.add_label(2, "Localized tail", 40.0)
         root.layout()
         return root^

@@ -279,6 +279,7 @@ def _authoring_content_height(view: ColumnView) -> Float32:
 struct DemoBrowserState(Component):
     """A searchable, categorized browser for all checked-in Moxi examples."""
 
+    var catalog: DemoCatalog
     var search: TextInputState
     var category: Int
     var selected_id: Int
@@ -312,6 +313,7 @@ struct DemoBrowserState(Component):
     var capability_walkthrough: ComponentSlot[CapabilityWalkthroughState]
 
     def __init__(out self):
+        self.catalog = DemoCatalog()
         self.search = TextInputState()
         self.category = DEMO_CATEGORY_ALL
         self.selected_id = DEMO_HELLO_WINDOW_ID
@@ -394,15 +396,13 @@ struct DemoBrowserState(Component):
         )
 
     def selected_entry(self) -> DemoEntry:
-        var catalog = DemoCatalog()
-        var index = catalog.index_for_id(self.selected_id)
+        var index = self.catalog.index_for_id(self.selected_id)
         if index < 0:
             index = 0
-        return catalog.entry(index)
+        return self.catalog.entry(index)
 
     def visible_count(self) -> Int:
-        var catalog = DemoCatalog()
-        return catalog.visible_count(self.search.text, self.category)
+        return self.catalog.visible_count(self.search.text, self.category)
 
     def scroll_reset_target(self, event: Event) -> Int:
         """Reset the catalog viewport after a filter or category changes."""
@@ -461,11 +461,10 @@ struct DemoBrowserState(Component):
 
     def _activate_entry(mut self, id: Int):
         """Select the concrete component implementation for a catalog entry."""
-        var catalog = DemoCatalog()
-        var index = catalog.index_for_id(id)
+        var index = self.catalog.index_for_id(id)
         if index < 0:
             return
-        var entry = catalog.entry(index)
+        var entry = self.catalog.entry(index)
         if entry.page_kind == DEMO_PAGE_SHOWCASE:
             var showcase = self.showcase.component
             showcase.set_mode(showcase_mode_for_demo(id))
@@ -504,10 +503,9 @@ struct DemoBrowserState(Component):
             )
 
     def _select_first_visible(mut self):
-        var catalog = DemoCatalog()
-        for index in range(catalog.count()):
-            if catalog.matches(index, self.search.text, self.category):
-                self.selected_id = catalog.entry(index).id
+        for index in range(self.catalog.count()):
+            if self.catalog.matches(index, self.search.text, self.category):
+                self.selected_id = self.catalog.entry(index).id
                 self._activate_entry(self.selected_id)
                 self.tab = DEMO_TAB_OVERVIEW
                 return
@@ -798,12 +796,11 @@ struct DemoBrowserState(Component):
         self.add_category_button(root, categories_two, DEMO_CATEGORY_RENDERING)
         self.add_category_button(root, categories_two, DEMO_CATEGORY_TEXT)
 
-        var catalog = DemoCatalog()
         _add_styled_label(
             root,
             nav,
             DEMO_NAV_COUNT_ID,
-            String(self.visible_count(), " of ", catalog.count(), " examples"),
+            String(self.visible_count(), " of ", self.catalog.count(), " examples"),
             22.0,
             _small_style(),
         )
@@ -842,10 +839,10 @@ struct DemoBrowserState(Component):
             )
             var last_category = -1
             var added = 0
-            for index in range(catalog.count()):
-                if not catalog.matches(index, self.search.text, self.category):
+            for index in range(self.catalog.count()):
+                if not self.catalog.matches(index, self.search.text, self.category):
                     continue
-                var item = catalog.entry(index)
+                var item = self.catalog.entry(index)
                 if item.category != last_category:
                     root.add_label_to(
                         nav_portal,
@@ -1307,12 +1304,22 @@ struct DemoBrowserState(Component):
         width: Float32,
         height: Float32,
     ):
-        var page_width = width - 24.0
+        # Caller already removes the content portal's horizontal padding.
+        var page_width = width
         if page_width < 240.0:
             page_width = 240.0
         var page_height = height - 24.0
         if page_height < 140.0:
             page_height = 140.0
+
+        # Split padding + gap consume 20 px before applying the ratio; each
+        # pane then has 16 px of padding. Stacked panes share the full width.
+        var stacked = page_width < 720.0
+        var preview_width = max((page_width - 20.0) * 0.58 - 16.0, 160.0)
+        var source_width = max((page_width - 20.0) * 0.42 - 16.0, 0.0)
+        if stacked:
+            preview_width = max(page_width - 24.0, 160.0)
+            source_width = page_width - 24.0
 
         var authoring_height: Float32 = 0.0
         if entry.page_kind == DEMO_PAGE_COUNTER:
@@ -1326,9 +1333,6 @@ struct DemoBrowserState(Component):
         elif entry.page_kind == DEMO_PAGE_WORKSPACE:
             authoring_height = _authoring_content_height(self.workspace.component.ui.view)
         elif entry.page_kind == DEMO_PAGE_NOT_IMPLEMENTED:
-            var preview_width = max((width - 20.0) * 0.58 - 16.0, 160.0)
-            if page_width < 720.0:
-                preview_width = page_width - 24.0
             var preview = self.not_implemented.build(Rect(0.0, 0.0, preview_width, 0.0))
             authoring_height = _authoring_content_height(preview)
         # Include split padding (8), preview padding (16), kicker (18),
@@ -1358,7 +1362,6 @@ struct DemoBrowserState(Component):
         ):
             storybook_layout = False
         if storybook_layout:
-            var stacked = page_width < 720.0
             var source_height: Float32 = 430.0 if editable else 300.0
             var story: Int
             if stacked:
@@ -1419,7 +1422,7 @@ struct DemoBrowserState(Component):
                 code,
                 DEMO_STORY_CODE_HINT_ID,
                 "Edit the scene, then Run. Revert restores and runs the original source." if editable else "The preview uses the model shown here; the source path opens the full lesson.",
-                page_width - 24.0 if stacked else page_width * 0.42,
+                source_width,
                 _small_style(),
             )
             component_parent = preview
@@ -1428,196 +1431,116 @@ struct DemoBrowserState(Component):
             component_height = page_height - 50.0
             if component_height < 96.0:
                 component_height = 96.0
-            # Match the child build width to the first split pane, including
-            # the pane's padding, so a component lays out for its preview
-            # instead of building at the full browser width and overflowing
-            # into the code panel.
-            component_width = (width - 20.0) * 0.58 - 16.0
-            if stacked:
-                component_width = page_width - 24.0
-            if component_width < 160.0:
-                component_width = 160.0
+            component_width = preview_width
 
         if entry.page_kind == DEMO_PAGE_COUNTER:
-            var child = self.counter.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent,
-                DEMO_COUNTER_SLOT_ID,
-                child,
-                DEMO_COUNTER_ID_OFFSET,
+            self.counter.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_FORM:
-            var child = self.form.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent,
-                DEMO_FORM_SLOT_ID,
-                child,
-                DEMO_FORM_ID_OFFSET,
+            self.form.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_EDITORS:
-            var child = self.editors.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent, DEMO_EDITORS_SLOT_ID, child,
-                DEMO_EDITORS_ID_OFFSET, component_height,
+            self.editors.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_SHARED:
-            var child = self.shared.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent, DEMO_SHARED_SLOT_ID, child,
-                DEMO_SHARED_ID_OFFSET, component_height,
+            self.shared.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_WORKSPACE:
-            var child = self.workspace.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent, DEMO_WORKSPACE_SLOT_ID, child,
-                DEMO_WORKSPACE_ID_OFFSET, component_height,
+            self.workspace.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_NESTED:
-            var child = self.nested.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent,
-                DEMO_NESTED_SLOT_ID,
-                child,
-                DEMO_NESTED_ID_OFFSET,
+            self.nested.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_COMPOSED:
-            var child = self.composed.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent,
-                DEMO_COMPOSED_SLOT_ID,
-                child,
-                DEMO_COMPOSED_ID_OFFSET,
+            self.composed.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_WX_STYLE:
             # The teaching panel needs 1052 px plus its two 20 px insets.
             var child_height: Float32 = 1092.0
-            var child = self.wx_style.build(Rect(0.0, 0.0, component_width, child_height))
-            root.add_component_view_to(
-                component_parent,
-                DEMO_WX_STYLE_SLOT_ID,
-                child,
-                DEMO_WX_STYLE_ID_OFFSET,
+            self.wx_style.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, child_height),
                 child_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_INTERACTION:
-            var child = self.interaction.build(
-                Rect(0.0, 0.0, component_width, component_height)
-            )
-            root.add_component_view_to(
-                component_parent,
-                DEMO_INTERACTION_SLOT_ID,
-                child,
-                DEMO_INTERACTION_ID_OFFSET,
+            self.interaction.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_THEME_SHOWCASE:
-            var child = self.theme_showcase.build(
-                Rect(0.0, 0.0, component_width, component_height)
-            )
-            root.add_component_view_to(
-                component_parent,
-                DEMO_THEME_SHOWCASE_SLOT_ID,
-                child,
-                DEMO_THEME_SHOWCASE_ID_OFFSET,
+            self.theme_showcase.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_CAPABILITY_WALKTHROUGH:
-            var child = self.capability_walkthrough.build(
-                Rect(0.0, 0.0, component_width, component_height)
-            )
-            root.add_component_view_to(
-                component_parent,
-                DEMO_CAPABILITY_WALKTHROUGH_SLOT_ID,
-                child,
-                DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET,
+            self.capability_walkthrough.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_ROW:
-            var child = self.row.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent,
-                DEMO_ROW_SLOT_ID,
-                child,
-                DEMO_ROW_ID_OFFSET,
+            self.row.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_ALIGNMENT:
-            var child = self.alignment.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent,
-                DEMO_ALIGNMENT_SLOT_ID,
-                child,
-                DEMO_ALIGNMENT_ID_OFFSET,
+            self.alignment.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_NOT_IMPLEMENTED:
-            var child = self.not_implemented.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent, DEMO_NOT_IMPLEMENTED_SLOT_ID, child,
-                DEMO_NOT_IMPLEMENTED_ID_OFFSET, component_height,
+            self.not_implemented.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
+                component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_WRAPPED:
-            var child = self.wrapped.build(Rect(0.0, 0.0, component_width, component_height))
-            root.add_component_view_to(
-                component_parent,
-                DEMO_WRAPPED_SLOT_ID,
-                child,
-                DEMO_WRAPPED_ID_OFFSET,
+            self.wrapped.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_SHOWCASE:
-            var child = self.showcase.build(
-                Rect(0.0, 0.0, component_width, component_height)
-            )
-            root.add_component_view_to(
-                component_parent,
-                DEMO_SHOWCASE_SLOT_ID,
-                child,
-                DEMO_SHOWCASE_ID_OFFSET,
+            self.showcase.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_FRACTAL:
             var child_height = component_height
-            var child = self.fractal.build(
-                Rect(0.0, 0.0, component_width, child_height)
-            )
-            root.add_component_view_to(
-                component_parent,
-                DEMO_FRACTAL_SLOT_ID,
-                child,
-                DEMO_FRACTAL_ID_OFFSET,
+            self.fractal.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, child_height),
                 child_height,
             )
             return
         if entry.page_kind == DEMO_PAGE_LIVE_SCRIPT:
-            var child = self.live_script.build(
-                Rect(0.0, 0.0, component_width, component_height)
-            )
-            root.add_component_view_to(
-                component_parent,
-                DEMO_LIVE_SCRIPT_SLOT_ID,
-                child,
-                DEMO_LIVE_SCRIPT_ID_OFFSET,
+            self.live_script.mount(
+                root, component_parent, Rect(0.0, 0.0, component_width, component_height),
                 component_height,
             )
             return
@@ -1827,12 +1750,11 @@ struct DemoBrowserState(Component):
 
             if event.target >= DEMO_ENTRY_VIEW_BASE and event.target < DEMO_ENTRY_VIEW_BASE + 100:
                 var id = event.target - DEMO_ENTRY_VIEW_BASE
-                var catalog = DemoCatalog()
-                if catalog.index_for_id(id) >= 0 and self.selected_id != id:
+                if self.catalog.index_for_id(id) >= 0 and self.selected_id != id:
                     self.selected_id = id
                     self._activate_entry(id)
                     self.tab = DEMO_TAB_OVERVIEW
-                    self.status = String("Selected ", catalog.entry(catalog.index_for_id(id)).name, ".")
+                    self.status = String("Selected ", self.catalog.entry(self.catalog.index_for_id(id)).name, ".")
                     return True
                 return False
 

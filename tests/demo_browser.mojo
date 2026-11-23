@@ -41,6 +41,7 @@ from moxi import (
     ActionEvent,
     test_check,
 )
+from moxi_demo.demo_browser import DEMO_STORY_CODE_ID, DEMO_STORY_CODE_HINT_ID
 from moxi_demo import (
     DEMO_CATEGORY_ALL,
     DEMO_CATEGORY_BUTTON_BASE,
@@ -673,6 +674,17 @@ def main() raises:
     var wide_preview = app.view.bounds_for(DEMO_STORY_PREVIEW_ID)
     var wide_code = app.view.bounds_for(DEMO_STORY_CODE_TEXT_ID)
     test_check(wide_code.x >= wide_preview.x + wide_preview.width)
+    var code_pane = app.view.bounds_for(DEMO_STORY_CODE_ID)
+    var measured_hint_found = False
+    for node_index in range(app.view.child_count()):
+        var measured_node = app.view.child(node_index)
+        if measured_node.id == DEMO_STORY_CODE_HINT_ID:
+            measured_hint_found = True
+            test_check(abs(measured_node.preferred_width - (code_pane.width - 16.0)) < 0.1)
+    test_check(measured_hint_found)
+    var copied_catalog = app.component.catalog.copy()
+    copied_catalog.entries[0].name = "Independent copy"
+    test_check(app.component.catalog.entry(0).name != "Independent copy")
     var theme_index = catalog.index_for_id(DEMO_THEME_SHOWCASE_ID)
     test_check("ThemeShowcaseState" in catalog.entry(theme_index).source_excerpt)
     var usage_code_found = False

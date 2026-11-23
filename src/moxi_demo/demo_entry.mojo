@@ -102,13 +102,13 @@ struct DemoEntry(ImplicitlyCopyable):
         return String("pixi run ", self.task)
 
 
-struct DemoCatalog:
+struct DemoCatalog(ImplicitlyCopyable):
     """Static, inspectable inventory shared by browser and contract tests."""
 
     var entries: List[DemoEntry]
 
     def __init__(out self):
-        self.entries = List[DemoEntry](capacity=26)
+        self.entries = List[DemoEntry](capacity=27)
         self.entries.append(DemoEntry(
             DEMO_HELLO_WINDOW_ID,
             "Hello Window",
@@ -406,6 +406,10 @@ struct DemoCatalog:
             True,
             "var shaper = HarfBuzzTextShaper()\nvar result = shaper.shape(\"office • مرحبا • नमस्ते\", style, 0.0, 0)",
         ))
+
+    def __init__(out self, *, copy: Self):
+        # Component state is value-copyable; copies own independent metadata.
+        self.entries = copy.entries.copy()
 
     def count(self) -> Int:
         return len(self.entries)

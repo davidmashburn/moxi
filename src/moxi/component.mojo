@@ -167,6 +167,24 @@ struct ComponentSlot[Child: Component & Deinitable](ImplicitlyCopyable):
         """Build the child view for the slot's current bounds."""
         return self.component.build(bounds)
 
+    def mount(
+        self,
+        mut parent: ColumnView,
+        parent_id: Int,
+        bounds: Rect,
+        preferred_height: Float32 = 0.0,
+    ):
+        """Build and embed using this slot's routing identity.
+
+        Bounds measure the child in its local coordinate space. As with
+        ColumnView.add_component_view_to, zero preferred height uses the
+        child's intrinsic height; a positive value reserves a fixed height.
+        """
+        var child = self.build(bounds)
+        parent.add_component_view_to(
+            parent_id, self.slot_id, child, self.id_offset, preferred_height,
+        )
+
     def contains(self, target: Int, view: ColumnView) -> Bool:
         """Return whether a namespaced target belongs to this slot."""
         if target == -1:
