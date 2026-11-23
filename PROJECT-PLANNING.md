@@ -28,7 +28,7 @@ All 28 previously deferred proposals are open for implementation alongside the f
 | Product experiments | V01–V15 | Start each proposal with its bounded experiment and use its evidence to decide on expansion. |
 | Independent ideas | I10, I11, I13, I15, I18, I19, I20 | Use the seven independent entries in the master coverage map. The other idea IDs already map to existing workstreams. |
 
-E06 can start against published main at `839d0ff` alongside the current plot review. Reopening records a scheduling decision. Delivery status advances when a proposal has implementation or experiment evidence. The existing pause on VoiceOver sessions still applies.
+E06 is partial. The [five-family audit](https://github.com/davidmashburn/moxi/blob/53fab67/docs/dataviz-migration.md#e06-catalog-reconciliation) includes five runnable upstream references and checks 40 Moxi source rows. [Effect scatter](https://github.com/davidmashburn/moxi/commit/53fab67) now paints the halo for ordinary x/y input. Parallel coordinates, funnel stages, bump rankings and arc diagrams still need their family layouts. Native interaction and visual parity remain open. The other 27 reopened proposals await their first recorded implementation or experiment. The existing pause on VoiceOver sessions still applies.
 
 ### November 20 baseline
 
