@@ -12,10 +12,9 @@ from .capability_types import (
     SIDE_EFFECT_LOCAL,
 )
 from .capability_bus import CapabilityBus, CapabilityHandler
-from .accessibility import ACTION_PRESS
 from .component import Component
 from .controls_basic import ButtonControl, LabelControl
-from .event import ACTION_KIND, CLICK_KIND, Event, KEY_DOWN_KIND, KEY_ENTER, KEY_SPACE
+from .event import Event
 from .geometry import Rect
 from .style import (
     Color,
@@ -46,13 +45,6 @@ comptime CAPABILITY_WALKTHROUGH_APPROVE_ID = 9
 comptime CAPABILITY_WALKTHROUGH_STATUS_ID = 10
 comptime CAPABILITY_WALKTHROUGH_BUS_ID = 11
 comptime CAPABILITY_WALKTHROUGH_HINT_ID = 12
-
-
-def _is_activation(event: Event) -> Bool:
-    return event.kind == CLICK_KIND or (
-        event.kind == KEY_DOWN_KIND
-        and (event.key == KEY_ENTER or event.key == KEY_SPACE)
-    ) or (event.kind == ACTION_KIND and event.action_id == ACTION_PRESS)
 
 
 def _label_style(font_size: Float32, color: Color) -> Style:
@@ -463,7 +455,7 @@ struct CapabilityWalkthroughState(Component):
         return root^
 
     def update(mut self, event: Event, view: ColumnView) -> Bool:
-        if not _is_activation(event):
+        if not event.is_activation():
             return False
         if event.target == CAPABILITY_WALKTHROUGH_PREVIOUS_ID:
             return self.run_previous()

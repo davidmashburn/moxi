@@ -1,5 +1,6 @@
 """Backend-neutral pointer, keyboard, text, and resize events."""
 
+from .accessibility import ACTION_PRESS
 from .geometry import Point, Size
 
 
@@ -436,6 +437,21 @@ struct Event(ImplicitlyCopyable):
 
     def set_target(mut self, target: Int):
         self.target = target
+
+    def is_activation(self) -> Bool:
+        """Recognize a click, Enter/Space key press, or accessibility press.
+
+        Targets and modifiers do not affect this classification; components
+        still choose which routed controls may handle an activation.
+        """
+        return (
+            self.kind == CLICK_KIND
+            or (
+                self.kind == KEY_DOWN_KIND
+                and (self.key == KEY_ENTER or self.key == KEY_SPACE)
+            )
+            or (self.kind == ACTION_KIND and self.action_id == ACTION_PRESS)
+        )
 
     def set_action(mut self, action_id: Int):
         """Attach a stable semantic action to a routed target."""

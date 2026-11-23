@@ -249,7 +249,37 @@ def check_control_inheritance():
     check_color(node_with_id(showcase_view, 20).style.fill, light.tokens.colors.primary)
 
 
+def check_wrapped_labels():
+    var text = "A wrapping label must grow when its available width becomes smaller."
+    var view = ColumnView(Rect(0.0, 0.0, 180.0, 600.0), 0.0, 4.0)
+    var light = light_theme()
+    view.set_theme(light)
+    view.add(LabelControl(61, text, 1.0).wrapped_node(180.0))
+    var explicit = Style(Color(0.0, 0.0, 0.0, 0.0), Color(0.7, 0.2, 0.1, 1.0), 0.0, 20.0)
+    view.add(LabelControl(62, text, 1.0, explicit).wrapped_node(100.0))
+    view.layout()
+    var inherited = node_with_id(view, 61)
+    var styled = node_with_id(view, 62)
+    test_check(inherited.wrap_text and inherited.use_intrinsic_height)
+    test_check(inherited.preferred_height == 0.0)
+    test_check(styled.preferred_width == 100.0)
+    test_check(inherited.bounds.height > light.label.font_size * 2.0)
+    test_check(styled.bounds.height > inherited.bounds.height)
+    check_color(inherited.style.text, light.label.text)
+    check_color(styled.style.text, explicit.text)
+    var dark = dark_theme()
+    view.set_theme(dark)
+    view.layout()
+    check_color(node_with_id(view, 61).style.text, dark.label.text)
+    check_color(node_with_id(view, 62).style.text, explicit.text)
+    var wide = ColumnView(Rect(0.0, 0.0, 600.0, 600.0), 0.0, 4.0)
+    wide.add(LabelControl(61, text, 1.0).wrapped_node(600.0))
+    wide.layout()
+    test_check(node_with_id(wide, 61).bounds.height < inherited.bounds.height)
+
+
 def main():
+    check_wrapped_labels()
     var base = default_button_style()
     var border = base.with_border(Color(1.0, 1.0, 1.0, 1.0), 2.0)
     var translucent = border.with_opacity(0.5)

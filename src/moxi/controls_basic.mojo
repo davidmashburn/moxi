@@ -74,6 +74,20 @@ struct LabelControl(ImplicitlyCopyable):
         return node
 
 
+    def wrapped_node(self, preferred_width: Float32) -> ViewNode:
+        """Build a wrapping label measured at the caller's available width.
+
+        Height is intrinsic regardless of the descriptor's fixed-height hint.
+        Like node(), omitted styles inherit the enclosing view's label theme.
+        """
+        var node = self.node()
+        node.preferred_height = 0.0
+        node.preferred_width = preferred_width
+        node.set_wrap_text()
+        node.set_intrinsic_height()
+        return node
+
+
 struct ButtonControl(ImplicitlyCopyable):
     """A reusable declarative button descriptor."""
 
