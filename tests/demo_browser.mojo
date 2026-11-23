@@ -662,6 +662,17 @@ def main() raises:
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
     test_check(app.view.bounds_for(DEMO_STORY_SPLIT_ID).width > 0.0)
     test_check(app.view.bounds_for(DEMO_STORY_CODE_TEXT_ID).width > 0.0)
+    # Every retained preview stacks above source at narrow widths, not only
+    # authoring lessons. Resizing back restores the side-by-side workbench.
+    _ = app.resize(Rect(0.0, 0.0, 900.0, 760.0))
+    var narrow_preview = app.view.bounds_for(DEMO_STORY_PREVIEW_ID)
+    var narrow_code = app.view.bounds_for(DEMO_STORY_CODE_TEXT_ID)
+    test_check(narrow_code.y >= narrow_preview.y + narrow_preview.height)
+    test_check(narrow_preview.width > 300.0)
+    _ = app.resize(Rect(0.0, 0.0, 1180.0, 760.0))
+    var wide_preview = app.view.bounds_for(DEMO_STORY_PREVIEW_ID)
+    var wide_code = app.view.bounds_for(DEMO_STORY_CODE_TEXT_ID)
+    test_check(wide_code.x >= wide_preview.x + wide_preview.width)
     var theme_index = catalog.index_for_id(DEMO_THEME_SHOWCASE_ID)
     test_check("ThemeShowcaseState" in catalog.entry(theme_index).source_excerpt)
     var usage_code_found = False

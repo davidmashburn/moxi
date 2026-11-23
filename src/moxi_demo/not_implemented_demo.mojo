@@ -6,7 +6,6 @@ from moxi.column_view import ColumnView
 from moxi.event import Event
 from moxi.geometry import Rect
 from moxi.not_implemented import NotImplemented
-from .demo_style import _is_activation
 
 
 comptime PATTERN_HOST_BUTTON_ID = 1
@@ -67,10 +66,10 @@ struct NotImplementedDemo(Component):
         return view^
 
     def update(mut self, event: Event, view: ColumnView) -> Bool:
-        if _is_activation(event) and event.target == PATTERN_HOST_BUTTON_ID:
+        if event.is_activation() and event.target == PATTERN_HOST_BUTTON_ID:
             self.host_clicks += 1
             return True
-        if _is_activation(event) and event.target == PATTERN_REPLACE_BUTTON_ID:
+        if event.is_activation() and event.target == PATTERN_REPLACE_BUTTON_ID:
             self.show_implemented_counter = not self.show_implemented_counter
             return True
         if self.show_implemented_counter:

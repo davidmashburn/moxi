@@ -26,7 +26,7 @@ from .showcase import (
     SHOWCASE_PLOT_STATUS_ID,
     ShowcaseState,
 )
-from .demo_style import (
+from .catalog_types import (
     DEMO_EDITORS_ID,
     DEMO_PAGE_EDITORS,
     DEMO_SHARED_ID,

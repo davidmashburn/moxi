@@ -7,19 +7,10 @@ keep their component source in the ``examples/`` directory; reusable
 stateful scenarios remain available in ``src/moxi`` for larger applications.
 """
 
-from moxi.accessibility import ACTION_PRESS
 from moxi.animation import Animation, EASE_IN_OUT
 from moxi.component import Component
 from moxi.controls_basic import ButtonControl, LabelControl
-from moxi.event import (
-    ACTION_KIND,
-    CLICK_KIND,
-    FRAME_TICK_KIND,
-    KEY_ENTER,
-    KEY_SPACE,
-    KEY_DOWN_KIND,
-    Event,
-)
+from moxi.event import FRAME_TICK_KIND, Event
 from moxi.geometry import Point, Rect
 from moxi_plot import (
     CHANNEL_COLOR,
@@ -43,6 +34,19 @@ from moxi.style import (
 )
 from moxi.text_shaping import PortableTextShaper
 from moxi.column_view import ColumnView
+
+
+from .catalog_types import (
+    DEMO_HELLO_COMPONENT_ID,
+    DEMO_ANIMATION_ID,
+    DEMO_PLOT_ID,
+    DEMO_PLOT_GALLERY_ID,
+    DEMO_PLOT_SVG_ID,
+    DEMO_METAL_SCENE_ID,
+    DEMO_METAL_WINDOW_ID,
+    DEMO_CORETEXT_ID,
+    DEMO_HARFBUZZ_ID,
+)
 
 
 comptime SHOWCASE_HELLO_WINDOW = 1
@@ -70,17 +74,6 @@ comptime SHOWCASE_PLOT_TOGGLE_MARKS_ID = 11
 comptime SHOWCASE_PLOT_STREAM_ID = 12
 comptime SHOWCASE_PLOT_SPACER_ID = 13
 comptime SHOWCASE_PLOT_STATUS_ID = 14
-
-
-def _is_activation(event: Event) -> Bool:
-    return (
-        event.kind == CLICK_KIND
-        or (
-            event.kind == KEY_DOWN_KIND
-            and (event.key == KEY_ENTER or event.key == KEY_SPACE)
-        )
-        or (event.kind == ACTION_KIND and event.action_id == ACTION_PRESS)
-    )
 
 
 def _panel_bounds(bounds: Rect) -> Rect:
@@ -502,14 +495,14 @@ struct ShowcaseState(Component):
                 self.plot_view.set_bounds(canvas)
                 return self.plot_view.dispatch(event)
 
-            if event.target == SHOWCASE_PLOT_RESET_VIEW_ID and _is_activation(event):
+            if event.target == SHOWCASE_PLOT_RESET_VIEW_ID and event.is_activation():
                 self.plot_view.reset_view()
                 self.plot_view.clear_hover()
                 return True
-            if event.target == SHOWCASE_PLOT_CLEAR_SELECTION_ID and _is_activation(event):
+            if event.target == SHOWCASE_PLOT_CLEAR_SELECTION_ID and event.is_activation():
                 self.plot_view.clear_selection()
                 return True
-            if event.target == SHOWCASE_PLOT_TOGGLE_MARKS_ID and _is_activation(event):
+            if event.target == SHOWCASE_PLOT_TOGGLE_MARKS_ID and event.is_activation():
                 self.plot_points_visible = not self.plot_points_visible
                 if self.plot_view.runtime.plot.series_count() > 1:
                     var points_id = self.plot_view.runtime.plot.series[1].id
@@ -518,7 +511,7 @@ struct ShowcaseState(Component):
                         self.plot_points_visible,
                     )
                 return True
-            if event.target == SHOWCASE_PLOT_STREAM_ID and _is_activation(event):
+            if event.target == SHOWCASE_PLOT_STREAM_ID and event.is_activation():
                 self.plot_streaming = not self.plot_streaming
                 self.plot_stream_elapsed = 0.0
                 return True
@@ -529,7 +522,7 @@ struct ShowcaseState(Component):
             _ = self.animation.advance(event.delta_seconds)
             self.frame_count += 1
             return True
-        if event.target == SHOWCASE_RESET_ID and _is_activation(event):
+        if event.target == SHOWCASE_RESET_ID and event.is_activation():
             self.reset()
             return True
         return False
@@ -615,3 +608,26 @@ struct ShowcaseState(Component):
                 2.0,
             )
         return scene^
+
+
+def showcase_mode_for_demo(id: Int) -> Int:
+    """Map a catalog id to the shared embeddable showcase mode."""
+    if id == DEMO_HELLO_COMPONENT_ID:
+        return SHOWCASE_HELLO_COMPONENT
+    if id == DEMO_ANIMATION_ID:
+        return SHOWCASE_ANIMATION
+    if id == DEMO_PLOT_ID:
+        return SHOWCASE_PLOT
+    if id == DEMO_PLOT_GALLERY_ID:
+        return SHOWCASE_PLOT_GALLERY
+    if id == DEMO_PLOT_SVG_ID:
+        return SHOWCASE_PLOT_SVG
+    if id == DEMO_METAL_SCENE_ID:
+        return SHOWCASE_METAL_SCENE
+    if id == DEMO_METAL_WINDOW_ID:
+        return SHOWCASE_METAL_WINDOW
+    if id == DEMO_CORETEXT_ID:
+        return SHOWCASE_CORETEXT
+    if id == DEMO_HARFBUZZ_ID:
+        return SHOWCASE_HARFBUZZ
+    return SHOWCASE_HELLO_WINDOW

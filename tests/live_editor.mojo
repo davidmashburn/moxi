@@ -11,7 +11,7 @@ from moxi_demo.demo_browser import (
     DEMO_TAB_DEMO_ID, DEMO_TAB_DEMO, DEMO_NAV_PORTAL_ID, DEMO_CONTENT_PORTAL_ID,
     DEMO_CATEGORY_BUTTON_BASE, DEMO_SEARCH_ID,
 )
-from moxi_demo.demo_style import DEMO_LIVE_SCRIPT_ID, DEMO_COUNTER_ID, DEMO_CATEGORY_COMPONENTS
+from moxi_demo.catalog_types import DEMO_LIVE_SCRIPT_ID, DEMO_COUNTER_ID, DEMO_CATEGORY_COMPONENTS
 from moxi_demo.source_editor import DemoBuildPhase, EDITABLE_DEMO_SOURCE
 from moxi_demo.live_editor_host import live_surface_clip, sync_live_editor
 

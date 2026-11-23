@@ -38,7 +38,6 @@ from moxi.event import (
     KEY_DOWN_KIND,
     KEY_ENTER,
     KEY_ESCAPE,
-    KEY_SPACE,
     MOD_COMMAND,
     MOD_CONTROL,
     POINTER_CANCEL_KIND,
@@ -63,11 +62,11 @@ from moxi.theme_showcase import ThemeShowcaseState
 from moxi.style import (
     Color,
     Style,
-    default_label_style,
     default_surface_style,
     default_text_input_style,
 )
 from moxi.column_view import ColumnView
+from moxi.tokens import dark_tokens
 from moxi.wrapped import WrappedTextState
 from .not_implemented_demo import NotImplementedDemo
 from moxi.wxstyle import WxStyleState
@@ -75,7 +74,7 @@ from .showcase import SHOWCASE_CANVAS_ID, SHOWCASE_HELLO_WINDOW, ShowcaseState
 from moxi.scene import Scene
 from .demo_entry import DemoCatalog, DemoEntry
 from .source_editor import DemoSourceEditor
-from .demo_style import (
+from .catalog_types import (
     DEMO_NOT_IMPLEMENTED_ID,
     DEMO_PAGE_NOT_IMPLEMENTED,
     DEMO_EDITORS_ID,
@@ -120,12 +119,12 @@ from .demo_style import (
     DEMO_WX_STYLE_ID,
     demo_category_name,
     demo_category_short_name,
-    showcase_mode_for_demo,
+)
+from .demo_style import (
     _label_style,
-    _button_style,
+    _primary_button_style,
     _ink,
     _accent_ink,
-    _accent_fill,
     _field_fill,
     _kicker_style,
     _body_style,
@@ -139,9 +138,9 @@ from .demo_style import (
     _tab_style,
     _add_styled_label,
     _add_wrapped_label_styled,
-    _is_activation,
     _add_wrapped_label,
 )
+from .showcase import showcase_mode_for_demo
 
 
 comptime DEMO_TAB_OVERVIEW = 0
@@ -676,7 +675,7 @@ struct DemoBrowserState(Component):
             0,
             Rect(bounds.x + 8.0, bounds.y + 8.0, shell_width, shell_height),
             Style(
-                Color(0.105, 0.135, 0.21, 1.0),
+                dark_tokens().colors.surface,
                 _ink(),
                 18.0,
                 0.0,
@@ -718,7 +717,7 @@ struct DemoBrowserState(Component):
         root.add_separator_to(nav, DEMO_NAV_DIVIDER_ID, 1.0)
         var divider_style = Style(
             Color(0.0, 0.0, 0.0, 0.0),
-            Color(0.28, 0.37, 0.52, 1.0),
+            dark_tokens().colors.border,
             0.0,
             1.0,
         )
@@ -971,7 +970,7 @@ struct DemoBrowserState(Component):
             DEMO_RUN_BUTTON_ID,
             run_text,
             36.0,
-            _button_style(_accent_fill(), _ink(), 14.0, 8.0),
+            _primary_button_style(),
             run_enabled,
         )
         root.add_to(toolbar, run_button.node())
@@ -1092,7 +1091,7 @@ struct DemoBrowserState(Component):
             DEMO_EMPTY_CLEAR_ID,
             "Clear search",
             36.0,
-            _button_style(_accent_fill(), _ink(), 14.0, 8.0),
+            _primary_button_style(),
         )
         root.add_to(empty, clear.node())
         root.set_intrinsic_width(DEMO_EMPTY_CLEAR_ID)
@@ -1359,7 +1358,7 @@ struct DemoBrowserState(Component):
         ):
             storybook_layout = False
         if storybook_layout:
-            var stacked = (authoring_height > 0.0 or editable) and page_width < 720.0
+            var stacked = page_width < 720.0
             var source_height: Float32 = 430.0 if editable else 300.0
             var story: Int
             if stacked:
@@ -1808,7 +1807,7 @@ struct DemoBrowserState(Component):
                 elif event.action_id == ACTION_PRESS:
                     self.nav_tree_expanded = not self.nav_tree_expanded
                     changed = True
-            elif _is_activation(event):
+            elif event.is_activation():
                 self.nav_tree_expanded = not self.nav_tree_expanded
                 changed = True
             if changed:
@@ -1819,7 +1818,7 @@ struct DemoBrowserState(Component):
                 )
             return changed
 
-        if _is_activation(event):
+        if event.is_activation():
             if event.target == DEMO_CLEAR_SEARCH_ID:
                 return self.clear_search()
 

@@ -17,7 +17,7 @@ from moxi.capability_types import (
     SIDE_EFFECT_LOCAL,
 )
 from moxi.capability_bus import CapabilityBus, CapabilityHandler
-from .demo_style import (
+from .catalog_types import (
     DEMO_COUNTER_ID,
     DEMO_INTERACTION_ID,
     DEMO_METAL_SCENE_ID,

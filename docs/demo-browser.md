@@ -38,6 +38,19 @@ readiness and Canvas markers, replays normalized pointer/wheel input through
 and host. A real browser can inspect the same page's
 `window.__MOXI_HOST_READY__` and `window.__MOXI_HOST_STATE__` markers.
 
+The browser's implementation keeps catalog classification and search in
+`moxi_demo.catalog_types`, entry metadata in `demo_entry`, and component mode
+routing in `showcase`. Presentation helpers in `demo_style` depend only on core
+controls and semantic dark-theme tokens. The `moxi_demo` package continues to
+export the catalog IDs and category names for consumers.
+
+Demos share `Event.is_activation()` for click, Enter/Space, and accessibility
+press handling; each component still validates its routed target. Width-aware
+body labels use core `LabelControl.wrapped_node(available_width)`, which combines
+wrapping and intrinsic height while preserving normal theme inheritance and
+explicit-style overrides. Callers supply the current measurement width when
+rebuilding after a resize.
+
 The window is organized like this:
 
 - the left playground rail groups runnable examples by domain, shows a short
@@ -50,7 +63,7 @@ The window is organized like this:
 - ordinary live pages use a Storybook-style `Demo` surface: the mounted
   `LIVE PREVIEW` sits beside an `EXAMPLE SOURCE` code panel showing the
   lesson's authoring `render` or component `build` code. At narrow widths,
-  authoring previews stack above their source panel;
+  retained previews stack above their source panel;
 - scene and plotting pages declare a real `Canvas` node in that component;
   the host renders the component's `Scene` into that node in the same window;
 - `Editable Live Component` is a development page whose scene source is

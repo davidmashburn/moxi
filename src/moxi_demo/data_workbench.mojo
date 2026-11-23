@@ -11,8 +11,6 @@ from std.math import floor
 
 from moxi import (
     BUTTON_KIND,
-    ACTION_KIND,
-    ACTION_PRESS,
     CLICK_KIND,
     COMPOSITION_END_KIND,
     COMPOSITION_UPDATE_KIND,
@@ -21,8 +19,6 @@ from moxi import (
     Component,
     Event,
     KEY_DOWN_KIND,
-    KEY_ENTER,
-    KEY_SPACE,
     MOD_COMMAND,
     POINTER_CANCEL_KIND,
     POINTER_DOWN_KIND,
@@ -890,14 +886,7 @@ struct DataWorkbenchState(Component):
         if self._handle_text_input(event, DATA_WORKBENCH_IMPORT_PATH_ID):
             return True
 
-        if event.target >= DATA_WORKBENCH_TABLE_ROW_BASE and (
-            event.kind == CLICK_KIND
-            or (event.kind == ACTION_KIND and event.action_id == ACTION_PRESS)
-            or (
-                event.kind == KEY_DOWN_KIND
-                and (event.key == KEY_ENTER or event.key == KEY_SPACE)
-            )
-        ):
+        if event.target >= DATA_WORKBENCH_TABLE_ROW_BASE and event.is_activation():
             return self._toggle_source_row(event.target - DATA_WORKBENCH_TABLE_ROW_BASE)
 
         if self._target_is_plot(
@@ -939,11 +928,7 @@ struct DataWorkbenchState(Component):
             self.status = String("Table offset ", self.table_offset)
             return True
 
-        var activated = event.kind == CLICK_KIND or (
-            event.kind == KEY_DOWN_KIND
-            and (event.key == KEY_ENTER or event.key == KEY_SPACE)
-        ) or (event.kind == ACTION_KIND and event.action_id == ACTION_PRESS)
-        if not activated:
+        if not event.is_activation():
             return False
         if event.target == DATA_WORKBENCH_X_FIELD_ID:
             self._cycle_x_field()

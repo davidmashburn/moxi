@@ -18,7 +18,7 @@ from moxi_demo.demo_browser import (
     DemoBrowserState, DEMO_ENTRY_VIEW_BASE, DEMO_TAB_DEMO_ID, DEMO_RESET_BUTTON_ID,
     DEMO_NOT_IMPLEMENTED_ID_OFFSET, DEMO_STORY_PREVIEW_ID,
 )
-from moxi_demo.demo_style import DEMO_NOT_IMPLEMENTED_ID
+from moxi_demo.catalog_types import DEMO_NOT_IMPLEMENTED_ID
 
 
 def action(target: Int) -> Event:

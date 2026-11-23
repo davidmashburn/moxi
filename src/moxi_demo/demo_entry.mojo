@@ -5,7 +5,7 @@ from std.collections import List
 
 
 from moxi.scenarios import SCENARIO_NONE, canonical_scenarios
-from .demo_style import (
+from .catalog_types import (
     DEMO_NOT_IMPLEMENTED_ID,
     DEMO_PAGE_NOT_IMPLEMENTED,
     DEMO_EDITORS_ID,

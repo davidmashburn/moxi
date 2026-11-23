@@ -3,15 +3,18 @@
 from moxi import (
     App,
     ACTION_PRESS,
+    ACTION_INCREMENT,
     Event,
     FRAME_TICK_KIND,
     FrameEvent,
     KEY_A,
     KEY_C,
     KEY_ENTER,
+    KEY_SPACE,
     KeyEvent,
     MemoryClipboard,
     MOD_COMMAND,
+    MOD_SHIFT,
     Point,
     PointerEvent,
     POINTER_DOWN_KIND,
@@ -24,6 +27,7 @@ from moxi import (
     TextInputEvent,
     test_check,
 )
+from moxi.event import KEY_F2
 from moxi_demo.data_workbench import (
     DATA_WORKBENCH_CLEAR_FILTER_ID,
     DATA_WORKBENCH_EXPORT_CSV_ID,
@@ -266,6 +270,18 @@ def main() raises:
             Event(SemanticActionEvent(DATA_WORKBENCH_SORT_ID, ACTION_PRESS))
         )
     )
+    test_check(app.component.sort_descending)
+
+    # Other semantic actions and unrelated keys cannot activate this button.
+    test_check(not app.dispatch(
+        Event(SemanticActionEvent(DATA_WORKBENCH_SORT_ID, ACTION_INCREMENT))
+    ))
+    test_check(not app.dispatch(Event(KeyEvent(KEY_F2))))
+    test_check(not app.dispatch(Event(SemanticActionEvent(-2, ACTION_PRESS))))
+    test_check(app.component.sort_descending)
+    test_check(app.dispatch(Event(KeyEvent(KEY_SPACE))))
+    test_check(not app.component.sort_descending)
+    test_check(app.dispatch(Event(KeyEvent(KEY_ENTER, MOD_SHIFT))))
     test_check(app.component.sort_descending)
 
     # Import through the bounded native-file action using sparse stable keys.
