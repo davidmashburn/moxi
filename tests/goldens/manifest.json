@@ -62,7 +62,7 @@
       "state": "baseline",
       "width": 320,
       "height": 200,
-      "checksum": 204811930,
+      "checksum": 204899957,
       "image": "tests/goldens/images/plot-gallery.ppm"
     }
   ]
