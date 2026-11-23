@@ -5,6 +5,8 @@ The scope inventoried at `fe79a32` was taken into implementation; it is no longe
 awaiting initial confirmation. Landed slices retain the acceptance limits in
 [current state](CURRENT-STATE.md) and the [remaining-work list](PROJECT-PLANNING.md#remaining-work--november-9-2026).
 
+The [current scheduling decision](PROJECT-PLANNING.md#reopened-proposals) reopens all 28 proposals listed as pending in the November 9 baseline below.
+
 ## Current delivery status
 
 The [implementation ledger](https://github.com/davidmashburn/moxi/blob/b2361c2d4131cb6bbc25ebf5e4816e2fe347250b/docs/deferred-implementation.json)
@@ -47,7 +49,7 @@ mappings into other tracks, not extra independently completed or pending plans.
 Main CI is not green: the native package recipe omits a required header.
 See the [confirmed blocker](CURRENT-STATE.md#integration-checks-and-a-confirmed-packaging-blocker).
 Fresh integrated-source galleries and human/platform/performance gates remain
-open. VoiceOver remains paused. Untouched proposals remain deferred.
+open. VoiceOver remains paused. At that checkpoint, the untouched proposals were deferred.
 
 ## Original scope and execution design — November 6, 2026
 

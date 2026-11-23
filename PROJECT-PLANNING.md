@@ -17,7 +17,18 @@ The browser host passed centering, keyboard input and wheel checks at 390, 900 a
 
 The [catalog audit](https://github.com/davidmashburn/moxi/blob/839d0ff/artifacts/demo-slideshows/CATALOG-AUDIT.md) validated 59 manifests and 481 local frame references. A second audit in a clean checkout loaded all six refreshed galleries, verified their source inventories and counted 95 committed frames. The other 386 frames require local generation. Of all 59 historical and current inventories, six match, 45 differ and eight lack per-file hashes. The full local `pixi run check` passed at `f9f1305`. The signed workbench and packaged layout consumer have separate acceptance records. All six [hosted CI jobs](https://github.com/davidmashburn/moxi/actions/runs/45134903015) passed on published main commit `839d0ff`, including macOS validation and the installed package consumer.
 
-The November 9 list and the 28 unscheduled proposals below retain their prior status. The active gallery, plot, renderer and application checks above are the scope of this update.
+### Reopened proposals
+
+All 28 previously deferred proposals are open for implementation alongside the four gallery-review priorities. The [master inventory](DEFERRED-IMPLEMENTATION-MASTER.md#original-scope-and-execution-design--november-6-2026) supplies the scope, dependencies, storyboards and acceptance criteria for each ID.
+
+| Group | Reopened IDs | First executable work |
+| --- | --- | --- |
+| Applications and hosts | P08, P09, P10, P11 | Establish the SWS4D volume fixture. Run the Linux GPU, mobile runtime and Wayland/Windows feasibility probes on their target hosts. |
+| Plotting | E05, E06 | Evaluate Cairo against the scene corpus. Begin E06 against the five catalog families already present in the capability inventory. |
+| Product experiments | V01–V15 | Start each proposal with its bounded experiment and use its evidence to decide on expansion. |
+| Independent ideas | I10, I11, I13, I15, I18, I19, I20 | Use the seven independent entries in the master coverage map. The other idea IDs already map to existing workstreams. |
+
+E06 can start against published main at `839d0ff` alongside the current plot review. Reopening records a scheduling decision. Delivery status advances when a proposal has implementation or experiment evidence. The existing pause on VoiceOver sessions still applies.
 
 ### November 20 baseline
 

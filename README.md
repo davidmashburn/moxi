@@ -15,8 +15,7 @@ covers contour references, installed Python rendering, packaged workbench behavi
 and the measured world-panel caret mismatch.
 
 The November 9 ledger counted 7 implemented proposals, 2 completed experiments,
-13 partial tracks and 28 pending proposals. The gallery review preserves those
-50 delivery states. VoiceOver remains paused.
+13 partial tracks and 28 pending proposals. All 28 pending proposals have since been [reopened for implementation](PROJECT-PLANNING.md#reopened-proposals). VoiceOver remains paused.
 
 | Start here | Purpose |
 | --- | --- |
