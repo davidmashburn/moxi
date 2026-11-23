@@ -5,6 +5,8 @@ from moxi import (
     Point,
     Rect,
     SoftwareSceneRenderer,
+    SCENE_CLIP,
+    SCENE_POP_CLIP,
     test_check,
 )
 from moxi_plot import (
@@ -44,12 +46,19 @@ def main() raises:
     test_check(scene.count() > 10)
     var tick_bottom: Float32 = -1
     var legend_top: Float32 = -1
+    var clip_depth = 0
     for command in scene.commands:
+        if command.kind == SCENE_CLIP:
+            clip_depth += 1
+        elif command.kind == SCENE_POP_CLIP:
+            clip_depth -= 1
+        if 700 <= command.id <= 705 or 720 <= command.id <= 725:
+            test_check(clip_depth == 0)
         if command.id == 700:
             tick_bottom = command.bounds.y + command.bounds.height
         if command.id == 600 + line:
             legend_top = command.bounds.y
-    test_check(tick_bottom > 0 and legend_top >= tick_bottom + 6)
+    test_check(clip_depth == 0 and tick_bottom > 0 and legend_top >= tick_bottom + 6)
     var renderer = SoftwareSceneRenderer(320, 240)
     renderer.render_scene(scene)
     test_check(renderer.checksum() > 0)

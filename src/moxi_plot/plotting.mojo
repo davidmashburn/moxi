@@ -1439,6 +1439,8 @@ struct Plot:
                     self.grid_color,
                     1.0,
                 )
+        # Tick labels occupy the margins, outside the data clip.
+        scene.pop_clip()
         scene.append_line(
             150,
             Point(self.plot_area.x, self.plot_area.y + self.plot_area.height),
@@ -1500,6 +1502,7 @@ struct Plot:
             1.0,
         )
 
+        scene.push_clip(3, self.plot_area)
         for series_index in range(len(self.series)):
             if not include_marks:
                 continue
