@@ -71,7 +71,7 @@ def main():
         runtimes[name] = {'original_sha256': sha(original), 'bundled_sha256': sha(target)}
     files = []
     for base in (ROOT / 'src/moxi', ROOT / 'src/moxi_plot', HERE / 'native', HERE / 'moxi_native'):
-        files.extend(p for p in base.rglob('*') if p.is_file() and p.suffix in ('.mojo', '.c', '.py')
+        files.extend(p for p in base.rglob('*') if p.is_file() and p.suffix in ('.mojo', '.c', '.h', '.py')
                      and p.name != '_build.py' and '__pycache__' not in p.parts)
     files += [HERE / 'build_native.py', HERE / 'setup.py', HERE / 'pyproject.toml']
     sources = {str(p.relative_to(ROOT)): sha(p) for p in sorted(files)}

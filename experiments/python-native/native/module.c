@@ -3,16 +3,14 @@
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
+#include "graphics.h"
 
 /* Private, host ABI. All pointers are owned/pinned by this frame. GIL held. */
 enum { MAX_COLUMNS = 8, MAX_ROWS = 4096, MAX_SPEC = 16384, MAX_SIDE = 1024 };
-typedef enum { OUTPUT_RGBA = 0, OUTPUT_SVG = 1 } Output;
-typedef enum { STATUS_OK = 0, STATUS_INVALID_SPEC = 1, STATUS_INVALID_COLUMNS = 2,
-               STATUS_OUTPUT_LIMIT = 3, STATUS_RENDER_FAILED = 4 } Status;
 extern int32_t moxi_e04_abi_version(void);
 extern int32_t moxi_e04_render(int64_t, int64_t, int64_t, int64_t, int64_t,
                              int64_t, int64_t, int64_t, int32_t, int32_t,
-                             int32_t, int64_t, int64_t, int64_t);
+                             int32_t, int64_t, int64_t, int64_t, int64_t);
 _Static_assert(sizeof(void *) == sizeof(int64_t), "64-bit host ABI required");
 #define ADDRESS(p) ((int64_t)(intptr_t)(p))
 
@@ -36,13 +34,15 @@ static PyObject *render(PyObject *self, PyObject *args) {
     double *copies[MAX_COLUMNS] = {0};
     int64_t names[MAX_COLUMNS], lengths[MAX_COLUMNS], values[MAX_COLUMNS], valid[MAX_COLUMNS];
     char *output = NULL;
+    MoxiGraphics *graphics = NULL;
     Py_ssize_t count = 0, rows = -1;
     if (!PyArg_ParseTuple(args, "O!O!iii:render", &PyBytes_Type, &spec,
                           &PyTuple_Type, &columns, &width, &height, &kind)) return NULL;
     count = PyTuple_GET_SIZE(columns);
     if (count < 1 || count > MAX_COLUMNS || PyBytes_GET_SIZE(spec) < 2 ||
         PyBytes_GET_SIZE(spec) > MAX_SPEC || width < 64 || height < 64 ||
-        width > MAX_SIDE || height > MAX_SIDE || (kind != OUTPUT_RGBA && kind != OUTPUT_SVG))
+        width > MAX_SIDE || height > MAX_SIDE ||
+        (kind != OUTPUT_RGBA && kind != OUTPUT_SVG && kind != OUTPUT_PDF))
         goto invalid;
     for (Py_ssize_t c = 0; c < count; c++) {
         PyObject *item = PyTuple_GET_ITEM(columns, c);
@@ -73,10 +73,16 @@ static PyObject *render(PyObject *self, PyObject *args) {
     int64_t capacity = kind == OUTPUT_RGBA ? (int64_t)width * height * 4 : 16 * 1024 * 1024;
     output = PyMem_Malloc((size_t)capacity);
     if (!output) { PyErr_NoMemory(); goto cleanup; }
+    if (kind != OUTPUT_SVG) {
+        graphics = moxi_e04_graphics_create((Output)kind, width, height, output);
+        if (!graphics) { PyErr_NoMemory(); goto cleanup; }
+    }
     int64_t written = 0;
     Status status = (Status)moxi_e04_render(ADDRESS(PyBytes_AS_STRING(spec)), PyBytes_GET_SIZE(spec),
         ADDRESS(names), ADDRESS(lengths), ADDRESS(values), ADDRESS(valid), count, rows,
-        width, height, kind, ADDRESS(output), capacity, ADDRESS(&written));
+        width, height, kind, ADDRESS(output), capacity, ADDRESS(&written), ADDRESS(graphics));
+    if (status == STATUS_OK && graphics)
+        status = moxi_e04_graphics_finish(graphics, output, capacity, &written);
     if (written < 0 || written > capacity) {
         PyErr_SetString(PyExc_RuntimeError, "native boundary: invalid output length");
         goto cleanup;
@@ -88,6 +94,7 @@ invalid:
     PyErr_SetString(PyExc_ValueError, "native boundary: invalid argument");
 cleanup:
     for (int c = 0; c < MAX_COLUMNS; c++) PyMem_Free(copies[c]);
+    moxi_e04_graphics_destroy(graphics);
     PyMem_Free(output);
     return result;
 }
@@ -98,4 +105,10 @@ static PyMethodDef methods[] = {
 };
 static struct PyModuleDef module = {PyModuleDef_HEAD_INIT, "_core", NULL, -1, methods,
                                   NULL, NULL, NULL, NULL};
-PyMODINIT_FUNC PyInit__core(void) { return PyModule_Create(&module); }
+PyMODINIT_FUNC PyInit__core(void) {
+    if (moxi_e04_abi_version() != MOXI_E04_ABI_VERSION) {
+        PyErr_SetString(PyExc_ImportError, "incompatible compiled Mojo/C boundary ABI");
+        return NULL;
+    }
+    return PyModule_Create(&module);
+}

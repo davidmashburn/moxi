@@ -1,6 +1,7 @@
 """Render recorded outputs as browser evidence; never invent command results."""
 import argparse
 import ast
+import os
 from enum import Enum
 import hashlib
 import html
@@ -15,7 +16,7 @@ import zipfile
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-OUT = ROOT / 'artifacts/demo-slideshows/e04-python-native'
+OUT = Path(os.environ.get('MOXI_E04_ARTIFACTS', ROOT / 'artifacts/demo-slideshows/e04-python-native'))
 STEPS = (
     ('01-import', 'initial', 'Clean installed import and compiled ABI version'),
     ('02-render', 'interaction', 'Canonical native scene: SVG and raster PNG'),
@@ -127,19 +128,19 @@ def pages():
     body += pre(small) + '<h2>Actual import locations</h2>' + pre(initial['import_paths'])
     body += '<p>Compiled Mojo called through the CPython extension; the base <code>moxi</code> facade remains a separate compiler-independent wheel.</p>'
     (OUT / '01-import.html').write_text(page('01-import', body, revision))
-    body = '<p>Fixture: six samples, two line/scatter layers, 320×240. Both images below come from the installed native extension. SVG includes text; the software raster backend omits resource text pixels.</p>'
+    body = '<p>Fixture: six samples, two line/scatter layers, 320×240. Both images below come from the installed native extension. The compiled Mojo scene drives SVG serialization and a CoreGraphics/CoreText sink; PNG includes title, tick and legend glyphs.</p>'
     body += "<div class='pair'><div><h2>Mojo SVG</h2><img src='native.svg'></div><div><h2>Mojo RGBA → PNG</h2><img src='native.png'></div></div>"
     body += '<h2>Actual returned bytes</h2>' + pre({k: dict(bytes=v['native_bytes'], sha256=v['native_sha256']) for k, v in renders.items()})
     (OUT / '02-render.html').write_text(page('02-render', body, revision))
     left = (OUT / 'native.rgba').read_bytes(); right = (OUT / 'facade.rgba').read_bytes()
     difference = sum(abs(a-b) for a,b in zip(left,right)) / len(left)
     body = "<div class='pair'><div><h2>Native experimental PNG</h2><img src='native.png'></div><div><h2>Existing facade PNG</h2><img src='facade.png'></div></div>"
-    body += f'<p>Same fixture and dimensions. Mean absolute unaligned RGBA byte difference: {difference:.4f}/255. This is descriptive, not a parity threshold. Axis layout and raster text coverage differ.</p>'
+    body += f'<p>Same fixture and dimensions. Mean absolute unaligned RGBA byte difference: {difference:.4f}/255. This is descriptive, not a parity threshold. Fonts, colors and axis layout differ.</p>'
     body += '<table><tr><th>Format</th><th>Native bytes</th><th>Facade bytes</th><th>Native contract check</th></tr>'
     for kind, values in renders.items():
         check = 'Owned bytes; 320×240; decoded by Pillow/pypdf' if kind in ('png', 'pdf') else ('Owned bytes; 320×240×4 byte extent' if kind == 'rgba' else 'Owned bytes; parsed native SVG 320×240')
         body += f"<tr><td>{kind}</td><td>{values['native_bytes']}</td><td>{values['facade_bytes']}</td><td>{check}</td></tr>"
-    body += '</table><p>Independent Pillow/pypdf decoding checks PNG against native RGBA and PDF image data against native RGB. Native PDF is raster; the existing facade retains its vector PDF implementation.</p>'
+    body += '</table><p>Independent Pillow/pypdf decoding checks PNG against native RGBA, requires selectable PDF title/legend text, and verifies vector strokes without embedded page images. Both renderers produce vector PDF; visual/layout and scientific parity remain unestablished.</p>'
     (OUT / '03-comparison.html').write_text(page('03-comparison', body, revision))
     body = '<h2>Actual malformed-input results; valid rendering succeeds afterward</h2>' + pre(read('04-errors.json'))
     body += '<h2>Captured clean installed test output</h2>' + pre((OUT / 'native-tests.log').read_text() + '\n' + (OUT / 'facade-tests.log').read_text())
@@ -185,7 +186,7 @@ def finalize():
                  and p.name not in ('manifest.json', 'index.html')}
     manifest = dict(version=1, demo_id='e04-python-native', title='E04: native Mojo/CPython boundary proof',
         scenario='Clean same-host wheel import, actual native exports, unchanged facade comparison, malformed/lifetime recovery, inspected deployment decision',
-        revision=build['revision'], host=platform.platform(), backend='CPython C ABI → Mojo PlotSpec/Scene → software RGBA and SVG', scale=capture['device_pixel_ratio'],
+        revision=build['revision'], host=platform.platform(), backend='CPython C ABI → Mojo PlotSpec/Scene → CoreGraphics/CoreText RGBA/PDF and native SVG', scale=capture['device_pixel_ratio'],
         fixture='experiments/python-native/tests/fixture.py: canonical six-row line/scatter',
         reproduce='bash experiments/python-native/build.sh; bash experiments/python-native/check.sh; python3 experiments/python-native/evidence.py pages; serve artifact folder on loopback; capture and visually review all five pages using the browser method and actual viewport/scale recorded in capture.json; python3 experiments/python-native/evidence.py finalize; python3 experiments/python-native/evidence.py verify. See README.md for prerequisites and exact capture steps.',
         source_state=dict(dirty=bool(subprocess.check_output(['git', '-C', str(ROOT), 'status', '--porcelain'])), build_dirty=build['dirty'], build_sources_sha256=build['sources_sha256'],

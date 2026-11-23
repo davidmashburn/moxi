@@ -4,13 +4,19 @@ here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
 python="${MOXI_E04_PYTHON:-python3}"
 consumer="$(mktemp -d /tmp/moxi-e04-consumer.XXXXXX)"
-artifacts="$root/artifacts/demo-slideshows/e04-python-native"
+artifacts="${MOXI_E04_ARTIFACTS:-$root/artifacts/demo-slideshows/e04-python-native}"
 mkdir -p "$artifacts" "$consumer/tests" "$consumer/home"
 "$python" -m venv "$consumer/venv"
-"$consumer/venv/bin/python" -m pip install "$here"/dist/wheels/*.whl pytest pillow pypdf
+tag="$("$consumer/venv/bin/python" -c 'import sys; print(f"cp{sys.version_info.major}{sys.version_info.minor}")')"
+native_wheels=("$here"/dist/wheels/moxi_native*-"$tag"-"$tag"-*.whl)
+if [ "${#native_wheels[@]}" != 1 ] || [ ! -f "${native_wheels[0]}" ]; then
+  printf 'Expected exactly one native wheel for %s\n' "$tag" >&2
+  exit 1
+fi
+"$consumer/venv/bin/python" -m pip install "$here"/dist/wheels/moxi-*.whl "${native_wheels[0]}" pytest pillow pypdf
 "$consumer/venv/bin/python" -m pip check
 cp "$here"/tests/*.py "$consumer/tests/"
-"$python" "$here/inspect_wheel.py" "$here"/dist/wheels/moxi_native*.whl > "$artifacts/packaging.json"
+"$python" "$here/inspect_wheel.py" "${native_wheels[0]}" > "$artifacts/packaging.json"
 # Isolated mode omits the repo and user-site. pytest loads only copied test files.
 (cd "$consumer" && env -i HOME="$consumer/home" PATH=/usr/bin:/bin PYTHONMALLOC=debug \
   "$consumer/venv/bin/python" -I -m pytest tests -q) > /tmp/moxi-e04-native-tests.log 2>&1

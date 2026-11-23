@@ -57,7 +57,8 @@ The C buffers are borrowed **only for that synchronous call**, with the GIL
 held. Mojo writes into C-owned output memory and destroys all its local
 strings, tables, scenes and renderers before returning. C copies that output
 into Python-owned immutable bytes and frees its buffers on every exit.
-PNG/PDF container encoding then runs in Python on those native pixels.
+PNG container encoding then runs in Python on those native pixels. PDF comes
+directly from the native CoreGraphics context, with CoreText drawing its text.
 No Mojo-owned object survives the Python call. This is deliberately a
 **copied boundary, not zero-copy**. It does not promise an atomic snapshot
 against concurrent writers: callers must not mutate inputs while calling it.
@@ -75,20 +76,25 @@ native execution or free-threaded/subinterpreter support.
   SVG output up to 16 MiB. These are experimental resource bounds.
 - Null rows are omitted by the existing plot model for the referenced fields.
   A line connects the remaining valid points; it does not introduce a gap mark.
-- SVG comes from `SvgSceneRenderer`. RGBA comes from
-  `SoftwareSceneRenderer`, the repository's deterministic verification backend.
-  It omits text/image resource pixels and has approximate path rendering.
-  PNG losslessly wraps that RGBA; PDF embeds an RGB raster on white. Native PDF
-  does **not** claim the facade's vector geometry implementation. The byte
-  signatures and dimensions agree; pixel/text/layout parity is not claimed.
+- SVG comes from the compiled Mojo `SvgSceneRenderer`. RGBA/PDF submit the
+  same compiled Mojo scene to a C-owned CoreGraphics/CoreText context. RGBA
+  includes real title, tick and legend glyphs; PNG losslessly wraps that RGBA.
+  PDF contains vector geometry and selectable text, with no embedded page
+  bitmap. The host resolves Helvetica at 14 points for unstyled plot chrome.
+  Styled text and scene operations outside rectangles, rounded rectangles,
+  lines, text and rectangular clipping fail explicitly. This is a macOS-only
+  experimental scene sink, not a change to the stable portable renderers.
+  Pixel, font/layout and scientific parity with the facade are not claimed.
 
 `InputError` covers malformed inputs; `UnsupportedError` is its explicit
 unsupported-feature subclass. Native statuses map to `NativeRenderError`
 with a named `NativeStatus` (`INVALID_SPEC`, `INVALID_COLUMNS`, `OUTPUT_LIMIT`,
 `RENDER_FAILED`). `MemoryError` may propagate for host allocation failure.
 C validates memory extents even when its private method is called directly.
-The private C ABI and status literals are independently tested; they are not
-an external stable ABI promise.
+The private C ABI is version 2; import rejects a mismatched compiled object.
+Its output/status wire values are independently tested. This checks agreement
+between this C shim and its Mojo object; it is not a stable Python or external
+ABI promise.
 
 ## Reproduce locally
 
@@ -111,7 +117,8 @@ The requested minimum deployment target is 15, but the actual wheel tag and
 Mach-O minimums are inspected; the tested Homebrew CPython host gives a macOS
 26 wheel. This is not evidence of macOS 15 deployment.
 
-`check.sh` creates a new venv outside the repo, installs both built wheels plus
+`check.sh` creates a new venv outside the repo, selects the wheel for its exact
+CPython ABI, installs it with the facade plus
 NumPy and independent test decoders (Pillow/pypdf), and runs the tests with
 `env -i`, `python -I`, no compiler PATH and no user site/import paths. It copies
 tests to the consumer directory. The proof installs an audit hook before Moxi
@@ -121,7 +128,13 @@ Pixi image loaded. `inspect_wheel.py` independently inspects wheel members,
 Mach-O dependency edges, RPATHs, signatures and minimum build versions without
 importing the extension. Consumer directories are retained for inspection.
 
+Set `MOXI_E04_PYTHON` for another locally installed CPython and
+`MOXI_E04_ARTIFACTS` to keep its evidence in a separate directory. A new venv
+on this build host is an isolated consumer, not fresh-host distribution proof.
+
 The native suite decodes PNG/PDF with independent libraries, validates SVG,
+requires selectable PDF title/legend text and vector strokes without page
+images, checks title-only raster pixel changes and JSON-punctuation labels,
 compares all four facade contracts, tests accepted/rejected dtypes and masks,
 checks private C extents and malformed Mojo JSON, and runs 500 successful
 renders alternating public and native failures, retaining outputs across GC

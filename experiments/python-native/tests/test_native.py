@@ -6,8 +6,9 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 import pytest
-from PIL import Image
+from PIL import Image, ImageChops
 from pypdf import PdfReader
+from pypdf.generic import ContentStream
 from moxi import PlotSpec, render as reference
 import moxi_native as native
 from moxi_native import Column, ColumnKind, InputError, UnsupportedError, NativeStatus, NativeOutput
@@ -21,13 +22,15 @@ def call(spec=None, columns=None, format=native.RenderFormat.RGBA):
 
 
 def test_compiled_version_and_named_states():
-    assert native._core.abi_version() == 1
+    assert native._core.abi_version() == 2
     assert isinstance(Column(np.array([1.0]), kind='numeric').kind, ColumnKind)
     assert Column(np.array([1.0]), kind='numeric').kind is ColumnKind.NUMERIC
     assert NativeStatus(0) is NativeStatus.OK
     assert NativeOutput(1) is NativeOutput.SVG
+    assert NativeOutput(2) is NativeOutput.PDF
     assert native.capabilities()['abi3'] is False
     assert native.capabilities()['retained_mojo_objects'] is False
+    assert native.capabilities()['raster_text'] is True
 
 
 def test_native_formats_and_reference_contracts():
@@ -43,7 +46,14 @@ def test_native_formats_and_reference_contracts():
     assert len(list(svg.iter())) > 10
     pdf = PdfReader(io.BytesIO(call(format=native.RenderFormat.PDF)))
     assert len(pdf.pages) == 1 and tuple(pdf.pages[0].mediabox)[2:] == (WIDTH, HEIGHT)
-    assert pdf.pages[0].images[0].image.convert('RGB').tobytes() == image.convert('RGB').tobytes()
+    page = pdf.pages[0]
+    assert not list(page.images)
+    assert page['/Resources']['/Font']
+    text = page.extract_text()
+    assert 'E04 native boundary' in text and 'signal' in text and 'observations' in text
+    operators = [operator for _, operator in ContentStream(page['/Contents'], pdf).operations]
+    assert operators.count(b'S') == len(list(svg.iter('{http://www.w3.org/2000/svg}line')))
+    assert b'Tj' in operators or b'TJ' in operators
     data = {name: col.values for name, col in cols.items()}
     for format in native.RenderFormat:
         exported = reference(spec.to_json(), data, WIDTH, HEIGHT, format.value)
@@ -52,6 +62,22 @@ def test_native_formats_and_reference_contracts():
             assert len(exported) == len(rgba)
     # This is a distinct native renderer, not a subprocess/facade render alias.
     assert rgba != reference(spec.to_json(), data, WIDTH, HEIGHT, 'rgba')
+
+
+def test_raster_title_glyphs_and_pdf_text_follow_native_scene():
+    spec, columns = canonical()
+    empty = json.loads(spec.to_json())
+    empty['title'] = ''
+    text = json.loads(spec.to_json())
+    text['title'] = 'Title (A&B) <C>'
+    blank = Image.frombytes('RGBA', (WIDTH, HEIGHT), call(json.dumps(empty), columns))
+    titled = Image.frombytes('RGBA', (WIDTH, HEIGHT), call(json.dumps(text), columns))
+    difference = ImageChops.difference(blank, titled).convert('RGB')
+    box = difference.getbbox()
+    assert box is not None and 10 <= box[1] < box[3] <= 40
+    assert np.count_nonzero(np.any(np.asarray(difference) != 0, axis=2)) > 50
+    pdf = PdfReader(io.BytesIO(call(json.dumps(text), columns, native.RenderFormat.PDF)))
+    assert 'Title (A&B) <C>' in pdf.pages[0].extract_text()
 
 
 @pytest.mark.parametrize('dtype', ['float32', 'float64', 'int32', 'int64'])
@@ -150,8 +176,10 @@ def test_private_c_boundary_and_mojo_failure_mapping():
     for value in bad:
         with pytest.raises(ValueError, match='native boundary: invalid argument'):
             native._core.render(b'{}', value, 64, 64, 0)
-    for kind in (-1, 2, 999):
+    for kind in (-1, 3, 999):
         with pytest.raises(ValueError): native._core.render(b'{}', columns, 64, 64, kind)
+    status, result = native._core.render(b'{invalid}', columns, 64, 64, 2)
+    assert NativeStatus(status) is NativeStatus.INVALID_SPEC and result == b''
 
 
 def test_repeated_lifetime_and_recovery():
@@ -215,4 +243,10 @@ def test_json_punctuation_in_layer_labels_preserves_geometry(label):
     expected = call(json.dumps(original), columns)
     for layer in original['layers']:
         layer['label'] = label
-    assert call(json.dumps(original), columns) == expected
+    actual = call(json.dumps(original), columns)
+    assert actual != expected  # legend text now has real pixels
+    # Punctuation must not change plot geometry while legitimately changing
+    # the legend glyphs below it.
+    assert actual[:WIDTH * (HEIGHT - 28) * 4] == expected[:WIDTH * (HEIGHT - 28) * 4]
+    pdf = PdfReader(io.BytesIO(call(json.dumps(original), columns, native.RenderFormat.PDF)))
+    assert label in pdf.pages[0].extract_text()

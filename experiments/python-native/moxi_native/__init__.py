@@ -39,6 +39,7 @@ class RenderFormat(str, Enum):
 class NativeOutput(IntEnum):
     RGBA = 0
     SVG = 1
+    PDF = 2
 
 
 class NativeStatus(IntEnum):
@@ -88,7 +89,7 @@ class Column:
 
 def capabilities() -> dict:
     return dict(version=__version__, abi_version=_core.abi_version(), build=dict(BUILD),
-                backend="mojo-software-scene", experimental=True, abi3=False,
+                backend="mojo-scene-coregraphics", experimental=True, abi3=False,
                 formats=[f.value for f in RenderFormat], marks=[m.value for m in Mark],
                 copy_policy=CopyPolicy.COPY_PER_CALL.value, retained_mojo_objects=False,
                 numeric_dtypes=["float32", "float64", "int32", "int64"],
@@ -97,7 +98,8 @@ def capabilities() -> dict:
                 runtime_compiler=False, bundled_mojo_runtime=True,
                 coordinate_precision="float32 scene coordinates", max_rows=MAX_ROWS,
                 max_columns=MAX_COLUMNS, max_side=1024, max_abs_value=MAX_VALUE,
-                raster_text=False, pdf="raster RGB image of native RGBA on white",
+                raster_text=True, text_font="host Helvetica, 14 points; ASCII plot chrome",
+                pdf="CoreGraphics vector geometry and CoreText text on white",
                 deployment="local experimental host wheel; production gate open")
 
 
@@ -223,13 +225,12 @@ def render(spec_json: str, named_columns: Mapping[str, Column], width: int, heig
         raise UnsupportedError("unsupported output format") from exc
     columns = _columns(named_columns)
     encoded = _spec(spec_json, set(named_columns))
-    native_kind = NativeOutput.SVG if kind is RenderFormat.SVG else NativeOutput.RGBA
+    native_kind = {RenderFormat.SVG: NativeOutput.SVG, RenderFormat.PDF: NativeOutput.PDF}.get(
+        kind, NativeOutput.RGBA)
     status, data = _core.render(encoded, columns, width, height, native_kind)
     status = NativeStatus(status)
     if status is not NativeStatus.OK:
         raise NativeRenderError(status)
     if kind is RenderFormat.PNG:
         return formats.png(data, width, height)
-    if kind is RenderFormat.PDF:
-        return formats.pdf(data, width, height)
     return data
