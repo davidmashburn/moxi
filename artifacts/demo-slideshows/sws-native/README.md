@@ -1,10 +1,10 @@
 # P07 — SeedWater native Moxi replay
 
 Thirteen genuine AppKit `cacheDisplay` captures from the external application
-`/Users/davmash/code/moxi-sws`, using the existing slideshow manifest v1/render
+`moxi-sws`, using the existing slideshow manifest v1/render
 schema. Each is labeled **offscreen-render**, not compositor or physical-input
-evidence. Generated PNGs and `index.html` are ignored. Shared gallery and planning
-files are untouched.
+evidence. The thirteen PNGs are retained with this manifest; generated
+`index.html` remains ignored.
 
 The sequence covers asymmetric overlay, frame/contrast/zoom and native pan,
 seed placement/movement plus polygon watershed, semantic undo/redo, atomic
@@ -16,18 +16,37 @@ linked to actual labels. 168 captured pixel centers are checked against the
 scientific raster at multiple zooms, with the PNG's embedded display profile
 converted to sRGB only for comparison; original captures remain unchanged.
 
+## Archived frame recovery — 2026-11-23
+
+All thirteen PNGs were recovered byte for byte from an existing native viewer
+worktree. Each SHA-256 and image size matches the original manifest. The retained
+manifest and all four build/science/source metadata files were already identical
+to the archive and were left unchanged. [artifact-recovery.json](artifact-recovery.json)
+records the checks and recovery checkout. All thirteen frames were visually
+reviewed and contain the synthetic cell fixture described above.
+
+This restores the historical capture at
+`bd3cccdb96f9136fda303ee4ca7517116e9e885a`; it is not a new replay or verification of
+current Moxi or application sources. Native/scientific tests and physical input
+were not rerun during recovery. The source inventory still requires a fresh replay
+before it can support current-source acceptance. The commands below describe the
+original capture environment; its original temporary paths need to be restored
+before rerunning them.
+
 ## Exact reproduction
 
 Prepare dependencies and the pinned reference as described in the application
 README. Use the same isolated Moxi tree (base `bd3cccd`, preserving D04) and
-matching compiler. This command records source hashes before compilation, runs
+matching compiler. Set `SWS_CHECKOUT` to the external app repository,
+`MOXI_CAPTURE_CHECKOUT` to the Moxi checkout and `MOXI_TOOLCHAIN` to its locked
+Pixi environment directory. This command records source hashes before compilation, runs
 headless/scientific/native checks, and fails if any source changes after replay:
 
 ```sh
-cd /Users/davmash/code/moxi-sws
-export MOXI_ROOT=/Users/davmash/.t3/worktrees/moxi/t3-983abb96
-export MOJO=/Users/davmash/code/moxi/.pixi/envs/default/bin/mojo
-export MODULAR_HOME=/Users/davmash/code/moxi/.pixi/envs/default/share/max
+cd "$SWS_CHECKOUT"
+export MOXI_ROOT="$MOXI_CAPTURE_CHECKOUT"
+export MOJO="$MOXI_TOOLCHAIN/bin/mojo"
+export MODULAR_HOME="$MOXI_TOOLCHAIN/share/max"
 export SWS_REFERENCE=/tmp/moxi-p07-reference
 export SWS_LEGACY_PYTHON=/tmp/moxi-p07-legacy-env/bin/python
 PYTHONPATH=. .venv/bin/python scripts/evidence.py

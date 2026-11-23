@@ -1,0 +1,157 @@
+{
+  "recovered_at": "2026-11-23T07:37:17.714155+00:00",
+  "recovery_checkout_revision": "eed5663db962acc448a8e0c0c79ae0abd63a5eee",
+  "capture_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
+  "method": "Byte-for-byte recovery from an existing native-seed-watershed-viewer worktree; no application rebuild or replay",
+  "archive": {
+    "gallery": "artifacts/demo-slideshows/sws-native",
+    "head_revision": "90ef14d0a8228eb4e60d3a28fda764807cf7bac8"
+  },
+  "manifest_sha256": "938c56c978a224848f9d20852ccfc5b1f4921d20c8fb99d08a821bcaed3d5307",
+  "unchanged_metadata_sha256": {
+    "manifest.json": "938c56c978a224848f9d20852ccfc5b1f4921d20c8fb99d08a821bcaed3d5307",
+    "build.json": "f87350dc5090bda6d72456f4d11870003aecfbf4be48673e2c1d87f3d51c3102",
+    "metrics.json": "801ec9108351a7e2d49ce9488b488ed276bef526c59336b47de73e049f88be6a",
+    "science.json": "d5426e43e9fadcb2aba702f89dbafe9a967ca77a0f2ccc86874eb56b4383cafc",
+    "source-hashes.json": "887ead3dcf30a75140e5f83e1e9321feffcec92a87682986a497793a25aa186a"
+  },
+  "verification": {
+    "manifest_schema": "pass",
+    "recorded_png_hashes_and_dimensions": "13/13 pass",
+    "visual_review": "All 13 PNGs reviewed in four labeled contact sheets. Synthetic grayscale cell raster, controls, contours, seeds and failure/recovery status are present; no private imagery observed.",
+    "viewing_environment": "Direct native PNG inspection; no browser or application launched",
+    "available_locally": 13,
+    "retained_for_git": "All 13 PNGs through scoped .gitignore exception; available on a clean clone after committing these files",
+    "total_png_bytes": 3061172
+  },
+  "images": [
+    {
+      "path": "01-asymmetric.png",
+      "sha256": "b636636b2c3301aa1e1cc4cc4b992aa3a3127512adccd0ec990a9579b257a18e",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "02-navigation.png",
+      "sha256": "96d90d044e0b8b7a9561e52a22027359d5c2e5560a57a39268bef158d64a2ad3",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "03-edit-watershed.png",
+      "sha256": "b5cf7833035f8ebee6a095c288874df1ba8a21aac5211c694fe6406cf22976b3",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "04-undo.png",
+      "sha256": "6906dedd176e7c9764d20579a6ec55fdb36a63061d9004be2c806df8c8a50931",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "05-redo.png",
+      "sha256": "73c314a40b4319a66daf9078d5ee56312d8ff57b6fec70be11b5129095044b08",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "06-save-reopen.png",
+      "sha256": "8d15f9377195f2ab26538d90fee7e8df3b818b7e77ebe79e6fc247c9adffa398",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "07-pending.png",
+      "sha256": "07b1a983e8aafa94b92ee1ded15d15c04764389e7e8a83d2fcc4f54d191480c8",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "08-stale.png",
+      "sha256": "adffbd63e34d0c3ada5dcdc2f36db94caa9c4983a19bafa7916908c938e9bc27",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "09-failure.png",
+      "sha256": "725be4ccc3660a14c266965046ee562e17b65486609d789583810d9da73f6f34",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "10-cancel.png",
+      "sha256": "17ce3e38f69cde7debb9460be4d9c82e4934530924f3a4f398ab7892bb011bda",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "11-recovery.png",
+      "sha256": "5d222b85c0e5843462c3e1fa6a7e049be92961cc8bc0447841d14c4f25f3d8e5",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "12-resize.png",
+      "sha256": "029d39f874a78288d999252af69d00be6fc1aa5df31b6596442be84d0dd1aaa9",
+      "dimensions": [
+        2200,
+        1600
+      ],
+      "outcome": "matches original capture manifest"
+    },
+    {
+      "path": "13-recreated.png",
+      "sha256": "7224f105feed01ee3978ba0711f8c837a5358524a2414f884abc60d0179f9592",
+      "dimensions": [
+        2080,
+        1520
+      ],
+      "outcome": "matches original capture manifest"
+    }
+  ],
+  "not_verified": [
+    "Current Moxi or external application source compatibility",
+    "Scientific tests and native interaction replay during this recovery",
+    "Physical input, compositor/scanout, human scientific acceptance, IME or accessibility",
+    "Original temporary binaries and logs availability"
+  ],
+  "confidence": {
+    "level": "high for exact archived PNG recovery only",
+    "would_change_conclusion": "Any mismatch with the original PNG hashes, dimensions or unchanged manifest; a fresh source replay is needed for current-source claims"
+  },
+  "comparison_revision": "424126e12385c1cc74335e2384b6bc90fb084f9a"
+}
