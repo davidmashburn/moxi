@@ -1,6 +1,6 @@
 # E02/E03 gallery review on d7fa3ed
 
-The [November 23 follow-up](../plot-contour-followup/README.md) records genuine upstream references and measured comparisons for all three contour families. The counts below describe the original review.
+The [November 23 follow-up](../plot-contour-followup/README.md) records genuine upstream references and measured comparisons for all three contour families. The [ridgeline follow-up](../plot-ridgeline-followup/README.md) shows the repaired peak. The counts and table below describe the original review.
 
 All **26 galleries** were regenerated from the published runtime. All **170
 slideshow frames** and **78 supporting PNGs** were visually inspected, using
@@ -71,12 +71,7 @@ changed. Capture environment, timing, DPR, loaded images and errors are in
 [captures.json](captures.json). One optional favicon 404 is separately
 recorded; no unexpected page errors or failed evidence images occurred.
 
-All gallery PNGs/HTML/SVG/PDFs and the 52 review-panel PNGs are **ignored local
-files**, retained for integration. Existing manifests and observed/source
-records are tracked modifications. The review directory's JSON/Markdown and
-the two new capture/check scripts are **untracked, non-ignored** additions;
-nothing was staged or committed. Raw drivers, tables, rasters and logs remain
-under [output/e02-e03-d7fa3ed](../../../output/e02-e03-d7fa3ed/), also ignored.
+Each of the 26 family links in the table opens its historical comparison PNG in a clean clone. Their dimensions and SHA-256 values were checked against the original per-family manifests on November 23. Other historical scenario frames, generated exports, review-panel images and raw logs in `output/e02-e03-d7fa3ed/` remain local reproduction artifacts. The JSON and Markdown records in this directory are retained in Git.
 
 Confidence is high in bounded reproduction/hash/semantic results and medium
 in visual-quality judgments. A failed fingerprint, changed hash, missing
