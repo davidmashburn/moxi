@@ -7,6 +7,7 @@ from moxi.event import *
 from moxi.macos import MacOSRenderer, MacOSCanvasSceneRenderer, MacOSClipboard
 from moxi.native_instance import MacOSWindowInstance
 from moxi_canvas.native import render_canvas
+from moxi_canvas.geometry import overlaps
 from moxi_mindmap.application import MindMapApp, MapMode
 from moxi_mindmap.reflow import MotionPolicy
 from moxi_mindmap.commands import MapCommand
@@ -51,6 +52,15 @@ def capture(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: Mac
         raise Error("AppKit content-view capture failed")
     print("offscreen-render", file, "ordinary_commands", map.app.paint().count(), "visible_topics", map.layout.visible)
 
+def assert_reflow_clear(map: MindMapApp) raises:
+    var branch = map.app.component.document.world_bounds(5)
+    var destination = map.reflow.target.world_bounds(5)
+    if branch.x != destination.x or branch.y != destination.y:
+        raise Error("Native replay moved branch lagged behind its destination")
+    for item in map.app.component.document.objects:
+        if item.id != 5 and not item.hidden and overlaps(branch, item.bounds):
+            raise Error("Native replay reflow neighbor obscures the committed moved branch")
+
 def replay(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer, path: String) raises:
     capture(map, window, paint, graph, path + "/01-initial.png")
     map.select(4)
@@ -81,11 +91,13 @@ def replay(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacO
     capture(map, window, paint, graph, path + "/05-cancel.png")
     keyboard_destination(map)
     key(map, KEY_ENTER)
+    assert_reflow_clear(map)
     capture(map, window, paint, graph, path + "/06a-reflow-start.png")
     var tick = Event()
     tick.kind = FRAME_TICK_KIND
     tick.delta_seconds = 0.09
     _ = map.dispatch(tick)
+    assert_reflow_clear(map)
     capture(map, window, paint, graph, path + "/06b-reflow-middle.png")
     _ = map.dispatch(tick)
     if map.reflow.active:
