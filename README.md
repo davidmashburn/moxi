@@ -4,14 +4,15 @@ This orphan branch holds durable proposals and decisions. Product code and
 shipped-behavior documentation live on `main`; do not merge planning history
 into implementation. Edit this branch in its dedicated planning worktree.
 
-## Current status — November 20, 2026
+## Current status — November 23, 2026
 
 The native package repair and one editable Demo Browser scene shipped at
 `d7fa3ed`. All six hosted jobs passed, including the installed-package
 consumer. The [gallery handoff](https://github.com/davidmashburn/moxi/blob/5d85208e820446d0ebd4072987fce1f39fa1e8ed/docs/deferred-pause-handoff.md)
 records the subsequent review of 30 galleries against that implementation.
-The [next acceptance work](PROJECT-PLANNING.md#remaining-work-after-the-gallery-review)
-covers unresolved visual differences, host behavior and independent use.
+The [November 23 acceptance record](PROJECT-PLANNING.md#remaining-work-after-the-gallery-review)
+covers contour references, installed Python rendering, packaged workbench behavior
+and the measured world-panel caret mismatch.
 
 The November 9 ledger counted 7 implemented proposals, 2 completed experiments,
 13 partial tracks and 28 pending proposals. The gallery review preserves those

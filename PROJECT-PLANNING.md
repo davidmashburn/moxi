@@ -2,6 +2,17 @@
 
 ## Remaining work after the gallery review
 
+### November 23 implementation
+
+| Track | Delivered and verified | Remaining decision or evidence |
+| --- | --- | --- |
+| Plots | Three newer upstream APIs supplied the missing regular, filled and triangular contour references. The fixtures compare geometry, valid updates, rejection and restoration. Scalar values now determine contour colors and numeric descriptions. [Reference results](https://github.com/davidmashburn/moxi/tree/53da9ba/artifacts/demo-slideshows/plot-contour-followup) · [Scalar encoding](https://github.com/davidmashburn/moxi/commit/099892a) | Regular-grid connectivity, filled-region seams and family-specific visual differences still require evaluation. |
+| Native Python | Raster text and searchable vector PDF run through the installed wheel. The build now relinks a changed Mojo object. A two-ABI hosted check exercises a fresh macOS environment. [Renderer](https://github.com/davidmashburn/moxi/commit/e7d8404) · [Wheel validation](https://github.com/davidmashburn/moxi/commit/3da4bec) | Track the hosted result and retain experimental status while redistribution and broader host coverage remain open. |
+| Workbench | Import, filter, selection, CSV/SVG export, reopening, failed imports and ordinary quit passed in the signed app. A native content-view replay verifies the corrected axis ticks and legend. [Acceptance record and screenshot](https://github.com/davidmashburn/moxi/blob/fcc05cc/docs/workbench-native-acceptance.md) | The revised bundle's interactive relaunch was blocked by the window automation bridge. Physical IME, sustained presentation timing and independent human authoring remain open. VoiceOver stays paused. |
+| World panels | The source-free packaged replay measured the owner-local caret at (26, 58) against the required projection at (388.62, 259.67). The screen editor passed its containment check. [Replay and decision](https://github.com/davidmashburn/moxi/blob/fcc05cc/examples/spatial-world-panel/README.md) | Keep the screen editor available. Promotion requires transformed caret and accessibility geometry plus physical acceptance. |
+
+### November 20 baseline
+
 November 20, 2026. The package and checkpoint tasks from November 9 are complete.
 The repaired implementation passed all six [hosted checks](https://github.com/davidmashburn/moxi/actions/runs/44825872712).
 The first editable scene supports edit, asynchronous Run, compiler diagnostics,
