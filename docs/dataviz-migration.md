@@ -17,7 +17,7 @@ Use `pixi run dataviz-parity` to validate the pinned inventory, run the six over
 ## E06 catalog reconciliation
 
 Five families had public mark names and passing static export fixtures at Moxi
-`839d0ff`. Each still needs a specialized layout. The comparisons below use
+`839d0ff`. At that baseline each lacked the upstream family geometry. The comparisons below use
 real upstream SVG exports at the v0.8.0 pin and Moxi's existing eight-row
 catalog fixture. The two fixtures exercise different input contracts, so
 these comparisons establish structural differences and carry no pixel score.
@@ -27,12 +27,12 @@ these comparisons establish structural differences and carry no pixel score.
 | [Parallel](../tests/fixtures/plot_catalog/parallel.svg) | Two records cross three independently scaled dimension axes. | Python connects raw x/y rows in input order. Native draws row markers. Require one path per record, named axes and a constant-dimension case. |
 | [Funnel](../tests/fixtures/plot_catalog/funnel.svg) | Values 3, 9 and 6 produce stages B, C and A in descending order. Each band tapers to the next width. | Python emits points and native emits rectangles. Require centered trapezoids, a rectangular final band, and hit/table results that preserve original row IDs after sorting. |
 | [Bump](../tests/fixtures/plot_catalog/bump.svg) | Two series exchange ranks across three categories. Rank 1 is at the top. | Python draws one raw-value line and native draws row markers. Require per-stage ranking, series identity, a tie fixture and rank-axis labels. |
-| [Effect scatter](../tests/fixtures/plot_catalog/effect_scatter.svg) | Three observations produce six circles. Each marker sits above a larger, lighter halo. | Both backends draw a straight segment when secondary endpoints are supplied. The plain x/y form has a marker without a halo. Exercise the ordinary x/y form first and retain compatibility with existing endpoint specs. |
+| [Effect scatter](../tests/fixtures/plot_catalog/effect_scatter.svg) | Three observations produce six circles. Each marker sits above a larger, lighter halo. | Both backends draw a straight segment when secondary endpoints are supplied. The plain x/y form now paints a halo beneath each point in native Scene and Python SVG, PNG and PDF. Endpoint specs retain the segment behavior. |
 | [Arc diagram](../tests/fixtures/plot_catalog/arc_diagram.svg) | Three named nodes share a baseline, with weighted semicircles connecting them. | Both backends draw straight row-to-endpoint segments. Require shared node positions, curved weighted edges, node labels and edge selection that identifies the source record. |
 
 Python SVG and PNG exports succeeded for all five current catalog fixtures.
 All 40 tested anchor hits returned their original row index and all table
-values matched the input. Native behavior in this audit comes from the
+values matched the input. The native Scene contract test also checks the two effect-scatter discs, their relative size, tint and opacity. Python tests check three source rows, six SVG circles and six vector PDF discs. At the middle marker of the half-opacity fixture, independent Poppler rasterization and the Python PNG returned identical center, halo and white background pixels. Other native behavior in this audit comes from the
 catalog branch in [plotting.mojo](../src/moxi_plot/plotting.mojo).
 Native interaction, specialized geometry, timing and visual parity remain open.
 

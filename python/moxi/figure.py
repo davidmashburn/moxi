@@ -939,6 +939,16 @@ class Figure:
     def _geometry_size(cls, geometry: _Geometry, layer: Any, index: int) -> float:
         return geometry.sizes[index] if index < len(geometry.sizes) else float(layer.size)
 
+    def _marker_discs(self, geometry, layer, index):
+        radius = max(1.0, self._geometry_size(geometry, layer, index) / 2.0)
+        color = self._geometry_color(geometry, layer, index)
+        if layer.mark == "effect_scatter":
+            # Match the reference halo tint, which is flattened against white.
+            tint = 90 / 255
+            halo = tuple(1 - (1 - component) * tint for component in color[:3]) + (color[3],)
+            yield radius * 2.2, halo
+        yield radius, color
+
     def _uses_cartesian_axes(self) -> bool:
         from .specialized import LayoutVersion
         from .specialized_c import WaveCMark
@@ -1016,9 +1026,9 @@ class Figure:
                     parts.append(f'<rect x="{x-cell/2:g}" y="{y-cell/2:g}" width="{cell:g}" height="{cell:g}" fill="{color}" opacity="{max(0.2, min(1.0, (index+1)/max(1,len(points)))):g}" data-mark="heatmap"/>')
             else:
                 for index, (x, y) in enumerate(points):
-                    point_color = self._svg_style(geometry, layer, index)
-                    radius = max(1.0, self._geometry_size(geometry, layer, index) / 2.0)
-                    parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{point_color}" data-mark="{layer.mark}"/>')
+                    opacity = self._geometry_opacity(geometry, layer, index)
+                    for radius, fill in self._marker_discs(geometry, layer, index):
+                        parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{_svg_color(fill, opacity)}" data-mark="{layer.mark}"/>')
             if label:
                 parts.append('</g>')
         if self.spec.title:
@@ -1092,7 +1102,9 @@ class Figure:
                     raster.rect(x - cell / 2, y - cell / 2, cell, cell, rgba)
             else:
                 for index, (x, y) in enumerate(points):
-                    raster.circle(x, y, max(1.0, self._geometry_size(geometry, layer, index) / 2.0), self._rgba_style(geometry, layer, index))
+                    opacity = self._geometry_opacity(geometry, layer, index)
+                    for radius, fill in self._marker_discs(geometry, layer, index):
+                        raster.circle(x, y, radius, _rgba(fill, opacity))
         return bytes(raster.pixels)
 
     def to_png(self) -> bytes:
@@ -1103,6 +1115,7 @@ class Figure:
         # representation, but the PDF contains the same core geometry rather
         # than being a blank transport envelope.
         left, top, plot_width, plot_height, *_ = self._layout()
+        stroke_opacities = {}
         commands = ["q 1 1 1 rg 0 0 %g %g re f Q" % (self.width, self.height)]
         if self._uses_cartesian_axes():
             baseline = self.height - top - plot_height
@@ -1164,9 +1177,22 @@ class Figure:
                     radius = max(1.0, self._geometry_size(geometry, layer, index) / 2.0)
                     point_color = self._geometry_color(geometry, layer, index)
                     fill = f"{point_color[0]:g} {point_color[1]:g} {point_color[2]:g} rg"
+                    if layer.mark == "effect_scatter":
+                        # A filled, round-capped zero-length stroke is a vector circle.
+                        y_pdf = self.height - y
+                        for disc_radius, disc_color in self._marker_discs(geometry, layer, index):
+                            alpha = max(0.0, min(1.0, disc_color[3] * self._geometry_opacity(geometry, layer, index)))
+                            state = stroke_opacities.setdefault(alpha, f"GS{len(stroke_opacities)}")
+                            commands.append(f"q /{state} gs {disc_color[0]:g} {disc_color[1]:g} {disc_color[2]:g} RG "
+                                            f"1 J {2*disc_radius:g} w {x:g} {y_pdf:g} m {x:g} {y_pdf:g} l S Q")
+                        continue
                     commands.append(f"{fill} {x-radius:g} {self.height-y-radius:g} {radius*2:g} {radius*2:g} re f")
         content = "\n".join(commands) + "\n"
-        objects = [b"<< /Type /Catalog /Pages 2 0 R >>", b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>", f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {self.width} {self.height}] /Contents 4 0 R >>".encode(), f"<< /Length {len(content.encode())} >>\nstream\n{content}endstream".encode()]
+        resources = ""
+        if stroke_opacities:
+            states = " ".join(f"/{name} << /CA {alpha:g} >>" for alpha, name in stroke_opacities.items())
+            resources = f" /Resources << /ExtGState << {states} >> >>"
+        objects = [b"<< /Type /Catalog /Pages 2 0 R >>", b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>", f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {self.width} {self.height}] /Contents 4 0 R{resources} >>".encode(), f"<< /Length {len(content.encode())} >>\nstream\n{content}endstream".encode()]
         output = bytearray(b"%PDF-1.4\n")
         offsets = [0]
         for index, obj in enumerate(objects, start=1):

@@ -4,6 +4,7 @@ from moxi import (
     Rect,
     SCENE_LINE,
     SCENE_RECT,
+    SCENE_ROUNDED_RECT,
     test_check,
 )
 from moxi_plot import (
@@ -13,6 +14,7 @@ from moxi_plot import (
     PLOT_GAUGE,
     PLOT_GANTT,
     PLOT_GRAPH,
+    PLOT_EFFECT_SCATTER,
     PLOT_SANKEY,
     PlotDataTable,
     PlotSpec,
@@ -178,6 +180,18 @@ def main():
         if edge_scene.command(index).kind == SCENE_LINE:
             has_catalog_line = True
     test_check(has_catalog_line)
+    var effect = PlotSpec("Effect scatter")
+    _ = effect.add_catalog_mark(PLOT_EFFECT_SCATTER, "points")
+    var effect_scene = plot_from_spec(effect, catalog_data, Rect(0, 0, 320, 240)).build_scene()
+    var halo_count = 0
+    for index in range(effect_scene.count() - 1):
+        var halo = effect_scene.command(index)
+        var dot = effect_scene.command(index + 1)
+        if halo.kind == SCENE_ROUNDED_RECT and halo.id == -dot.id and dot.kind == SCENE_ROUNDED_RECT:
+            test_check(abs(halo.corner_radius - dot.corner_radius * 2.2) < 0.01)
+            test_check(halo.fill.red > dot.fill.red and halo.opacity == dot.opacity)
+            halo_count += 1
+    test_check(halo_count == 2)
     var invalid = plot_spec_from_json("{\"version\":99,\"layers\":[]}")
     test_check(not invalid.is_valid())
     print("Moxi plot-spec test passed")

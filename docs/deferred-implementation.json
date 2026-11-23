@@ -536,7 +536,9 @@
       "id": "E06",
       "scope": "Full-catalog reconciliation gate: current capability inventory additionally names parallel, funnel, bump, effect_scatter and arc_diagram outside A\u2013C prose. Audit reference layouts and define remaining parity deltas before implementing any missing ones.",
       "state": "partial",
-      "commits": [],
+      "commits": [
+        "4098a41"
+      ],
       "verification": [
         "Five real v0.8.0 APIs exported reference SVGs. All five Moxi static catalog fixtures exported SVG/PNG, with 40 source-row hits and matching tables. See dataviz-migration.md#e06-catalog-reconciliation."
       ],

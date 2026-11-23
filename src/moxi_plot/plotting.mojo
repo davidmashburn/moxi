@@ -2047,6 +2047,20 @@ struct Plot:
                             edge_command.set_opacity(point_opacity)
                             scene.commands[len(scene.commands) - 1] = edge_command
                         else:
+                            if self.series[series_index].kind == PLOT_EFFECT_SCATTER:
+                                var radius = point_size * 1.1
+                                var tint: Float32 = 90.0 / 255.0
+                                var halo = Color(
+                                    1.0 - (1.0 - point_color.red) * tint,
+                                    1.0 - (1.0 - point_color.green) * tint,
+                                    1.0 - (1.0 - point_color.blue) * tint,
+                                    point_color.alpha,
+                                )
+                                scene.append_rounded_rect(
+                                    -catalog_id, Rect(point.x - radius, point.y - radius, radius * 2, radius * 2),
+                                    halo, radius,
+                                )
+                                scene.commands[len(scene.commands) - 1].set_opacity(point_opacity)
                             scene.append_rounded_rect(
                                 catalog_id,
                                 Rect(
