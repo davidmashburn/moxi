@@ -22,7 +22,7 @@ def main():
         if c['reference_available']:
             ref=mask(a.reference/(name+'.png'))[28:428,48:608]
             row.update(reference_colored_pixels=int(ref.sum()),silhouette_iou=float((own&ref).sum()/max(1,(own|ref).sum())))
-            if name not in ('radar','polar','beeswarm'):
+            if name not in ('radar','polar','beeswarm','ridgeline'):
                 threshold=.96 if name=='gauge' else .98
                 assert row['silhouette_iou']>threshold,(name,row)
                 row['assertion']='Colored silhouette IoU > '+str(threshold)+'; excludes text/grid/palette identity'
@@ -39,6 +39,20 @@ def main():
                     actual=[project(*glyph.bounds[:2]) for glyph in g.glyphs if glyph.kind is GlyphKind.POINT]
                     expected=[tuple(map(float,xy)) for xy in re.findall(r'[ML]([\d.-]+),([\d.-]+)',paths[0].get('d'))]
                     tolerance=.001
+                elif name=='ridgeline':
+                    # The upstream category frame clips the top density peak.
+                    # Compare its complete SVG paths before clipping, preserving
+                    # that frame for this geometry check. Moxi now frames every
+                    # density sample, so raster IoU is descriptive only.
+                    count=len(g.glyphs)
+                    actual=[(48+(x-g.x_domain[0])/(g.x_domain[1]-g.x_domain[0])*560,
+                             28+(count-y)/count*400)
+                            for glyph in g.glyphs for x,y in glyph.vertices]
+                    expected=[tuple(map(float,xy)) for e in paths if e.get('fill')!='none'
+                              for xy in re.findall(r'[ML]([\d.-]+),([\d.-]+)',e.get('d'))]
+                    assert all(g.y_domain[0]<=y<=g.y_domain[1]
+                               for glyph in g.glyphs for x,y in glyph.vertices)
+                    tolerance=1.1 # integer-rounded x and the upstream bottom-axis 1 px pull
                 else:
                     actual=[project(*glyph.bounds[:2]) for glyph in sorted(g.glyphs,key=lambda p:p.row)]
                     expected=[(float(e.get('cx')),float(e.get('cy'))) for e in svg.iter() if e.tag.endswith('}circle')]
@@ -48,6 +62,10 @@ def main():
                 assert error<=tolerance,(name,error)
                 row['max_vertex_or_anchor_pixel_error']=error
                 row['assertion']='Pinned SVG vertices/row anchors within '+str(tolerance)+' px; raster IoU descriptive only'
+                if name=='ridgeline':
+                    row['assertion']='All complete KDE path vertices within 1.1 px in the upstream category frame; Moxi frames the previously clipped peak. Raster IoU descriptive only.'
+                    row['moxi_domain_contains_every_density_sample']=True
+                    row['historical_silhouette_iou_above_0_98']=row['silhouette_iou']>.98
         result[name]=row
     (a.actual/'comparison.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
 if __name__=='__main__':main()

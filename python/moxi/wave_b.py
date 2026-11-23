@@ -33,6 +33,7 @@ RADIAL = frozenset((WaveBMark.PIE, WaveBMark.DONUT, WaveBMark.RADAR,
 DISTRIBUTIONS = frozenset((WaveBMark.BEESWARM, WaveBMark.VIOLIN, WaveBMark.RIDGELINE))
 GRIDS = frozenset((WaveBMark.CONTOUR, WaveBMark.CONTOURF))
 KDE_SAMPLES = 30
+RIDGELINE_PEAK_HEIGHT = 1.3
 CONTOUR_BANDS = 8
 ARC_STEPS = 128
 
@@ -182,9 +183,10 @@ def layout(layer, data, width=560., height=416.):
                     pts=[(g+.32*d,x) for x,d in zip(samples,density)]+[(g-.32*d,x) for x,d in reversed(list(zip(samples,density)))]
                 else:
                     base=len(groups)-1-g
-                    pts=[(samples[0],base)]+[(x,base+1.3*d) for x,d in zip(samples,density)]+[(samples[-1],base)]
+                    pts=[(samples[0],base)]+[(x,base+RIDGELINE_PEAK_HEIGHT*d) for x,d in zip(samples,density)]+[(samples[-1],base)]
                 poly(ids,'density',pts)
-        if mark is WaveBMark.RIDGELINE:xd,yd=_extent(v),(0.,float(len(groups)))
+        if mark is WaveBMark.RIDGELINE:
+            xd,yd=_extent(v),(0.,float(len(groups)-1)+RIDGELINE_PEAK_HEIGHT)
     elif mark is WaveBMark.STREAMGRAPH:
         if n<2 or any(x<0 for s in series for x in s):raise ValueError('streamgraph needs two categories and nonnegative series')
         totals=[sum(s[i] for s in series) for i in range(n)];running=[-t/2 for t in totals]

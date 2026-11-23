@@ -5,7 +5,7 @@ from moxi_plot.plot_spec import plot_spec_from_json, plot_from_spec
 from moxi_plot.plot_point import PlotPoint, PlotGlyphKind
 from moxi_plot.plot_data import PlotDataTable
 from moxi_plot.plot_view import PlotView
-from moxi_plot.plot_marks import PLOT_CONTOUR, PLOT_CONTOURF, PLOT_DONUT, PLOT_BEESWARM
+from moxi_plot.plot_marks import PLOT_CONTOUR, PLOT_CONTOURF, PLOT_DONUT, PLOT_BEESWARM, PLOT_RIDGELINE
 from moxi_plot.plot_spec import PlotSpec
 from moxi_plot.plot_spec_types import PlotLayoutVersion
 from moxi.plot_selection import PlotSelection
@@ -33,6 +33,8 @@ def check_case(name: String, document: String, data: PlotDataTable, output: Stri
         print("glyph|",name,"|",p.glyph.value,"|",p.row_key,"|",p.part,"|",p.x,"|",p.y,"|",p.x2,"|",p.y2)
         print("style|",name,"|",i,"|",p.color.red,"|",p.color.green,"|",p.color.blue,"|",p.color.alpha,"|",p.text)
         for vertex in p.vertices:
+            if plot.series[0].kind == PLOT_RIDGELINE:
+                test_check(vertex.y >= plot.series[0].layout_y_min and vertex.y <= plot.series[0].layout_y_max)
             print("vertex|",name,"|",i,"|",vertex.x,"|",vertex.y)
         for key in p.source_keys:
             print("source|",name,"|",i,"|",key)

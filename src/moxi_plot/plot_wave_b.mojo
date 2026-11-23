@@ -17,6 +17,7 @@ from .plot_scalar import scalar_color, scalar_level_label, scalar_band_label
 from .plot_marks import (PLOT_PIE, PLOT_DONUT, PLOT_RADAR, PLOT_GAUGE, PLOT_POLAR, PLOT_POLAR_BAR, PLOT_RADIALBAR, PLOT_BEESWARM, PLOT_VIOLIN, PLOT_RIDGELINE, PLOT_NIGHTINGALE, PLOT_STREAMGRAPH, PLOT_CONTOUR, PLOT_CONTOURF)
 
 comptime _KDE_SAMPLES = 30
+comptime _RIDGELINE_PEAK_HEIGHT = 1.3
 comptime _CONTOUR_BANDS = 8
 comptime _ARC_STEPS = 128
 
@@ -375,14 +376,14 @@ def _distributions(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable
                 var base = Float32(len(groups)-1-g)
                 vertices.append(Point(Float32(samples[0]),base))
                 for j in range(_KDE_SAMPLES):
-                    vertices.append(Point(Float32(samples[j]),base+Float32(1.3*density[j]/peak)))
+                    vertices.append(Point(Float32(samples[j]),base+Float32(_RIDGELINE_PEAK_HEIGHT*density[j]/peak)))
                 vertices.append(Point(Float32(samples[_KDE_SAMPLES-1]),base))
             _emit(result,layer,data,ids,PlotGlyphKind.POLYGON,"density",vertices,layer.color)
     if layer.mark == PLOT_RIDGELINE:
         result.layout_x_min = Float32(low)
         result.layout_x_max = Float32(high)
         result.layout_y_min = 0
-        result.layout_y_max = Float32(len(groups))
+        result.layout_y_max = Float32(len(groups)-1)+Float32(_RIDGELINE_PEAK_HEIGHT)
 
 
 def _stream(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable):
