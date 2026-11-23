@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+<rect x="0" y="0" width="640" height="420" fill="#ffffff"/>
+<path d="M60.000,20.000 L490.000,20.000 L418.333,136.000 L131.667,136.000 Z" fill="#1f77b4" fill-rule="evenodd"/>
+<path d="M131.667,136.000 L418.333,136.000 L346.667,253.000 L203.333,253.000 Z" fill="#ff7f0e" fill-rule="evenodd"/>
+<path d="M203.333,253.000 L346.667,253.000 L346.667,370.000 L203.333,370.000 Z" fill="#2ca02c" fill-rule="evenodd"/>
+<rect x="510" y="20" width="14" height="14" fill="#1f77b4"/>
+<rect x="510" y="42" width="14" height="14" fill="#ff7f0e"/>
+<rect x="510" y="64" width="14" height="14" fill="#2ca02c"/>
+<text x="528" y="31" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="start">B</text>
+<text x="528" y="53" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="start">C</text>
+<text x="528" y="75" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="start">A</text>
+</svg>

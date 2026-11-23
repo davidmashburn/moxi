@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+<rect x="0" y="0" width="640" height="420" fill="#ffffff"/>
+<path d="M60.000,370.000 A280.000,280.000 0 0,1 620.000,370.000" fill="none" stroke="#1f77b4" stroke-width="3.333" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M60.000,370.000 A140.000,140.000 0 0,1 340.000,370.000" fill="none" stroke="#ff7f0e" stroke-width="6.000" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M340.000,370.000 A140.000,140.000 0 0,1 620.000,370.000" fill="none" stroke="#2ca02c" stroke-width="4.667" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="60" cy="370" r="4" fill="#1f77b4"/>
+<circle cx="340" cy="370" r="4" fill="#ff7f0e"/>
+<circle cx="620" cy="370" r="4" fill="#2ca02c"/>
+<text x="60" y="391" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="middle">A</text>
+<text x="340" y="391" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="middle">B</text>
+<text x="620" y="391" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="middle">C</text>
+</svg>

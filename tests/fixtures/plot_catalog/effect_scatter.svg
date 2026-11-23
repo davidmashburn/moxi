@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+<rect x="0" y="0" width="640" height="420" fill="#ffffff"/>
+<line x1="170" y1="20" x2="170" y2="370" stroke="#e1e1e1" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="340" y1="20" x2="340" y2="370" stroke="#e1e1e1" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="510" y1="20" x2="510" y2="370" stroke="#e1e1e1" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="60" y1="354" x2="620" y2="354" stroke="#e1e1e1" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="60" y1="275" x2="620" y2="275" stroke="#e1e1e1" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="60" y1="195" x2="620" y2="195" stroke="#e1e1e1" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="60" y1="115" x2="620" y2="115" stroke="#e1e1e1" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="60" y1="36" x2="620" y2="36" stroke="#e1e1e1" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="60" y1="370" x2="620" y2="370" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="60" y1="20" x2="60" y2="370" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="170" y1="370" x2="170" y2="375" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="340" y1="370" x2="340" y2="375" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="510" y1="370" x2="510" y2="375" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="55" y1="354" x2="60" y2="354" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="55" y1="275" x2="60" y2="275" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="55" y1="195" x2="60" y2="195" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="55" y1="115" x2="60" y2="115" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="55" y1="36" x2="60" y2="36" stroke="#505050" stroke-width="1.000" stroke-linecap="round"/>
+<circle cx="85" cy="36" r="9" fill="#afc8e4"/>
+<circle cx="85" cy="36" r="4" fill="#1e64b4"/>
+<circle cx="595" cy="354" r="9" fill="#afc8e4"/>
+<circle cx="595" cy="354" r="4" fill="#1e64b4"/>
+<circle cx="340" cy="115" r="9" fill="#afc8e4"/>
+<circle cx="340" cy="115" r="4" fill="#1e64b4"/>
+<text x="170" y="391" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="middle">4</text>
+<text x="340" y="391" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="middle">6</text>
+<text x="510" y="391" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="middle">8</text>
+<text x="51" y="358" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="end">4</text>
+<text x="51" y="279" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="end">5</text>
+<text x="51" y="199" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="end">6</text>
+<text x="51" y="119" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="end">7</text>
+<text x="51" y="40" font-size="12.000" font-family="DejaVu Sans" fill="#282828" text-anchor="end">8</text>
+</svg>
