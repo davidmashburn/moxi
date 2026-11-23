@@ -1,10 +1,10 @@
 {
-  "base_revision": "158c67a36c376bbc0f88eaf363669a0485473343",
-  "review_checkout_revision": "158c67a36c376bbc0f88eaf363669a0485473343",
-  "verified_at": "2026-11-23T07:26:46.325544+00:00",
+  "base_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
+  "review_checkout_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
+  "verified_at": "2026-11-23T07:46:02.141167+00:00",
   "worktree": ".",
-  "scope": "Planning item 1: four D04 visual repairs, three D07 replay-caption repairs, capture provenance and catalog-manifest audit. No broader acceptance promotion.",
-  "result": "The four requested visual defects are repaired. All 20 frames were reviewed: 19 pass their bounded scenario and 06a-reflow-start is partial for a transient card overlap. Clean-source, PNG and schema checks pass; broader acceptance gates remain open.",
+  "scope": "Planning item 1: repaired D04 edit/preview/large-map frames plus the newly observed reflow-start overlap; focused native replay and source/PNG verification. D07 retains its independent capture.",
+  "result": "All 20 current D04 frames pass their bounded scenarios after repair of the reflow-start overlap. Native red/green regression, six-part contracts, source/PNG hashes and focused schema checks pass. Broader acceptance gates remain open.",
   "confidence": {
     "level": "high for the recorded source provenance, replay assertions and bounded pixel observations",
     "would_change_conclusion": [
@@ -14,7 +14,7 @@
     ]
   },
   "environment": {
-    "observed_at": "2026-11-23T07:26:46.325544+00:00",
+    "observed_at": "2026-11-23T07:46:02.141167+00:00",
     "macos": "27.2.1",
     "architecture": "arm64",
     "mojo": "Mojo 1.1.0 (8189361e)",
@@ -33,8 +33,8 @@
     "backing_scale": 2,
     "fixture": "Original synthetic six-topic, import-loss and 1,000-topic fixtures",
     "capture_window_utc": [
-      "2026-11-23T07:25:05.138195+00:00",
-      "2026-11-23T07:25:18.995318+00:00"
+      "2026-11-23T07:43:16.946145+00:00",
+      "2026-11-23T07:43:30.606526+00:00"
     ]
   },
   "source_state": {
@@ -42,7 +42,7 @@
     "scoped_dirty_source": []
   },
   "source_verification": {
-    "capture_revision": "158c67a36c376bbc0f88eaf363669a0485473343",
+    "capture_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
     "resolved_frames": 20,
     "images": [
       "01-initial.png",
@@ -70,10 +70,10 @@
     "recorded_source_files": 184,
     "supplemental_source_sha256": {},
     "sources_equal_reviewed_git_blobs": 184,
-    "executable_sha256": "c9f2441868e1f5cead9cf07e031a610015bf5de83d7a0851435be2155b598f37",
-    "recorded_source_aggregate_sha256": "cea152cd8949d133f091299f92858a5148f4e4567493a150081f1436efbed404"
+    "executable_sha256": "71f5085c8bab9b6fa3114ee730ddaee992354b4294dcf7b6bfc143c671e67b6b",
+    "recorded_source_aggregate_sha256": "cb39065febf34a39a3f8ce82b60782dee61e46b360970c83ee5ea7627ba19f1d"
   },
-  "manifest_sha256": "b35c09ae70ad07b4270663c37377158807d2ac9915fc8bc2696f70a486861a9b",
+  "manifest_sha256": "b84081feaf981e5b075febf2497d70b8b6cfec644cd06f6d8e2c872c28985379",
   "previous_review": {
     "base_revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
     "verified_at": "2026-11-20T22:16:23.321274+00:00",
@@ -90,13 +90,7 @@
       "command": "pixi run d04-mindmap-contract",
       "cwd": ".",
       "exit_code": 0,
-      "scope": "All six parts and 70-command inventory before the final size-guard refinement"
-    },
-    {
-      "command": "pixi run mojo run -I src tests/mindmap/application.mojo",
-      "cwd": ".",
-      "exit_code": 0,
-      "scope": "Final size guard, same-size draft delivery, preview validity, edit/cancel, move/undo and large initial camera"
+      "scope": "All six contracts and 70-command inventory after the final reflow repair; same tested source bytes committed at the capture revision"
     },
     {
       "command": "pixi run d04-mindmap-replay",
@@ -104,22 +98,21 @@
       "exit_code": 0
     },
     {
-      "command": "python3 artifacts/demo-slideshows/check_d04_d07.py --revision 158c67a36c376bbc0f88eaf363669a0485473343",
+      "command": "python3 artifacts/demo-slideshows/check_d04_d07.py --revision 9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
       "cwd": ".",
       "exit_code": 0
     },
     {
-      "command": "review_root=$(mktemp -d /tmp/moxi-gallery-check.XXXXXX)\nln -s \"$PWD/artifacts/demo-slideshows/mindmap\" \"$review_root/mindmap\"\nln -s \"$PWD/artifacts/demo-slideshows/spatial-assembly\" \"$review_root/spatial-assembly\"\npython3 scripts/demo_slideshows.py \"$review_root\" --check",
+      "command": "review_root=$(mktemp -d /tmp/moxi-gallery-check.XXXXXX)\nfor demo in mindmap spatial-assembly sws-native; do\n  ln -s \"$PWD/artifacts/demo-slideshows/$demo\" \"$review_root/$demo\"\ndone\npython3 scripts/demo_slideshows.py \"$review_root\" --check",
       "cwd": ".",
-      "exit_code": 0
+      "exit_code": 0,
+      "result": "Validated three focused manifests; SWS is restored historical evidence, without a new replay"
     }
   ],
   "visual_review": {
     "reviewer": "Codex; no independent human acceptance",
-    "method": "All current frames inspected in ordered, labeled contact sheets; repaired frames also inspected at original resolution. The tracked PNG linked by each row is the primary visual artifact.",
-    "partial_frames": [
-      "06a-reflow-start.png"
-    ],
+    "method": "All 20 current frames inspected in five ordered, labeled contact sheets. The two changed frames are byte-identical to the green replay PNGs also inspected at original resolution. The other 18 PNGs are unchanged from the prior reviewed capture. Each tracked PNG is the primary visual artifact.",
+    "partial_frames": [],
     "frames": [
       {
         "image": "01-initial.png",
@@ -168,21 +161,21 @@
       },
       {
         "image": "06a-reflow-start.png",
-        "sha256": "9edf86268df83df13868e986dc88cb67c3f4c14aab6051673174ba0159490b3d",
+        "sha256": "2f3025b2787b9edf33a861a260f5e4c199a568bd5d5069ce51fbb02864f0ac16",
         "steps": "Commit the semantic move once.",
-        "expected": "Moved branch is at its destination; neighbors start from prior displayed bounds.",
-        "observed": "After commit, #5 appears at its final Research-side location while neighboring cards start at their previous bounds. Its header temporarily covers part of Field notes’ footer.",
-        "outcome": "partial",
-        "limits_or_assertion_evidence": "Partial visual outcome: immediate moved-branch placement and animated neighbors overlap at the first deterministic tick. The midpoint/final captures separate them; no presentation-timed smoothness claim. Left-edge clipping persists."
+        "expected": "Moved branch is at its destination; conflicting neighbors start past it along their paths, while safe neighbors retain prior bounds.",
+        "observed": "The committed #5 card is fixed at its final Research-side position. Field notes starts higher along its existing path, with its footer clear of #5; no card overlap is visible.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Native replay asserts no visible other topic overlaps the committed #5 bounds at start and midpoint. The focused trajectory contract covers initial and later path collisions against two moved descendants, plus ordinary-neighbor interpolation. Left-edge cropping persists. These are deterministic geometry checks, without presentation-timed smoothness evidence."
       },
       {
         "image": "06b-reflow-middle.png",
-        "sha256": "993ef4504725941885b6caa0c046ca3280d6274d5c21644142852834e8e026ad",
+        "sha256": "aba6bd9116c35573ddf6014f0b1b9d5290454ec80bd9967ec0bc6abf474750e3",
         "steps": "Advance the public frame clock by 90 ms.",
-        "expected": "Shared canvas geometry interpolates; semantic content and history are unchanged.",
-        "observed": "Research/root/Draft neighboring bounds move between the start and final layouts; #5 is already attached to Research.",
+        "expected": "Shared canvas geometry interpolates without obscuring the committed branch; semantic content and history are unchanged.",
+        "observed": "Field notes is farther along its upward path, clear of #5; #5 stays at its committed destination.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "90 ms is an injected public frame tick; no wall-clock smoothness or latency claim."
+        "limits_or_assertion_evidence": "Native replay asserts non-overlap. The 90 ms interval is an injected public frame tick; semantic/history stability and ordinary-neighbor interpolation are checked by contracts, without wall-clock smoothness or latency claims."
       },
       {
         "image": "06-reparent-result.png",
@@ -304,75 +297,79 @@
     ],
     "contact_sheets": [
       {
-        "path": "/tmp/moxi-d04-d07-158c67a-evidence/mindmap-1.png",
-        "sha256": "75c833ca8680f50ac3b04c9c558a1aa34b7de3aa7d9693ccf63420f0b3de0bb7"
+        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-1.png",
+        "sha256": "3ca7cc2c3651430fcc5979b2ecee1a241cb8154672dcfe75160d7dd20f6d4708"
       },
       {
-        "path": "/tmp/moxi-d04-d07-158c67a-evidence/mindmap-2.png",
-        "sha256": "01305585ba62f1b27e009308d0f52f2f324cd09112f99f6cd241326930742c46"
+        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-2.png",
+        "sha256": "43e5036cf0a4f9c7117075163e481ddb3076cf181b8ebdfd47435aedbcfdd173"
       },
       {
-        "path": "/tmp/moxi-d04-d07-158c67a-evidence/mindmap-3.png",
-        "sha256": "98e444af65057653135f2291e2f4e7954846a1c8f29a8396b386b0ca39a65cfa"
+        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-3.png",
+        "sha256": "c2980a0e3011a6d0a6420ea4fa84c4e7214d659173924150d0fb87bbca134dc8"
       },
       {
-        "path": "/tmp/moxi-d04-d07-158c67a-evidence/mindmap-4.png",
-        "sha256": "1cdb8e5c3685aac3091f8191a26e48ff547f45c712a93c80dca9dd25e94d4c35"
+        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-4.png",
+        "sha256": "c89724583361399f4564ec4abf6261877678a1a195d374d40f0b3df33db56b89"
       },
       {
-        "path": "/tmp/moxi-d04-d07-158c67a-evidence/mindmap-5.png",
-        "sha256": "1a5b58db8eb07c6ca9d5c446bc153262065642b3823b5a1e53c5ce2e4874ea22"
+        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-5.png",
+        "sha256": "287ddd3592a72028385ce9f35d5572bcd8edcafae4b3fa87bb60ad4f2434f472"
       }
     ]
   },
   "local_attachments": [
     {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-gallery-d04-final-capture.log",
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-red-contract.log",
+      "sha256": "2ddc79a74598b5c7b8a6a7db05218b34fca8962e5903da899a7d1c61cdb2e3ed"
+    },
+    {
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-red-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-red-replay.log",
+      "sha256": "9965d4242109e035dd98ff99b06965d0ecbe58e0ac443190e882c2ee2327e4dd"
+    },
+    {
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-green-suite.log",
+      "sha256": "7c0485f60ca10e3710adb68e683121dbdf9cfd99f8fc21dc5860ef69e8bfd7c8"
+    },
+    {
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-green-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-green-replay.log",
+      "sha256": "0ba8770664b64f4c30199cd00f45be6758ef2ef534abf321564c68b68ee82771"
+    },
+    {
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-final-capture.log",
       "sha256": "a4a3968be52c66be91d7a5a46f1853d9e64a1a1372a37986948286eee60d80ae"
     },
     {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-d04-text-clang.log",
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-final-check.json",
+      "sha256": "3290ef01e7bfc0948af8c07b412ac241c558e2b5b08523b7b9155018a568a6af"
+    },
+    {
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-native-build.log",
+      "sha256": "c0a76d426a0116731826910ee9a1bd9b249c655e1584579dc08d4c08283aa849"
+    },
+    {
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-native-clang.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-d04-native-clang.log",
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-text-clang.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-d04-native-build.log",
-      "sha256": "c0a0d95356dab42877f01f9280a55bbfc72d08bc65fe647c8f4db7565bd2b6f2"
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-native-replay.log",
+      "sha256": "18251daed6d705b0e148042e4b41101a7d4f652a2a907ed6c02fd574c65d6bf6"
     },
     {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-d04-native-replay.log",
-      "sha256": "52b5b9e1b3dcff39ef3499ac14b72e7ef7d54f3b600de080d3d90f0c2802fa15"
-    },
-    {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-d04-manifest.log",
+      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-manifest.log",
       "sha256": "c15c9caa26450b9ca47145843f05fb8a220fd64ec2ad43a28ccf15aa61fb0ab6"
-    },
-    {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-gallery-mindmap-contract-repair.log",
-      "sha256": "3ff3dc0d0f242a7323b26284419fdd85408035f485c0db24d6f3bb50372189eb"
-    },
-    {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-gallery-mindmap-guard-contract.log",
-      "sha256": "77323fd031696280c9f163a92e099bb354f40bd72abbf0941365b9cfef2c492d"
-    },
-    {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/checker-negative-cases.json",
-      "sha256": "777a545960d16141bbb1a4c17bdc922a07c9fbce2d430905bfe46258036bfe73"
-    },
-    {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-gallery-checker-negative.py",
-      "sha256": "ee7c113fa1a1212f90719f3be26ed959b5ab7fd7e6a300a5e2e502b2986d24c4"
-    },
-    {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-gallery-two-demo-schema.log",
-      "sha256": "d6c9356c08987ccea4bd2b38afd87b0b7c6ef5ce936dace545e4b196a17b21f5"
-    },
-    {
-      "path": "/tmp/moxi-d04-d07-158c67a-evidence/check.json",
-      "sha256": "a84247df257f48ae93caad156e7105a25e4413cce112f3b7cdf1a921235c5b4a"
     }
   ],
   "build_diagnostics": {
@@ -391,16 +388,16 @@
     "Browser slideshow navigation; HTML remains generated from the checked manifest"
   ],
   "save_recovery_bytes": {
-    "saved_fixture": "/tmp/moxi-d04-replay-33152770844000.moxi",
+    "saved_fixture": "/tmp/moxi-d04-replay-34244588077000.moxi",
     "saved_sha256": "1dbc11757a6ecd2fcd279e0fcf44a800fc6fa6a5b53d916fb19322a24476fe66",
     "saved_contains_recovered_suffix": false,
-    "recovery_fixture": "/tmp/moxi-d04-replay-33152770844000.moxi.recovery",
+    "recovery_fixture": "/tmp/moxi-d04-replay-34244588077000.moxi.recovery",
     "recovery_sha256": "a2351ee7fb4ece111e44c2ff14b4ea02ecf0ef813ebc15b2b0405aa2dfc461b3",
     "recovery_contains_recovered_suffix": true
   },
   "remaining_gates": [
-    "06a-reflow-start has a transient moved-card/neighbor footer overlap; recorded as a follow-up, outside the four original partial frames.",
     "Dense large-map incident edges, viewport cropping and truncated long headers are recorded limits.",
+    "Deterministic reflow snapshots and contracts do not establish compositor/scanout timing or physically smooth animation.",
     "1,024-command boundary, expanded 10,000-topic native capacity, performance and live reference parity remain unaccepted."
   ],
   "checker_negative_cases": {
@@ -433,8 +430,55 @@
       }
     ],
     "local_result": "/tmp/moxi-d04-d07-158c67a-evidence/checker-negative-cases.json",
-    "scope": "Temporary copies of both galleries; repository images and source were not mutated."
+    "scope": "Temporary copies of both galleries; repository images and source were not mutated.",
+    "reuse_note": "Checker implementation unchanged; the five isolated negative cases from the previous review were reused. Positive source/blob/PNG checks were run again for this capture."
   },
   "artifact_retention": "All referenced native PNGs are retained with this change using this demo directory’s scoped .gitignore exception. HTML and binaries remain generated/ignored; temporary logs and contact sheets are disposable.",
-  "catalog_audit": "../CATALOG-AUDIT.md"
+  "catalog_audit": "../CATALOG-AUDIT.md",
+  "reflow_regression": {
+    "previous_capture_revision": "158c67a36c376bbc0f88eaf363669a0485473343",
+    "previous_partial_image": "06a-reflow-start.png",
+    "previous_partial_png_sha256": "9edf86268df83df13868e986dc88cb67c3f4c14aab6051673174ba0159490b3d",
+    "source_files": [
+      "src/moxi_mindmap/reflow.mojo",
+      "tests/mindmap/reflow.mojo",
+      "examples/mindmap_native_app.mojo",
+      "scripts/mindmap/manifest.py"
+    ],
+    "behavior": "The moved branch remains at committed bounds. For each neighbor, calculate the last interval of overlap with any committed moved descendant along its existing linear path. Start after that interval with a one-point margin, or snap if no safe remainder exists. Neighbors with clear paths retain their exact prior origin; easing and exact final bounds are retained.",
+    "red": {
+      "source": "New contract/native assertions applied over the prior reflow implementation; not a clean-certification capture",
+      "focused_contract": {
+        "command": "pixi run mojo run -I src tests/mindmap/reflow.mojo",
+        "cwd": ".",
+        "exit_code": 1,
+        "expected_failure": "Reflow neighbor overlaps the committed moved branch"
+      },
+      "native_build": {
+        "command": "pixi run bash scripts/mindmap/check.sh build",
+        "cwd": ".",
+        "exit_code": 0
+      },
+      "native_replay": {
+        "command": "./dist/moxi-mindmap --capture /tmp/moxi-gallery-reflow-red",
+        "cwd": ".",
+        "exit_code": 1,
+        "expected_failure": "Native replay reflow neighbor obscures the committed moved branch",
+        "completed_frames_before_failure": 5
+      }
+    },
+    "green": {
+      "source_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
+      "six_part_contract_and_70_command_inventory": "pass",
+      "native_build_and_20_frame_replay": "pass",
+      "native_start_and_midpoint_non_overlap": "pass",
+      "trajectory_contract": "Initial/later collisions against two moved descendants, ordinary-neighbor interpolation, exact settling, semantic/history stability, undo/cancel/reduced motion pass"
+    },
+    "changed_pngs": [
+      "06a-reflow-start.png",
+      "06b-reflow-middle.png"
+    ],
+    "unchanged_reviewed_pngs": 18,
+    "confidence": "High for these deterministic paths and recorded native frames; contradictory source/hash results or physical presentation evidence would change the conclusion."
+  }
 }

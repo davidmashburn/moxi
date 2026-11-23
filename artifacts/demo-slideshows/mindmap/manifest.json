@@ -2,7 +2,7 @@
   "version": 1,
   "demo_id": "mindmap",
   "title": "Native mind map — public canvas consumer",
-  "revision": "158c67a36c376bbc0f88eaf363669a0485473343",
+  "revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
   "host": "macOS 27.2.1 arm64",
   "backend": "AppKit contentView cacheDisplay; shared moxi_canvas native presenter",
   "scale": 2,
@@ -12,7 +12,7 @@
   "source_state": "clean committed implementation",
   "scoped_dirty_source": [],
   "source_sha256": {
-    "examples/mindmap_native_app.mojo": "3b30f707c75bf8ad98552e06d0708c574656eccfda53f52b439c71fdf94f65de",
+    "examples/mindmap_native_app.mojo": "4121f71d3cd88dc10dbd9436dc6df80250732c848d3a384eb21869d61525e824",
     "native/button_state.h": "7cd1a0d58e305d235c4e0d8ad28101ee79d86342c76432a0d30f49ab8e645cd2",
     "native/harfbuzz_collection.h": "7434f7c79eb25d80fba97a7da5b586fed6c4014533e19bff99d973de9e3ab808",
     "native/harfbuzz_text.h": "af639fad782e6d9ba46fe8a18ade90c644100175bd9c3bec095b52254c77ab51",
@@ -50,7 +50,7 @@
     "pixi.toml": "26b70e7acf91cbbf6b9cfcb551b87de8f72560e170cb1a73fa368fbc4a4b33c5",
     "scripts/demo_slideshows.py": "d9bfa8ef8e7f23afdb3275fc492f6a930af4ea5cbd1bf7034b8c0f4826edc66d",
     "scripts/mindmap/check.sh": "5e88fa28002f3ee00a42a8758bd6ff75ca8bd1a61ea44d0432e7bb7e262c8835",
-    "scripts/mindmap/manifest.py": "23a8c476992533bedde69b5330764e47b27a6bde1cf613999af150910badf1dd",
+    "scripts/mindmap/manifest.py": "27d947966e0a9d3a6d20a870f5c00bba00b8cb02c5f1114de33fd4ac404b3fe8",
     "src/moxi/__init__.mojo": "fae3230cf72c84a26e0ad2d4ed14ef3f72a6a4e1a680e6f04e7e803e54ec9d12",
     "src/moxi/accessibility.mojo": "d29e1e34e9d095cbe76dddf4966b29f6ad939262a790cadad4acef6c5ece81a4",
     "src/moxi/alignment.mojo": "5931badead771e2fa75a64d740270ca7fda2ea000ce6b7a0d89b670fd6596ee0",
@@ -178,7 +178,7 @@
     "src/moxi_mindmap/history.mojo": "92d8bd03bd45c0537a606b5000fddb2633b2b213b101d14aa739c1b5952d6fde",
     "src/moxi_mindmap/layout.mojo": "84cb65f489bbcf1bb08c2314ec73eb88526d7c83769e5fbcad509f286141567b",
     "src/moxi_mindmap/model.mojo": "feac7890ea1a86d7f731b9755befc05c8618041b4b9170d98f6686394450abca",
-    "src/moxi_mindmap/reflow.mojo": "5fb69141a674862c9fa601dcbde9d6366effac82ba77464f7d1164fbbfb1c03f",
+    "src/moxi_mindmap/reflow.mojo": "7c059b084175d23b8db8c8bbc6c8f24753eb9d0c9d330fe43e4d0772993e142b",
     "src/moxi_mindmap/storage.mojo": "c922d21174e10c48ba3c236afa33aeabc102548f25234be4b9883dcdfc0627ac",
     "src/moxi_mindmap/topic_control.mojo": "570549021478c695ab091d59f00a74b13c491c3c12e62e7be1599493573a846e",
     "tests/mindmap/app_benchmark.mojo": "3c8ed20e1874a847b9e6b47a5ddcb7eb5553ed63d96e7e62925310e00fce4f67",
@@ -192,7 +192,7 @@
     "tests/mindmap/layout.mojo": "9a738ddc0878e512eddcddc8c57125a27ca34606f25fa9ed89947dec240023c9",
     "tests/mindmap/model.mojo": "d9d39ac843dc9205e3a2c6e49d67d4b693b5d05da5f3dde874c29147140454f8",
     "tests/mindmap/reference_test.py": "627c17b3dbb672eac6cb3df327f1f2943e5ad0bfcbcff1ee09fb2f44ee4c1e58",
-    "tests/mindmap/reflow.mojo": "66815ac74ca5f9eae8e5d273045606992891f28d92356aec43559acba4c9e604",
+    "tests/mindmap/reflow.mojo": "9fe892fd5efdbcd3e516b56068cb1d0e52fa3f7e9b642bfb0ff61f6a87260e23",
     "tests/mindmap/reflow_exact.mojo": "80c23f6cdf9dceb206d0329dd6d2f38ed508b2b2a30545931b6a7faf6286b980",
     "tests/mindmap/save_session.mojo": "4ff12047911f43d0d01f8a65eda0b726cd2d779e5375505b15bdf640385b4e30",
     "tests/mindmap/storage_test.py": "6d5f26a9a88ed10945741e7b4295e2af8045d2839af6f06b67d09aba4a65ff4c"
@@ -271,10 +271,10 @@
         2360,
         1640
       ],
-      "sha256": "9edf86268df83df13868e986dc88cb67c3f4c14aab6051673174ba0159490b3d",
+      "sha256": "2f3025b2787b9edf33a861a260f5e4c199a568bd5d5069ce51fbb02864f0ac16",
       "caption": "Neighbor reflow starts",
       "action": "Commit the semantic move once.",
-      "expected": "Moved branch is at its destination; neighbors start from prior displayed bounds."
+      "expected": "Moved branch is at its destination; conflicting neighbors start past it along their paths, while safe neighbors retain prior bounds."
     },
     {
       "image": "06b-reflow-middle.png",
@@ -284,10 +284,10 @@
         2360,
         1640
       ],
-      "sha256": "993ef4504725941885b6caa0c046ca3280d6274d5c21644142852834e8e026ad",
+      "sha256": "aba6bd9116c35573ddf6014f0b1b9d5290454ec80bd9967ec0bc6abf474750e3",
       "caption": "Neighbor reflow midpoint",
       "action": "Advance the public frame clock by 90 ms.",
-      "expected": "Shared canvas geometry interpolates; semantic content and history are unchanged."
+      "expected": "Shared canvas geometry interpolates without obscuring the committed branch; semantic content and history are unchanged."
     },
     {
       "image": "06-reparent-result.png",
