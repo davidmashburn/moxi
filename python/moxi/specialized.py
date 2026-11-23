@@ -49,6 +49,7 @@ class Glyph:
     source_rows: Tuple[int, ...] = ()
     size: float = 6.0
     stroke_width: float = 0.0
+    label: str = ''
 
 
 @dataclass

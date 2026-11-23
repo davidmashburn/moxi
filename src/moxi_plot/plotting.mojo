@@ -36,6 +36,8 @@ from .plot_marks import (
     PLOT_CATALOG_LAST,
     PLOT_CHORD,
     PLOT_COLUMN,
+    PLOT_CONTOUR,
+    PLOT_CONTOURF,
     PLOT_DENSITY,
     PLOT_DOT,
     PLOT_ECDF,
@@ -65,6 +67,7 @@ from .plot_marks import (
     PLOT_TEXT,
     PLOT_TICK,
     PLOT_TREEMAP,
+    PLOT_TRICONTOUR,
     PLOT_WATERFALL,
 )
 from .plot_point import PlotPoint, PlotScale, SCALE_BAND, SCALE_LOG, SCALE_ORDINAL
@@ -2228,6 +2231,15 @@ struct Plot:
             series.parent_id = 1
             series.bounds = self.plot_area
             series.value = String("points=", self.series[index].count())
+            if self.series[index].kind == PLOT_CONTOUR or self.series[index].kind == PLOT_CONTOURF or self.series[index].kind == PLOT_TRICONTOUR:
+                var scalar_labels = List[String]()
+                for point in self.series[index].points:
+                    var duplicate = False
+                    for existing in scalar_labels:
+                        duplicate = duplicate or existing == point.text
+                    if not duplicate:
+                        scalar_labels.append(point.text)
+                        series.value += String("; ",point.text)
             snapshot.append(series)
             if self.series[index].has_layout_domain:
                 var seen = List[Int]()

@@ -13,6 +13,7 @@ from .plot_series import PlotSeries
 from .plot_data import PlotDataTable, COLUMN_STRING, COLUMN_CATEGORY, COLUMN_BOOL
 from .plot_spec_types import PlotLayer
 from .plot_spec_json import _string_array
+from .plot_scalar import scalar_color, scalar_level_label, scalar_band_label
 from .plot_marks import (PLOT_PIE, PLOT_DONUT, PLOT_RADAR, PLOT_GAUGE, PLOT_POLAR, PLOT_POLAR_BAR, PLOT_RADIALBAR, PLOT_BEESWARM, PLOT_VIOLIN, PLOT_RIDGELINE, PLOT_NIGHTINGALE, PLOT_STREAMGRAPH, PLOT_CONTOUR, PLOT_CONTOURF)
 
 comptime _KDE_SAMPLES = 30
@@ -148,7 +149,7 @@ def _color(i: Int) -> Color:
     return Color(.65,.45,.95,1)
 
 
-def _emit(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable, ids: List[Int], kind: PlotGlyphKind, part: String, vertices: List[Point], color: Color, interactive: Bool = True):
+def _emit(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable, ids: List[Int], kind: PlotGlyphKind, part: String, vertices: List[Point], color: Color, interactive: Bool = True, label: String = ""):
     if len(vertices) == 0:
         return
     var p = PlotPoint(vertices[0].x,vertices[0].y,data.key_at(ids[0]))
@@ -167,8 +168,9 @@ def _emit(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable, ids: Li
     p.color = color
     p.has_color = True
     p.size = layer.size
-    p.text = data.string_field_at(layer.x_field,ids[0])
-    p.tooltip = String(part, "; representative key=", p.row_key, "; source keys=")
+    p.text = label if label != "" else data.string_field_at(layer.x_field,ids[0])
+    p.tooltip = String(label, "; ") if label != "" else ""
+    p.tooltip += String(part, "; representative key=", p.row_key, "; source keys=")
     for i in ids:
         p.source_keys.append(data.key_at(i))
         p.tooltip += String(data.key_at(i), " ")
@@ -475,7 +477,7 @@ def _contour(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable):
                                 var p = _interpolate(a,b,level)
                                 hits.append(Point(Float32(p.x),Float32(p.y)))
                         if len(hits) == 2 and (hits[0].x != hits[1].x or hits[0].y != hits[1].y):
-                            _emit(result,layer,data,ids,PlotGlyphKind.SEGMENT,String("level:",k),hits,_color(k-1))
+                            _emit(result,layer,data,ids,PlotGlyphKind.SEGMENT,String("level:",k),hits,scalar_color(level,lo,hi),label=scalar_level_label(layer.y2_field,level))
                 else:
                     for k in range(_CONTOUR_BANDS):
                         var lower = lo+(hi-lo)*Float64(k)/Float64(_CONTOUR_BANDS)
@@ -492,4 +494,4 @@ def _contour(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable):
                             var b = clipped[(i+1)%len(clipped)]
                             area += a.x*b.y-b.x*a.y
                         if len(points) >= 3 and abs(area) > 0:
-                            _emit(result,layer,data,ids,PlotGlyphKind.POLYGON,String("band:",k),points,_color(k))
+                            _emit(result,layer,data,ids,PlotGlyphKind.POLYGON,String("band:",k),points,scalar_color((lower+upper)/2,lo,hi),label=scalar_band_label(layer.y2_field,lower,upper,k==_CONTOUR_BANDS-1))

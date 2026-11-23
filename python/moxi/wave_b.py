@@ -7,6 +7,7 @@ Contours are Moxi's piecewise-linear grid algorithm: that pin has no contour API
 from enum import Enum
 from math import cos, sin, pi, sqrt, exp, isfinite, floor
 from .specialized import Glyph, GlyphKind, Layout, PALETTE, INK
+from ._scalar import scalar_color, scalar_level_label, scalar_band_label
 
 
 class WaveBMark(str, Enum):
@@ -103,13 +104,13 @@ def layout(layer, data, width=560., height=416.):
     second = col(layer.y2) if layer.y2 else []
     glyphs = []
     rows = [{**{f:vals[i] for f,vals in data.columns.items()}, "row_index":i} for i in range(n)]
-    def emit(kind, ids, part, points, color=layer.color, interactive=True):
+    def emit(kind, ids, part, points, color=layer.color, interactive=True, label=''):
         if not points: return
         xs,ys=zip(*points)
         bounds=(min(xs),min(ys),max(xs),max(ys)) if kind is GlyphKind.POLYGON else (*points[0],*points[-1])
-        glyphs.append(Glyph(kind,ids[0],part,bounds,tuple(color),interactive,tuple(points),tuple(ids)))
-    def poly(ids,part,points,color=layer.color,interactive=True): emit(GlyphKind.POLYGON,ids,part,points,color,interactive)
-    def segment(ids,part,a,b,color=layer.color): emit(GlyphKind.SEGMENT,ids,part,[a,b],color)
+        glyphs.append(Glyph(kind,ids[0],part,bounds,tuple(color),interactive,tuple(points),tuple(ids),label=label))
+    def poly(ids,part,points,color=layer.color,interactive=True,label=''): emit(GlyphKind.POLYGON,ids,part,points,color,interactive,label)
+    def segment(ids,part,a,b,color=layer.color,label=''): emit(GlyphKind.SEGMENT,ids,part,[a,b],color,label=label)
     def point(i,part,p,color=layer.color): emit(GlyphKind.POINT,[i],part,[p],color)
     def polar(a,r): return r*cos(a),r*sin(a)
     def sector(i,part,a,b,outer,inner=0.,color=layer.color,interactive=True):
@@ -210,11 +211,11 @@ def layout(layer, data, width=560., height=416.):
                             for a,b in zip(pts,pts[1:]+pts[:1]):
                                 if (a[2]<level) != (b[2]<level):
                                     t=(level-a[2])/(b[2]-a[2]);hits.append((a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])))
-                            if len(hits)==2 and hits[0]!=hits[1]:segment(list(tri),'level:'+str(k),*hits,PALETTE[(k-1)%len(PALETTE)])
+                            if len(hits)==2 and hits[0]!=hits[1]:segment(list(tri),'level:'+str(k),*hits,scalar_color(level,lo,hi),label=scalar_level_label(layer.y2,level))
                     else:
                         for k in range(CONTOUR_BANDS):
                             if k<CONTOUR_BANDS-1 and all(p[2]==levels[k+1] for p in pts):continue
                             clipped=_clip(_clip(pts,levels[k],True),levels[k+1],False)
                             area=sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(clipped,clipped[1:]+clipped[:1]))
-                            if len(clipped)>=3 and abs(area)>0:poly(list(tri),'band:'+str(k),[(a,b) for a,b,_ in clipped],PALETTE[k%len(PALETTE)])
+                            if len(clipped)>=3 and abs(area)>0:poly(list(tri),'band:'+str(k),[(a,b) for a,b,_ in clipped],scalar_color((levels[k]+levels[k+1])/2,lo,hi),label=scalar_band_label(layer.y2,levels[k],levels[k+1],k==CONTOUR_BANDS-1))
     return Layout(glyphs,xd,yd,rows)

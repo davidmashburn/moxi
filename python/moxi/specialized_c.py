@@ -8,6 +8,7 @@ from enum import Enum
 from math import cos, sin, pi, hypot, isfinite
 from datetime import date
 from .specialized import Glyph, GlyphKind, Layout, PALETTE
+from ._scalar import scalar_color, scalar_level_label
 
 
 class WaveCMark(str, Enum):
@@ -99,8 +100,8 @@ def layout(layer, data):
     glyphs=[]
     rows=[dict({k:v[i] for k,v in data.columns.items()},row_index=i,mark=mark.value) for i in range(n)]
     xd,yd=(0.,1.),(0.,1.)
-    def emit(kind,row,part,bounds,color=None,vertices=(),sources=None,interactive=True,size=6.,stroke_width=0.):
-        glyphs.append(Glyph(kind,row,part,tuple(bounds),color or PALETTE[row%len(PALETTE)],interactive,tuple(vertices),tuple(sources if sources is not None else (row,)),size,stroke_width))
+    def emit(kind,row,part,bounds,color=None,vertices=(),sources=None,interactive=True,size=6.,stroke_width=0.,label=''):
+        glyphs.append(Glyph(kind,row,part,tuple(bounds),color or PALETTE[row%len(PALETTE)],interactive,tuple(vertices),tuple(sources if sources is not None else (row,)),size,stroke_width,label))
     def seg(row,part,a,b,**kw): emit(GlyphKind.SEGMENT,row,part,(*a,*b),**kw)
     def rect(row,part,a,b,**kw): emit(GlyphKind.RECT,row,part,(*a,*b),**kw)
     def tri(row,part,a,b,c,**kw): emit(GlyphKind.TRIANGLE,row,part,(*a,*b),vertices=(c,),**kw)
@@ -303,5 +304,5 @@ def layout(layer, data):
                     # Half-open level ownership: vertices exactly on a level are deterministic.
                     if (z[a]<=level<z[b]) or (z[b]<=level<z[a]):
                         f=(level-z[a])/(z[b]-z[a]);crossings.append((x[a]+f*(x[b]-x[a]),y[a]+f*(y[b]-y[a])))
-                if len(crossings)==2 and crossings[0]!=crossings[1]:seg(t[0],f'triangle:{ti}:level:{level:g}',*crossings,sources=t)
+                if len(crossings)==2 and crossings[0]!=crossings[1]:seg(t[0],f'triangle:{ti}:level:{level:g}',*crossings,sources=t,color=scalar_color(level,min(z),max(z)),label=scalar_level_label(layer.series_fields[0],level))
     return Layout(glyphs,xd,yd,rows)

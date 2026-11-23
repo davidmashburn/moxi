@@ -25,10 +25,13 @@ def check_case(name: String, document: String, data: PlotDataTable, output: Stri
     var view = PlotView(spec,data,Rect(0,0,640,480))
     var plot = plot_from_spec(spec,data,Rect(0,0,640,480))
     test_check(plot.series[0].has_layout_domain and plot.build_render_packet().fallback_required)
+    var accessible = plot.accessibility()
+    print("summary|",name,"|",accessible.nodes[1].value)
     var identities = List[Int]()
     for i in range(len(plot.series[0].points)):
         var p = plot.series[0].points[i]
         print("glyph|",name,"|",p.glyph.value,"|",p.row_key,"|",p.part,"|",p.x,"|",p.y,"|",p.x2,"|",p.y2)
+        print("style|",name,"|",i,"|",p.color.red,"|",p.color.green,"|",p.color.blue,"|",p.color.alpha,"|",p.text)
         for vertex in p.vertices:
             print("vertex|",name,"|",i,"|",vertex.x,"|",vertex.y)
         for key in p.source_keys:

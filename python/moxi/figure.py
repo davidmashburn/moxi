@@ -273,6 +273,8 @@ class Figure:
                     result=dict(layer=layer.id, mark=layer.mark, row_index=getattr(geometry,'source_row',0), part=getattr(geometry,'part','mark'), x=x, y=y)
             if result is not None and result is not previous_result and hasattr(geometry, 'source_rows'):
                 result['source_rows'] = list(getattr(geometry,'source_rows', (result['row_index'],)))
+                if getattr(geometry, 'label', ''):
+                    result['label'] = geometry.label
         return result
 
     def accessibility(self) -> List[Dict[str, Any]]:
@@ -300,8 +302,11 @@ class Figure:
         from .specialized import LayoutVersion, layout
         for layer in self.spec.layers:
             if layer.layout_version == LayoutVersion.SPECIALIZED:
-                rows.extend(dict(row, layer=layer.id, role="row")
-                            for row in layout(layer, self.data).rows)
+                result = layout(layer, self.data)
+                rows.extend(dict(row, layer=layer.id, role="row") for row in result.rows)
+                rows.extend(dict(layer=layer.id, role="glyph", label=glyph.label,
+                                 part=glyph.part, source_rows=list(glyph.source_rows))
+                            for glyph in result.glyphs if glyph.label)
         return rows
 
     def _layout(self) -> Tuple[float, float, float, float, float, float, float, float]:
@@ -891,6 +896,7 @@ class Figure:
                 if glyph.source_rows:
                     g.source_rows = glyph.source_rows
                 g.part = glyph.part
+                g.label = glyph.label
                 g.interactive = glyph.interactive
                 yield layer, g
 
@@ -941,6 +947,9 @@ class Figure:
         for layer, geometry in self._render_geometries():
             points = geometry.points
             color = _svg_color(layer.color, layer.opacity)
+            label = getattr(geometry, 'label', '')
+            if label:
+                parts.append(f'<g role="img" aria-label="{escape(label, quote=True)}"><title>{escape(label)}</title>')
             if geometry.kind == "line" and len(points) > 1:
                 points_text = " ".join(f"{x:g},{y:g}" for x, y in points)
                 parts.append(f'<polyline points="{points_text}" fill="none" stroke="{self._svg_style(geometry, layer, 0)}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
@@ -997,6 +1006,8 @@ class Figure:
                     point_color = self._svg_style(geometry, layer, index)
                     radius = max(1.0, self._geometry_size(geometry, layer, index) / 2.0)
                     parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{point_color}" data-mark="{layer.mark}"/>')
+            if label:
+                parts.append('</g>')
         if self.spec.title:
             parts.append(f'<text x="{self.width/2:g}" y="18" text-anchor="middle" fill="#101828">{escape(self.spec.title)}</text>')
         parts.append("</g></svg>")

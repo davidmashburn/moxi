@@ -12,6 +12,7 @@ from .plot_point import PlotPoint, PlotGlyphKind
 from .plot_series import PlotSeries
 from .plot_spec_types import PlotLayer
 from .plot_spec_json import _string_array, _read_number
+from .plot_scalar import scalar_color, scalar_level_label
 from .plot_marks import *
 
 
@@ -126,7 +127,7 @@ def _c_find(values: List[String], value: String) -> Int:
     return -1
 
 
-def _c_g(mut s: PlotSeries, data: PlotDataTable, row: Int, kind: PlotGlyphKind, part: String, x: Float32, y: Float32, x2: Float32, y2: Float32, color: Color, interactive: Bool = True, x3: Float32 = 0, y3: Float32 = 0, sources: List[Int] = List[Int](), size: Float32 = 6, stroke_width: Float32 = 0):
+def _c_g(mut s: PlotSeries, data: PlotDataTable, row: Int, kind: PlotGlyphKind, part: String, x: Float32, y: Float32, x2: Float32, y2: Float32, color: Color, interactive: Bool = True, x3: Float32 = 0, y3: Float32 = 0, sources: List[Int] = List[Int](), size: Float32 = 6, stroke_width: Float32 = 0, label: String = ""):
     var p = PlotPoint(x,y,data.key_at(row))
     p.set_extent(x2,y2)
     p.x3 = x3
@@ -134,8 +135,9 @@ def _c_g(mut s: PlotSeries, data: PlotDataTable, row: Int, kind: PlotGlyphKind, 
     p.source_keys = sources.copy() if len(sources) > 0 else [data.key_at(row)]
     p.glyph = kind
     p.part = part
-    p.text = part
-    p.tooltip = String(part,"; source_keys=",p.source_keys_text())
+    p.text = label if label != "" else part
+    p.tooltip = String(label,"; ") if label != "" else ""
+    p.tooltip += String(part,"; source_keys=",p.source_keys_text())
     p.interactive = interactive
     p.color = color
     p.has_color = True
@@ -652,11 +654,15 @@ def _c_layout(layer: PlotLayer,data: PlotDataTable,id: Int) raises -> PlotSeries
         result.layout_x_max=x[0]
         result.layout_y_min=y[0]
         result.layout_y_max=y[0]
+        var scalar_min=z[0]
+        var scalar_max=z[0]
         for i in range(n):
             result.layout_x_min=min(result.layout_x_min,x[i])
             result.layout_x_max=max(result.layout_x_max,x[i])
             result.layout_y_min=min(result.layout_y_min,y[i])
             result.layout_y_max=max(result.layout_y_max,y[i])
+            scalar_min=min(scalar_min,z[i])
+            scalar_max=max(scalar_max,z[i])
         if result.layout_x_min==result.layout_x_max or result.layout_y_min==result.layout_y_max: raise Error("degenerate triangle domain")
         _c_mesh(x,y,triangles)
         var edge_a=List[Int]()
@@ -692,5 +698,5 @@ def _c_layout(layer: PlotLayer,data: PlotDataTable,id: Int) raises -> PlotSeries
                         var f=(level-z[p])/(z[q]-z[p])
                         cx.append(x[p]+f*(x[q]-x[p]))
                         cy.append(y[p]+f*(y[q]-y[p]))
-                if len(cx)==2 and (cx[0]!=cx[1] or cy[0]!=cy[1]): _c_g(result,data,a,PlotGlyphKind.SEGMENT,String("triangle:",t//3,":level:",level),cx[0],cy[0],cx[1],cy[1],_c_palette(a),sources=[data.key_at(a),data.key_at(b),data.key_at(c)])
+                if len(cx)==2 and (cx[0]!=cx[1] or cy[0]!=cy[1]): _c_g(result,data,a,PlotGlyphKind.SEGMENT,String("triangle:",t//3,":level:",level),cx[0],cy[0],cx[1],cy[1],scalar_color(Float64(level),Float64(scalar_min),Float64(scalar_max)),sources=[data.key_at(a),data.key_at(b),data.key_at(c)],label=scalar_level_label(fields[0],Float64(level)))
     return result^
