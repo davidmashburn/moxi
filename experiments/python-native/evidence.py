@@ -150,7 +150,7 @@ def pages():
     body += '<p>500 successful renders alternate with 500 public malformed calls and 500 malformed Mojo-parser calls; owned outputs survive GC and input mutation/destruction. Forty calls from four Python threads also pass (GIL held). Nullable masks supported; category/string/timestamp rejected.</p>'
     body += '<p>Bounded lifetime/error evidence only. No sanitizer, leak detector, free-threaded Python or production load claim.</p>'
     (OUT / '04-recovery.html').write_text(page('04-recovery', body, revision))
-    body = '<p class="gate"><strong>Decision: retain local experimental wheel. Production native-extension gate OPEN.</strong><br>Clean installed rendering passes with process creation blocked and no Mojo compiler on the consumer PATH. Bundled proprietary-runtime redistribution is unreviewed; host/ABI portability and broader rendering remain unverified.</p>'
+    body = '<p class="gate"><strong>Decision: retain local experimental wheel. Production native-extension gate OPEN.</strong><br>Clean installed rendering passes with process creation blocked and no Mojo compiler on the consumer PATH. Bundled proprietary-runtime redistribution is unreviewed; support beyond tested host/ABI pairs and broader rendering remain unverified.</p>'
     body += pre(dict(wheel=packaging['wheel'], bytes=packaging['bytes'], sha256=packaging['sha256'],
                      dependency_check=packaging['dependency_check'], runtime_license=build['runtime_license']))
     body += '<h2>Loaded runtime comes from the wheel</h2>' + pre([Path(p).name for p in read('loaded-runtime.json')])
