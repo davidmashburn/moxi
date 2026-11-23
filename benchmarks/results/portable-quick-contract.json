@@ -59,13 +59,13 @@
       "name": "portable plot scene",
       "signature": {
         "metric_lines": [
-          "Moxi plot benchmark checksum:  852464264",
+          "Moxi plot benchmark checksum:  852260578",
           "Moxi plot benchmark commands/frame:  65",
           "Moxi plot benchmark passes:  100",
-          "Moxi plot benchmark rasterized pixels/frame:  276317"
+          "Moxi plot benchmark rasterized pixels/frame:  276645"
         ],
         "checksums": [
-          "852464264"
+          "852260578"
         ]
       }
     }
