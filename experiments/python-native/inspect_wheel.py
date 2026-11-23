@@ -10,7 +10,11 @@ import zipfile
 
 
 def command(*args):
-    return subprocess.check_output(args, text=True)
+    result = subprocess.run(args, text=True, capture_output=True)
+    if result.returncode:
+        raise RuntimeError(f'{args[0]} failed ({result.returncode}): ' +
+                           (result.stderr.strip() or result.stdout.strip()))
+    return result.stdout
 
 
 def dylib_dependencies(linked: str) -> list[str]:
@@ -35,6 +39,9 @@ def inspect(wheel: Path) -> dict:
             archive.extractall(root)
             metadata = archive.read(next(n for n in names if n.endswith('.dist-info/METADATA'))).decode()
             tags = archive.read(next(n for n in names if n.endswith('.dist-info/WHEEL'))).decode()
+            platform_tags = [line.removeprefix('Tag: ').split('-')[-1]
+                             for line in tags.splitlines() if line.startswith('Tag: ')]
+            assert platform_tags and all(tag.endswith('_arm64') for tag in platform_tags), tags
             build_module = ast.parse(archive.read('moxi_native/_build.py').decode())
             build = ast.literal_eval(build_module.body[0].value)
             notices = build['runtime_notices']
@@ -48,6 +55,8 @@ def inspect(wheel: Path) -> dict:
         libs = list((core[0].parent / '.libs').glob('*.dylib'))
         assert len(libs) == 3
         for path in core + libs:
+            architectures = command('lipo', '-archs', str(path)).split()
+            assert architectures == ['arm64'], (path.name, architectures)
             linked = command('otool', '-L', str(path))
             loads = command('otool', '-l', str(path))
             dependencies = dylib_dependencies(linked)
@@ -68,17 +77,18 @@ def inspect(wheel: Path) -> dict:
                     raise AssertionError(f'external non-system dependency: {dependency}')
                 assert resolved.is_file(), dependency
             assert all(rpath == '@loader_path/.libs' for rpath in rpaths), rpaths
-            subprocess.run(['codesign', '--verify', str(path)], check=True, capture_output=True)
+            command('codesign', '--verify', str(path))
             binaries[str(path.relative_to(root))] = dict(
                 sha256=hashlib.sha256(path.read_bytes()).hexdigest(), dependencies=dependencies,
-                rpaths=rpaths, file=command('file', str(path)).strip().replace(str(path), path.name),
+                rpaths=rpaths, architectures=architectures,
+                file=command('file', str(path)).strip().replace(str(path), path.name),
                 build_version=command('vtool', '-show-build', str(path)).replace(str(path), path.name))
         return dict(wheel=wheel.name, sha256=hashlib.sha256(wheel.read_bytes()).hexdigest(),
                     bytes=wheel.stat().st_size, members=names, metadata=metadata, tags=tags,
                     binaries=binaries, dependency_check='PASS: bundled or system only',
                     runtime_license=build['runtime_license'], runtime_notices=notices,
                     compiler_in_wheel=False, abi3=False,
-                    production_gate='OPEN: proprietary runtime redistribution unreviewed; one CPython/macOS/arm64 host only; bounded render coverage')
+                    production_gate='OPEN: proprietary runtime redistribution unreviewed; tested CPython/macOS/arm64 pairs only; bounded render coverage')
 
 if __name__ == '__main__':
     print(json.dumps(inspect(Path(sys.argv[1])), indent=2))

@@ -133,6 +133,9 @@ Set `MOXI_E04_PYTHON` for another locally installed CPython and
 on this build host is an isolated consumer, not fresh-host distribution proof.
 The compiled object is an explicit extension dependency, so a new Mojo build
 relinks the C extension even when the C sources have not changed.
+The package build selects arm64 even under a universal2 Python interpreter and
+ad hoc signs the final linked extension. Inspection requires an arm64-only wheel
+tag and all four binaries to contain only arm64 with valid signatures.
 
 [The targeted hosted check](../../.github/workflows/python-native-experimental.yml)
 is configured to build CPython 3.13 and 3.14 wheels on fresh macOS 15 ARM64 runners and exercise

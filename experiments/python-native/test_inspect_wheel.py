@@ -1,6 +1,7 @@
 """Mach-O output contracts from thin and architecture-qualified otool runs."""
 import unittest
-from inspect_wheel import dylib_dependencies
+import sys
+from inspect_wheel import command, dylib_dependencies
 
 
 class DependencyOutputTests(unittest.TestCase):
@@ -20,6 +21,11 @@ class DependencyOutputTests(unittest.TestCase):
         for output in ('/tmp/wheel/_core.so:\n', '/tmp/wheel/_core.so:\n\tunexpected dependency row\n'):
             with self.subTest(output=output), self.assertRaises(AssertionError):
                 dylib_dependencies(output)
+
+    def test_failed_tool_preserves_its_diagnostic(self):
+        with self.assertRaisesRegex(RuntimeError, r'failed \(1\): signature diagnostic'):
+            command(sys.executable, '-c',
+                    'import sys; sys.stderr.write("signature diagnostic\\n"); sys.exit(1)')
 
 
 if __name__ == '__main__':
