@@ -1,5 +1,15 @@
 # Deferred implementation integration checkpoint
 
+## November 23 follow-through
+
+The gallery review led to fixes in the mindmap branch preview and reflow, mixed-script editing, plot layout, scalar colors and ridgeline peak clipping. The [catalog audit](../artifacts/demo-slideshows/CATALOG-AUDIT.md) distinguishes locally available frames from frames retained in Git. The [contour and radial comparisons](../artifacts/demo-slideshows/plot-contour-followup/README.md) and [ridgeline comparison](../artifacts/demo-slideshows/plot-ridgeline-followup/README.md) record the reference revisions, tolerances and remaining visual differences.
+
+The [SeedWater replay](../artifacts/demo-slideshows/sws-native/README.md) covers the packaged consumer, scientific fixtures and native image sampling. The [installed Python wheel review](../artifacts/demo-slideshows/e04-python-native/REVIEW.md) covers raster text, searchable PDF and interpreter-specific builds. Redistribution remains unresolved.
+
+The browser host centered its canvas with equal left and right margins of 210, 70 and 16 CSS pixels at widths of 1180, 900 and 390 in Chrome 158 and Playwright WebKit 27.2. At all three sizes, the canvas accepted pointer and keyboard input, and a wheel gesture left the page at its origin with no nested scrollable region. These checks exercised the JavaScript host. The pinned Mojo compiler does not provide a browser WASM target here.
+
+The [packaged workbench record](workbench-native-acceptance.md) covers import, selection, export and reopening. Physical IME and sustained presentation timing still need a desktop session, and independent authoring needs a human participant. VoiceOver testing remains paused. The [world-panel probe](../examples/spatial-world-panel/README.md) measured a misplaced native caret and keeps the screen editor available.
+
 ## Published main verification — November 20, 2026
 
 The deferred integration is published on `main`. Its November 6 publication at
