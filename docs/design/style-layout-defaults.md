@@ -13,3 +13,9 @@ Center content within its allocated space. Check actual text and control bounds 
 ## Verification
 
 Exercise theme selection, insertion order, nested scopes, local overrides and recipe identity. Exercise the affected centered controls and scrolling surface at two sizes, including an overflow case. Inspect rendered output and record the tested host and any remaining limits. Keep the implementation on main and planning history on this branch.
+
+## Delivered November 22, 2026
+
+The root and nearest container now supply theme defaults to descendants, including controls added later. Recipes retain their roles as the palette changes. An explicit property on a control takes precedence for that property. An explicitly supplied complete style owns the entire control appearance. The authoring and lower-level APIs both expose this model. [Usage and examples](https://github.com/davidmashburn/moxi/blob/135c46d/README.md)
+
+The alignment, scroll ownership and viewport clipping changes shipped in [135c46d](https://github.com/davidmashburn/moxi/commit/135c46d). The [Fractal follow-up](https://github.com/davidmashburn/moxi/commit/e7892c3) leaves space for the thumb beside the canvas. AppKit capture and routed-scroll tests cover this path. Browser shells were inspected at source. The November 23 [benchmark reference](https://github.com/davidmashburn/moxi/commit/045f9a5) records the resulting default scene.
