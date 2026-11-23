@@ -1103,11 +1103,11 @@ class Figure:
         # representation, but the PDF contains the same core geometry rather
         # than being a blank transport envelope.
         left, top, plot_width, plot_height, *_ = self._layout()
-        commands = [
-            "q 1 1 1 rg 0 0 %g %g re f Q" % (self.width, self.height),
-            "0.4 0.44 0.52 RG 1 w %g %g m %g %g l S" % (left, self.height - top - plot_height, left + plot_width, self.height - top - plot_height),
-            "0.4 0.44 0.52 RG 1 w %g %g m %g %g l S" % (left, self.height - top, left, self.height - top - plot_height),
-        ]
+        commands = ["q 1 1 1 rg 0 0 %g %g re f Q" % (self.width, self.height)]
+        if self._uses_cartesian_axes():
+            baseline = self.height - top - plot_height
+            commands.append(f"0.4 0.44 0.52 RG 1 w {left:g} {baseline:g} m {left+plot_width:g} {baseline:g} l S")
+            commands.append(f"0.4 0.44 0.52 RG 1 w {left:g} {self.height-top:g} m {left:g} {baseline:g} l S")
         for layer, geometry in self._render_geometries():
             points = geometry.points
             red, green, blue, alpha = layer.color

@@ -19,6 +19,8 @@ def test_specialized_coordinate_axes(case):
     svg = ElementTree.fromstring(fig.to_svg())
     axes = svg.findall(".//{*}line[@stroke='#667085']")
     assert len(axes) == (0 if radial else 2)
+    # The PDF reference writer leaves its vector content stream uncompressed.
+    assert fig.to_pdf().count(b"0.4 0.44 0.52 RG 1 w ") == (0 if radial else 2)
     if radial:
         left, top, *_ = fig._layout()
         offset = 4 * (int(top) * fig.width + int(left))
