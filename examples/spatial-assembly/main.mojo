@@ -373,11 +373,15 @@ def replay(mut window: MacOSWindowInstance, mut app: Assembly, directory: String
     app.message = "Retain X >= 0 in both views. Rendering, picking and occlusion use the same clipped triangles."
     capture(app,directory,"06-clipping")
     app.action(Control.PLANE)
+    if not app.left.clip().enabled or app.left.clip().offset != 0.25 or app.right.clip().offset != 0.25:
+        raise Error("Clipping plane offset did not update both views")
+    app.message = "Retain X >= 0.25 in both views. Rendering, picking and occlusion use the same clipped triangles."
     capture(app,directory,"07-plane-moved")
     app.action(Control.UNDO)
     app.action(Control.UNDO)
-    if app.left.clip().enabled:
+    if app.left.clip().enabled or app.right.clip().enabled or app.left.clip().offset != 0 or app.right.clip().offset != 0:
         raise Error("Clipping undo failed")
+    app.message = "Clipping disabled in both views; full geometry restored by undo."
     capture(app,directory,"08-clip-undo")
     app.action(Control.AXIS)
     p = handle(app.right,app.tool)
@@ -385,6 +389,7 @@ def replay(mut window: MacOSWindowInstance, mut app: Assembly, directory: String
     child_x = app.left.world_transform(405,SpatialComponent.X)
     inject(window,app,POINTER_DOWN_KIND,Float32(p.x),Float32(p.y))
     inject(window,app,DRAG_UPDATE_KIND,Float32(p.x+30),Float32(p.y))
+    app.message = "Uncommitted Arm translation in both views; clipping remains disabled. Escape discards the preview."
     capture(app,directory,"09-cancel-preview")
     inject(window,app,KEY_DOWN_KIND,key=KEY_ESCAPE)
     if app.left.metric(SpatialMetric.HISTORY) != history or app.left.world_transform(405,SpatialComponent.X) != child_x:
