@@ -18,13 +18,15 @@ fi
 cp "$here"/tests/*.py "$consumer/tests/"
 "$python" "$here/inspect_wheel.py" "${native_wheels[0]}" > "$artifacts/packaging.json"
 # Isolated mode omits the repo and user-site. pytest loads only copied test files.
+native_status=0
 (cd "$consumer" && env -i HOME="$consumer/home" PATH=/usr/bin:/bin PYTHONMALLOC=debug \
-  "$consumer/venv/bin/python" -I -m pytest tests -q) > /tmp/moxi-e04-native-tests.log 2>&1
-cat /tmp/moxi-e04-native-tests.log
+  "$consumer/venv/bin/python" -I -m pytest tests -q) > "$consumer/native-tests.log" 2>&1 || native_status=$?
+cp "$consumer/native-tests.log" "$artifacts/native-tests.log"
+cat "$consumer/native-tests.log"
+if [ "$native_status" -ne 0 ]; then exit "$native_status"; fi
 # run_path permits only this copied fixture directory, never a repository import.
 (cd "$consumer" && env -i HOME="$consumer/home" PATH=/usr/bin:/bin PYTHONMALLOC=debug \
   "$consumer/venv/bin/python" -I -c 'import runpy,sys; sys.path.insert(0,"tests"); sys.argv=["tests/probe.py",sys.argv[1]]; runpy.run_path("tests/probe.py",run_name="__main__")' "$artifacts")
-cp /tmp/moxi-e04-native-tests.log "$artifacts/native-tests.log"
 # The existing suite stays authoritative for the unchanged facade.
 cp -R "$root/tests/python" "$consumer/tests/python"
 mkdir -p "$consumer/tests/fixtures" "$consumer/scripts/wave_b" "$consumer/scripts/wave_c" "$consumer/src/moxi" "$consumer/docs"
@@ -36,8 +38,10 @@ for wave in wave_b wave_c; do
 done
 cp "$root/src/moxi/scenarios.mojo" "$consumer/src/moxi/"
 cp "$root/docs/dataviz-capabilities.tsv" "$consumer/docs/"
+facade_status=0
 (cd "$consumer" && env -i HOME="$consumer/home" PATH=/usr/bin:/bin \
-  "$consumer/venv/bin/python" -I -m pytest tests/python tests/test_specialized_c.py -q) > /tmp/moxi-e04-facade-tests.log 2>&1
-cat /tmp/moxi-e04-facade-tests.log
-cp /tmp/moxi-e04-facade-tests.log "$artifacts/facade-tests.log"
+  "$consumer/venv/bin/python" -I -m pytest tests/python tests/test_specialized_c.py -q) > "$consumer/facade-tests.log" 2>&1 || facade_status=$?
+cp "$consumer/facade-tests.log" "$artifacts/facade-tests.log"
+cat "$consumer/facade-tests.log"
+if [ "$facade_status" -ne 0 ]; then exit "$facade_status"; fi
 printf 'Clean installed consumer retained at %s\n' "$consumer"

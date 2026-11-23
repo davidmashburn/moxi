@@ -13,6 +13,19 @@ def command(*args):
     return subprocess.check_output(args, text=True)
 
 
+def dylib_dependencies(linked: str) -> list[str]:
+    """Read dependency rows, allowing otool's per-architecture header lines."""
+    dependencies = []
+    for line in linked.splitlines():
+        line = line.strip()
+        if ' (compatibility version ' in line:
+            dependencies.append(line.split(' (compatibility version ', 1)[0])
+        elif line and not line.endswith(':'):
+            raise AssertionError('Unexpected otool dependency output: ' + line)
+    assert dependencies, 'No Mach-O dependency rows reported'
+    return list(dict.fromkeys(dependencies))
+
+
 def inspect(wheel: Path) -> dict:
     with tempfile.TemporaryDirectory(prefix='moxi-e04-inspect-') as temporary:
         root = Path(temporary)
@@ -37,7 +50,7 @@ def inspect(wheel: Path) -> dict:
         for path in core + libs:
             linked = command('otool', '-L', str(path))
             loads = command('otool', '-l', str(path))
-            dependencies = [line.strip().split(' (compatibility')[0] for line in linked.splitlines()[1:]]
+            dependencies = dylib_dependencies(linked)
             rpaths = []
             lines = loads.splitlines()
             for index, line in enumerate(lines):

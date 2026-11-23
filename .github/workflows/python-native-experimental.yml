@@ -71,6 +71,10 @@ jobs:
           cache: false
       - name: Install the locked compiler on this fresh host
         run: pixi install --locked
+      - name: Check packaging inspectors
+        run: |
+          python experiments/python-native/test_inspect_wheel.py
+          python experiments/python-native/test_build_notices.py
       - name: Build the experimental wheel for this host
         run: |
           if ! bash experiments/python-native/build.sh > "$RUNNER_TEMP/e04-build.log" 2>&1; then
@@ -84,7 +88,7 @@ jobs:
         run: |
           if ! bash experiments/python-native/check.sh > "$RUNNER_TEMP/e04-consumer.log" 2>&1; then
             tail -100 "$RUNNER_TEMP/e04-consumer.log"
-            test ! -f /tmp/moxi-e04-native-tests.log || tail -80 /tmp/moxi-e04-native-tests.log
+            test ! -f "$MOXI_E04_ARTIFACTS/native-tests.log" || tail -80 "$MOXI_E04_ARTIFACTS/native-tests.log"
             exit 1
           fi
           python - <<'PY'
@@ -95,6 +99,7 @@ jobs:
           package = json.loads((evidence / 'packaging.json').read_text())
           print(json.dumps({key: initial[key] for key in ('python', 'platform', 'isolated', 'mojo_on_path', 'process_audit')}, indent=2))
           print(json.dumps({key: package[key] for key in ('wheel', 'sha256', 'dependency_check', 'abi3', 'production_gate')}, indent=2))
+          print(json.dumps({name: {key: row[key] for key in ('file', 'rpaths', 'build_version')} for name, row in package['binaries'].items()}, indent=2))
           print((evidence / 'native-tests.log').read_text().strip())
           print((evidence / 'facade-tests.log').read_text().strip())
           PY
