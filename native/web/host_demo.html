@@ -8,8 +8,8 @@
       :root { color-scheme: dark; font: 15px ui-monospace, SFMono-Regular, Menlo, monospace; }
       body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0e111a; color: #eff3ff; }
       main { width: min(760px, calc(100vw - 32px)); }
-      canvas { display: block; width: 100%; height: min(70vh, 520px); border: 1px solid #3a4b70; border-radius: 18px; outline: none; background: #0e111a; }
-      canvas:focus { border-color: #6fd6b4; box-shadow: 0 0 0 3px #6fd6b433; }
+      canvas { display: block; width: 100%; height: min(70vh, 520px); border-radius: 18px; outline: 1px solid #3a4b70; outline-offset: -1px; background: #0e111a; }
+      canvas:focus { outline: 2px solid #6fd6b4; outline-offset: 2px; }
       p { color: #bfc9de; line-height: 1.5; }
       code { color: #6fd6b4; }
     </style>
@@ -19,7 +19,7 @@
       <canvas id="moxi-surface" tabindex="0" aria-label="Moxi Web host demo" data-moxi-surface="moxi-surface"></canvas>
       <p id="status" data-moxi-status="starting">Starting the Moxi Web host…</p>
       <p>Click or touch the surface. The same scalar host contract drives pointer,
-        keyboard, resize, animation-frame, and teardown callbacks.</p>
+        keyboard, IME, resize, animation-frame, and teardown callbacks.</p>
     </main>
     <script type="module">
       import { MoxiWebHost } from "../hosts/moxi_web_host.mjs";
@@ -49,20 +49,22 @@
         context.clearRect(0, 0, width, height);
         context.fillStyle = "#0e111a";
         context.fillRect(0, 0, width, height);
-        const inset = Math.max(24, width * 0.08);
+        const inset = Math.min(60, width * 0.08, height * 0.08);
+        const centerX = width / 2;
+        const centerY = height / 2;
         context.fillStyle = "#263048";
         context.beginPath();
-        context.roundRect(inset, inset * 1.8, width - inset * 2, height - inset * 3.6, 22);
+        context.roundRect(inset, inset, width - 2 * inset, height - 2 * inset, 22);
         context.fill();
         context.fillStyle = "#6fd6b4";
-        context.fillRect(inset * 1.7, inset * 2.8, 10, 10);
+        context.fillRect(centerX - 5, centerY - 40, 10, 10);
+        context.textAlign = "center";
         context.fillStyle = "#eff3ff";
         context.font = "600 19px ui-monospace, monospace";
-        context.fillText("Moxi Web host", inset * 1.7, inset * 4.8);
+        context.fillText("Moxi Web host", centerX, centerY + 4);
         context.fillStyle = "#bfc9de";
         context.font = "13px ui-monospace, monospace";
-        context.fillText("Canvas surface + pointer/touch + IME + resize", inset * 1.7, inset * 6.1);
-        context.fillText(`frame ${frames}  •  ${lastEvent}`, inset * 1.7, inset * 7.8);
+        context.fillText(`frame ${frames}`, centerX, centerY + 32);
       }
 
       const host = new MoxiWebHost(canvas, {
