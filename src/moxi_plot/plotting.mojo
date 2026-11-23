@@ -35,6 +35,14 @@ from .plot_marks import (
     PLOT_CATALOG_FIRST,
     PLOT_CATALOG_LAST,
     PLOT_CHORD,
+    PLOT_PIE,
+    PLOT_DONUT,
+    PLOT_RADAR,
+    PLOT_GAUGE,
+    PLOT_POLAR,
+    PLOT_POLAR_BAR,
+    PLOT_RADIALBAR,
+    PLOT_NIGHTINGALE,
     PLOT_COLUMN,
     PLOT_CONTOUR,
     PLOT_CONTOURF,
@@ -1375,75 +1383,24 @@ struct Plot:
         packet.emitted_point_count = emitted_count
         return packet^
 
-    def build_scene(self, include_marks: Bool = True) -> Scene:
-        """Build a complete plot scene for any Moxi scene renderer.
+    def _uses_cartesian_axes(self) -> Bool:
+        if len(self.series) != 1 or not self.series[0].has_layout_domain:
+            return True
+        var kind = self.series[0].kind
+        return not (
+            kind == PLOT_PIE
+            or kind == PLOT_DONUT
+            or kind == PLOT_RADAR
+            or kind == PLOT_GAUGE
+            or kind == PLOT_POLAR
+            or kind == PLOT_POLAR_BAR
+            or kind == PLOT_RADIALBAR
+            or kind == PLOT_NIGHTINGALE
+            or kind == PLOT_CHORD
+            or kind == PLOT_SUNBURST
+        )
 
-        ``include_marks=False`` keeps the plot chrome while leaving the dense
-        mark layer to ``build_render_packet``.  This is the composition seam
-        used by the Metal fast path; the default remains the complete portable
-        scene.
-        """
-        var scene = Scene()
-        scene.append_rounded_rect(1, self.bounds, self.background, 12.0)
-        scene.push_clip(2, self.plot_area)
-        if self.facet_count() > 0:
-            var facet_height = self.plot_area.height / Float32(self.facet_count())
-            var facet_column_count = self.facet_column_count()
-            if facet_column_count < 1:
-                facet_column_count = 1
-            var facet_width = self.plot_area.width / Float32(facet_column_count)
-            for facet_index in range(self.facet_count()):
-                var facet_top = self.plot_area.y + facet_height * Float32(facet_index)
-                scene.append_line(
-                    60 + facet_index,
-                    Point(self.plot_area.x, facet_top),
-                    Point(self.plot_area.x + self.plot_area.width, facet_top),
-                    self.grid_color,
-                    1.0,
-                )
-                scene.append_text(
-                    70 + facet_index,
-                    self.facet_values[facet_index],
-                    Rect(self.plot_area.x + 4.0, facet_top + 2.0, 120.0, 16.0),
-                    self.axis_color,
-                )
-            for column_index in range(facet_column_count):
-                var facet_left = self.plot_area.x + facet_width * Float32(column_index)
-                scene.append_line(
-                    80 + column_index,
-                    Point(facet_left, self.plot_area.y),
-                    Point(facet_left, self.plot_area.y + self.plot_area.height),
-                    self.grid_color,
-                    1.0,
-                )
-                if self.facet_column_count() > 0:
-                    scene.append_text(
-                        90 + column_index,
-                        self.facet_column_values[column_index],
-                        Rect(facet_left + 4.0, self.plot_area.y + 2.0, 120.0, 16.0),
-                        self.axis_color,
-                    )
-        if self.show_grid:
-            for index in range(1, 5):
-                var fraction = Float32(index) / 5.0
-                var x = self.plot_area.x + self.plot_area.width * fraction
-                var y = self.plot_area.y + self.plot_area.height * fraction
-                scene.append_line(
-                    self._grid_line_id(0, index),
-                    Point(x, self.plot_area.y),
-                    Point(x, self.plot_area.y + self.plot_area.height),
-                    self.grid_color,
-                    1.0,
-                )
-                scene.append_line(
-                    self._grid_line_id(1, index),
-                    Point(self.plot_area.x, y),
-                    Point(self.plot_area.x + self.plot_area.width, y),
-                    self.grid_color,
-                    1.0,
-                )
-        # Tick labels occupy the margins, outside the data clip.
-        scene.pop_clip()
+    def _append_cartesian_axes(self, mut scene: Scene):
         scene.append_line(
             150,
             Point(self.plot_area.x, self.plot_area.y + self.plot_area.height),
@@ -1504,6 +1461,79 @@ struct Plot:
             self.axis_color,
             1.0,
         )
+
+    def build_scene(self, include_marks: Bool = True) -> Scene:
+        """Build a complete plot scene for any Moxi scene renderer.
+
+        ``include_marks=False`` keeps the plot chrome while leaving the dense
+        mark layer to ``build_render_packet``.  This is the composition seam
+        used by the Metal fast path; the default remains the complete portable
+        scene.
+        """
+        var scene = Scene()
+        scene.append_rounded_rect(1, self.bounds, self.background, 12.0)
+        scene.push_clip(2, self.plot_area)
+        if self.facet_count() > 0:
+            var facet_height = self.plot_area.height / Float32(self.facet_count())
+            var facet_column_count = self.facet_column_count()
+            if facet_column_count < 1:
+                facet_column_count = 1
+            var facet_width = self.plot_area.width / Float32(facet_column_count)
+            for facet_index in range(self.facet_count()):
+                var facet_top = self.plot_area.y + facet_height * Float32(facet_index)
+                scene.append_line(
+                    60 + facet_index,
+                    Point(self.plot_area.x, facet_top),
+                    Point(self.plot_area.x + self.plot_area.width, facet_top),
+                    self.grid_color,
+                    1.0,
+                )
+                scene.append_text(
+                    70 + facet_index,
+                    self.facet_values[facet_index],
+                    Rect(self.plot_area.x + 4.0, facet_top + 2.0, 120.0, 16.0),
+                    self.axis_color,
+                )
+            for column_index in range(facet_column_count):
+                var facet_left = self.plot_area.x + facet_width * Float32(column_index)
+                scene.append_line(
+                    80 + column_index,
+                    Point(facet_left, self.plot_area.y),
+                    Point(facet_left, self.plot_area.y + self.plot_area.height),
+                    self.grid_color,
+                    1.0,
+                )
+                if self.facet_column_count() > 0:
+                    scene.append_text(
+                        90 + column_index,
+                        self.facet_column_values[column_index],
+                        Rect(facet_left + 4.0, self.plot_area.y + 2.0, 120.0, 16.0),
+                        self.axis_color,
+                    )
+        var cartesian = self._uses_cartesian_axes()
+        if cartesian and self.show_grid:
+            for index in range(1, 5):
+                var fraction = Float32(index) / 5.0
+                var x = self.plot_area.x + self.plot_area.width * fraction
+                var y = self.plot_area.y + self.plot_area.height * fraction
+                scene.append_line(
+                    self._grid_line_id(0, index),
+                    Point(x, self.plot_area.y),
+                    Point(x, self.plot_area.y + self.plot_area.height),
+                    self.grid_color,
+                    1.0,
+                )
+                scene.append_line(
+                    self._grid_line_id(1, index),
+                    Point(self.plot_area.x, y),
+                    Point(self.plot_area.x + self.plot_area.width, y),
+                    self.grid_color,
+                    1.0,
+                )
+        # Tick labels occupy the margins, outside the data clip.
+        scene.pop_clip()
+        if cartesian:
+            self._append_cartesian_axes(scene)
 
         scene.push_clip(3, self.plot_area)
         for series_index in range(len(self.series)):

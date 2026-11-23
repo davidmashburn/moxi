@@ -11,6 +11,7 @@ from moxi import (
 )
 from moxi_plot import (
     PLOT_BAR,
+    PLOT_DONUT,
     PLOT_LINE,
     PLOT_SCATTER,
     Plot,
@@ -59,6 +60,16 @@ def main() raises:
         if command.id == 600 + line:
             legend_top = command.bounds.y
     test_check(clip_depth == 0 and tick_bottom > 0 and legend_top >= tick_bottom + 6)
+    var donut = Plot(Rect(0, 0, 320, 240))
+    _ = donut.add_series("donut", Color(1, 0, 0, 1), PLOT_DONUT)
+    for specialized in range(2):
+        donut.series[0].has_layout_domain = specialized == 1
+        var radial_scene = donut.build_scene()
+        var cartesian_commands = 0
+        for command in radial_scene.commands:
+            if command.id == 150 or command.id == 700 or command.id == 101:
+                cartesian_commands += 1
+        test_check(cartesian_commands == (0 if specialized == 1 else 3))
     var renderer = SoftwareSceneRenderer(320, 240)
     renderer.render_scene(scene)
     test_check(renderer.checksum() > 0)

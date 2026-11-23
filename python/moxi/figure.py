@@ -939,11 +939,24 @@ class Figure:
     def _geometry_size(cls, geometry: _Geometry, layer: Any, index: int) -> float:
         return geometry.sizes[index] if index < len(geometry.sizes) else float(layer.size)
 
+    def _uses_cartesian_axes(self) -> bool:
+        from .specialized import LayoutVersion
+        from .specialized_c import WaveCMark
+        from .wave_b import RADIAL
+
+        if len(self.spec.layers) != 1:
+            return True
+        layer = self.spec.layers[0]
+        return layer.layout_version != LayoutVersion.SPECIALIZED or (
+            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST)
+        )
+
     def to_svg(self) -> bytes:
         left, top, plot_width, plot_height, *_ = self._layout()
         parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.width}" height="{self.height}" viewBox="0 0 {self.width} {self.height}">', '<rect width="100%" height="100%" fill="white"/>', f'<g data-moxi="plot" data-version="{self.spec.version}">']
-        parts.append(f'<line x1="{left:g}" y1="{top+plot_height:g}" x2="{left+plot_width:g}" y2="{top+plot_height:g}" stroke="#667085"/>')
-        parts.append(f'<line x1="{left:g}" y1="{top:g}" x2="{left:g}" y2="{top+plot_height:g}" stroke="#667085"/>')
+        if self._uses_cartesian_axes():
+            parts.append(f'<line x1="{left:g}" y1="{top+plot_height:g}" x2="{left+plot_width:g}" y2="{top+plot_height:g}" stroke="#667085"/>')
+            parts.append(f'<line x1="{left:g}" y1="{top:g}" x2="{left:g}" y2="{top+plot_height:g}" stroke="#667085"/>')
         for layer, geometry in self._render_geometries():
             points = geometry.points
             color = _svg_color(layer.color, layer.opacity)
@@ -1016,9 +1029,10 @@ class Figure:
     def to_rgba(self) -> bytes:
         raster = _Raster(self.width, self.height)
         left, top, plot_width, plot_height, *_ = self._layout()
-        axis = (102, 112, 133, 255)
-        raster.line((left, top + plot_height), (left + plot_width, top + plot_height), 1.0, axis)
-        raster.line((left, top), (left, top + plot_height), 1.0, axis)
+        if self._uses_cartesian_axes():
+            axis = (102, 112, 133, 255)
+            raster.line((left, top + plot_height), (left + plot_width, top + plot_height), 1.0, axis)
+            raster.line((left, top), (left, top + plot_height), 1.0, axis)
         for layer, geometry in self._render_geometries():
             points = geometry.points
             color = _rgba(layer.color, layer.opacity)
