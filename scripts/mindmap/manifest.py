@@ -14,13 +14,19 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def source_paths():
+    # Generated/ignored build products are not replay inputs. Include unignored
+    # new authored inputs so dirty captures cannot silently omit them; the clean
+    # evidence checker rejects their uncommitted status.
+    authored = set(subprocess.check_output(
+        ['git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard'],
+        cwd=ROOT, text=True).split('\0'))
     sources = set()
     for directory in ('src/moxi', 'src/moxi_canvas', 'src/moxi_mindmap', 'native', 'scripts/mindmap', 'tests/mindmap'):
         for p in (ROOT / directory).rglob('*'):
             if p.suffix in {'.mojo', '.m', '.h', '.inc', '.py', '.sh', '.mm', '.json'} and '__pycache__' not in p.parts:
                 sources.add(p)
     sources.update(ROOT / p for p in ['examples/mindmap_native_app.mojo', 'scripts/demo_slideshows.py', 'pixi.toml', 'pixi.lock'])
-    sources = sorted(p for p in sources if p.exists())
+    sources = sorted(p for p in sources if p.exists() and str(p.relative_to(ROOT)) in authored)
     return sources
 
 def snapshot():
@@ -57,9 +63,9 @@ def main(record):
         data = path.read_bytes()
         assert data[:8] == b'\x89PNG\r\n\x1a\n'
         slides.append(dict(image=path.name, phase=phase, capture_kind='offscreen-render', dimensions=list(struct.unpack('>II', data[16:24])), sha256=sha(path), caption=caption, action=action, expected=expected))
-    dirty = subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=all'], cwd=ROOT, text=True).splitlines()
-    source_names = {str(p.relative_to(ROOT)) for p in sources}
-    manifest = dict(version=1, demo_id='mindmap', title='Native mind map — public canvas consumer', revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(), host=f'macOS {platform.mac_ver()[0]} {platform.machine()}', backend='AppKit contentView cacheDisplay; shared moxi_canvas native presenter', scale=2, fixture='Original synthetic six-topic, import-loss and 1,000-topic fixtures', reproduce='pixi run d04-mindmap-replay', scenario='Real executable and public input/command replay. Only F2 traverses AppKit NSEvent dispatch; remaining inputs are deterministic public Event/command calls. Content-view offscreen renders, not desktop/window captures, physical input or independent acceptance.', source_state='scoped dirty implementation' if any(line[3:] in source_names for line in dirty) else 'clean committed implementation', scoped_dirty_source=[line for line in dirty if line[3:] in source_names], source_sha256=record['source_sha256'], slides=slides)
+    source_names = [str(p.relative_to(ROOT)) for p in sources]
+    dirty = subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=all', '--', *source_names], cwd=ROOT, text=True).splitlines()
+    manifest = dict(version=1, demo_id='mindmap', title='Native mind map — public canvas consumer', revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(), host=f'macOS {platform.mac_ver()[0]} {platform.machine()}', backend='AppKit contentView cacheDisplay; shared moxi_canvas native presenter', scale=2, fixture='Original synthetic six-topic, import-loss and 1,000-topic fixtures', reproduce='pixi run d04-mindmap-replay', scenario='Real executable and public input/command replay. Only F2 traverses AppKit NSEvent dispatch; remaining inputs are deterministic public Event/command calls. Content-view offscreen renders, not desktop/window captures, physical input or independent acceptance.', source_state='scoped dirty implementation' if dirty else 'clean committed implementation', scoped_dirty_source=dirty, source_sha256=record['source_sha256'], slides=slides)
     DEST.mkdir(parents=True, exist_ok=True)
     (DEST / 'manifest.json').write_text(json.dumps(manifest, indent=2, ensure_ascii=False)+'\n')
     print(f'Wrote {len(slides)} genuine captures; {len(sources)} source hashes including native .m/.h/.inc')

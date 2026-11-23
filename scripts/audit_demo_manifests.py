@@ -15,6 +15,9 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 GALLERIES = ROOT / "artifacts/demo-slideshows"
 TRACKED_PATHS = set(subprocess.check_output(["git", "ls-files"], cwd=ROOT, text=True).splitlines())
+AUDIT_REVISION = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+COMMITTED_PATHS = set(subprocess.check_output(
+    ["git", "ls-tree", "-r", "--name-only", AUDIT_REVISION], cwd=ROOT, text=True).splitlines())
 SOURCE_ROOTS = {"src", "native", "python", "examples", "scripts", "tests", "experiments", "packages", "docs", "assets", "web"}
 
 
@@ -62,10 +65,17 @@ def audit():
         row["schema_and_images"] = "fail" if errors else "pass"
         row["capture_errors"] = errors
         image_hashes, missing_hashes, mismatches, absent_images = 0, [], [], []
+        committed_images, local_uncommitted_images, absent_uncommitted_images = [], [], []
         kinds = Counter()
         for slide in data.get("slides", []):
             kinds[slide.get("capture_kind", "missing")] += 1
             image = path.parent / slide.get("image", "")
+            if str(image.relative_to(ROOT)) in COMMITTED_PATHS:
+                committed_images.append(slide.get("image"))
+            elif image.is_file():
+                local_uncommitted_images.append(slide.get("image"))
+            else:
+                absent_uncommitted_images.append(slide.get("image"))
             digest = slide.get("sha256", slide.get("png_sha256"))
             if not image.is_file():
                 absent_images.append(slide.get("image"))
@@ -77,7 +87,9 @@ def audit():
                 mismatches.append(slide.get("image"))
         row.update(capture_kinds=dict(kinds), image_hashes_verified=image_hashes,
                    images_without_recorded_hash=missing_hashes, image_hash_mismatches=mismatches,
-                   missing_images=absent_images)
+                   missing_images=absent_images, committed_images=committed_images,
+                   local_uncommitted_images=local_uncommitted_images,
+                   absent_uncommitted_images=absent_uncommitted_images)
         documents = [(str(path.relative_to(ROOT)), data)]
         candidates = {path.parent / filename for filename in (
             "provenance.json", "source-hashes.json", "evidence.json", "capture-provenance.json",
@@ -120,7 +132,7 @@ def audit():
                    missing_source_files=absent, conflicting_source_hashes=sorted(set(conflicts)))
         rows.append(row)
     return dict(checked_at=datetime.now(timezone.utc).isoformat(),
-                checkout_revision=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+                checkout_revision=AUDIT_REVISION,
                 audited_source_worktree_status=subprocess.check_output(
                     ["git", "status", "--short", "--", *sorted(audited_sources)],
                     cwd=ROOT, text=True).splitlines(),
@@ -131,6 +143,10 @@ def audit():
                 images_without_recorded_hash=sum(len(row["images_without_recorded_hash"]) for row in rows),
                 image_hash_mismatches=sum(len(row["image_hash_mismatches"]) for row in rows),
                 missing_images=sum(len(row["missing_images"]) for row in rows),
+                committed_image_references=sum(len(row["committed_images"]) for row in rows),
+                local_uncommitted_image_references=sum(len(row["local_uncommitted_images"]) for row in rows),
+                absent_uncommitted_image_references=sum(len(row["absent_uncommitted_images"]) for row in rows),
+                image_availability_basis="Committed PNG paths at checkout_revision count as fresh-clone artifacts. Staged, ignored and other uncommitted local PNGs do not. missing_images is a working-tree absence count, not a fresh-clone absence count.",
                 source_status_counts=dict(Counter(row["source_status"] for row in rows)),
                 schema_pass_count=sum(row["schema_and_images"] == "pass" for row in rows),
                 demos=rows)
