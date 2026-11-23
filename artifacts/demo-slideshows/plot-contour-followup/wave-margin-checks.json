@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-23T07:20:08.652163+00:00",
+  "checked_at": "2026-11-23T07:37:30.149124+00:00",
   "margins": {
     "left": 48,
     "right": 32,
@@ -12,11 +12,11 @@
     "plot_width": 560,
     "plot_height": 400
   },
-  "tolerances_changed": false,
-  "scope": "Current scripts and source; archived Wave B/C galleries and reports were not regenerated or reclassified.",
+  "tolerances_changed": true,
+  "scope": "Current combined sources and current 560\u00d7400 viewport; archived Wave B/C galleries and reports were not overwritten. Current bounded checks are distinct from historical silhouette gates.",
   "checks": {
     "wave-b": {
-      "native_runtime_source_sha256": "756ce2671dc85a5c14e890988d08904777e1452d973d54bccb071010e887f584",
+      "native_runtime_source_sha256": "14cccb1188c7707ac6a72efbd3a1452b93cbe2aa80f2c7db8c446e5b379fa600",
       "native_verification_log_sha256": "e3077f243a99af0e5e9589f3d8da1ff57366112777abaa6bac8370261cc73471",
       "native_case_count": 14,
       "reference": {
@@ -37,15 +37,15 @@
       },
       "comparison": {
         "pie": {
-          "moxi_colored_pixels": 101658,
+          "moxi_colored_pixels": 101656,
           "reference_colored_pixels": 101670,
-          "silhouette_iou": 0.995681363118841,
+          "silhouette_iou": 0.9957009088946036,
           "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
         },
         "donut": {
-          "moxi_colored_pixels": 76343,
+          "moxi_colored_pixels": 76341,
           "reference_colored_pixels": 76227,
-          "silhouette_iou": 0.9924517460234544,
+          "silhouette_iou": 0.9924776680771039,
           "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
         },
         "radar": {
@@ -56,22 +56,22 @@
           "assertion": "Pinned SVG vertices/row anchors within 0.001 px; raster IoU descriptive only"
         },
         "gauge": {
-          "moxi_colored_pixels": 38899,
+          "moxi_colored_pixels": 38898,
           "reference_colored_pixels": 39539,
-          "silhouette_iou": 0.9690229942765338,
+          "silhouette_iou": 0.9690473201958077,
           "assertion": "Colored silhouette IoU > 0.96; excludes text/grid/palette identity"
         },
         "polar": {
-          "moxi_colored_pixels": 1791,
+          "moxi_colored_pixels": 1788,
           "reference_colored_pixels": 1673,
-          "silhouette_iou": 0.7646459500764137,
+          "silhouette_iou": 0.7658163265306123,
           "max_vertex_or_anchor_pixel_error": 0.0002909482928998841,
           "assertion": "Pinned SVG vertices/row anchors within 0.001 px; raster IoU descriptive only"
         },
         "polar_bar": {
-          "moxi_colored_pixels": 38242,
+          "moxi_colored_pixels": 38241,
           "reference_colored_pixels": 38091,
-          "silhouette_iou": 0.9882009741359102,
+          "silhouette_iou": 0.9882267138987288,
           "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
         },
         "radialbar": {
@@ -94,15 +94,18 @@
           "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
         },
         "ridgeline": {
-          "moxi_colored_pixels": 117548,
+          "moxi_colored_pixels": 109164,
           "reference_colored_pixels": 118165,
-          "silhouette_iou": 0.9946603256270521,
-          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+          "silhouette_iou": 0.7934519348349177,
+          "max_vertex_or_anchor_pixel_error": 1.0004500033200543,
+          "assertion": "All complete KDE path vertices within 1.1 px in the upstream category frame; Moxi frames the previously clipped peak. Raster IoU descriptive only.",
+          "moxi_domain_contains_every_density_sample": true,
+          "historical_silhouette_iou_above_0_98": false
         },
         "nightingale": {
-          "moxi_colored_pixels": 47545,
+          "moxi_colored_pixels": 47544,
           "reference_colored_pixels": 47693,
-          "silhouette_iou": 0.9879352091508725,
+          "silhouette_iou": 0.9879558310894024,
           "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
         },
         "streamgraph": {
@@ -118,11 +121,12 @@
           "moxi_colored_pixels": 49044
         }
       },
-      "comparison_log_sha256": "69ddf162955db8f2e2db28eddfd298848e952bcf39fa7e68d70063a1e37a1be7"
+      "comparison_log_sha256": "bbb076568987b16cca40baa7efbecdc847a313eb539ec388cd05e2b5765bbe79",
+      "current_bounded_checks_passed": 12
     },
     "wave-c": {
-      "native_runtime_source_sha256": "57658715ce1a58fc796fced97293256e7ace4a7a10e55ce7fa96dcd8f08bfdd7",
-      "native_verification_log_sha256": "02121c1cf8f138747128686ff5f296216e6169f04680c818c5e8ac6969eedf60",
+      "native_runtime_source_sha256": "a7ff1fdf4fd5be7aaf19e8028b971080056e9bd2b13f00874c2d282fc0170347",
+      "native_verification_log_sha256": "7dece58397134d281972089f596887e23c081b0eac1d4a392fda1f122dc33525",
       "native_case_count": 12,
       "reference": {
         "repository": "https://github.com/randyzwitch/dataviz_mojo",
@@ -250,17 +254,18 @@
           ]
         }
       },
-      "comparison_log_sha256": "b5f4bb4b3a2c090f141a7bfffbb8d4e0b7afe0cb1fc80bbf6177279da44177b7"
+      "comparison_log_sha256": "8c2858d00776b9476620aebcac4bc6b73d80f04b4170902e643483f320931f08",
+      "current_bounded_checks_passed": 11
     }
   },
-  "moxi_revision": "49ebcddb48ae490a657f160220532b908e6a9d8d",
+  "moxi_revision": "eed5663db962acc448a8e0c0c79ae0abd63a5eee",
   "source_state_path": "source-state.json",
-  "source_state_sha256": "9864d9640ee0af05e78559fb07afc6340b4e026efab6d2bb7d730da569f9fc13",
+  "source_state_sha256": "9adc6182d6d97f425bd23f62013140468cae4b4624271184f275ead7a64eb8d7",
   "wave_inputs_sha256": {
     "docs/dataviz-capabilities.tsv": "6104df4ca4f804d185bfdded966ee452d0b49d6df087edfbc9be338c874dcf91",
     "scripts/wave_b/boundaries.py": "6112fbf8e84f8304cdf71dc689a1eb4857f76747f1945c171ec7e250877e7e75",
     "scripts/wave_b/check_boundaries.py": "d7289c1666d7e7cb4cecd6864954bc58f7e98228ed77221f621e537da358b8e2",
-    "scripts/wave_b/compare.py": "54231da696f65a10a770d791a14e348f6790461689848a4a64348602de53a4d1",
+    "scripts/wave_b/compare.py": "fa1e2af75c090a290bb6e51f79b4be7cf71a0ba2bbbfcde041a1dcfca79d7972",
     "scripts/wave_b/evidence.py": "192e52975b467c7de808706d75de38c246adfdbaafba7226e7da063af307f4ee",
     "scripts/wave_b/fixtures.py": "50b89ffa31a1b4a21c9276aefc624668f73ec73d579b65a850aa3219c4f9b0dc",
     "scripts/wave_b/registry.mojo": "673b1410a696764565af60429d7b27d31f1f95af433eb13db820bcb211872b9a",
@@ -290,5 +295,42 @@
     "tests/fixtures/wave_b/streamgraph.json": "1578b32b7350293b0dd3e855901aa738c9df91268a08fa258840a33517e3f2b7",
     "tests/fixtures/wave_b/violin.json": "5dc0548542bf1cde2d2a5c8622671580756b368f089230e24588097f487385e0",
     "tests/fixtures/wave_c/cases.json": "7d088940e1b3bf24b59ebd7a0281bfbfa26ef4a1419e97edc6eea09f3484442e"
+  },
+  "other_tolerances_changed": false,
+  "comparison_policy_changes": {
+    "ridgeline": {
+      "historical_silhouette_threshold": 0.98,
+      "measured_silhouette_iou": 0.7934519348349177,
+      "historical_gate_passed": false,
+      "current_bounded_check": "All complete KDE path vertices within 1.1 px in the upstream category frame; Moxi frames the previously clipped peak. Raster IoU descriptive only.",
+      "reason": "The upstream raster clips the top peak. Preserving that silhouette would retain the repaired scientific framing defect."
+    }
+  },
+  "current_bounded_checks_passed": 23,
+  "native_cases_passed": 26,
+  "historical_gate_failures": [
+    "ridgeline: silhouette IoU 0.7934519348349177 does not exceed 0.98"
+  ],
+  "focused_python_tests": {
+    "passed": 281,
+    "groups": [
+      {
+        "passed": 253,
+        "tests": [
+          "tests/python/test_wave_b.py",
+          "tests/python/test_contour_scalar.py",
+          "tests/python/test_ridgeline_domain.py",
+          "tests/test_specialized_c.py"
+        ],
+        "log_sha256": "8b464d283a0f70de4bddd01e5b0eb7cbd9af3e9f8a55b8b8a04f850e1ff96661"
+      },
+      {
+        "passed": 28,
+        "tests": [
+          "tests/python/test_specialized.py"
+        ],
+        "log_sha256": "8a172545199d60658b51895fbdbeae88d963398daceba8e03f3b7b88ecd83a66"
+      }
+    ]
   }
 }

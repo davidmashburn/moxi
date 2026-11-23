@@ -1,0 +1,8 @@
+Before: new Python regression suite: 16 failed, 1 passed.
+Before: native density-domain assertion: Moxi test failure on the first above-domain sample.
+After: focused Python suites: 134 passed in 0.33s.
+After: all 14 Wave B contracts, vertices/source keys, Canvas/SVG, click/keyboard/linked selection, table, update/rejection/recovery passed.
+After: all 12 available historical Wave B references passed their stated comparisons.
+Ridgeline: 96 full KDE vertices; max error 1.0004500033200543 px against upstream SVG in its original category frame; limit 1.1 px.
+Ridgeline: zero out-of-domain vertices; native before/after and Python before/after exported directly from the recorded checkouts.
+Final combined runtime: 281 focused Python tests, all 26 native B/C cases, 23 bounded reference checks passed; historical ridgeline silhouette >0.98 fails explicitly.

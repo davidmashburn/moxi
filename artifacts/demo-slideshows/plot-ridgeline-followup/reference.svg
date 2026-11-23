@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+<rect x="0" y="0" width="640" height="480" fill="#111623"/>
+<line x1="48" y1="428" x2="608" y2="428" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="48" y1="28" x2="48" y2="428" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="158" y1="428" x2="158" y2="433" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="328" y1="428" x2="328" y2="433" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="498" y1="428" x2="498" y2="433" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="43" y1="95" x2="48" y2="95" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="43" y1="228" x2="48" y2="228" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="43" y1="361" x2="48" y2="361" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<path d="M158.000,161.333 L158.000,111.779 L170.000,107.181 L182.000,102.664 L193.000,97.819 L205.000,92.151 L217.000,85.162 L229.000,76.460 L240.000,65.852 L252.000,53.446 L264.000,39.707 L275.000,25.474 L287.000,11.902 L299.000,0.315 L310.000,-7.995 L322.000,-12.000 L334.000,-11.142 L346.000,-5.442 L357.000,4.501 L369.000,17.628 L381.000,32.617 L392.000,48.099 L404.000,62.865 L416.000,75.999 L427.000,86.960 L439.000,95.587 L451.000,102.061 L463.000,106.825 L474.000,110.475 L486.000,113.641 L498.000,116.870 L498.000,161.333 Z" fill="#40bfff" fill-rule="evenodd"/>
+<path d="M243.000,294.667 L243.000,243.598 L255.000,238.894 L267.000,234.288 L278.000,229.391 L290.000,223.721 L302.000,216.793 L313.000,208.208 L325.000,197.769 L337.000,185.566 L348.000,172.053 L360.000,158.059 L372.000,144.727 L384.000,133.367 L395.000,125.242 L407.000,121.333 L419.000,122.132 L430.000,127.539 L442.000,136.881 L454.000,149.056 L466.000,162.752 L477.000,176.687 L489.000,189.805 L501.000,201.397 L512.000,211.132 L524.000,219.018 L536.000,225.327 L547.000,230.490 L559.000,235.005 L571.000,239.338 L583.000,243.860 L583.000,294.667 Z" fill="#40bfff" fill-rule="evenodd"/>
+<path d="M73.000,427.000 L73.000,326.124 L88.000,311.695 L103.000,297.626 L117.000,284.538 L132.000,273.077 L147.000,263.855 L161.000,257.373 L176.000,253.950 L190.000,253.667 L205.000,256.346 L220.000,261.568 L234.000,268.731 L249.000,277.127 L264.000,286.036 L278.000,294.813 L293.000,302.951 L308.000,310.113 L322.000,316.139 L337.000,321.027 L351.000,324.898 L366.000,327.958 L381.000,330.462 L395.000,332.685 L410.000,334.899 L425.000,337.360 L439.000,340.288 L454.000,343.862 L468.000,348.200 L483.000,353.350 L498.000,359.280 L498.000,427.000 Z" fill="#40bfff" fill-rule="evenodd"/>
+<text x="158" y="449" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="middle">-2</text>
+<text x="328" y="449" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="middle">0</text>
+<text x="498" y="449" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="middle">2</text>
+<text x="39" y="99" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="end">A</text>
+<text x="39" y="232" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="end">B</text>
+<text x="39" y="365" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="end">C</text>
+</svg>
