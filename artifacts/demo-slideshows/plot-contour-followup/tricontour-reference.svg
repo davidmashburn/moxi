@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+<rect x="0" y="0" width="640" height="480" fill="#111623"/>
+<line x1="48" y1="428" x2="608" y2="428" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="48" y1="28" x2="48" y2="428" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="73" y1="428" x2="73" y2="433" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="201" y1="428" x2="201" y2="433" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="328" y1="428" x2="328" y2="433" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="455" y1="428" x2="455" y2="433" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="583" y1="428" x2="583" y2="433" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="43" y1="410" x2="48" y2="410" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="43" y1="319" x2="48" y2="319" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="43" y1="228" x2="48" y2="228" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="43" y1="137" x2="48" y2="137" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<line x1="43" y1="46" x2="48" y2="46" stroke="#bfcce5" stroke-width="1.000" stroke-linecap="round"/>
+<path d="M137.091,364.364 L137.091,91.636 L518.909,91.636 L518.909,364.364 L137.091,364.364" fill="none" stroke="#3c6ec8" stroke-width="2.000" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M200.727,318.909 L200.727,137.091 L455.273,137.091 L455.273,318.909 L200.727,318.909" fill="none" stroke="#ebebeb" stroke-width="2.000" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M264.364,273.455 L264.364,182.545 L391.636,182.545 L391.636,273.455 L264.364,273.455" fill="none" stroke="#dc5a28" stroke-width="2.000" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="73.000" y="449.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="middle">0.0</text>
+<text x="201.000" y="449.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="middle">0.5</text>
+<text x="328.000" y="449.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="middle">1.0</text>
+<text x="455.000" y="449.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="middle">1.5</text>
+<text x="583.000" y="449.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="middle">2.0</text>
+<text x="39.000" y="414.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="end">0.0</text>
+<text x="39.000" y="323.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="end">0.5</text>
+<text x="39.000" y="232.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="end">1.0</text>
+<text x="39.000" y="141.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="end">1.5</text>
+<text x="39.000" y="50.000" font-size="12.000" font-family="DejaVu Sans" fill="#bfcce5" text-anchor="end">2.0</text>
+</svg>

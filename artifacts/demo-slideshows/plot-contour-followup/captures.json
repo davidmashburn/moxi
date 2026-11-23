@@ -1,0 +1,356 @@
+[
+  {
+    "page": "contour-reference.html",
+    "image": "contour-reference-frame.png",
+    "captured_at": "2026-11-23T07:03:15.367688+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "contour-reference.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "ca838eed7390cab0c03e58a6e3f132133255cb02ea2e1d39a19a3896847f8daf",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "contour-comparison.html",
+    "image": "contour-comparison-frame.png",
+    "captured_at": "2026-11-23T07:03:16.025675+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "contour-reference.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "contour-canvas.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "bb73d06fdee9382b65aa84d7cccc8b2ce64846682b96f13697480eb9515a51c8",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "contour-interaction.html",
+    "image": "contour-interaction-frame.png",
+    "captured_at": "2026-11-23T07:03:16.670168+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "contour-canvas.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "contour-updated.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "9284ab00c4c35cdd85cda5f1df2ef817c5e95512d1edd3bbef46c80ace9bce67",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "contour-recovery.html",
+    "image": "contour-recovery-frame.png",
+    "captured_at": "2026-11-23T07:03:17.330391+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "contour-rejected.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "contour-restored.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "7e7dcba4429b7b02dc9de6daa9616a8626c3c8e946885adfb7279ebde81f6290",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "contourf-reference.html",
+    "image": "contourf-reference-frame.png",
+    "captured_at": "2026-11-23T07:03:17.962795+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "contourf-reference.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "a61bb1cf5c89c88496b05f79eb66967359274cd236380b9ac8b8be0afa5173bd",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "contourf-comparison.html",
+    "image": "contourf-comparison-frame.png",
+    "captured_at": "2026-11-23T07:03:18.653446+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "contourf-reference.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "contourf-canvas.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "de7ba4be2953517ab781720bb4e2e51d4dbdc13d2b0b993d1f59970a70e177db",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "contourf-interaction.html",
+    "image": "contourf-interaction-frame.png",
+    "captured_at": "2026-11-23T07:03:19.289119+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "contourf-canvas.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "contourf-updated.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "56e66d448370c2c76506579299a3b0b827e10dfa876b757064c989e48f2f41f5",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "contourf-recovery.html",
+    "image": "contourf-recovery-frame.png",
+    "captured_at": "2026-11-23T07:03:19.948099+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "contourf-rejected.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "contourf-restored.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "2cd1cc0b22835feca30db75ad24698b55d76ad66aa72ef86f7dac63eb503597c",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "tricontour-reference.html",
+    "image": "tricontour-reference-frame.png",
+    "captured_at": "2026-11-23T07:03:20.636554+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "tricontour-reference.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "17980ea863c07386663c783d850279c2bc5d5032be63819bc41441bf9de403e1",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "tricontour-comparison.html",
+    "image": "tricontour-comparison-frame.png",
+    "captured_at": "2026-11-23T07:03:21.332316+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "tricontour-reference.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "tricontour-canvas.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "375254718617f190ffcfb4ecfd595a39fceef7efeb74023003860870ba8d4275",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "tricontour-interaction.html",
+    "image": "tricontour-interaction-frame.png",
+    "captured_at": "2026-11-23T07:03:21.971751+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "tricontour-canvas.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "tricontour-updated.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "6f0dd714f17f82bd44f32b4bb0d259898d9afbeba1fbbd45fe4f3e5632467054",
+    "page_errors": [],
+    "failed_requests": []
+  },
+  {
+    "page": "tricontour-recovery.html",
+    "image": "tricontour-recovery-frame.png",
+    "captured_at": "2026-11-23T07:03:22.606142+00:00",
+    "browser_version": "158.0.8127.36",
+    "viewport": {
+      "innerWidth": 1400,
+      "innerHeight": 900,
+      "devicePixelRatio": 1,
+      "scrollWidth": 1400,
+      "scrollHeight": 900,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "images": [
+        {
+          "src": "tricontour-rejected.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        },
+        {
+          "src": "tricontour-restored.png",
+          "complete": true,
+          "width": 640,
+          "height": 480
+        }
+      ]
+    },
+    "sha256": "04f1b56fc9712ff5036e35c5689bc1c326f9d450bca3e2f9a8a88595d522ca46",
+    "page_errors": [],
+    "failed_requests": []
+  }
+]

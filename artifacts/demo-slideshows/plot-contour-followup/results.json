@@ -1,0 +1,65 @@
+{
+  "contour": {
+    "reference_available": true,
+    "reference_revision": "377b519e07f017d4a120b7fc3551f972a0b3fe16",
+    "source_rows": 25,
+    "levels": [
+      0.03910512499999996,
+      0.6049472499999999,
+      1.1707893749999998,
+      1.7366314999999999,
+      2.302473625,
+      2.86831575,
+      3.4341578749999995
+    ],
+    "native_glyphs": 92,
+    "mojo_python_geometry_pass": true,
+    "rejected_update_preserves_pixels": true,
+    "restoration_matches_original": true,
+    "full_visual_parity": false,
+    "max_grid_edge_crossing_error": 1.5013937959551527e-07,
+    "upstream_segments": 55,
+    "assessment": "Seven scalar levels and their grid-edge crossings agree. Moxi fixed-diagonal marching triangles and upstream marching squares connect crossings differently inside cells. Full isoline geometry parity remains open; padding, palette, grid and labels also differ."
+  },
+  "contourf": {
+    "reference_available": true,
+    "reference_revision": "377b519e07f017d4a120b7fc3551f972a0b3fe16",
+    "source_rows": 25,
+    "levels": [
+      0.03910512499999996,
+      0.6049472499999999,
+      1.1707893749999998,
+      1.7366314999999999,
+      2.302473625,
+      2.86831575,
+      3.4341578749999995
+    ],
+    "native_glyphs": 124,
+    "mojo_python_geometry_pass": true,
+    "rejected_update_preserves_pixels": true,
+    "restoration_matches_original": true,
+    "full_visual_parity": false,
+    "bands": 8,
+    "moxi_total_band_area": 16.0,
+    "source_grid_area": 16.0,
+    "assessment": "The same seven thresholds produce eight bands and Moxi covers the complete source grid. Moxi clips fixed-diagonal triangles; upstream fills marching-squares above-level regions. Band topology/area equality against upstream is unverified; native seams, palette, padding and labels differ."
+  },
+  "tricontour": {
+    "reference_available": true,
+    "reference_revision": "377b519e07f017d4a120b7fc3551f972a0b3fe16",
+    "source_rows": 5,
+    "levels": [
+      0.5,
+      1,
+      1.5
+    ],
+    "native_glyphs": 12,
+    "mojo_python_geometry_pass": true,
+    "rejected_update_preserves_pixels": true,
+    "restoration_matches_original": true,
+    "full_visual_parity": false,
+    "delaunay_matches_supplied_mesh": true,
+    "max_endpoint_error": 0.0,
+    "assessment": "Fixture mesh and all three isoline levels agree. Moxi accepts supplied meshes; upstream computes Delaunay connectivity. Arbitrary mesh parity is unverified. Axis padding, palette, grid and missing Moxi labels differ."
+  }
+}

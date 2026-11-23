@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "demo_id": "plot-contour-followup",
+  "title": "Contour reference follow-up",
+  "scenario": "Three real upstream references and bounded comparisons; full visual parity remains partial.",
+  "revision": "2722c1cab583d93fc36fd6b4f70dd6b5544ebee7",
+  "source_dirty": true,
+  "source_state_path": "artifacts/demo-slideshows/plot-contour-followup/source-state.json",
+  "source_state_sha256": "2352797b9830d1bc0bb2551363a8b0fbc1981c6a718f3aa68f6ed1f839b1e1ae",
+  "host": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "backend": "Mojo Scene/Canvas; pinned dataviz; local headless Chrome",
+  "scale": 1,
+  "fixture": "tests/fixtures/wave_b/{contour,contourf}.json; tests/fixtures/wave_c/cases.json#tricontour",
+  "reproduce": "See README.md in this directory.",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "contour-reference-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "ca838eed7390cab0c03e58a6e3f132133255cb02ea2e1d39a19a3896847f8daf",
+      "caption": "contour \u00b7 reference",
+      "action": "Open contour-reference.html",
+      "expected": "Genuine pinned upstream chart"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "contour-comparison-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "bb73d06fdee9382b65aa84d7cccc8b2ce64846682b96f13697480eb9515a51c8",
+      "caption": "contour \u00b7 comparison",
+      "action": "Open contour-comparison.html",
+      "expected": "Seven scalar levels and their grid-edge crossings agree. Moxi fixed-diagonal marching triangles and upstream marching squares connect crossings differently inside cells. Full isoline geometry parity remains open; padding, palette, grid and labels also differ."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "contour-interaction-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "9284ab00c4c35cdd85cda5f1df2ef817c5e95512d1edd3bbef46c80ace9bce67",
+      "caption": "contour \u00b7 interaction",
+      "action": "Open contour-interaction.html",
+      "expected": "Valid data update changes the rendered chart."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "contour-recovery-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "7e7dcba4429b7b02dc9de6daa9616a8626c3c8e946885adfb7279ebde81f6290",
+      "caption": "contour \u00b7 recovery",
+      "action": "Open contour-recovery.html",
+      "expected": "Rejected data preserves the last valid chart; restoring original data restores identical pixels."
+    },
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "contourf-reference-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "a61bb1cf5c89c88496b05f79eb66967359274cd236380b9ac8b8be0afa5173bd",
+      "caption": "contourf \u00b7 reference",
+      "action": "Open contourf-reference.html",
+      "expected": "Genuine pinned upstream chart"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "contourf-comparison-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "de7ba4be2953517ab781720bb4e2e51d4dbdc13d2b0b993d1f59970a70e177db",
+      "caption": "contourf \u00b7 comparison",
+      "action": "Open contourf-comparison.html",
+      "expected": "The same seven thresholds produce eight bands and Moxi covers the complete source grid. Moxi clips fixed-diagonal triangles; upstream fills marching-squares above-level regions. Band topology/area equality against upstream is unverified; native seams, palette, padding and labels differ."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "contourf-interaction-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "56e66d448370c2c76506579299a3b0b827e10dfa876b757064c989e48f2f41f5",
+      "caption": "contourf \u00b7 interaction",
+      "action": "Open contourf-interaction.html",
+      "expected": "Valid data update changes the rendered chart."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "contourf-recovery-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "2cd1cc0b22835feca30db75ad24698b55d76ad66aa72ef86f7dac63eb503597c",
+      "caption": "contourf \u00b7 recovery",
+      "action": "Open contourf-recovery.html",
+      "expected": "Rejected data preserves the last valid chart; restoring original data restores identical pixels."
+    },
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "tricontour-reference-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "17980ea863c07386663c783d850279c2bc5d5032be63819bc41441bf9de403e1",
+      "caption": "tricontour \u00b7 reference",
+      "action": "Open tricontour-reference.html",
+      "expected": "Genuine pinned upstream chart"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "tricontour-comparison-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "375254718617f190ffcfb4ecfd595a39fceef7efeb74023003860870ba8d4275",
+      "caption": "tricontour \u00b7 comparison",
+      "action": "Open tricontour-comparison.html",
+      "expected": "Fixture mesh and all three isoline levels agree. Moxi accepts supplied meshes; upstream computes Delaunay connectivity. Arbitrary mesh parity is unverified. Axis padding, palette, grid and missing Moxi labels differ."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "tricontour-interaction-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "6f0dd714f17f82bd44f32b4bb0d259898d9afbeba1fbbd45fe4f3e5632467054",
+      "caption": "tricontour \u00b7 interaction",
+      "action": "Open tricontour-interaction.html",
+      "expected": "Valid data update changes the rendered chart."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "tricontour-recovery-frame.png",
+      "dimensions": [
+        1400,
+        900
+      ],
+      "sha256": "04f1b56fc9712ff5036e35c5689bc1c326f9d450bca3e2f9a8a88595d522ca46",
+      "caption": "tricontour \u00b7 recovery",
+      "action": "Open tricontour-recovery.html",
+      "expected": "Rejected data preserves the last valid chart; restoring original data restores identical pixels."
+    }
+  ]
+}
