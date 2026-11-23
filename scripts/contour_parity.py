@@ -62,12 +62,47 @@ def recorded_command(command, checkout, output):
 
 
 def source_state():
-    paths = sorted(p for folder in ('src/moxi', 'src/moxi_plot', 'python/moxi')
-                   for p in (ROOT/folder).rglob('*') if p.suffix in ('.mojo', '.py'))
-    paths += [ROOT/p for p in ('scripts/contour_parity.py', 'tests/plot_wave_b.mojo',
+    """Fingerprint plot sources and their local Mojo import dependencies.
+
+    Resolve facade exports by name: importing Rect from moxi does not make an
+    unrelated scenario fixture part of this renderer's evidence fingerprint.
+    """
+    paths = set((ROOT/'python/moxi').glob('*.py'))
+    paths.update(ROOT/p for p in ('scripts/contour_parity.py', 'tests/plot_wave_b.mojo',
         'tests/plot_specialized_c.mojo', 'tests/fixtures/wave_b/contour.json',
-        'tests/fixtures/wave_b/contourf.json', 'tests/fixtures/wave_c/cases.json', 'pixi.lock')]
-    return {str(p.relative_to(ROOT)): digest(p) for p in paths}
+        'tests/fixtures/wave_b/contourf.json', 'tests/fixtures/wave_c/cases.json', 'pixi.lock'))
+    visited = set()
+    imports = re.compile(r'^\s*from\s+([\w.]+)\s+import\s+(\([^)]*\)|[^\n]+)', re.MULTILINE)
+
+    def visit(path, exports=None):
+        request = (path, None if exports is None else frozenset(exports))
+        if request in visited:
+            return
+        visited.add(request)
+        paths.add(path)
+        for module, names in imports.findall(path.read_text()):
+            names = {name.strip().split(' as ')[0] for name in names.strip('()').split(',')}
+            if exports is not None and not names.intersection(exports):
+                continue
+            if module.startswith('.'):
+                dots = len(module)-len(module.lstrip('.'))
+                target = path.parent.joinpath(*(['..']*(dots-1)), *module[dots:].split('.'))
+            elif module.split('.')[0] in ('moxi', 'moxi_plot'):
+                target = ROOT/'src'/Path(*module.split('.'))
+            else:
+                continue
+            target = target.resolve()
+            if target.is_dir():
+                target = target/'__init__.mojo'
+                if target.is_file():
+                    visit(target, names)
+            elif target.with_suffix('.mojo').is_file():
+                visit(target.with_suffix('.mojo'))
+
+    for path in tuple(paths):
+        if path.suffix == '.mojo':
+            visit(path)
+    return {str(p.relative_to(ROOT)): digest(p) for p in sorted(paths)}
 
 
 def cases():
@@ -185,6 +220,7 @@ def compare(data, native_output, upstream_output, output):
     actual = {family: [] for family in Family}
     vertices = {family: {} for family in Family}
     styles = {family: {} for family in Family}
+    summaries = {}
     for line in native_output.splitlines():
         fields = [field.strip() for field in line.split('|')]
         if fields[0] == 'glyph':
@@ -194,6 +230,8 @@ def compare(data, native_output, upstream_output, output):
             vertices[Family(fields[1])].setdefault(int(fields[2]), []).append(tuple(map(float, fields[3:5])))
         elif fields[0] == 'style':
             styles[Family(fields[1])][int(fields[2])] = (list(map(float, fields[3:7])), fields[7])
+        elif fields[0] == 'summary':
+            summaries[Family(fields[1])] = fields[2]
     upstream = {family: {} for family in Family}
     triangles = []
     for line in upstream_output.splitlines():
@@ -216,8 +254,9 @@ def compare(data, native_output, upstream_output, output):
                 assert native['part'] == glyph.part, (family, index, native['part'], glyph.part)
             assert max(abs(a-b) for a, b in zip(native['bounds'], glyph.bounds)) < TOLERANCE
             color, label = styles[family][index]
+            assert label in summaries[family], (family, label, summaries[family])
             assert max(abs(a-b) for a, b in zip(color, glyph.color)) < TOLERANCE
-            field = case['payload']['channels'].get('y2') if family is not Family.TRICONTOUR else case['payload']['layout']['series_fields'][0]
+            field = case['payload']['channels']['y2_field'] if family is not Family.TRICONTOUR else case['payload']['layout']['series_fields'][0]
             assert label.startswith(field+' ') and glyph.label.startswith(field+' '), (label, glyph.label)
             assert label[-1] == glyph.label[-1] or family is not Family.CONTOURF, (label, glyph.label)
             numbers = lambda value: list(map(float, re.findall(r'-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?', value[len(field):])))

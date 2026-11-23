@@ -1,0 +1,294 @@
+{
+  "checked_at": "2026-11-23T07:20:08.652163+00:00",
+  "margins": {
+    "left": 48,
+    "right": 32,
+    "top": 28,
+    "bottom": 52
+  },
+  "viewport": {
+    "width": 640,
+    "height": 480,
+    "plot_width": 560,
+    "plot_height": 400
+  },
+  "tolerances_changed": false,
+  "scope": "Current scripts and source; archived Wave B/C galleries and reports were not regenerated or reclassified.",
+  "checks": {
+    "wave-b": {
+      "native_runtime_source_sha256": "756ce2671dc85a5c14e890988d08904777e1452d973d54bccb071010e887f584",
+      "native_verification_log_sha256": "e3077f243a99af0e5e9589f3d8da1ff57366112777abaa6bac8370261cc73471",
+      "native_case_count": 14,
+      "reference": {
+        "repository": "https://github.com/randyzwitch/dataviz_mojo",
+        "revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+        "dirty": false,
+        "canvas_revision": "58fb12a471a65dfbc29ebc743860448439a6af22",
+        "lock_sha256": "d51ef8de4d3a1845907d134fa191e04a45040ddf75740aff055af6896d58136b",
+        "driver_sha256": "e67f00eb114e4695cfc8cd64dfd14b5c2e03e672c5b194db0bb0049745d4b547",
+        "font_sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22",
+        "font_path": "${FONT_DIR}/DejaVuSans.ttf",
+        "font_family": "DejaVu Sans",
+        "returncode": 0,
+        "missing": [
+          "contour",
+          "contourf"
+        ]
+      },
+      "comparison": {
+        "pie": {
+          "moxi_colored_pixels": 101658,
+          "reference_colored_pixels": 101670,
+          "silhouette_iou": 0.995681363118841,
+          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+        },
+        "donut": {
+          "moxi_colored_pixels": 76343,
+          "reference_colored_pixels": 76227,
+          "silhouette_iou": 0.9924517460234544,
+          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+        },
+        "radar": {
+          "moxi_colored_pixels": 3073,
+          "reference_colored_pixels": 34163,
+          "silhouette_iou": 0.0816557734204793,
+          "max_vertex_or_anchor_pixel_error": 0.00047050625477140784,
+          "assertion": "Pinned SVG vertices/row anchors within 0.001 px; raster IoU descriptive only"
+        },
+        "gauge": {
+          "moxi_colored_pixels": 38899,
+          "reference_colored_pixels": 39539,
+          "silhouette_iou": 0.9690229942765338,
+          "assertion": "Colored silhouette IoU > 0.96; excludes text/grid/palette identity"
+        },
+        "polar": {
+          "moxi_colored_pixels": 1791,
+          "reference_colored_pixels": 1673,
+          "silhouette_iou": 0.7646459500764137,
+          "max_vertex_or_anchor_pixel_error": 0.0002909482928998841,
+          "assertion": "Pinned SVG vertices/row anchors within 0.001 px; raster IoU descriptive only"
+        },
+        "polar_bar": {
+          "moxi_colored_pixels": 38242,
+          "reference_colored_pixels": 38091,
+          "silhouette_iou": 0.9882009741359102,
+          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+        },
+        "radialbar": {
+          "moxi_colored_pixels": 57676,
+          "reference_colored_pixels": 57376,
+          "silhouette_iou": 0.9810593016047937,
+          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+        },
+        "beeswarm": {
+          "moxi_colored_pixels": 710,
+          "reference_colored_pixels": 742,
+          "silhouette_iou": 0.8172715894868585,
+          "max_vertex_or_anchor_pixel_error": 0.48484848484849863,
+          "assertion": "Pinned SVG vertices/row anchors within 1.0 px; raster IoU descriptive only"
+        },
+        "violin": {
+          "moxi_colored_pixels": 60955,
+          "reference_colored_pixels": 60994,
+          "silhouette_iou": 0.9911341148809718,
+          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+        },
+        "ridgeline": {
+          "moxi_colored_pixels": 117548,
+          "reference_colored_pixels": 118165,
+          "silhouette_iou": 0.9946603256270521,
+          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+        },
+        "nightingale": {
+          "moxi_colored_pixels": 47545,
+          "reference_colored_pixels": 47693,
+          "silhouette_iou": 0.9879352091508725,
+          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+        },
+        "streamgraph": {
+          "moxi_colored_pixels": 147371,
+          "reference_colored_pixels": 147187,
+          "silhouette_iou": 0.9942857529739135,
+          "assertion": "Colored silhouette IoU > 0.98; excludes text/grid/palette identity"
+        },
+        "contour": {
+          "moxi_colored_pixels": 1958
+        },
+        "contourf": {
+          "moxi_colored_pixels": 49044
+        }
+      },
+      "comparison_log_sha256": "69ddf162955db8f2e2db28eddfd298848e952bcf39fa7e68d70063a1e37a1be7"
+    },
+    "wave-c": {
+      "native_runtime_source_sha256": "57658715ce1a58fc796fced97293256e7ace4a7a10e55ce7fa96dcd8f08bfdd7",
+      "native_verification_log_sha256": "02121c1cf8f138747128686ff5f296216e6169f04680c818c5e8ac6969eedf60",
+      "native_case_count": 12,
+      "reference": {
+        "repository": "https://github.com/randyzwitch/dataviz_mojo",
+        "revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+        "dirty": false,
+        "returncode": 0,
+        "compiler": "Mojo 1.0.0 (ed45d567)",
+        "canvas_revision": "58fb12a471a65dfbc29ebc743860448439a6af22",
+        "lock_sha256": "d51ef8de4d3a1845907d134fa191e04a45040ddf75740aff055af6896d58136b",
+        "driver_sha256": "e90199a0ed04cd64f3ea485c3cfbe18bf1e6cfcc1b1cfd3177fda9974bd9f5f1",
+        "font_sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22",
+        "font_family": "DejaVu Sans",
+        "tricontour_available": false
+      },
+      "comparison": {
+        "treemap": {
+          "svg_elements": {
+            "rect": 5,
+            "text": 4
+          },
+          "assertions": [
+            "All four leaf rectangle bounds within 1.1 px of integer-rounded upstream"
+          ]
+        },
+        "sunburst": {
+          "svg_elements": {
+            "rect": 1,
+            "path": 6
+          },
+          "assertions": [
+            "Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated"
+          ]
+        },
+        "tree": {
+          "svg_elements": {
+            "rect": 1,
+            "line": 6,
+            "circle": 7,
+            "text": 7
+          },
+          "assertions": [
+            "Six parent-child edge endpoints within 1.1 px; seven nodes"
+          ]
+        },
+        "sankey": {
+          "svg_elements": {
+            "rect": 5,
+            "path": 6,
+            "text": 4
+          },
+          "assertions": [
+            "All six flow-strip vertices within 1.1 px; includes long-edge splitting and unequal column totals"
+          ]
+        },
+        "chord": {
+          "svg_elements": {
+            "rect": 1,
+            "path": 9
+          },
+          "assertions": [
+            "Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated"
+          ]
+        },
+        "graph": {
+          "svg_elements": {
+            "rect": 1,
+            "line": 5,
+            "circle": 4,
+            "text": 4
+          },
+          "assertions": [
+            "Five source edges, four nodes, exact relative edge stroke widths; aspect differs"
+          ]
+        },
+        "calendar_heatmap": {
+          "svg_elements": {
+            "rect": 6,
+            "text": 19
+          },
+          "assertions": [
+            "All five week/day bounds within 1.1 px after accounting for upstream month-label reserve of 16 px"
+          ]
+        },
+        "corrplot": {
+          "svg_elements": {
+            "rect": 1,
+            "line": 8,
+            "circle": 9,
+            "text": 15
+          },
+          "assertions": [
+            "All nine centers and absolute-correlation radii within .51 px after public bubble_fraction=.8 normalization; Moxi x radius stretches with aspect"
+          ]
+        },
+        "punchcard": {
+          "svg_elements": {
+            "rect": 1,
+            "line": 7,
+            "circle": 5,
+            "text": 5
+          },
+          "assertions": [
+            "Five bubbles with upstream integer-rounded size/10 radii"
+          ]
+        },
+        "marimekko": {
+          "svg_elements": {
+            "rect": 7,
+            "text": 3
+          },
+          "assertions": [
+            "Six matrix rectangle bounds within 1.1 px of upstream rounding"
+          ]
+        },
+        "barbs": {
+          "svg_elements": {
+            "rect": 1,
+            "line": 18,
+            "ellipse": 1,
+            "path": 7,
+            "text": 8
+          },
+          "assertions": [
+            "All staff, full/half tick and flag vertices agree within .002 px after translation and 28 px length normalization; default hemisphere orientation checked"
+          ]
+        }
+      },
+      "comparison_log_sha256": "b5f4bb4b3a2c090f141a7bfffbb8d4e0b7afe0cb1fc80bbf6177279da44177b7"
+    }
+  },
+  "moxi_revision": "49ebcddb48ae490a657f160220532b908e6a9d8d",
+  "source_state_path": "source-state.json",
+  "source_state_sha256": "9864d9640ee0af05e78559fb07afc6340b4e026efab6d2bb7d730da569f9fc13",
+  "wave_inputs_sha256": {
+    "docs/dataviz-capabilities.tsv": "6104df4ca4f804d185bfdded966ee452d0b49d6df087edfbc9be338c874dcf91",
+    "scripts/wave_b/boundaries.py": "6112fbf8e84f8304cdf71dc689a1eb4857f76747f1945c171ec7e250877e7e75",
+    "scripts/wave_b/check_boundaries.py": "d7289c1666d7e7cb4cecd6864954bc58f7e98228ed77221f621e537da358b8e2",
+    "scripts/wave_b/compare.py": "54231da696f65a10a770d791a14e348f6790461689848a4a64348602de53a4d1",
+    "scripts/wave_b/evidence.py": "192e52975b467c7de808706d75de38c246adfdbaafba7226e7da063af307f4ee",
+    "scripts/wave_b/fixtures.py": "50b89ffa31a1b4a21c9276aefc624668f73ec73d579b65a850aa3219c4f9b0dc",
+    "scripts/wave_b/registry.mojo": "673b1410a696764565af60429d7b27d31f1f95af433eb13db820bcb211872b9a",
+    "scripts/wave_b/slideshows.py": "9d89a3eb6e700d1530cf4d2db149e661caba0e7b46a01a49d5c52319edbfef9e",
+    "scripts/wave_b/upstream.py": "5b069126112c2f76e15c2c0af337d071f46567d9096d137fc16ad19c1ffaf16a",
+    "scripts/wave_b/verify.py": "247ea52d2966c428b51956935ac4446b5f5434a343fbe0d6ee42be86e71b7510",
+    "scripts/wave_c/boundaries.py": "22cdb84671e837a33adb0fe79f90b25963dd6c115629e402ec51767a3bf1af54",
+    "scripts/wave_c/evidence.py": "64d96ab36d2cf199f9b5c5f476f241aba372907abfff0e54b8ef28e49751d5d7",
+    "scripts/wave_c/fixtures.py": "8c341029847612dc525a47fa6991181a1ca7a99d023c278ebacc203c56b4ce6d",
+    "scripts/wave_c/slideshows.py": "11d51aa85a96641fb8c5ddfc827eadaa7d4d22f35fab02f1febf86f6fbba4bc6",
+    "scripts/wave_c/upstream.py": "400954d6509d9692ad6dece90149ad2bba9a0ffe787f694a3d4b84599f057f6d",
+    "scripts/wave_c/verify.py": "21e481596dc3bb7faada310345659f30c4acbe4518b29adba25342bcce22699d",
+    "src/moxi/scenarios.mojo": "6d55f73a504eb73c9420cd1f7581b7827c6da3eecaaf3e8d0a0ff642cd6abef8",
+    "tests/fixtures/wave_b/beeswarm.json": "5dc0548542bf1cde2d2a5c8622671580756b368f089230e24588097f487385e0",
+    "tests/fixtures/wave_b/contour.json": "7c8e780bcbddd5ddb300ad6deefc5c311f433ffb8fb39fe3bf471c919b9fa31b",
+    "tests/fixtures/wave_b/contourf.json": "7c8e780bcbddd5ddb300ad6deefc5c311f433ffb8fb39fe3bf471c919b9fa31b",
+    "tests/fixtures/wave_b/donut.json": "a28112e8e859608945040cd180441ab0f70ffa14728e73e9ba6c559b284d1e8f",
+    "tests/fixtures/wave_b/gauge.json": "53fbf9727c69724cfc082c39b6bb9f475f773575607243f75e63ff2939a56c0f",
+    "tests/fixtures/wave_b/nightingale.json": "a28112e8e859608945040cd180441ab0f70ffa14728e73e9ba6c559b284d1e8f",
+    "tests/fixtures/wave_b/pie.json": "a28112e8e859608945040cd180441ab0f70ffa14728e73e9ba6c559b284d1e8f",
+    "tests/fixtures/wave_b/polar.json": "a31144f18900aab30dc662552885a73b66eba89ce0930d135813ac4d807e9ef2",
+    "tests/fixtures/wave_b/polar_bar.json": "a28112e8e859608945040cd180441ab0f70ffa14728e73e9ba6c559b284d1e8f",
+    "tests/fixtures/wave_b/radar.json": "8d98f476f8d7233bf00cb11a9703832673a36bfbea092bd661a20a8cf34d71f0",
+    "tests/fixtures/wave_b/radialbar.json": "a28112e8e859608945040cd180441ab0f70ffa14728e73e9ba6c559b284d1e8f",
+    "tests/fixtures/wave_b/registry.json": "cf74d2593efda7c10ebfd0bbebb72d6823b8512832db8733ba3d06d686213c32",
+    "tests/fixtures/wave_b/ridgeline.json": "5dc0548542bf1cde2d2a5c8622671580756b368f089230e24588097f487385e0",
+    "tests/fixtures/wave_b/streamgraph.json": "1578b32b7350293b0dd3e855901aa738c9df91268a08fa258840a33517e3f2b7",
+    "tests/fixtures/wave_b/violin.json": "5dc0548542bf1cde2d2a5c8622671580756b368f089230e24588097f487385e0",
+    "tests/fixtures/wave_c/cases.json": "7d088940e1b3bf24b59ebd7a0281bfbfa26ef4a1419e97edc6eea09f3484442e"
+  }
+}

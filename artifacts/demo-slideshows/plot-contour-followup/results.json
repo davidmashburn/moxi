@@ -14,6 +14,16 @@
     ],
     "native_glyphs": 92,
     "mojo_python_geometry_pass": true,
+    "mojo_python_scalar_color_and_label_pass": true,
+    "scalar_labels": [
+      "z = 0.0391051",
+      "z = 0.604947",
+      "z = 1.17079",
+      "z = 1.73663",
+      "z = 2.30247",
+      "z = 2.86832",
+      "z = 3.43416"
+    ],
     "rejected_update_preserves_pixels": true,
     "restoration_matches_original": true,
     "full_visual_parity": false,
@@ -36,6 +46,17 @@
     ],
     "native_glyphs": 124,
     "mojo_python_geometry_pass": true,
+    "mojo_python_scalar_color_and_label_pass": true,
+    "scalar_labels": [
+      "z in [-0.526737, 0.0391051)",
+      "z in [0.0391051, 0.604947)",
+      "z in [0.604947, 1.17079)",
+      "z in [1.17079, 1.73663)",
+      "z in [1.73663, 2.30247)",
+      "z in [2.30247, 2.86832)",
+      "z in [2.86832, 3.43416)",
+      "z in [3.43416, 4]"
+    ],
     "rejected_update_preserves_pixels": true,
     "restoration_matches_original": true,
     "full_visual_parity": false,
@@ -55,6 +76,12 @@
     ],
     "native_glyphs": 12,
     "mojo_python_geometry_pass": true,
+    "mojo_python_scalar_color_and_label_pass": true,
+    "scalar_labels": [
+      "z = 0.5",
+      "z = 1",
+      "z = 1.5"
+    ],
     "rejected_update_preserves_pixels": true,
     "restoration_matches_original": true,
     "full_visual_parity": false,

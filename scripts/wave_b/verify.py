@@ -54,7 +54,7 @@ def main():
         else:dst['selection']=dict(key=int(p[2]),x=float(p[3]),y=float(p[4]))
     report={}
     for c in cases:
-        name=c['id'];f=figure(c);dst=results[name];expected=layout(f.spec.layers[0],f.data,560,416).glyphs
+        name=c['id'];f=figure(c);dst=results[name];expected=layout(f.spec.layers[0],f.data,560,400).glyphs
         assert dst['spec']==json.loads(f.spec.to_json()),name
         assert len(expected)==len(dst['glyphs']),(name,len(expected),len(dst['glyphs']))
         for i,(g,raw) in enumerate(zip(expected,dst['glyphs'])):
@@ -79,7 +79,7 @@ def main():
         (out/(name+'-python.png')).write_bytes(f.to_png())
         samples=[]
         for _ in range(30):
-            start=time.perf_counter();layout(f.spec.layers[0],f.data,560,416);samples.append(time.perf_counter()-start)
+            start=time.perf_counter();layout(f.spec.layers[0],f.data,560,400);samples.append(time.perf_counter()-start)
         def summary(s):return dict(n=len(s),median_seconds=statistics.median(s),min_seconds=min(s),max_seconds=max(s),stdev_seconds=statistics.stdev(s),samples_seconds=s)
         report[name]=dict(rows=c['rows'],glyphs=len(expected),vertices=sum(len(g.vertices) for g in expected),selection=dst['selection'],mojo_layout_scene=summary(dst['samples']),python_layout=summary(samples))
     assert source_hash == runtime_source_hash(), 'Runtime inputs changed during verification; rerun before recording evidence'

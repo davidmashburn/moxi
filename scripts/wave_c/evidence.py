@@ -22,7 +22,7 @@ NOTES={
  'barbs':'Round speed to nearest five; upwind staff, 50-unit flags, 10-unit full ticks, 5-unit half ticks and calm circles. No arrow substitution.',
  'tricontour':'Explicit validated triangle mesh and strictly increasing levels; marching triangles with half-open vertex ownership. All three vertex keys retained. Pinned upstream has no tricontour module/API: reference gate is missing.',
 }
-COMMON='Same 640×480 source fixture. Upstream margins normalized to native Scene (48/32/28/36), legend disabled, DejaVu Sans pinned. Fixed upstream palettes cannot be overridden by these APIs; Moxi retains its palette. Moxi Canvas text/legend absent; semantic/source table is the fallback. Python export margins differ. Circular geometry is stretched by independent native x/y scales; upstream uses the smaller plot dimension. Barbs use data-space lengths in Moxi versus pixel staff length upstream. These are recorded visual/metric differences, not pixel parity. No native-window, VoiceOver, human usability or physical performance gate is claimed.'
+COMMON='Same 640×480 source fixture. Upstream margins normalized to native Scene (48/32/28/52), legend disabled, DejaVu Sans pinned. Fixed upstream palettes cannot be overridden by these APIs; Moxi retains its palette. Moxi Canvas text/legend absent; semantic/source table is the fallback. Python export margins differ. Circular geometry is stretched by independent native x/y scales; upstream uses the smaller plot dimension. Barbs use data-space lengths in Moxi versus pixel staff length upstream. These are recorded visual/metric differences, not pixel parity. No native-window, VoiceOver, human usability or physical performance gate is claimed.'
 
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def table(cols,selected=-1):
@@ -38,13 +38,13 @@ def structural(reference,name,g):
  if name=='treemap':
   rects=elements('rect')[1:];assert len(rects)==4
   for r,p in zip(rects,g.glyphs):
-   x,y,xx,yy=p.bounds;expected=(48+560*x,28+416*(1-yy),560*(xx-x),416*(yy-y));actual=[float(r.attrib[k]) for k in ('x','y','width','height')]
+   x,y,xx,yy=p.bounds;expected=(48+560*x,28+400*(1-yy),560*(xx-x),400*(yy-y));actual=[float(r.attrib[k]) for k in ('x','y','width','height')]
    assert max(abs(a-b) for a,b in zip(expected,actual))<=1.1
   checks.append('All four leaf rectangle bounds within 1.1 px of integer-rounded upstream')
  elif name=='tree':
   lines=elements('line');edges=[p for p in g.glyphs if p.part=='parent-edge'];assert len(lines)==len(edges)==6
   for e,p in zip(lines,edges):
-   expected=[48+560*p.bounds[0],28+416*(1-p.bounds[1]),48+560*p.bounds[2],28+416*(1-p.bounds[3])]
+   expected=[48+560*p.bounds[0],28+400*(1-p.bounds[1]),48+560*p.bounds[2],28+400*(1-p.bounds[3])]
    assert max(abs(float(e.attrib[k])-v) for k,v in zip(('x1','y1','x2','y2'),expected))<=1.1
   assert tags['circle']==7;checks.append('Six parent-child edge endpoints within 1.1 px; seven nodes')
  elif name=='graph':
@@ -56,7 +56,7 @@ def structural(reference,name,g):
   flows=[p for p in g.glyphs if p.part=='flow']
   for path,p,q in zip(elements('path'),flows[::2],flows[1::2]):
    vertices=[p.bounds[:2],p.bounds[2:],p.vertices[0],q.vertices[0]]
-   expected=[v for x,y in vertices for v in (48+560*x,28+416*(1-y))]
+   expected=[v for x,y in vertices for v in (48+560*x,28+400*(1-y))]
    actual=list(map(float,re.findall(r'-?\d+(?:\.\d+)?',path.attrib['d'])))
    assert len(actual)==8 and max(abs(a-b) for a,b in zip(actual,expected))<1.1
   checks.append('All six flow-strip vertices within 1.1 px; includes long-edge splitting and unequal column totals')
@@ -69,12 +69,12 @@ def structural(reference,name,g):
    points=[point for p in g.glyphs if p.row==row and (name!='chord' or p.part in ('ribbon','rim')) for point in (p.bounds[:2],p.bounds[2:],*p.vertices)]
    for command,args in re.findall(r'([MLAQ])([^MLAQZ]+)',path.attrib['d']):
     nums=list(map(float,re.findall(r'-?\d+(?:\.\d+)?',args)));x,y=nums[-2:]
-    assert min(max(abs(x-(328+416*(a-.5))),abs(y-(236+416*(.5-b)))) for a,b in points)<.002,(name,row,x,y)
+    assert min(max(abs(x-(328+400*(a-.5))),abs(y-(228+400*(.5-b)))) for a,b in points)<.002,(name,row,x,y)
   checks.append('Every ribbon/sector analytic boundary endpoint agrees within .002 px under the documented uniform-circle mapping; arc interiors are tessellated')
  elif name=='marimekko':
   rects=elements('rect')[1:];assert len(rects)==6
   for r,p in zip(rects,g.glyphs):
-   x,y,xx,yy=p.bounds;expected=(48+560*x,28+416*(1-yy),560*(xx-x),416*(yy-y));assert max(abs(float(r.attrib[k])-v) for k,v in zip(('x','y','width','height'),expected))<=1.1
+   x,y,xx,yy=p.bounds;expected=(48+560*x,28+400*(1-yy),560*(xx-x),400*(yy-y));assert max(abs(float(r.attrib[k])-v) for k,v in zip(('x','y','width','height'),expected))<=1.1
   checks.append('Six matrix rectangle bounds within 1.1 px of upstream rounding')
  elif name=='punchcard':
   assert [float(e.attrib['r']) for e in elements('circle')]==[2,5,0,9,4];checks.append('Five bubbles with upstream integer-rounded size/10 radii')
@@ -83,14 +83,14 @@ def structural(reference,name,g):
   case=next(c for c in CASES if c['id']==name)
   for i,e in enumerate(elements('circle')):
    row,col=divmod(i,3);v=case['columns'][case['layout']['series_fields'][col]][row]
-   expected=(48+560*(col+.5)/3,28+416*(row+.5)/3,.4*416/3*abs(v))
+   expected=(48+560*(col+.5)/3,28+400*(row+.5)/3,.4*400/3*abs(v))
    assert max(abs(float(e.attrib[k])-x) for k,x in zip(('cx','cy','r'),expected))<.51
   checks.append('All nine centers and absolute-correlation radii within .51 px after public bubble_fraction=.8 normalization; Moxi x radius stretches with aspect')
  elif name=='calendar_heatmap':
   cells=elements('rect')[1:];assert len(cells)==5
   for e,p in zip(cells,g.glyphs):
    week,dow=p.bounds[0],7-p.bounds[3]
-   expected=(48+560*week/53,44+400*dow/7,560/53,400/7)
+   expected=(48+560*week/53,44+384*dow/7,560/53,384/7)
    assert max(abs(float(e.attrib[k])-v) for k,v in zip(('x','y','width','height'),expected))<1.1
   checks.append('All five week/day bounds within 1.1 px after accounting for upstream month-label reserve of 16 px')
  elif name=='barbs':

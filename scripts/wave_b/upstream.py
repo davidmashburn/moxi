@@ -32,9 +32,9 @@ def generate(output):
         elif name in ('beeswarm','violin','ridgeline'):
             groups=list(dict.fromkeys(c[case['x']]))
             var('groups',groups,'String');var('matrix',[[c[case['y']][i] for i,g in enumerate(c[case['x']]) if g==group] for group in groups],'List[Float64]');method='encode_distribution(groups, matrix)'
-        # No title reserve: the same 560×416 margin box as Moxi. Fonts still
+        # No title reserve: the same 560×400 margin box as Moxi. Fonts still
         # recorded because real upstream renders axis labels and gauge values.
-        lines += ['    var theme = Theme(background=Color(17,22,35), axis_color=Color(191,204,229), text_color=Color(191,204,229), gridline_color=Color(63,76,102), font_family="DejaVu Sans", margin_left=48, margin_right=32, margin_top=28, margin_bottom=36, show_legend=False, show_gridlines=False, point_radius=3.0, mark_color=Color(64,191,255), line_smoothing=0.0)',f'    var p = Plot().{mark}.{method}.theme(theme).size({case["width"]},{case["height"]})','    var start = perf_counter()']
+        lines += ['    var theme = Theme(background=Color(17,22,35), axis_color=Color(191,204,229), text_color=Color(191,204,229), gridline_color=Color(63,76,102), font_family="DejaVu Sans", margin_left=48, margin_right=32, margin_top=28, margin_bottom=52, show_legend=False, show_gridlines=False, point_radius=3.0, mark_color=Color(64,191,255), line_smoothing=0.0)',f'    var p = Plot().{mark}.{method}.theme(theme).size({case["width"]},{case["height"]})','    var start = perf_counter()']
         for ext in ('png','svg'):lines.append('    save(p, '+json.dumps(str(output/(name+'.'+ext)))+')')
         lines.append(f'    print("{name}"," export_seconds=",perf_counter()-start)')
     lines += ['','def main() raises:']+['    case_'+c['id']+'()' for c in load_cases() if c['reference_available']]

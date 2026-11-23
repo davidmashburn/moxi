@@ -1,5 +1,7 @@
 # E02/E03 gallery review on d7fa3ed
 
+The [November 23 follow-up](../plot-contour-followup/README.md) records genuine upstream references and measured comparisons for all three contour families. The counts below describe the original review.
+
 All **26 galleries** were regenerated from the published runtime. All **170
 slideshow frames** and **78 supporting PNGs** were visually inspected, using
 52 labelled panels at original image resolution and additional individual

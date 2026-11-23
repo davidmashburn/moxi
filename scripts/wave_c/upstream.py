@@ -41,7 +41,7 @@ def generate(destination):
         else:
             for f in ('x','y','u','v'):var(f,c[f])
             method='encode_barbs(x,y,u,v)'
-        lines.append('    var p=Plot().'+mark+'.'+method+'.theme(Theme(font_family="DejaVu Sans",margin_left=48,margin_right=32,margin_top=28,margin_bottom=36,show_legend=False)).size(640,480)')
+        lines.append('    var p=Plot().'+mark+'.'+method+'.theme(Theme(font_family="DejaVu Sans",margin_left=48,margin_right=32,margin_top=28,margin_bottom=52,show_legend=False)).size(640,480)')
         lines.append('    var start=perf_counter()')
         for ext in ('png','svg'):lines.append('    save(p,'+quoted(str(destination/(name+'.'+ext)))+')')
         lines.append('    print("'+name+' export_seconds=",perf_counter()-start)')

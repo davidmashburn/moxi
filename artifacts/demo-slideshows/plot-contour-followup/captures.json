@@ -2,7 +2,7 @@
   {
     "page": "contour-reference.html",
     "image": "contour-reference-frame.png",
-    "captured_at": "2026-11-23T07:03:15.367688+00:00",
+    "captured_at": "2026-11-23T07:17:35.722512+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -20,14 +20,14 @@
         }
       ]
     },
-    "sha256": "ca838eed7390cab0c03e58a6e3f132133255cb02ea2e1d39a19a3896847f8daf",
+    "sha256": "06fe248bb4834fb9191ba8ae6a3fb762fab5c0e9694a64e592078c75d1b2f6d6",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "contour-comparison.html",
     "image": "contour-comparison-frame.png",
-    "captured_at": "2026-11-23T07:03:16.025675+00:00",
+    "captured_at": "2026-11-23T07:17:36.381355+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -51,14 +51,14 @@
         }
       ]
     },
-    "sha256": "bb73d06fdee9382b65aa84d7cccc8b2ce64846682b96f13697480eb9515a51c8",
+    "sha256": "a96fac5a2b560a64a29791746ed79810d928c3c090f6d29bfc4f0d5312f55bd4",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "contour-interaction.html",
     "image": "contour-interaction-frame.png",
-    "captured_at": "2026-11-23T07:03:16.670168+00:00",
+    "captured_at": "2026-11-23T07:17:37.002266+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -82,14 +82,14 @@
         }
       ]
     },
-    "sha256": "9284ab00c4c35cdd85cda5f1df2ef817c5e95512d1edd3bbef46c80ace9bce67",
+    "sha256": "e12f44a238505de0f6d814f333f02df071099e02dc338f4f19076e68090c66c7",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "contour-recovery.html",
     "image": "contour-recovery-frame.png",
-    "captured_at": "2026-11-23T07:03:17.330391+00:00",
+    "captured_at": "2026-11-23T07:17:37.629720+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -113,14 +113,14 @@
         }
       ]
     },
-    "sha256": "7e7dcba4429b7b02dc9de6daa9616a8626c3c8e946885adfb7279ebde81f6290",
+    "sha256": "cadd9418201c17f0a0be55af87daa7adee904a3e4ce2932b23951287aa04b237",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "contourf-reference.html",
     "image": "contourf-reference-frame.png",
-    "captured_at": "2026-11-23T07:03:17.962795+00:00",
+    "captured_at": "2026-11-23T07:17:38.263090+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -138,14 +138,14 @@
         }
       ]
     },
-    "sha256": "a61bb1cf5c89c88496b05f79eb66967359274cd236380b9ac8b8be0afa5173bd",
+    "sha256": "a34cd50050c55da5bca46ef39b86fb4996643c3b6d54a0fa80de7139dcf0e982",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "contourf-comparison.html",
     "image": "contourf-comparison-frame.png",
-    "captured_at": "2026-11-23T07:03:18.653446+00:00",
+    "captured_at": "2026-11-23T07:17:38.901069+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -169,14 +169,14 @@
         }
       ]
     },
-    "sha256": "de7ba4be2953517ab781720bb4e2e51d4dbdc13d2b0b993d1f59970a70e177db",
+    "sha256": "c4a512ed12858a5d0c22186ec77adba41ae99d97e40fad9dc7c3d1be2fc07a71",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "contourf-interaction.html",
     "image": "contourf-interaction-frame.png",
-    "captured_at": "2026-11-23T07:03:19.289119+00:00",
+    "captured_at": "2026-11-23T07:17:39.531154+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -200,14 +200,14 @@
         }
       ]
     },
-    "sha256": "56e66d448370c2c76506579299a3b0b827e10dfa876b757064c989e48f2f41f5",
+    "sha256": "3dea4d502c318a564c78cd184cebc4afdb25e4a85ab3de1ed178d4c4c3bd022a",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "contourf-recovery.html",
     "image": "contourf-recovery-frame.png",
-    "captured_at": "2026-11-23T07:03:19.948099+00:00",
+    "captured_at": "2026-11-23T07:17:40.173473+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -231,14 +231,14 @@
         }
       ]
     },
-    "sha256": "2cd1cc0b22835feca30db75ad24698b55d76ad66aa72ef86f7dac63eb503597c",
+    "sha256": "4c7c15d6798a7abfd0b98b5a875a3ab3ee74d59c11a8810a002773cffc4c14e6",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "tricontour-reference.html",
     "image": "tricontour-reference-frame.png",
-    "captured_at": "2026-11-23T07:03:20.636554+00:00",
+    "captured_at": "2026-11-23T07:17:40.811232+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -256,14 +256,14 @@
         }
       ]
     },
-    "sha256": "17980ea863c07386663c783d850279c2bc5d5032be63819bc41441bf9de403e1",
+    "sha256": "b0da93265824cdb8304cb7defd55bc58c3433ec5042f62ba1d21981f5537825a",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "tricontour-comparison.html",
     "image": "tricontour-comparison-frame.png",
-    "captured_at": "2026-11-23T07:03:21.332316+00:00",
+    "captured_at": "2026-11-23T07:17:41.437238+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -287,14 +287,14 @@
         }
       ]
     },
-    "sha256": "375254718617f190ffcfb4ecfd595a39fceef7efeb74023003860870ba8d4275",
+    "sha256": "f250ce01ba6fd53432b06e65b758281cce2c5a6cdfebd5b0c60caed241456102",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "tricontour-interaction.html",
     "image": "tricontour-interaction-frame.png",
-    "captured_at": "2026-11-23T07:03:21.971751+00:00",
+    "captured_at": "2026-11-23T07:17:42.069508+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -318,14 +318,14 @@
         }
       ]
     },
-    "sha256": "6f0dd714f17f82bd44f32b4bb0d259898d9afbeba1fbbd45fe4f3e5632467054",
+    "sha256": "877e181facd21144002b18b56a86ef1002cc3ecc2a81a96eecdd741eeb9e55e6",
     "page_errors": [],
     "failed_requests": []
   },
   {
     "page": "tricontour-recovery.html",
     "image": "tricontour-recovery-frame.png",
-    "captured_at": "2026-11-23T07:03:22.606142+00:00",
+    "captured_at": "2026-11-23T07:17:42.731359+00:00",
     "browser_version": "158.0.8127.36",
     "viewport": {
       "innerWidth": 1400,
@@ -349,7 +349,7 @@
         }
       ]
     },
-    "sha256": "04f1b56fc9712ff5036e35c5689bc1c326f9d450bca3e2f9a8a88595d522ca46",
+    "sha256": "536aba0c0156b15c6dd44bb8a7f8bccc0165a81a0971cfdcfa8d1b165245bc1e",
     "page_errors": [],
     "failed_requests": []
   }

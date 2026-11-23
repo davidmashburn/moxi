@@ -17,18 +17,18 @@ def main():
     for c in load_cases():
         name=c['id'];own=mask(a.actual/(name+'-canvas.png'))
         # Plot-only crop omits the series legend swatch and axis labels.
-        own=own[28:444,48:608];assert own.sum()>20,(name,'missing actual geometry')
+        own=own[28:428,48:608];assert own.sum()>20,(name,'missing actual geometry')
         row=dict(moxi_colored_pixels=int(own.sum()))
         if c['reference_available']:
-            ref=mask(a.reference/(name+'.png'))[28:444,48:608]
+            ref=mask(a.reference/(name+'.png'))[28:428,48:608]
             row.update(reference_colored_pixels=int(ref.sum()),silhouette_iou=float((own&ref).sum()/max(1,(own|ref).sum())))
             if name not in ('radar','polar','beeswarm'):
                 threshold=.96 if name=='gauge' else .98
                 assert row['silhouette_iou']>threshold,(name,row)
                 row['assertion']='Colored silhouette IoU > '+str(threshold)+'; excludes text/grid/palette identity'
             else:
-                f=figure(c);g=layout(f.spec.layers[0],f.data)
-                def project(x,y):return (48+(x-g.x_domain[0])/(g.x_domain[1]-g.x_domain[0])*560,28+(g.y_domain[1]-y)/(g.y_domain[1]-g.y_domain[0])*416)
+                f=figure(c);g=layout(f.spec.layers[0],f.data,560,400)
+                def project(x,y):return (48+(x-g.x_domain[0])/(g.x_domain[1]-g.x_domain[0])*560,28+(g.y_domain[1]-y)/(g.y_domain[1]-g.y_domain[0])*400)
                 svg=ET.parse(a.reference/(name+'.svg')).getroot()
                 paths=[e for e in svg.iter() if e.tag.endswith('}path')]
                 if name=='radar':
