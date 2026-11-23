@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -35,7 +36,7 @@ def check(revision):
     head = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
     ).strip()
-    require(head == expected, "Checkout does not match the requested revision")
+    require(head == expected, "Checkout does not match the requested review revision")
     gallery = load_module("demo_slideshows", "scripts/demo_slideshows.py")
     mindmap = load_module("mindmap_manifest", "scripts/mindmap/manifest.py")
     assembly = load_module("assembly_gallery", "examples/spatial-assembly/gallery.py")
@@ -53,14 +54,16 @@ def check(revision):
         # Existing schema tooling checks containment, PNG signature/dimensions,
         # required metadata and all four scenario phases.
         manifest = gallery.load_manifest(folder / "manifest.json")
-        require(manifest["revision"] == expected, f"{demo}: stale manifest revision")
+        captured = manifest["revision"]
+        require(re.fullmatch(r"[0-9a-f]{40}", captured),
+                f"{demo}: capture revision must be an immutable Git commit")
         require(len(manifest["slides"]) == count, f"{demo}: incomplete sequence")
         if demo == "mindmap":
             recorded = manifest["source_sha256"]
             require(not manifest["scoped_dirty_source"], f"{demo}: dirty capture source")
         else:
             provenance = json.loads((folder / "provenance.json").read_text())
-            require(provenance["base_revision"] == expected, "Stale D07 provenance")
+            require(provenance["base_revision"] == captured, "D07 provenance revision mismatch")
             require(not provenance["uncommitted_source"], "Dirty D07 capture source")
             recorded = provenance["files"]
             fingerprint = hashlib.sha256(json.dumps(recorded, sort_keys=True).encode()).hexdigest()
@@ -70,10 +73,11 @@ def check(revision):
         require(recorded == source_now, f"{demo}: capture source inventory/hash mismatch")
         supplemental = {p: h for p, h in includes.items() if p not in recorded}
         sources = recorded | supplemental
-        # Compare actual SHA-256 bytes with committed blobs, including native
-        # .inc files omitted by the capture recipes' suffix inventories.
+        # A gallery may retain an earlier capture when all its recorded inputs
+        # still match this checkout. Verify each capture against its own commit,
+        # including native .inc files omitted by older capture recipes.
         for name, digest in sources.items():
-            committed = subprocess.check_output(["git", "show", f"{expected}:{name}"], cwd=ROOT)
+            committed = subprocess.check_output(["git", "show", f"{captured}:{name}"], cwd=ROOT)
             require(hashlib.sha256(committed).hexdigest() == digest,
                     f"{demo}: source differs from reviewed Git blob: {name}")
         images = []
@@ -86,6 +90,7 @@ def check(revision):
             images.append(slide["image"])
         require(len(set(images)) == count, f"{demo}: duplicate frame references")
         result["demos"][demo] = {
+            "capture_revision": captured,
             "resolved_frames": len(images), "images": images,
             "unreferenced_pngs": sorted(p.name for p in folder.glob("*.png")
                                        if p.name not in images),
@@ -99,6 +104,6 @@ def check(revision):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--revision", default="HEAD", help="Expected checkout/capture revision")
+    parser.add_argument("--revision", default="HEAD", help="Expected review checkout revision; each capture retains its own immutable source revision")
     args = parser.parse_args()
     print(json.dumps(check(args.revision), indent=2))

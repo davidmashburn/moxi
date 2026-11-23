@@ -1,27 +1,27 @@
 {
-  "base_revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
-  "verified_at": "2026-11-20T22:16:23.372065+00:00",
+  "base_revision": "49ebcddb48ae490a657f160220532b908e6a9d8d",
+  "review_checkout_revision": "158c67a36c376bbc0f88eaf363669a0485473343",
+  "verified_at": "2026-11-23T07:26:46.325544+00:00",
   "worktree": ".",
-  "scope": "D04/D07 gallery capture and evidence only. Application, capture recipes, master gallery, planning branch and original candidates were not edited. No commits, pushes, shared-system writes or delegated workers.",
-  "result": "Capture/provenance/schema checks pass; visual review has explicit partial outcomes. This does not promote native/human/performance acceptance gates.",
+  "scope": "Planning item 1: four D04 visual repairs, three D07 replay-caption repairs, capture provenance and catalog-manifest audit. No broader acceptance promotion.",
+  "result": "All three stale clipping captions are repaired. All 14 recorded frames pass their bounded visual scenarios; clean-source, PNG and schema checks pass. D05 production/performance acceptance remains OPEN.",
   "confidence": {
-    "level": "high for exact-source capture provenance and the recorded pixel observations",
+    "level": "high for the recorded source provenance, replay assertions and bounded pixel observations",
     "would_change_conclusion": [
       "Any source, manifest, PNG or executable hash mismatch",
-      "A new capture after implementation changes",
-      "Physical/human acceptance evidence for the currently unverified gates"
+      "New captures or implementation changes",
+      "Contradictory physical-input, accessibility or independent-human evidence"
     ]
   },
   "environment": {
-    "observed_at": "2026-11-20T22:12:14.450710+00:00",
-    "macos": "27.2",
+    "observed_at": "2026-11-23T07:26:46.325544+00:00",
+    "macos": "27.2.1",
     "architecture": "arm64",
     "mojo": "Mojo 1.1.0 (8189361e)",
     "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
     "sdk": "27.0",
-    "pixi": "pixi 0.81.0",
     "host": "native AppKit local process",
-    "browser": "not used; direct PNG inspection with contact sheets and selected full-resolution frames",
+    "browser": "not used; direct native PNG inspection",
     "viewport_points": [
       1200,
       790
@@ -31,14 +31,18 @@
       1580
     ],
     "backing_scale": 2,
-    "fixture": "4 objects; 3 hierarchy levels; 18,240 shared expanded vertices; 583,680 GPU geometry bytes; source SHA-256 5b9103208c63407ae06ea7a887f41ee2218bd84370a9a9144801fdce39b3cf09; uncommitted scoped source: False",
+    "fixture": "4 objects; 3 hierarchy levels; 18,240 shared expanded vertices; 583,680 GPU geometry bytes; source SHA-256 a38371ebab606bda455e05d7db47b4c62aa0297e60c84870212ed8cfccf91244; uncommitted scoped source: False",
     "capture_window_utc": [
-      "2026-11-20T22:09:43.982808+00:00",
-      "2026-11-20T22:09:46.405178+00:00"
+      "2026-11-23T07:19:01.665421+00:00",
+      "2026-11-23T07:19:03.590356+00:00"
     ]
   },
-  "source_state": "clean reviewed implementation; only evidence files are new/modified",
+  "source_state": {
+    "uncommitted_source": false,
+    "scoped_git_status": []
+  },
   "source_verification": {
+    "capture_revision": "49ebcddb48ae490a657f160220532b908e6a9d8d",
     "resolved_frames": 14,
     "images": [
       "01-initial.png",
@@ -57,118 +61,48 @@
       "14-recovered.png"
     ],
     "unreferenced_pngs": [],
-    "recorded_source_files": 153,
-    "supplemental_source_sha256": {
-      "native/macos_live_editor.inc": "bb24f5fa57d9f2591b2b39f2de67a56e186dee01a98b9543a124f63c7560672c",
-      "native/macos_source_editor.inc": "7a28f5564d6f8a41254bcaf40325b15809bc3bedbd5c9db9ff9738390831721c"
-    },
-    "sources_equal_reviewed_git_blobs": 155,
-    "executable_sha256": "0795e66fe854720f6818cc62eee2d338224808cae5b1d6b217ec520564ab440c",
-    "recorded_source_aggregate_sha256": "5b9103208c63407ae06ea7a887f41ee2218bd84370a9a9144801fdce39b3cf09",
-    "native_include_snapshot_before_capture": "2026-11-20T22:08:33.835721+00:00",
-    "native_includes_unchanged_after_replay": true
+    "recorded_source_files": 156,
+    "supplemental_source_sha256": {},
+    "sources_equal_reviewed_git_blobs": 156,
+    "executable_sha256": "6d53acec3b9873656e8f3758bd5e35ec342b99e5a6ae9a47709930081e0d13d9",
+    "recorded_source_aggregate_sha256": "a38371ebab606bda455e05d7db47b4c62aa0297e60c84870212ed8cfccf91244"
   },
-  "manifest_sha256": "10344b9d817fa348478927afbe400bbc35ee006b2deda69c68c0489f61bfcb50",
-  "original_candidate": {
-    "revision": "bb4eaf944c7aa3bcac2cc61ee37ed99b1e4f2487",
-    "slides": 14,
-    "capture_kinds": [
-      "offscreen-render"
-    ],
-    "source_count": 147,
-    "source_mismatch": [
-      "examples/spatial-assembly/gallery.py",
-      "native/macos_composition.h",
-      "native/macos_composition.inc",
-      "native/macos_metal.m",
-      "native/macos_window.m",
-      "native/macos_window_state.h",
-      "native/spatial/api.cpp",
-      "native/spatial/api.h",
-      "native/spatial/renderer.h",
-      "native/spatial/renderer.m",
-      "pixi.toml",
-      "src/moxi/__init__.mojo",
-      "src/moxi/capability_walkthrough.mojo",
-      "src/moxi/column_runtime.mojo",
-      "src/moxi/event.mojo",
-      "src/moxi/fractal.mojo",
-      "src/moxi/interaction_showcase.mojo",
-      "src/moxi/live_script.mojo",
-      "src/moxi/macos.mojo",
-      "src/moxi/native_window.mojo",
-      "src/moxi/scenarios.mojo",
-      "src/moxi/scene_path.mojo",
-      "src/moxi/wxstyle.mojo",
-      "src/moxi_spatial/__init__.mojo"
-    ],
-    "missing_images": [
-      "01-initial.png",
-      "02-linked-views.png",
-      "03-hierarchy-preview.png",
-      "04-transform-commit.png",
-      "05-measurement.png",
-      "06-clipping.png",
-      "07-plane-moved.png",
-      "08-clip-undo.png",
-      "09-cancel-preview.png",
-      "10-cancelled.png",
-      "11-numeric.png",
-      "12-stale-rejected.png",
-      "13-right-disposed.png",
-      "14-recovered.png"
-    ],
-    "manifest_sha256": "6fcb10736f1398e3de02010d26a67e0d6f62a25ed49cf8dfdf7abf0c3a18fb1f",
-    "original_root": "original candidate checkout",
-    "original_metadata_sha256": {
-      "artifacts/demo-slideshows/spatial-assembly/manifest.json": "6fcb10736f1398e3de02010d26a67e0d6f62a25ed49cf8dfdf7abf0c3a18fb1f",
-      "artifacts/demo-slideshows/spatial-assembly/provenance.json": "0b75ad6d1946524ac1f5e15984962cc059ef1b5bb9ea3e6d8b303308487f888d",
-      "artifacts/demo-slideshows/spatial-assembly/timing.json": "9f16bc76a08d9f6465bc76074ce80c434310d43d67d49d23dce62af887da7eb9",
-      "artifacts/demo-slideshows/spatial-assembly/validation.json": "f08141e5d8ac15aa127a0362e64413cefa0fc82663500c3447faf1b130afcf95"
-    },
-    "originals_unchanged": true,
-    "disposition": "Read-only audit; stale source fingerprints and absent PNGs prevent certification of original candidate. Regenerated in the isolated checkout."
-  },
-  "commands": [
-    {
-      "command": "python3 examples/spatial-assembly/gallery.py",
-      "exit_code": 0
-    },
-    {
-      "command": "python3 scripts/demo_slideshows.py /tmp/moxi-d04-d07-d7fa3ed-evidence/galleries --check",
-      "exit_code": 0,
-      "result": "Validated 2 demo slideshow manifests; scoped root has only mindmap and spatial-assembly symlinks."
-    },
-    {
-      "command": "python3 artifacts/demo-slideshows/check_d04_d07.py --revision d7fa3ed",
-      "exit_code": 0,
-      "result": "34/34 distinct referenced PNGs resolve with matching dimensions and SHA-256; exact recorded source inventories and supplemental includes match reviewed Git blobs."
-    }
-  ],
-  "checker_negative_cases": {
-    "missing_frame": "rejected",
-    "wrong_png_hash": "rejected",
-    "wrong_source_hash": "rejected",
-    "initial_harness_limit": "An initial symlink-based temporary fixture was correctly rejected by gallery path containment; the hash cases were rerun with copied PNGs. No captured files were mutated.",
-    "initial_harness_log": "/tmp/moxi-d04-d07-d7fa3ed-evidence/checker-negative-first-attempt.log"
-  },
-  "gallery_html": {
-    "path": "index.html",
-    "sha256": "c068eecb6edf40244b252577d1a03eeed363d21df397942103783eeaed01cab2",
-    "generated_by": "Existing schema-v1 renderer during the successful gallery recipe; native frame outcomes inspected directly. Browser slideshow navigation was not exercised."
-  },
-  "visual_review": {
-    "reviewer": "implementation agent; not independent human acceptance",
-    "method": "Every manifest frame inspected in labeled 2x2 contact sheets; mixed editor and semantic/pointer previews also inspected at original resolution. Each observation is separate from replay assertion evidence.",
+  "manifest_sha256": "ff0911f5514230102923354bfc610d6ba7825f955e848d55ecaa815ea4a58a51",
+  "previous_review": {
+    "base_revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
+    "verified_at": "2026-11-20T22:16:23.372065+00:00",
     "partial_frames": [
       "07-plane-moved.png",
       "08-clip-undo.png",
       "09-cancel-preview.png"
     ],
+    "resolution": "The listed visual defects were repaired and these current native captures were reviewed anew."
+  },
+  "commands": [
+    {
+      "command": "pixi run python examples/spatial-assembly/gallery.py",
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 artifacts/demo-slideshows/check_d04_d07.py --revision 158c67a36c376bbc0f88eaf363669a0485473343",
+      "cwd": ".",
+      "exit_code": 0
+    },
+    {
+      "command": "review_root=$(mktemp -d /tmp/moxi-gallery-check.XXXXXX)\nln -s \"$PWD/artifacts/demo-slideshows/mindmap\" \"$review_root/mindmap\"\nln -s \"$PWD/artifacts/demo-slideshows/spatial-assembly\" \"$review_root/spatial-assembly\"\npython3 scripts/demo_slideshows.py \"$review_root\" --check",
+      "cwd": ".",
+      "exit_code": 0
+    }
+  ],
+  "visual_review": {
+    "reviewer": "Codex; no independent human acceptance",
+    "method": "All current frames inspected in ordered, labeled contact sheets; repaired frames also inspected at original resolution. The tracked PNG linked by each row is the primary visual artifact.",
+    "partial_frames": [],
     "frames": [
       {
         "image": "01-initial.png",
-        "sha256": "a0010d9f3020a874bdb59680f1ae5307ca87c0188b4693c684ca3fca00b8eea4",
+        "sha256": "5dca0cdc4cea3a880ba43ad558f50f482c02f924d9023fb913a45c0abf16e915",
         "steps": "Launch the assembly inspector",
         "expected": "Four stable IDs, a three-level hierarchy, perspective and orthographic targets sharing one geometry buffer",
         "observed": "Four hierarchy rows and colored objects are visible in distinct perspective and orthographic views.",
@@ -177,7 +111,7 @@
       },
       {
         "image": "02-linked-views.png",
-        "sha256": "8d62926af5d4aabc39fa5e5f1787e7d8f7dd6b7f81f30495a48ef8135cbc4768",
+        "sha256": "453e02b5a04965d591fa8fcc19ac75fd991d1fe1abd941970e86fb860c42a0a4",
         "steps": "Orbit only the perspective view",
         "expected": "Right camera revision remains unchanged; both views retain the same document and geometry",
         "observed": "Perspective orientation changes while the orthographic composition stays fixed; camera labels change only on the left.",
@@ -186,7 +120,7 @@
       },
       {
         "image": "03-hierarchy-preview.png",
-        "sha256": "bc66292cd2a42bd5bb0a914b99633ae8b065aec5e654384c952e9f258d581b86",
+        "sha256": "d3f98fb49118285d93686d7657c4fabccb189c29fc661193b51a0840e5347e25",
         "steps": "Select Arm in the hierarchy; drag its X handle in the right view",
         "expected": "Arm and Joint move together in both views; history remains unchanged",
         "observed": "Arm is selected and Arm/Joint shift together in both views with an X handle. History remains 1 on screen.",
@@ -195,7 +129,7 @@
       },
       {
         "image": "04-transform-commit.png",
-        "sha256": "4fa831e87e197bb9d23585b61808298b9b28889cfbb42ca6b05c6a6b60aed92b",
+        "sha256": "f19a2e38df4cb406d28f5a94bca35e9cdb717a05609a429ad02a030b655b37c0",
         "steps": "Release the Arm drag",
         "expected": "One history entry; child local coordinates account for parent scale and Joint follows the composed transform",
         "observed": "Arm/Joint positions remain after release; document/history labels advance once to doc 3 / history 2.",
@@ -204,7 +138,7 @@
       },
       {
         "image": "05-measurement.png",
-        "sha256": "191180aa4566c4b5be6ea3d3331b1e4485ab06e877bce4a2844074b25d4b767d",
+        "sha256": "1eb1c096b6e5ef29c803a84d6c5452a241d0dfb657e28f0a08f08bb4b888d8ff",
         "steps": "Pick Carrier in perspective and Arm in orthographic",
         "expected": "Two local surface anchors produce the same world distance and cyan segment in both views",
         "observed": "Cyan segment and endpoints appear in both views; probe label reads 1.783 world units.",
@@ -213,7 +147,7 @@
       },
       {
         "image": "06-clipping.png",
-        "sha256": "4e979528081d8e3ccc60c1a3b00ddd46b87ef4b435c8333a9c79727b1dc94496",
+        "sha256": "4e8b47b5c86036a7563ceb8ec1d02677be84731522603d90c4252ec4e3310534",
         "steps": "Enable the X >= 0 plane",
         "expected": "Both targets omit the same half-space; clipped triangles also drive picking; no cap surface",
         "observed": "Purple clipping outline appears; the negative-X objects disappear in both views, with enabled X >= 0 controls.",
@@ -222,34 +156,34 @@
       },
       {
         "image": "07-plane-moved.png",
-        "sha256": "251c1c07aec466088899cdcc8aaae361ecc53895f078c01f77295da92081bbd4",
+        "sha256": "fcc5503e658a75e936c15b8ba657f447616da286e2e87d0af84bf9bab4e22b5d",
         "steps": "Advance the plane offset by 0.25",
         "expected": "Both views update from one derived geometry rebuild/upload",
-        "observed": "Clipping control shows offset 0.25 and outlines shift in both views. The explanatory status still says Retain X >= 0.",
-        "outcome": "partial",
-        "limits_or_assertion_evidence": "Geometry/offset outcome is visible; status prose is stale. No cap surface is generated."
+        "observed": "The shared clipping control shows enabled at offset 0.25; both rendered views are clipped, and the status explicitly says Retain X >= 0.25.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay asserts both views are enabled at offset 0.25."
       },
       {
         "image": "08-clip-undo.png",
-        "sha256": "83591c1ac22f12727ec4f748f30d043a40ba14346bde31a1ea57389efecc70e5",
+        "sha256": "73025ea6d02342796f7496a11a11ee56d7a79b8538b54b431a4189a592323008",
         "steps": "Undo both the offset edit and enabling the plane",
         "expected": "Unclipped geometry returns in both views",
-        "observed": "All four objects return in both views and clipping controls read disabled / offset 0. The explanatory status still says Retain X >= 0.",
-        "outcome": "partial",
-        "limits_or_assertion_evidence": "Replay checks clipping is disabled; stale status prose contradicts that state."
+        "observed": "All four objects return in both views; the shared clipping control shows disabled at offset 0, and the status says full geometry was restored by undo.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "Replay asserts clipping is disabled and offsets are zero in both views."
       },
       {
         "image": "09-cancel-preview.png",
-        "sha256": "10480b57d39040cc5ef5f01c0f0d3b29e110b994acd737db5b4d3c7a727028d1",
+        "sha256": "e028b815e7dd29eae3c1f4f768d707f271aff2022f9614998b208cbe50912fb2",
         "steps": "Drag the Arm X handle again",
         "expected": "Both views display a shared preview before commit",
-        "observed": "Arm/Joint shift in both views, probe distance changes to 2.223, and history stays 2. The clipping status remains stale.",
-        "outcome": "partial",
-        "limits_or_assertion_evidence": "This is an uncommitted preview, not a second history entry."
+        "observed": "Arm/Joint shift during an uncommitted translation in both views while history stays 2. The status explicitly says clipping remains disabled and Escape discards the preview.",
+        "outcome": "pass",
+        "limits_or_assertion_evidence": "The following cancellation frame and native replay assert restoration without a history commit."
       },
       {
         "image": "10-cancelled.png",
-        "sha256": "9e09e9e425a965d26093d6eddcbd4d07459358a2cf19fccd80b100ffd55f9a52",
+        "sha256": "85aee12ccba83b9020e2d8f476601b253d1c83dfde8690ecb5a0f7b9a097f119",
         "steps": "Send Escape through the native event queue",
         "expected": "Committed transforms and history are restored in both views",
         "observed": "Arm/Joint return to the prior committed positions; probe distance returns to 1.783 and history remains 2.",
@@ -258,7 +192,7 @@
       },
       {
         "image": "11-numeric.png",
-        "sha256": "debcfe9ccc9010141041303ba2c0d8f7306fd4f27992b4580a64c41b661a1c62",
+        "sha256": "976e0ab6a470e9aacf1bfa0d99847749a27309f8773ea1a28bb28b306edf9124",
         "steps": "Enter 0.25 via the native text callback, press Enter then Escape",
         "expected": "Same public operation validator and shared history as pointer manipulation",
         "observed": "Numeric field shows 0.25; Arm/Joint shift and history advances to 3, with distance 2.011.",
@@ -267,7 +201,7 @@
       },
       {
         "image": "12-stale-rejected.png",
-        "sha256": "80f28dddd45ba08e99a5264ed18fa7f2b6773a8115a7209f3793138300a23f2c",
+        "sha256": "c2edf503f01a9eecc072df4bf425bc116260738a29be35988a9d7785192f586d",
         "steps": "Undo numeric edit; request a delayed mesh, supersede it and poll its old completion",
         "expected": "Old completion is rejected; both views retain the last accepted mesh while the latest work remains pending",
         "observed": "Both views retain rendered objects and status reports old worker completion rejection.",
@@ -276,7 +210,7 @@
       },
       {
         "image": "13-right-disposed.png",
-        "sha256": "a4ed45976dec1c14df7147356f026be0d9fa6957197f751c1720de4579ae0e32",
+        "sha256": "40fbd3b278f0e1760d337d1fd5a2201d24869a1d7a9e845a2c8178af5629ad15",
         "steps": "Dispose the right view",
         "expected": "Right image is removed; left target, document and GPU geometry remain usable",
         "observed": "Right target shows View disposed / unavailable and Recreate to recover; left remains rendered and usable.",
@@ -285,7 +219,7 @@
       },
       {
         "image": "14-recovered.png",
-        "sha256": "24cf533e0b89d3bb3113550f0ece20585d073a3e3f95f78f247f1bbb7c00b4d6",
+        "sha256": "22f6237f913efd310429fc4246e812f9395332bdd82e511797778cf19c404057",
         "steps": "Recreate under its existing owner",
         "expected": "New right target consumes the surviving GPU geometry without another upload",
         "observed": "Right view is rendered again next to the surviving left view; shared-upload count stays 11 across disposal/recreation.",
@@ -295,75 +229,103 @@
     ],
     "contact_sheets": [
       {
-        "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/spatial-assembly-01-04.png",
-        "sha256": "0ab7873ebea0d064be0589576b6d6487bcb650bf436baec03c857c98469b1c7b"
+        "path": "/tmp/moxi-d04-d07-158c67a-evidence/spatial-assembly-1.png",
+        "sha256": "7435c16f6c4d1c924df577cc594404c9676b8c5e09f5e2d93529ea50969b03fe"
       },
       {
-        "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/spatial-assembly-05-08.png",
-        "sha256": "044565865f346a204d78a9396f1f5df93e4f76f1880d0a6dcf047795311c6078"
+        "path": "/tmp/moxi-d04-d07-158c67a-evidence/spatial-assembly-2.png",
+        "sha256": "1c3f9b2c80ff5f569752ff158154e6ee2986271df8fe3a0315b776d7a1cdc8b6"
       },
       {
-        "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/spatial-assembly-09-12.png",
-        "sha256": "486d3e452c681f703b68511db6b246f50306259f1e61b1406a119348c2edb4b6"
+        "path": "/tmp/moxi-d04-d07-158c67a-evidence/spatial-assembly-3.png",
+        "sha256": "79b96d34f9a03307d899f33d7a829c4f6acf61abc3517e22dbceeb3dce3ea2ee"
       },
       {
-        "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/spatial-assembly-13-14.png",
-        "sha256": "d1f4648b29a4b80405a73dd50808c1180d71da9f0fdd2a9331734d7a84a5bbb7"
+        "path": "/tmp/moxi-d04-d07-158c67a-evidence/spatial-assembly-4.png",
+        "sha256": "29e080ee40fe9b97b049896b5ea6f714a407cb79b487e849f0cb0dec6b15b436"
       }
     ]
   },
   "local_attachments": [
     {
-      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/d07-gallery.log",
-      "sha256": "fe6502ec9eda8f41fc1cf20722e11f4e8b0d8c1246ac74679a6f6a88004ad620"
+      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-gallery-d07-final-capture.log",
+      "sha256": "2ef2b7ef1101f938887a03d2bfd682b7fc3ff235809349841bd1f0233ab205f9"
     },
     {
-      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/moxi-d07-gallery-build.log",
-      "sha256": "cee87c7f506ed53f5b716f2c19efae6d04453c2e208a89dcc26ef72015348178"
+      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-d07-gallery-build.log",
+      "sha256": "0c29c648c89be2c2795d43ab96e30fd7582fc87646195b3423cc69b11e4f2256"
     },
     {
-      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/moxi-d07-gallery-replay.log",
-      "sha256": "0d64bdd3a0c69230d8b8e70481bad61a6ecfbdae8a47cbc5aca899a86f25783d"
+      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-d07-gallery-replay.log",
+      "sha256": "0c1f1690e35066338e103464fb4558021d00e42bcaca98bbe7fff100e99b38f4"
     },
     {
-      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/checker-negative-cases.log",
-      "sha256": "7a2f2b321fb202ee767839e599b2e3a310e54d12d1600f9819890e7069e47c57"
+      "path": "/tmp/moxi-d04-d07-158c67a-evidence/checker-negative-cases.json",
+      "sha256": "777a545960d16141bbb1a4c17bdc922a07c9fbce2d430905bfe46258036bfe73"
     },
     {
-      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/checks.json",
-      "sha256": "335578f93aafcb33be5abc55adf47c902b204d24c0a6b5d30dd1f37c4752cddd"
+      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-gallery-checker-negative.py",
+      "sha256": "ee7c113fa1a1212f90719f3be26ed959b5ab7fd7e6a300a5e2e502b2986d24c4"
     },
     {
-      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/original-audit.json",
-      "sha256": "ff2ee035f33089947365b62e4da10c6eeed7a1f1e4964665b07432dd187ef954"
+      "path": "/tmp/moxi-d04-d07-158c67a-evidence/moxi-gallery-two-demo-schema.log",
+      "sha256": "d6c9356c08987ccea4bd2b38afd87b0b7c6ef5ce936dace545e4b196a17b21f5"
     },
     {
-      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/native-includes-before.json",
-      "sha256": "9c8a0ac503bb16ab1e78da9a0004747de0519908cdf9d2f80bdaf1fd630430ea"
-    },
-    {
-      "path": "/tmp/moxi-d04-d07-d7fa3ed-evidence/environment.json",
-      "sha256": "1b70a80a429fc679d1d2bb5d844b01b62f2c0d580863994dfc13cf2224a4c59c"
+      "path": "/tmp/moxi-d04-d07-158c67a-evidence/check.json",
+      "sha256": "a84247df257f48ae93caad156e7105a25e4413cce112f3b7cdf1a921235c5b4a"
     }
   ],
   "build_diagnostics": {
-    "result": "Build exited 0 with warnings; these are not warning-free builds.",
+    "result": "Native build and replay exited 0 with warnings.",
     "warnings": [
       "Deprecated as_c_string_slice",
       "Object code built for macOS 27.2 linked against target 27.0"
     ]
   },
   "unverified": [
-    "Physical pointer/keyboard, non-US input/IME, native chooser and actual OS capture loss",
-    "VoiceOver and independent human usability",
-    "Compositor/scanout, latency, allocation/GPU residency, sustained performance or thermal behavior",
-    "Other viewport sizes, hosts, browsers or fresh-machine packaging",
-    "Broad repository tests, clean packaged-consumer suites, sanitizer runs and GitHub CI",
-    "Other gallery candidates (E02/E03/E04, D08 and remaining manifest audit)"
+    "Physical keyboard/pointer, capture-loss and native chooser paths; only D04 F2 crosses AppKit NSEvent dispatch",
+    "Physical IME, RTL caret/selection correctness, VoiceOver and independent human usability",
+    "Other viewports/hosts, fresh-machine packaging, broad repository tests, packaged-consumer suites, sanitizers and GitHub CI",
+    "Compositor/scanout, latency, GPU residency, sustained performance, energy or thermal behavior",
+    "Browser slideshow navigation; HTML remains generated from the checked manifest"
   ],
-  "timing_scope": "120 samples / 60 sequential view pairs, one shared 18,240-vertex / 583,680-byte geometry buffer and two targets. D04 capture overlapped this run; timing was not isolated. Timed endpoint is host-image publication, before compositor/scanout. No performance promotion.",
+  "timing_scope": "120 per-view samples / 60 sequential view pairs with 18,240 shared vertices and 583,680 geometry bytes. D04 and D07 capture processes did not overlap, but the machine was not isolated for benchmarking. Endpoint is host-image publication before compositor/scanout; no performance promotion.",
   "remaining_gates": [
-    "Clipping explanatory status is stale in frames 07, 08 and 09; use offset/enabled labels and replay assertions for state.",
-    "D05 performance/production renderer gate remains OPEN; synthetic four-object geometry is not imported CAD or large-assembly acceptance."
-  ]
+    "D05 production/performance gate remains OPEN; the four-object synthetic fixture does not establish imported CAD or large-assembly acceptance."
+  ],
+  "checker_negative_cases": {
+    "outcome": "pass",
+    "cases": [
+      {
+        "case": "missing frame",
+        "outcome": "pass",
+        "rejected_for": "No such file"
+      },
+      {
+        "case": "wrong PNG hash",
+        "outcome": "pass",
+        "rejected_for": "PNG SHA-256 mismatch"
+      },
+      {
+        "case": "wrong source hash",
+        "outcome": "pass",
+        "rejected_for": "source inventory/hash mismatch"
+      },
+      {
+        "case": "untracked authored source capture",
+        "outcome": "pass",
+        "rejected_for": "dirty capture source"
+      },
+      {
+        "case": "abbreviated capture revision",
+        "outcome": "pass",
+        "rejected_for": "immutable Git commit"
+      }
+    ],
+    "local_result": "/tmp/moxi-d04-d07-158c67a-evidence/checker-negative-cases.json",
+    "scope": "Temporary copies of both galleries; repository images and source were not mutated."
+  },
+  "artifact_retention": "All referenced native PNGs are retained with this change using this demo directory’s scoped .gitignore exception. HTML and binaries remain generated/ignored; temporary logs and contact sheets are disposable.",
+  "catalog_audit": "../CATALOG-AUDIT.md"
 }
