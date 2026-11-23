@@ -1,5 +1,35 @@
 # Native acceptance follow-up
 
+## Packaged workflow and plot layout, November 23, 2026
+
+The signed app built from clean `045f9a5` ran on macOS 27.2.1 arm64. The
+following actions used the window's accessibility controls and a writable copy
+of [the 12-row sample](../examples/data/workbench-tail.csv). Capture time was
+06:51 UTC. The workbench release gate also passed its data, paint cache,
+accessibility ABI, package build, signature and benchmark checks. The benchmark
+records measurements without a presentation-latency threshold.
+
+| Action | Expected and observed result |
+| --- | --- |
+| Import the sample and filter on `value > 10` | The table retained keys 6, 7 and 10 out of 12 rows. |
+| Select all three rows and export CSV and scatter SVG | The app wrote both files. Reading the CSV returned values 18, 21 and 28 and weights 3, 2 and 4 in key order. The 572 × 252 SVG parsed with 14 text elements and a plot clip. |
+| Reopen the exported CSV | Three rows loaded with the original keys and values. |
+| Import from an empty path and a missing file | The last valid table and selection survived both failures. |
+| Quit the app | The original packaged process exited on Command-Q. |
+
+This run exposed an overlap between horizontal tick labels and the series legend.
+The renderer now reserves a separate legend row and draws the numeric labels
+outside the data clip. The [AppKit capture](benchmarks/workbench-acceptance-2026-11-23/plot-layout.png)
+shows both rows on the scatter and histogram at 1180 × 820 points. It was taken
+at 07:12 UTC with the production workbench render function and default 48-row
+dataset from clean `37f4f0d`, using the native test snapshot hook at 2× scale.
+
+The rebuilt signed app passed bundle validation. The desktop automation bridge
+reported `cgWindowNotFound` on relaunch, including from an isolated copy.
+The post-fix image verifies the native content view. A second interactive pass
+on the revised bundle, physical IME cases, sustained presentation timing and an
+independent developer's authoring exercise remain open. VoiceOver remains paused.
+
 ## Acceptance status reviewed 2026-11-06
 
 H2 remains partially verified. The [hardening replay](data-workbench-hardening.md)

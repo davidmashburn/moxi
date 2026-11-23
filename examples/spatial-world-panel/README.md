@@ -48,6 +48,17 @@ VoiceOver stays paused. A native API that supplies coherent transformed text and
 semantic geometry, followed by real IME/AT acceptance, would change the decision.
 D05's production renderer decision remains OPEN.
 
+### Packaged replay, November 23, 2026
+
+A fresh macOS arm64 replay built the public module and linked three consumers
+from a directory containing only the package inputs at `3971322`. The world
+caret measured (26.00, 58.00) in owner coordinates. Projection required
+(388.62, 259.67). The screen editor's caret landed inside its control at
+(398.09, 273.04). Contract, lifecycle, AppKit text protocol, Metal composition
+and the 17-frame explorer and 14-frame assembly replays passed.
+The measured world-space mismatch keeps promotion rejected. Physical IME and
+assistive-technology acceptance remain open.
+
 ## Bounded seam and policy
 
 `moxi_spatial.WorldPanel` borrows one live `SpatialViewport`. Its configuration is
