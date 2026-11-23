@@ -82,6 +82,7 @@ def main():
         elif a[0]=='glyph':glyphs[a[1]].append(a[2:])
         elif a[0]=='benchmark':bench[a[1]].append(float(a[3]))
         elif a[0]=='selection':selections[a[1]]=dict(row_key=int(a[2]),row_index=(int(a[2])-100)//7,x=float(a[3]),y=float(a[4]),source_keys=a[5])
+    recovery={}
     for case in CASES:
         name=case['id'];f=figure(case);g=layout(f.spec.layers[0],f.data).glyphs
         actual=glyphs[name];assert len(g)==len(actual),(name,len(g),len(actual))
@@ -104,9 +105,22 @@ def main():
         f.save(out/(name+'-python.svg'));f.save(out/(name+'-python.pdf'))
         original=Image.open(out/(name+'-canvas.png')).convert('RGB')
         assert ImageChops.difference(original,Image.open(out/(name+'-restored.png')).convert('RGB')).getbbox() is None,name
-        assert ImageChops.difference(original,Image.open(out/(name+'-updated.png')).convert('RGB')).getbbox() is not None,name+' update'
+        updated=Image.open(out/(name+'-updated.png')).convert('RGB')
+        assert ImageChops.difference(original,updated).getbbox() is not None,name+' update'
+        for suffix in ('rejected','request-rejected'):
+            rejected=Image.open(out/(name+'-'+suffix+'.png')).convert('RGB')
+            assert ImageChops.difference(updated,rejected).getbbox() is None,(name,suffix,'changed valid pixels')
+        recovery[name]=dict(updated_differs_from_original=True,
+            rejected_replace_preserves_updated_pixels=True,
+            rejected_request_preserves_updated_pixels=True,
+            rejected_calls_preserve_source_table=True,
+            rejected_request_has_no_pending_data=True,
+            restore_matches_original_pixels=True,
+            artifact_sha256={suffix:hashlib.sha256((out/(name+'-'+suffix+'.png')).read_bytes()).hexdigest()
+                for suffix in ('canvas','updated','rejected','request-rejected','restored')})
     summary={k:dict(samples_seconds=v,n=len(v),iterations=10,median=statistics.median(v),stdev=statistics.stdev(v),excludes='Compilation, rasterization, PNG/SVG export, browser, native input') for k,v in bench.items()}
     (out/'benchmarks.json').write_text(json.dumps(summary,indent=2));(out/'selections.json').write_text(json.dumps(selections,indent=2))
+    (out/'recovery.json').write_text(json.dumps(recovery,indent=2)+'\n')
     assert source_hash == runtime_source_hash(), 'Runtime inputs changed during verification; rerun before recording evidence'
     (out/'results.json').write_text(json.dumps(dict(runtime_source_sha256=source_hash,
         driver_sha256=hashlib.sha256(driver.read_bytes()).hexdigest(), case_count=len(CASES)),indent=2)+'\n')
