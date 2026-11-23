@@ -94,6 +94,17 @@ def audit():
         candidates = {path.parent / filename for filename in (
             "provenance.json", "source-hashes.json", "evidence.json", "capture-provenance.json",
             "frames.json", "build.json", "capture.json")}
+        invalid_inventories = []
+        published_hashes = data.get("artifacts_sha256", {})
+        if "publication.json" in published_hashes:
+            # Installed-wheel proofs retain machine-specific build logs locally.
+            # Audit the source inventory that a clean checkout can reproduce.
+            candidates.discard(path.parent / "build.json")
+            publication = path.parent / "publication.json"
+            if publication.is_file() and sha(publication) == published_hashes[publication.name]:
+                candidates.add(publication)
+            else:
+                invalid_inventories.append(str(publication.relative_to(ROOT)))
         for key in ("source_manifest", "source_state_path"):
             if isinstance(data.get(key), str):
                 candidates.add((ROOT if key == "source_state_path" else path.parent) / data[key])
@@ -124,12 +135,15 @@ def audit():
         audited_sources.update(recorded)
         changed = sorted(source for source, digest in recorded.items()
                          if (ROOT / source).is_file() and sha(ROOT / source) != digest)
-        status = (SourceStatus.UNVERIFIABLE if not recorded else
+        status = (SourceStatus.STALE if invalid_inventories else
+                  SourceStatus.UNVERIFIABLE if not recorded else
                   SourceStatus.STALE if absent or changed or conflicts else SourceStatus.MATCH)
         row.update(source_status=status.value, source_inventories=inventories,
                    external_source_inventories=external,
                    recorded_source_files=len(recorded), changed_source_files=changed,
                    missing_source_files=absent, conflicting_source_hashes=sorted(set(conflicts)))
+        if invalid_inventories:
+            row["invalid_source_inventories"] = invalid_inventories
         rows.append(row)
     return dict(checked_at=datetime.now(timezone.utc).isoformat(),
                 checkout_revision=AUDIT_REVISION,
