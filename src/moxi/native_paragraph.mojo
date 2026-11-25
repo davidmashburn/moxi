@@ -33,7 +33,7 @@ struct NativeParagraph(ParagraphPayload, RetainedParagraph):
         if "\x00" in text:
             raise Error("Native paragraph text cannot contain a NUL character")
         var source = text
-        var c_source = source.as_c_string_slice()
+        var c_source = source.as_c_string_span()
         var handle = external_call["moxi_paragraph_create", UInt](
             c_source.ptr(), font_size, width, Int32(direction))
         if handle == 0:
@@ -47,7 +47,7 @@ struct NativeParagraph(ParagraphPayload, RetainedParagraph):
         if "\x00" in text:
             raise Error("Native paragraph text cannot contain a NUL character")
         var source = text
-        var c_source = source.as_c_string_slice()
+        var c_source = source.as_c_string_span()
         var handle = external_call["moxi_paragraph_query", UInt](c_source.ptr(),font,width,Int32(direction),Int32(kind))
         if handle==0:
             raise Error("Native paragraph query failed")

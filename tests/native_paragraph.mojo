@@ -86,7 +86,7 @@ def main() raises:
     external_call["moxi_test_paragraph_host", NoneType]()
     retained_badge_presentation()
     var text = String("Measured and drawn with the same CoreText paragraph. Café, 日本語, العربية.")
-    var source = text.as_c_string_slice()
+    var source = text.as_c_string_span()
     var paragraph = NativeParagraph.create(text, 18, 230, 0)
     test_check(paragraph.line_count() > 1)
     test_check(external_call["moxi_test_paragraph_reference", Int32](paragraph._storage[].handle, source.ptr(), Float32(18), Float32(230)) == 1)

@@ -31,7 +31,7 @@ struct MacOSFileWatcher:
     def watch(mut self, path: String) -> Bool:
         self.path = path
         var source = self.path
-        var c_source = source.as_c_string_slice()
+        var c_source = source.as_c_string_span()
         self.last_mtime = external_call[
             "moxi_dev_source_mtime_ns",
             Int64,
@@ -42,7 +42,7 @@ struct MacOSFileWatcher:
         if self.path.count_codepoints() == 0:
             return False
         var source = self.path
-        var c_source = source.as_c_string_slice()
+        var c_source = source.as_c_string_span()
         var current = external_call[
             "moxi_dev_source_mtime_ns",
             Int64,
@@ -79,8 +79,8 @@ struct MacOSLiveScript:
         )
         var source_copy = source
         var output_copy = output
-        var c_source = source_copy.as_c_string_slice()
-        var c_output = output_copy.as_c_string_slice()
+        var c_source = source_copy.as_c_string_span()
+        var c_output = output_copy.as_c_string_span()
         var built = external_call["moxi_dev_build_live_script", Int32](
             c_source.ptr(),
             c_output.ptr(),
@@ -172,7 +172,7 @@ struct MacOSDemoRunner:
     def launch(mut self, task: String) raises -> Bool:
         """Launch a task name, rejecting shell syntax at the native boundary."""
         var task_copy = task
-        var c_task = task_copy.as_c_string_slice()
+        var c_task = task_copy.as_c_string_span()
         return external_call["moxi_demo_launch", Int32](c_task.ptr()) != 0
 
     def is_running(self) raises -> Bool:

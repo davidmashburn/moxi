@@ -100,9 +100,9 @@ def publish_native_accessibility(snapshot: AccessibilitySnapshot) raises:
         var label = node.label
         var value = node.value
         var hint = node.hint
-        var c_label = label.as_c_string_slice()
-        var c_value = value.as_c_string_slice()
-        var c_hint = hint.as_c_string_slice()
+        var c_label = label.as_c_string_span()
+        var c_value = value.as_c_string_span()
+        var c_hint = hint.as_c_string_span()
         var enabled = 0
         var focused = 0
         var selected = 0
@@ -165,7 +165,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
     def register_image(mut self, resource: ImageResource) raises:
         """Resolve an application image before it appears in a frame."""
         var source = resource.source
-        var c_source = source.as_c_string_slice()
+        var c_source = source.as_c_string_span()
         external_call["moxi_window_register_image", NoneType](
             Int32(resource.id),
             c_source.ptr(),
@@ -280,7 +280,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
 
     def draw_label(mut self, command: PaintCommand) raises:
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         var wrap_text = 0
         if command.wrap_text:
             wrap_text = 1
@@ -312,7 +312,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
     def draw_native_widget(mut self, command: PaintCommand, kind: Int) raises:
         """Present a semantic collection widget through the AppKit bridge."""
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         var focused = 0
         var enabled = 0
         var selected = 0
@@ -351,7 +351,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
 
     def draw_button(mut self, command: PaintCommand) raises:
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         var focused = 0
         var hovered = 0
         var pressed = 0
@@ -399,9 +399,9 @@ struct NativeRenderer[backend_kind: Int](Renderer):
 
     def draw_text_input(mut self, command: PaintCommand) raises:
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         var composition = command.composition
-        var c_composition = composition.as_c_string_slice()
+        var c_composition = composition.as_c_string_span()
         var focused = 0
         if command.focused:
             focused = 1
@@ -437,7 +437,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
 
     def draw_checkbox(mut self, command: PaintCommand) raises:
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         var focused = 0
         var hovered = 0
         var pressed = 0
@@ -479,7 +479,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
 
     def draw_progress(mut self, command: PaintCommand) raises:
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         external_call["moxi_window_set_progress_at", NoneType](
             Int32(command.slot),
             c_text.ptr(),
@@ -503,7 +503,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
     def draw_slider(mut self, command: PaintCommand) raises:
         """Render a labelled track and thumb through the AppKit shim."""
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         var focused = 0
         var hovered = 0
         var pressed = 0
@@ -550,7 +550,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
 
     def draw_toggle(mut self, command: PaintCommand, radio: Bool) raises:
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         var focused = 0
         var hovered = 0
         var pressed = 0
@@ -597,7 +597,7 @@ struct NativeRenderer[backend_kind: Int](Renderer):
     def draw_image(mut self, command: PaintCommand) raises:
         """Render a resolved image with an accessible fallback label."""
         var text = command.text
-        var c_text = text.as_c_string_slice()
+        var c_text = text.as_c_string_span()
         external_call["moxi_window_set_image_at", NoneType](
             Int32(command.slot),
             Int32(command.resource_id),
@@ -776,7 +776,7 @@ struct NativeCanvasSceneRenderer[backend_kind: Int](SceneRenderer):
                 )
         elif command.kind == SCENE_TEXT:
             var text = command.text
-            var c_text = text.as_c_string_slice()
+            var c_text = text.as_c_string_span()
             external_call["moxi_window_add_custom_text", NoneType](
                 c_text.ptr(),
                 command.bounds.x,
@@ -911,7 +911,7 @@ struct NativeWindow[backend_kind: Int, invert_scroll_y: Bool = False](WindowBack
 
     def open(mut self, config: WindowConfig) raises:
         var title = config.title
-        var c_title = title.as_c_string_slice()
+        var c_title = title.as_c_string_span()
         external_call["moxi_window_open", NoneType](
             c_title.ptr(),
             config.width,

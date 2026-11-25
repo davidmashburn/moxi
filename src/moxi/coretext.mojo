@@ -27,7 +27,7 @@ struct MacOSTextShaper(TextShaper):
         var result = ShapedText()
         result.direction = direction
         var source = text
-        var c_text = source.as_c_string_slice()
+        var c_text = source.as_c_string_span()
         var count = Int(
             external_call["moxi_coretext_shape", Int32](
                 c_text.ptr(),

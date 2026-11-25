@@ -291,7 +291,7 @@ struct MacOSMetalRenderer(SceneRenderer):
             if command.has_typed_path:
                 path = command.typed_path.svg_data()
             var result = external_call["moxi_metal_draw_path", Int32](
-                path.as_c_string_slice().ptr(),
+                path.as_c_string_span().ptr(),
                 color.red, color.green, color.blue, color.alpha,
                 stroke.red, stroke.green, stroke.blue, stroke.alpha,
                 command.stroke_width,
@@ -313,7 +313,7 @@ struct MacOSMetalRenderer(SceneRenderer):
             if command.has_text_style and command.text_style.size > 0.0:
                 font_size = command.text_style.size
             var result = external_call["moxi_metal_draw_text", Int32](
-                text.as_c_string_slice().ptr(),
+                text.as_c_string_span().ptr(),
                 command.bounds.x,
                 command.bounds.y,
                 command.bounds.width,
@@ -589,14 +589,14 @@ struct MacOSMetalRenderer(SceneRenderer):
         if not self.initialized:
             return False
         var path_copy = path
-        var c_path = path_copy.as_c_string_slice()
+        var c_path = path_copy.as_c_string_span()
         return external_call["moxi_metal_write_ppm", Int32](c_path.ptr()) != 0
 
     def register_image(self, resource: ImageResource) raises -> Bool:
         """Upload a file-backed image to the Metal resource cache."""
         var source = resource.source
         return external_call["moxi_metal_register_image_file", Int32](
-            Int32(resource.id), source.as_c_string_slice().ptr()
+            Int32(resource.id), source.as_c_string_span().ptr()
         ) != 0
 
     def release_image(self, resource_id: Int):
@@ -1046,7 +1046,7 @@ struct MacOSMetalWindow(WindowBackend):
         self.config = config
         var title = config.title
         self.opened = external_call["moxi_metal_open_window", Int32](
-            title.as_c_string_slice().ptr(),
+            title.as_c_string_span().ptr(),
             config.width,
             config.height,
         ) != 0

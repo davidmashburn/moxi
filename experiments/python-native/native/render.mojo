@@ -55,7 +55,7 @@ struct HostSceneRenderer(SceneRenderer):
             if command.has_text_style:
                 raise Error("Styled text is outside the experimental rendering slice")
             var text = command.text
-            var source = text.as_c_string_slice()
+            var source = text.as_c_string_span()
             var ok = external_call["moxi_e04_text", Int32](
                 self.context, source.ptr(), Float64(command.bounds.x),
                 Float64(command.bounds.y + command.bounds.height), Float64(14.0),

@@ -50,7 +50,7 @@ native-text-parity = { cmd = "./dist/moxi-native-text-parity", depends-on = ["na
 native-scene-parity-build = { cmd = "mojo build -I src -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Foundation tests/native_scene_parity.mojo -o dist/moxi-native-scene-parity", depends-on = ["metal-object"] }
 native-scene-parity = { cmd = "./dist/moxi-native-scene-parity", depends-on = ["native-scene-parity-build"] }
 native-screenshot-check = { cmd = "bash scripts/native_screenshot_check.sh", depends-on = ["native-scene-parity-build"] }
-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
+demo-build = { cmd = "bash scripts/build_native_demo.sh -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
 demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
 live-script-demo-build = { cmd = "mojo build -I src -I examples -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/live_script_demo.mojo -o dist/moxi-live-script-demo", depends-on = ["native-object"] }
 live-script-demo = { cmd = "./dist/moxi-live-script-demo", depends-on = ["live-script-demo-build"] }
@@ -100,7 +100,7 @@ demo-record = "bash scripts/record_demo.sh"
 demo-catalog-record = { cmd = "MOXI_DEMO_RECORD_KIND=catalog bash scripts/record_demo.sh" }
 theme-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/theme_showcase.mojo -o dist/moxi-theme-showcase-demo", depends-on = ["native-object"] }
 theme-showcase-demo = { cmd = "./dist/moxi-theme-showcase-demo", depends-on = ["theme-showcase-demo-build"] }
-interactive-fractal-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation examples/interactive_fractal.mojo -o dist/moxi-interactive-fractal-demo", depends-on = ["native-object", "metal-object"] }
+interactive-fractal-demo-build = { cmd = "bash scripts/build_native_demo.sh -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation examples/interactive_fractal.mojo -o dist/moxi-interactive-fractal-demo", depends-on = ["native-object", "metal-object"] }
 interactive-fractal-demo = { cmd = "./dist/moxi-interactive-fractal-demo", depends-on = ["interactive-fractal-demo-build"] }
 fractal-benchmark-clock = "clang -O3 -Wall -Wextra -Werror -c native/benchmark_clock.c -o native/benchmark_clock.o"
 fractal-benchmark-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker native/macos_metal.o -Xlinker native/benchmark_clock.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation benchmarks/interactive_fractal.mojo -o dist/moxi-fractal-benchmark", depends-on = ["native-object", "metal-object", "fractal-benchmark-clock"] }

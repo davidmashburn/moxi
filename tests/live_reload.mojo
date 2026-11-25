@@ -8,8 +8,8 @@ from moxi import test_check
 def main() raises:
     var source = "examples/editable_showcase.mojo"
     var output = "/tmp/moxi-live-contract.dylib"
-    var c_source = source.as_c_string_slice()
-    var c_output = output.as_c_string_slice()
+    var c_source = source.as_c_string_span()
+    var c_output = output.as_c_string_span()
     test_check(
         external_call["moxi_dev_build_live_script", Int32](
             c_source.ptr(),
