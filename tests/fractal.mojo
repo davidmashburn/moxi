@@ -174,9 +174,9 @@ def main() raises:
     var copy = partial
     test_check(copy.rendered_segment_count() == partial.rendered_segment_count())
     _ = copy.advance_render(1)
-    test_check(not (copy.cursor.remaining == partial.cursor.remaining))
+    test_check(not (copy.cursor.level == partial.cursor.level))
 
-    # All presets keep a bounded preview while very large work stays pending.
+    # All presets keep a bounded preview at arbitrarily high requested depths.
     for preset in range(FRACTAL_PRESET_COUNT):
         var dense = FractalState()
         dense.geometry = fractal_preset_geometry(preset)
@@ -185,19 +185,17 @@ def main() raises:
         var coarse_count = len(dense.rendered_segments)
         test_check(coarse_count > 0 and coarse_count <= FRACTAL_RENDER_BATCH)
         for _ in range(10):
-            test_check(not dense.advance_render())
-        test_check(not dense.render_complete())
-        test_check(len(dense.cursor.address) == 0)
+            _ = dense.advance_render()
+        test_check(len(dense.cursor.ancestors) <= 256)
         test_check(len(dense.rendered_segments) == coarse_count)
         test_check(len(dense.raster.pixels) == 920 * 620 * 4)
 
-    # Small descendants are expanded to the actual requested depth, and output
-    # beyond the former cap is accumulated without retaining terminal geometry.
+    # The unequal Koch branches reach pixel size at different levels.
     var many = FractalState()
-    _ = many.set_depth(8)
-    while not many.render_complete():
+    _ = many.set_depth(1000000000)
+    for _ in range(2):
         _ = many.advance_render(10000)
-    test_check(many.cursor.emitted == 65536)
+    test_check(many.render_complete() and many.cursor.emitted == 1600)
     test_check(len(many.rendered_segments) <= FRACTAL_RENDER_BATCH)
     test_check(len(many.raster.pixels) == 920 * 620 * 4)
 

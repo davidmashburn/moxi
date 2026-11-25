@@ -2,7 +2,7 @@
 
 from std.math import abs
 from moxi import Color, Point, test_check, fractal_preset_geometry
-from moxi.fractal import FractalCursor, FractalLocalSegment, FractalSegment, FractalState, _local_segments
+from moxi.fractal import FractalBranchRun, FractalCursor, FractalLocalSegment, FractalSegment, FractalState, _local_segments
 from moxi.natural import Natural
 from moxi.raster import RasterImage
 from std.collections import List
@@ -28,37 +28,77 @@ def check_cursor_cache():
     var cursor = FractalCursor(Natural(300), start, end)
     for _ in range(300):
         test_check(not cursor.step(local, start, end))
-    test_check(cursor.remaining == 0)
+    test_check(cursor.level == 300)
     test_check(len(cursor.ancestors) == 256)
     test_check(cursor.ancestor_count == 256)
     test_check(cursor.step(local, start, end))
     test_check(cursor.leaf.start.y == 300)
-    test_check(cursor.remaining == 1)
+    test_check(cursor.level == 299)
     test_check(cursor.ancestor_count == 255)
     test_check(not cursor.step(local, start, end))
     test_check(cursor.step(local, start, end))
     test_check(cursor.leaf.start.y == 301)
-    test_check(cursor.remaining == 2)
+    test_check(cursor.level == 298)
     test_check(len(cursor.ancestors) == 256)
 
     # Seed a distant address instead of enumerating 2**256 leaves. Its next carry
     # crosses the entire cache and must restart at the root with the new address.
     var distant = FractalCursor(Natural(300), start, end)
-    for _ in range(256):
-        distant.address.append(1)
+    distant.address.append(FractalBranchRun(0, 44))
+    distant.address.append(FractalBranchRun(1, 256))
     for _ in range(300):
         test_check(not distant.step(local, start, end))
     test_check(distant.step(local, start, end))
     test_check(distant.leaf.start.y == 556)
-    test_check(distant.remaining == 300)
+    test_check(distant.level == 0)
     test_check(distant.ancestor_count == 0)
     test_check(distant.segment.start.y == 0)
-    test_check(len(distant.address) == 257)
+    test_check(len(distant.address) == 2 and distant.address[0].count == 43)
     for _ in range(300):
         test_check(not distant.step(local, start, end))
     test_check(distant.step(local, start, end))
     test_check(distant.leaf.start.y == 301)
     test_check(len(distant.ancestors) == 256)
+
+
+def check_pixel_cutoff(depth: Natural):
+    var local = List[FractalLocalSegment]()
+    local.append(FractalLocalSegment(Point(0, 0), Point(0.25, 0)))
+    local.append(FractalLocalSegment(Point(0.25, 0), Point(0.75, 0)))
+    var start = Point(0, 0)
+    var end = Point(2, 0)
+    var cursor = FractalCursor(depth, start, end)
+    var leaves = List[FractalSegment]()
+    for _ in range(7):
+        if cursor.step(local, start, end):
+            leaves.append(cursor.leaf)
+    test_check(cursor.finished and len(leaves) == 3)
+    test_check(leaves[0].start.x == 0 and leaves[0].end.x == 0.5)
+    test_check(leaves[1].start.x == 0.5 and leaves[1].end.x == 0.75)
+    test_check(leaves[2].start.x == 0.75 and leaves[2].end.x == 1.25)
+
+    # The diagonal exceeds one pixel even though each axis is under a pixel.
+    end = Point(0.75, 0.75)
+    cursor = FractalCursor(depth, start, end)
+    test_check(not cursor.step(local, start, end))
+    for _ in range(3):
+        _ = cursor.step(local, start, end)
+    test_check(cursor.finished and cursor.emitted == 2)
+    for endpoint in [Point(0.5, 0.5), start]:
+        cursor = FractalCursor(depth, start, endpoint)
+        test_check(cursor.step(local, start, endpoint))
+        test_check(cursor.finished and cursor.emitted == 1)
+        test_check(cursor.leaf.end.x == endpoint.x and cursor.leaf.end.y == endpoint.y)
+
+    # A collapsed child beside a full-length child produces a long, thin tree.
+    local = [FractalLocalSegment(start, start), FractalLocalSegment(start, Point(1, 0))]
+    cursor = FractalCursor(Natural(1000), start, Point(1, 0))
+    for _ in range(4000):
+        if cursor.finished:
+            break
+        _ = cursor.step(local, start, Point(1, 0))
+        test_check(len(cursor.address) <= 2)
+    test_check(cursor.finished and cursor.emitted == 1001)
 
 
 def main():
@@ -90,13 +130,16 @@ def main():
     for _ in range(1000):
         spelling += "0"
     test_check(huge.parse(spelling))
+    check_pixel_cutoff(huge)
     var state = FractalState()
     test_check(state.set_depth(huge))
     test_check(state.depth_input.text == spelling)
+    # A length-preserving generator still yields before reaching this depth.
+    state.local_segments = [FractalLocalSegment(Point(0, 0), Point(1, 0))]
     for _ in range(100):
         test_check(not state.advance_render())
     test_check(not state.render_complete())
-    test_check(len(state.cursor.address) == 0)
+    test_check(len(state.cursor.address) == 1 and state.cursor.address[0].count > 256)
     test_check(len(state.cursor.ancestors) == 256)
     test_check(state.cursor.emitted == 0)
     test_check(len(state.raster.pixels) == 920 * 620 * 4)
@@ -115,9 +158,12 @@ def main():
         for _ in range(3):
             var expanded = List[FractalSegment]()
             for parent in expected:
+                var dx = parent.end.x - parent.start.x
+                var dy = parent.end.y - parent.start.y
+                if dx * dx + dy * dy < 1:
+                    expanded.append(parent)
+                    continue
                 for child in local:
-                    var dx = parent.end.x - parent.start.x
-                    var dy = parent.end.y - parent.start.y
                     expanded.append(FractalSegment(
                         Point(parent.start.x + dx * child.start.x - dy * child.start.y,
                               parent.start.y + dy * child.start.x + dx * child.start.y),

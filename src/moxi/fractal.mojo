@@ -756,16 +756,22 @@ def _append_scene_docked_endpoint(
     )
 
 
-struct FractalCursor(ImplicitlyCopyable):
-    """Replay one leaf address without allocating a depth-sized DFS stack.
+@fieldwise_init
+struct FractalBranchRun(ImplicitlyCopyable):
+    """Consecutive levels that take the same child in the active path."""
 
-    The address grows logarithmically with emitted leaves, never with the
-    numeric depth value. Every transform is a separately schedulable step.
-    """
+    var branch: Int
+    var count: Int
+
+
+struct FractalCursor(ImplicitlyCopyable):
+    """Stream pixel-sized leaves in generator order with bounded geometry storage."""
 
     var depth: Natural
-    var remaining: Natural
-    var address: List[Int]
+    var level: Natural
+    var address: List[FractalBranchRun]
+    var replay_run: Int
+    var replay_offset: Int
     var segment: FractalSegment
     var leaf: FractalSegment
     var emitted: Natural
@@ -778,8 +784,10 @@ struct FractalCursor(ImplicitlyCopyable):
 
     def __init__(out self, depth: Natural, start: Point, end: Point):
         self.depth = depth
-        self.remaining = depth
-        self.address = List[Int]()
+        self.level = Natural()
+        self.address = List[FractalBranchRun]()
+        self.replay_run = 0
+        self.replay_offset = 0
         self.segment = FractalSegment(start, end)
         self.leaf = self.segment
         self.emitted = Natural()
@@ -790,7 +798,9 @@ struct FractalCursor(ImplicitlyCopyable):
 
     def __init__(out self, *, copy: Self):
         self.depth = copy.depth
-        self.remaining = copy.remaining
+        self.level = copy.level
+        self.replay_run = copy.replay_run
+        self.replay_offset = copy.replay_offset
         self.address = copy.address.copy()
         self.segment = copy.segment
         self.leaf = copy.leaf
@@ -800,38 +810,68 @@ struct FractalCursor(ImplicitlyCopyable):
         self.ancestor_next = copy.ancestor_next
         self.ancestor_count = copy.ancestor_count
 
+    def _append_branch(mut self, branch: Int):
+        var last = len(self.address) - 1
+        if last >= 0 and self.address[last].branch == branch and self.address[last].count < Int.MAX:
+            self.address[last].count += 1
+        else:
+            self.address.append(FractalBranchRun(branch, 1))
+
+    def _advance_to_sibling(mut self, branches: Int, start: Point, end: Point):
+        if branches <= 1:
+            self.finished = True
+            return
+        var rewind = 1
+        while len(self.address) > 0 and self.address[len(self.address) - 1].branch == branches - 1:
+            var exhausted = self.address.pop()
+            rewind = min(rewind + min(exhausted.count, _FRACTAL_ANCESTOR_CACHE_SIZE),
+                         _FRACTAL_ANCESTOR_CACHE_SIZE + 1)
+        if len(self.address) == 0:
+            self.finished = True
+            return
+        var last = len(self.address) - 1
+        var sibling = self.address[last].branch + 1
+        self.address[last].count -= 1
+        if self.address[last].count == 0:
+            _ = self.address.pop()
+        self._append_branch(sibling)
+        if rewind <= self.ancestor_count:
+            self.replay_run = len(self.address) - 1
+            self.replay_offset = self.address[self.replay_run].count - 1
+            for _ in range(rewind):
+                self.level.decrement()
+            self.ancestor_next = (self.ancestor_next - rewind + _FRACTAL_ANCESTOR_CACHE_SIZE) % _FRACTAL_ANCESTOR_CACHE_SIZE
+            self.segment = self.ancestors[self.ancestor_next]
+            self.ancestor_count -= rewind
+        else:
+            self.level = Natural()
+            self.segment = FractalSegment(start, end)
+            self.replay_run = 0
+            self.replay_offset = 0
+            self.ancestor_next = 0
+            self.ancestor_count = 0
+
     def step(mut self, ref local: List[FractalLocalSegment], start: Point, end: Point) -> Bool:
         if self.finished:
             return False
-        if self.remaining.is_zero() or len(local) == 0:
+        var dx = self.segment.end.x - self.segment.start.x
+        var dy = self.segment.end.y - self.segment.start.y
+        if dx * dx + dy * dy < 1.0 or self.level == self.depth or len(local) == 0:
             self.leaf = self.segment
             self.emitted.increment()
-            if self.depth.is_zero() or len(local) <= 1:
-                self.finished = True
-                return True
-            var index = 0
-            while index < len(self.address) and self.address[index] == len(local) - 1:
-                self.address[index] = 0
-                index += 1
-            if index == len(self.address):
-                self.address.append(1)
-            else:
-                self.address[index] += 1
-            self.finished = self.depth.bounded_value(len(self.address) + 1) < len(self.address)
-            if index < self.ancestor_count:
-                var rewind = index + 1
-                self.ancestor_next = (self.ancestor_next - rewind + _FRACTAL_ANCESTOR_CACHE_SIZE) % _FRACTAL_ANCESTOR_CACHE_SIZE
-                self.segment = self.ancestors[self.ancestor_next]
-                self.ancestor_count -= rewind
-                self.remaining = Natural(rewind)
-            else:
-                self.remaining = self.depth
-                self.segment = FractalSegment(start, end)
-                self.ancestor_next = 0
-                self.ancestor_count = 0
+            self._advance_to_sibling(len(local), start, end)
             return True
-        var level = self.remaining.bounded_value(len(self.address) + 1)
-        var branch = self.address[level - 1] if level <= len(self.address) else 0
+        self.level.increment()
+        var branch = 0
+        if self.replay_run < len(self.address):
+            branch = self.address[self.replay_run].branch
+            self.replay_offset += 1
+            if self.replay_offset == self.address[self.replay_run].count:
+                self.replay_run += 1
+                self.replay_offset = 0
+        else:
+            self._append_branch(0)
+            self.replay_run = len(self.address)
         var child = local[branch]
         if self.ancestor_next == len(self.ancestors):
             self.ancestors.append(self.segment)
@@ -839,8 +879,6 @@ struct FractalCursor(ImplicitlyCopyable):
             self.ancestors[self.ancestor_next] = self.segment
         self.ancestor_next = (self.ancestor_next + 1) % _FRACTAL_ANCESTOR_CACHE_SIZE
         self.ancestor_count = min(self.ancestor_count + 1, _FRACTAL_ANCESTOR_CACHE_SIZE)
-        var dx = self.segment.end.x - self.segment.start.x
-        var dy = self.segment.end.y - self.segment.start.y
         var origin = self.segment.start
         self.segment = FractalSegment(
             Point(origin.x + dx * child.start.x - dy * child.start.y,
@@ -848,7 +886,6 @@ struct FractalCursor(ImplicitlyCopyable):
             Point(origin.x + dx * child.end.x - dy * child.end.y,
                   origin.y + dy * child.end.x + dx * child.end.y),
         )
-        self.remaining.decrement()
         return False
 
 
@@ -1350,8 +1387,8 @@ struct FractalState(Component):
     def advance_render(mut self, budget: Int = FRACTAL_RENDER_BATCH) -> Bool:
         """Yield after a bounded number of transforms, even before first output.
 
-        No recursion, short-line termination, depth clamp, or output cap. The
-        canvas consumes each leaf immediately instead of retaining its geometry.
+        Each branch stops at the requested depth or below one raster pixel.
+        The canvas consumes each leaf immediately.
         """
         if self.dragging or self.cursor.finished:
             return False

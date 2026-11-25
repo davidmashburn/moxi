@@ -588,8 +588,8 @@ uploading public artifacts.
 Xilem's paint example. Its dense canvas uses Metal when available, with AppKit
 as a fallback. A cooperative replay cursor streams leaves into a fixed-size
 RGBA image, without retaining the full curve or allocating a stack proportional
-to the requested depth. Depth accepts arbitrary-length decimal integers;
-there are no minimum-length or output-count cutoffs. Long-running jobs yield
+to the requested depth. Depth accepts arbitrary-length decimal integers. Each branch stops subdividing
+when its segment is shorter than one raster pixel. Long-running jobs yield
 between small work slices and restart when edited. Metal uploads the image
 through a reusable three-frame ring. See [fractal.md](fractal.md) for memory,
 precision, and cancellation behavior, and [performance.md](performance.md)

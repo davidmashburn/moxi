@@ -208,5 +208,5 @@ def main() raises:
     for index in range(descriptor.fixture_size):
         run_case(cases[index].preset_id, cases[index].depth, metal_painter)
     # Keep a million-leaf case alongside the historical comparison fixtures.
-    run_case(0, 10, metal_painter)
+    run_case(12, 6, metal_painter)
     metal_painter.shutdown()

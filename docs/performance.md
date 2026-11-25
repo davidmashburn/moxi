@@ -88,11 +88,11 @@ pixi run fractal-benchmark
 
 The current Moxi demo uses a 920x620 CPU raster and uploads that image to
 Metal, with AppKit as a fallback. A cooperative cursor replays each leaf path
-without retaining the complete curve. Depth, segment length, and output count
-are unrestricted. Expansion time now includes CPU rasterization. The neutral
+without retaining the complete curve. Each branch stops at the requested depth or below
+one raster pixel. Expansion time now includes CPU rasterization. The neutral
 paint and Metal metrics measure presentation of the accumulated image plus
 editor guides; line-upload metrics cover only those guides.
-The benchmark includes a depth-10 Koch case with 1,048,576 leaves in addition
+The benchmark includes a depth-6 Peano Serpent case with 1,000,000 leaves in addition
 to the historical comparison fixtures.
 
 Earlier measurements below used a different implementation: retained leaf
