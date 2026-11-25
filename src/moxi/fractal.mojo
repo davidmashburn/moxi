@@ -773,10 +773,12 @@ struct FractalState(Component):
     var local_segments: List[FractalLocalSegment]
     var pending_segments: List[FractalSegmentJob]
     var rendered_segments: List[FractalSegment]
+    var refining_segments: List[FractalSegment]
     var endpoint0_revealed: Bool
     var endpoint1_revealed: Bool
     var drag_target: Int
     var drag_anchor: Point
+    var drag_position: Point
     var drag_start_geometry: FractalGeometry
     var dragging: Bool
     var last_click_endpoint: Int
@@ -793,10 +795,12 @@ struct FractalState(Component):
         self.local_segments = List[FractalLocalSegment]()
         self.pending_segments = List[FractalSegmentJob]()
         self.rendered_segments = List[FractalSegment]()
+        self.refining_segments = List[FractalSegment]()
         self.endpoint0_revealed = False
         self.endpoint1_revealed = False
         self.drag_target = FRACTAL_TARGET_NONE
         self.drag_anchor = Point(0.0, 0.0)
+        self.drag_position = Point(0.0, 0.0)
         self.drag_start_geometry = self.geometry.clone()
         self.dragging = False
         self.last_click_endpoint = -1
@@ -814,10 +818,12 @@ struct FractalState(Component):
         self.local_segments = copy.local_segments.copy()
         self.pending_segments = copy.pending_segments.copy()
         self.rendered_segments = copy.rendered_segments.copy()
+        self.refining_segments = copy.refining_segments.copy()
         self.endpoint0_revealed = copy.endpoint0_revealed
         self.endpoint1_revealed = copy.endpoint1_revealed
         self.drag_target = copy.drag_target
         self.drag_anchor = copy.drag_anchor
+        self.drag_position = copy.drag_position
         self.drag_start_geometry = copy.drag_start_geometry.copy()
         self.dragging = copy.dragging
         self.last_click_endpoint = copy.last_click_endpoint
@@ -1107,6 +1113,7 @@ struct FractalState(Component):
             if target != FRACTAL_TARGET_NONE:
                 self.drag_target = target
                 self.drag_anchor = local
+                self.drag_position = local
                 self.drag_start_geometry = self.geometry.clone()
                 self.dragging = True
                 return True
@@ -1115,6 +1122,11 @@ struct FractalState(Component):
         if event.kind == POINTER_MOVE_KIND or event.kind == DRAG_UPDATE_KIND:
             if not self.dragging:
                 return False
+            # Native routing may deliver both pointer-move and drag-update for
+            # one position. Do not rebuild the same preview twice.
+            if local.x == self.drag_position.x and local.y == self.drag_position.y:
+                return False
+            self.drag_position = local
             self.last_click_endpoint = -1
             var delta = Point(
                 local.x - self.drag_anchor.x,
@@ -1216,21 +1228,52 @@ struct FractalState(Component):
         self.reset_render_progress()
 
     def reset_render_progress(mut self):
+        """Publish a complete bounded preview, then refine off screen."""
         self.local_segments = _local_segments(self.geometry)
+        # Bound the whole preview tree, including internal expansion jobs.
+        # A complete coarse curve stays visible instead of a depth-first prefix.
+        var preview_depth = 0
+        var leaves = 1
+        var jobs = 1
+        var branches = len(self.local_segments)
+        while preview_depth < self.depth and branches > 0:
+            var next_leaves = leaves * branches
+            if jobs + next_leaves > FRACTAL_RENDER_BATCH:
+                break
+            jobs += next_leaves
+            leaves = next_leaves
+            preview_depth += 1
+        self._begin_render(preview_depth)
+        _ = self._expand_render(FRACTAL_RENDER_BATCH)
+        self.rendered_segments = self.refining_segments^
+        self.refining_segments = List[FractalSegment]()
+        if preview_depth < self.depth:
+            self._begin_render(self.depth)
+
+    def _begin_render(mut self, depth: Int):
         self.pending_segments = List[FractalSegmentJob]()
-        self.rendered_segments = List[FractalSegment]()
+        self.refining_segments = List[FractalSegment]()
         if len(self.geometry.generator_points) >= 2:
             self.pending_segments.append(
                 FractalSegmentJob(
                     self.geometry.baseline_start,
                     self.geometry.baseline_end,
-                    self.depth,
+                    depth,
                 )
             )
 
     def advance_render(mut self, budget: Int = FRACTAL_RENDER_BATCH) -> Bool:
-        if len(self.pending_segments) == 0:
+        """Refine in bounded slices and publish only a complete snapshot."""
+        if self.dragging or len(self.pending_segments) == 0:
             return False
+        _ = self._expand_render(budget)
+        if len(self.pending_segments) > 0:
+            return False
+        self.rendered_segments = self.refining_segments^
+        self.refining_segments = List[FractalSegment]()
+        return True
+
+    def _expand_render(mut self, budget: Int) -> Bool:
         var safe_budget = budget if budget > 0 else 1
         var processed = 0
         while processed < safe_budget and len(self.pending_segments) > 0:
@@ -1242,10 +1285,10 @@ struct FractalState(Component):
                 or len(self.local_segments) == 0
                 or _distance(job.start, job.end) <= FRACTAL_MIN_SEGMENT_LENGTH
             ):
-                if len(self.rendered_segments) >= FRACTAL_MAX_RENDERED_SEGMENTS:
+                if len(self.refining_segments) >= FRACTAL_MAX_RENDERED_SEGMENTS:
                     self.pending_segments = List[FractalSegmentJob]()
                     break
-                self.rendered_segments.append(FractalSegment(job.start, job.end))
+                self.refining_segments.append(FractalSegment(job.start, job.end))
             else:
                 var child_depth = job.depth - 1
                 var dx = job.end.x - job.start.x

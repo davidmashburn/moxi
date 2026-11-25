@@ -645,9 +645,9 @@ def main() raises:
         if fractal_scene_before.command(index).kind == SCENE_ROUNDED_RECT:
             fractal_handle_count += 1
     test_check(fractal_handle_count > 0)
-    test_check(app.component.fractal.component.rendered_segment_count() == 0)
-    test_check(app.tick(1.0 / 60.0))
     test_check(app.component.fractal.component.rendered_segment_count() > 0)
+    while not app.component.fractal.component.render_complete():
+        _ = app.tick(1.0 / 60.0)
     test_check(
         app.component.selected_scene(app.view).count()
         > fractal_scene_before.count()

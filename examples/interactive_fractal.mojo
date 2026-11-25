@@ -35,6 +35,7 @@ def run_loop[Painter: FractalCanvasPainter](
     _ = app.component.advance_render(1024)
     app.render(renderer)
     repaint(app, painter)
+    window.present()
 
     while window.is_open():
         window.wait_for_work(1.0 / 60.0)
@@ -49,11 +50,12 @@ def run_loop[Painter: FractalCanvasPainter](
         if changed:
             app.render(renderer)
             repaint(app, painter)
+            window.present()
 
 
 def main() raises:
     var window = MacOSWindow()
-    var renderer = MacOSRenderer()
+    var renderer = MacOSRenderer(present_on_end_frame=False)
     window.open(WindowConfig("Moxi Interactive Line Fractal", 1180.0, 900.0))
     var size = window.size()
     var app = App[FractalState](

@@ -27,7 +27,7 @@ from moxi import (
     fractal_preset_group,
     test_check,
 )
-from moxi.fractal import FRACTAL_PANEL_ID
+from moxi.fractal import FRACTAL_PANEL_ID, FRACTAL_RENDER_BATCH, FRACTAL_MAX_RENDERED_SEGMENTS
 
 
 def action(target: Int) -> Event:
@@ -79,7 +79,11 @@ def main():
     var canvas = app.view.bounds_for(FRACTAL_CANVAS_ID)
     test_check(canvas.width > 0.0)
     test_check(canvas.height > 0.0)
-    test_check(app.component.rendered_segment_count() == 0)
+    test_check(app.component.rendered_segment_count() > 0)
+    test_check(app.component.rendered_segment_count() <= FRACTAL_RENDER_BATCH)
+    var preview_count = app.component.rendered_segment_count()
+    test_check(not app.component.advance_render(1))
+    test_check(app.component.rendered_segment_count() == preview_count)
 
     while not app.component.render_complete():
         _ = app.component.advance_render(10000)
@@ -97,12 +101,24 @@ def main():
         POINTER_MOVE_KIND,
         Point(point.x, point.y + 10.0),
     ))))
+    test_check(app.component.rendered_segment_count() > 0)
+    test_check(app.component.rendered_segment_count() <= FRACTAL_RENDER_BATCH)
+    var drag_jobs = app.component.pending_job_count()
+    test_check(not app.component.advance_render(10000))
+    test_check(app.component.pending_job_count() == drag_jobs)
+    # Repeated positions must not reset the same in-flight render.
+    test_check(not app.dispatch(Event(PointerEvent(
+        POINTER_MOVE_KIND, Point(point.x, point.y + 10.0),
+    ))))
     test_check(app.dispatch(Event(PointerEvent(
         POINTER_UP_KIND,
         Point(point.x, point.y + 10.0),
     ))))
     test_check(app.component.geometry.generator_points[1].y == initial_point_y + 10.0)
     test_check(not app.component.dragging)
+    while not app.component.render_complete():
+        _ = app.component.advance_render(10000)
+    test_check(app.component.rendered_segment_count() > preview_count)
 
     test_check(app.dispatch(action(FRACTAL_DEPTH_UP_ID)))
     test_check(app.component.depth == 6)
@@ -129,5 +145,49 @@ def main():
     test_check(copy.rendered_segment_count() == partial.rendered_segment_count())
     _ = copy.advance_render(1)
     test_check(copy.pending_job_count() != partial.pending_job_count())
+
+    # Every preset has a complete bounded preview even at maximum depth.
+    # Refinement keeps that preview until a complete replacement is ready.
+    for preset in range(FRACTAL_PRESET_COUNT):
+        var dense = FractalState()
+        dense.geometry = fractal_preset_geometry(preset)
+        dense.depth = 12
+        dense.reset_render_progress()
+        var coarse_count = dense.rendered_segment_count()
+        test_check(coarse_count > 0 and coarse_count <= FRACTAL_RENDER_BATCH)
+        var coarse_start = dense.rendered_segments[0].start
+        _ = dense.advance_render(1)
+        if not dense.render_complete():
+            test_check(dense.rendered_segment_count() == coarse_count)
+            test_check(dense.rendered_segments[0].start.x == coarse_start.x)
+        while not dense.render_complete():
+            _ = dense.advance_render(10000)
+        test_check(dense.rendered_segment_count() > 0)
+        test_check(dense.rendered_segment_count() <= FRACTAL_MAX_RENDERED_SEGMENTS)
+
+    var dragging = App[FractalState](FractalState(), Rect(0, 0, 1180, 900))
+    dragging.component.geometry = fractal_preset_geometry(8)
+    dragging.component.depth = 12
+    dragging.component.reset_render_progress()
+    dragging.rebuild()
+    var dense_canvas = dragging.view.bounds_for(FRACTAL_CANVAS_ID)
+    var handle = dragging.component.geometry.generator_points[1]
+    var origin = Point(dense_canvas.x + handle.x, dense_canvas.y + handle.y)
+    test_check(dragging.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, origin))))
+    for move in range(1, 13):
+        test_check(dragging.dispatch(Event(PointerEvent(
+            POINTER_MOVE_KIND, Point(origin.x + Float32(move), origin.y + Float32(move)),
+        ))))
+        test_check(dragging.component.geometry.generator_points[1].x == handle.x + Float32(move))
+        test_check(dragging.component.rendered_segment_count() > 0)
+        test_check(dragging.component.rendered_segment_count() <= FRACTAL_RENDER_BATCH)
+        test_check(not dragging.component.advance_render())
+    test_check(dragging.dispatch(Event(PointerEvent(
+        POINTER_UP_KIND, Point(origin.x + 12, origin.y + 12),
+    ))))
+    var drag_preview = dragging.component.rendered_segment_count()
+    while not dragging.component.render_complete():
+        _ = dragging.component.advance_render(10000)
+    test_check(dragging.component.rendered_segment_count() > drag_preview)
 
     print("Moxi fractal contract passed")

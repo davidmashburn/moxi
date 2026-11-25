@@ -61,7 +61,7 @@ def run_demo(
 ) raises:
     """Run the normal Playground, optionally driven through CapabilityBus."""
     var window = MacOSWindow()
-    var renderer = MacOSRenderer()
+    var renderer = MacOSRenderer(present_on_end_frame=False)
     var clipboard = MacOSClipboard()
     window.open(WindowConfig("Moxi Playground", 1180.0, 760.0))
     var size = window.size()
@@ -77,12 +77,13 @@ def run_demo(
         walkthrough.start(catalog_sweep)
 
     render_frame(app, renderer, scene_renderer, live_script)
+    window.present()
     while window.is_open():
         window.wait_for_work(1.0 / 60.0)
         window.pump()
         app.component.begin_input_batch()
         var event = window.poll_event()
-        var changed = app.tick(1.0 / 60.0)
+        var changed = False
         if automated:
             changed = walkthrough.tick(app, 1.0 / 60.0) or changed
         while event.kind != NONE_KIND:
@@ -91,10 +92,13 @@ def run_demo(
         if app.component.finish_input_batch():
             app.rebuild()
             changed = True
+        # Expand the geometry produced by this input batch, before presenting.
+        changed = app.tick(1.0 / 60.0) or changed
         changed = sync_live_editor(app, live_editor, live_script) or changed
 
         if changed:
             render_frame(app, renderer, scene_renderer, live_script)
+            window.present()
 
     live_script.clear()
 

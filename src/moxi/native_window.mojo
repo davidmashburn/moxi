@@ -151,9 +151,11 @@ struct NativeRenderer[backend_kind: Int](Renderer):
     """Submits Moxi paint commands to the active native canvas."""
 
     var native_widgets: NativeWidgetRegistry
+    var present_on_end_frame: Bool
 
-    def __init__(out self):
+    def __init__(out self, *, present_on_end_frame: Bool = True):
         self.native_widgets = NativeWidgetRegistry()
+        self.present_on_end_frame = present_on_end_frame
 
     def backend_capabilities(self) -> BackendCapabilities:
         return backend_capabilities(Self.backend_kind)
@@ -176,8 +178,9 @@ struct NativeRenderer[backend_kind: Int](Renderer):
         publish_native_accessibility(snapshot)
 
     def end_frame(mut self) raises:
-        """Finish the legacy renderer API; FrameRenderer uses host.present()."""
-        external_call["moxi_window_end_frame", NoneType]()
+        """Present now, or let a canvas host present the composed frame once."""
+        if self.present_on_end_frame:
+            external_call["moxi_window_end_frame", NoneType]()
 
     def native_widget_count(self) -> Int:
         """Return the semantic widgets available to the native presenter."""
