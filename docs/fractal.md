@@ -19,8 +19,9 @@ frame, checking time between small batches of transforms.
 
 Completed leaves accumulate in a fixed 920×620 RGBA image (2,281,600 bytes).
 AppKit and Metal present bounded copies of this image. A small coarse preview
-keeps editing useful before the first terminal segment arrives. Dragging pauses
-the full traversal and rebuilds the preview; releasing resumes a new traversal.
+keeps editing useful before the first terminal segment arrives. Each drag movement
+refreshes the preview and restarts rendering for the new geometry. Frame ticks
+continue refining the curve while the pointer is held and after release.
 Changing depth, a preset, geometry, or coloring discards the old job immediately.
 Set depth to zero or reset the example to replace a practically endless job.
 

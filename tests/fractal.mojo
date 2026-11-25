@@ -133,9 +133,10 @@ def main() raises:
     ))))
     test_check(app.component.rendered_segment_count() > 0)
     test_check(app.component.rendered_segment_count() <= FRACTAL_RENDER_BATCH)
-    var drag_jobs = app.component.pending_job_count()
-    test_check(not app.component.advance_render(10000))
-    test_check(app.component.pending_job_count() == drag_jobs)
+    test_check(app.component.dragging and app.component.cursor.emitted.is_zero())
+    test_check(app.component.advance_render(10000))
+    test_check(app.component.render_complete())
+    var held_count = app.component.rendered_segment_count()
     # Repeated positions must not reset the same in-flight render.
     test_check(not app.dispatch(Event(PointerEvent(
         POINTER_MOVE_KIND, Point(point.x, point.y + 10.0),
@@ -146,9 +147,9 @@ def main() raises:
     ))))
     test_check(app.component.geometry.generator_points[1].y == initial_point_y + 10.0)
     test_check(not app.component.dragging)
-    while not app.component.render_complete():
-        _ = app.component.advance_render(10000)
-    test_check(app.component.rendered_segment_count() > preview_count)
+    test_check(app.component.render_complete())
+    test_check(app.component.rendered_segment_count() == held_count)
+    test_check(held_count > preview_count)
 
     test_check(app.dispatch(action(FRACTAL_DEPTH_UP_ID)))
     test_check(app.component.depth == 6)
@@ -214,12 +215,15 @@ def main() raises:
         test_check(dragging.component.geometry.generator_points[1].x == handle.x + Float32(move))
         test_check(dragging.component.rendered_segment_count() > 0)
         test_check(dragging.component.rendered_segment_count() <= FRACTAL_RENDER_BATCH)
-        test_check(not dragging.component.advance_render())
+        test_check(dragging.component.cursor.emitted.is_zero())
+        test_check(dragging.component.advance_frame(0))
+        test_check(not dragging.component.cursor.emitted.is_zero())
+    var before_release = dragging.component.cursor.emitted
     test_check(dragging.dispatch(Event(PointerEvent(
         POINTER_UP_KIND, Point(origin.x + 12, origin.y + 12),
     ))))
-    _ = dragging.component.advance_render(1000)
-    test_check(dragging.component.cursor.emitted.bounded_value(1000) > 0)
+    test_check(dragging.component.cursor.emitted == before_release)
+    test_check(dragging.component.advance_render(1000))
     test_check(not dragging.component.render_complete())
     _ = dragging.component.set_depth(2)
     while not dragging.component.render_complete():

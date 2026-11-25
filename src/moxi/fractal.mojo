@@ -1259,7 +1259,7 @@ struct FractalState(Component):
             if not self.dragging:
                 return False
             # Native routing may deliver both pointer-move and drag-update for
-            # one position. Do not rebuild the same preview twice.
+            # one position. Preserve render progress on the duplicate event.
             if local.x == self.drag_position.x and local.y == self.drag_position.y:
                 return False
             self.drag_position = local
@@ -1390,7 +1390,7 @@ struct FractalState(Component):
         Each branch stops at the requested depth or below one raster pixel.
         The canvas consumes each leaf immediately.
         """
-        if self.dragging or self.cursor.finished:
+        if self.cursor.finished:
             return False
         var changed = False
         for _ in range(max(budget, 1)):
@@ -1411,7 +1411,7 @@ struct FractalState(Component):
 
     def advance_frame(mut self, nanoseconds: Int = 4_000_000) -> Bool:
         """Use the frame's time allowance instead of throttling leaf count."""
-        if self.dragging or self.cursor.finished:
+        if self.cursor.finished:
             return False
         var started = perf_counter_ns()
         var changed = False

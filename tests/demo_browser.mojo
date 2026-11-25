@@ -658,6 +658,18 @@ def main() raises:
     test_check(bitmap_count == 1)
     test_check(app.component.fractal.component.cursor.emitted == 1024)
 
+    var fractal_canvas = app.component.selected_surface_bounds(app.view)
+    var handle = app.component.fractal.component.geometry.generator_points[1]
+    var held = Point(fractal_canvas.x + handle.x, fractal_canvas.y + handle.y)
+    var moved = Point(held.x, held.y + 8.0)
+    test_check(app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, held))))
+    test_check(app.dispatch(Event(PointerEvent(POINTER_MOVE_KIND, moved))))
+    test_check(app.component.fractal.component.cursor.emitted.is_zero())
+    test_check(app.tick(1.0 / 60.0))
+    test_check(app.component.fractal.component.dragging)
+    test_check(not app.component.fractal.component.cursor.emitted.is_zero())
+    test_check(app.dispatch(Event(PointerEvent(POINTER_UP_KIND, moved))))
+
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_WX_STYLE_ID)))
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
     test_check(app.view.bounds_for(DEMO_WX_STYLE_ID_OFFSET + WX_TITLE_ID).width > 0.0)
