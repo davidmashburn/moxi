@@ -13,7 +13,9 @@ from std.ffi import external_call
 
 from .backend import BACKEND_GPU, BackendCapabilities, backend_capabilities
 from .fractal import FractalCanvasPainter, FractalSegment
+from .raster import RasterImage
 from .scene import (
+    SCENE_BITMAP,
     SCENE_CLIP,
     SCENE_IMAGE,
     SCENE_LINEAR_GRADIENT,
@@ -331,6 +333,30 @@ struct MacOSMetalRenderer(SceneRenderer):
             if result >= 0:
                 self.frame_text_count += 1
                 self.frame_text_glyph_count += Int(result)
+            else:
+                self.frame_fallback_count += 1
+        elif command.kind == SCENE_BITMAP:
+            if command.raster.is_empty():
+                return
+            var result = external_call["moxi_metal_draw_bitmap", Int32](
+                command.raster.pixels.unsafe_ptr(),
+                UInt(len(command.raster.pixels)),
+                Int32(command.raster.width),
+                Int32(command.raster.height),
+                command.bounds.x,
+                command.bounds.y,
+                command.bounds.width,
+                command.bounds.height,
+                self.opacity * command.opacity,
+                self.transform.m11,
+                self.transform.m12,
+                self.transform.m21,
+                self.transform.m22,
+                self.transform.tx,
+                self.transform.ty,
+            )
+            if result != 0:
+                self.frame_image_count += 1
             else:
                 self.frame_fallback_count += 1
         elif command.kind == SCENE_IMAGE:
@@ -751,6 +777,28 @@ struct MacOSMetalCanvasPainter(FractalCanvasPainter):
         self.gpu_timing_available_value = external_call[
             "moxi_metal_gpu_timing_available_value", Int32
         ]() != 0
+
+    def bitmap(mut self, raster: RasterImage, bounds: Rect) raises:
+        """Upload a bounded RGBA surface using the active canvas clip."""
+        if not self.initialized or raster.is_empty():
+            return
+        _ = external_call["moxi_metal_draw_bitmap", Int32](
+            raster.pixels.unsafe_ptr(),
+            UInt(len(raster.pixels)),
+            Int32(raster.width),
+            Int32(raster.height),
+            bounds.x - self.origin.x,
+            bounds.y - self.origin.y,
+            bounds.width,
+            bounds.height,
+            Float32(1.0),
+            Float32(1.0),
+            Float32(0.0),
+            Float32(0.0),
+            Float32(1.0),
+            Float32(0.0),
+            Float32(0.0),
+        )
 
     def fill_rect(
         mut self,

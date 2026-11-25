@@ -1,12 +1,13 @@
 """Moxi counterpart to Xilem's interactive_paint benchmark.
 
-The workload intentionally uses the same canvas size, generator presets, and
-minimum segment length as the Xilem example. It reports component expansion,
-neutral canvas command generation, GPU-instanced Metal line submission, CPU
-encoding, GPU completion, and synchronized frame time separately.
+The workload uses the reference canvas size and generator presets, with
+unrestricted iteration depth. Completed leaves stream into a fixed raster.
+It reports expansion/rasterization, neutral canvas command generation, Metal
+bitmap presentation, CPU encoding, GPU completion, and synchronized frame time.
 """
 
 from std.ffi import external_call
+from moxi.raster import RasterImage
 
 from moxi import (
     FRACTAL_CANVAS_HEIGHT,
@@ -43,6 +44,9 @@ struct BenchmarkPainter(FractalCanvasPainter):
         self.line_count = 0
         self.circle_count = 0
         self.checksum = 0
+
+    def bitmap(mut self, raster: RasterImage, bounds: Rect) raises:
+        self.checksum += len(raster.pixels)
 
     def begin(mut self, clip: Rect) raises:
         self.checksum += Int(clip.width) + Int(clip.height)
@@ -95,7 +99,7 @@ def run_case(
     var state = FractalState()
     state.preset_id = preset_id
     state.geometry = fractal_preset_geometry(preset_id)
-    state.depth = depth
+    _ = state.set_depth(depth)
     state.reset_render_progress()
 
     var expansion_start = external_call["moxi_benchmark_time_ns", Int64]()
@@ -118,7 +122,6 @@ def run_case(
     var expansion_ms = Float64(expansion_end - expansion_start) / 1000000.0
     var paint_ms = Float64(paint_end - paint_start) / 1000000.0
     var lines_per_second = Float64(state.rendered_segment_count()) * 1000.0 / expansion_ms
-    var paint_lines_per_second = Float64(painter.line_count) * 1000.0 / paint_ms
     metal_painter.reset_metrics()
     var metal_start = external_call["moxi_benchmark_time_ns", Int64]()
     for _ in range(BENCHMARK_ITERATIONS):
@@ -139,8 +142,6 @@ def run_case(
         BENCHMARK_ITERATIONS,
         "=",
         paint_ms,
-        " paint_lines_sec=",
-        paint_lines_per_second,
         " metal_wall_total_ms=",
         metal_wall_ms,
         " metal_wall_ms/frame=",
@@ -206,4 +207,6 @@ def main() raises:
         return
     for index in range(descriptor.fixture_size):
         run_case(cases[index].preset_id, cases[index].depth, metal_painter)
+    # Keep a million-leaf case alongside the historical comparison fixtures.
+    run_case(0, 10, metal_painter)
     metal_painter.shutdown()

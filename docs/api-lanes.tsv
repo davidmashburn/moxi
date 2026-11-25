@@ -77,6 +77,8 @@ json	experimental	experimental or optional integration
 conversation	experimental	experimental or optional integration
 coretext	experimental	experimental or optional integration
 fractal	experimental	experimental or optional integration
+natural	provisional	nonnegative decimal counters
+raster	provisional	bounded streamed geometry raster
 harfbuzz	experimental	experimental or optional integration
 metal	experimental	experimental or optional integration
 host_api	host-adapter	focused host/adapter import path

@@ -6,6 +6,7 @@ enum { MoxiCustomSliceCapacity = 64, MoxiOrderedCustomSlice = 101 };
 typedef struct {
     int rectStart, rectEnd, lineStart, lineEnd;
     int circleStart, circleEnd, textStart, textEnd;
+    int bitmapStart, bitmapEnd;
     BOOL clipEnabled;
     NSRect clip;
 } MoxiCustomSlice;
@@ -190,6 +191,12 @@ typedef struct {
     NSRect moxi_custom_text_frames[MOXI_MAX_CUSTOM_TEXT];
     float moxi_custom_text_colors[MOXI_MAX_CUSTOM_TEXT][4];
     float moxi_custom_text_font_sizes[MOXI_MAX_CUSTOM_TEXT];
+    int moxi_custom_bitmap_count;
+    NSBitmapImageRep *moxi_custom_bitmaps[MOXI_MAX_CUSTOM_BITMAPS];
+    NSRect moxi_custom_bitmap_frames[MOXI_MAX_CUSTOM_BITMAPS];
+    float moxi_custom_bitmap_opacities[MOXI_MAX_CUSTOM_BITMAPS];
+    BOOL moxi_custom_bitmap_clip_enabled[MOXI_MAX_CUSTOM_BITMAPS];
+    NSRect moxi_custom_bitmap_clip_frames[MOXI_MAX_CUSTOM_BITMAPS];
     BOOL moxi_custom_clip_enabled;
     NSRect moxi_custom_clip_frame;
     /* One retained custom layer per window. Command submission invalidates it;
@@ -477,6 +484,12 @@ int moxi_window_select_instance(uint64_t handle) {
 #define moxi_custom_text_frames (moxi_current_context()->moxi_custom_text_frames)
 #define moxi_custom_text_colors (moxi_current_context()->moxi_custom_text_colors)
 #define moxi_custom_text_font_sizes (moxi_current_context()->moxi_custom_text_font_sizes)
+#define moxi_custom_bitmap_count (moxi_current_context()->moxi_custom_bitmap_count)
+#define moxi_custom_bitmaps (moxi_current_context()->moxi_custom_bitmaps)
+#define moxi_custom_bitmap_frames (moxi_current_context()->moxi_custom_bitmap_frames)
+#define moxi_custom_bitmap_opacities (moxi_current_context()->moxi_custom_bitmap_opacities)
+#define moxi_custom_bitmap_clip_enabled (moxi_current_context()->moxi_custom_bitmap_clip_enabled)
+#define moxi_custom_bitmap_clip_frames (moxi_current_context()->moxi_custom_bitmap_clip_frames)
 #define moxi_custom_clip_enabled (moxi_current_context()->moxi_custom_clip_enabled)
 #define moxi_custom_clip_frame (moxi_current_context()->moxi_custom_clip_frame)
 #define moxi_custom_paint_cache_enabled (moxi_current_context()->moxi_custom_paint_cache_enabled)

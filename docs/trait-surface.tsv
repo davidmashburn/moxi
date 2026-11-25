@@ -21,6 +21,7 @@ moxi	Component	update
 moxi	Component	update_retained
 moxi	FractalCanvasPainter	begin
 moxi	FractalCanvasPainter	begin_line_geometry
+moxi	FractalCanvasPainter	bitmap
 moxi	FractalCanvasPainter	circle
 moxi	FractalCanvasPainter	end
 moxi	FractalCanvasPainter	end_line_geometry

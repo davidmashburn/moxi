@@ -3,11 +3,12 @@
 This module ports the useful center of Xilem's ``interactive_paint`` example:
 editable generator geometry, turtle presets, baseline transforms, hit testing,
 and incremental fractal expansion.  A host supplies the small canvas painter
-interface; the state itself remains independent of AppKit or a pixel format.
+interface; the state itself remains independent of a native renderer.
 """
 
 from std.collections import List
-from std.math import cos, sin, sqrt
+from std.math import cos, isfinite, sin, sqrt
+from std.time import perf_counter_ns
 
 from .accessibility import ACTION_PRESS
 from .component import Component
@@ -33,6 +34,8 @@ from .event import (
 )
 from .geometry import Point, Rect
 from .layout import ALIGN_CENTER, ALIGN_STRETCH, JUSTIFY_START
+from .natural import Natural
+from .raster import RasterImage
 from .scene import Scene
 from .style import Color, default_button_style, default_panel_style, default_surface_style
 from .column_view import ColumnView
@@ -49,10 +52,8 @@ comptime FRACTAL_BASELINE_RADIUS: Float32 = 9.5
 comptime FRACTAL_NESTED_ENDPOINT_RADIUS: Float32 = 4.5
 comptime FRACTAL_NESTED_HIT_TOLERANCE: Float32 = 3.0
 comptime FRACTAL_HIT_RADIUS: Float32 = 14.0
-comptime FRACTAL_MIN_SEGMENT_LENGTH: Float32 = 2.5
-comptime FRACTAL_MAX_DEPTH: Int = 12
-comptime FRACTAL_MAX_RENDERED_SEGMENTS: Int = 32768
 comptime FRACTAL_RENDER_BATCH: Int = 384
+comptime _FRACTAL_ANCESTOR_CACHE_SIZE: Int = 256
 comptime FRACTAL_DOUBLE_CLICK_SECONDS: Float32 = 0.30
 comptime FRACTAL_PRESET_GRID_COLUMNS: Int = 4
 comptime FRACTAL_PRESET_GRID_HEIGHT: Float32 = 160.0
@@ -174,18 +175,9 @@ trait FractalCanvasPainter:
         """Finish timing or batching the dense terminal-line portion."""
         pass
 
-struct FractalSegmentJob(ImplicitlyCopyable):
-    """A deferred branch expansion in the depth-first renderer."""
-
-    var start: Point
-    var end: Point
-    var depth: Int
-
-    def __init__(out self, start: Point, end: Point, depth: Int):
-        self.start = start
-        self.end = end
-        self.depth = depth
-
+    def bitmap(mut self, raster: RasterImage, bounds: Rect) raises:
+        """Composite a streamed curve's bounded RGBA accumulator."""
+        pass
 
 struct FractalLocalSegment(ImplicitlyCopyable):
     """A generator segment in normalized baseline coordinates."""
@@ -701,12 +693,15 @@ def _geometry_equal(left: FractalGeometry, right: FractalGeometry) -> Bool:
 
 def _random_line_color(start: Point, end: Point) -> Color:
     var seed = abs(sin(
-        start.x * 12.9898 + start.y * 78.233 + end.x * 37.719 + end.y * 11.173
+        Float64(start.x) * 12.9898 + Float64(start.y) * 78.233
+        + Float64(end.x) * 37.719 + Float64(end.y) * 11.173
     ))
+    if not isfinite(seed):
+        return Color(0.20, 0.20, 0.20, 1.0)
     var red = 0.20 + 0.55 * abs(sin(seed * 17.13))
     var green = 0.20 + 0.55 * abs(sin(seed * 29.71 + 1.7))
     var blue = 0.20 + 0.55 * abs(sin(seed * 43.37 + 3.2))
-    return Color(red, green, blue, 1.0)
+    return Color(Float32(red), Float32(green), Float32(blue), 1.0)
 
 
 def _append_scene_circle(
@@ -761,19 +756,116 @@ def _append_scene_docked_endpoint(
     )
 
 
+struct FractalCursor(ImplicitlyCopyable):
+    """Replay one leaf address without allocating a depth-sized DFS stack.
+
+    The address grows logarithmically with emitted leaves, never with the
+    numeric depth value. Every transform is a separately schedulable step.
+    """
+
+    var depth: Natural
+    var remaining: Natural
+    var address: List[Int]
+    var segment: FractalSegment
+    var leaf: FractalSegment
+    var emitted: Natural
+    var finished: Bool
+    # A bounded ancestor ring accelerates adjacent leaves without retaining
+    # output geometry or growing a stack with the requested depth.
+    var ancestors: List[FractalSegment]
+    var ancestor_next: Int
+    var ancestor_count: Int
+
+    def __init__(out self, depth: Natural, start: Point, end: Point):
+        self.depth = depth
+        self.remaining = depth
+        self.address = List[Int]()
+        self.segment = FractalSegment(start, end)
+        self.leaf = self.segment
+        self.emitted = Natural()
+        self.finished = False
+        self.ancestors = List[FractalSegment]()
+        self.ancestor_next = 0
+        self.ancestor_count = 0
+
+    def __init__(out self, *, copy: Self):
+        self.depth = copy.depth
+        self.remaining = copy.remaining
+        self.address = copy.address.copy()
+        self.segment = copy.segment
+        self.leaf = copy.leaf
+        self.emitted = copy.emitted
+        self.finished = copy.finished
+        self.ancestors = copy.ancestors.copy()
+        self.ancestor_next = copy.ancestor_next
+        self.ancestor_count = copy.ancestor_count
+
+    def step(mut self, ref local: List[FractalLocalSegment], start: Point, end: Point) -> Bool:
+        if self.finished:
+            return False
+        if self.remaining.is_zero() or len(local) == 0:
+            self.leaf = self.segment
+            self.emitted.increment()
+            if self.depth.is_zero() or len(local) <= 1:
+                self.finished = True
+                return True
+            var index = 0
+            while index < len(self.address) and self.address[index] == len(local) - 1:
+                self.address[index] = 0
+                index += 1
+            if index == len(self.address):
+                self.address.append(1)
+            else:
+                self.address[index] += 1
+            self.finished = self.depth.bounded_value(len(self.address) + 1) < len(self.address)
+            if index < self.ancestor_count:
+                var rewind = index + 1
+                self.ancestor_next = (self.ancestor_next - rewind + _FRACTAL_ANCESTOR_CACHE_SIZE) % _FRACTAL_ANCESTOR_CACHE_SIZE
+                self.segment = self.ancestors[self.ancestor_next]
+                self.ancestor_count -= rewind
+                self.remaining = Natural(rewind)
+            else:
+                self.remaining = self.depth
+                self.segment = FractalSegment(start, end)
+                self.ancestor_next = 0
+                self.ancestor_count = 0
+            return True
+        var level = self.remaining.bounded_value(len(self.address) + 1)
+        var branch = self.address[level - 1] if level <= len(self.address) else 0
+        var child = local[branch]
+        if self.ancestor_next == len(self.ancestors):
+            self.ancestors.append(self.segment)
+        else:
+            self.ancestors[self.ancestor_next] = self.segment
+        self.ancestor_next = (self.ancestor_next + 1) % _FRACTAL_ANCESTOR_CACHE_SIZE
+        self.ancestor_count = min(self.ancestor_count + 1, _FRACTAL_ANCESTOR_CACHE_SIZE)
+        var dx = self.segment.end.x - self.segment.start.x
+        var dy = self.segment.end.y - self.segment.start.y
+        var origin = self.segment.start
+        self.segment = FractalSegment(
+            Point(origin.x + dx * child.start.x - dy * child.start.y,
+                  origin.y + dy * child.start.x + dx * child.start.y),
+            Point(origin.x + dx * child.end.x - dy * child.end.y,
+                  origin.y + dy * child.end.x + dx * child.end.y),
+        )
+        self.remaining.decrement()
+        return False
+
+
 struct FractalState(Component):
     """A complete Moxi component for the interactive line fractal explorer."""
 
-    var depth: Int
+    var depth: Natural
     var depth_input: TextInputState
     var show_guides: Bool
     var random_colors: Bool
     var preset_id: Int
     var geometry: FractalGeometry
     var local_segments: List[FractalLocalSegment]
-    var pending_segments: List[FractalSegmentJob]
     var rendered_segments: List[FractalSegment]
-    var refining_segments: List[FractalSegment]
+    var cursor: FractalCursor
+    var raster: RasterImage
+    var coordinate_overflow: Bool
     var endpoint0_revealed: Bool
     var endpoint1_revealed: Bool
     var drag_target: Int
@@ -786,16 +878,17 @@ struct FractalState(Component):
     var last_click_age: Float32
 
     def __init__(out self):
-        self.depth = 5
+        self.depth = Natural(5)
         self.depth_input = TextInputState("5")
         self.show_guides = True
         self.random_colors = False
         self.preset_id = 0
         self.geometry = fractal_preset_geometry(0)
         self.local_segments = List[FractalLocalSegment]()
-        self.pending_segments = List[FractalSegmentJob]()
         self.rendered_segments = List[FractalSegment]()
-        self.refining_segments = List[FractalSegment]()
+        self.cursor = FractalCursor(self.depth, self.geometry.baseline_start, self.geometry.baseline_end)
+        self.raster = RasterImage()
+        self.coordinate_overflow = False
         self.endpoint0_revealed = False
         self.endpoint1_revealed = False
         self.drag_target = FRACTAL_TARGET_NONE
@@ -816,9 +909,10 @@ struct FractalState(Component):
         self.preset_id = copy.preset_id
         self.geometry = copy.geometry.copy()
         self.local_segments = copy.local_segments.copy()
-        self.pending_segments = copy.pending_segments.copy()
         self.rendered_segments = copy.rendered_segments.copy()
-        self.refining_segments = copy.refining_segments.copy()
+        self.cursor = copy.cursor
+        self.raster = copy.raster
+        self.coordinate_overflow = copy.coordinate_overflow
         self.endpoint0_revealed = copy.endpoint0_revealed
         self.endpoint1_revealed = copy.endpoint1_revealed
         self.drag_target = copy.drag_target
@@ -872,7 +966,7 @@ struct FractalState(Component):
         root.add_label_to(
             status,
             FRACTAL_STATUS_DEPTH_ID,
-            String("Depth: ", self.depth),
+            String("Depth: ", self.depth.text()),
             26.0,
         )
         root.add_label_to(
@@ -1035,24 +1129,28 @@ struct FractalState(Component):
                 else:
                     changed = self.depth_input.insert_text(event.text)
                 if changed:
-                    var parsed = _parse_depth(self.depth_input.text)
-                    if parsed >= 0:
+                    var parsed = Natural()
+                    if parsed.parse(self.depth_input.text):
                         _ = self.set_depth(parsed)
                 return changed
             if event.kind == KEY_DOWN_KIND:
                 if event.key == KEY_ENTER:
-                    var parsed = _parse_depth(self.depth_input.text)
-                    if parsed >= 0:
+                    var parsed = Natural()
+                    if parsed.parse(self.depth_input.text):
                         return self.set_depth(parsed)
-                    self.depth_input.set_text(String(self.depth))
+                    self.depth_input.set_text(self.depth.text())
                     return True
                 return self.depth_input.handle_key(event.key, event.modifiers)
             return False
 
         if event.target == FRACTAL_DEPTH_DOWN_ID and _is_activation(event):
-            return self.set_depth(self.depth - 1)
+            var next = self.depth
+            next.decrement()
+            return self.set_depth(next)
         if event.target == FRACTAL_DEPTH_UP_ID and _is_activation(event):
-            return self.set_depth(self.depth + 1)
+            var next = self.depth
+            next.increment()
+            return self.set_depth(next)
         if event.target == FRACTAL_RESET_ID and _is_activation(event):
             self.reset_current_preset()
             return True
@@ -1061,6 +1159,7 @@ struct FractalState(Component):
             return True
         if event.target == FRACTAL_RANDOM_ID and _is_activation(event):
             self.random_colors = not self.random_colors
+            self.reset_render_progress()
             return True
 
         if (
@@ -1208,15 +1307,13 @@ struct FractalState(Component):
         return FRACTAL_TARGET_NONE
 
     def set_depth(mut self, value: Int) -> Bool:
-        var next = value
-        if next < 0:
-            next = 0
-        if next > FRACTAL_MAX_DEPTH:
-            next = FRACTAL_MAX_DEPTH
-        var depth_changed = next != self.depth
-        var input_changed = self.depth_input.text != String(next)
-        self.depth = next
-        self.depth_input.set_text(String(next))
+        return self.set_depth(Natural(value))
+
+    def set_depth(mut self, value: Natural) -> Bool:
+        var depth_changed = not (value == self.depth)
+        var input_changed = self.depth_input.text != value.text()
+        self.depth = value
+        self.depth_input.set_text(value.text())
         if depth_changed:
             self.reset_render_progress()
         return depth_changed or input_changed
@@ -1228,114 +1325,85 @@ struct FractalState(Component):
         self.reset_render_progress()
 
     def reset_render_progress(mut self):
-        """Publish a complete bounded preview, then refine off screen."""
+        """Restart an unrestricted job, retaining only a cheap complete preview."""
         self.local_segments = _local_segments(self.geometry)
-        # Bound the whole preview tree, including internal expansion jobs.
-        # A complete coarse curve stays visible instead of a depth-first prefix.
         var preview_depth = 0
         var leaves = 1
-        var jobs = 1
         var branches = len(self.local_segments)
-        while preview_depth < self.depth and branches > 0:
+        while preview_depth < self.depth.bounded_value(FRACTAL_RENDER_BATCH) and branches > 0:
             var next_leaves = leaves * branches
-            if jobs + next_leaves > FRACTAL_RENDER_BATCH:
+            if next_leaves * (preview_depth + 2) > FRACTAL_RENDER_BATCH:
                 break
-            jobs += next_leaves
             leaves = next_leaves
             preview_depth += 1
-        self._begin_render(preview_depth)
-        _ = self._expand_render(FRACTAL_RENDER_BATCH)
-        self.rendered_segments = self.refining_segments^
-        self.refining_segments = List[FractalSegment]()
-        if preview_depth < self.depth:
-            self._begin_render(self.depth)
-
-    def _begin_render(mut self, depth: Int):
-        self.pending_segments = List[FractalSegmentJob]()
-        self.refining_segments = List[FractalSegment]()
-        if len(self.geometry.generator_points) >= 2:
-            self.pending_segments.append(
-                FractalSegmentJob(
-                    self.geometry.baseline_start,
-                    self.geometry.baseline_end,
-                    depth,
-                )
-            )
+        self.rendered_segments = List[FractalSegment]()
+        var preview = FractalCursor(Natural(preview_depth), self.geometry.baseline_start, self.geometry.baseline_end)
+        # Replaying complete leaf addresses costs more than a DFS tree. This
+        # bound is still independent of the requested depth and output size.
+        while not preview.finished:
+            if preview.step(self.local_segments, self.geometry.baseline_start, self.geometry.baseline_end):
+                self.rendered_segments.append(preview.leaf)
+        self.cursor = FractalCursor(self.depth, self.geometry.baseline_start, self.geometry.baseline_end)
+        self.raster = RasterImage(Int(FRACTAL_CANVAS_WIDTH), Int(FRACTAL_CANVAS_HEIGHT))
+        self.coordinate_overflow = False
 
     def advance_render(mut self, budget: Int = FRACTAL_RENDER_BATCH) -> Bool:
-        """Refine in bounded slices and publish only a complete snapshot."""
-        if self.dragging or len(self.pending_segments) == 0:
-            return False
-        _ = self._expand_render(budget)
-        if len(self.pending_segments) > 0:
-            return False
-        self.rendered_segments = self.refining_segments^
-        self.refining_segments = List[FractalSegment]()
-        return True
+        """Yield after a bounded number of transforms, even before first output.
 
-    def _expand_render(mut self, budget: Int) -> Bool:
-        var safe_budget = budget if budget > 0 else 1
-        var processed = 0
-        while processed < safe_budget and len(self.pending_segments) > 0:
-            var last_index = len(self.pending_segments) - 1
-            var job = self.pending_segments[last_index]
-            _ = self.pending_segments.pop(last_index)
-            if (
-                job.depth <= 0
-                or len(self.local_segments) == 0
-                or _distance(job.start, job.end) <= FRACTAL_MIN_SEGMENT_LENGTH
-            ):
-                if len(self.refining_segments) >= FRACTAL_MAX_RENDERED_SEGMENTS:
-                    self.pending_segments = List[FractalSegmentJob]()
-                    break
-                self.refining_segments.append(FractalSegment(job.start, job.end))
-            else:
-                var child_depth = job.depth - 1
-                var dx = job.end.x - job.start.x
-                var dy = job.end.y - job.start.y
-                var perpendicular_x = -dy
-                var perpendicular_y = dx
-                var child_index = len(self.local_segments) - 1
-                while child_index >= 0:
-                    var local = self.local_segments[child_index]
-                    var child_start = Point(
-                        job.start.x + dx * local.start.x + perpendicular_x * local.start.y,
-                        job.start.y + dy * local.start.x + perpendicular_y * local.start.y,
-                    )
-                    var child_end = Point(
-                        job.start.x + dx * local.end.x + perpendicular_x * local.end.y,
-                        job.start.y + dy * local.end.x + perpendicular_y * local.end.y,
-                    )
-                    self.pending_segments.append(
-                        FractalSegmentJob(child_start, child_end, child_depth)
-                    )
-                    child_index -= 1
-            processed += 1
-        return processed > 0
+        No recursion, short-line termination, depth clamp, or output cap. The
+        canvas consumes each leaf immediately instead of retaining its geometry.
+        """
+        if self.dragging or self.cursor.finished:
+            return False
+        var changed = False
+        for _ in range(max(budget, 1)):
+            if self.cursor.finished:
+                break
+            if self.cursor.step(self.local_segments, self.geometry.baseline_start, self.geometry.baseline_end):
+                var segment = self.cursor.leaf
+                var color = Color(28.0 / 255.0, 96.0 / 255.0, 99.0 / 255.0, 1.0)
+                if self.random_colors:
+                    color = _random_line_color(segment.start, segment.end)
+                if not self.raster.stroke_line(segment.start, segment.end, color):
+                    self.coordinate_overflow = True
+                changed = True
+        return changed
 
     def render_complete(self) -> Bool:
-        return len(self.pending_segments) == 0
+        return self.cursor.finished
+
+    def advance_frame(mut self, nanoseconds: Int = 4_000_000) -> Bool:
+        """Use the frame's time allowance instead of throttling leaf count."""
+        if self.dragging or self.cursor.finished:
+            return False
+        var started = perf_counter_ns()
+        var changed = False
+        while True:
+            changed = self.advance_render(64) or changed
+            if self.cursor.finished or perf_counter_ns() - started >= max(nanoseconds, 0):
+                break
+        return changed
 
     def rendered_segment_count(self) -> Int:
-        return len(self.rendered_segments)
+        """Machine-sized metric only; the job's exact counter never saturates."""
+        if self.cursor.emitted.is_zero():
+            return len(self.rendered_segments)
+        return self.cursor.emitted.bounded_value(Int.MAX)
 
     def pending_job_count(self) -> Int:
-        return len(self.pending_segments)
+        """The replay engine retains at most one active geometry job."""
+        return 0 if self.cursor.finished else 1
 
     def branch_factor(self) -> Int:
         var result = len(self.geometry.generator_points) - 1
         return result if result > 1 else 1
 
     def estimated_segments_label(self) -> String:
-        if self.depth > 32:
-            return "Segments: huge"
-        var total: Int = 1
-        var branch = self.branch_factor()
-        for _ in range(self.depth):
-            if total > 999999999999 / branch:
-                return "Segments: huge"
-            total *= branch
-        return String("Segments: ", total)
+        var status = "Complete" if self.render_complete() else "Rendering"
+        var result = String(status, " · rendered ", self.cursor.emitted.text())
+        if self.coordinate_overflow:
+            result += " · float overflow"
+        return result
 
     def build_scene(self, canvas_bounds: Rect) -> Scene:
         """Build a backend-neutral snapshot of the current fractal canvas."""
@@ -1379,7 +1447,7 @@ struct FractalState(Component):
             border,
             1.0,
         )
-        for index in range(len(self.rendered_segments)):
+        for index in range(0 if self.render_complete() else len(self.rendered_segments)):
             var segment = self.rendered_segments[index]
             var color = Color(28.0 / 255.0, 96.0 / 255.0, 99.0 / 255.0, 1.0)
             if self.random_colors:
@@ -1390,6 +1458,12 @@ struct FractalState(Component):
                 Point(canvas_bounds.x + segment.end.x, canvas_bounds.y + segment.end.y),
                 color,
                 1.0,
+            )
+        if not self.cursor.emitted.is_zero():
+            scene.append_bitmap(
+                FRACTAL_CANVAS_ID + 6,
+                Rect(canvas_bounds.x, canvas_bounds.y, FRACTAL_CANVAS_WIDTH, FRACTAL_CANVAS_HEIGHT),
+                self.raster,
             )
         scene.append_line(
             FRACTAL_CANVAS_ID + 2,
@@ -1500,14 +1574,14 @@ struct FractalState(Component):
         )
         painter.begin_line_geometry()
         var color = Color(28.0 / 255.0, 96.0 / 255.0, 99.0 / 255.0, 1.0)
-        if not self.random_colors:
+        if not self.render_complete() and not self.random_colors:
             painter.line_batch(
                 self.rendered_segments,
                 Point(canvas_bounds.x, canvas_bounds.y),
                 color,
                 1.0,
             )
-        else:
+        elif not self.render_complete():
             for index in range(len(self.rendered_segments)):
                 var segment = self.rendered_segments[index]
                 painter.line(
@@ -1516,6 +1590,11 @@ struct FractalState(Component):
                     _random_line_color(segment.start, segment.end),
                     1.0,
                 )
+        if not self.cursor.emitted.is_zero():
+            painter.bitmap(
+                self.raster,
+                Rect(canvas_bounds.x, canvas_bounds.y, FRACTAL_CANVAS_WIDTH, FRACTAL_CANVAS_HEIGHT),
+            )
         painter.end_line_geometry()
 
         var baseline_start = Point(
@@ -1623,18 +1702,3 @@ def _is_activation(event: Event) -> Bool:
     return event.kind == CLICK_KIND or (
         event.kind == ACTION_KIND and event.action_id == ACTION_PRESS
     )
-
-
-def _parse_depth(value: String) -> Int:
-    if value.count_codepoints() == 0:
-        return -1
-    var result = 0
-    for index in range(value.count_codepoints()):
-        var glyph = String(value[codepoint=index:index + 1])
-        var code = ord(glyph)
-        if code < ord("0") or code > ord("9"):
-            return -1
-        result = result * 10 + code - ord("0")
-        if result > FRACTAL_MAX_DEPTH:
-            return FRACTAL_MAX_DEPTH
-    return result

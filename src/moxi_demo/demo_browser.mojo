@@ -1568,7 +1568,7 @@ struct DemoBrowserState(Component):
                     # the same incremental render loop as the standalone
                     # example. The child update still receives the tick for
                     # double-click timing and other interaction state.
-                    var rendered = self.fractal.component.advance_render()
+                    var rendered = self.fractal.component.advance_frame()
                     var routed = self.fractal.route(frame, view)
                     return rendered or routed
             if self.selected_id == DEMO_COUNTER_ID and self.counter.contains(event.target, view):

@@ -442,7 +442,10 @@ from .resources import (
     ResourceResolver,
     ResourceStore,
 )
+from .natural import Natural
+from .raster import RasterImage
 from .scene import (
+    SCENE_BITMAP,
     SCENE_CLIP,
     SCENE_IMAGE,
     SCENE_LINE,
@@ -492,8 +495,6 @@ from .fractal import (
     FRACTAL_GUIDES_ID,
     FRACTAL_GROUP_CLASSIC,
     FRACTAL_GROUP_EXPERIMENT,
-    FRACTAL_MAX_DEPTH,
-    FRACTAL_MAX_RENDERED_SEGMENTS,
     FRACTAL_PRESET_BUTTON_BASE,
     FRACTAL_PRESET_COUNT,
     FractalCanvasPainter,

@@ -586,11 +586,14 @@ uploading public artifacts.
 
 `pixi run interactive-fractal-demo` opens the interactive line-fractal port of
 Xilem's paint example. Its dense canvas uses Metal when available, with AppKit
-as a fallback. Uniform line endpoints are uploaded once per frame and expanded
-to quads in an instanced Metal vertex shader; visible frames use a three-slot
-asynchronous ring. `pixi run fractal-benchmark` measures expansion, endpoint
-upload, Metal encoding, GPU completion, and synchronized frame time. The
-methodology and comparison caveats are in [performance.md](performance.md).
+as a fallback. A cooperative replay cursor streams leaves into a fixed-size
+RGBA image, without retaining the full curve or allocating a stack proportional
+to the requested depth. Depth accepts arbitrary-length decimal integers;
+there are no minimum-length or output-count cutoffs. Long-running jobs yield
+between small work slices and restart when edited. Metal uploads the image
+through a reusable three-frame ring. See [fractal.md](fractal.md) for memory,
+precision, and cancellation behavior, and [performance.md](performance.md)
+for benchmark methodology and historical comparison caveats.
 
 ## Demos
 

@@ -3,6 +3,7 @@
 from std.collections import List
 
 from .geometry import Point, Rect, Transform
+from .raster import RasterImage
 from .resources import RESOURCE_NONE
 from .scene_path import ScenePath
 from .scene_text import SceneTextStyle
@@ -22,6 +23,7 @@ comptime SCENE_LINEAR_GRADIENT = 10
 comptime SCENE_TRANSFORM = 11
 comptime SCENE_POP_CLIP = 12
 comptime SCENE_RESET_TRANSFORM = 13
+comptime SCENE_BITMAP = 14
 
 
 struct SceneCommand(ImplicitlyCopyable):
@@ -50,6 +52,7 @@ struct SceneCommand(ImplicitlyCopyable):
     var gradient_start_color: Color
     var gradient_end_color: Color
     var transform: Transform
+    var raster: RasterImage
 
     def __init__(out self, kind: Int, id: Int, bounds: Rect, fill: Color):
         self.kind = kind
@@ -75,6 +78,7 @@ struct SceneCommand(ImplicitlyCopyable):
         self.gradient_start_color = fill
         self.gradient_end_color = fill
         self.transform = Transform()
+        self.raster = RasterImage()
 
     def set_stroke(mut self, color: Color, width: Float32):
         """Set a stroke used by line and outlined-shape commands."""
@@ -225,6 +229,14 @@ struct Scene:
         )
         command.set_resource(resource_id)
         self.commands.append(command)
+
+    def append_bitmap(mut self, id: Int, bounds: Rect, raster: RasterImage):
+        """Append an owned RGBA snapshot without retaining its source geometry."""
+        var command = SceneCommand(
+            SCENE_BITMAP, id, bounds, Color(1.0, 1.0, 1.0, 1.0)
+        )
+        command.raster = raster
+        self.commands.append(command^)
 
     def append_path(
         mut self,

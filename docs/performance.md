@@ -52,7 +52,7 @@ wall-clock samples into a cross-machine claim. Run
 | --- | --- | --- |
 | Retained pipeline | layout, identity reconciliation, paint, scene conversion, fixed/variable-extent range math | passes, child count, paint commands, checksum, operations/frame |
 | Typed localized execution | keyed `KeyedSubtreeExecutor[Child]` plus the single-subtree executor, scoped invalidation, retained reconciliation, `App` parent/child dispatch, explicit root fallback accounting, and a 1/10/100-child matrix | passes, child count, initial/final builds, invalidations, dependency visits, dirty tokens, keyed insertions/removals/moves, parent builds, root fallbacks, reconciled nodes, paint commands, total work |
-| Interactive fractal | line-fractal expansion, one Mojo-to-native endpoint batch, GPU-instanced line expansion, CPU encoding, GPU completion, and synchronized frame time | terminal lines, expansion time, neutral paint time, Metal line segments/vertices/submissions, line-upload time, CPU encode/wait/frame time, GPU time/availability, checksum |
+| Interactive fractal | cooperative leaf replay and CPU rasterization, fixed RGBA image upload, CPU encoding, GPU completion, and synchronized frame time | terminal leaves, expansion/raster time, neutral paint time, Metal geometry/submissions, CPU encode/wait/frame time, GPU time/availability, checksum |
 | Portable plot | plot scales, axes, labels, line/scatter/bar scene emission, software rasterization | commands/frame, rasterized pixels/frame, checksum |
 | Metal plot packet | ordered plot batches, viewport LOD, one native transfer per batch, GPU line/instance expansion, complete chrome composition | source/emitted points, line segments, instances, packet bytes, ordered batches, GPU submissions, vertices, CPU/GPU/frame time, checksum |
 | Statistical/link plot | shared typed fixture, histogram/box/heatmap/regression transforms, linked stable-key selection | derived rows, commands, selected keys, operations/frame, checksum |
@@ -86,25 +86,25 @@ pixi run fractal-benchmark
 (cd ~/Git/xilem && cargo interactive-paint-bench)
 ```
 
-Both use a 920x620 canvas, the same six preset families, the same 2.5-pixel
-minimum segment threshold, and matching low-growth depths. Moxi reports
-component expansion, neutral command generation, endpoint upload, GPU line
-expansion, Metal encoding, GPU completion, and synchronized frame time
-separately.
-Xilem's checked-in benchmark reports CPU image rasterization, adaptive parallel
-rasterization, and vector-scene construction.
+The current Moxi demo uses a 920x620 CPU raster and uploads that image to
+Metal, with AppKit as a fallback. A cooperative cursor replays each leaf path
+without retaining the complete curve. Depth, segment length, and output count
+are unrestricted. Expansion time now includes CPU rasterization. The neutral
+paint and Metal metrics measure presentation of the accumulated image plus
+editor guides; line-upload metrics cover only those guides.
+The benchmark includes a depth-10 Koch case with 1,048,576 leaves in addition
+to the historical comparison fixtures.
 
-These are not identical renderer backends: Xilem's live widget rasterizes a
-CPU image and submits one image draw to its compositor; Moxi's interactive
-canvas embeds a CAMetalLayer in the AppKit host, uploads compact endpoints,
-and expands each line to a quad in one instanced GPU draw. The visible path
-uses three reusable frame-buffer slots and does not wait on every submission;
-the offscreen benchmark deliberately waits so its checksum and timings are
-complete. AppKit remains a fallback when Metal is unavailable. Xilem's raw
-raster number is therefore a line-work baseline, not a direct comparison with
-Moxi's synchronized GPU frame time.
+Earlier measurements below used a different implementation: retained leaf
+endpoints, a 2.5-pixel early termination threshold, and GPU-instanced line
+expansion. They do not describe the current fractal implementation and cannot
+be used to claim its performance. Xilem's checked-in benchmark reports CPU
+image rasterization, adaptive parallel rasterization, and vector-scene
+construction. New comparisons need matching depth/termination semantics and
+fresh measurements of both implementations.
 
-On this Apple Silicon host, a representative 25-iteration Metal run measured
+For the previous retained-line implementation on this Apple Silicon host, a
+representative 25-iteration Metal run measured
 the following per-frame values:
 
 | Preset/depth | endpoint upload | CPU encode | GPU | synchronized frame |
@@ -142,11 +142,10 @@ machine/load dependent.
   software scene semantics for supported commands.
 - Dense component-owned canvases can embed a `CAMetalLayer` in the regular
   AppKit host through `MacOSMetalCanvasPainter`; native controls,
-  accessibility, and input remain owned by the host view. Uniform fractal
-  batches cross the Mojo/native boundary once, expand to line quads on the
-  GPU, and use a three-slot frame ring for asynchronous presentation. The
-  painter reports endpoint-upload, CPU encode/wait, GPU, completion, and
-  synchronized timings.
+  accessibility, and input remain owned by the host view. The fractal now
+  accumulates leaves in a fixed RGBA raster and uploads it through reusable
+  textures in the three-slot frame ring. The endpoint-to-quad path remains
+  available for other dense line workloads.
 - Compound subpaths, holes, and self-intersections use a bounded even-odd
   scanline tessellator after the fast simple-polygon path. The renderer reports
   synchronized CPU encode time, CPU wait time, total frame time, and Metal
@@ -197,9 +196,9 @@ concave polygons, compound paths with holes, and self-intersecting fills.
 Compound fills currently use an explicit even-odd rule and bounded scanline
 tessellation; extremely large or malformed paths are rejected rather than
 silently expanding memory. Portable text shaping and generic GPU-side
-text/image/path tessellation remain follow-up work. The dense fractal line path
-already uses GPU-side endpoint-to-quad expansion and asynchronous visible
-frame pacing; its bounded three-slot ring can wait when the GPU falls behind.
+text/image/path tessellation remain follow-up work. Dense line batches support GPU-side endpoint-to-quad expansion; the fractal
+uses streamed CPU rasterization and bitmap uploads. Both use asynchronous
+visible frame pacing; the bounded three-slot ring can wait when the GPU falls behind.
 The text texture count is a quality/performance signal: it identifies where a frame
 used a CoreText texture instead of the allocation-free ASCII geometry path;
 the cache-hit and rasterization counters distinguish reuse from new text

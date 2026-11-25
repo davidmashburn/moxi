@@ -55,6 +55,8 @@
 #define MOXI_MAX_CUSTOM_CIRCLES 4096
 #define MOXI_MAX_CUSTOM_RECTS 262144 /* 100k observations plus selection overlays */
 #define MOXI_MAX_CUSTOM_TEXT 256
+#define MOXI_MAX_CUSTOM_BITMAPS 64
+#define MOXI_MAX_BITMAP_DIMENSION 4096
 #define MOXI_EVENT_QUEUE_CAPACITY 64
 #define MOXI_POINTER_DRAG_THRESHOLD 4.0f
 
@@ -1117,6 +1119,10 @@ static void moxi_reset_custom_commands(void) {
     moxi_custom_circle_count = 0;
     moxi_custom_rect_count = 0;
     moxi_custom_text_count = 0;
+    for (int i = 0; i < moxi_custom_bitmap_count; i++) {
+        moxi_custom_bitmaps[i] = nil;
+    }
+    moxi_custom_bitmap_count = 0;
     for (int i = 0; i < MOXI_MAX_CUSTOM_TEXT; i++) {
         moxi_custom_texts[i] = nil;
         moxi_custom_text_frames[i] = NSZeroRect;
@@ -2250,6 +2256,18 @@ static void moxi_draw_custom_slice(MoxiCustomSlice slice) {
     moxi_begin_clip(slice.clipEnabled, slice.clip);
     moxi_draw_custom_rectangles(slice.rectStart, slice.rectEnd);
 
+    /* Raster curves follow their background and precede guide/handle geometry. */
+    for (int i = slice.bitmapStart; i < slice.bitmapEnd; i++) {
+        moxi_begin_clip(moxi_custom_bitmap_clip_enabled[i], moxi_custom_bitmap_clip_frames[i]);
+        [moxi_custom_bitmaps[i] drawInRect:moxi_custom_bitmap_frames[i]
+                                fromRect:NSZeroRect
+                               operation:NSCompositingOperationSourceOver
+                                fraction:moxi_custom_bitmap_opacities[i]
+                          respectFlipped:YES
+                                   hints:nil];
+        moxi_end_clip(moxi_custom_bitmap_clip_enabled[i]);
+    }
+
     int line_index = slice.lineStart;
     while (line_index < slice.lineEnd) {
         int batch_end = line_index + 1;
@@ -2308,6 +2326,7 @@ static void moxi_draw_custom_slice(MoxiCustomSlice slice) {
 static void moxi_draw_custom_commands_uncached(void) {
     MoxiCustomSlice slice = {0, moxi_custom_rect_count, 0, moxi_custom_line_count,
         0, moxi_custom_circle_count, 0, moxi_custom_text_count,
+        0, moxi_custom_bitmap_count,
         moxi_custom_clip_enabled, moxi_custom_clip_frame};
     moxi_draw_custom_slice(slice);
 }
@@ -3686,9 +3705,11 @@ int moxi_window_ordered_custom_slice(void) {
     MoxiCustomSlice previous = index ? owner->customSlices[index - 1] : (MoxiCustomSlice){0};
     MoxiCustomSlice slice = {previous.rectEnd, moxi_custom_rect_count,
         previous.lineEnd, moxi_custom_line_count, previous.circleEnd, moxi_custom_circle_count,
-        previous.textEnd, moxi_custom_text_count, moxi_custom_clip_enabled, moxi_custom_clip_frame};
+        previous.textEnd, moxi_custom_text_count, previous.bitmapEnd, moxi_custom_bitmap_count,
+        moxi_custom_clip_enabled, moxi_custom_clip_frame};
     if (slice.rectStart > slice.rectEnd || slice.lineStart > slice.lineEnd ||
-        slice.circleStart > slice.circleEnd || slice.textStart > slice.textEnd) {
+        slice.circleStart > slice.circleEnd || slice.textStart > slice.textEnd ||
+        slice.bitmapStart > slice.bitmapEnd) {
         moxi_command_overflow_count++;
         return 0;
     }
@@ -3731,6 +3752,54 @@ void moxi_window_set_custom_clip(
     moxi_custom_clip_enabled = width > 0.0 && height > 0.0;
     moxi_custom_clip_frame = NSMakeRect(x, y, width, height);
     moxi_custom_paint_cache_invalidate();
+}
+
+int moxi_window_add_custom_bitmap(
+    const uint8_t *pixels,
+    size_t byte_count,
+    int pixel_width,
+    int pixel_height,
+    float x,
+    float y,
+    float width,
+    float height,
+    float opacity
+) {
+    if (pixels == NULL || pixel_width < 1 || pixel_height < 1 ||
+        pixel_width > MOXI_MAX_BITMAP_DIMENSION || pixel_height > MOXI_MAX_BITMAP_DIMENSION ||
+        width <= 0.0f || height <= 0.0f ||
+        !isfinite(x) || !isfinite(y) || !isfinite(width) || !isfinite(height) ||
+        !isfinite(opacity) ||
+        byte_count < (size_t)pixel_width * (size_t)pixel_height * 4) {
+        return 0;
+    }
+    if (moxi_custom_bitmap_count >= MOXI_MAX_CUSTOM_BITMAPS) {
+        moxi_command_overflow_count++;
+        return 0;
+    }
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc]
+        initWithBitmapDataPlanes:NULL
+                      pixelsWide:pixel_width
+                      pixelsHigh:pixel_height
+                   bitsPerSample:8
+                 samplesPerPixel:4
+                        hasAlpha:YES
+                        isPlanar:NO
+                  colorSpaceName:NSDeviceRGBColorSpace
+                    bitmapFormat:NSBitmapFormatAlphaNonpremultiplied
+                     bytesPerRow:(NSInteger)pixel_width * 4
+                    bitsPerPixel:32];
+    if (bitmap == nil || bitmap.bitmapData == NULL) return 0;
+    /* The caller may immediately reuse or release its surface after this copy. */
+    memcpy(bitmap.bitmapData, pixels, (size_t)pixel_width * (size_t)pixel_height * 4);
+    int index = moxi_custom_bitmap_count++;
+    moxi_custom_bitmaps[index] = bitmap;
+    moxi_custom_bitmap_frames[index] = NSMakeRect(x, y, width, height);
+    moxi_custom_bitmap_opacities[index] = fminf(1.0f, fmaxf(0.0f, opacity));
+    moxi_custom_bitmap_clip_enabled[index] = moxi_custom_clip_enabled;
+    moxi_custom_bitmap_clip_frames[index] = moxi_custom_clip_frame;
+    moxi_custom_paint_cache_invalidate();
+    return 1;
 }
 
 void moxi_window_add_custom_rect(

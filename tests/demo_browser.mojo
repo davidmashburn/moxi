@@ -1,5 +1,7 @@
 """Headless contract test for the wxPython-style demo browser."""
 
+from moxi.scene import SCENE_BITMAP
+
 from moxi import (
     ACTION_PRESS,
     App,
@@ -648,10 +650,13 @@ def main() raises:
     test_check(app.component.fractal.component.rendered_segment_count() > 0)
     while not app.component.fractal.component.render_complete():
         _ = app.tick(1.0 / 60.0)
-    test_check(
-        app.component.selected_scene(app.view).count()
-        > fractal_scene_before.count()
-    )
+    var fractal_scene_after = app.component.selected_scene(app.view)
+    var bitmap_count = 0
+    for index in range(fractal_scene_after.count()):
+        if fractal_scene_after.command(index).kind == SCENE_BITMAP:
+            bitmap_count += 1
+    test_check(bitmap_count == 1)
+    test_check(app.component.fractal.component.cursor.emitted == 1024)
 
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_WX_STYLE_ID)))
     test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))

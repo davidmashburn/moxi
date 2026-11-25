@@ -420,6 +420,9 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `ResourceHandle` | `moxi.resources` | provisional | stateful UI support primitives |
 | `ResourceResolver` | `moxi.resources` | provisional | stateful UI support primitives |
 | `ResourceStore` | `moxi.resources` | provisional | stateful UI support primitives |
+| `Natural` | `moxi.natural` | provisional | nonnegative decimal counters |
+| `RasterImage` | `moxi.raster` | provisional | bounded streamed geometry raster |
+| `SCENE_BITMAP` | `moxi.scene` | stable-core | portable paint/scene rendering |
 | `SCENE_CLIP` | `moxi.scene` | stable-core | portable paint/scene rendering |
 | `SCENE_IMAGE` | `moxi.scene` | stable-core | portable paint/scene rendering |
 | `SCENE_LINE` | `moxi.scene` | stable-core | portable paint/scene rendering |
@@ -463,8 +466,6 @@ Generated from `src/moxi/__init__.mojo`, `docs/api-lanes.tsv`, and the compatibi
 | `FRACTAL_GUIDES_ID` | `moxi.fractal` | experimental | experimental or optional integration |
 | `FRACTAL_GROUP_CLASSIC` | `moxi.fractal` | experimental | experimental or optional integration |
 | `FRACTAL_GROUP_EXPERIMENT` | `moxi.fractal` | experimental | experimental or optional integration |
-| `FRACTAL_MAX_DEPTH` | `moxi.fractal` | experimental | experimental or optional integration |
-| `FRACTAL_MAX_RENDERED_SEGMENTS` | `moxi.fractal` | experimental | experimental or optional integration |
 | `FRACTAL_PRESET_BUTTON_BASE` | `moxi.fractal` | experimental | experimental or optional integration |
 | `FRACTAL_PRESET_COUNT` | `moxi.fractal` | experimental | experimental or optional integration |
 | `FractalCanvasPainter` | `moxi.fractal` | experimental | experimental or optional integration |

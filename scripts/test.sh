@@ -33,6 +33,7 @@ tests=(
   tests/demo_authoring.mojo
   tests/demo_walkthrough.mojo
   tests/fractal.mojo
+  tests/fractal_numerics.mojo
   tests/diff.mojo
   tests/constraints.mojo
   tests/paint_index.mojo

@@ -32,7 +32,8 @@ def run_loop[Painter: FractalCanvasPainter](
     mut painter: Painter,
 ) raises:
     """Run the shared interactive scenario with either canvas backend."""
-    _ = app.component.advance_render(1024)
+    if app.component.advance_frame():
+        app.rebuild()
     app.render(renderer)
     repaint(app, painter)
     window.present()
@@ -45,7 +46,8 @@ def run_loop[Painter: FractalCanvasPainter](
         while event.kind != NONE_KIND:
             changed = app.dispatch(event) or changed
             event = window.poll_event()
-        if app.component.advance_render():
+        if app.component.advance_frame():
+            app.rebuild()
             changed = True
         if changed:
             app.render(renderer)

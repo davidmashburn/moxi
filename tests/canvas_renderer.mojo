@@ -8,6 +8,7 @@ from moxi import (
     Color,
     Point,
     Rect,
+    RasterImage,
     Scene,
     Transform,
     test_check,
@@ -66,6 +67,7 @@ def main() raises:
         Color(1.0, 1.0, 1.0, 1.0),
     )
     scene.append_image(11, 101, Rect(8.0, 18.0, 8.0, 3.0))
+    scene.append_bitmap(13, Rect(0.0, 0.0, 1.0, 1.0), RasterImage(1, 1))
     scene.append_path(
         12,
         "M0,0 L4,0 L4,4 Z",
@@ -85,7 +87,7 @@ def main() raises:
 
     test_check(renderer.frame_count == 1)
     test_check(renderer.command_count == scene.count())
-    test_check(renderer.fallback_count == 3)
+    test_check(renderer.fallback_count == 4)
     test_check(renderer.error_count() == 0)
     test_check(renderer.checksum() > 0)
 

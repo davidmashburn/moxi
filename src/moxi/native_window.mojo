@@ -41,7 +41,9 @@ from .fractal import FractalCanvasPainter
 from .geometry import Point, Rect, Size
 from .paint import PANEL_KIND, SURFACE_KIND, PaintCommand, Renderer
 from .resources import ImageResource
+from .raster import RasterImage
 from .scene import (
+    SCENE_BITMAP,
     SCENE_LINE,
     SCENE_RECT,
     SCENE_ROUNDED_RECT,
@@ -759,6 +761,19 @@ struct NativeCanvasSceneRenderer[backend_kind: Int](SceneRenderer):
                 command.stroke.alpha * command.opacity,
                 command.stroke_width,
             )
+        elif command.kind == SCENE_BITMAP:
+            if not command.raster.is_empty():
+                _ = external_call["moxi_window_add_custom_bitmap", Int32](
+                    command.raster.pixels.unsafe_ptr(),
+                    UInt(len(command.raster.pixels)),
+                    Int32(command.raster.width),
+                    Int32(command.raster.height),
+                    command.bounds.x,
+                    command.bounds.y,
+                    command.bounds.width,
+                    command.bounds.height,
+                    command.opacity,
+                )
         elif command.kind == SCENE_TEXT:
             var text = command.text
             var c_text = text.as_c_string_slice()
@@ -796,6 +811,22 @@ struct NativeCanvasPainter[backend_kind: Int](FractalCanvasPainter):
 
     def end(mut self) raises:
         pass
+
+    def bitmap(mut self, raster: RasterImage, bounds: Rect) raises:
+        """Snapshot a bounded straight-alpha RGBA surface for deferred drawing."""
+        if raster.is_empty():
+            return
+        _ = external_call["moxi_window_add_custom_bitmap", Int32](
+            raster.pixels.unsafe_ptr(),
+            UInt(len(raster.pixels)),
+            Int32(raster.width),
+            Int32(raster.height),
+            bounds.x,
+            bounds.y,
+            bounds.width,
+            bounds.height,
+            Float32(1.0),
+        )
 
     def fill_rect(
         mut self,

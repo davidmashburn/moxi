@@ -29,6 +29,7 @@ from canvas import (
 from .backend import BACKEND_HEADLESS, BackendCapabilities
 from .geometry import Point, Rect, Transform
 from .scene import (
+    SCENE_BITMAP,
     SCENE_CLIP,
     SCENE_IMAGE,
     SCENE_LINEAR_GRADIENT,
@@ -484,6 +485,7 @@ struct CanvasSceneRenderer(SceneRenderer):
         elif (
             command.kind == SCENE_TEXT
             or command.kind == SCENE_IMAGE
+            or command.kind == SCENE_BITMAP
             or command.kind == SCENE_PATH
         ):
             self.fallback_count += 1

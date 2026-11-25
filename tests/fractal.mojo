@@ -12,6 +12,7 @@ from moxi import (
     FRACTAL_PRESET_BUTTON_BASE,
     FRACTAL_SCROLL_ID,
     FractalState,
+    FractalCanvasPainter,
     ActionEvent,
     Event,
     PointerEvent,
@@ -20,14 +21,17 @@ from moxi import (
     POINTER_UP_KIND,
     Point,
     Rect,
+    RasterImage,
     ROOT_SCROLL_ID,
     SCROLLBAR_KIND,
+    SCENE_BITMAP,
     ScrollEvent,
     fractal_preset_geometry,
     fractal_preset_group,
     test_check,
 )
-from moxi.fractal import FRACTAL_PANEL_ID, FRACTAL_RENDER_BATCH, FRACTAL_MAX_RENDERED_SEGMENTS
+from moxi.fractal import FRACTAL_PANEL_ID, FRACTAL_RENDER_BATCH, FractalCursor
+from moxi.natural import Natural
 
 
 def action(target: Int) -> Event:
@@ -36,7 +40,17 @@ def action(target: Int) -> Event:
     return event
 
 
-def main():
+struct BitmapBoundsPainter(FractalCanvasPainter):
+    var bitmap_bounds: Rect
+
+    def __init__(out self):
+        self.bitmap_bounds = Rect(0.0, 0.0, 0.0, 0.0)
+
+    def bitmap(mut self, raster: RasterImage, bounds: Rect) raises:
+        self.bitmap_bounds = bounds
+
+
+def main() raises:
     test_check(FRACTAL_PRESET_COUNT == 27)
     test_check(fractal_preset_group(0) == FRACTAL_GROUP_CLASSIC)
     test_check(fractal_preset_group(26) == FRACTAL_GROUP_EXPERIMENT)
@@ -91,6 +105,22 @@ def main():
     test_check(app.component.pending_job_count() == 0)
     test_check(app.component.build_scene(canvas).count() > 0)
 
+    # A wider host canvas must not stretch pixels away from unscaled handles.
+    var wide_scene = app.component.build_scene(Rect(31.0, 47.0, 1200.0, 700.0))
+    var bitmap_count = 0
+    for index in range(wide_scene.count()):
+        var command = wide_scene.command(index)
+        if command.kind == SCENE_BITMAP:
+            bitmap_count += 1
+            test_check(command.bounds.x == 31.0 and command.bounds.y == 47.0)
+            test_check(command.bounds.width == 920.0 and command.bounds.height == 620.0)
+    test_check(bitmap_count == 1)
+    var painter = BitmapBoundsPainter()
+    var wide_canvas = Rect(31.0, 47.0, 1200.0, 700.0)
+    app.component.paint_canvas(painter, wide_canvas, wide_canvas)
+    test_check(painter.bitmap_bounds.x == 31.0 and painter.bitmap_bounds.y == 47.0)
+    test_check(painter.bitmap_bounds.width == 920.0 and painter.bitmap_bounds.height == 620.0)
+
     var initial_point_y = app.component.geometry.generator_points[1].y
     var point = Point(
         canvas.x + app.component.geometry.generator_points[1].x,
@@ -144,31 +174,36 @@ def main():
     var copy = partial
     test_check(copy.rendered_segment_count() == partial.rendered_segment_count())
     _ = copy.advance_render(1)
-    test_check(copy.pending_job_count() != partial.pending_job_count())
+    test_check(not (copy.cursor.remaining == partial.cursor.remaining))
 
-    # Every preset has a complete bounded preview even at maximum depth.
-    # Refinement keeps that preview until a complete replacement is ready.
+    # All presets keep a bounded preview while very large work stays pending.
     for preset in range(FRACTAL_PRESET_COUNT):
         var dense = FractalState()
         dense.geometry = fractal_preset_geometry(preset)
-        dense.depth = 12
+        _ = dense.set_depth(1000000000)
         dense.reset_render_progress()
-        var coarse_count = dense.rendered_segment_count()
+        var coarse_count = len(dense.rendered_segments)
         test_check(coarse_count > 0 and coarse_count <= FRACTAL_RENDER_BATCH)
-        var coarse_start = dense.rendered_segments[0].start
-        _ = dense.advance_render(1)
-        if not dense.render_complete():
-            test_check(dense.rendered_segment_count() == coarse_count)
-            test_check(dense.rendered_segments[0].start.x == coarse_start.x)
-        while not dense.render_complete():
-            _ = dense.advance_render(10000)
-        test_check(dense.rendered_segment_count() > 0)
-        test_check(dense.rendered_segment_count() <= FRACTAL_MAX_RENDERED_SEGMENTS)
+        for _ in range(10):
+            test_check(not dense.advance_render())
+        test_check(not dense.render_complete())
+        test_check(len(dense.cursor.address) == 0)
+        test_check(len(dense.rendered_segments) == coarse_count)
+        test_check(len(dense.raster.pixels) == 920 * 620 * 4)
+
+    # Small descendants are expanded to the actual requested depth, and output
+    # beyond the former cap is accumulated without retaining terminal geometry.
+    var many = FractalState()
+    _ = many.set_depth(8)
+    while not many.render_complete():
+        _ = many.advance_render(10000)
+    test_check(many.cursor.emitted == 65536)
+    test_check(len(many.rendered_segments) <= FRACTAL_RENDER_BATCH)
+    test_check(len(many.raster.pixels) == 920 * 620 * 4)
 
     var dragging = App[FractalState](FractalState(), Rect(0, 0, 1180, 900))
     dragging.component.geometry = fractal_preset_geometry(8)
-    dragging.component.depth = 12
-    dragging.component.reset_render_progress()
+    _ = dragging.component.set_depth(12)
     dragging.rebuild()
     var dense_canvas = dragging.view.bounds_for(FRACTAL_CANVAS_ID)
     var handle = dragging.component.geometry.generator_points[1]
@@ -185,9 +220,12 @@ def main():
     test_check(dragging.dispatch(Event(PointerEvent(
         POINTER_UP_KIND, Point(origin.x + 12, origin.y + 12),
     ))))
-    var drag_preview = dragging.component.rendered_segment_count()
+    _ = dragging.component.advance_render(1000)
+    test_check(dragging.component.cursor.emitted.bounded_value(1000) > 0)
+    test_check(not dragging.component.render_complete())
+    _ = dragging.component.set_depth(2)
     while not dragging.component.render_complete():
-        _ = dragging.component.advance_render(10000)
-    test_check(dragging.component.rendered_segment_count() > drag_preview)
+        _ = dragging.component.advance_render()
+    test_check(dragging.component.cursor.emitted == dragging.component.branch_factor() ** 2)
 
     print("Moxi fractal contract passed")
