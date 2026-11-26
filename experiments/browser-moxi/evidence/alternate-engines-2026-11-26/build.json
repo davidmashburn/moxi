@@ -1,0 +1,76 @@
+{
+  "sourceRevision": "d582d177011dafd4e2a30a07116b586c0ba218a9",
+  "mojo": "1.1.0 (8189361e)",
+  "clang": "21.0.0 (clang-2100.3.34.2)",
+  "lld": "24.0.0",
+  "artifacts": {
+    "browser.wasm": "7788db5f2bb10786b3c72732e639387cbb974b1ac32320eb5d48bed46995c694",
+    "native.txt": "3cf0ddc03db3c182881e8435c651ceb8593a6e84b3250f9fa94646cb46c83da3",
+    "native-initial.svg": "800d024447dfc0e108ebee0901fdfdb6ee7914917fe33ed7967a673f4c0e18b7",
+    "native-final.svg": "c2a4633a2247c8be9e3265d3c8390b72b78177bbf90db0c6b85ceaaeca268cb7"
+  },
+  "nativeAndNodeCheck": {
+    "node": "v26.10.0",
+    "comparisons": 6515,
+    "maxAbsoluteError": 0.00020000000017716957,
+    "capacitySvgBytes": 264392,
+    "layoutAndDispatch": {
+      "samples": 100,
+      "medianMs": 0.13816700000000992,
+      "p95Ms": 0.19283400000000483
+    },
+    "sceneAndSerialization": {
+      "samples": 100,
+      "medianMs": 1.2340039999999988,
+      "p95Ms": 1.7158330000000035
+    },
+    "transfer": {
+      "samples": 100,
+      "medianMs": 0.041580000000010386,
+      "p95Ms": 0.12966900000003534
+    },
+    "frameBytes": 30893,
+    "state": "ready",
+    "failure": null,
+    "allocations": 46853,
+    "liveAllocations": 0,
+    "liveBytes": 0,
+    "heapTop": 80528,
+    "heapHighWater": 6136272,
+    "memoryBytes": 6160384,
+    "instances": 0,
+    "wasmBytes": 567765,
+    "imports": [
+      "moxi_text_size",
+      "moxi_text_byte",
+      "KGEN_CompilerRT_AlignedAlloc",
+      "KGEN_CompilerRT_AlignedFree",
+      "moxi_can_create",
+      "moxi_graph_size",
+      "moxi_graph_edge",
+      "moxi_graph_group",
+      "moxi_register",
+      "moxi_resolve",
+      "moxi_forget",
+      "moxi_svg",
+      "moxi_semantic",
+      "KGEN_CompilerRT_GetStackTrace",
+      "write",
+      "dup",
+      "fdopen",
+      "fflush",
+      "fclose",
+      "KGEN_CompilerRT_fprintf",
+      "__multi3",
+      "sin",
+      "cos"
+    ]
+  },
+  "runtimeCheck": {
+    "tableLookups": 4096,
+    "products": 625,
+    "float32": true,
+    "diagnosticPoisoning": true,
+    "unknownImportRejection": true
+  }
+}

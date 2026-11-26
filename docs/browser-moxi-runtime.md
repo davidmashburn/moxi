@@ -98,16 +98,25 @@ forced unsupported gate passed. All 40,339 tracked allocations were freed in
 the ordinary verification lifecycle; the exhausted module is deliberately
 discarded. Maximum-graph SVG output was 226,761 bytes.
 
-Validated engines: Node `26.10.0`, collaborative-preview Chromium `154`, and
+The original run validated Node `26.10.0`, collaborative-preview Chromium `154`, and
 local headless Chrome `156.0.8078.81`. Safari, Firefox, wasm32, alternate CPU/OS
-toolchains, long sessions, and Jupyter/remote-kernel integration were not run.
+toolchains, long sessions, and Jupyter/remote-kernel integration were not run then.
 The browser automation checks real pointer dragging, release, pan, wheel,
 keyboard selection and typed search, Moxi controls, resize, isolated state,
 accessibility-overlay removal, stale-handle rejection, and recreation. There
 were no page exceptions. DOM semantics are inspected; no human screen-reader
 or physical IME test was performed.
 
-The application Wasm artifact is 533,498 bytes. The verification module reached
+Follow-up on 2026-11-26: the normal interactive FDG app from `d582d17` passed
+on Playwright WebKit 27.2/macOS arm64 and Firefox 159.0/Linux arm64 with default
+feature settings. Each passed 6,515 fresh native comparisons, real input and
+lifecycle checks, and the documented forced-unavailable path. The original
+Chrome checks/captures above remain unchanged. Safari was not tested; macOS
+Firefox was blocked before navigation by a profile-launch failure. See the
+[scoped alternate-engine record](../experiments/browser-moxi/evidence/alternate-engines-2026-11-26/README.md)
+for exact scenarios, source hashes, screenshots, harness gaps and limits.
+
+In the original measurement, the application Wasm artifact was 533,498 bytes. The verification module reached
 a heap high-water address of 5,687,760 bytes and 5,701,632 bytes of committed
 linear memory. These are tracked Wasm figures, not browser process/JS/DOM/GPU
 memory. Compilation/instantiation, layout+dispatch, scene+SVG serialization,
