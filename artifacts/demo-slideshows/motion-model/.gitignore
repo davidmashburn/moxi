@@ -1,0 +1,2 @@
+# Local command output can contain machine-specific compiler paths.
+*.log
