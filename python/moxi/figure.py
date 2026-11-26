@@ -1027,7 +1027,7 @@ class Figure:
             return True
         layer = self.spec.layers[0]
         return layer.layout_version != LayoutVersion.SPECIALIZED or (
-            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, WaveCMark.CALENDAR, WaveCMark.SANKEY, CatalogMark.FUNNEL)
+            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, WaveCMark.CALENDAR, WaveCMark.SANKEY, CatalogMark.PARALLEL, CatalogMark.FUNNEL)
         )
 
     def to_svg(self) -> bytes:
@@ -1099,6 +1099,9 @@ class Figure:
                     opacity = self._geometry_opacity(geometry, layer, index)
                     for radius, fill in self._marker_discs(geometry, layer, index):
                         parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{_svg_color(fill, opacity)}" data-mark="{layer.mark}"/>')
+            if getattr(geometry, "part", "") == "dimension":
+                x, y, *_ = geometry.segments[0]
+                parts.append(f'<text x="{x:g}" y="{y+16:g}" text-anchor="middle">{escape(label)}</text>')
             if label:
                 parts.append('</g>')
         for text, x, y, swatch in self._wave_a_labels():

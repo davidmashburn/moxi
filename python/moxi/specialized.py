@@ -18,6 +18,7 @@ class LayoutVersion(IntEnum):
 
 
 class CatalogMark(str, Enum):
+    PARALLEL = "parallel"
     FUNNEL = "funnel"
 
 
@@ -85,12 +86,14 @@ def validate_layout(layer: Any) -> None:
     if layer.mark in WaveBMark._value2member_map_:
         validate_b(layer)
         return
-    mark = CatalogMark.FUNNEL if layer.mark == CatalogMark.FUNNEL else WaveAMark(layer.mark)
+    mark = CatalogMark(layer.mark) if layer.mark in CatalogMark._value2member_map_ else WaveAMark(layer.mark)
     if mark is CatalogMark.FUNNEL and (layer.y2 or layer.stat_low_field or layer.stat_high_field):
         raise ValueError("funnel layout takes one stage and one value field")
     if not isinstance(layer.horizontal, bool) or not isinstance(layer.percent, bool):
         raise ValueError("horizontal and percent must be boolean")
-    if layer.series_fields and mark not in (WaveAMark.GROUPED, WaveAMark.STACKED):
+    if mark is CatalogMark.PARALLEL and (layer.y in layer.series_fields or layer.y2 or layer.stat_low_field or layer.stat_high_field):
+        raise ValueError("use y for the first dimension and series_fields for the remaining dimensions")
+    if layer.series_fields and mark not in (CatalogMark.PARALLEL, WaveAMark.GROUPED, WaveAMark.STACKED):
         raise ValueError("series_fields require grouped/stacked bars")
     if layer.range_fields and mark is not WaveAMark.BULLET:
         raise ValueError("range_fields require bullet")
@@ -125,7 +128,7 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
     from .specialized_c import WaveCMark, layout as wave_c_layout
     if layer.mark in WaveCMark._value2member_map_:
         return wave_c_layout(layer, data)
-    mark = CatalogMark.FUNNEL if layer.mark == CatalogMark.FUNNEL else WaveAMark(layer.mark)
+    mark = CatalogMark(layer.mark) if layer.mark in CatalogMark._value2member_map_ else WaveAMark(layer.mark)
     categories = list(data.column(layer.x))
     n = len(categories)
     if not n or any(c is None for c in categories):
@@ -137,6 +140,32 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
             raise ValueError(f"{name}: expected {n} finite numeric values")
         return [float(v) for v in values]
 
+    if mark is CatalogMark.PARALLEL:
+        fields = [layer.y, *layer.series_fields]
+        rows = [dict(row_index=i, **{f: data.column(f)[i] for f in [layer.x, *fields]})
+                for i in range(n)]
+        glyphs = []
+        previous = []
+        for index, field in enumerate(fields):
+            column(field)
+            values = data.column(field)
+            low, high = min(values), max(values)
+            x = index / (len(fields) - 1) if len(fields) > 1 else .5
+            glyphs.append(Glyph(GlyphKind.SEGMENT, 0, "dimension", (x, 0, x, 1),
+                                INK, False, label=field))
+            for row, value in enumerate(values):
+                y = (value - low) / (high - low) if low != high else .5
+                if index or len(fields) == 1:
+                    start = previous[row] if index else (x, y)
+                    kind = GlyphKind.SEGMENT if index else GlyphKind.POINT
+                    glyphs.append(Glyph(kind, row, "record", (*start, x, y),
+                                        PALETTE[row % len(PALETTE)], source_rows=(row,),
+                                        label=str(categories[row])))
+                if index:
+                    previous[row] = (x, y)
+                else:
+                    previous.append((x, y))
+        return Layout(glyphs, (0., 1.), (0., 1.), rows)
     values = column(layer.y)
     if mark is CatalogMark.FUNNEL:
         largest = max(values)
