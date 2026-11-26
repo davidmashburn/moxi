@@ -9,7 +9,7 @@ pixi run --manifest-path "$manifest" python3 "$here/build_native.py"
 "$python" -m venv "$here/dist/build-venv"
 stage="$(mktemp -d /tmp/moxi-e04-facade-stage.XXXXXX)"
 trap 'rm -rf "$stage"' EXIT
-cp "$root/pyproject.toml" "$stage/"
+cp "$root/pyproject.toml" "$root/LICENSE" "$stage/"
 mkdir "$stage/docs"
 cp "$root/docs/python.md" "$stage/docs/"
 cp -R "$root/python" "$stage/"

@@ -17,6 +17,7 @@ fi
 "$consumer/venv/bin/python" -m pip check
 cp "$here"/tests/*.py "$consumer/tests/"
 "$python" "$here/inspect_wheel.py" "${native_wheels[0]}" > "$artifacts/packaging.json"
+"$python" "$here/check_wheel_notices.py" "$here"/dist/wheels/moxi-*.whl "${native_wheels[0]}"
 # Isolated mode omits the repo and user-site. pytest loads only copied test files.
 native_status=0
 (cd "$consumer" && env -i HOME="$consumer/home" PATH=/usr/bin:/bin PYTHONMALLOC=debug \
