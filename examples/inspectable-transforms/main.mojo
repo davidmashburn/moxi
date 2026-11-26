@@ -91,6 +91,8 @@ struct Body:
     var draft: Bool
     var history_floor: Int
     var pointer_origin: Point
+    var pointer_position: Point
+    var pointer_offset: Float64
 
     def __init__(out self, kind: Consumer, owner: UInt64, scale: Float64, x: Float32) raises:
         self.kind = kind
@@ -101,6 +103,8 @@ struct Body:
         self.draft = False
         self.history_floor = 0
         self.pointer_origin = Point(0,0)
+        self.pointer_position = Point(0,0)
+        self.pointer_offset = 0
         if kind == Consumer.CANVAS:
             self.doc.add(CanvasObject(1,Rect(80,100,150,110),"Card 1"))
             self.canvas.select(1)
@@ -167,17 +171,59 @@ struct Body:
         return self.draft
 
     def begin(mut self, x: Float32, y: Float32) -> Bool:
-        self.cancel()
-        self.pointer_origin = Point(x,y)
+        # A new grab targets the displayed draft, without accepting or losing it.
         if self.kind == Consumer.CANVAS:
-            var snapshot = CanvasSnapshot(self.doc,self.canvas.camera)
+            var snapshot = CanvasSnapshot(self.canvas.preview(self.doc),self.canvas.camera)
             if snapshot.hit_object(Point(x,y)) != 1:
                 return False
-            self.canvas.begin(self.doc,SessionKind.MOVE,Point(x,y),0)
+        else:
+            var hit = False
+            for line in self.spatial.overlays(SpatialTool.AXIS_X):
+                if line.handle:
+                    var dx = line.x2-line.x1
+                    var dy = line.y2-line.y1
+                    var n = dx*dx+dy*dy
+                    var t = min(Float64(1),max(Float64(0),((Float64(x)-line.x1)*dx+(Float64(y)-line.y1)*dy)/n)) if n > 0 else Float64(0)
+                    var ex = Float64(x)-line.x1-t*dx
+                    var ey = Float64(y)-line.y1-t*dy
+                    # Match the public native handle's eight-point hit radius.
+                    hit = hit or ex*ex+ey*ey <= 64
+            if not hit:
+                return False
+        return self.rebase(Point(x,y))
+
+    def rebase(mut self, at: Point) -> Bool:
+        # Keep the original document/history baseline, and map the current
+        # pointer position to the value already visible before this handoff.
+        var value = self.value(True)
+        var pending = self.draft
+        self.pointer_position = at
+        if self.kind == Consumer.CANVAS:
+            var delta = Float32(value-self.value())
+            var origin = Point(at.x-delta*Float32(self.canvas.camera.zoom),at.y)
+            self.canvas.begin(self.doc,SessionKind.MOVE,origin,0)
+            if pending:
+                self.canvas.nudge(delta,0)
             return True
-        return self.spatial.pointer_down(SpatialTool.AXIS_X,Float64(x),Float64(y)) == SpatialRoute.MANIPULATION
+        self.cancel()
+        var base = Float64(self.value())/1000
+        var origin = self.spatial.anchor(SpatialPoint(base+0.6,0,0),SpatialAnchorPolicy.ALWAYS_VISIBLE)
+        self.pointer_origin = Point(Float32(origin.x),Float32(origin.y))
+        if self.spatial.pointer_down(SpatialTool.AXIS_X,Float64(self.pointer_origin.x),Float64(self.pointer_origin.y)) == SpatialRoute.MANIPULATION:
+            if self.spatial.pointer_move(Float64(at.x),Float64(at.y)):
+                # Axis-X uses the same world axis at every X. Measure the grab
+                # with the native ray constraint, retaining its fractional part.
+                self.pointer_offset = Float64(value)/1000-self.spatial.transform(101,SpatialComponent.X)
+                var ok = self.preview(value)
+                self.draft = pending and ok
+                return ok
+        self.cancel()
+        if pending:
+            _ = self.preview(value)
+        return False
 
     def move(mut self, x: Float32, y: Float32):
+        self.pointer_position = Point(x,y)
         if self.kind == Consumer.CANVAS:
             _ = self.canvas.motion(self.doc,Point(x,y),0)
             # This consumer constrains motion to world X; the native session still
@@ -186,13 +232,14 @@ struct Body:
             self.canvas.dx = Float32(self.kind.constrain(self.value(True))-self.value())
             self.draft = self.canvas.active
         else:
-            # Evaluate every absolute pointer position against the original
-            # native grab, then retain a constrained, whole-unit preview. This
-            # also permits a drag to return smoothly from either range limit.
+            # Evaluate against the calibrated native grab, add the displayed
+            # semantic offset, then constrain once. Absolute positions permit
+            # returning smoothly from either range limit.
             self.cancel()
             if self.spatial.pointer_down(SpatialTool.AXIS_X,Float64(self.pointer_origin.x),Float64(self.pointer_origin.y)) == SpatialRoute.MANIPULATION:
                 if self.spatial.pointer_move(Float64(x),Float64(y)):
-                    _ = self.preview(self.kind.constrain(self.value(True)))
+                    var value = Int(round((self.spatial.transform(101,SpatialComponent.X)+self.pointer_offset)*1000))
+                    _ = self.preview(self.kind.constrain(value))
 
     def commit(mut self) -> Bool:
         if not self.draft or self.value(True) == self.value():
@@ -364,8 +411,11 @@ struct Demo:
                 self.action(Control.UNDO)
             elif not self.focus and (event.key == KEY_LEFT or event.key == KEY_RIGHT):
                 var step = 10 if self.source.kind == Consumer.CANVAS else 50
+                var at = self.source.pointer_position
                 self.numeric = String(self.source.value(True)+(step if event.key == KEY_RIGHT else -step))
                 self.preview()
+                if self.dragging:
+                    self.dragging = self.source.draft and self.source.rebase(at)
 
     def draw(mut self) raises:
         _ = self.source.spatial.poll()
@@ -421,19 +471,25 @@ def capture(mut window: MacOSWindowInstance, mut app: Demo, directory: String, n
     external_call["it_capture", NoneType](path.as_c_string_span().ptr())
     path = String(directory,"/",name,".json")
     var state = String('{"window_points":[',external_call["it_extent", Float64](Int32(0)),',',external_call["it_extent", Float64](Int32(1)),
-                       '],"scale":',app.scale,',"reprojected":',Int(app.changed),',"source":',app.source.observation(),',"copy":',app.copy.observation(),'}')
+                       '],"scale":',app.scale,',"reprojected":',Int(app.changed),',"dragging":',Int(app.dragging),',"source":',app.source.observation(),',"copy":',app.copy.observation(),'}')
     external_call["it_write", NoneType](path.as_c_string_span().ptr(),state.as_c_string_span().ptr())
 
 
-def drag_start(mut window: MacOSWindowInstance, mut app: Demo) raises -> Point:
+def visible_grab(app: Demo) -> Point:
     var start = Point(0,0)
     if app.source.kind == Consumer.CANVAS:
-        var box = app.source.canvas.camera.rect(app.source.doc.objects[0].bounds)
+        var displayed = app.source.canvas.preview(app.source.doc)
+        var box = app.source.canvas.camera.rect(displayed.objects[0].bounds)
         start = Point(box.x+box.width/2,box.y+box.height/2)
     else:
         for line in app.source.spatial.overlays(SpatialTool.AXIS_X):
             if line.handle:
                 start = Point(Float32((line.x1+line.x2)/2),Float32((line.y1+line.y2)/2))
+    return start
+
+
+def drag_start(mut window: MacOSWindowInstance, mut app: Demo) raises -> Point:
+    var start = visible_grab(app)
     inject(window,app,POINTER_DOWN_KIND,start.x,start.y)
     require(app.dragging,"Native card/handle pointer down did not start a session")
     return start
@@ -462,6 +518,101 @@ def boundary_record(kind: Consumer, version: String, revision: String, before: S
     # tests which could share the encoder's mistake.
     return String('{"version":',version,',"operation":"',kind.operation(),'","target":"',kind.target(),
                   '","revision":',revision,',"from":',before,',"to":',after,'}')
+
+
+def regression_check(mut checks: Int, mut failures: Int, ok: Bool, message: String):
+    checks += 1
+    if not ok:
+        failures += 1
+    print("PASS" if ok else "FAIL",message)
+
+
+def mixed_replay(mut window: MacOSWindowInstance, mut app: Demo, directory: String) raises:
+    var checks = 0
+    var failures = 0
+    var base = app.source.value()
+    var revision = app.source.revision()
+    var depth = app.source.depth()
+    var target = 300 if app.source.kind == Consumer.CANVAS else 700
+    var step = 10 if app.source.kind == Consumer.CANVAS else 50
+    # Grab the geometry actually on screen, including a numeric draft.
+    input(window,app,String(target))
+    inject(window,app,POINTER_DOWN_KIND,app.source.bounds.x+2,app.source.bounds.y+2)
+    regression_check(checks,failures,not app.dragging and app.source.draft and app.source.value(True) == target,"A missed grab preserves the displayed numeric draft")
+    var grab = visible_grab(app)
+    inject(window,app,POINTER_DOWN_KIND,grab.x,grab.y)
+    regression_check(checks,failures,app.dragging and app.source.draft and app.source.value(True) == target,"Grabbing the displayed numeric draft preserves its X")
+    regression_check(checks,failures,app.source.value() == base and app.source.revision() == revision and app.source.depth() == depth,"Numeric-to-pointer handoff preserves the committed baseline")
+    capture(window,app,directory,"09-numeric-grab")
+    inject(window,app,DRAG_UPDATE_KIND,grab.x+20,grab.y)
+    inject(window,app,POINTER_UP_KIND,grab.x+20,grab.y)
+    var moved = app.source.value(True)
+    regression_check(checks,failures,moved > target and moved <= app.source.kind.maximum() and app.source.draft and not app.dragging,"Pointer movement refines the numeric draft and release retains it")
+    capture(window,app,directory,"10-numeric-grab-moved")
+    inject(window,app,KEY_DOWN_KIND,key=KEY_ENTER)
+    inject(window,app,KEY_DOWN_KIND,key=KEY_ENTER)
+    regression_check(checks,failures,app.source.value() == moved and app.source.revision() == revision+1 and app.source.depth() == depth+1,"Numeric-to-pointer refinement commits exactly once")
+    var command = decode(app.record,app.source.kind)
+    regression_check(checks,failures,command.before == base and command.after == moved and command.revision == revision,"Mixed refinement records the original semantic baseline")
+    inject(window,app,KEY_DOWN_KIND,key=122,modifiers=MOD_COMMAND)
+    regression_check(checks,failures,app.source.value() == base and app.source.revision() == revision+2 and app.source.depth() == depth,"One undo restores the pre-numeric baseline")
+
+    # Released pointer drafts support another grab without committing first.
+    inject(window,app,KEY_DOWN_KIND,key=KEY_ESCAPE)
+    revision = app.source.revision()
+    var start = drag_start(window,app)
+    var end = drag_to(window,app,start,target)
+    inject(window,app,POINTER_UP_KIND,end.x,end.y)
+    var released = app.source.value(True)
+    capture(window,app,directory,"11-before-regrab")
+    grab = visible_grab(app)
+    inject(window,app,POINTER_DOWN_KIND,grab.x,grab.y)
+    regression_check(checks,failures,app.dragging and app.source.value(True) == released,"Re-grabbing a released pointer draft preserves its X")
+    inject(window,app,DRAG_UPDATE_KIND,grab.x+10,grab.y)
+    inject(window,app,POINTER_UP_KIND,grab.x+10,grab.y)
+    moved = app.source.value(True)
+    regression_check(checks,failures,moved > released and app.source.value() == base and app.source.revision() == revision and app.source.depth() == depth,"A second grab refines one pending edit")
+    capture(window,app,directory,"12-regrab-moved")
+    inject(window,app,KEY_DOWN_KIND,key=KEY_ENTER)
+    regression_check(checks,failures,app.source.value() == moved and app.source.revision() == revision+1 and app.source.depth() == depth+1,"Two grabs commit one native undo unit")
+    inject(window,app,KEY_DOWN_KIND,key=122,modifiers=MOD_COMMAND)
+    regression_check(checks,failures,app.source.value() == base and app.source.revision() == revision+2 and app.source.depth() == depth,"One undo restores the pre-grab baseline")
+
+    # Measure the native projected delta independently before applying an arrow.
+    revision = app.source.revision()
+    start = drag_start(window,app)
+    end = drag_to(window,app,start,target)
+    var held = app.source.value(True)
+    inject(window,app,DRAG_UPDATE_KIND,end.x+20,end.y)
+    var pointer_only = app.source.value(True)
+    inject(window,app,DRAG_UPDATE_KIND,end.x,end.y)
+    inject(window,app,KEY_DOWN_KIND,key=KEY_RIGHT)
+    regression_check(checks,failures,app.dragging and app.source.value(True) == held+step,"A held-drag arrow applies its step and retains ownership")
+    capture(window,app,directory,"13-held-arrow")
+    inject(window,app,DRAG_UPDATE_KIND,end.x+20,end.y)
+    moved = app.source.value(True)
+    regression_check(checks,failures,app.dragging and moved == app.source.kind.constrain(pointer_only+step),"Pointer motion after an arrow preserves the step and projected delta")
+    regression_check(checks,failures,app.source.value() == base and app.source.revision() == revision and app.source.depth() == depth,"Held mixed input remains transient")
+    capture(window,app,directory,"14-held-arrow-moved")
+    inject(window,app,KEY_DOWN_KIND,key=KEY_ENTER)
+    inject(window,app,DRAG_UPDATE_KIND,end.x+30,end.y)
+    inject(window,app,POINTER_UP_KIND,end.x+30,end.y)
+    inject(window,app,KEY_DOWN_KIND,key=KEY_ENTER)
+    regression_check(checks,failures,not app.dragging and not app.source.draft and app.source.value() == moved and app.source.revision() == revision+1 and app.source.depth() == depth+1,"Commit ends the held mixed session; late events cannot revive it")
+    capture(window,app,directory,"15-held-mixed-commit")
+    inject(window,app,KEY_DOWN_KIND,key=122,modifiers=MOD_COMMAND)
+    regression_check(checks,failures,app.source.value() == base and app.source.revision() == revision+2 and app.source.depth() == depth,"One undo restores the pre-mixed baseline")
+    revision = app.source.revision()
+    start = drag_start(window,app)
+    end = drag_to(window,app,start,target)
+    inject(window,app,KEY_DOWN_KIND,key=KEY_RIGHT)
+    inject(window,app,KEY_DOWN_KIND,key=KEY_ESCAPE)
+    inject(window,app,DRAG_UPDATE_KIND,end.x+30,end.y)
+    inject(window,app,POINTER_UP_KIND,end.x+30,end.y)
+    regression_check(checks,failures,not app.dragging and not app.source.draft and app.source.value() == base and app.source.value(True) == base and app.source.revision() == revision and app.source.depth() == depth,"Escape cancels mixed input and ignores late motion/release")
+    capture(window,app,directory,"16-mixed-cancel")
+    print("Mixed-route checks:",checks,"failures:",failures)
+    require(failures == 0,"Mixed-route native regression failures")
 
 
 def replay(mut window: MacOSWindowInstance, mut app: Demo, directory: String) raises:
@@ -594,6 +745,7 @@ def replay(mut window: MacOSWindowInstance, mut app: Demo, directory: String) ra
         for _ in range(64):
             require(app.source.undo(),"Retained native edit could not undo")
         require(not app.source.undo() and app.source.depth() == 0,"Undo escaped retained native history")
+    mixed_replay(window,app,directory)
     print("PASS native field-editor insertion and AppKit key dispatch; numeric and pointer preview; held Escape; commit/one undo; semantic recording; resize/reproject/replay; repeat stale; undo ABA stale; identity/malformed/from rejection; invalid input; drag range/return; endpoints; later revision; capture loss; spatial history rollover")
 
 

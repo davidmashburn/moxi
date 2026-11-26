@@ -26,6 +26,9 @@ dist/inspectable-transforms/transforms spatial
 
 Replace **Exact X** to preview, or drag the card/red X handle. Dragging stays
 within the displayed whole-unit constraint. Release leaves the preview visible.
+Grab that displayed preview to keep refining it, including after exact entry or
+a released drag. A missed grab preserves the pending value. Left/Right during a
+held drag adds a step and rebases further pointer motion on the adjusted value.
 Press Escape or Cancel to discard it; Enter or Commit accepts it once; Cmd-Z or
 Undo restores the previous value in one step. These document shortcuts also
 work while the native numeric editor has focus. Left/Right preview a step when
@@ -81,10 +84,12 @@ callbacks. Those paths reach the ordinary event loop and app actions. Focus,
 capture loss and cancellation fault events use the host's normal event queue.
 Only malformed/stale boundary tests call the semantic consumer directly.
 
-Each consumer has eight native window captures: initial state, numeric preview,
+Each consumer has sixteen native window captures: initial state, numeric preview,
 held-pointer Escape, released pointer preview, committed command, source undo,
 changed-projection replay after an actual window resize, and stale rejection
-after undo. Each frame has a JSON observation of committed/preview X, revision,
+after undo, followed by numeric-to-pointer refinement, released-preview re-grab,
+and held-pointer arrow refinement through shared commit and cancellation.
+Each frame has a JSON observation of committed/preview X, revision,
 native/consumer undo depths, viewport, window size and display scale. The
 manifest records steps, expectations, observations and outcomes; provenance
 pins public base, capture revision, source/artifact hashes, toolchain and limits.
@@ -99,6 +104,14 @@ revision, held-pointer focus/capture/resize cancellation, and the spatial
 history limit's fixture-boundary eviction. Assertions check native
 revision/history effects in the transaction scenarios; no screenshot alone
 establishes the behavior.
+
+The replay also runs 17 mixed-route regression checks per consumer. These cover
+displayed-geometry hit testing, misses that retain the draft, exact-entry and
+released-pointer re-grabs, the native projected delta after a held arrow,
+original command baselines, one commit/undo, and ignored late pointer events
+after commit or Escape. The spatial adapter measures the pointer against the
+public native world-axis constraint and carries a semantic offset, so rebasing
+does not commit an intermediate transform or round away the grab's fraction.
 
 ## Evidence boundary
 
