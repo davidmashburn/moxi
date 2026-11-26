@@ -990,11 +990,21 @@
     {
       "id": "I10",
       "scope": "Named cohort \u2192 explicit fit/residuals \u2192 alternatives \u2192 saved fixed panel.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "f0682a1",
+        "17dc619"
+      ],
+      "verification": [
+        "In five native application processes the workbench collected a named cohort, compared three explicit fits and their residuals, and reopened the saved fixed panel. Editing the quadratic constant gave six residuals of -1. Refitting the frozen observations restored zero residuals.",
+        "The normal-entry replay rejected 31 malformed configurations. A second run reproduced all 17 mounted-window captures byte-for-byte."
+      ],
+      "remaining_gates": [
+        "Independent review confirmed numerical fits, keyboard activation and cross-process reopen. At the minimum window width, long coefficients, names and hypotheses can clip. Participant panel reuse, physical input and assistive technology remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/investigation-tools/index.html"
+      ]
     },
     {
       "id": "I11",

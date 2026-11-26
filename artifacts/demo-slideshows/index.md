@@ -19,6 +19,7 @@
 | E03 | Chord geometry, calendar and Sankey labels | [Comparisons and source picking](e03-flow-calendar-followup/README.md) |
 | E05 | Cairo Scene export | [Render comparison](cairo-scene/index.html) · [Decision and replay](../../experiments/cairo-scene/README.md) |
 | E06 | Funnel stage order and source selection | [Slideshow](../../examples/funnel/evidence/comparison.html) · [Run instructions](../../examples/funnel/README.md) |
+| I10 | Save a cohort investigation as a reusable panel | [17-frame walkthrough](investigation-tools/index.html) · [Run instructions](../../examples/investigation-tools/README.md) |
 | I11 | Inspectable fit proposals | [Slideshow](visible-proposals/index.html) · [Run instructions](../../examples/visible-proposals/README.md) |
 | I13 | Compare subtree executions and inspect frozen frames | [Slideshow](../../examples/execution-debugger/evidence/execution-debugger/index.html) · [Run instructions](../../examples/execution-debugger/README.md) |
 | I15 | Synthetic experiment flight recorder | [Slideshow](../../examples/flight-recorder/evidence/flight-recorder/index.html) · [Run instructions](../../examples/flight-recorder/README.md) |
@@ -41,4 +42,4 @@
 | V14 | Replay a temperature forecast and inspect a failed proxy | [Temperature](v14-room-temperature/index.html) · [Moxi sensor comparison](v14-moxi-sensor/index.html) · [Run instructions](../../examples/temperature-replay/README.md) |
 | V15 | Calibrate direct and interpolated pose controls | [Slideshow](v15-pose-stroke/index.html) · [Run instructions](../../examples/pose-stroke/README.md) |
 
-The D04, P08, P09, P11, E05, E06, I11, I13, I15, I18, I19, I20, V01, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13, V14 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The D04, P08, P09, P11, E05, E06, I10, I11, I13, I15, I18, I19, I20, V01, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13, V14 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
