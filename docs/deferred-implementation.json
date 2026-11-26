@@ -181,7 +181,9 @@
       "scope": "[FDG follow-ups](docs/design/fdg-port.md): proposed finite choices are PNG/PDF export, clean local package installation, and a Linux native lane. Keep existing solver/app; measure larger graphs before any capacity/solver redesign.",
       "state": "partial",
       "commits": [
-        "c44de8c"
+        "c44de8c",
+        "cf68880",
+        "4bd6636"
       ],
       "verification": [
         "Parent reviewed and committed current-state SVG/PNG/PDF export, local platform wheels, GTK entry point and the shared Float32 native font ABI fix; existing solver and production caps retained.",
@@ -189,17 +191,19 @@
         "Clean c44de8c source and isolated macOS wheel replays passed. Actual Ubuntu 24.04 x86-64 GTK/Xvfb build, replay and isolated Linux wheel passed; all 223 source hashes match the parent checkout and runtime dependencies resolve within installation/system libraries.",
         "Three six-frame galleries from integrated sources: independent PDFium reopening verified dimensions, three Unicode labels, three node centers, native text ink and recovery. PNG/PDF mean RGB differences 0.0803 macOS and 0.0796 Linux; installed Linux consumer also passed.",
         "Parent benchmark: 30 warmup / 200 measured active iterations through 1024 nodes and 4096 links, bypassing input validation only in benchmark construction. Production limits remain 256 nodes / 1024 links; measurements exclude native paint and have no sustained-load or dispersion claim.",
-        "All 18 gallery PNGs decoded and passed hash/dimension checks; source and installed-consumer images are pixel-identical on each platform. All three browser pages loaded 12 images and passed previous/next navigation; 25 master manifests validate."
+        "All 18 gallery PNGs decoded and passed hash/dimension checks; source and installed-consumer images are pixel-identical on each platform. All three browser pages loaded 12 images and passed previous/next navigation; 25 master manifests validate.",
+        "GTK/X11 Save exported SVG, PNG and PDF through painted native dialogs. Reopened outputs preserved the three filtered labels and node positions. Cancel preserved destination bytes and subsequent Save reproduced the SVG. A graph-only chooser capture and an incorrect cancellation message each failed verification. AppKit cancellation passed."
       ],
       "remaining_gates": [
-        "Actual native Save-dialog save/cancel, physical mouse/keyboard, independent human usability and screen readers unverified; VoiceOver remains paused. Galleries are offscreen app content captures, not compositor screenshots or physical input evidence.",
+        "Mac Save, physical input, assistive technology and independent user evaluation remain open. VoiceOver remains paused.",
         "Linux evidence is emulated x86-64 Ubuntu 24.04 with GTK 4.14, Xvfb and software Cairo; physical Linux/Wayland, other distributions/CPUs and older macOS remain unverified. Linux wheel is not manylinux; optional rsvg-convert and GTK/system dependencies are not bundled.",
         "Full repository suite, remote CI, fresh Dockerfile image build, sustained performance and public distribution/licensing acceptance were not checked. Runtime notices retained; no publication performed."
       ],
       "slideshows": [
-        "artifacts/demo-slideshows/fdg-export/index.html",
-        "artifacts/demo-slideshows/fdg-clean-consumer/index.html",
-        "artifacts/demo-slideshows/fdg-linux/index.html"
+        "artifacts/demo-slideshows/fdg-export/manifest.json",
+        "artifacts/demo-slideshows/fdg-clean-consumer/manifest.json",
+        "artifacts/demo-slideshows/fdg-linux/manifest.json",
+        "examples/fdg/tests/dialog/README.md"
       ]
     },
     {
@@ -450,18 +454,22 @@
       "scope": "[Spatial S4](docs/design/3d-interaction.md): planar world-space ordinary controls, ray/local mapping, occlusion/clip/capture/focus/IME/semantics; compare screen-space editing before promoting the API.",
       "state": "partial",
       "commits": [
-        "511b60b"
+        "511b60b",
+        "e28f28f",
+        "9d3206b"
       ],
       "verification": [
         "Parent reran integrated world-panel checks: portable/native contracts, source-free public consumers and D06/D07 native replays passed.",
-        "World semantics remain suppressed and the equivalent screen-space editor remains the supported route."
+        "World semantics remain suppressed and the equivalent screen-space editor remains the supported route.",
+        "The native replay projected AppKit insertion and substring ranges to the oblique destination panel within 0.01 point. A partially clipped two-character range previously returned half its actual width. The repaired path rejects it and preserves screen editing and owner isolation."
       ],
       "remaining_gates": [
-        "World-panel promotion rejected until transformed native IME/semantic geometry is coherent.",
+        "World panels remain experimental. Physical IME candidate placement, inverse character and world semantic hit testing, horizontal scrolling and mixed-display scaling still need evidence.",
         "Fresh integrated gallery review, physical IME, human/assistive-tech acceptance, sustained performance and D05 production decision remain open."
       ],
       "slideshows": [
-        "spatial-world-panel manifest integrated; original captures retained in worker worktree"
+        "artifacts/demo-slideshows/spatial-world-panel/manifest.json",
+        "examples/spatial-world-panel/README.md"
       ]
     },
     {
@@ -768,18 +776,21 @@
         "6081d63",
         "6c4d1a0",
         "351ddeb",
-        "f8026dd"
+        "f8026dd",
+        "235e0af",
+        "85b9154"
       ],
       "verification": [
         "Conservation and infeasibility checks covered 4,356 grid edits. Chrome exercised pointer and numeric editing at desktop and narrow viewports and confirmed an infeasible fixed-mean edit preserved committed values.",
-        "A Chrome regression failed before the Escape repair and passed afterward at 1280\u00d7800 and 390\u00d7844. Movement and release after cancellation preserved committed mass and left Apply disabled. All three distribution tests passed on Python 3.9.6."
+        "A Chrome regression failed before the Escape repair and passed afterward at 1280\u00d7800 and 390\u00d7844. Movement and release after cancellation preserved committed mass and left Apply disabled. All three distribution tests passed on Python 3.9.6.",
+        "The editable probe transferred between the distribution plot and a triangle derived from Moxi affine geometry. At 390 px, a one-third edit formerly widened the page to 457 px. The repaired preview, attachment transfer and commit fit at 390 px, and the 1280 px replay passed."
       ],
       "remaining_gates": [
-        "An independent participant trial is needed to assess whether users predict redistribution and explain rejected edits. Physical touch and assistive technology were not tested.",
-        "The mapped I05 plot-to-geometry instrument transfer remains open. Mapped I02 and I14 scenarios also need separate evidence."
+        "An independent participant trial is needed to assess whether users predict redistribution and explain rejected edits. Physical touch and assistive technology were not tested."
       ],
       "slideshows": [
-        "examples/probability-instrument/evidence/v08-probability/index.html"
+        "examples/probability-instrument/evidence/v08-probability/index.html",
+        "examples/probability-instrument/evidence/attachments/README.md"
       ]
     },
     {

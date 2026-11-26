@@ -21,7 +21,7 @@
 | V05 | Test a transit cost argument | [Article](v05-executable-argument/argument.html) · [Slideshow](v05-executable-argument/index.html) |
 | V06 | Compose motion and sound on one clock | [Slideshow](motion-envelope/index.html) · [Run instructions](../../examples/motion-envelope/README.md) |
 | V07 | Predict and compare oscillator periods | [Lesson slideshow](oscillator/index.html) · [Recovered comparison](oscillator/recovery/spring-report.html) · [Run instructions](../../examples/oscillator/README.md) |
-| V08 | Constrained probability edits | [Slideshow](../../examples/probability-instrument/evidence/v08-probability/index.html) · [Run instructions](../../examples/probability-instrument/README.md) |
+| V08 | Constrained probability edits | [Slideshow](../../examples/probability-instrument/evidence/v08-probability/index.html) · [Run instructions](../../examples/probability-instrument/README.md) · [Plot and triangle at two widths](../../examples/probability-instrument/evidence/attachments/README.md) |
 | V09 | Timed exhibition sightlines and lighting | [Slideshow](lived-spaces/index.html) · [Recorded performance](../lived-spaces/i07/README.md) · [Run instructions](../../examples/lived-spaces/README.md) |
 | V10 | Compare three fictional allocations | [Slideshow](allocation/index.html) · [Run instructions](../../examples/allocation/README.md) |
 | V11 | Inspect a flat and folded accordion | [Slideshow](v11-foldable-motif/index.html) · [Run instructions](../../examples/foldable-motif/README.md) |
