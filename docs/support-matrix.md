@@ -20,7 +20,7 @@
 
 ## Version support
 
-The Python package supports CPython 3.9+ and is intentionally independent of the Mojo compiler runtime. The Mojo workspace resolves `osx-arm64` and `linux-64`; `pixi run headless-check` is the portable package lane. The source-only Linux retained workbench uses GTK 4.14+ with Cairo/Pango and the pinned Kiwi solver. Its native contracts, app compilation and synthetic X11 checks passed in an Ubuntu 24.04 x86-64 VM with stable Mojo 1.1.0. External AT-SPI and Unicode clipboard checks also passed; these do not certify spoken screen-reader navigation. The GTK host supports X11/Wayland display selection, but the guest GUI lane targets X11 and does not establish Wayland acceptance. Mojo package consumers resolve the pinned upstream Canvas revision through Pixi; public-channel upload still requires a chosen channel and release credentials. `pixi run release-preflight` checks the core and plotting package publish plans without uploading. The demo package remains source-only.
+The Python package supports CPython 3.9+ and is intentionally independent of the Mojo compiler runtime. The Mojo workspace resolves `osx-arm64` and `linux-64`; `pixi run headless-check` is the portable package lane. The source-only Linux retained workbench uses GTK 4.14+ with Cairo/Pango and the pinned Kiwi solver. Its native contracts, app compilation and synthetic X11 checks passed in an Ubuntu 24.04 x86-64 VM with stable Mojo 1.1.0. External AT-SPI and Unicode clipboard checks also passed; these do not certify spoken screen-reader navigation. The separate [headless Wayland replay](../experiments/wayland-host/README.md) exercises the same workbench through an xdg-shell surface. Mojo package consumers resolve the pinned upstream Canvas revision through Pixi; public-channel upload still requires a chosen channel and release credentials. `pixi run release-preflight` checks the core and plotting package publish plans without uploading. The demo package remains source-only.
 
 Linux setup, commands and guest evidence are recorded in
 [VM validation](vm-validation.md) and [the layout workbench guide](layout-workbench.md).
@@ -35,8 +35,8 @@ retained profile remains a candidate until its manual promotion checks pass.
 | Headless | Frame/semantic publication, deadline driver and exact event replay pass | No toolkit required | Software form/collection/chart oracle passes | Stable semantic snapshots and action round trips | Normalized replay; no OS IME |
 | macOS AppKit/CoreText | Shared frame/controller | Host and ARM64 VM compile | Candidate and independent installed consumer pass | Native AX hierarchy/flags; semantic-only publication does not present | Native field-editor contracts; VoiceOver, Japanese IME and physical horizontal scrolling remain manual gates |
 | Linux GTK4/Cairo/Pango | Shared frame/controller | Ubuntu 24.04 x86-64 VM compile | Actual X11 workbench and native contracts pass | External AT-SPI hierarchy, text/caret/selection, focus, bounds and actions pass; Orca speech unverified | GTK input/scale/lifecycle and cross-process clipboard pass; real IME evidence recorded separately in VM validation |
-| Linux Wayland | Same portable contract | GTK host supports display selection | Not exercised | Not exercised | Not exercised |
-| Windows | Portable descriptor | Native backend absent | Not exercised | Not exercised | Not exercised |
+| Linux Wayland | Same portable contract | Ubuntu 24.04 x86-64 GTK link | Composed layout workbench in headless Sway | Not exercised | Virtual keyboard, modal focus recovery and output resize |
+| Windows | Portable descriptor | Native backend absent | [Counter cross-linked for AMD64 and ARM64](../experiments/windows-host/README.md); Windows execution pending | Not exercised | Not exercised |
 
 The [host/frame ADR](architecture/adr-005-host-frame-contract.md) records ownership.
 [VM validation](vm-validation.md) records source provenance and distinct GUI,

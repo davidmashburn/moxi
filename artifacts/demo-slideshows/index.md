@@ -4,6 +4,7 @@
 | --- | --- | --- |
 | F01 | Portable text laboratory | [Capture manifest](text-laboratory/manifest.json); [local self-contained slideshow](text-laboratory/index.html) |
 | P01 | Mojo/Moxi browser FDG | [Sequence, manifest, and reproduction](browser-fdg/README.md); [local self-contained slideshow](browser-fdg/index.html) |
+| P11 | GTK workbench on nested headless Wayland | [Offline slideshow](p11-wayland/index.html) · [Replay instructions](../../experiments/wayland-host/README.md) |
 | D01 | Native symbolic backend comparison | [Capture recipe and limitations](d01-math-backends/REPRODUCE.md); [local self-contained slideshow](d01-math-backends/index.html) |
 | N01 | Unfinished-feature pattern | [Capture guide](../../docs/not-implemented-pattern.md); [local self-contained slideshow](not-implemented/index.html) |
 | E05 | Cairo Scene export | [Render comparison](cairo-scene/index.html) · [Decision and replay](../../experiments/cairo-scene/README.md) |
@@ -21,4 +22,4 @@
 | V12 | Configure a musical phrase instrument | [Slideshow](../../examples/personal-instrument/evidence/personal-instrument/index.html) · [Run instructions](../../examples/personal-instrument/README.md) |
 | V13 | Patch, inspect and record a signal | [Slideshow](../../examples/visual-instrument/evidence/v13-visual-instrument/index.html) · [Run instructions](../../examples/visual-instrument/README.md) |
 
-The E05, E06, I11, I15, I18, I19, I20, V02, V04, V05, V08, V09, V12 and V13 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The P11, E05, E06, I11, I15, I18, I19, I20, V02, V04, V05, V08, V09, V12 and V13 galleries open from a clean checkout. Earlier entries may require running their capture recipes.

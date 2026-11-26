@@ -10,7 +10,7 @@ browser interaction and physical input checks.
 | Guest | Checks | Current boundary |
 | --- | --- | --- |
 | Ubuntu 24.04 x86-64, first | Exact `pixi.lock`; Mojo retained engine, box/collection/overlay policies, Kiwi constraints, portable plotting and precompilation; rebased request/runtime/plot regressions; Node host contracts | Portable checks and the Linux Pango/Cairo/layout contracts have passed in the guest. Node harnesses do not exercise a browser; headless native contracts do not verify a window or real input. |
-| Ubuntu native desktop, active | Compile the Mojo workbench with the GTK4/Cairo/Pango host; actual window screenshot, pointer/key/resize, RTL, scrolling and desktop services | GTK 4.14+ retained presenter implemented; stable Mojo 1.1.0 native build and synthetic X11 checks passed. External AT-SPI hierarchy/text/actions and cross-process clipboard checks pass. Spoken Orca, Wayland and physical scrolling remain unverified; real IME observations are recorded separately. |
+| Ubuntu native desktop, active | Compile the Mojo workbench with the GTK4/Cairo/Pango host; actual window screenshot, pointer/key/resize, RTL, scrolling and desktop services | GTK 4.14+ retained presenter implemented; stable Mojo 1.1.0 native build and synthetic X11 checks passed. External AT-SPI hierarchy/text/actions and cross-process clipboard checks pass. The [Wayland replay](../experiments/wayland-host/README.md) covers virtual keyboard input and resize. Spoken Orca and physical scrolling remain unverified. Real IME observations are recorded separately. |
 | Ubuntu browser, separate | Actual guest browser rendering, pointer/key/resize, then a fixture for scroll, composition and ARIA | The browser demo is a JavaScript host demo, not the compiled Mojo layout app. The pinned compiler has no supported WASM package target. |
 | macOS 15 ARM64, active | Clean native-services build, installed consumer and layout workbench in a GUI session | Locked Mojo 1.1.0 installation, native layout candidate and installed consumer passed in a clean guest. User completed desktop login and the compiled workbench was launched and visually captured. Interactive checks, VoiceOver, real Japanese composition and physical horizontal input require separate observations. |
 | Windows 11 ARM64, later | Actual Edge/browser host and Python wheel consumption | Mojo has no native Windows support; WSL results must be reported as Linux. Moxi's Windows native backend is unavailable. Guest image/license and GUI provisioning are not established yet. |
@@ -129,7 +129,7 @@ pixi run --locked linux-layout-workbench
 The existing Xfce/TigerVNC graphical session uses guest display `:1`; an SSH
 launch can use `DISPLAY=:1 pixi run --locked linux-layout-workbench`. GTK's X11
 and Wayland paths share this host; the recorded graphical checks use X11.
-Record Wayland separately when exercised.
+The [headless Wayland sequence](../artifacts/demo-slideshows/p11-wayland/index.html) records the separate Sway run.
 
 ## Initial portable VM evidence
 
