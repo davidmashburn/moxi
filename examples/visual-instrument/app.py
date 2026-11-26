@@ -1,10 +1,18 @@
 """Loopback-only, single-instrument demo."""
 import argparse
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
+from threading import Lock
 
 from instrument import Action, Caller, Instrument
+
+
+class InstrumentServer(ThreadingHTTPServer):
+    def __init__(self, address):
+        super().__init__(address, Handler)
+        self.instrument = Instrument()
+        self.instrument_lock = Lock()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -20,12 +28,18 @@ class Handler(BaseHTTPRequestHandler):
         instrument = self.server.instrument
         if self.path == "/":
             self.send(200, "text/html; charset=utf-8", Path(__file__).with_name("index.html").read_bytes())
-        elif self.path == "/view":
-            self.send(200, "application/json", json.dumps(instrument.view()).encode())
-        elif self.path == "/recording.json" and instrument.recorded:
-            self.send(200, "application/json", json.dumps(instrument.recorded.document(), indent=2).encode())
-        else:
+            return
+        with self.server.instrument_lock:
+            if self.path == "/view":
+                body = json.dumps(instrument.view()).encode()
+            elif self.path == "/recording.json" and instrument.recorded:
+                body = json.dumps(instrument.recorded.document(), indent=2).encode()
+            else:
+                body = None
+        if body is None:
             self.send_error(404)
+        else:
+            self.send(200, "application/json", body)
 
     def do_POST(self):
         if self.path not in ("/panel", "/script"):
@@ -38,7 +52,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_error(413)
             data = json.loads(self.rfile.read(size))
             caller = Caller.PANEL if self.path == "/panel" else Caller.SCRIPT
-            message = self.server.instrument.apply(Action(data["action"]), data, caller)
+            with self.server.instrument_lock:
+                message = self.server.instrument.apply(Action(data["action"]), data, caller)
             status = 200
         except (TypeError, KeyError, ValueError, OverflowError) as exc:
             message, status = str(exc), 400
@@ -48,7 +63,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8183)
-    with HTTPServer(("127.0.0.1", parser.parse_args().port), Handler) as server:
-        server.instrument = Instrument()
+    with InstrumentServer(("127.0.0.1", parser.parse_args().port)) as server:
         print(f"Instrument at http://127.0.0.1:{server.server_port}/", flush=True)
         server.serve_forever()

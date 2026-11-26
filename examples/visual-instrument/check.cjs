@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const {spawn} = require('node:child_process');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const net = require('node:net');
 const {once} = require('node:events');
 const puppeteer = require('puppeteer-core');
 
@@ -17,6 +18,16 @@ async function main() {
   try {
     const [banner] = await once(server.stdout,'data');
     const url = banner.toString().match(/http:\/\/127\.0\.0\.1:\d+/)[0];
+    const endpoint = new URL(url);
+    const idle = net.createConnection(Number(endpoint.port), endpoint.hostname);
+    try {
+      await once(idle, 'connect');
+      const view = await fetch(url + '/view', {signal: AbortSignal.timeout(5000)});
+      assert.equal(view.status, 200);
+      await view.json();
+    } finally {
+      idle.destroy();
+    }
     browser = await puppeteer.launch({executablePath:process.env.CHROME, channel:process.env.CHROME?undefined:'chrome',
       args:['--disable-background-networking','--disable-component-update']});
     const page = await browser.newPage();
