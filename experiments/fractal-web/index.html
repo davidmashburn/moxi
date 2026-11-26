@@ -4,20 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Line fractal · Moxi</title>
 <link rel="stylesheet" href="./style.css">
-<main>
-  <header><h1>Line fractal</h1></header>
-  <form id="controls">
-    <label>Generator<select id="preset"></select></label>
-    <div class="depth"><label>Depth<input id="depth" type="text" inputmode="numeric" pattern="[0-9]+" value="6" required></label><button type="button" id="less" aria-label="Decrease depth">−</button><button type="button" id="more" aria-label="Increase depth">+</button></div>
-    <label class="check"><input type="checkbox" id="colors" checked> Random colors</label>
-    <label class="check"><input type="checkbox" id="guides" checked> Guides</label>
-    <button type="button" id="reset">Reset geometry</button>
-  </form>
-  <aside><span>Drag a point or segment. Double-click a nested endpoint to switch handles.</span><output id="status" aria-live="off">Loading renderer…</output></aside>
-  <div id="stage" aria-label="Fractal canvas. Drag a guide point or segment to reshape the generator.">
-    <canvas id="raster" width="920" height="620"></canvas>
-    <canvas id="overlay" width="920" height="620" aria-hidden="true"></canvas>
-  </div>
-</main>
+<main id="app" aria-busy="true">Loading Moxi…</main>
 <script type="module" src="./demo.mjs"></script>
 </html>

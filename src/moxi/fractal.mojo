@@ -1044,6 +1044,7 @@ struct FractalState(Component):
         )
         root.add_to(controls, input.node())
         root.set_fixed_width(FRACTAL_DEPTH_INPUT_ID, 80.0)
+        root.set_accessibility_label(FRACTAL_DEPTH_INPUT_ID, "Depth")
         root.add_button_to(controls, FRACTAL_DEPTH_UP_ID, "+", 34.0)
         root.add_checkbox_to(
             controls,

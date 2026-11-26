@@ -62,7 +62,26 @@ export async function instantiateFractal(
   const { range: memoryRange, alloc, free } = allocator;
   const fmax = (a, b) => (Number.isNaN(a) ? b : Number.isNaN(b) ? a : Math.max(a, b));
   const fmin = (a, b) => (Number.isNaN(a) ? b : Number.isNaN(b) ? a : Math.min(a, b));
+  let widgets = null;
+  let painter = null;
+  const readText = (pointer, size) => decoder.decode(memoryRange(pointer, size));
   const env = {
+    moxi_widget(id, parent, kind, tp, tl, lp, ll, hp, hl, enabled, checked,
+                axis, justify, align, layout, columns, spacing, padding, width, height,
+                fill, ink, border, borderWidth, radius, font) {
+      widgets.push({id, parent, kind, text: readText(tp, tl), label: readText(lp, ll),
+        hint: readText(hp, hl), enabled: !!enabled, checked: !!checked, axis, justify, align, layout,
+        columns, spacing, padding, width, height, fill, ink, border, borderWidth, radius, font});
+    },
+    moxi_clip: (...args) => painter.clip(...args),
+    moxi_end: () => painter.end(),
+    moxi_line: (...args) => painter.line(...args),
+    moxi_circle: (...args) => painter.circle(...args),
+    moxi_rect: (...args) => painter.rect(...args),
+    moxi_bitmap(ptr, width, height, ...bounds) {
+      const bytes = memoryRange(ptr, width * height * 4);
+      painter.bitmap(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset, bytes.byteLength), width, height, ...bounds);
+    },
     KGEN_CompilerRT_AlignedAlloc: alloc,
     KGEN_CompilerRT_AlignedFree: free,
     sin: Math.sin,
@@ -133,7 +152,7 @@ export async function instantiateFractal(
       return Object.freeze({ id, name: textOutput });
     }),
   );
-  function create({ preset = 0, depth = "5" } = {}) {
+  function create({ preset, depth } = {}) {
     const handle = invoke("moxi_create");
     if (handle === 0n) throw new RangeError("Fractal instance capacity exceeded");
     let disposed = false;
@@ -151,6 +170,29 @@ export async function instantiateFractal(
     };
     const owner = Object.freeze({
       handle,
+      widgets(width, height) {
+        owned();
+        widgets = [];
+        try {
+          check(invoke("moxi_widgets", handle, width, height));
+          return widgets;
+        } finally { widgets = null; }
+      },
+      widgetEvent(id, kind, value = "") {
+        owned();
+        textInput = new TextEncoder().encode(value);
+        try {
+          const changed = invoke("moxi_widget_event", handle, id, kind);
+          if (changed < 0) check(changed);
+          return !!changed;
+        } finally { textInput = new Uint8Array(); }
+      },
+      paint(canvasPainter) {
+        owned();
+        painter = canvasPainter;
+        try { check(invoke("moxi_paint", handle)); }
+        finally { painter = null; }
+      },
       preset(id) {
         owned();
         if (!Number.isInteger(id) || id < 0 || id >= presets.length) throw new RangeError("invalid preset");
@@ -264,8 +306,8 @@ export async function instantiateFractal(
       },
     });
     try {
-      owner.preset(preset);
-      owner.setDepth(depth);
+      if (preset !== undefined) owner.preset(preset);
+      if (depth !== undefined) owner.setDepth(depth);
     } catch (error) {
       owner.dispose();
       throw error;

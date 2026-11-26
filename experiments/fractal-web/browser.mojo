@@ -12,6 +12,11 @@ from moxi.fractal import (
 )
 from moxi.event import POINTER_DOWN_KIND, POINTER_UP_KIND, POINTER_MOVE_KIND, POINTER_CANCEL_KIND, FRAME_TICK_KIND
 from fractal_fixtures import set_fixture
+from moxi.accessibility import ACTION_PRESS
+from moxi.event import ACTION_KIND, TEXT_INPUT_KIND, KEY_DOWN_KIND, KEY_ENTER
+from moxi.view_node import BUTTON_KIND, CHECKBOX_KIND, TEXT_INPUT_VIEW_KIND
+from web_view import publish_widgets
+from web_painter import WebCanvasPainter
 
 comptime OK = 0
 comptime INVALID_HANDLE = -1
@@ -23,9 +28,7 @@ struct BrowserState:
 
     def __init__(out self):
         self.fractal = FractalState()
-        self.view = ColumnView(Rect(0, 0, 920, 620), 0, 0)
-        self.view.add_canvas(FRACTAL_CANVAS_ID, "Fractal", 620)
-        self.view.layout()
+        self.view = self.fractal.build(Rect(0, 0, 1180, 900))
 
 comptime StatePointer = Pointer[BrowserState, MutUntrackedOrigin]
 
@@ -155,7 +158,8 @@ def moxi_event(handle: Int64, kind: Int32, x: Float32, y: Float32, delta: Float3
     var ptr = StatePointer(unsafe_from_address=Int(address))
     var event = Event()
     event.kind = Int(kind)
-    event.position = Point(x, y)
+    var canvas = ptr[].view.bounds_for(FRACTAL_CANVAS_ID)
+    event.position = Point(canvas.x + x, canvas.y + y)
     event.target = FRACTAL_CANVAS_ID
     event.delta_seconds = delta
     if kind == FRAME_TICK_KIND:
@@ -240,3 +244,59 @@ def moxi_text(handle: Int64, field: Int32) abi("C") -> Int32:
     var bytes = text.as_c_string_span()
     external_call["moxi_text_out", NoneType](bytes.ptr(), Int64(text.byte_length()))
     return OK
+
+@export
+def moxi_widgets(handle: Int64, width: Float32, height: Float32) abi("C") -> Int32:
+    var address = resolve(handle)
+    if address == 0:
+        return INVALID_HANDLE
+    if not isfinite(width) or not isfinite(height) or width <= 0 or height <= 0:
+        return INVALID_INPUT
+    var ptr = StatePointer(unsafe_from_address=Int(address))
+    ptr[].view = ptr[].fractal.build(Rect(0, 0, width, height))
+    publish_widgets(ptr[].view)
+    return OK
+
+
+@export
+def moxi_widget_event(handle: Int64, id: Int32, kind: Int32) abi("C") -> Int32:
+    var address = resolve(handle)
+    if address == 0:
+        return INVALID_HANDLE
+    var ptr = StatePointer(unsafe_from_address=Int(address))
+    var event = Event()
+    event.target = Int(id)
+    event.kind = Int(kind)
+    for node in ptr[].view.children:
+        if node.id != event.target or not node.enabled:
+            continue
+        if event.kind == ACTION_KIND and (node.kind == BUTTON_KIND or node.kind == CHECKBOX_KIND):
+            event.action_id = ACTION_PRESS
+        elif event.kind == TEXT_INPUT_KIND and node.kind == TEXT_INPUT_VIEW_KIND:
+            try:
+                event.text = input_text()
+            except:
+                return INVALID_INPUT
+            event.replacement_start = 0
+            event.replacement_end = node.text.count_codepoints()
+        elif event.kind == KEY_DOWN_KIND and node.kind == TEXT_INPUT_VIEW_KIND:
+            event.key = KEY_ENTER
+        else:
+            return INVALID_INPUT
+        return Int32(ptr[].fractal.update(event, ptr[].view))
+    return INVALID_INPUT
+
+
+@export
+def moxi_paint(handle: Int64) abi("C") -> Int32:
+    var address = resolve(handle)
+    if address == 0:
+        return INVALID_HANDLE
+    var ptr = StatePointer(unsafe_from_address=Int(address))
+    var bounds = Rect(0, 0, Float32(ptr[].fractal.raster.width), Float32(ptr[].fractal.raster.height))
+    var painter = WebCanvasPainter()
+    try:
+        ptr[].fractal.paint_canvas(painter, bounds, bounds)
+        return OK
+    except:
+        return INVALID_INPUT

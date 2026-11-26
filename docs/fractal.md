@@ -15,36 +15,33 @@ To run them side by side, use a separate terminal for each command. The native
 demo is also available under **Line fractal** in `pixi run demo`. The web build
 currently requires the [pinned Apple Silicon toolchain](#measurement-and-reproduction).
 
-Both hosts use [`FractalState`](../src/moxi/fractal.mojo) for presets,
-sub-pixel stopping, traversal and rasterization. Change that file to change the
-lines drawn by both demos, then rerun each launch command and reload the
-browser page.
+Both hosts open on Koch Curve at depth 5. To see one million colored lines,
+select **Peano Serpent**, enter **6** in the depth field and enable **Random colors**.
 
 ### Where the UI lives
 
-The demos have two separately authored control panels. On macOS,
-`FractalState.build()` constructs Moxi widgets, including a depth field,
-checkboxes and two grids of preset buttons. In the browser, HTML declares
-the controls, CSS lays them out, and JavaScript populates a preset dropdown
-from Mojo. The browser's Mojo view contains just the canvas bounds used for
-pointer hit testing. Changing the native widget tree therefore changes only
-the macOS panel. [Native widget declarations](../src/moxi/fractal.mojo#L970) ·
-[Browser markup](../experiments/fractal-web/index.html#L7) ·
-[Browser styles](../experiments/fractal-web/style.css) ·
-[Wasm canvas view](../experiments/fractal-web/browser.mojo#L20).
+Edit `FractalState.build()` to change the UI on both platforms. It declares the
+depth field, plus and minus buttons, guide and color checkboxes, status labels,
+canvas and both grids of presets. The same Mojo component handles their events
+and paints the canvas. Rebuild with the command for your host and reload the
+browser page after a web build. [Shared UI source](../src/moxi/fractal.mojo#L970)
 
-| Follow an action | Native macOS | Browser |
+| Follow an action | What Mojo owns on both platforms | What the browser host does |
 | --- | --- | --- |
-| Click **Depth +** | The Mojo widget handler increments a `Natural` and calls `set_depth`. | The JS click handler increments the DOM value with `BigInt` and passes its decimal text to Wasm. Mojo parses it into a `Natural` and calls the same `set_depth`. [Native handler](../src/moxi/fractal.mojo#L1193) · [JS handler](../experiments/fractal-web/demo.mjs#L132) · [Wasm entry](../experiments/fractal-web/browser.mojo#L100) |
-| Drag a handle | Moxi dispatches a canvas event to `FractalState.update_canvas()`. | JS maps the pointer to raster coordinates and forwards the latest move. The Wasm entry calls the same Mojo handler, which picks the target, edits the geometry and restarts the render. [Shared drag handler](../src/moxi/fractal.mojo#L1227) · [JS input](../experiments/fractal-web/demo.mjs#L84) · [Wasm event dispatch](../experiments/fractal-web/browser.mojo#L149) |
-| Show the result | The native window loop advances the renderer. Mojo paints the bitmap and the editing guides through the native painter. | JS schedules batches of Mojo work and presents the finished pixels for each update. JS also draws the coarse preview, guide lines and handles on a second Canvas 2D layer and formats the status text. Mojo traverses, colors and rasterizes the terminal lines for both hosts. [Native loop](../examples/interactive_fractal.mojo#L28) · [Shared raster loop](../src/moxi/fractal.mojo#L1393) · [JS frame](../experiments/fractal-web/demo.mjs#L106) · [JS overlay](../experiments/fractal-web/demo.mjs#L18) |
+| Show the presets | The component groups and names all 27 buttons, styles the selected preset and disables its button. [Preset grid](../src/moxi/fractal.mojo#L1101) | The Wasm entry builds the component and publishes its widgets. A generic adapter creates accessible HTML controls and keeps their DOM identities across updates. [Build entry](../experiments/fractal-web/browser.mojo#L249) · [DOM adapter](../native/hosts/moxi_web_view.mjs) |
+| Increase the depth | The component handles a press on the plus button, increments its arbitrary-precision integer and restarts the render. [Control handler](../src/moxi/fractal.mojo#L1189) | The DOM supplies focus and keyboard or pointer activation. The host forwards the widget ID and action to the component. [Event entry](../experiments/fractal-web/browser.mojo#L262) |
+| Drag a handle | The component picks the handle, edits the generator and restarts rendering during the drag. Its painter orders the preview, bitmap, guides and handles. [Drag handler](../src/moxi/fractal.mojo#L1228) · [Canvas painter](../src/moxi/fractal.mojo#L1588) | JavaScript captures the pointer, converts its position to canvas coordinates and schedules frames. The Canvas 2D adapter executes the Mojo painter's primitives and uploads the bitmap. [Frame loop](../experiments/fractal-web/demo.mjs) · [Painter bridge](../experiments/fractal-web/web_painter.mojo) |
 
-To explore the UI source in Bygone, open the native component, browser markup
-and browser event handlers together. Start at `FractalState.build()` in the
-Mojo pane.
+HTML supplies a mount point and loading text. CSS and native browser controls
+provide responsive layout, keyboard focus and text editing. The DOM adapter
+currently supports the containers, labels, buttons, text fields, checkboxes
+and canvas used here. [Page shell](../experiments/fractal-web/index.html) ·
+[Host styles](../experiments/fractal-web/style.css)
+
+To compare the shared UI declarations with the browser widget adapter in Bygone:
 
 ```sh
-bygone --diff src/moxi/fractal.mojo experiments/fractal-web/index.html experiments/fractal-web/demo.mjs
+bygone --diff src/moxi/fractal.mojo native/hosts/moxi_web_view.mjs
 ```
 
 ## How rendering works
@@ -162,7 +159,7 @@ For host encoding and Metal presentation timings, run `pixi run fractal-benchmar
 
 ## Browser throughput
 
-On an Apple M4 in Chrome 158, the interactive demo's renderer submitted one
+On an Apple M4 in Chrome 158, the renderer benchmark submitted one
 million colored Peano lines in **138.5 ms**. The original JavaScript renderer
 took **999.9 ms**, or **7.2× as long**. The Wasm render ranged from 134.9 to
 150.0 ms across seven trials. On the small Koch curve both implementations
@@ -176,11 +173,27 @@ finished submission in 4 ms or less.
 
 The original iterator makes a Canvas stroke call for each line. Moxi traverses
 the generator and blends each terminal line straight into a 920×620 RGBA
-buffer. JavaScript presents a typed view of that buffer with a single
-`putImageData` call for each update. Going from four thousand lines to a
+buffer. The benchmark submits that buffer with one `putImageData` call.
+The interactive UI also composites that bitmap with the Mojo-drawn guides
+and handles and updates its widgets. The table does not time those steps. Going from four thousand lines to a
 million increases raster work while keeping the number of Canvas calls per
 update constant. The editable generator and the bounded coarse preview stay
 available during drawing. Finished line geometry can be discarded immediately.
+
+### Cost of updating the browser controls
+
+On the same M4, changing just the progress label in a 48-widget view produced
+37 DOM mutations when the adapter reapplied every declaration. Skipping
+unchanged widgets reduced that to **one mutation**. Median JS time per update
+went from **0.081 ms to 0.009 ms** in headless Chrome. The focused input and
+its browser-managed selection survive updates.
+
+With the demo server running and the Playwright and Chrome environment below,
+run `node experiments/fractal-web/widget-benchmark.mjs` to reproduce the
+current path. It alternates two snapshots from the real component 200 times
+per trial, discards two warmups and reports seven trials. This isolates DOM
+reconciliation. Mojo view construction, browser layout, painting and raster
+work are outside the timed interval.
 
 ### What changed during measurement
 
