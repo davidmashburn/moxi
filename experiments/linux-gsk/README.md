@@ -6,7 +6,7 @@ The application is the repository's `examples/layout_workbench_linux.mojo`. It s
 
 ## Reproduce on Linux
 
-Use a fresh checkout, the locked Mojo 1.1.0 environment, GTK 4.14+ development files, libepoxy, the repository's Linux native build prerequisites, Xvfb, xauth, Openbox, xdotool, scrot, dbus-run-session and Python 3.10+ with Pillow. Run the build and oracle compilation in the locked Pixi environment. All subsequent commands are from the checkout root. Use a fresh capture directory on each run. The screenshot session must support the 2× window.
+Use a fresh checkout, the locked Mojo 1.1.0 environment, GTK 4.14+ development files, libepoxy, the repository's Linux native build prerequisites, Xvfb, xauth, Openbox, xdotool, scrot, dbus-run-session and Python 3.10+ with PyGObject, GdkPixbuf and Pillow. Run the build and oracle compilation in the locked Pixi environment. All subsequent commands are from the checkout root. Use a fresh capture directory on each run. The screenshot session must support the 2× window.
 
 ```sh
 pixi run --locked bash scripts/linux_native_build.sh
@@ -30,6 +30,6 @@ python3 experiments/linux-gsk/gallery.py dist/p09-run dist/gallery/linux-gsk
 
 The harness launches an isolated window for each backend, waits for a drawn publication, checks semantic state after each input, captures the active client window and closes it via the window manager. The scale-2 scenario uses a separate process. The failure scenario requests NGL while disabling GL and Vulkan at startup and checks the actual fallback renderer class. Neither test simulates mid-frame device loss.
 
-The chart-only reference uses Moxi's `SoftwareSceneRenderer`. The full-window reference uses the existing Linux Cairo renderer, which also paints glyphs and controls. The comparison uses all RGB pixels of each aligned window and the chart crop, with an eight-level per-channel threshold on at least 97% of pixels. To catch missing series geometry against a uniform background, the chart's teal pixels must overlap the software oracle with intersection-over-union ≥ 0.65. Full-window captures include GTK window chrome. No hardware timing or latency conclusion follows from running the guest under emulation.
+The chart-only reference uses Moxi's `SoftwareSceneRenderer`. The full-window reference uses the existing Linux Cairo renderer, which also paints glyphs and controls. The comparison uses all RGB pixels of each aligned window and the chart crop, with an eight-level per-channel threshold on at least 97% of pixels. To catch missing series geometry against a uniform background, the chart's teal pixels must overlap the software oracle with intersection-over-union ≥ 0.65. Full-window captures cover the GTK client area at its native device scale. No hardware timing or latency conclusion follows from running the guest under emulation.
 
 [Offline slideshow](../../artifacts/demo-slideshows/linux-gsk/index.html)

@@ -22,14 +22,14 @@ def main():
     slides = []
     for mode, state, phase, caption, action, expected in [
         ("oracle", "initial", "initial", "GTK Cairo reference", "Open the canonical workbench.",
-         "The results pane contains the clipped teal chart above the data grid."),
+         "The results pane contains the clipped teal chart below the data grid."),
         ("ngl", "initial", "initial", "The same scene through OpenGL ES", "Select the GSK adapter and open the workbench.",
          "The same chart, text and table appear at the same logical coordinates."),
         ("ngl", "collection", "interaction", "Edit a collection cell", "Click a visible value and type q.",
          "The cell gains focus and its published value includes q."),
         ("ngl", "unicode", "result", "Commit Unicode input", "Focus Dataset and enter U+3042 with GTK simple input.",
          "The editor commits あ and ends preedit."),
-        ("ngl", "popup", "interaction", "Open the modal", "Click the chooser.",
+        ("ngl", "popup", "interaction", "Open the modal", "Click Dialog.",
          "Modal controls appear over the workbench and the background editor leaves the active semantic tree."),
         ("ngl", "narrow", "recovery", "Dismiss and resize", "Press Escape and narrow the window to 540 pixels.",
          "Focus returns to Dataset and the results pane moves below the form."),

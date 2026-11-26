@@ -7,6 +7,10 @@ import subprocess
 import sys
 import time
 
+import gi
+gi.require_version("GdkPixbuf", "2.0")
+from gi.repository import GdkPixbuf
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 from linux_ui_smoke import Smoke, focused, nodes, require
@@ -18,11 +22,22 @@ def capture(smoke, frame, name, expected_renderer):
     if expected_renderer:
         require(draw["renderer"] == expected_renderer and draw["custom"] == 125,
                 f"unexpected renderer or chart command count: {draw}")
-    # X11 capture follows the traced GTK snapshot by at least one frame clock.
-    time.sleep(0.5)
-    require(smoke.command("getactivewindow").stdout.strip() == smoke.window,
-            "capture would include another application")
-    subprocess.run(["scrot", "-u", str(smoke.run / (name + ".png"))], check=True)
+    # GTK can snapshot a frame before the X server presents it under emulation.
+    scale = int(os.getenv("GDK_SCALE", "1"))
+    expected_size = (frame["width"] * scale, frame["height"] * scale)
+    path = str(smoke.run / (name + ".png"))
+    deadline = time.monotonic() + smoke.args.timeout
+    while time.monotonic() < deadline:
+        time.sleep(0.5)
+        require(smoke.command("getactivewindow").stdout.strip() == smoke.window,
+                "capture would include another application")
+        subprocess.run(["scrot", "-o", "-u", path], check=True)
+        _, width, height = GdkPixbuf.Pixbuf.get_file_info(path)
+        sample = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, 150, 100, True)
+        if (width, height) == expected_size and len(set(sample.get_pixels())) > 32:
+            break
+    else:
+        raise RuntimeError(f"{name}: timed out waiting for the presented client image")
     chart = nodes(frame).get(22)
     return {"state": name, "frame": frame["frame"], "renderer": draw.get("renderer", "GTK Cairo"),
             "viewport": [frame["width"], frame["height"]], "scale": int(os.getenv("GDK_SCALE", "1")),
@@ -59,7 +74,9 @@ def main():
         save(frame, "initial")
         if args.mode in ("oracle", "ngl"):
             cell = smoke.visible_cell(frame)
-            smoke.click(frame, cell, "type", "q", clip_key=21)
+            smoke.click(frame, cell, clip_key=21)
+            frame = smoke.frame(frame["frame"], lambda f: focused(f, cell))
+            smoke.command("type", "q")
             frame = smoke.frame(frame["frame"], lambda f: focused(f, cell) and "q" in nodes(f)[cell]["value"])
             save(frame, "collection")
             frame = smoke.focus_dataset(frame)
