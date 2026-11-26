@@ -6,7 +6,7 @@
 main{max-width:1120px;margin:auto;padding:32px 24px}h1,h2{font-family:Georgia,serif;font-weight:normal}
 h1{font-size:2.6rem;margin:0}h2{margin:0;font-size:1.4rem}p{margin:.55rem 0 1rem}
 .views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}section,form{background:#fffdf7;border:1px solid #c6cdc1;padding:18px;border-radius:6px}
-svg{display:block;width:100%;background:#f2f4ed;margin:.8rem 0}.panel{stroke:#375853;stroke-width:1.4;cursor:pointer}
+svg{display:block;width:100%;background:#f2f4ed;margin:.8rem 0}.panel{stroke:#375853;stroke-width:1.4;cursor:pointer;pointer-events:visibleFill}
 .panel:nth-child(odd){fill:#a3c9bb}.panel:nth-child(even){fill:#77a598}.panel.active{fill:#eca551;stroke:#724617;stroke-width:2.4}
 button,input,select{font:inherit;padding:.4rem;border:1px solid #86988e;border-radius:4px}button{cursor:pointer;background:#e7eee5}button:disabled{opacity:.5}
 form{margin:16px 0;display:flex;flex-wrap:wrap;align-items:end;gap:14px}label{display:grid;gap:5px}input{width:7rem}
@@ -165,13 +165,15 @@ document.addEventListener('keydown', event => {
 $('measure').onclick = () => {
   historyStack.push({current, measuring});
   measuring = true;
-  syncInputs();
   draw();
   $('status').textContent = 'Tracking crease 3. Dashes trace its front endpoint over the tilt range.';
 };
 $('undo').onclick = () => {
-  ({current, measuring} = historyStack.pop());
-  syncInputs();
+  const previous = historyStack.pop();
+  const changedPatch = previous.current !== current;
+  ({current, measuring} = previous);
+  // Removing a measurement leaves any uncommitted draft/preview in place.
+  if (changedPatch) syncInputs();
   draw();
   $('status').textContent = 'Previous patch restored.';
 };

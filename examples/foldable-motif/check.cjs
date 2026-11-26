@@ -122,7 +122,81 @@ async function check() {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.locator('#pick').selectOption('6');
     assert.match(await page.locator('#adjacency').innerText(),/adjacent to 5 ·/);
+
+    // Attachment and its undo must not resolve a draft or commit a preview.
+    const draftState = async () => ({
+      inputs: await page.locator('input').evaluateAll(inputs => inputs.map(input => input.value)),
+      comparison: await comparison(), flat: await points('flat'), folded: await points('folded')
+    });
+    const measurementDraft = async previewing => {
+      if (previewing) {
+        await sweep.focus();
+        await sweep.press('End');
+        assert.match(await comparison(),/Preview\s+20 mm\s+75°/);
+      } else {
+        await page.locator('#pitch').fill('24.5');
+        await page.locator('#tilt').fill('60');
+        assert.equal(await comparison(),initial);
+      }
+      const draft = await draftState();
+      await page.locator('#measure').click();
+      assert.deepEqual(await draftState(),draft,'Attaching a measurement must preserve the draft');
+      assert.match(await note.textContent(),previewing ? /19.3 mm high/ : /10.0 mm high/);
+      assert.equal(await page.locator('#folded polyline').count(),1);
+      await capture(previewing ? '08-preview-measure' : '07-draft-measure');
+      await page.locator('#undo').click();
+      assert.deepEqual(await draftState(),draft,'Undoing attachment must preserve the draft');
+      assert.equal(await page.locator('#folded polyline').count(),0);
+      assert.match(await note.textContent(),/how high\?/);
+      assert.equal(await page.locator('#undo').isDisabled(),true);
+      await page.locator('#measure').click();
+      await page.keyboard.press('Escape');
+      assert.equal(await comparison(),initial,'Attachment must not implicitly commit the draft');
+      assert.equal(await points('folded'),initialFold);
+      assert.deepEqual(await page.locator('input').evaluateAll(inputs => inputs.map(input => input.value)),['20','30','30']);
+      assert.match(await note.textContent(),/10.0 mm high/);
+      await page.locator('#undo').click();
+      assert.equal(await page.locator('#undo').isDisabled(),true);
+    };
+    const neighborPicking = async () => {
+      await page.locator('#pitch').fill('10');
+      await page.locator('#tilt').fill('75');
+      await apply();
+      assert.equal(await active('folded'),'1');
+      // Use the actual projected centroid, not Playwright's clickable-point
+      // fallback, which can miss an outline stealing part of a face's fill.
+      const center = await page.locator('#folded [data-panel="2"]').evaluate(face => {
+        const vertices = Array.from(face.points);
+        const point = new DOMPoint(
+          vertices.reduce((sum,p) => sum+p.x,0)/vertices.length,
+          vertices.reduce((sum,p) => sum+p.y,0)/vertices.length
+        ).matrixTransform(face.getScreenCTM());
+        return {x:point.x,y:point.y};
+      });
+      await capture('09-before-neighbor-pick');
+      await page.mouse.click(center.x,center.y);
+      assert.equal(await active('folded'),'2','The selected outline must not intercept its neighbor');
+      assert.equal(await active('flat'),'2');
+      assert.equal(await page.locator('#pick').inputValue(),'2');
+      await capture('10-after-neighbor-pick');
+    };
+    await page.setViewportSize({width:1180,height:790});
+    const failures = [];
+    for (const [name,scenario] of [
+      ['numeric draft measurement',() => measurementDraft(false)],
+      ['slider preview measurement',() => measurementDraft(true)],
+      ['neighbor picking at 10 mm / 75 degrees',neighborPicking]
+    ]) {
+      await page.reload();
+      try {
+        await scenario();
+        console.log('Passed '+name+'.');
+      } catch (error) {
+        failures.push(new Error(name,{cause:error}));
+      }
+    }
     assert.deepEqual(errors,[]);
+    if (failures.length) throw new AggregateError(failures,'Browser regressions failed');
     console.log('Passed offline Chrome '+browser.version()+' geometry, linked picking, edit, preview, rejection, undo and narrow layout.');
   } finally {
     await browser.close();

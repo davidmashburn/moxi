@@ -11,7 +11,7 @@ The fixture repeats a rigid two-panel pleat three times across a rectangular she
 
 Moxi's `moxi::spatial::project` projects the unit-pitch sections and the two sheet-edge anchors through a fixed orthographic camera at build time. Orthographic displacements scale linearly with pitch. The browser composes the projected vertices for each edit from those samples. Every allowed whole-degree tilt has its own sample. The flat drawing uses the same pitch and panel IDs.
 
-Pick a panel in either view, or use the active-panel control and arrow keys. Sweep the tilt for a preview, then press Escape or apply the edit. Exact pitch and tilt inputs share the same commit and undo history. Compare the starting and current span and rise in millimetres. Measuring crease 3 turns the anchored question into a height readout and overlays the endpoint's sweep on the folded surface.
+Pick a panel in either view, or use the active-panel control and arrow keys. Sweep the tilt for a preview, then press Escape or apply the edit. Exact pitch and tilt inputs share the same commit and undo history. Compare the starting and current span and rise in millimetres. Measuring crease 3 turns the anchored question into a height readout and overlays the endpoint's sweep on the folded surface. Attaching or undoing the measurement preserves pending inputs and previews. Its readout follows the displayed configuration.
 
 ## Repeat the check
 
@@ -22,7 +22,7 @@ examples/foldable-motif/build.sh /tmp/accordion.html
 node examples/foldable-motif/check.cjs /tmp/accordion.html /tmp/accordion-frames
 ```
 
-The check compares all 76 geometry samples with the analytic camera and unit-length constraints, exercises both picking directions, keyboard traversal, preview/cancel, edit/undo, range endpoints and invalid inputs, and checks the stacked layout at 390 CSS pixels. The optional last argument writes six desktop screenshots. Open the [offline slideshow](../../artifacts/demo-slideshows/v11-foldable-motif/index.html) for the recorded scenario.
+The check compares all 76 geometry samples with the analytic camera and unit-length constraints, exercises both picking directions, keyboard traversal, preview/cancel, edit/undo, range endpoints and invalid inputs, and checks the stacked layout at 390 CSS pixels. Regressions cover measurement attachment/undo during numeric drafts and slider previews, explicit cancellation without an implicit commit, and a pointer click at the center of the neighboring folded panel at 10 mm pitch and 75° tilt. The optional last argument writes six walkthrough screenshots plus four regression screenshots. Open the [offline slideshow](../../artifacts/demo-slideshows/v11-foldable-motif/index.html) for the recorded walkthrough.
 
 ## Evidence limits
 
