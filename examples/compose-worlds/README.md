@@ -22,3 +22,17 @@ The Python builder uses the checkout's public Moxi PlotSpec and Figure SVG
 renderer. Each curve's three plotted values also drive the browser model.
 This is a fictional fixed ecosystem. Whether authors can explain delayed
 effects and intentionally reproduce a pattern requires a participant trial.
+
+## Verification
+
+[Open the five-slide capture](evidence/compose-worlds/index.html) or inspect
+the [scenario manifest](evidence/compose-worlds/manifest.json) for actions,
+expected results, browser, scale, and captured revision. All five states passed
+in the collaborative preview. For a repeatable interaction check, run
+`python3 examples/compose-worlds/browser_check.py` from the repository root
+after building, using a Python environment with Playwright and installed Chrome.
+It compares the canvas pixels after replay, checks independent trial parameters,
+scrubs seasons, exercises a 390-pixel layout and reloads the offline app.
+
+Keyboard slider operation was exercised. Physical assistive technology and
+participant comprehension have yet to be tested.
