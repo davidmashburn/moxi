@@ -1010,14 +1010,16 @@
       "state": "partial",
       "commits": [
         "f0682a1",
-        "17dc619"
+        "17dc619",
+        "6a6a298"
       ],
       "verification": [
         "In five native application processes the workbench collected a named cohort, compared three explicit fits and their residuals, and reopened the saved fixed panel. Editing the quadratic constant gave six residuals of -1. Refitting the frozen observations restored zero residuals.",
-        "The normal-entry replay rejected 31 malformed configurations. A second run reproduced all 17 mounted-window captures byte-for-byte."
+        "The normal-entry replay rejected 31 malformed configurations. A second run reproduced all 17 mounted-window captures byte-for-byte.",
+        "The 980 \u00d7 800 and 1140 \u00d7 860 native layouts preserved full coefficients, a 64-character name and a 140-character hypothesis across save and fresh-process reopen."
       ],
       "remaining_gates": [
-        "Independent review confirmed numerical fits, keyboard activation and cross-process reopen. At the minimum window width, long coefficients, names and hypotheses can clip. Participant panel reuse, physical input and assistive technology remain open."
+        "Integration with the existing workbench, participant panel reuse, physical input and assistive technology remain open."
       ],
       "slideshows": [
         "artifacts/demo-slideshows/investigation-tools/index.html"
