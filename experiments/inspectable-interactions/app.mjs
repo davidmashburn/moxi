@@ -9,14 +9,28 @@ marker.setAttribute("fill", "#ba561d");
 marker.setAttribute("stroke", "white");
 marker.setAttribute("stroke-width", "3");
 svg.append(marker);
-const source = new Cursor(), copy = new Cursor();
 const STORAGE_KEY = "moxi.i19.last-command";
-let current = source, record = null, pointer = null;
+let source = new Cursor(), copy = new Cursor(), record = null;
+let initialStatus = "Ready";
 try {
-  record = localStorage.getItem(STORAGE_KEY);
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw !== null) {
+    const saved = JSON.parse(raw);
+    // Earlier recordings stored the command alone, without preceding undo entries.
+    const commandOnly = typeof saved?.command !== "string";
+    const command = commandOnly ? raw : saved.command;
+    const history = commandOnly ? [] : saved.history;
+    source = Cursor.beforeMove(command, history);
+    copy = Cursor.beforeMove(command, history);
+    record = command;
+    initialStatus = commandOnly && source.revision > 0
+      ? "Recording ready · earlier undo history unavailable"
+      : "Recording ready at its original position";
+  }
 } catch {
-  // Storage can be disabled by the browser; keep the in-session record usable.
+  initialStatus = "Saved recording unavailable · fresh trace";
 }
+let current = source, pointer = null;
 const entry = el("entry");
 
 function render(message, preserveText = false) {
@@ -58,7 +72,7 @@ function commit() {
   release();
   record = current.commit();
   try {
-    localStorage.setItem(STORAGE_KEY, record);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({command: record, history: current.history.slice(0, -1)}));
     render("Move committed");
   } catch {
     render("Move committed · recording available for this session only");
@@ -103,4 +117,4 @@ el("replay").onclick = () => {
     render(error.message);
   }
 };
-render(record ? "Fresh trace · previous recording available" : "Ready");
+render(initialStatus);

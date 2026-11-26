@@ -84,6 +84,32 @@ def exercise(page, url):
     entry.press("Enter")
     expect(entry).to_have_value("0")
     expect(stats).to_have_text("Revision 2 · Undo depth 2")
+    page.reload()
+    expect(entry).to_have_value("47")
+    expect(stats).to_have_text("Revision 1 · Undo depth 1")
+    page.locator("#switchBoard").click()
+    page.locator("#replay").click()
+    expect(entry).to_have_value("0")
+    expect(stats).to_have_text("Revision 2 · Undo depth 2")
+    page.locator("#replay").click()
+    expect(status).to_contain_text("Stale target")
+    page.locator("#undo").click()
+    expect(entry).to_have_value("47")
+    page.locator("#undo").click()
+    expect(entry).to_have_value("25")
+    page.evaluate("""() => {
+        const key = 'moxi.i19.last-command';
+        localStorage.setItem(key, JSON.parse(localStorage.getItem(key)).command);
+    }""")
+    page.reload()
+    expect(status).to_contain_text("earlier undo history unavailable")
+    page.locator("#replay").click()
+    expect(entry).to_have_value("0")
+    expect(stats).to_have_text("Revision 2 · Undo depth 1")
+    page.evaluate("localStorage.setItem('moxi.i19.last-command', '{')")
+    page.reload()
+    expect(entry).to_have_value("25")
+    expect(page.locator("#replay")).to_be_disabled()
     assert not errors, errors
 
 

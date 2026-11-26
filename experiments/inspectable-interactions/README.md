@@ -2,7 +2,7 @@
 
 Move one cursor along a synthetic signal. The Python build uses this checkout's public Moxi PlotSpec, plot and Figure.to_svg APIs. The browser uses the resulting polyline's 101 projected vertices for both cursor placement and pointer input. A single consumer-local session accepts either exact sample entry or a drag. Pointer release leaves the preview available for inspection. Enter in Sample or Commit move accepts it. Escape discards it, including during pointer capture.
 
-Each successful move records a versioned JSON command with target identity, expected revision, origin and destination in samples. Each trace has its own cursor, revision and undo history. Undo increments the revision even when it restores the original value. The compact copy begins at the same baseline with a narrower plot. Reload starts both traces afresh and retrieves the last recording from origin-local browser storage if available.
+Each successful move records a versioned JSON command with target identity, expected revision, origin and destination in samples. Each trace has its own cursor, revision and undo history. Undo increments the revision even when it restores the original value. The compact copy begins at the same baseline with a narrower plot. Reload initializes both traces at the position, revision and undo history immediately before the last recorded move. Each trace can then replay it once. Older recordings restore the position and revision but lack earlier undo entries.
 
 ## Run locally
 

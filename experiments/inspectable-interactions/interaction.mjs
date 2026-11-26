@@ -8,12 +8,35 @@ function sample(value) {
   return value;
 }
 
+function parseMove(record) {
+  const command = JSON.parse(record);
+  if (command?.version !== 1 || command.operation !== MOVE || command.target !== TARGET)
+    throw new Error("Unrecognized cursor command.");
+  sample(command.from);
+  sample(command.to);
+  if (!Number.isSafeInteger(command.revision) || command.revision < 0)
+    throw new Error("Invalid cursor revision.");
+  if (command.from === command.to) throw new Error("Empty cursor move.");
+  return command;
+}
+
 export class Cursor {
   constructor() {
     this.position = 25;
     this.revision = 0;
     this.draft = null;
     this.history = [];
+  }
+
+  static beforeMove(record, history = []) {
+    const command = parseMove(record);
+    if (!Array.isArray(history) || history.length > command.revision)
+      throw new Error("Invalid cursor history.");
+    const cursor = new Cursor();
+    cursor.position = command.from;
+    cursor.revision = command.revision;
+    cursor.history = history.map(sample);
+    return cursor;
   }
 
   preview(value) {
@@ -36,14 +59,9 @@ export class Cursor {
   }
 
   apply(record) {
-    const command = JSON.parse(record);
-    if (command?.version !== 1 || command.operation !== MOVE || command.target !== TARGET)
-      throw new Error("Unrecognized cursor command.");
-    sample(command.from);
-    sample(command.to);
+    const command = parseMove(record);
     if (command.revision !== this.revision || command.from !== this.position)
       throw new Error("Stale target. Cursor and undo history preserved.");
-    if (command.from === command.to) throw new Error("Empty cursor move.");
     this.history.push(this.position);
     this.position = command.to;
     this.revision++;
