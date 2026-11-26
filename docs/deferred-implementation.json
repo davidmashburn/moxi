@@ -638,19 +638,25 @@
         "4098a41",
         "53fab67",
         "102293c",
-        "367a7b3"
+        "367a7b3",
+        "66f4720",
+        "f7de496",
+        "3c4469f"
       ],
       "verification": [
         "Five real v0.8.0 APIs exported reference SVGs. All five Moxi static catalog fixtures exported SVG/PNG, with 40 source-row hits and matching tables. See dataviz-migration.md#e06-catalog-reconciliation.",
         "A three-stage specialized funnel matches the pinned upstream geometry within 0.001905 of the plot span in both native and Python SVG exports. Replay checked source identity after value changes, selection and export. All five legacy fixtures passed.",
-        "Mojo and Python rank adjacent Int64 counts above the binary64 exact-integer boundary. The Python table retains the source counts. The native replay and 372 Python and specialized tests passed."
+        "Mojo and Python rank adjacent Int64 counts above the binary64 exact-integer boundary. The Python table retains the source counts. The native replay and 372 Python and specialized tests passed.",
+        "Native and Python parallel coordinates, bump rankings and weighted arc diagrams matched the pinned fixture geometry. Eleven native segment or edge clicks and seven browser selections identified their source rows. The three galleries contain 24 frames.",
+        "NumPy Int64 extremes normalize correctly, invalid native updates retain the previous geometry, and wide arcs fit the viewport. Thirty-six collapsed and restored viewport cycles retained finite coordinates and keyed selection with zero Canvas errors. All three galleries decoded correctly over HTTP and offline."
       ],
       "remaining_gates": [
-        "Parallel coordinates, bump rankings and arc diagrams still need specialized layouts. Funnel palette, margins and legend treatment differ from the reference. Native cross-host interaction, family benchmarks and independent visual acceptance remain open.",
+        "Funnel palette, margins and legend treatment differ from the reference. Text labels in Python PNG and PDF, live native-window input, cross-host interaction, family benchmarks and independent visual acceptance remain open.",
         "The native software renderer fills polygon bounds. Canvas and SVG preserve the funnel taper."
       ],
       "slideshows": [
-        "examples/funnel/evidence/comparison.html"
+        "examples/funnel/evidence/comparison.html",
+        "artifacts/demo-slideshows/e06/index.html"
       ]
     },
     {

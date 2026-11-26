@@ -18,7 +18,7 @@
 | E02 | Contour saddle connectivity | [Visual comparison and reproduction](../plot-contour-connectivity/README.md) |
 | E03 | Chord geometry, calendar and Sankey labels | [Comparisons and source picking](e03-flow-calendar-followup/README.md) |
 | E05 | Cairo Scene export | [Render comparison](cairo-scene/index.html) · [Decision and replay](../../experiments/cairo-scene/README.md) |
-| E06 | Funnel stage order and source selection | [Slideshow](../../examples/funnel/evidence/comparison.html) · [Run instructions](../../examples/funnel/README.md) |
+| E06 | Funnel stages, parallel coordinates, bump rankings and weighted arcs | [Funnel](../../examples/funnel/evidence/comparison.html) · [Three catalog walkthroughs](e06/index.html) · [Reproduction](../../examples/catalog-remainder/README.md) |
 | I02 | Edit matrix entries and move basis vectors | [11-frame walkthrough](matrix-instrument/index.html) · [Run the instrument](../../examples/matrix-instrument/README.md) |
 | I10 | Save a cohort investigation as a reusable panel | [17-frame walkthrough](investigation-tools/index.html) · [Run instructions](../../examples/investigation-tools/README.md) |
 | I11 | Inspectable fit proposals | [Slideshow](visible-proposals/index.html) · [Run instructions](../../examples/visible-proposals/README.md) |
