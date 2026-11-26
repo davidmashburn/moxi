@@ -1,0 +1,14 @@
+AssertionError [ERR_ASSERTION]: A reopened custom graph must restore its response plot
+
+0 !== 1
+
+    at examples/personal-instrument/graph-check.cjs:94:14
+    at async scenario (examples/personal-instrument/graph-check.cjs:53:29)
+    at async check (examples/personal-instrument/graph-check.cjs:60:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

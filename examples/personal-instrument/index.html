@@ -5,56 +5,122 @@
 *{box-sizing:border-box}body{margin:0;background:#f5f1e7;color:#202f30;font:16px/1.45 "Gill Sans",system-ui,sans-serif}
 main{max-width:980px;margin:auto;padding:clamp(16px,4vw,44px)}h1,h2{font-family:Georgia,serif;font-weight:500;margin:0 0 .4em}h1{font-size:clamp(40px,6vw,64px);letter-spacing:-.05em}
 header{display:flex;justify-content:space-between;align-items:center}section{background:#fffdf7;padding:20px;border:1px solid #cecbbd;border-radius:10px;margin:12px 0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid section{margin:0;min-width:0}svg{max-width:100%;height:auto;display:block}
-button,select,input{font:inherit}button,select{border:1px solid #92998e;border-radius:5px;padding:7px 10px;background:#fffdf7;color:inherit}button{cursor:pointer}
-button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #b65721;outline-offset:2px}
+.grid{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:12px}.grid section{margin:0;min-width:0}svg{max-width:100%;height:auto;display:block}
+button,select,input,textarea{font:inherit}button,select,input[type=text],textarea{border:1px solid #92998e;border-radius:5px;padding:7px 10px;background:#fffdf7;color:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #b65721;outline-offset:2px}
 #notes{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}.note{padding:8px 2px}.note span{display:block;font-size:13px}.note[aria-pressed=true],#stamp{background:#205a55;color:white}
 label{display:block;margin:10px 0}input[type=range]{width:100%;accent-color:#205a55}.row{display:flex;gap:8px;flex-wrap:wrap}p{margin:8px 0}small{display:block;color:#515b53}#status{min-height:1.5em}
-@media(max-width:640px){.grid{grid-template-columns:1fr}#notes{grid-template-columns:repeat(4,1fr)}}
+.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}details{margin:12px 0}summary{cursor:pointer}textarea{width:100%;min-height:170px;font:13px/1.4 monospace}input[type=text]{width:100%}
+#graph{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:8px}#graph li{border:1px solid #92998e;border-radius:9px;padding:10px;flex:1;min-width:150px}#graph span{display:block;font-size:14px}.mode[aria-pressed=true]{background:#205a55;color:white}
+@media(max-width:640px){.grid,.source-grid{grid-template-columns:1fr}#notes{grid-template-columns:repeat(4,1fr)}}
 </style>
 <main><header><h1>Phrase desk</h1><button id="listen">Play phrase</button></header>
 <section><h2>Phrase</h2><div id="notes" aria-label="Phrase steps"></div><small>Each step shows pitch, accent and note length. Select a step to edit it.</small></section>
+<section><details><summary>Phrase controls · extract into your panel</summary>
+<small>These direct controls edit the selected note. Extract a control to give it a response curve and a mode in your performance panel.</small>
+<div class="source-grid"><div><label>Note accent <input id="source-accent" type="range" min="0" max="100"></label><button id="extract-accent">Extract Accent control</button></div>
+<div><label>Note length <input id="source-length" type="range" min="0" max="100"></label><button id="extract-length">Extract Length control</button></div></div>
+</details></section>
 <div class="grid"><section><h2>Performance</h2>
+<div id="modes" class="row" aria-label="Installed modes"><button id="mode-accent" class="mode">Accent mode</button><button id="mode-length" class="mode" hidden>Length mode</button></div>
 <label>Input <output id="amount"></output><input id="input" type="range" min="0" max="100" value="50"></label>
 <p id="target"></p><div class="row"><button id="stamp">Apply to step</button><button id="next">Next step</button></div>
-<p><button id="pad">Keyboard pad</button></p><small>Focus the pad. ↑ / ↓ adjust input, Space applies, and → advances. Advancing past the last step returns to the first.</small>
-</section><section><h2>Mapping editor</h2><label>Apply operation <select id="operation"></select></label>
-<label>Output at half input <select id="midpoint"></select></label><div id="plot" role="img" aria-label="Draft response from zero to full output"></div>
-<p id="preview"></p><div class="row"><button id="save">Save mapping</button><button id="restore">Restore defaults</button></div>
+<p id="active-transition"></p><p><button id="pad">Keyboard pad</button></p><small>Focus the pad. ↑ / ↓ adjust input, Space applies, and → follows the installed Next transition. Advancing past step 8 returns to step 1.</small>
+</section><section><h2>Mapping editor</h2><small>Draft changes take effect only after Save mapping. Extract another phrase control above to add a mode.</small>
+<ul id="graph" aria-label="Draft mode graph"></ul>
+<label>Mode to edit <select id="operation"></select></label>
+<label>Output at half input (%) <input id="midpoint" type="text" inputmode="numeric" aria-describedby="calculation-help"></label>
+<small id="calculation-help">Whole number 0–100. Builds a two-segment response with fixed 0% and 100% endpoints. Ctrl+Enter here saves without moving focus.</small>
+<div id="plot" role="img" aria-label="Draft response from zero to full output"></div><p id="preview"></p>
+<label>On Next, go to mode <select id="mode-next"></select></label>
+<label>On Next, score step <select id="step-action"><option value="advance">Advance one step</option><option value="keep">Keep this step</option></select></label>
+<label>Mode on reopen <select id="start-mode"></select></label>
+<div class="row"><button id="build">Build preview</button><button id="save">Save mapping</button><button id="restore">Restore defaults</button></div>
+<details><summary>Versioned configuration</summary><label>Configuration JSON <textarea id="configuration" spellcheck="false"></textarea></label><div class="row"><button id="export">Copy saved to editor</button><button id="import">Load draft</button></div><small>Load draft validates v1/v2 data. Save builds and installs it; rejected data leaves your saved panel and phrase intact.</small></details>
 </section></div><p role="status" id="status"></p></main>
 <script>
 'use strict';
 const fixture = __INSTRUMENT__;
 const $ = id => document.getElementById(id);
 const Operation = Object.freeze({ACCENT:'accent', LENGTH:'length'});
+const StepAction = Object.freeze({ADVANCE:'advance', KEEP:'keep'});
+const MappingVersion = Object.freeze({LEGACY:1, CURRENT:2});
+const CalculationVersion = Object.freeze({PIECEWISE:1});
 const label = {[Operation.ACCENT]:'Accent', [Operation.LENGTH]:'Length'};
 const mappingKey = 'moxi.phrase.v1.mapping', scoreKey = 'moxi.phrase.v1.score';
-const defaults = {version:1, operation:Operation.ACCENT, midpoint:50};
+const clone = value => JSON.parse(JSON.stringify(value));
+const newMode = id => ({id,calculation:{version:CalculationVersion.PIECEWISE,midpoint:50},next:{mode:id,step:StepAction.ADVANCE}});
+const defaults = {version:MappingVersion.CURRENT,startMode:Operation.ACCENT,modes:[newMode(Operation.ACCENT)]};
 const initialScore = fixture.pitches.map(() => ({accent:70, length:80}));
 const percent = n => Number.isInteger(n) && n >= 0 && n <= 100;
-function read(key, fallback, valid, issues) {
+function validateMapping(value, validateCalculation = true) {
+  if (!value || value.version !== MappingVersion.CURRENT) throw new Error('Unsupported mapping version.');
+  if (!Array.isArray(value.modes) || value.modes.length < 1 || value.modes.length > 2)
+    throw new Error('Extract one or two supported controls.');
+  const ids = value.modes.map(node => node?.id);
+  if (new Set(ids).size !== ids.length || ids.some(id => !Object.values(Operation).includes(id)))
+    throw new Error('Modes must be unique Accent or Length controls.');
+  if (!ids.includes(value.startMode)) throw new Error('The starting mode must exist.');
+  for (const node of value.modes) {
+    if (!node.next || !ids.includes(node.next.mode) || !Object.values(StepAction).includes(node.next.step))
+      throw new Error('Every Next transition needs an existing mode and a supported step action.');
+    if (!node.calculation || node.calculation.version !== CalculationVersion.PIECEWISE)
+      throw new Error('Unsupported response calculation version.');
+    if (validateCalculation && !percent(node.calculation.midpoint))
+      throw new Error('Output at half input must be a whole number from 0 to 100.');
+  }
+  return value;
+}
+function decodeMapping(value) {
+  if (value?.version === MappingVersion.LEGACY) {
+    if (!Object.values(Operation).includes(value.operation) || !Number.isInteger(value.midpoint)
+        || !Object.hasOwn(fixture.curves,value.midpoint)) throw new Error('Invalid v1 mapping.');
+    const node = newMode(value.operation);
+    node.calculation.midpoint = value.midpoint;
+    return {version:MappingVersion.CURRENT,startMode:node.id,modes:[node]};
+  }
+  return validateMapping(value);
+}
+function decodeScore(value) {
+  if (!Array.isArray(value) || value.length !== initialScore.length
+      || !value.every(note => note && percent(note.accent) && percent(note.length))) throw new Error('Invalid score.');
+  return value;
+}
+function read(key, fallback, decode, issues) {
   try {
     const raw = localStorage.getItem(key);
-    if (raw === null) return fallback;
-    const value = JSON.parse(raw);
-    if (valid(value)) return value;
+    if (raw === null) return clone(fallback);
+    return decode(JSON.parse(raw));
   } catch {}
   issues.push(key === mappingKey ? 'Saved mapping unreadable. Defaults active.' : 'Saved score unreadable. Seed phrase active.');
-  return fallback;
+  return clone(fallback);
 }
 const issues = [];
-let mapping = read(mappingKey, defaults, m => m.version === 1 && Object.values(Operation).includes(m.operation)
-  && Number.isInteger(m.midpoint) && Object.hasOwn(fixture.curves,m.midpoint), issues);
-let score = read(scoreKey, initialScore, s => Array.isArray(s) && s.length === initialScore.length
-  && s.every(note => percent(note.accent) && percent(note.length)), issues);
-let step = 0;
+let mapping = read(mappingKey, defaults, decodeMapping, issues);
+let score = read(scoreKey, initialScore, decodeScore, issues);
+let step = 0, activeMode = mapping.startMode, editor = clone(mapping), revision = 0, request = 0;
+const presetCurves = value => value.modes.every(n => Object.hasOwn(fixture.curves,n.calculation.midpoint))
+  ? Object.fromEntries(value.modes.map(n => [n.id,fixture.curves[n.calculation.midpoint]])) : null;
+let curves = presetCurves(mapping), previewCurves = curves;
 const operation = $('operation'), midpoint = $('midpoint'), input = $('input');
-for (const [value,name] of Object.entries(label)) operation.add(new Option(name,value));
-for (const value of Object.keys(fixture.curves)) midpoint.add(new Option(value+'%',value));
-function syncEditor() { operation.value = mapping.operation; midpoint.value = mapping.midpoint; }
-function draft() { return {version:1,operation:operation.value,midpoint:Number(midpoint.value)}; }
-function output(m) { return fixture.curves[m.midpoint].values[Number(input.value)]; }
-function description(m) { return label[m.operation]+' '+output(m)+'%'; }
+const nodeFor = (value,id) => value.modes.find(n => n.id === id);
+const currentDraft = () => nodeFor(editor,operation.value);
+function syncFields() {
+  const node = currentDraft();
+  if (midpoint.value !== String(node.calculation.midpoint)) midpoint.value = node.calculation.midpoint;
+  $('mode-next').value = node.next.mode; $('step-action').value = node.next.step;
+  $('start-mode').value = editor.startMode;
+}
+function syncEditor() {
+  const selected = nodeFor(editor,operation.value) ? operation.value : editor.startMode;
+  for (const el of [operation,$('mode-next'),$('start-mode')]) {
+    el.replaceChildren(...editor.modes.map(n => new Option(label[n.id],n.id)));
+  }
+  operation.value = selected; syncFields();
+}
+const output = (built,id) => built[id].values[Number(input.value)];
+const description = () => label[activeMode]+(curves ? ' '+output(curves,activeMode)+'%' : ' (building response)');
+const transitionText = node => '→ '+label[node.next.mode]+' · '+(node.next.step === StepAction.KEEP ? 'keep this step' : 'advance one step');
 const buttons = fixture.pitches.map((pitch,i) => {
   const b = document.createElement('button');
   b.className = 'note';
@@ -70,32 +136,113 @@ function render() {
     b.setAttribute('aria-pressed',i === step);
   });
   $('amount').value = input.value+'%';
-  $('target').textContent = 'Step '+(step+1)+' → '+description(mapping);
-  $('preview').textContent = 'Draft at '+input.value+'% input → '+description(draft());
-  $('plot').innerHTML = fixture.curves[midpoint.value].svg;
+  $('target').textContent = 'Step '+(step+1)+' → '+description();
+  $('active-transition').textContent = 'Installed Next '+transitionText(nodeFor(mapping,activeMode));
+  $('next').textContent = mapping.modes.length === 1 && nodeFor(mapping,activeMode).next.step === StepAction.ADVANCE ? 'Next step' : 'Next action';
+  for (const id of Object.values(Operation)) {
+    $('mode-'+id).hidden = !nodeFor(mapping,id);
+    $('mode-'+id).setAttribute('aria-pressed',id === activeMode);
+    $('source-'+id).value = score[step][id];
+    $('extract-'+id).disabled = !!nodeFor(editor,id);
+  }
+  for (const id of ['stamp','next','pad']) $(id).disabled = !curves;
+  const draftNode = currentDraft(), built = previewCurves || presetCurves(editor);
+  $('preview').textContent = built ? 'Draft at '+input.value+'% input → '+label[draftNode.id]+' '+output(built,draftNode.id)+'%'
+    : 'Draft response needs Build preview or Save mapping.';
+  $('plot').innerHTML = built ? built[draftNode.id].svg : '';
+  $('graph').replaceChildren(...editor.modes.map(n => {
+    const li = document.createElement('li'), name = document.createElement('strong'), edge = document.createElement('span');
+    name.textContent = label[n.id]+(n.id === editor.startMode ? ' · start' : '');
+    edge.textContent = 'Next '+transitionText(n);
+    li.append(name,edge); return li;
+  }));
 }
 function persist(key,value) {
   try { localStorage.setItem(key, JSON.stringify(value)); return true; }
   catch { $('status').textContent = 'Storage unavailable. Change could not be saved.'; return false; }
 }
 function apply() {
+  if (!curves) return;
   const updated = score.slice();
-  updated[step] = {...score[step],[mapping.operation]:output(mapping)};
+  updated[step] = {...score[step],[activeMode]:output(curves,activeMode)};
   if (!persist(scoreKey,updated)) return;
   score = updated;
-  $('status').textContent = 'Applied '+description(mapping)+' to step '+(step+1)+'.';
+  $('status').textContent = 'Applied '+description()+' to step '+(step+1)+'.';
   render();
 }
-function advance() { step = (step+1)%score.length; render(); }
-function install(value,message) {
-  if (!persist(mappingKey,value)) return;
-  mapping = value; syncEditor(); render(); $('status').textContent = message;
+function advance() {
+  if (!curves) return;
+  const next = nodeFor(mapping,activeMode).next;
+  if (next.step === StepAction.ADVANCE) step = (step+1)%score.length;
+  activeMode = next.mode; render();
+}
+async function compile(value) {
+  validateMapping(value,false);
+  const response = await fetch('/build',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(value.modes.map(n => n.calculation))});
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'Response build unavailable.');
+  return Object.fromEntries(value.modes.map((n,i) => [n.id,result.curves[i]]));
+}
+async function build(value, install, message) {
+  if (!curves) return;
+  const attempt = ++request, started = revision;
+  $('save').setAttribute('aria-busy','true');
+  try {
+    const built = await compile(value);
+    if (attempt !== request) return;
+    if (started !== revision) { $('status').textContent = 'Draft changed during build. Build again; saved mapping retained.'; return; }
+    validateMapping(value);
+    if (install) {
+      if (!persist(mappingKey,value)) return;
+      mapping = clone(value); curves = built;
+      if (!nodeFor(mapping,activeMode)) activeMode = mapping.startMode;
+      editor = clone(value); syncEditor();
+    }
+    previewCurves = built; render(); $('status').textContent = message;
+  } catch (error) {
+    if (attempt === request) $('status').textContent = 'Build failed: '+error.message+' Saved mapping and phrase retained.';
+  } finally {
+    if (attempt === request) $('save').setAttribute('aria-busy','false');
+  }
+}
+function draftChanged() { revision++; previewCurves = null; render(); }
+for (const id of Object.values(Operation)) {
+  $('mode-'+id).onclick = () => { activeMode = id; render(); };
+  $('source-'+id).oninput = e => {
+    const updated = score.slice(); updated[step] = {...score[step],[id]:Number(e.target.value)};
+    if (persist(scoreKey,updated)) { score = updated; $('status').textContent = 'Edited '+label[id]+' on step '+(step+1)+'.'; }
+    render();
+  };
+  $('extract-'+id).onclick = () => {
+    if (nodeFor(editor,id)) return;
+    editor.modes.push(newMode(id)); syncEditor(); operation.value = id; syncFields(); draftChanged();
+    $('status').textContent = label[id]+' control extracted to draft. Save to install.';
+  };
 }
 $('stamp').onclick = apply;
 $('next').onclick = advance;
-$('save').onclick = () => install(draft(),'Mapping saved.');
-$('restore').onclick = () => install(defaults,'Default mapping restored.');
-for (const el of [input,operation,midpoint]) el.oninput = render;
+$('save').onclick = () => build(clone(editor),true,'Mapping saved.');
+$('build').onclick = () => build(clone(editor),false,'Draft response built. Saved mapping unchanged.');
+$('restore').onclick = () => build(clone(defaults),true,'Default mapping restored.');
+$('export').onclick = () => { $('configuration').value = JSON.stringify(mapping,null,2); };
+$('import').onclick = () => {
+  try {
+    const imported = decodeMapping(JSON.parse($('configuration').value));
+    editor = clone(imported); syncEditor(); draftChanged();
+    $('status').textContent = 'Configuration loaded to draft. Save to install.';
+  } catch (error) { $('status').textContent = 'Configuration rejected: '+error.message+' Saved mapping and phrase retained.'; }
+};
+input.oninput = render;
+operation.oninput = () => { syncFields(); render(); };
+midpoint.oninput = () => {
+  currentDraft().calculation.midpoint = /^\d+$/.test(midpoint.value) ? Number(midpoint.value) : midpoint.value;
+  draftChanged();
+};
+midpoint.onkeydown = e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); $('save').click(); } };
+$('mode-next').oninput = () => { currentDraft().next.mode = $('mode-next').value; draftChanged(); };
+$('step-action').oninput = () => { currentDraft().next.step = $('step-action').value; draftChanged(); };
+$('start-mode').oninput = () => { editor.startMode = $('start-mode').value; draftChanged(); };
 $('pad').onclick = apply;
 $('pad').onkeydown = e => {
   if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
@@ -128,5 +275,18 @@ $('listen').onclick = async () => {
   } catch { $('status').textContent = 'Audio playback unavailable.'; }
   finally { play.disabled = false; }
 };
-syncEditor(); render(); $('status').textContent = issues.join(' ');
+async function start() {
+  syncEditor(); render(); $('status').textContent = issues.join(' ');
+  if (curves) return;
+  const started = revision;
+  try { curves = await compile(mapping); }
+  catch {
+    mapping = clone(defaults); activeMode = mapping.startMode; curves = presetCurves(mapping);
+    if (started === revision) editor = clone(mapping);
+    issues.push('Saved response could not be built. Defaults active; saved mapping retained.');
+  }
+  previewCurves = started === revision ? curves : null;
+  syncEditor(); render(); $('status').textContent = issues.join(' ');
+}
+start();
 </script></html>

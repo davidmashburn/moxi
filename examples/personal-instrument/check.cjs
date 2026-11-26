@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 async function check() {
-  const browser = await chromium.launch({channel:'chrome'});
+  const browser = await chromium.launch({channel:'chrome',args:['--mute-audio']});
   try {
     const page = await browser.newPage({viewport:{width:1120,height:840}, deviceScaleFactor:1});
     const errors = [];
@@ -36,12 +36,15 @@ async function check() {
     await page.keyboard.press('ArrowUp');
     assert.equal(await el('input').inputValue(),'51');
     await page.keyboard.press('ArrowDown');
-    await el('operation').selectOption('length');
-    await el('midpoint').selectOption('25');
+    await page.getByText('Phrase controls · extract into your panel',{exact:true}).click();
+    await el('extract-length').click();
+    await el('midpoint').fill('25');
+    await el('start-mode').selectOption('length');
     assert.match(await el('preview').innerText(),/Length 25%/);
     assert.match(await el('target').innerText(),/Accent 50%/);
     await capture('interaction');
     await el('save').click();
+    await page.waitForFunction(() => document.getElementById('status').textContent === 'Mapping saved.');
     await page.reload();
     assert.match(await el('target').innerText(),/Step 1 → Length 25%/);
     await assertNote(1,50,80);
@@ -53,13 +56,14 @@ async function check() {
 
     // A future schema is unreadable even when its operation looks familiar.
     await page.evaluate(() => localStorage.setItem('moxi.phrase.v1.mapping',
-      JSON.stringify({version:2,midpoint:25,operation:'length'})));
+      JSON.stringify({version:99,midpoint:25,operation:'length'})));
     await page.reload();
     assert.match(await el('status').innerText(),/Saved mapping unreadable/);
     assert.match(await el('target').innerText(),/Accent 50%/);
     await assertNote(0,50,25);
     await capture('recovery');
     await el('restore').click();
+    await page.waitForFunction(() => document.getElementById('status').textContent === 'Default mapping restored.');
     await page.reload();
     assert.equal(await el('status').innerText(),'');
     await assertNote(0,50,25);
@@ -67,9 +71,10 @@ async function check() {
     await el('next').click();
     assert.equal(await notes.first().getAttribute('aria-pressed'),'true');
 
-    await el('midpoint').selectOption('75');
+    await el('midpoint').fill('75');
     await page.evaluate(() => { Storage.prototype.setItem = () => { throw new Error('quota'); }; });
     await el('save').click();
+    await page.waitForFunction(() => document.getElementById('status').textContent.includes('could not be saved'));
     assert.match(await el('status').innerText(),/could not be saved/);
     assert.match(await el('target').innerText(),/Accent 50%/);
     await el('next').click();

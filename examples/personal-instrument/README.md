@@ -1,33 +1,63 @@
 # Phrase desk · V12
 
-Shape an eight-step melody by applying accent or note length to individual steps. The pitches come from the first eight values in the repository's workbench-tail CSV, rounded to semitone offsets from middle C. Play phrase schedules the result with Web Audio at four steps per second.
+Shape an eight-step melody with a personal panel of Accent and Length modes. Extract supported phrase controls, build their response curves, and edit the mode graph that Next follows. The pitches come from the first eight workbench-tail CSV values, rounded to semitone offsets from middle C. Play phrase schedules the score with Web Audio at four steps per second.
 
-Run from the repository root with Python 3.9+.
+## Run and author a panel
+
+Run from the repository root with Python 3.9+:
 
 ```sh
 PYTHONPATH=python python3 examples/personal-instrument/app.py
 ```
 
-Open http://127.0.0.1:8182/. Click a note, adjust Input, then Apply to step. Alternatively, Tab to Keyboard pad, change input with ↑ / ↓, apply with Space and advance with →. Next step and → wrap around the same eight steps. Shortcuts belong to the focused pad.
+Open http://127.0.0.1:8182/. The initial panel has one Accent mode. Select a note, adjust Input, then Apply to step. Alternatively, focus Keyboard pad: ↑ / ↓ change input, Space applies, and → follows the installed Next transition. Shortcuts belong to the focused pad. The installed mode buttons also allow direct mode selection.
 
-The editor binds Apply to one supported operation. Change the output midpoint to bend the two-segment response curve. Its endpoints stay at 0% and 100%. Moxi PlotSpec and the Python SVG renderer draw the same 101 integer input/output pairs used during performance. Compare Draft with the active step readout, then Save mapping to install it. Restore defaults reinstalls linear accent control. Reopening at the same origin restores the mapping and composition. Each uses a separate local storage record. An unreadable mapping activates defaults with a recovery message. Restore defaults repairs the stored record. A failed write leaves the previous value active. Selection and input position start fresh on reload.
+1. Open **Phrase controls · extract into your panel**. Its two native sliders directly edit accent/length on the selected score step. **Extract Length control** adds that supported control as a new draft mode, independently of the score and installed panel.
+2. In Mapping editor, select **Accent**, set Output at half input to **75**, set On Next to **Length**, and choose **Keep this step**. Select **Length**, set its midpoint to **37**, and set Next to **Accent / Advance one step**. The graph displays both directed transitions. **Mode on reopen** chooses the initial mode; changing the editor selection does not change the performance mode.
+3. **Build preview** validates and builds the draft curves without installing them. Compare the draft plot/readout with the installed Performance readout. **Save mapping** builds and saves the entire panel before activating it. Ctrl+Enter from the midpoint field saves while retaining that field's focus and DOM node. A save retains the current step, input, score and current mode if still present.
+4. Reload at the same origin. The panel, graph, calculations and composition reopen. Selection and performance input restart at step 1 / 50%; the configured initial mode is restored. At step 3, Next now enters Length on step 3; a second Next enters Accent on step 4. The pointer buttons and pad Right/Space invoke the same transitions and score operations.
 
-## Reproduce the interaction check
+Each response is a bounded versioned calculation with endpoints 0% and 100% and an integer midpoint from 0 to 100. The local Python `/build` endpoint computes all 101 values using half-even rounding; Moxi PlotSpec renders those same values. Custom midpoint calculations are rebuilt on reopening. No user code is evaluated. Draft edits during a pending build invalidate that result; a later build cannot overwrite newer authoring.
 
-With the server running, run the following in another shell from the repository root. The check uses local Node.js, an installed Chrome and a locally resolvable playwright-core package. When using an existing installation outside the repository, set NODE_PATH to its node_modules directory. The browser opens an isolated, temporary profile. Set PORT in the check environment if using the server's --port option.
+## Configuration and recovery
 
-```sh
-node examples/personal-instrument/check.cjs
+Mapping and score still use separate local storage records, `moxi.phrase.v1.mapping` and `moxi.phrase.v1.score`. The score schema is unchanged. Valid v1 mappings (`version`, `operation`, `midpoint` with one of 25/50/75) become one self-looping mode in memory, retaining the old advance-and-wrap behavior and response. Reading v1 does not rewrite it. Explicit Save writes mapping v2 with independently versioned calculations:
+
+```json
+{
+  "version": 2,
+  "startMode": "accent",
+  "modes": [
+    {"id": "accent", "calculation": {"version": 1, "midpoint": 75}, "next": {"mode": "length", "step": "keep"}},
+    {"id": "length", "calculation": {"version": 1, "midpoint": 37}, "next": {"mode": "accent", "step": "advance"}}
+  ]
+}
 ```
 
-Pass a temporary output directory as the final argument to capture the four screenshot states. The check exercises the two control routes, the independent draft, reload persistence, an unsupported mapping version, explicit recovery, write failure, step wraparound, narrow viewport overflow and audio scheduling.
+The bounded graph has one or two unique supported modes, a valid starting mode, and one Next edge per mode. Step actions are `keep` or `advance`. Unknown mapping/calculation versions, unsupported operations/actions, duplicate nodes, dangling edges and invalid curve parameters are rejected. Compatibility means the new desk reads v1; the old desk cannot read v2.
 
-## Coverage and remaining evidence
+Open **Versioned configuration**, use **Copy saved to editor**, then edit or paste JSON and **Load draft**. This validates a v1/v2 document without changing the installed or saved mapping. A rejected import, failed calculation build, renderer failure, stale build or failed storage write leaves the prior installed/saved mapping and score intact. Invalid draft text remains available for correction. Successful calculation replacement retains the performance pad and editor nodes.
 
-- **V12 / I09** — The performer chooses the operation and curve for one panel control and reopens the saved panel against the edited score. Arbitrary control extraction from the data workbench remains outside this musical example.
-- **I12** — Replacing a supported mapping retains the score and pad node. Failed writes retain the previous active calculation. Arbitrary live code replacement, compiler failure and editor caret retention remain open.
-- **I17** — Pointer and keyboard exercise the same operations and score. Controls expose step names, selection and focus. Screen-reader navigation and switch-device use await direct trials.
-- The fixed transition advances through the phrase and wraps. Response curves are editable. User-authored navigation graphs and key sequences remain open.
-- Automated browser checks observe scheduled playback. Audibility, physical input comfort, independent configuration authoring and repeat use by people with different interaction preferences require human observation.
+An unreadable saved mapping activates defaults with a recovery message and leaves its raw record untouched. A failed rebuild on opening a custom saved panel also temporarily activates defaults while retaining the stored panel for a later retry. A valid score survives either case. **Restore defaults** explicitly saves the default one-mode Accent panel; it does not reset the composition. A failed restore write retains the previous panel. Score recovery is independent of mapping recovery.
 
-The four [offline slides](evidence/personal-instrument/index.html) show the initial, draft, reopened and recovery states. The [manifest](evidence/personal-instrument/manifest.json) identifies the checkout, fixture and capture environment. All four expected states passed in headless Chrome. The same run also passed the explicit repair and reload, denied-write checks for mapping and score, last-step wrap, 390 × 844 viewport width check and playback scheduling.
+## Reproduce verification
+
+The checks use Node.js, locally resolvable `playwright-core`, and installed Chrome in an isolated temporary profile. Set `NODE_PATH` to an existing node_modules directory if needed. No dependency installation is required. Both checks launch with `--mute-audio`; playback validation observes scheduling, not audibility.
+
+With the server running:
+
+```sh
+node examples/personal-instrument/check.cjs /tmp/phrase-baseline
+node examples/personal-instrument/graph-check.cjs /tmp/phrase-graph
+```
+
+Set `PORT` if using a non-default server port. The optional directories receive screenshots; the graph check also writes per-scenario expected/observed results, capture times, browser/viewport, Git revision and source SHA-256 hashes. It verifies the served HTML matches the tested checkout. Fault injection and storage fixture resets happen only inside the temporary browser profile.
+
+The [mode-graph verification record](evidence/mode-graph/verification.md) includes fail-first evidence, steps, results and screenshots for the final source. The earlier [four baseline slides](evidence/personal-instrument/index.html) remain historical evidence for `5768f2b`.
+
+## Coverage and open gates
+
+- **V12 / I09:** bounded extraction of the same instrument's real Accent/Length controls, editable graph and response curves, preview/save/reopen, and recovery. Extraction across arbitrary applications or workbench controls is not demonstrated.
+- **I12:** a real versioned calculation build/replacement, retained editor/pad nodes and score, invalid calculation and renderer failures retaining the last good active/stored panel. This is a bounded response builder; arbitrary live code, plugin loading, native editor caret behavior and general compiler replacement remain open.
+- **I17:** real pointer/keyboard input produces the same full score using the changed transitions; pad focus, labels and selection are checked. No screen-reader or switch-device trial was performed.
+- Human configuration authoring, repeat-use utility, motor comfort, physical/custom hardware and audibility remain open. No personal-utility or universal accessibility claim follows from an automated replay. Cross-browser/device, native-host and multi-tab synchronization checks, broad suite/CI and central master/gallery integration were not run or changed.

@@ -1,0 +1,12 @@
+AssertionError [ERR_ASSERTION]: V12 needs an editable mode graph in the normal desk
+
+0 !== 1
+
+    at check (examples/personal-instrument/graph-check.cjs:13:12) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
