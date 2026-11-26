@@ -14,6 +14,11 @@ than reopening an unchanged demo. After changing Xcode or the system SDK, remove
 `native/macos_window.o`, `dist/moxi-demo`, and `dist/moxi-demo-browser` to force
 fresh builds with the new system toolchain.
 
+`data-workbench` also caches its executable and signed application bundle;
+changes to its sources, packaging scripts, or bundle metadata rebuild it, as do
+missing bundle files. Formula Editor's separate math build has its own content
+cache, including HarfBuzz and toolchain inputs; see [the math editor guide](math-editor.md).
+
 `pixi run demo-walkthrough` runs the exact same `examples/demo_browser.mojo`
 host with a deterministic CapabilityBus event source. On macOS it launches the
 walkthrough executable through a stable `Moxi Playground.app` bundle, so the

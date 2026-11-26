@@ -3,6 +3,11 @@ set -euo pipefail
 repo="$(cd "$(dirname "$0")/../.." && pwd)"
 work="${MOXI_D02_BUILD_DIR:-/tmp/moxi-d02}"
 hb="${MOXI_HARFBUZZ_PREFIX:-/opt/homebrew/opt/harfbuzz}"
+# Keep direct build.sh, run.sh, checks, and overridden build directories on the
+# same cache path. Only the cache driver invokes the uncached build.
+if [[ "${1:-}" != "--uncached" ]]; then
+  exec python3 "$repo/scripts/math/build_cached.py" "$@"
+fi
 mkdir -p "$work"
 cd "$repo"
 clang -O2 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o "$work/window.o" > "$work/window-build.log" 2>&1

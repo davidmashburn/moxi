@@ -27,6 +27,13 @@ an editable nested expression. Run it from the checkout so its example font path
 resolves. Build outputs/logs default to `/tmp/moxi-d02`; override
 `MOXI_D02_BUILD_DIR` when needed.
 
+Builds reuse unchanged native objects and executables, including when launched
+through `pixi run formula-editor-demo` or the Playground. The cache checks source
+contents, HarfBuzz headers/library, the Pixi lockfile, compiler and SDK versions,
+and output contents. Missing or modified outputs rebuild automatically. Build
+directory and HarfBuzz prefix overrides remain supported. To force a rebuild,
+run `bash scripts/math/build.sh --force`.
+
 For computation, use Python 3.11+ and the D01 pinned dependencies:
 
 ```sh
