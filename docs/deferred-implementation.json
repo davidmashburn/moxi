@@ -185,7 +185,8 @@
       "commits": [
         "c44de8c",
         "cf68880",
-        "4bd6636"
+        "4bd6636",
+        "9c55856"
       ],
       "verification": [
         "Parent reviewed and committed current-state SVG/PNG/PDF export, local platform wheels, GTK entry point and the shared Float32 native font ABI fix; existing solver and production caps retained.",
@@ -194,10 +195,11 @@
         "Three six-frame galleries from integrated sources: independent PDFium reopening verified dimensions, three Unicode labels, three node centers, native text ink and recovery. PNG/PDF mean RGB differences 0.0803 macOS and 0.0796 Linux; installed Linux consumer also passed.",
         "Parent benchmark: 30 warmup / 200 measured active iterations through 1024 nodes and 4096 links, bypassing input validation only in benchmark construction. Production limits remain 256 nodes / 1024 links; measurements exclude native paint and have no sustained-load or dispersion claim.",
         "All 18 gallery PNGs decoded and passed hash/dimension checks; source and installed-consumer images are pixel-identical on each platform. All three browser pages loaded 12 images and passed previous/next navigation; 25 master manifests validate.",
-        "GTK/X11 Save exported SVG, PNG and PDF through painted native dialogs. Reopened outputs preserved the three filtered labels and node positions. Cancel preserved destination bytes and subsequent Save reproduced the SVG. A graph-only chooser capture and an incorrect cancellation message each failed verification. AppKit cancellation passed."
+        "GTK/X11 Save exported SVG, PNG and PDF through painted native dialogs. Reopened outputs preserved the three filtered labels and node positions. Cancel preserved destination bytes and subsequent Save reproduced the SVG. A graph-only chooser capture and an incorrect cancellation message each failed verification. AppKit cancellation passed.",
+        "An exploratory AppKit SVG Save produced a file that reopened with the expected labels and geometry. Independent librsvg decoding reproduced its retained raster byte for byte. AppKit cancellation was observed separately. The successful Save run lacks a launch-time binary digest."
       ],
       "remaining_gates": [
-        "Mac Save, physical input, assistive technology and independent user evaluation remain open. VoiceOver remains paused.",
+        "Mac recovery Save, Escape cancellation, PNG/PDF dialog saves and a complete native sequence remain open. Desktop input automation lost the window. Physical input, assistive technology and independent user evaluation remain open. VoiceOver remains paused.",
         "Linux evidence is emulated x86-64 Ubuntu 24.04 with GTK 4.14, Xvfb and software Cairo; physical Linux/Wayland, other distributions/CPUs and older macOS remain unverified. Linux wheel is not manylinux; optional rsvg-convert and GTK/system dependencies are not bundled.",
         "Full repository suite, remote CI, fresh Dockerfile image build, sustained performance and public distribution/licensing acceptance were not checked. Runtime notices retained; no publication performed."
       ],
