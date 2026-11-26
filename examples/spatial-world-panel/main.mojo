@@ -84,8 +84,9 @@ struct Probe:
             return
         # World keyboard control is scoped; native composition is explicitly
         # unsupported there. Synthetic source-owner protocol is replayed below.
-        if self.mode == PanelMode.WORLD and self.app.focus_id() == 1 and e.kind == TEXT_INPUT_KIND:
-            self.message = "World native text geometry FAILED. Press F6 to edit this same field on screen."
+        var text_event = e.kind == TEXT_INPUT_KIND or e.kind == COMPOSITION_UPDATE_KIND or e.kind == COMPOSITION_END_KIND
+        if self.mode == PanelMode.WORLD and self.app.focus_id() == 1 and text_event:
+            self.message = "World text editing is experimental. Press F6 to edit this same field on screen."
             return
         _ = self.app.dispatch(e)
 
@@ -104,8 +105,10 @@ def draw(mut probe: Probe,window: MacOSWindowInstance,source: MacOSWindowInstanc
         external_call["wp_hide_semantics",NoneType]()
         window.activate()
         external_call["wp_hide_semantics",NoneType]()
+        external_call["wp_bind_geometry",NoneType](view._handle,source.handle,Int32(probe.app.focus_id()==1))
     else:
         window.activate()
+        external_call["wp_bind_geometry",NoneType](UInt64(0),source.handle,Int32(0))
         var x = Float32(panel.project_x(0,0))
         var y = Float32(panel.project_y(0,0))
         assert_true(x == x and y == y)
@@ -118,10 +121,13 @@ def draw(mut probe: Probe,window: MacOSWindowInstance,source: MacOSWindowInstanc
     probe.frames += 1
 
 
-def capture(window: MacOSWindowInstance,directory: String,name: String) raises:
+def capture(window: MacOSWindowInstance,directory: String,name: String,outline_range: Bool = False) raises:
     window.activate()
     var path = directory+"/"+name+".png"
-    external_call["wp_capture",NoneType](path.as_c_string_span().ptr())
+    if outline_range:
+        external_call["wp_capture_range",NoneType](path.as_c_string_span().ptr())
+    else:
+        external_call["wp_capture",NoneType](path.as_c_string_span().ptr())
 
 
 def drain(mut window: MacOSWindowInstance,mut probe: Probe,panel: WorldPanel) raises:
@@ -175,7 +181,7 @@ def replay(mut window: MacOSWindowInstance,mut source: MacOSWindowInstance,mut p
     var expected_x = panel.project_x(caret_x,caret_y)
     var expected_y = panel.project_y(caret_x,caret_y)
     assert_true(abs(expected_x-caret_x)>50)
-    print("WORLD_IME_FAILED local_caret",caret_x,caret_y,"required_projected",expected_x,expected_y)
+    print("BASELINE_SOURCE_ONLY local_caret",caret_x,caret_y,"required_projected",expected_x,expected_y)
     external_call["wp_marked",NoneType]()
     # Drain source-owner protocol events directly to the ordinary runtime.
     var e = source.poll_event()
@@ -184,13 +190,17 @@ def replay(mut window: MacOSWindowInstance,mut source: MacOSWindowInstance,mut p
             _ = probe.app.dispatch(e)
         e = source.poll_event()
     assert_true(not probe.app.component.input.has_composition())
-    probe.message = "Native source has text/button/slider roles, but caret / AX frames are source-local: WORLD FAILED."
+    probe.message = "Projected native text range on oblique plane. F6 opens the supported screen editor."
     draw(probe,window,source,view,panel)
     source.activate()
     assert_equal(external_call["wp_editor_identity",UInt64](),identity)
-    capture(window,directory,"03-text-focus-failure")
+    window.activate()
+    external_call["wp_check_geometry",NoneType](view._handle,source.handle,Int32(1))
+    capture(window,directory,"03-projected-range",True)
     # Half-space clips the left side; foreground real scene geometry occludes right.
     assert_true(view.set_clip(SpatialClip(True,SpatialPoint(1,0,0),0)))
+    draw(probe,window,source,view,panel)
+    external_call["wp_check_geometry",NoneType](view._handle,source.handle,Int32(0))
     var objects = List[SpatialObject]()
     objects.append(SpatialObject(91,SpatialPoint(.8,0,.8),0,.8,SpatialPoint(.9,.25,.18)))
     assert_true(view.replace_objects(objects))
@@ -240,7 +250,7 @@ def replay(mut window: MacOSWindowInstance,mut source: MacOSWindowInstance,mut p
     assert_true(screen_caret_x >= Float64(screen_bounds.x) and screen_caret_x <= Float64(screen_bounds.x+screen_bounds.width))
     assert_true(screen_caret_y >= Float64(screen_bounds.y) and screen_caret_y <= Float64(screen_bounds.y+screen_bounds.height))
     print("SCREEN_CARET_PASS",screen_caret_x,screen_caret_y)
-    capture(window,directory,"05-screen-editor")
+    capture(window,directory,"05-screen-editor",True)
     probe.event(panel,Event(KeyEvent(KEY_F6)))
     draw(probe,window,source,view,panel)
     pointer(window,probe,panel,0,100,slider_y)
@@ -248,7 +258,7 @@ def replay(mut window: MacOSWindowInstance,mut source: MacOSWindowInstance,mut p
     probe.event(panel,Event(KeyEvent(KEY_ESCAPE)))
     assert_equal(probe.app.component.slider.value,Float32(99))
     assert_true(not probe.dragging)
-    probe.message = "PASS ray/capture/cancel, shared state, native screen contracts. FAIL world IME/AX geometry. NOT PROMOTED."
+    probe.message = "PASS ray/capture/cancel, shared state, native screen contracts. Projected range verified. World editing experimental."
     draw(probe,window,source,view,panel)
     capture(window,directory,"06-cancel-recovery")
     var submissions = view.metric(SpatialMetric.SUBMISSIONS)

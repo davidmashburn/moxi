@@ -28,15 +28,26 @@ existing AppKit responder path in screen mode.
 
 ## Decision: do not promote world panels
 
-Confidence is high that the current API is insufficient for usable world-space
-native text/semantics: the executable measures native caret coordinates in the
-source owner and compares them with the actual projection. Existing native text
-and accessibility elements describe axis-aligned owner-local controls. Moving a
-texture into a perspective plane does not move the field editor, its input-method
-candidate geometry or accessibility hit targets. World semantics are therefore
-suppressed, rather than publishing incorrect rectangles. This mode deliberately
-rejects text-input delivery and tells the user to use the screen route. It is a
-geometry/control feasibility experiment, not an accessible world editor.
+For a focused single-line field the destination canvas answers AppKit
+`firstRectForCharacterRange:actualRange:` using the hidden source's current
+`NSTextView` field editor. It converts the native screen rectangle into panel
+points, projects its four corners and returns their bounding rectangle in the
+destination window's screen coordinates. The query declines ranges that cross
+the field, viewport or document clip, and conservatively declines every scene
+with triangle geometry because an occluder can cover the rectangle's interior.
+Changing mode clears the override and invalidates AppKit's coordinate cache.
+
+AppKit can shorten a source rectangle at a native clip while still reporting the
+entire requested range. Before projection, the host checks the layout manager's
+unclipped enclosing rectangles against both field and editor visibility. It
+converts from text-container coordinates through the editor, including its origin
+and view scroll offset. Zero-width insertion rectangles remain valid.
+
+This measures forward range geometry only. The world canvas does not proxy
+the source text input session, selection or inverse character hit testing.
+Use F6 for editing. World accessibility children remain suppressed because
+an axis-aligned frame cannot represent oblique or partially occluded hit
+regions. Screen mode retains ordinary accessibility roles and frames.
 
 The same component in a projected **screen** editor exposes actual native text,
 button and slider roles. The replay verifies screen caret containment, field
@@ -48,7 +59,48 @@ VoiceOver stays paused. A native API that supplies coherent transformed text and
 semantic geometry, followed by real IME/AT acceptance, would change the decision.
 D05's production renderer decision remains OPEN.
 
-### Packaged replay, November 23, 2026
+The synthetic replay uses AppKit pointer events to focus the ordinary field,
+queries insertion range `0+0` and substring `3+2`, then clips the field
+and switches the same model to the screen editor. Yellow outlines in frames
+03 and 05 mark the queried substring. To retain a local comparison without
+regenerating the gallery, build as above and run:
+
+```sh
+mkdir -p dist/d08-evidence/after
+dist/spatial-world-panel/panel --replay dist/d08-evidence/after
+```
+
+#### Native replay, November 25, 2026
+
+![Three native replay crops showing the queried substring in an oblique field, the clipped field, and the screen editor](evidence/native-range-comparison.png)
+
+Left to right: AppKit range `3+2` on the world panel, the same area after
+clipping and adding a scene object, and the same substring in the screen
+editor after native insertion. The replay checked the clipped range before
+adding the object. On macOS 27.2.1 arm64, with a 1000×710-point destination
+and 2× AppKit capture, the source field editor reported a zero-width,
+19-point-high insertion rectangle at (22, 56). Its four corners enclosed
+(386.33, 258.01, 0.69, 14.18) in destination points. The destination canvas
+returned those bounds within 0.01 point on each edge. Range `3+2` measured
+(401.16, 259.05, 5.62, 14.91) in world presentation and
+(420.38, 271.04, 8.69, 19.00) through the screen field editor.
+The replay verified source-editor identity, retained model state and the
+screen text/button/slider accessibility roles. Separate native checks queried
+retained, partially clipped and fully clipped ranges, an unfocused field,
+a populated scene and a retired source owner.
+
+The native panel contract also reproduces ordinary host clipping with a
+400×240-point source and 500×300-point destination. Range `3+2` measures
+`(49.28125, 56, 14.6015625, 19)` before clipping at x=`56.58203125`.
+AppKit then reports width `7.30078125` with unchanged `actualRange={3,2}`.
+The regression fails on `e28f28f`, which serves that shortened range, and passes
+with the visibility check: the destination returns `NSZeroRect` and
+`actualRange={NSNotFound,0}`. It also checks the other partial clip edges, a fully
+hidden range, retained and empty insertions, recovery, editor identity/selection/text
+and clear-override fallback. These are synthetic AppKit checks; the fixture does
+not establish actual horizontal scrolling or physical IME/AT acceptance.
+
+### Packaged baseline, November 23, 2026
 
 A fresh macOS arm64 replay built the public module and linked three consumers
 from a directory containing only the package inputs at `3971322`. The world
@@ -56,7 +108,7 @@ caret measured (26.00, 58.00) in owner coordinates. Projection required
 (388.62, 259.67). The screen editor's caret landed inside its control at
 (398.09, 273.04). Contract, lifecycle, AppKit text protocol, Metal composition
 and the 17-frame explorer and 14-frame assembly replays passed.
-The measured world-space mismatch keeps promotion rejected. Physical IME and
+That baseline returned source-local geometry in world mode. Physical IME and
 assistive-technology acceptance remain open.
 
 ## Bounded seam and policy

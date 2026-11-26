@@ -1,4 +1,4 @@
-"""S4 experimental affine planar mapping. World IME/AX geometry is unsupported.
+"""S4 experimental affine planar mapping. Screen mode supports native editing and AX.
 
 One panel per SpatialViewport; the viewport and source owner must outlive this
 borrowed adapter. Same owner cannot be source and destination. No event loop.

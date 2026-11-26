@@ -25,6 +25,8 @@
 
 @interface MoxiCanvasView : NSView <NSTextInputClient, NSTextFieldDelegate, NSTextViewDelegate>
 @property(nonatomic, weak) MoxiWindowState *moxiOwner;
+// Optional destination-side geometry for experimental composed content.
+@property(nonatomic, copy) NSRect (^composedCharacterRect)(NSRange, NSRangePointer);
 @property(nonatomic, strong) NSTextField *nativeTextEditor;
 @property(nonatomic, strong) MoxiEditorClipView *nativeTextEditorClip;
 @property(nonatomic, strong) NSString *nativeTextEditorValue;
@@ -3365,6 +3367,8 @@ double moxi_window_benchmark_custom_paint(int iterations) {
 - (NSRect)firstRectForCharacterRange:(NSRange)range
                           actualRange:(NSRangePointer)actualRange {
     MOXI_CALLBACK_SCOPE(return NSZeroRect);
+    if (self.composedCharacterRect)
+        return self.composedCharacterRect(range, actualRange);
     NSString *text = moxi_active_text_input_text();
     NSUInteger start = range.location == NSNotFound
         ? [text length]
