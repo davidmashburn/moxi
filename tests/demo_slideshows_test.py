@@ -7,6 +7,7 @@ import importlib.util
 import json
 from pathlib import Path
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -23,6 +24,15 @@ spec.loader.exec_module(slideshows)
 
 def png_chunk(kind, data):
     return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+
+
+def synthetic_png(pixels, width=1, height=1, depth=8, color=2,
+                  compression=0, filtering=0, interlace=0, palette=None):
+    return (slideshows.PNG_SIGNATURE
+            + png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, depth, color,
+                                             compression, filtering, interlace))
+            + (png_chunk(b"PLTE", palette) if palette is not None else b"")
+            + png_chunk(b"IDAT", zlib.compress(pixels)) + png_chunk(b"IEND", b""))
 
 
 # A valid synthetic 1-pixel unit fixture, never used as gallery evidence.
@@ -93,6 +103,55 @@ class SlideshowTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.load()
 
+    def test_reject_crc_valid_png_with_invalid_encoding_or_scanlines(self):
+        for options, pixels in (
+                ({"depth": 3}, b"\x00\xff\x00\x00"),
+                ({"color": 1}, b"\x00\xff\x00\x00"),
+                ({"compression": 1}, b"\x00\xff\x00\x00"),
+                ({"filtering": 1}, b"\x00\xff\x00\x00"),
+                ({"interlace": 2}, b"\x00\xff\x00\x00"),
+                ({"color": 3, "depth": 1}, b"\x00\x00"),
+                ({}, b"\x00\xff\x00"),
+                ({}, b"\x00\xff\x00\x00\x00"),
+                ({}, b"\x05\xff\x00\x00"),
+                ({"width": 3, "height": 3, "interlace": 1}, b"\x00" * 30)):
+            with self.subTest(options=options, pixels=pixels):
+                (self.demo / "unit.png").write_bytes(synthetic_png(pixels, **options))
+                with self.assertRaises(ValueError):
+                    slideshows.read_png(self.demo / "unit.png")
+
+    def test_accept_packed_16bit_and_adam7_png_scanlines(self):
+        for options, pixels in (
+                ({"color": 0, "depth": 1}, b"\x00\x80"),
+                ({"color": 3, "depth": 1, "palette": b"\x00\x00\x00"}, b"\x00\x00"),
+                ({"depth": 16}, b"\x00\xff\xff\x00\x00\x00\x00"),
+                # 3x3 RGB Adam7 has six scanlines in passes 1, 4, 5, 6, 7.
+                ({"width": 3, "height": 3, "interlace": 1}, b"\x00" * 33)):
+            with self.subTest(options=options):
+                data = synthetic_png(pixels, **options)
+                (self.demo / "unit.png").write_bytes(data)
+                self.assertEqual(slideshows.read_png(self.demo / "unit.png"), data)
+
+    def test_undecodable_png_is_not_certified_by_audit_generation_or_strict_cli(self):
+        self.path.write_text(json.dumps(self.manifest))
+        (self.demo / "unit.png").write_bytes(
+            synthetic_png(b"\x00\xff\x00\x00", depth=3))
+        row = auditor.audit(self.root)["demos"][0]
+        self.assertEqual(row["schema_and_images"], "fail")
+        self.assertTrue(row["capture_errors"])
+        self.assertEqual(slideshows.build(self.root), 1)
+        self.assertFalse((self.demo / "index.html").exists())
+        self.assertNotIn("Open recorded deck", (self.root / "index.html").read_text())
+        cli = [sys.executable, str(Path(__file__).parents[1] / "scripts/demo_slideshows.py"),
+               str(self.root)]
+        generated = subprocess.run(cli, capture_output=True, text=True)
+        self.assertEqual(generated.returncode, 0, generated.stderr)
+        self.assertFalse((self.demo / "index.html").exists())
+        self.assertNotIn("Open recorded deck", (self.root / "index.html").read_text())
+        checked = subprocess.run(cli + ["--check"], capture_output=True, text=True)
+        self.assertNotEqual(checked.returncode, 0)
+        self.assertIn("1 galleries lack valid capture evidence", checked.stderr)
+
     def test_audit_distinguishes_missing_stale_current_and_unknown(self):
         source = "scripts/demo_gallery.py"
         digest = hashlib.sha256((catalog.ROOT / source).read_bytes()).hexdigest()
@@ -149,6 +208,32 @@ class SlideshowTest(unittest.TestCase):
                 report = auditor.audit(self.root)
                 self.assertEqual(report["gallery_count"], 2)
                 self.assertEqual(report["schema_pass_count"], 1)
+
+    def test_list_capture_kind_retains_failed_entry_and_valid_neighbor(self):
+        self.load()
+        other = self.root / "malformed"
+        other.mkdir()
+        (other / "unit.png").write_bytes(PNG)
+        manifest = copy.deepcopy(self.manifest)
+        manifest["demo_id"] = other.name
+        manifest["slides"][0]["capture_kind"] = []
+        (other / "manifest.json").write_text(json.dumps(manifest))
+        report = auditor.audit(self.root)
+        self.assertEqual(report["gallery_count"], 2)
+        self.assertEqual(report["schema_pass_count"], 1)
+        failed = next(row for row in report["demos"] if row["demo_id"] == other.name)
+        self.assertEqual(failed["schema_and_images"], "fail")
+        self.assertIn("CaptureKind", failed["capture_errors"][0])
+        self.assertEqual(failed["frames"], 4)
+        self.assertEqual(failed["capture_kinds"], {"offscreen-render": 3})
+        self.assertEqual(slideshows.build(self.root), 2)
+        master = (self.root / "index.html").read_text()
+        self.assertIn("id='malformed'", master)
+        self.assertIn("unit-fixture/index.html", master)
+        self.assertNotIn("malformed/index.html", master)
+        self.assertFalse((other / "index.html").exists())
+        with self.assertRaisesRegex(ValueError, "1 galleries lack valid capture evidence"):
+            slideshows.build(self.root, check_only=True)
 
     def test_existing_deck_is_preserved_and_checked_against_images(self):
         loaded = self.load()
