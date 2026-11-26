@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "demo_id": "lived-spaces",
+  "title": "Compose a timed exhibit reveal",
+  "scenario": "V09 partition and cue authoring, I06 term inspection and I07 checkpoint replay",
+  "host": "macOS 27.2.1 arm64",
+  "backend": "AppKit window content capture; Moxi spatial CPU projection and ray picking",
+  "fixture": "Two parallel 7 m paths, one exhibit, one partition and one cue",
+  "reproduce": "python3 examples/lived-spaces/gallery.py",
+  "revision": "ff5530da426425d92fb4f17106b3d90e969f4dd3",
+  "scale": 2.0,
+  "slides": [
+    {
+      "image": "01-routes.png",
+      "phase": "initial",
+      "caption": "Two walks to the exhibit",
+      "action": "Launch at 7 s on North.",
+      "expected": "Both routes have cleared the partition. The selected visitor sees 75% light.",
+      "dimensions": [
+        1840,
+        1170
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "02-partition.png",
+      "phase": "interaction",
+      "caption": "A spatial edit separates the routes",
+      "action": "Move the partition +1 m.",
+      "expected": "North loses sight at the cursor. South remains clear.",
+      "dimensions": [
+        1840,
+        1170
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "03-peak.png",
+      "phase": "result",
+      "caption": "A brighter cue behind the wall",
+      "action": "Move the peak one second later.",
+      "expected": "The exhibit reaches 100% at the cursor while North remains blocked.",
+      "dimensions": [
+        1840,
+        1170
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "04-undo.png",
+      "phase": "recovery",
+      "caption": "Restore both representations",
+      "action": "Undo the cue, then the partition.",
+      "expected": "The peak returns to 6 s, the sightline clears and history is empty.",
+      "dimensions": [
+        1840,
+        1170
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "05-rejected.png",
+      "phase": "recovery",
+      "caption": "The partition reaches its travel limit",
+      "action": "Switch to South, scrub to 5 s, move −1 m and checkpoint. Advance the cue, move −1 m, then try once more.",
+      "expected": "The final move is rejected at −2 m. Three edits remain in history.",
+      "dimensions": [
+        1840,
+        1170
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "06-restored.png",
+      "phase": "recovery",
+      "caption": "Return to the third action",
+      "action": "Restore the checkpoint.",
+      "expected": "South at 5 s, partition −1 m, peak 6 s and one history entry return.",
+      "dimensions": [
+        1840,
+        1170
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "07-definition.png",
+      "phase": "interaction",
+      "caption": "Inspect the envelope width",
+      "action": "Press Command-F, then Command-D.",
+      "expected": "The cue formula gives way to its asymmetric rise and fall durations.",
+      "dimensions": [
+        1840,
+        1170
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "08-selection.png",
+      "phase": "result",
+      "caption": "Return to the selected term",
+      "action": "Press Command-D again.",
+      "expected": "The formula regains keyboard focus with width selected.",
+      "dimensions": [
+        1840,
+        1170
+      ],
+      "capture_kind": "native-window"
+    }
+  ]
+}
