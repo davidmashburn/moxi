@@ -26,10 +26,10 @@ class Phase(str, Enum):
 STATES = [
  ('01-oblique', Phase.INITIAL, 'Ordinary text, button and slider on a real oblique plane', 'Launch native probe', 'Perspective-correct texture in the existing depth pass'),
  ('02-capture-outside', Phase.INTERACTION, 'Ray slider drag retains capture outside the panel', 'Drag local x=100 to x=500 on a 400-point panel', 'Slider reaches 100; capture remains active until release'),
- ('03-text-focus-failure', Phase.RESULT, 'Focus survives; native world text geometry fails', 'Click button and text; compare actual caret with its world projection', 'One click and stable focus; source-local IME coordinates explicitly unsupported'),
+ ('03-projected-range', Phase.RESULT, 'Oblique projection of native field-editor ranges', 'Click button and text; query destination canvas insertion and substring rectangles', 'One click and stable focus; destination ranges enclose projected source geometry'),
  ('04-hidden-click', Phase.INTERACTION, 'Clipping and real scene occlusion reject input', 'Clip x<0; add foreground geometry; attempt both hidden targets', 'Clipped and depth-occluded clicks return HIDDEN'),
  ('05-screen-editor', Phase.RESULT, 'Equivalent screen editor controls the same model', 'Switch mode; replay native text protocols, selection, clipboard and keyboard', 'Same text/count/level; actual native roles and coherent screen caret'),
- ('06-cancel-recovery', Phase.RECOVERY, 'Cancellation restores state; world promotion rejected', 'Return to world; drag slider then Escape', 'Level restored to 99; explicit supported geometry and failed world IME/AX cases'),
+ ('06-cancel-recovery', Phase.RECOVERY, 'Cancellation restores state; world promotion rejected', 'Return to world; drag slider then Escape', 'Level restored to 99; screen editing remains supported'),
 ]
 
 def sha(data):
@@ -88,7 +88,7 @@ def main():
         assert any(s.startswith('IDLE_REUSE 100 mappings zero submissions') for s in lines), log
         cold.extend(c); warm.extend(row[0] for row in w); bridge.extend(row[1] for row in w)
         assert any(s.startswith('REUSE_PASS 30 draws') for s in lines), log
-        evidence.append({'log': log, 'observations': [s for s in lines if s.startswith(('WORLD_IME_FAILED','SCREEN_CARET_PASS','PASS native','IDLE_REUSE','REUSE_PASS'))]})
+        evidence.append({'log': log, 'observations': [s for s in lines if s.startswith(('BASELINE_SOURCE_ONLY','WORLD_RANGE','SCREEN_CARET_PASS','PASS native','IDLE_REUSE','REUSE_PASS'))]})
     after = sources()
     assert before==after, 'Source changed during build/replay; discard these captures'
     assert revision==output(['git','rev-parse','HEAD']), 'Revision changed during replay'

@@ -401,6 +401,33 @@ double ms_panel_project(uint64_t id,double x,double y,int axis) {
   if(q.state==AnchorState::BehindCamera || q.depth>=100) return NAN;
   return axis==0 ? q.x : q.y;
 }
+int ms_panel_caret_bounds(uint64_t id, double x, double y, double width, double height, double bounds[4]) {
+  auto e = get(id);
+  if (!e || !bounds || !std::isfinite(x) || !std::isfinite(y) ||
+      !std::isfinite(width) || !std::isfinite(height) ||
+      x < 0 || y < 0 || width < 0 || height <= 0 ||
+      x + width > e->panel.pose.width || y + height > e->panel.pose.height)
+    return 0;
+  auto state = e->model.state();
+  if (state != State::Ready && state != State::Computing) return 0;
+  const auto &frame = e->model.frame();
+  // Corner visibility proves containment in convex clip/viewport half-spaces.
+  // An interior occluder could evade corner tests, so decline populated scenes.
+  if (!frame.triangles.empty() || !e->panel.visibleDepth(frame)) return 0;
+  const auto clip = e->model.document().clip;
+  double left = INFINITY, top = INFINITY, right = -INFINITY, bottom = -INFINITY;
+  for (double u : {x, x + width}) for (double v : {y, y + height}) {
+    auto world = e->panel.point(u, v);
+    auto q = project(world, frame.camera, frame.viewport);
+    if (q.state != AnchorState::Visible || (clip.enabled && dot(clip.normal,world) < clip.offset))
+      return 0;
+    left = std::min(left,q.x); right = std::max(right,q.x);
+    top = std::min(top,q.y); bottom = std::max(bottom,q.y);
+  }
+  bounds[0] = left; bounds[1] = top;
+  bounds[2] = right-left; bounds[3] = bottom-top;
+  return 1;
+}
 int ms_panel_render(uint64_t id,uint64_t source,int slot) {
   auto e=get(id);
   if (!e || !e->renderer || !e->panel.configured || source==e->owner) return 0;

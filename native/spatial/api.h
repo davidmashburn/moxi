@@ -117,6 +117,7 @@ int ms_panel_configure(uint64_t session,double ox,double oy,double oz,double ux,
 int ms_panel_route(uint64_t session,int phase,double x,double y);
 double ms_panel_local(uint64_t session,int axis);
 double ms_panel_project(uint64_t session,double x,double y,int axis);
+int ms_panel_caret_bounds(uint64_t id, double x, double y, double width, double height, double bounds[4]);
 int ms_panel_render(uint64_t session,uint64_t source_owner,int image_slot);
 /* Native boundary. Mount binds once to an owner; a different owner is rejected.
  * Render freezes camera/geometry/viewport/revisions, publishes only on exact
