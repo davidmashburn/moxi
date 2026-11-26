@@ -74,10 +74,7 @@ def main():
         save(frame, "initial")
         if args.mode in ("oracle", "ngl"):
             cell = smoke.visible_cell(frame)
-            smoke.click(frame, cell, clip_key=21)
-            frame = smoke.frame(frame["frame"], lambda f: focused(f, cell))
-            smoke.command("type", "q")
-            frame = smoke.frame(frame["frame"], lambda f: focused(f, cell) and "q" in nodes(f)[cell]["value"])
+            frame = smoke.rapid_click_type(frame, cell, "q", clip_key=21)
             save(frame, "collection")
             frame = smoke.focus_dataset(frame)
             frame = smoke.begin_preedit(frame)

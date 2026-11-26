@@ -116,7 +116,7 @@ jobs:
           xvfb-run --auto-servernum --server-args="-screen 0 1440x1000x24" \
             dbus-run-session -- bash -c '
               set -euo pipefail
-              openbox > /tmp/moxi-openbox.log 2>&1 &
+              openbox --config-file scripts/linux_ui_openbox.xml > /tmp/moxi-openbox.log 2>&1 &
               moxi_wm_pid=$!
               trap "kill $moxi_wm_pid" EXIT
               moxi_wm_ready=0

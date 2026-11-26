@@ -3,6 +3,8 @@
 
 These are synthetic X11/GTK-simple-input checks. They do not verify physical
 scrolling, a Japanese IME, or an AT-SPI accessibility implementation.
+For isolated Openbox sessions, use scripts/linux_ui_openbox.xml so window-manager
+pointer grabs cannot hold clicks while the zero-delay keyboard input proceeds.
 """
 
 import argparse
@@ -13,6 +15,7 @@ import math
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -188,7 +191,68 @@ class Smoke:
     def click(self, frame, key, *following, clip_key=None):
         x, y = self.point(frame, key, clip_key)
         self.command("mousemove", "--window", self.window, x, y,
-                     "click", "1", *following)
+                     "click", "--delay", "0", "1", *following)
+
+    def rapid_click_type(self, frame, key, text, *, clip_key=None):
+        """Send click+text without a focus-publication wait or click delay."""
+        before = nodes(frame)
+        since = self.mark()
+        self.click(frame, key, "type", "--clearmodifiers", "--delay", "0", text,
+                   clip_key=clip_key)
+        self.wait("click+type text event", lambda: self.event(since, 3, text=text))
+        commits = [record for record in self.records[since:] if
+                   record.get("type") == "event" and record.get("kind") == 3 and
+                   text in record.get("text", "")]
+        require(all(record["target"] == key for record in commits),
+                f"click+type expected target {key}, received {commits}")
+        frame = self.frame(frame["frame"], lambda current: focused(current, key) and
+                           text in nodes(current).get(key, {}).get("value", ""),
+                           "click+type publication")
+        after = nodes(frame)
+        for other in before.keys() & after.keys():
+            if other != key and before[other]["role"] == 3 and other < 1000:
+                require(after[other]["value"] == before[other]["value"],
+                        f"click+type changed another editor: {other}")
+        return frame
+
+    def queued_focus_burst(self, frame):
+        """Exercise routing with a busy client and an ordered X11 input backlog."""
+        cell = self.visible_cell(frame)
+        other = self.visible_cell(frame, exclude=cell)
+        dataset = nodes(frame)[13]["value"]
+        pane_width = nodes(frame)[10]["width"]
+        expected = [(cell, "q"), (other, "r"), (13, "w"), (cell, "e")]
+        commands = []
+        for key, text in expected:
+            x, y = self.point(frame, key, 21 if key >= 1000 else None)
+            commands.extend(("mousemove", "--window", self.window, x, y,
+                             "click", "--delay", "0", "1",
+                             "key", "--clearmodifiers", "--delay", "0", text))
+        x, y = self.point(frame, 18)
+        commands.extend(("mousemove", "--window", self.window, x, y,
+                         "click", "--delay", "0", "1", "key", "--clearmodifiers",
+                         "--delay", "0", "space", "Right"))
+        since = self.mark()
+        # Only our verified child is paused. Resume even if X11 automation fails.
+        # This exposes batching independently of host scheduling or render speed.
+        os.kill(self.process.pid, signal.SIGSTOP)
+        try:
+            self.command(*commands)
+        finally:
+            os.kill(self.process.pid, signal.SIGCONT)
+        frame = self.frame(frame["frame"], lambda current: focused(current, 18) and
+                           nodes(current)[10]["width"] > pane_width + EPSILON,
+                           "queued click/type and splitter key routing")
+        commits = [(record["target"], record["text"]) for record in self.records[since:]
+                   if record.get("type") == "event" and record.get("kind") == 3]
+        require(commits == expected, f"queued click/type targets: expected {expected}, got {commits}")
+        require(nodes(frame)[13]["value"] == dataset + "w",
+                "queued input changed Dataset outside its addressed edit")
+        require(nodes(frame)[cell]["value"].endswith("qre"), "queued cell edits were not applied")
+        self.passed("queued_click_type_and_nontext_focus", frame=frame["frame"],
+                    commits=commits, nontext_focus=18, space_committed=False,
+                    splitter_keyboard_resize=True)
+        return frame
 
     def focus_dataset(self, frame):
         self.click(frame, 13)
@@ -208,8 +272,14 @@ class Smoke:
                           "3042" in self.composition(current, key), "GTK simple preedit")
 
     def visible_cell(self, frame, exclude=None):
-        candidates = [key for key in nodes(frame) if key >= 1020 and
-                      (key - 1000) % 10 == 2 and key != exclude]
+        semantic = nodes(frame)
+        # Scrolled rows can retain bounds beneath the separately painted frozen
+        # header. Choose a cell fully below it so the click reaches that row.
+        header_bottom = max(node["y"] + node["height"] for key, node in semantic.items()
+                            if 1010 <= key < 1020)
+        candidates = [key for key, node in semantic.items() if key >= 1020 and
+                      (key - 1000) % 10 == 2 and key != exclude and
+                      node["y"] >= header_bottom]
         for candidate in sorted(candidates):
             try:
                 self.point(frame, candidate, 21)
@@ -273,6 +343,10 @@ class Smoke:
         return frame
 
     def exercise(self, frame):
+        self.current_check = "queued_click_type_and_nontext_focus"
+        frame = self.queued_focus_burst(frame)
+        frame = self.focus_dataset(frame)
+
         self.current_check = "summary_reflow"
         previous_y = nodes(frame)[8]["y"]
         self.click(frame, 40)
@@ -391,11 +465,7 @@ class Smoke:
         self.current_check = "rapid_cell_click_type_routing"
         cell = self.visible_cell(frame)
         dataset = nodes(frame)[13]["value"]
-        since = self.mark()
-        self.click(frame, cell, "type", "--clearmodifiers", "--delay", "0", "q", clip_key=21)
-        frame = self.frame(frame["frame"], lambda current: focused(current, cell) and
-                           "q" in nodes(current).get(cell, {}).get("value", "") and
-                           self.event(since, 3, cell, text="q"), "addressed cell click+type")
+        frame = self.rapid_click_type(frame, cell, "q", clip_key=21)
         require(nodes(frame)[13]["value"] == dataset, "cell click+type changed Dataset")
         self.passed(self.current_check, frame=frame["frame"], target=cell,
                     text_event_kind=3, dataset_unchanged=True)
@@ -416,10 +486,26 @@ class Smoke:
                     new_target=next_cell, composition_end_event_kind=9,
                     composition_cleared=True, committed_cell_text_unchanged=True,
                     dataset_unchanged=True)
-        frame = self.focus_dataset(frame)
+        self.current_check = "rapid_click_type_cancels_previous_preedit"
+        frame = self.begin_preedit(frame, next_cell)
+        since = self.mark()
+        frame = self.rapid_click_type(frame, 13, "z")
+        self.wait("addressed previous-cell composition cleanup",
+                  lambda: self.event(since, 9, next_cell))
+        require(nodes(frame)[next_cell]["value"] == committed,
+                "click+type committed the previous cell's preedit")
+        require(nodes(frame)[13]["value"] == dataset + "z" and
+                self.composition(frame) == "", "new editor retained previous preedit")
+        self.passed(self.current_check, frame=frame["frame"], old_target=next_cell,
+                    new_target=13, composition_end_event_kind=9, text="z")
 
         frame = self.scroll(frame, "horizontal_scroll", "7", "dx", "x")
         frame = self.scroll(frame, "vertical_scroll", "5", "dy", "y")
+        self.current_check = "scrolled_cell_click_type_routing"
+        cell = self.visible_cell(frame)
+        frame = self.rapid_click_type(frame, cell, "q", clip_key=21)
+        self.passed(self.current_check, frame=frame["frame"], target=cell,
+                    text_event_kind=3)
         if self.args.screenshot:
             self.current_check = "desktop_screenshot"
             self.args.screenshot.parent.mkdir(parents=True, exist_ok=True)

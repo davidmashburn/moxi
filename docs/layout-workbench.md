@@ -132,6 +132,13 @@ trace and app log are saved under `dist/linux-native-artifacts`. The optional
 `--screenshot PATH` argument requires `xfce4-screenshooter`. CI uses Xvfb/Openbox;
 that lane is separate from the real VM desktop observation.
 
+For a fresh isolated Openbox session, launch it with
+`openbox --config-file scripts/linux_ui_openbox.xml`. The zero-delay click/type
+checks require ordered input: default Openbox client mouse bindings can delay
+clicks behind keyboard events through synchronous pointer grabs. This test
+configuration also retains Alt+F4 for the clean-close check. It belongs only to
+the isolated session; keep the desktop user's configuration intact.
+
 GTK-simple Unicode preedit/commit is synthetic input. The separate real Japanese
 input-method run is recorded in [VM validation](vm-validation.md). Physical
 keyboard/trackpad use and Wayland remain unverified. An external AT-SPI client
