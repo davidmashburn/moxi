@@ -14,6 +14,7 @@ svg{display:block;width:100%;background:#f2f4ed;margin:.8rem 0}.panel{stroke:#37
 button,input,select{font:inherit;padding:.4rem;border:1px solid #86988e;border-radius:4px}button{cursor:pointer;background:#e7eee5}button:disabled{opacity:.5}
 form{margin:16px 0;display:flex;flex-wrap:wrap;align-items:end;gap:14px}label{display:grid;gap:5px}input{width:7rem}
 output{display:block;min-height:1.5em}#status{color:#823b16}table{margin-top:.65rem;border-collapse:collapse;width:100%}th,td{text-align:left;padding:.4rem;border-bottom:1px solid #d8ded4}
+.document{margin:16px 0}.document-actions{display:flex;flex-wrap:wrap;gap:14px}#document-status{margin-top:.55rem;color:#823b16}
 @media(max-width:720px){.views{grid-template-columns:1fr}main{padding:16px}th,td{padding:.25rem;font-size:.87rem}}
 </style>
 <main><h1>Accordion study</h1><p>Three two-panel repeats on a 40 mm deep strip. Pick a panel in either view to follow it across the fold.</p>
@@ -26,6 +27,11 @@ output{display:block;min-height:1.5em}#status{color:#823b16}table{margin-top:.65
 <label>Active panel<select id="pick"></select></label>
 <button>Apply edit</button><button type="button" id="cancel">Cancel edit</button><button type="button" id="undo">Undo</button></form>
 <output aria-live="polite" id="status"></output>
+<section class="document" aria-labelledby="document-heading"><h2 id="document-heading">Saved document</h2>
+<p class="hint" id="document-help">Export saves committed pitch and tilt, the active panel and measurement. Pending edits stay here and are not saved. Import replaces the document and clears pending edits; Undo restores the previous committed document. History is not saved.</p>
+<div class="document-actions"><button type="button" id="export-document" aria-describedby="document-help">Export document</button><button type="button" id="import-document" aria-describedby="document-help">Import document</button></div>
+<input type="file" id="document-file" accept=".json,application/json" hidden>
+<output id="document-status" aria-live="polite"></output></section>
 <section><h2>Compare configurations</h2><table><thead><tr><th>Patch</th><th>Pitch</th><th>Tilt</th><th>Span</th><th>Rise</th></tr></thead><tbody id="comparison"></tbody></table></section></main>
 <script>
 const geometry = /* GEOMETRY */;
@@ -36,6 +42,10 @@ const historyStack = [];
 const count = geometry.sections[0].offsets.length - 1;
 const Parameter = Object.freeze({Pitch:'pitch', Tilt:'tilt'});
 const View = Object.freeze({Flat:'flat', Folded:'folded'});
+const HistoryKind = Object.freeze({Edit:'edit', Measurement:'measurement', Import:'import'});
+const documentFormat = 'moxi-accordion';
+const documentVersion = 1;
+const maxDocumentBytes = 16384;
 const limits = Object.freeze({
   [Parameter.Pitch]:{min:10,max:30,step:0.1,unit:'mm'},
   [Parameter.Tilt]:{min:0,max:75,step:1,unit:'degrees'}
@@ -196,7 +206,7 @@ function applyEdit() {
   const config = readDraft();
   if (!config) return rejectDraft();
   if (config.pitch !== current.pitch || config.tilt !== current.tilt) {
-    historyStack.push({current, measuring});
+    historyStack.push({kind:HistoryKind.Edit, current, measuring});
     current = config;
   }
   syncInputs();
@@ -285,7 +295,7 @@ document.addEventListener('keydown', event => {
 });
 $('cancel').onclick = cancelEdit;
 $('measure').onclick = () => {
-  historyStack.push({current, measuring});
+  historyStack.push({kind:HistoryKind.Measurement, current, measuring});
   measuring = true;
   draw();
   $('status').textContent = 'Tracking crease 3. Dashes trace its front endpoint over the tilt range.';
@@ -296,10 +306,79 @@ $('undo').onclick = () => {
   const previous = historyStack.pop();
   const changedPatch = previous.current !== current;
   ({current, measuring} = previous);
+  if (previous.kind === HistoryKind.Import) {
+    selected = previous.selected;
+    $('pick').value = selected;
+  }
   // Removing a measurement leaves any uncommitted draft/preview in place.
   if (changedPatch) syncInputs();
   draw();
   $('status').textContent = 'Previous patch restored.';
+};
+function savedDocument() {
+  return {format:documentFormat, version:documentVersion, pitch:current.pitch,
+    tilt:current.tilt, selectedPanel:selected, measuring};
+}
+function validateDocument(data) {
+  const keys = ['format','version','pitch','tilt','selectedPanel','measuring'];
+  if (!data || typeof data !== 'object' || Array.isArray(data) ||
+      Object.keys(data).length !== keys.length || !keys.every(key=>Object.hasOwn(data,key)))
+    throw new Error('Expected a complete accordion document with no extra fields.');
+  if (data.format !== documentFormat || data.version !== documentVersion)
+    throw new Error('Expected a moxi-accordion document, version 1.');
+  if (!validPitch(data.pitch) || !Number.isInteger(data.tilt) ||
+      data.tilt < 0 || data.tilt >= geometry.sections.length ||
+      !Number.isInteger(data.selectedPanel) || data.selectedPanel < 1 ||
+      data.selectedPanel > count || typeof data.measuring !== 'boolean')
+    throw new Error('Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement.');
+  return data;
+}
+$('export-document').onclick = () => {
+  let url;
+  try {
+    const json = JSON.stringify(savedDocument(),null,2)+'\n';
+    url = URL.createObjectURL(new Blob([json],{type:'application/json'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'accordion-v1.json';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    $('document-status').textContent = 'Export requested for committed document. Pending edits are not included.';
+  } catch {
+    $('document-status').textContent = 'Export failed. Your work is unchanged.';
+  } finally {
+    if (url) setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+};
+$('import-document').onclick = () => $('document-file').click();
+$('document-file').onchange = async () => {
+  const file = $('document-file').files[0];
+  // Clear the picker so the same file can be corrected and selected again.
+  $('document-file').value = '';
+  if (!file) return;
+  $('import-document').disabled = true;
+  try {
+    if (file.size > maxDocumentBytes) throw new Error('Document exceeds the 16 KiB limit.');
+    const data = validateDocument(JSON.parse(await file.text()));
+    // Reading and validation precede every mutation, including draft cancellation.
+    stopDrag();
+    historyStack.push({kind:HistoryKind.Import, current, measuring, selected});
+    current = {pitch:data.pitch,tilt:data.tilt};
+    measuring = data.measuring;
+    selected = data.selectedPanel;
+    $('pick').value = selected;
+    syncInputs();
+    draw();
+    $('status').textContent = 'Imported document applied. Pending edits cleared.';
+    $('document-status').textContent = 'Document imported. Undo restores the previous committed document.';
+  } catch (error) {
+    const detail = error instanceof SyntaxError ? 'Invalid JSON.' :
+      error instanceof Error ? error.message : 'Could not read this file.';
+    $('document-status').textContent = 'Import rejected. '+detail+' Your work is unchanged.';
+  } finally {
+    $('import-document').disabled = false;
+  }
 };
 syncInputs();
 draw();

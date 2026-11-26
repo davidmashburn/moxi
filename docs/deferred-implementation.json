@@ -908,17 +908,21 @@
         "52ef8c3",
         "8040f9e",
         "ae1663f",
-        "d3b73ca"
+        "d3b73ca",
+        "b1cd61f",
+        "68decf7"
       ],
       "verification": [
         "Flat and folded selection matched. The browser exercised 76 tilt samples, numeric rejection, undo and narrow layout. Measurement and undo preserve numeric drafts and slider previews. Picking the adjacent folded face succeeds at 10 mm pitch and 75 degrees.",
-        "Direct pitch editing in both views and folded tilt editing matched numeric entry at 1180 and 390 pixels. Dragging back to the grab point restored each starting value and left undo history empty."
+        "Direct pitch editing in both views and folded tilt editing matched numeric entry at 1180 and 390 pixels. Dragging back to the grab point restored each starting value and left undo history empty.",
+        "At 1180 and 390 pixels, a fresh Chrome process reopened exported geometry, panel selection and the attached measurement. Ten document scenarios covered 60 invalid inputs, retention of drafts on failure and a single undo after successful import."
       ],
       "remaining_gates": [
-        "A measured paper sample and maker trial are needed for physical geometry and usability. Arbitrary joint editing and saved document round trips remain open."
+        "A measured paper sample and maker trial are needed for physical geometry and usability. Arbitrary joint editing and native file-picker interaction remain open."
       ],
       "slideshows": [
-        "artifacts/demo-slideshows/v11-foldable-motif/index.html"
+        "artifacts/demo-slideshows/v11-foldable-motif/index.html",
+        "artifacts/demo-slideshows/v11-foldable-motif/saved-document/README.md"
       ]
     },
     {
