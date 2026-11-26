@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "demo_id": "visible-proposals",
+  "title": "Visible fit proposals",
+  "scenario": "I11 \u2022 Inspect a deterministic two-parameter fit in the live workspace.",
+  "revision": "23f899f00b26038c6fdabed438a097d4c8bc60cf",
+  "host": "macOS 27.2.1",
+  "backend": "Moxi AppKit content-view capture",
+  "scale": 2.0,
+  "fixture": "Fixed measurements (0, 4), (1, 7); initial gain 1, offset 0.",
+  "reproduce": "pixi run --locked python examples/visible-proposals/gallery.py",
+  "slides": [
+    {
+      "image": "01-initial.png",
+      "phase": "initial",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "native-window",
+      "caption": "Open the calibration sample",
+      "action": "Open the calibration sample",
+      "expected": "Gain 1 and offset 0 at revision 0. Apply is disabled."
+    },
+    {
+      "image": "02-inspect.png",
+      "phase": "interaction",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "native-window",
+      "caption": "Request a fit proposal",
+      "action": "Request a fit proposal",
+      "expected": "Inspect gain 1 to 3 and offset 0 to 4 alongside the unchanged live values."
+    },
+    {
+      "image": "03-reject.png",
+      "phase": "result",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "native-window",
+      "caption": "Reject the proposal",
+      "action": "Reject the proposal",
+      "expected": "The preview clears. Both values and the revision stay unchanged."
+    },
+    {
+      "image": "04-edited.png",
+      "phase": "interaction",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "native-window",
+      "caption": "Request again and increase live gain",
+      "action": "Request again and increase live gain",
+      "expected": "Revision 1 has gain 2. The preview still describes revision 0."
+    },
+    {
+      "image": "05-stale.png",
+      "phase": "recovery",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "native-window",
+      "caption": "Apply the outdated proposal",
+      "action": "Apply the outdated proposal",
+      "expected": "Stale rejection preserves gain 2 and offset 0 at revision 1."
+    },
+    {
+      "image": "06-applied.png",
+      "phase": "result",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "native-window",
+      "caption": "Request a fresh proposal and apply it",
+      "action": "Request a fresh proposal and apply it",
+      "expected": "Both changes land together at revision 2. The preview clears."
+    }
+  ]
+}

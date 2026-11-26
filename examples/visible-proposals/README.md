@@ -29,3 +29,12 @@ keyboard-navigable slideshow beside its [manifest](../../artifacts/demo-slidesho
 Open `artifacts/demo-slideshows/visible-proposals/index.html` after generation.
 Physical pointer and keyboard input, VoiceOver use and independent human
 assessment of the conflict message remain untested.
+
+Verified on 2026-11-25 against source `23f899f`, macOS 27.2.1 and Mojo
+1.1.0. The standalone launcher opened successfully. The native replay passed
+all six steps at 480 × 450 points (960 × 900 captured pixels). The [slideshow
+manifest](../../artifacts/demo-slideshows/visible-proposals/manifest.json)
+records each action and expected result. In local headless Chrome the six
+captures decoded, Right Arrow advanced to slide 2, the final thumbnail selected
+slide 6 and Previous returned to slide 5. The build used the existing locked
+Pixi environment and compiled the sources in this checkout.
