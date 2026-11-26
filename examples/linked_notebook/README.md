@@ -106,8 +106,10 @@ is bounded by its deadline even if the frontend disappears before it returns.
 
 Tab reaches the filter, controls, plot group and one table record. Arrow keys,
 Home and End move the table's roving focus without selecting. Enter/Space selects;
-Escape clears. Acknowledged redraw restores focus to the same visible key or the
-first remaining record. Removing all records moves table focus to the plot group.
+Escape clears. Acknowledged redraw restores focus and the table scroll anchor to
+the same visible key. If that key disappears, the first remaining record receives
+focus and the table pane scrolls to reveal it without moving the notebook.
+Removing all records moves table focus to the plot group.
 Selection is exposed through the table button's `aria-pressed`, textual details,
 SVG image label and live status. The selected-record details verify Moxi's actual
 selected semantic node. This is a bounded semantic projection, not a general
@@ -184,8 +186,24 @@ record source/binary/wheel/screenshot hashes, exact versions, measured limits an
 capture types. Browser Paint event durations are main-thread work, not GPU
 completion, display latency or compositor timing.
 
-Remaining gates: actual remote kernel/frontend host and network, screen reader
-(VoiceOver paused), physical input, independent usability, other frontends and
-browsers, Linux/Windows build/runtime, and public compatibility. Local success
+A separate local check used headless WebKit 27.2 with JupyterLab 4.4.10
+at 1440 × 1000. Tab, ArrowDown and Enter selected Sample 02. The table's
+pressed state, SVG label and selected-record region agreed, and updating the
+second widget preserved focus in the first. Cutting a loopback TCP relay
+expired the lease with the last selection visible. Restoring the relay and
+clicking Retry recovered the same session and kernel PID. End and Space then
+selected Sample 12 and kept its focused button visible in the scrolling table.
+A kernel restart changed the PID, stopped the old view's
+timer and allowed selection again after rerunning the cells.
+
+Both consumers need a failed hello to leave the heartbeat stopped. P04 guards
+timer startup on send success. P05 arms the timer before sending so its
+synchronous failure handler can clear it. The P05 capture includes an injected
+send exception for this edge case alongside the actual kernel recovery checks.
+
+Remaining gates include a real remote kernel/frontend host and network, screen
+readers (VoiceOver paused), physical input, independent usability, frontends
+beyond JupyterLab, additional browser engines, Linux/Windows build/runtime,
+and public compatibility. Local success
 closes none of those gates. No public package, push, PR, planning or shared-ledger
 write is part of this implementation.

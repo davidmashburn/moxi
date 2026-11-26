@@ -2,6 +2,7 @@
 
 from moxi import (
     Rect,
+    Scene,
     SvgSceneRenderer,
     test_check,
 )
@@ -9,7 +10,31 @@ from moxi_plot import Plot
 from moxi_plot.fixtures import make_plot_scenario
 
 
+def test_clip_ids() raises:
+    var scene = Scene()
+    var bounds = Rect(0.0, 0.0, 100.0, 80.0)
+    # Repeated command IDs and depths must not alias emitted SVG definitions.
+    scene.push_clip(7, bounds)
+    scene.push_clip(7, bounds)
+    scene.pop_clip()
+    scene.push_clip(7, bounds)
+    scene.pop_clip()
+    scene.pop_clip()
+    scene.push_clip(7, bounds)
+    scene.pop_clip()
+    var renderer = SvgSceneRenderer(100, 80)
+    for frame in range(2):
+        renderer.render_scene(scene)
+        test_check(renderer.clip_depth == 0)
+        test_check(renderer.frame_count == frame + 1)
+        for id in range(1, 5):
+            test_check(String("id=\"moxi-clip-", id, "\"") in renderer.markup())
+            test_check(String("clip-path=\"url(#moxi-clip-", id, ")\"") in renderer.markup())
+        test_check("moxi-clip-5" not in renderer.markup())
+
+
 def main() raises:
+    test_clip_ids()
     var plot = make_plot_scenario(Rect(0.0, 0.0, 320.0, 240.0))
     var renderer = SvgSceneRenderer(320, 240)
     renderer.render_scene(plot.build_scene())

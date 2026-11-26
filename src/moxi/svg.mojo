@@ -62,6 +62,7 @@ struct SvgSceneRenderer(SceneRenderer):
     var output: String
     var frame_count: Int
     var clip_depth: Int
+    var clip_count: Int
     var layer_depth: Int
 
     def __init__(out self, width: Int = 640, height: Int = 480):
@@ -70,6 +71,7 @@ struct SvgSceneRenderer(SceneRenderer):
         self.output = ""
         self.frame_count = 0
         self.clip_depth = 0
+        self.clip_count = 0
         self.layer_depth = 0
 
     def begin_scene(mut self) raises:
@@ -85,6 +87,7 @@ struct SvgSceneRenderer(SceneRenderer):
             "\">",
         )
         self.clip_depth = 0
+        self.clip_count = 0
         self.layer_depth = 0
 
     def draw_scene_command(mut self, command: SceneCommand) raises:
@@ -212,9 +215,11 @@ struct SvgSceneRenderer(SceneRenderer):
             )
         elif command.kind == SCENE_CLIP:
             self.clip_depth += 1
+            # Sibling clips can share a depth, but each definition needs its own ID.
+            self.clip_count += 1
             self.output += String(
                 "<clipPath id=\"moxi-clip-",
-                self.clip_depth,
+                self.clip_count,
                 "\"><rect x=\"",
                 command.bounds.x,
                 "\" y=\"",
@@ -224,7 +229,7 @@ struct SvgSceneRenderer(SceneRenderer):
                 "\" height=\"",
                 command.bounds.height,
                 "\"/></clipPath><g clip-path=\"url(#moxi-clip-",
-                self.clip_depth,
+                self.clip_count,
                 ")\">")
         elif command.kind == SCENE_POP_CLIP:
             if self.clip_depth > 0:

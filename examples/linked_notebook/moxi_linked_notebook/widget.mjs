@@ -63,7 +63,7 @@ export default {render({model,el}) {
 <div class="tools"><label>Minimum response <select aria-label="Minimum response"><option value="0">0 — all</option><option value="40">40</option><option value="70">70</option><option value="100">100 — empty</option></select></label><button class="clear">Clear selection</button><button class="retry">Retry backend</button><button class="dispose">Dispose output</button></div>
 <div class="body"><div class="surface" tabindex="0" role="group" aria-label="Assay scatter plot; choose records in the table for keyboard access"><div class="svg"></div><div class="preview"></div></div><div class="details" role="region" aria-label="Selected record" aria-live="polite"></div></div>
 <div class="records"><table><caption>Linked records — Dose and response</caption><thead><tr><th scope="col">Sample</th><th scope="col">Dose</th><th scope="col">Response</th></tr></thead><tbody></tbody></table></div></section>`;
-  const $=s=>el.querySelector(s), surface=$('.surface'), status=$('.status'), tbody=$('tbody'), preview=$('.preview'), filter=$('select');
+  const $=s=>el.querySelector(s), surface=$('.surface'), status=$('.status'), tbody=$('tbody'), records=$('.records'), preview=$('.preview'), filter=$('select');
   $('h3').textContent=model.get('title');
   const on=(target,event,handler)=>target.addEventListener(event,handler,{signal:listeners.signal});
   function setLife(value,text){life=value;el.dataset.linkedLife=value;status.textContent=text;filter.disabled=value!==Life.live;$('.clear').disabled=value!==Life.live;$('.retry').disabled=value!==Life.failed;}
@@ -72,14 +72,24 @@ export default {render({model,el}) {
   function cancel(){if(active!==null){const id=active;active=null;if(surface.hasPointerCapture(id))surface.releasePointerCapture(id);if(life===Life.live){finals++;desired.finals=finals;channel.queue(desired);}}showPreview(-1);}
   function draw(next){
     if(next.schema!==Protocol.version || next.dataVersion!==model.get('initial').dataVersion)throw Error('Unsupported or stale frame');
-    const start=performance.now(), priorFocus=document.activeElement, focusedKey=priorFocus?.dataset?.key;
+    const start=performance.now(), priorFocus=document.activeElement;
+    const focusedKey=tbody.contains(priorFocus) ? priorFocus.dataset.key : undefined;
+    const recordsScrollTop=records.scrollTop;
     frame=next;$('.svg').innerHTML=frame.svg;
     const svg=$('.svg svg');svg.setAttribute('viewBox','0 0 720 360');svg.setAttribute('role','img');svg.setAttribute('aria-label',`${frame.points.length} assay records; ${frame.selected<0?'no selection':`selected record ${frame.selected+1}`}`);
     tbody.replaceChildren();
     for(const row of frame.rows){const tr=document.createElement('tr');tr.classList.toggle('selected',row.key===frame.selected);const td=document.createElement('td'),button=document.createElement('button');button.textContent=row.label;button.dataset.key=String(row.key);button.setAttribute('aria-pressed',String(row.key===frame.selected));button.tabIndex=row.key===(focused>=0?focused:frame.rows[0]?.key)?0:-1;td.append(button);tr.append(td);for(const k of ['x','y']){const cell=document.createElement('td');cell.textContent=String(row[k]);tr.append(cell);}tbody.append(tr);}
     const d=frame.detail;$('.details').textContent=d?`${d.label} · Record ${d.key+1}\nDose: ${d.x}\nResponse: ${d.y}\nSelected in Moxi (${frame.selectionSemantic===1?'semantic state confirmed':'no semantic selection'}).`:'No record selected. Choose a plot mark or table record.';$('.details').style.whiteSpace='pre-line';
     if(!frame.rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='No records match this filter.';tr.append(td);tbody.append(tr);}
-    if(focusedKey!==undefined){const button=[...tbody.querySelectorAll('button')].find(b=>b.dataset.key===focusedKey)||tbody.querySelector('button');if(button){focused=Number(button.dataset.key);button.tabIndex=0;button.focus({preventScroll:true});}else surface.focus({preventScroll:true});}
+    records.scrollTop=recordsScrollTop;
+    if(focusedKey!==undefined){
+      const button=[...tbody.querySelectorAll('button')].find(b=>b.dataset.key===focusedKey)||tbody.querySelector('button');
+      if(button){
+        focused=Number(button.dataset.key);button.tabIndex=0;button.focus({preventScroll:true});
+        // A removed key falls back to the first row. Reveal it in this pane only.
+        if(button.dataset.key!==focusedKey)records.scrollTop=0;
+      }else surface.focus({preventScroll:true});
+    }
     if(!tbody.querySelector('button[tabindex="0"]')){const first=tbody.querySelector('button');if(first){first.tabIndex=0;focused=Number(first.dataset.key);}}
     sample(metrics.domMs,performance.now()-start);sample(metrics.frameBytes,new TextEncoder().encode(JSON.stringify(frame)).length);
     for(const [key,value] of Object.entries({layoutMs:frame.layoutNs/1e6,sceneMs:frame.sceneNs/1e6,svgMs:frame.svgNs/1e6,processMs:frame.processMs}))sample(metrics[key],value);
@@ -94,7 +104,15 @@ export default {render({model,el}) {
     else if(!channel.pending)status.textContent=`Ready · ${frame.points.length} records · ${finals} final actions acknowledged`;
   }});
   function commit(selected=desired.selected){if(life!==Life.live)return;inputAt=performance.now();finals++;desired={...desired,selected,finals};status.textContent='Selection/filter pending in kernel…';channel.queue(desired);}
-  function start(){if(life===Life.disposed)return;channel.stop();setLife(Life.starting,'Connecting to kernel…');channel.send(Kind.hello);clearInterval(timer);timer=setInterval(()=>channel.tick(),50);}
+  function start(){
+    if(life===Life.disposed)return;
+    channel.stop();
+    setLife(Life.starting,'Connecting to kernel…');
+    clearInterval(timer);
+    // A synchronous send failure calls fail(), which clears this lease timer.
+    timer=setInterval(()=>channel.tick(),50);
+    channel.send(Kind.hello);
+  }
   function pick(event){const r=surface.getBoundingClientRect(),x=(event.clientX-r.left)*720/r.width,y=(event.clientY-r.top)*360/r.height;let best=-1,distance=12**2;for(const p of frame.points){const d=(p.x-x)**2+(p.y-y)**2;if(d<=distance){distance=d;best=p.key;}}return best;}
   on(surface,'pointerdown',event=>{if(life!==Life.live||event.button!==0||active!==null)return;active=event.pointerId;surface.setPointerCapture(active);surface.focus();showPreview(pick(event));});
   on(surface,'pointermove',event=>{if(event.pointerId===active)showPreview(pick(event));});

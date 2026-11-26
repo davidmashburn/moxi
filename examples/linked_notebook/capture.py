@@ -98,6 +98,12 @@ def main():
                 buttons.first.focus();page.keyboard.press('ArrowDown');page.keyboard.press('Enter');selected(1);settled()
                 assert page.evaluate('document.activeElement.dataset.key')=='1'
                 assert buttons.nth(1).get_attribute('aria-pressed')=='true'
+                page.keyboard.press('End');page.keyboard.press('Space');selected(11);settled()
+                assert buttons.last.evaluate('''button=>{
+                    const row=button.getBoundingClientRect(), pane=button.closest('.records').getBoundingClientRect();
+                    return document.activeElement===button && row.top>=pane.top && row.bottom<=pane.bottom;
+                }''')
+                checks['focused_selection_remains_visible']=True
                 page.keyboard.press('Home');page.keyboard.press('Space');selected(0);settled()
                 page.locator('.moxi-linked .surface').first.focus();page.keyboard.press('Tab')
                 assert page.evaluate('document.activeElement.dataset.key')=='0'
@@ -107,8 +113,15 @@ def main():
                 page.locator('.moxi-linked select').first.select_option('70');selected(-1);settled()
                 assert [r['key'] for r in frame()['rows']]==[5,7,8,9,10,11]
                 capture('04-filter.png','Filter retains stable record keys and clears details for a removed selection')
+                buttons.last.focus()
+                page.keyboard.press('End');page.keyboard.press('Space');selected(11);settled()
                 code('a.update(sample_rows()[:6])');page.wait_for_function(f'{VIEWS}[0].linked.frame.dataVersion===2');settled()
                 assert len(frame()['rows'])==6 and len(frame(1)['rows'])==12
+                assert buttons.first.evaluate('''button=>{
+                    const row=button.getBoundingClientRect(), pane=button.closest('.records').getBoundingClientRect();
+                    return document.activeElement===button && row.top>=pane.top && row.bottom<=pane.bottom;
+                }''')
+                checks['removed_focus_fallback_visible']=True
                 capture('05-update.png','Atomic data replacement resets selection; independent output keeps 12 records')
                 page.locator('.moxi-linked select').first.select_option('100');settled();page.wait_for_function(f'{VIEWS}[0].linked.frame.points.length===0')
                 page.locator('.moxi-linked select').first.select_option('0');page.wait_for_function(f'{VIEWS}[0].linked.frame.points.length===6');settled()
@@ -116,6 +129,17 @@ def main():
                 code('a.set_backend_available(False)');page.wait_for_function(f"{VIEWS}[0].linked.life==='failed'")
                 assert page.evaluate(f'{VIEWS}[0].linked.timer')==0
                 capture('06-failure.png','Real Python backend rejection preserves the last frame and exposes recovery')
+                # Model a widget manager that throws immediately on a closed comm.
+                page.evaluate(f'''()=>{{
+                    const view={VIEWS}[0], model=view.linked.channel.model, send=model.send;
+                    try {{
+                        model.send=()=>{{throw Error('Closed comm fixture')}};
+                        view.querySelector('.retry').click();
+                    }} finally {{model.send=send;}}
+                }}''')
+                assert 'Kernel comm closed' in page.locator('.moxi-linked .status').first.inner_text()
+                assert page.evaluate(f'{VIEWS}[0].linked.timer')==0
+                checks['closed_comm_retry_stops_timer']=True
                 code('a.set_backend_available(True)');page.locator('.moxi-linked .retry').first.click();settled()
                 click_point(4);capture('07-recovery.png','Explicit Retry reconnects and selection works again')
                 checks['backend_failure_recovery']=True
@@ -197,8 +221,13 @@ def main():
                 (CONSUMER/'saved-fallback.html').write_text('<!doctype html><meta charset="utf-8"><title>Saved notebook output</title>'+html.replace('<details ', '<details open '))
                 checks['saved_notebook_mime']=True
                 # Maximum supported rows through actual frontend and kernel.
+                # Redrawing B with overlapping record keys must preserve focus in A.
+                buttons.nth(1).focus()
                 code('b.update([dict(label=f"Capacity {i}", x=i, y=(i*7)%100) for i in range(64)])')
                 page.wait_for_function(f'{VIEWS}[1].linked.frame.points.length===64')
+                page.wait_for_function(f"{VIEWS}[1].linked.life==='live'")
+                assert buttons.nth(1).evaluate('button=>document.activeElement===button')
+                checks['sibling_redraw_preserves_focus']=True
                 capacity_frame=frame(1)
                 assert capacity_frame['dataVersion']==2
                 checks['actual_notebook_capacity']={'rows':64,'frameBytes':len(json.dumps(capacity_frame).encode()),'processMs':capacity_frame['processMs']}
