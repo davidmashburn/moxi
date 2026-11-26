@@ -1,0 +1,143 @@
+{
+  "base_revision": "17dc619ee4215709876792a307e3fde538cad5b3",
+  "tested_source_state": "Isolated base revision plus the scoped local implementation patch; file hashes identify the delivered source.",
+  "captured_at": "2026-11-26T04:23:31.906363+00:00",
+  "existing_regression_captured_at": "2026-11-26T04:23:13.943843+00:00",
+  "source_sha256": {
+    "examples/application-operations/cohort.mojo": "df5e70c0dad33da352b30225049bbbd36528b1eb6238d66927f1be069b8bf051",
+    "examples/application-operations/host.m": "c0a10b6aaf69696f190701fd394aeec861936f1311eac4140be1e8853dff3da1",
+    "examples/investigation-tools/build.sh": "337b40d3d7d913dc7392fd1e73a67516173d2802a929f4be9f430d5af0ca85b6",
+    "examples/investigation-tools/check.py": "0944229faae84f396fdbf2d004703f3e3858e8c69cd2a3b5f713f40ae4a78b5b",
+    "examples/investigation-tools/check_layout.py": "f5b3a34b5322301256cfea3af370389b4c957585b86354156d1555a14dc375ad",
+    "examples/investigation-tools/host.m": "55b88395ade21cf333e9c79aa50b2b8bf855b7d43d5f7c12aabc5af55a00f226",
+    "examples/investigation-tools/layout_replay.mojo": "8876d1bd575a780ce05125d71732cd29319ad4491d581b49bc09d594321fa6ba",
+    "examples/investigation-tools/main.mojo": "d1f9d47cc8bf84b9b5283d6c4e44c0dc90dec78fbe3c29c8b8fc1bfe20752c93",
+    "examples/investigation-tools/model.mojo": "32b50e22fa2411b2ba1cfa608005d53ec40419b4c171bf175df79d37288d6840",
+    "examples/investigation-tools/panel.mojo": "56f1159df7235ec82d2ed3a8292429f7b713fcd90a7b8088257ad7aa3d7e8ebb",
+    "examples/investigation-tools/replay.mojo": "730ebc4fc90c8c4585a11220c330dc1281b9662337fb5d7a70d11fc44460dab6",
+    "examples/investigation-tools/runtime.mojo": "c6c2ac12e4c293ac26b79f700a3a8e00ff181c830f3f99baceec6ebff9e746aa",
+    "examples/investigation-tools/screen.mojo": "3d3df6ec585fc3cd49e838a77a28237ae42b9e39a5e5eae50953d356da9bdc07",
+    "examples/investigation-tools/tests.mojo": "835a84a988238e96637b34f2ff3fd597477b6c211530b91599ff2c0f3726d6d5",
+    "native/macos_window.m": "bba2974f9ee48a90ab778d1c4a37293d21f8f2b1a82c82f18699e2904fa5f67d",
+    "pixi.lock": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0"
+  },
+  "readme_sha256": "788014270dd63a1aea17ca5d51d446d6036a38269fcacdae8fa6fa05191a4c8b",
+  "binary_sha256": "5c2f453ccb92d64564d08b13b379da35a68b21e09934f8b29b1090c481ecd638",
+  "domain_binary_sha256": "7f6a494154e21e322f793836afaaea6d29f84d35c8920d1eae72d5a7cfbc2d22",
+  "environment": "macOS 27.2.1 / arm64 / AppKit NSWindow",
+  "backing_scale": 2,
+  "toolchain": {
+    "mojo": "1.1.0 (8189361e)",
+    "clang": "Apple clang 21.0.0 (clang-2100.3.34.2)"
+  },
+  "dependency_environment": "Reused installed Pixi environment; both manifests have the same pixi.lock hash recorded under source_sha256.",
+  "fixture": "sensor-curve-v1, eight synthetic observations, local files only",
+  "content_points": [
+    [
+      980,
+      800
+    ],
+    [
+      1140,
+      860
+    ]
+  ],
+  "native_layout": {
+    "outcome": "pass",
+    "processes": 2,
+    "unique_pngs_in_runner_output": 10,
+    "membership_modes": [
+      "frozen",
+      "live"
+    ],
+    "checks": [
+      "Native coefficient font width and both editor hit targets",
+      "Independent TextKit glyph coverage for full metadata and separate mode",
+      "Controls, table and alternatives stay inside columns without vertical overlap",
+      "Nonzero plot data areas and separated endpoint labels",
+      "Invalid/pending coefficient edits preserve the fit",
+      "Native end navigation, deletion and insertion",
+      "Exact Float64, JSON, stable IDs and metadata after same-process and fresh-process reopen",
+      "Frozen and live Save/Reopen checked at both sizes",
+      "No-op Apply, refit and disk restoration"
+    ],
+    "log": "native-layout.log"
+  },
+  "existing_regression": {
+    "outcome": "pass",
+    "native_processes": 5,
+    "native_pngs_in_runner_output": 17,
+    "rejected_boundary_cases": 31,
+    "log": "existing-regression.log"
+  },
+  "captures": {
+    "after-linear-min.png": {
+      "sha256": "ad6afd622660b20d13e371e0b3cfe10f772da13a66374b31a4a401ce70201518",
+      "pixels": [
+        1960,
+        1600
+      ],
+      "content_points": [
+        980,
+        800
+      ]
+    },
+    "after-frozen-min.png": {
+      "sha256": "e9101eb7f8bfb19612081fed6a270dbb383452bbf9a5169549d9d85e17bec698",
+      "pixels": [
+        1960,
+        1600
+      ],
+      "content_points": [
+        980,
+        800
+      ]
+    },
+    "after-reopened-min.png": {
+      "sha256": "9c5f1e74c57a3efa4300841a822104a94173f6fcfab41bd8f40f87c83b0fecb9",
+      "pixels": [
+        1960,
+        1600
+      ],
+      "content_points": [
+        980,
+        800
+      ]
+    },
+    "after-reopened-large.png": {
+      "sha256": "915f890db75e0e109d4df26049d38e3e73a3b5cf43e09f0f4b66c79856116eba",
+      "pixels": [
+        2280,
+        1720
+      ],
+      "content_points": [
+        1140,
+        860
+      ]
+    }
+  },
+  "skipped": [
+    "Physical mouse/keyboard use",
+    "VoiceOver",
+    "Other OS hosts",
+    "Full repository suite"
+  ],
+  "commands": [
+    "python3 examples/investigation-tools/check.py --dest /tmp/moxi-i10-existing",
+    "python3 examples/investigation-tools/check_layout.py --skip-build --dest /tmp/moxi-i10-layout"
+  ],
+  "evidence_sha256": {
+    "after-reopened-min.png": "9c5f1e74c57a3efa4300841a822104a94173f6fcfab41bd8f40f87c83b0fecb9",
+    "after-frozen-min.png": "e9101eb7f8bfb19612081fed6a270dbb383452bbf9a5169549d9d85e17bec698",
+    "native-layout.log": "ffd0760bd8efa82a77cfe634af397a57878755929d9baa0a25121b8fa29306eb",
+    "before-metadata-min.png": "58c703035d4ed59d2d95933bf5488c3384acd71f99445f7c4ace9b39cf36faac",
+    "existing-regression.log": "a4808b5df871410b70cf0f8d4ad2da06e59cab2926a70d42229058d80b526922",
+    "saved-panel.json": "a028c74aecf0b43d21cb353cf6fd2eda5d76f4917ea283013350ff22cb0a1d07",
+    "before-native.log": "8e73cee4ec120afab1c509d50cbbf28548fea06544881945e125c930ebb60a9e",
+    "before-metadata-large.png": "3c260015e353eee664e86fb35d250c0e5111f10f4a6e5a3b7e1fdd18f6967034",
+    "after-reopened-large.png": "915f890db75e0e109d4df26049d38e3e73a3b5cf43e09f0f4b66c79856116eba",
+    "after-linear-min.png": "ad6afd622660b20d13e371e0b3cfe10f772da13a66374b31a4a401ce70201518",
+    "before-reopen.log": "94693be4b796e0983019cd213e8067ea3990c1487d56cb9eba8508d0d94ffc5b",
+    "before-linear-min.png": "7bc9a93c84afed89bf634a47521b30dbd717d7b753bb05ddc7b98818cbd78625"
+  }
+}

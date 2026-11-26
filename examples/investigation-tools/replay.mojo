@@ -1,10 +1,12 @@
 from std.ffi import external_call
 from moxi import App, Point
 from moxi.macos import MacOSWindow, MacOSRenderer, MacOSCanvasSceneRenderer, MacOSClipboard
-from screen import InvestigationScreen, NAME_ID, HYPOTHESIS_ID, PATH_ID, C0_ID, C1_ID, COLLECT_ID, MODE_ID, FILTER_ID, SORT_ID, FIXTURE_BUTTON_ID, LINEAR_ID, QUADRATIC_ID, APPLY_ID, REFIT_ID, COMPARE_ID, SAVE_ID, REOPEN_ID, INTERNALS_ID
+from screen import InvestigationScreen, NAME_ID, HYPOTHESIS_ID, PATH_ID, C0_ID, C1_ID, C2_ID, COLLECT_ID, MODE_ID, FILTER_ID, SORT_ID, FIXTURE_BUTTON_ID, LINEAR_ID, QUADRATIC_ID, APPLY_ID, REFIT_ID, COMPARE_ID, SAVE_ID, REOPEN_ID, INTERNALS_ID
 from model import ModelKind, MembershipMode, FixtureState
 from panel import panel_json
 from runtime import render, dispatch_pending
+
+comptime REOPEN_MODE = 2
 
 
 def check(condition: Bool, message: String) raises:
@@ -50,6 +52,8 @@ def edit(mut app: App[InvestigationScreen], mut window: MacOSWindow, mut rendere
         actual = app.component.c0_input.text
     elif id == C1_ID:
         actual = app.component.c1_input.text
+    elif id == C2_ID:
+        actual = app.component.c2_input.text
     elif id == PATH_ID:
         actual = app.component.path_input.text
     if actual != value:
@@ -68,7 +72,7 @@ def named_linear(mut app: App[InvestigationScreen], mut window: MacOSWindow, mut
 
 def replay(mut app: App[InvestigationScreen], mut window: MacOSWindow, mut renderer: MacOSRenderer, mut plots: MacOSCanvasSceneRenderer, mode: Int32) raises:
     check(not app.component.model.fitted and len(app.component.model.members) == 0, "Normal entry point starts with fresh state")
-    if mode == 2:
+    if mode == REOPEN_MODE:
         click(app, window, renderer, plots, REOPEN_ID)
         check(app.component.panel_open and app.component.model.name == "Warm run α", "New process restored name and panel")
         check(app.component.model.mode == MembershipMode.FROZEN and app.component.model.fixture == FixtureState.BASELINE and app.component.model.fit.kind == ModelKind.QUADRATIC, "Restored domain types")

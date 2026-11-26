@@ -1,0 +1,54 @@
+{
+  "source_revision": "17dc619ee4215709876792a307e3fde538cad5b3",
+  "overlay": "Native regression adapters over unchanged original screen.mojo; core/model/panel source unchanged from base. Adapter hashes below identify the baseline capture build.",
+  "source_sha256": {
+    "layout_replay.mojo": "7cc9ee6757cfa759b5d16a6b3bce0d7a8294d4add60fc6e7097459be392f495f",
+    "main.mojo": "d1f9d47cc8bf84b9b5283d6c4e44c0dc90dec78fbe3c29c8b8fc1bfe20752c93",
+    "model.mojo": "32b50e22fa2411b2ba1cfa608005d53ec40419b4c171bf175df79d37288d6840",
+    "panel.mojo": "56f1159df7235ec82d2ed3a8292429f7b713fcd90a7b8088257ad7aa3d7e8ebb",
+    "replay.mojo": "730ebc4fc90c8c4585a11220c330dc1281b9662337fb5d7a70d11fc44460dab6",
+    "runtime.mojo": "c6c2ac12e4c293ac26b79f700a3a8e00ff181c830f3f99baceec6ebff9e746aa",
+    "screen.mojo": "1ff6f4711252aa409a7d476ced191b7d495c2590c3ad39c6f76af152b15da5db",
+    "tests.mojo": "835a84a988238e96637b34f2ff3fd597477b6c211530b91599ff2c0f3726d6d5",
+    "host.m": "55b88395ade21cf333e9c79aa50b2b8bf855b7d43d5f7c12aabc5af55a00f226"
+  },
+  "binary_sha256": "0ab4220e9987ecc22c228a6649792ab5ffbca3fb96baf8dc06e4a595b382e513",
+  "captured_at": "2026-11-26T04:12:43.949357+00:00",
+  "captures": {
+    "before-linear-min.png": {
+      "sha256": "7bc9a93c84afed89bf634a47521b30dbd717d7b753bb05ddc7b98818cbd78625",
+      "content_points": [
+        980,
+        800
+      ]
+    },
+    "before-metadata-min.png": {
+      "sha256": "58c703035d4ed59d2d95933bf5488c3384acd71f99445f7c4ace9b39cf36faac",
+      "pixels": [
+        1960,
+        1600
+      ],
+      "content_points": [
+        980,
+        800
+      ],
+      "captured_at": "2026-11-26T04:20:24.281572+00:00",
+      "state": "fresh-process live reopen"
+    },
+    "before-metadata-large.png": {
+      "sha256": "3c260015e353eee664e86fb35d250c0e5111f10f4a6e5a3b7e1fdd18f6967034",
+      "pixels": [
+        2280,
+        1720
+      ],
+      "content_points": [
+        1140,
+        860
+      ],
+      "captured_at": "2026-11-26T04:20:24.401151+00:00",
+      "state": "fresh-process live reopen"
+    }
+  },
+  "result": "Expected failures in both create and fresh-process reopen: original layout clips coefficients and maximum metadata and hides mode at both sizes. Original model/persistence assertions pass.",
+  "unchanged_baseline_sources_verified": true
+}
