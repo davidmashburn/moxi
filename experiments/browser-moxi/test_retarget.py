@@ -46,5 +46,14 @@ define void @moxi_fail() {
   ret void
 }
 '''
+for suffix, ty in [('f32', 'float'), ('f64', 'double')]:
+    for op in ['min', 'max']:
+        fixture += f"""
+declare {ty} @llvm.{op}num.{suffix}({ty}, {ty})
+define {ty} @moxi_{op}_{suffix}({ty} %a, {ty} %b) {{
+  %result = call {ty} @llvm.{op}num.{suffix}({ty} %a, {ty} %b)
+  ret {ty} %result
+}}
+"""
 Path(__file__).with_name('dist').joinpath('runtime-test.ll').write_text(convert(fixture))
 print('IR audit rejection checks pass; runtime-test.ll generated')

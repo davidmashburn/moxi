@@ -1,3 +1,5 @@
+import {createMemory64Allocator, supportsMemory64} from '../shared/memory64.mjs';
+export {supportsMemory64};
 /** Explicit single-threaded memory64 runtime for the experimental FDG subset. */
 export const Limits = Object.freeze({memory: 64 * 1024 * 1024, instances: 8, nodes: 256, links: 1024, textBytes: 512, dimension: 4096});
 export const Status = Object.freeze({ok: 0, invalidHandle: -1, invalidInput: -2, unsupported: -3});
@@ -8,11 +10,6 @@ export const AppField = Object.freeze({selected: 0, zoom: 1, panX: 2, panY: 3, p
 export const RuntimeState = Object.freeze({ready: 'ready', failed: 'failed', disposed: 'disposed'});
 export const DiagnosticImports = Object.freeze(['KGEN_CompilerRT_GetStackTrace', 'write', 'dup', 'fdopen', 'fflush', 'fclose', 'KGEN_CompilerRT_fprintf']);
 const clock = () => performance.now();
-
-export function supportsMemory64() {
-  // A module containing a one-page i64-addressed memory, no compiler dependency.
-  return typeof WebAssembly === 'object' && WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,5,3,1,4,1]));
-}
 
 export function validateGraph(graph) {
   if (!graph || !Array.isArray(graph.groups) || !Array.isArray(graph.links) || graph.groups.length > Limits.nodes || graph.links.length > Limits.links) throw new RangeError('graph capacity: 256 nodes / 1024 links');
@@ -33,51 +30,13 @@ export async function instantiateMoxi(bytes, {heapLimit = Limits.memory, memory6
   if (!memory64) throw new Error('Unsupported runtime: WebAssembly memory64 is required; no JavaScript graph fallback');
   if (!Number.isSafeInteger(heapLimit) || heapLimit < 65536 || heapLimit > Limits.memory) throw new RangeError('invalid heap limit');
   const started = clock();
-  let instance, top, peak = 0, allocations = 0, liveBytes = 0, state = RuntimeState.ready, failure = null;
+  let instance, state = RuntimeState.ready, failure = null;
   let nextHandle = 1n, graphInput = null, textInput = new Uint8Array(), transferMs = 0;
-  const handles = new Map(), live = new Map(), freeBlocks = [], frames = new Map();
+  const handles = new Map(), frames = new Map();
   const decoder = new TextDecoder('utf-8', {fatal: true});
-  function memoryRange(pointer, size) {
-    const p = Number(pointer), n = Number(size);
-    if (!Number.isSafeInteger(p) || !Number.isSafeInteger(n) || p < 0 || n < 0 || p + n > instance.exports.memory.buffer.byteLength) throw new RangeError('invalid memory range');
-    return new Uint8Array(instance.exports.memory.buffer, p, n);
-  }
+  const allocator = createMemory64Allocator({memory: () => instance?.exports.memory, heapLimit});
+  const {range: memoryRange, alloc, free} = allocator;
   function readText(pointer, size) { return decoder.decode(memoryRange(pointer, size)); }
-  function alloc(alignment, size) {
-    const a = Number(alignment), n = Math.max(1, Number(size));
-    if (!Number.isSafeInteger(n) || !Number.isSafeInteger(a) || a < 1 || a > 65536 || (a & (a - 1))) throw new RangeError('invalid allocation');
-    let ptr;
-    const index = freeBlocks.findIndex(b => Math.ceil(b.ptr / a) * a + n <= b.ptr + b.size);
-    if (index >= 0) {
-      const block = freeBlocks.splice(index, 1)[0];
-      ptr = Math.ceil(block.ptr / a) * a;
-      if (ptr > block.ptr) freeBlocks.push({ptr: block.ptr, size: ptr - block.ptr});
-      if (ptr + n < block.ptr + block.size) freeBlocks.push({ptr: ptr + n, size: block.ptr + block.size - ptr - n});
-    } else {
-      ptr = Math.ceil(top / a) * a;
-      if (ptr + n > heapLimit) throw new RangeError('Moxi heap capacity exceeded');
-      if (ptr > top) freeBlocks.push({ptr: top, size: ptr - top});
-      top = ptr + n;
-      const memory = instance.exports.memory;
-      if (top > memory.buffer.byteLength) memory.grow(BigInt(Math.ceil((top - memory.buffer.byteLength) / 65536)));
-      peak = Math.max(peak, top);
-    }
-    live.set(ptr, n); liveBytes += n; allocations++;
-    return BigInt(ptr);
-  }
-  function free(pointer) {
-    const ptr = Number(pointer);
-    if (ptr === 0) return;
-    if (!live.has(ptr)) throw new Error('invalid or double free');
-    const size = live.get(ptr); live.delete(ptr); liveBytes -= size;
-    freeBlocks.push({ptr, size}); freeBlocks.sort((a, b) => a.ptr - b.ptr);
-    for (let i = freeBlocks.length - 2; i >= 0; i--) {
-      const a = freeBlocks[i], b = freeBlocks[i + 1];
-      if (a.ptr + a.size === b.ptr) { a.size += b.size; freeBlocks.splice(i + 1, 1); }
-    }
-    const last = freeBlocks.at(-1);
-    if (last && last.ptr + last.size === top) { top = last.ptr; freeBlocks.pop(); }
-  }
   const fmax = (a,b) => Number.isNaN(a) ? b : Number.isNaN(b) ? a : Math.max(a,b);
   const fmin = (a,b) => Number.isNaN(a) ? b : Number.isNaN(b) ? a : Math.min(a,b);
   const env = {
@@ -118,8 +77,7 @@ export async function instantiateMoxi(bytes, {heapLimit = Limits.memory, memory6
   const imports = WebAssembly.Module.imports(module);
   for (const item of imports) if (item.module !== 'env' || item.kind !== 'function' || !Object.hasOwn(env, item.name)) throw new Error(`Unapproved runtime import: ${item.module}.${item.name}`);
   instance = await WebAssembly.instantiate(module, {env});
-  top = Number(instance.exports.__heap_base.value);
-  if (top > heapLimit || instance.exports.memory.buffer.byteLength > heapLimit) throw new RangeError('initial memory exceeds heap capacity');
+  allocator.initialize(instance.exports.__heap_base.value);
   const startupMs = clock() - started;
   function invoke(name, ...args) {
     if (state !== RuntimeState.ready) throw new Error(`Moxi runtime ${state}: ${failure ?? ''}`);
@@ -158,10 +116,10 @@ export async function instantiateMoxi(bytes, {heapLimit = Limits.memory, memory6
     });
   }
   return Object.freeze({create, invoke,
-    stats: () => ({state, failure, allocations, liveAllocations: live.size, liveBytes, heapHighWater: peak, memoryBytes: instance?.exports.memory.buffer.byteLength ?? 0, instances: handles.size, wasmBytes: bytes.byteLength, startupMs, imports: imports.map(i => i.name)}),
+    stats: () => ({state, failure, ...allocator.stats(), instances: handles.size, wasmBytes: bytes.byteLength, startupMs, imports: imports.map(i => i.name)}),
     dispose() {
       if (state === RuntimeState.ready) for (const handle of [...handles.keys()]) check(invoke('moxi_destroy', handle));
-      instance = null; handles.clear(); frames.clear(); live.clear(); freeBlocks.length = 0; liveBytes = 0; state = RuntimeState.disposed;
+      instance = null; handles.clear(); frames.clear(); allocator.reset(); state = RuntimeState.disposed;
     },
   });
 }

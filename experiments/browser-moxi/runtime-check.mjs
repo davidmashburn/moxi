@@ -5,6 +5,18 @@ const bytes=await readFile(new URL('./dist/runtime-test.wasm',import.meta.url));
 const runtime=await instantiateMoxi(bytes);
 for(let lane=0;lane<16;lane++)for(let index=0;index<256;index++)assert.equal(runtime.invoke('moxi_table',index,lane),index<16?index+11:0);
 assert.equal(runtime.invoke('moxi_float32'),Math.fround(Math.fround(.56)+Math.fround(.56)));
+const imports = WebAssembly.Module.imports(await WebAssembly.compile(bytes));
+assert.ok(imports.every(({name}) => !['fmin','fminf','fmax','fmaxf'].includes(name)));
+for (const suffix of ['f32', 'f64']) {
+  for (const a of [-Infinity, -3, -0, +0, 5, Infinity, NaN]) {
+    for (const b of [-Infinity, -3, -0, +0, 5, Infinity, NaN]) {
+      for (const [op, compare] of [['min', Math.min], ['max', Math.max]]) {
+        const expected = Number.isNaN(a) ? b : Number.isNaN(b) ? a : compare(a, b);
+        assert.equal(runtime.invoke(`moxi_${op}_${suffix}`, a, b), expected);
+      }
+    }
+  }
+}
 const limbs=[0n,1n,-1n,0x8000000000000000n,0x0123456789abcdefn];
 let products=0;
 for(const al of limbs)for(const ah of limbs)for(const bl of limbs)for(const bh of limbs){

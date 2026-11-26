@@ -1,15 +1,44 @@
-"""P01-only LLVM 24 -> Apple LLVM 21 conversion, not a portable compiler."""
+"""Narrow LLVM 24 to Apple LLVM 21 conversion for the browser experiments."""
+import argparse
 from pathlib import Path
 import re
 import struct
-import sys
 
 
 def float32_hex(value):
     return '0x' + struct.pack('>d', struct.unpack('>f', struct.pack('>f', value))[0]).hex().upper()
 
 
-def convert(source):
+def lower_minmax(source):
+    # Wasm min/max propagate a NaN; LLVM minnum/maxnum return the numeric operand.
+    # Handle NaNs explicitly so the backend can use scalar Wasm instructions and
+    # preserve signed zero without a host fmin/fmax call in the pixel loop.
+    for operation, wasm_op in [('min', 'minimum'), ('max', 'maximum')]:
+        for suffix, ty in [('f32', 'float'), ('f64', 'double')]:
+            intrinsic = f'@llvm.{operation}num.{suffix}'
+            if intrinsic + '(' not in source:
+                continue
+            wrapper = f'@moxi_{operation}num_{suffix}'
+            target = f'@llvm.{wasm_op}.{suffix}'
+            source = re.sub(r'^declare ' + ty + ' ' + re.escape(intrinsic) + r'\([^\n]*\n',
+                            '', source, flags=re.M)
+            source = source.replace(intrinsic + '(', wrapper + '(')
+            if not re.search(r'^declare ' + ty + ' ' + re.escape(target) + r'\(', source, re.M):
+                source += f'\ndeclare {ty} {target}({ty}, {ty})\n'
+            source += f"""
+define internal {ty} {wrapper}({ty} %a, {ty} %b) alwaysinline {{
+  %a_nan = fcmp uno {ty} %a, %a
+  %b_nan = fcmp uno {ty} %b, %b
+  %both = call {ty} {target}({ty} %a, {ty} %b)
+  %with_b = select i1 %b_nan, {ty} %a, {ty} %both
+  %out = select i1 %a_nan, {ty} %b, {ty} %with_b
+  ret {ty} %out
+}}
+"""
+    return source
+
+
+def convert(source, *, host_math=False):
     # Mojo's UTF-8 validator uses AArch64 TBL1. Lower this exact 16-byte lookup
     # to portable LLVM: out-of-range byte indices produce zero. Never pass an
     # invalid index to extractelement (which would produce poison).
@@ -49,9 +78,13 @@ def convert(source):
     for number in re.findall(r'attributes #(\d+) = \{\s*\}', source):
         source = re.sub(r'attributes #' + number + r' = \{\s*\}\n', '', source)
         source = re.sub(r' #' + number + r'\b', '', source)
-    return source
+    return source if host_math else lower_minmax(source)
 
 
 if __name__ == '__main__':
-    path = Path(sys.argv[1])
-    path.with_suffix('.portable.ll').write_text(convert(path.read_text()))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path', type=Path)
+    parser.add_argument('--host-math', action='store_true',
+                        help='retain host fmin/fmax calls for benchmark comparisons')
+    args = parser.parse_args()
+    args.path.with_suffix('.portable.ll').write_text(convert(args.path.read_text(), host_math=args.host_math))
