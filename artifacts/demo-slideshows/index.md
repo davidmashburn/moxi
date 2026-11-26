@@ -4,6 +4,7 @@
 | --- | --- | --- |
 | F01 | Portable text laboratory | [Capture manifest](text-laboratory/manifest.json); [local self-contained slideshow](text-laboratory/index.html) |
 | P01 | Mojo/Moxi browser FDG | [Sequence, manifest, and reproduction](browser-fdg/README.md); [local self-contained slideshow](browser-fdg/index.html) |
+| P08 | Linked 4D slice edits and watershed recovery | [Slideshow](sws4d-native/index.html) · [Native checks](sws4d-native/README.md) |
 | P11 | GTK workbench on nested headless Wayland | [Offline slideshow](p11-wayland/index.html) · [Replay instructions](../../experiments/wayland-host/README.md) |
 | D01 | Native symbolic backend comparison | [Capture recipe and limitations](d01-math-backends/REPRODUCE.md); [local self-contained slideshow](d01-math-backends/index.html) |
 | N01 | Unfinished-feature pattern | [Capture guide](../../docs/not-implemented-pattern.md); [local self-contained slideshow](not-implemented/index.html) |
@@ -15,14 +16,15 @@
 | I19 | Inspectable signal cursor and command replay | [Slideshow](i19-inspectable-interactions/index.html) · [Run instructions](../../experiments/inspectable-interactions/README.md) |
 | I20 | Reusable cohort operation | [Slideshow](../../examples/application-operations/i20-application-operations/index.html) · [Run instructions](../../examples/application-operations/README.md) |
 | V02 | Two seeded populations and rule edits | [Slideshow](../../examples/compose-worlds/evidence/compose-worlds/index.html) · [Run instructions](../../examples/compose-worlds/README.md) |
+| V03 | Revise a movement notation and recover a score | [Slideshow](v03-invent-notation/index.html) · [Run instructions](../../examples/invent-notation/README.md) |
 | V04 | Tune a linkage against a force curve | [Slideshow](v04-spring-linkage/index.html) · [Run instructions](../../examples/spring-linkage/README.md) |
 | V05 | Test a transit cost argument | [Article](v05-executable-argument/argument.html) · [Slideshow](v05-executable-argument/index.html) |
 | V06 | Compose motion and sound on one clock | [Slideshow](motion-envelope/index.html) · [Run instructions](../../examples/motion-envelope/README.md) |
 | V08 | Constrained probability edits | [Slideshow](../../examples/probability-instrument/evidence/v08-probability/index.html) · [Run instructions](../../examples/probability-instrument/README.md) |
-| V09 | Timed exhibition sightlines and lighting | [Slideshow](lived-spaces/index.html) · [Run instructions](../../examples/lived-spaces/README.md) |
+| V09 | Timed exhibition sightlines and lighting | [Slideshow](lived-spaces/index.html) · [Recorded performance](../lived-spaces/i07/README.md) · [Run instructions](../../examples/lived-spaces/README.md) |
 | V10 | Compare three fictional allocations | [Slideshow](allocation/index.html) · [Run instructions](../../examples/allocation/README.md) |
 | V11 | Inspect a flat and folded accordion | [Slideshow](v11-foldable-motif/index.html) · [Run instructions](../../examples/foldable-motif/README.md) |
 | V12 | Configure a musical phrase instrument | [Slideshow](../../examples/personal-instrument/evidence/personal-instrument/index.html) · [Run instructions](../../examples/personal-instrument/README.md) |
 | V13 | Patch, inspect and record a signal | [Slideshow](../../examples/visual-instrument/evidence/v13-visual-instrument/index.html) · [Run instructions](../../examples/visual-instrument/README.md) |
 
-The P11, E05, E06, I11, I15, I18, I19, I20, V02, V04, V05, V06, V08, V09, V10, V11, V12 and V13 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The P08, P11, E05, E06, I11, I15, I18, I19, I20, V02, V03, V04, V05, V06, V08, V09, V10, V11, V12 and V13 galleries open from a clean checkout. Earlier entries may require running their capture recipes.

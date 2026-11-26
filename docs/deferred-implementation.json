@@ -228,11 +228,19 @@
     {
       "id": "P08",
       "scope": "[SWS4D](docs/design/sws4d-port.md): reference fixtures, linked XY/XZ/YZ/time viewer, explicit axes/spacing/connectivity, edits in each plane, watershed, stable IDs, bounded caches, persistence and recovery.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "94ffff9"
+      ],
+      "verification": [
+        "The separate local moxi-sws4d application at c19f78f passed five tests, twelve unmasked full-volume reference digests and fourteen native scenarios. Twelve injected pointer selections verified time controls after resizing. A blocked worker no longer kept the closed process alive."
+      ],
+      "remaining_gates": [
+        "Masked legacy parity, real-stack import, representative volume sizes, physical input and independent scientific acceptance remain open. The application has no remote."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/sws4d-native/index.html"
+      ]
     },
     {
       "id": "P09",
@@ -539,19 +547,21 @@
       "commits": [
         "f68c965",
         "6a8b784",
-        "95d6615"
+        "95d6615",
+        "0605f79",
+        "3e71975"
       ],
       "verification": [
         "Integrated and rebuilt after E02/E03. All compiled source hashes match the integrated source.",
         "46 native tests and 315 facade tests pass in an isolated installed-wheel consumer; independent dependency and exact runtime-notice inspection passes.",
-        "Facade wheel and source distribution retain the exact pinned MIT notice; missing installed runtime notices fail the native build."
+        "Facade wheel and source distribution retain the exact pinned MIT notice; missing installed runtime notices fail the native build.",
+        "A clean CPython 3.11 build on macOS arm64 passed 48 native and 372 facade tests. Independent controls checked wheel notices, runtime origin, signatures and rejection by the wrong interpreter."
       ],
       "remaining_gates": [
-        "Experimental only: production runtime redistribution, supported ABI/hosts, sanitizers and native raster text/vector PDF gaps remain open.",
-        "Fresh integrated-source slideshow capture and visual review remain pending; previous manifest retains original provenance."
+        "Redistribution rights, sanitizer coverage, CPython 3.11 on macOS 15 and other hosts remain open."
       ],
       "slideshows": [
-        "e04-python-native manifest integrated; original captures retained in worker worktree"
+        "artifacts/demo-slideshows/e04-python-native/index.html"
       ]
     },
     {
@@ -649,11 +659,21 @@
     {
       "id": "V03",
       "scope": "Invent notation: three phrase types with sequence/group/timing semantics and editable structural rules.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "fb387fe",
+        "892e44e",
+        "56cbeb3"
+      ],
+      "verification": [
+        "Compatible schema changes retained slot identity and focus. Incompatible revisions preserved the score. Fourteen model and persistence tests and Chrome recovery checks passed, including original-source download after edits and same-origin restart."
+      ],
+      "remaining_gates": [
+        "Independent second-author completion, discoverability, a second notation and other browser engines remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/v03-invent-notation/index.html"
+      ]
     },
     {
       "id": "V04",
@@ -751,14 +771,17 @@
       "state": "partial",
       "commits": [
         "ff5530d",
-        "7d33a81"
+        "7d33a81",
+        "dcee81e",
+        "7c0857f"
       ],
       "verification": [
         "The native replay exercised both visitor routes, scrubbing and playback. At seven seconds, moving the partition blocked only North. Moving the light peak raised intensity from 75% to 100%. Two undos reversed the edits in order.",
-        "Checkpoint restoration recovered route, time, score and history. Returning from the width definition restored focus and text selection. Eight window captures reproduced byte for byte in independent review."
+        "Checkpoint restoration recovered route, time, score and history. Returning from the width definition restored focus and text selection. Eight window captures reproduced byte for byte in independent review.",
+        "A five-action recording resumed after exploration at step three and retained ordered undo. Independent checks compared every prefix of a 16-action recording and 30 explore/return cycles."
       ],
       "remaining_gates": [
-        "Preserving an authored sequence through exploration and resuming its later actions, a visitor-eye view, independent designer use and physical lighting and timing remain open."
+        "Visitor-eye preview, independent designer use and physical lighting and timing remain open. Performance recordings last for the window session."
       ],
       "slideshows": [
         "artifacts/demo-slideshows/lived-spaces/index.html"
