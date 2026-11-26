@@ -43,7 +43,7 @@ function render() {
     $("beat").setAttribute("aria-valuetext", draft + " milliseconds");
     $("value").textContent = draft + " ms";
     $("score").textContent = "Revision " + revision + " · Authored apex " + authored + " ms"
-        + (checkpoint === null ? "" : " · Checkpoint " + checkpoint + " ms");
+        + (checkpoint === null ? "" : " · Checkpoint " + checkpoint.apex + " ms");
     $("commit").disabled = $("discard").disabled = authored === draft;
     $("restore").disabled = checkpoint === null;
     inspect();
@@ -69,14 +69,15 @@ function discard() { edit(authored, "Authored timing restored."); }
 $("discard").onclick = discard;
 $("save").onclick = () => {
     stop();
-    checkpoint = authored;
+    checkpoint = {apex: authored, position: $("seek").value};
     render();
     $("message").textContent = "Checkpoint set from the authored phrase.";
 };
 $("restore").onclick = () => {
-    if (authored !== checkpoint) revision++;
-    authored = checkpoint;
-    edit(checkpoint, "Checkpoint restored.");
+    if (authored !== checkpoint.apex) revision++;
+    authored = checkpoint.apex;
+    $("seek").value = checkpoint.position;
+    edit(authored, "Checkpoint restored.");
 };
 // Suppress subsequent native slider input from the same cancelled gesture.
 let held = false, cancelled = false;
