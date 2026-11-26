@@ -765,11 +765,21 @@
     {
       "id": "V12",
       "scope": "Personal instrument: fixed creative operations, two input routes, editable response curve/mode graph, saved configuration.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "03360a1",
+        "5768f2b"
+      ],
+      "verification": [
+        "Chrome exercised pointer and keyboard performance, curve previews, separate score and mapping saves, reload and recovery from unsupported configurations. A failed write preserved the active mapping and score.",
+        "Independent probes verified 42 input equivalence pairs, all 303 tested curve readings and recovery from eight malformed mapping and ten malformed score fixtures."
+      ],
+      "remaining_gates": [
+        "Editable mode transitions, extraction of a supported control, failed calculation rebuild retention, independent authorship and repeat use, physical accessibility and audible playback quality remain open."
+      ],
+      "slideshows": [
+        "examples/personal-instrument/evidence/personal-instrument/index.html"
+      ]
     },
     {
       "id": "V13",
