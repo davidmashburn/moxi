@@ -74,7 +74,7 @@ The [offline slideshow](../../artifacts/demo-slideshows/investigation-tools/inde
 and [verification record](../../artifacts/demo-slideshows/investigation-tools/REVIEW.md)
 retain steps, expectations, observed outcomes, source hashes, executable hash,
 capture time, native environment, viewport sizes and the exact reproduction command.
-Raw short logs and the actual saved JSON configuration accompany the captures.
+The published walkthrough includes the original seventeen PNGs, offline HTML, short replay logs and saved JSON configuration. A second build of the integrated consumer reproduced all seventeen PNGs byte for byte.
 
 ## Scope and limits
 
