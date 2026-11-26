@@ -8,7 +8,7 @@ CSS pixels at 2×. This is a local, single-user, synthetic fixture.
 The manifest pairs actions and expected results with the original PNGs.
 Build the offline slideshow with
 `python3 artifacts/demo-slideshows/i18-coordinated-representations/build.py`.
-The generated index is local. The offline check loaded all 15 embedded images,
+The published gallery loads the 15 adjacent PNGs offline. The original offline check loaded all 15 images,
 advanced with ArrowRight and jumped to slide 15 from the contact sheet.
 
 | Scenario | Observed result | Evidence |

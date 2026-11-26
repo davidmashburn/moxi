@@ -8,5 +8,7 @@ from demo_slideshows import load_manifest, render
 
 if __name__ == "__main__":
     manifest = load_manifest(HERE / "manifest.json")
+    for slide in manifest["slides"]:
+        slide["data_url"] = slide["image"]
     (HERE / "index.html").write_text(render(manifest))
     print(f"Built {len(manifest['slides'])} slides.")

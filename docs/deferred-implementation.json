@@ -824,11 +824,22 @@
     {
       "id": "I18",
       "scope": "Same observation in table/plot/canvas \u2192 filtered/deleted/aggregate mapping \u2192 second domain.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "469b52a",
+        "aea2f3a",
+        "c30d09a"
+      ],
+      "verification": [
+        "Table, plot and canvas resolve to the same source IDs across two synthetic domains. Fifteen browser steps exercised filtering, aggregate selection, deletion and reload.",
+        "Independent checks exercised 2,048 state combinations. After fixing the URL parser, four unit tests and the complete browser replay passed, including HTTP 400 for malformed flags and blank references."
+      ],
+      "remaining_gates": [
+        "Coincident plot anchors, screen readers, participant assessment and real-domain consumers remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/i18-coordinated-representations/index.html"
+      ]
     },
     {
       "id": "I19",
