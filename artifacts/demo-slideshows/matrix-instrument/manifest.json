@@ -1,0 +1,488 @@
+{
+  "captured": "2026-11-26T03:54:10.868071+00:00",
+  "revision": "60ee5659c56bf29deae9d8624012185b0a4ec29c",
+  "base": "033596ddb576b09b48234733b45a283b4c3fecae",
+  "sourceState": "Source hashes below include the tested uncommitted changes, if any.",
+  "url": "http://127.0.0.1:65220/",
+  "chrome": "158.0.8127.37",
+  "python": "3.13.11",
+  "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "renderer": "python/moxi/figure.py \u00b7 python-reference",
+  "rendererSha256": "72c7030fd4772713e69b9ff7a62f04242d0b95ef7f6e59876417570195fc567c",
+  "fixture": "Synthetic 2I matrix; no accounts, external services or persisted data.",
+  "voiceOver": "Paused; no assistive-technology checks performed.",
+  "sources": {
+    "capture.py": "bc107d77830679e1175797782d90710f63dd4f1ea1bc8b3d9640eb72e89b6a95",
+    "index.html": "69dd9d685f1f949294fb8982a4adb5a53170e26d1aa766832e63cb97dae91fbd",
+    "instrument.js": "05bc6397ef670dfb80bb3a82c5744355d70db8abbf8ea9ff1aaebaab60d20627",
+    "matrix.py": "bba9e212e4bc1c97b606d8d380185ea441c419c5e51b9f7162759fc75ad35fa7",
+    "serve.py": "8016d7720028900c90a739b4afa3a14c8946580e9ba90510693a80e4975601a0",
+    "style.css": "fabec469f773d4ab8e7e890702fbda8ae592cb70006860cb729ebf0d17915e09",
+    "test_browser.py": "7f2048a8ff9de2d39bf18ae9a50d46c9694c309ec8868ec7dd327532fbd96a51",
+    "test_matrix.py": "5828e38fe07caac1d0301162a0c837d6745ae8c78132a6329e5f75efc6811d2f"
+  },
+  "scenarios": [
+    {
+      "test": "test_browser.BrowserTest.test_bounds_exact_steps_and_redo_branch",
+      "steps": "One hundred fine moves stay exact; reject range overflow; new edits replace redo; reload resets session.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        }
+      ]
+    },
+    {
+      "test": "test_browser.BrowserTest.test_coordinated_matrix_journey",
+      "steps": "Numeric edit \u2192 plot selection \u2192 keyboard move \u2192 mixed undo/redo \u2192 singular \u2192 recover.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_invalid_drafts_and_atomic_apply",
+      "steps": "Reject empty/nonfinite/out-of-range/overprecision entries atomically; preserve drafts and discard with Escape.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_keyboard_entry_and_focus_order",
+      "steps": "Tab through all matrix fields, type a numeric edit and apply with Enter; selection and focus persist.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_mismatched_response_rejected",
+      "steps": "A response for another matrix cannot replace current geometry; retry renders the requested revision.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_narrow_keyboard_flow",
+      "steps": "390\u00d7844: no horizontal overflow; numeric and keyboard editing plus singular recovery and undo work.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_network_failure_and_retry",
+      "steps": "Fail a render, hide stale geometry/metrics, retain numeric history, then retry and undo.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_FAILED"
+        }
+      ]
+    },
+    {
+      "test": "test_browser.BrowserTest.test_orientation_and_selection_only",
+      "steps": "Select fields/vectors without creating history; reflect the basis and verify signed determinant.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_superseded_render_cannot_reappear",
+      "steps": "Hold an earlier render, move again and release it after the new result; latest geometry wins.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "url": "http://127.0.0.1:65220/render",
+          "error": "net::ERR_ABORTED"
+        }
+      ]
+    },
+    {
+      "test": "test_browser.BrowserTest.test_zero_and_near_singular",
+      "steps": "Zero both columns, recover via Identity/Undo, then verify a near-singular exact entry.",
+      "expected": "All named assertions pass; no uncaught page errors.",
+      "observed": "All assertions passed.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "pageErrors": [],
+      "failedRequests": []
+    }
+  ],
+  "slides": [
+    {
+      "image": "01-start.png",
+      "title": "One matrix, two views",
+      "steps": "Open the normal loopback UI at its initial 2I matrix.",
+      "expected": "Both basis vectors and the transformed square appear. det A = 4; column u is selected.",
+      "observed": "Both basis vectors and the transformed square appear. det A = 4; column u is selected.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "d2c7fee8517bd9cb74d60ec6f35da8696f72331df5500d249db0129383d705bb"
+    },
+    {
+      "image": "02-numeric.png",
+      "title": "Exact numeric entries",
+      "steps": "Enter 1.25, 0.5, 0.25, 2 in row-major order; Apply entries.",
+      "expected": "The new frame uses those entries. The last edited column v is selected in both views; det A = 2.375.",
+      "observed": "The new frame uses those entries. The last edited column v is selected in both views; det A = 2.375.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "0f858096a94034405d5f2ae0c880627175f64b84c8c84054699cccf230bbb053"
+    },
+    {
+      "image": "03-keyboard.png",
+      "title": "Move the basis",
+      "steps": "Click u\u2019s plotted endpoint, press Right, then Shift+Up.",
+      "expected": "u moves by (0.1, 0.01), entries become 1.35 and 0.26, det A = 2.57, and keyboard focus stays on u.",
+      "observed": "u moves by (0.1, 0.01), entries become 1.35 and 0.26, det A = 2.57, and keyboard focus stays on u.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "2f8489c006b7465ad7a6c7b5635313f13cff34bae424ca965170c688722c4fca"
+    },
+    {
+      "image": "04-shared-undo.png",
+      "title": "One shared undo history",
+      "steps": "Undo the two keyboard moves and the numeric edit, in that order.",
+      "expected": "The initial matrix, geometry and determinant return together. Three redo steps are available.",
+      "observed": "The initial matrix, geometry and determinant return together. Three redo steps are available.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "23ee13bcc514d7de12a4824ee832c2f2f4d7660e852c750e4314871c54077f10"
+    },
+    {
+      "image": "05-singular.png",
+      "title": "A singular frame stays editable",
+      "steps": "Apply columns u=(2,2) and v=(1,1).",
+      "expected": "The square collapses onto a line; det A = 0. The UI explains that no inverse exists and offers recovery.",
+      "observed": "The square collapses onto a line; det A = 0. The UI explains that no inverse exists and offers recovery.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "2e6261436300fed25d907304548fe2737ae752d62aa33ec5d020581fb5fb04c4"
+    },
+    {
+      "image": "06-recover.png",
+      "title": "Recover with a key",
+      "steps": "Focus v and press Up once.",
+      "expected": "The basis becomes independent again: v=(1,1.1), det A = 0.2. The singular edit was never snapped or discarded.",
+      "observed": "The basis becomes independent again: v=(1,1.1), det A = 0.2. The singular edit was never snapped or discarded.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "91aa562c95e071fb72c4d9c8ed59bd0f7c07e1765f4485d16af6672d99803770"
+    },
+    {
+      "image": "07-zero.png",
+      "title": "Zero vectors remain reachable",
+      "steps": "Apply the zero matrix; focus each separate basis button.",
+      "expected": "Both controls remain reachable even though their plotted endpoints coincide. det A = 0; recovery remains available.",
+      "observed": "Both controls remain reachable even though their plotted endpoints coincide. det A = 0; recovery remains available.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "64b09578be22baf8f209a0982c5c3a18f3468c9769942d96ebaf7cc5cae96c9d"
+    },
+    {
+      "image": "08-near-singular.png",
+      "title": "Near singular, without a jump",
+      "steps": "Apply u=(1,1), v=(1,1.001).",
+      "expected": "det A = 0.001 and a near-singular explanation appears. All three decimals remain unchanged.",
+      "observed": "det A = 0.001 and a near-singular explanation appears. All three decimals remain unchanged.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "640f09ab996633168b8801b19ed467f639ca36a2fce95ac2d9f01cfcdf93903a"
+    },
+    {
+      "image": "09-network.png",
+      "title": "A failed drawing preserves the matrix",
+      "steps": "Block the local render request, then move u upward.",
+      "expected": "The committed entry is 0.1 and Undo remains available. Stale geometry and metrics are hidden; Retry drawing is offered.",
+      "observed": "The committed entry is 0.1 and Undo remains available. Stale geometry and metrics are hidden; Retry drawing is offered.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 1366,
+        "height": 1100
+      },
+      "sha256": "4b11966dd4968a0bdbe503c5c6185000565b1622b5caec04b6ba0f18984c194d"
+    },
+    {
+      "image": "10-narrow-singular.png",
+      "title": "Narrow layout, same matrix",
+      "steps": "At 390\u00d7844, apply the same collinear columns.",
+      "expected": "The two cards stack without horizontal scrolling. Numeric entries, basis controls and singular recovery remain available.",
+      "observed": "The two cards stack without horizontal scrolling. Numeric entries, basis controls and singular recovery remain available.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "479679a01173ccfea140a01dc425aa6344de05cc473959ec442f91de869500d0"
+    },
+    {
+      "image": "11-narrow-recovery.png",
+      "title": "Narrow keyboard recovery",
+      "steps": "Focus v and press Down on the narrow layout.",
+      "expected": "v becomes (1,0.9); det A = \u22120.2. Focus and shared column selection survive the render.",
+      "observed": "v becomes (1,0.9); det A = \u22120.2. Focus and shared column selection survive the render.",
+      "outcome": "pass",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "97b1fb8f7b0fd3edc57f36d4bef139513c5f1b86e6a358f3813bac20c04654b4"
+    }
+  ]
+}

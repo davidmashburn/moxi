@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>I02 · Matrix instrument evidence</title>
+<style>
+*{box-sizing:border-box}body{max-width:1200px;margin:auto;padding:24px;background:#f3f2eb;color:#203a34;font:16px/1.5 system-ui}
+h1{font-size:32px;margin:0}h2{font-size:23px;margin:10px 0}.meta{font-size:12px;color:#5d6c65}nav{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:20px 0}button,a{color:#056e66}button{padding:10px 15px;border:1px solid #b7c6bc;border-radius:8px;background:white;cursor:pointer}a{padding:4px}a[aria-current=true]{font-weight:800;text-decoration-thickness:3px}figure{margin:0}figure[hidden]{display:none}figcaption p{margin:8px 0;font-size:14px}img{display:block;max-width:100%;max-height:72vh;margin:20px auto;object-fit:contain;border:1px solid #d7ded5}:focus-visible{outline:3px solid #254fac;outline-offset:3px}
+</style><body>
+<h1>I02 · A matrix you can move</h1>
+<p>Live Chrome captures of the normal consumer. Use Previous / Next, the numbered links, or ← / →. Open an image for its full size.</p>
+<p class="meta">Captured 2026-11-26T03:54:10.868071+00:00 · Chrome 158.0.8127.37 · macOS-27.2.1-arm64-arm-64bit-Mach-O<br>
+Tested checkout HEAD 60ee5659c56bf29deae9d8624012185b0a4ec29c; exact tested file hashes and scenario results in <a href="manifest.json">manifest.json</a>.<br>
+Synthetic local matrix · Moxi Python reference renderer · VoiceOver paused. No learner, physical-keyboard, assistive-technology, native-host or cross-browser evaluation.</p>
+<nav aria-label="Slideshow"><button id="prev">Previous</button><span id="counter" aria-live="polite"></span><button id="next">Next</button><a href="#s1" aria-label="Slide 1">1</a> <a href="#s2" aria-label="Slide 2">2</a> <a href="#s3" aria-label="Slide 3">3</a> <a href="#s4" aria-label="Slide 4">4</a> <a href="#s5" aria-label="Slide 5">5</a> <a href="#s6" aria-label="Slide 6">6</a> <a href="#s7" aria-label="Slide 7">7</a> <a href="#s8" aria-label="Slide 8">8</a> <a href="#s9" aria-label="Slide 9">9</a> <a href="#s10" aria-label="Slide 10">10</a> <a href="#s11" aria-label="Slide 11">11</a></nav>
+<figure id="s1" >
+<figcaption><h2>1. One matrix, two views</h2>
+<p><b>Steps:</b> Open the normal loopback UI at its initial 2I matrix.</p>
+<p><b>Observed / pass:</b> Both basis vectors and the transformed square appear. det A = 4; column u is selected.</p></figcaption>
+<a href="01-start.png" target="_blank" rel="noopener"><img src="01-start.png" alt="Both basis vectors and the transformed square appear. det A = 4; column u is selected."></a>
+</figure><figure id="s2" hidden>
+<figcaption><h2>2. Exact numeric entries</h2>
+<p><b>Steps:</b> Enter 1.25, 0.5, 0.25, 2 in row-major order; Apply entries.</p>
+<p><b>Observed / pass:</b> The new frame uses those entries. The last edited column v is selected in both views; det A = 2.375.</p></figcaption>
+<a href="02-numeric.png" target="_blank" rel="noopener"><img src="02-numeric.png" alt="The new frame uses those entries. The last edited column v is selected in both views; det A = 2.375."></a>
+</figure><figure id="s3" hidden>
+<figcaption><h2>3. Move the basis</h2>
+<p><b>Steps:</b> Click u’s plotted endpoint, press Right, then Shift+Up.</p>
+<p><b>Observed / pass:</b> u moves by (0.1, 0.01), entries become 1.35 and 0.26, det A = 2.57, and keyboard focus stays on u.</p></figcaption>
+<a href="03-keyboard.png" target="_blank" rel="noopener"><img src="03-keyboard.png" alt="u moves by (0.1, 0.01), entries become 1.35 and 0.26, det A = 2.57, and keyboard focus stays on u."></a>
+</figure><figure id="s4" hidden>
+<figcaption><h2>4. One shared undo history</h2>
+<p><b>Steps:</b> Undo the two keyboard moves and the numeric edit, in that order.</p>
+<p><b>Observed / pass:</b> The initial matrix, geometry and determinant return together. Three redo steps are available.</p></figcaption>
+<a href="04-shared-undo.png" target="_blank" rel="noopener"><img src="04-shared-undo.png" alt="The initial matrix, geometry and determinant return together. Three redo steps are available."></a>
+</figure><figure id="s5" hidden>
+<figcaption><h2>5. A singular frame stays editable</h2>
+<p><b>Steps:</b> Apply columns u=(2,2) and v=(1,1).</p>
+<p><b>Observed / pass:</b> The square collapses onto a line; det A = 0. The UI explains that no inverse exists and offers recovery.</p></figcaption>
+<a href="05-singular.png" target="_blank" rel="noopener"><img src="05-singular.png" alt="The square collapses onto a line; det A = 0. The UI explains that no inverse exists and offers recovery."></a>
+</figure><figure id="s6" hidden>
+<figcaption><h2>6. Recover with a key</h2>
+<p><b>Steps:</b> Focus v and press Up once.</p>
+<p><b>Observed / pass:</b> The basis becomes independent again: v=(1,1.1), det A = 0.2. The singular edit was never snapped or discarded.</p></figcaption>
+<a href="06-recover.png" target="_blank" rel="noopener"><img src="06-recover.png" alt="The basis becomes independent again: v=(1,1.1), det A = 0.2. The singular edit was never snapped or discarded."></a>
+</figure><figure id="s7" hidden>
+<figcaption><h2>7. Zero vectors remain reachable</h2>
+<p><b>Steps:</b> Apply the zero matrix; focus each separate basis button.</p>
+<p><b>Observed / pass:</b> Both controls remain reachable even though their plotted endpoints coincide. det A = 0; recovery remains available.</p></figcaption>
+<a href="07-zero.png" target="_blank" rel="noopener"><img src="07-zero.png" alt="Both controls remain reachable even though their plotted endpoints coincide. det A = 0; recovery remains available."></a>
+</figure><figure id="s8" hidden>
+<figcaption><h2>8. Near singular, without a jump</h2>
+<p><b>Steps:</b> Apply u=(1,1), v=(1,1.001).</p>
+<p><b>Observed / pass:</b> det A = 0.001 and a near-singular explanation appears. All three decimals remain unchanged.</p></figcaption>
+<a href="08-near-singular.png" target="_blank" rel="noopener"><img src="08-near-singular.png" alt="det A = 0.001 and a near-singular explanation appears. All three decimals remain unchanged."></a>
+</figure><figure id="s9" hidden>
+<figcaption><h2>9. A failed drawing preserves the matrix</h2>
+<p><b>Steps:</b> Block the local render request, then move u upward.</p>
+<p><b>Observed / pass:</b> The committed entry is 0.1 and Undo remains available. Stale geometry and metrics are hidden; Retry drawing is offered.</p></figcaption>
+<a href="09-network.png" target="_blank" rel="noopener"><img src="09-network.png" alt="The committed entry is 0.1 and Undo remains available. Stale geometry and metrics are hidden; Retry drawing is offered."></a>
+</figure><figure id="s10" hidden>
+<figcaption><h2>10. Narrow layout, same matrix</h2>
+<p><b>Steps:</b> At 390×844, apply the same collinear columns.</p>
+<p><b>Observed / pass:</b> The two cards stack without horizontal scrolling. Numeric entries, basis controls and singular recovery remain available.</p></figcaption>
+<a href="10-narrow-singular.png" target="_blank" rel="noopener"><img src="10-narrow-singular.png" alt="The two cards stack without horizontal scrolling. Numeric entries, basis controls and singular recovery remain available."></a>
+</figure><figure id="s11" hidden>
+<figcaption><h2>11. Narrow keyboard recovery</h2>
+<p><b>Steps:</b> Focus v and press Down on the narrow layout.</p>
+<p><b>Observed / pass:</b> v becomes (1,0.9); det A = −0.2. Focus and shared column selection survive the render.</p></figcaption>
+<a href="11-narrow-recovery.png" target="_blank" rel="noopener"><img src="11-narrow-recovery.png" alt="v becomes (1,0.9); det A = −0.2. Focus and shared column selection survive the render."></a>
+</figure>
+<script>
+const slides=[...document.querySelectorAll('figure')];
+function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides.forEach((e,i)=>e.hidden=i!==n);document.getElementById('counter').textContent=`${n+1} / ${slides.length}`;document.getElementById('prev').disabled=n===0;document.getElementById('next').disabled=n===slides.length-1;document.querySelectorAll('nav a').forEach((e,i)=>e.setAttribute('aria-current',String(i===n)));}
+function current(){const match=location.hash.match(/^#s([0-9]+)$/);return match?Number(match[1])-1:0;}
+function move(delta){location.hash='s'+(Math.max(0,Math.min(slides.length-1,current()+delta))+1);}
+document.getElementById('prev').onclick=()=>move(-1);document.getElementById('next').onclick=()=>move(1);window.addEventListener('hashchange',()=>show(current()));document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){e.preventDefault();move(1);}if(e.key==='ArrowLeft'){e.preventDefault();move(-1);}});show(current());
+</script></body></html>
