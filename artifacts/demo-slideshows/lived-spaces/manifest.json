@@ -4,10 +4,29 @@
   "title": "Compose a timed exhibit reveal",
   "scenario": "V09 partition and cue authoring, I06 term inspection and I07 checkpoint replay",
   "host": "macOS 27.2.1 arm64",
-  "backend": "AppKit window content capture; Moxi spatial CPU projection and ray picking",
+  "backend": "AppKit content capture; Moxi floor projection and triangle picking; stylized perspective visitor-eye ray casting",
   "fixture": "Two parallel 7 m paths, one exhibit, one partition and one cue",
   "reproduce": "python3 examples/lived-spaces/gallery.py",
-  "revision": "ff5530da426425d92fb4f17106b3d90e969f4dd3",
+  "revision": "2852b7d23c729acd51819537688b2062ca903302",
+  "captured_at": "2026-11-26T04:27:41.906919+00:00",
+  "base_revision": "aedd058d1ac9605d25a4b0660c93c9220901362f",
+  "source_sha256": {
+    "examples/lived-spaces/README.md": "66977326e7f7dd273139cf4a0cd9918e14f0640ec6d92ad0b67522ebaa53fa11",
+    "examples/lived-spaces/gallery.py": "bc27a0ab716b2440ede0963a8cb8df49ebad6e3350ee4c191f71cc1e05bdce6f",
+    "examples/lived-spaces/preview.hpp": "4cd5f2f9d69b2a68a6e7df37ae637f0bd4e0a7116724aa8b58a932e3b246cd65",
+    "examples/lived-spaces/preview_check.cpp": "12b2bc04da2dd866ef55b8bea2172ef6206bee7be30fa9fcf27853de79e05d9a",
+    "examples/lived-spaces/run.sh": "b118461ca8b8748d63b76744b059c5b6eefd2b158bc72907a0b89912c44c9b09",
+    "examples/lived-spaces/score.hpp": "e1edbe23d8baacbd8224991be27fe67d46263269ec7ef133189372b9357bfa59",
+    "examples/lived-spaces/window.mm": "4d251eb25fffc849c16bfdb03f77ba06949864fa9a67e161c8606824fad2bd92",
+    "native/spatial/api.cpp": "b28aa0cceb22b3278028195e2a91cc93e9d855f7436ea9ef5d5ba99a1bf7bcb9",
+    "native/spatial/api.h": "02c0b9067b8c1ffb55150239329c3da210526769f4b138a19e3c8165d864bdac",
+    "native/spatial/core.cpp": "c16a269dedf3488ea773487774a7073f48d9410177f198fb8fab22434498af87",
+    "native/spatial/core.hpp": "0bf93e5407a07fdf20e9d0d02cf6128308f3037402d270369b836f5aa17b7053",
+    "native/spatial/panel.hpp": "e78d75d635b4dbfa8252f1ebcd710209d44fadf56fc60f1c5d54f631e7f349c7",
+    "native/spatial/renderer.h": "5d070bd235981737dde9f94325df970ee4279259533067c157786dce96ade93c",
+    "native/spatial/renderer.m": "dd234996d4898efb33156815690be1e866ccf886f9b5788b2c4d67c88391cddf",
+    "scripts/demo_slideshows.py": "d9bfa8ef8e7f23afdb3275fc492f6a930af4ea5cbd1bf7034b8c0f4826edc66d"
+  },
   "scale": 2.0,
   "slides": [
     {
@@ -17,8 +36,8 @@
       "action": "Launch at 7 s on North.",
       "expected": "Both routes have cleared the partition. The selected visitor sees 75% light.",
       "dimensions": [
-        1840,
-        1170
+        2520,
+        1428
       ],
       "capture_kind": "native-window"
     },
@@ -29,8 +48,8 @@
       "action": "Move the partition +1 m.",
       "expected": "North loses sight at the cursor. South remains clear.",
       "dimensions": [
-        1840,
-        1170
+        2520,
+        1428
       ],
       "capture_kind": "native-window"
     },
@@ -39,10 +58,34 @@
       "phase": "result",
       "caption": "A brighter cue behind the wall",
       "action": "Move the peak one second later.",
-      "expected": "The exhibit reaches 100% at the cursor while North remains blocked.",
+      "expected": "North's eye view is occluded. South's exhibit marker brightens to 100% at the same 7 s cursor.",
       "dimensions": [
-        1840,
-        1170
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "09-south.png",
+      "phase": "interaction",
+      "caption": "Compare from the other route",
+      "action": "Switch to South at 7 s.",
+      "expected": "South becomes selected and stays clear; North stays occluded. Score and two history entries are shared.",
+      "dimensions": [
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "10-undo-light.png",
+      "phase": "recovery",
+      "caption": "First undo: timing",
+      "action": "Undo once while South is selected.",
+      "expected": "The cue returns to 75%, North stays occluded and one spatial edit remains.",
+      "dimensions": [
+        2520,
+        1428
       ],
       "capture_kind": "native-window"
     },
@@ -53,8 +96,8 @@
       "action": "Undo the cue, then the partition.",
       "expected": "The peak returns to 6 s, the sightline clears and history is empty.",
       "dimensions": [
-        1840,
-        1170
+        2520,
+        1428
       ],
       "capture_kind": "native-window"
     },
@@ -65,8 +108,8 @@
       "action": "Switch to South, scrub to 5 s, move −1 m and checkpoint. Advance the cue, move −1 m, then try once more.",
       "expected": "The final move is rejected at −2 m. Three edits remain in history.",
       "dimensions": [
-        1840,
-        1170
+        2520,
+        1428
       ],
       "capture_kind": "native-window"
     },
@@ -77,8 +120,8 @@
       "action": "Restore the checkpoint.",
       "expected": "South at 5 s, partition −1 m, peak 6 s and one history entry return.",
       "dimensions": [
-        1840,
-        1170
+        2520,
+        1428
       ],
       "capture_kind": "native-window"
     },
@@ -89,8 +132,8 @@
       "action": "Press Command-F, then Command-D.",
       "expected": "The cue formula gives way to its asymmetric rise and fall durations.",
       "dimensions": [
-        1840,
-        1170
+        2520,
+        1428
       ],
       "capture_kind": "native-window"
     },
@@ -101,8 +144,92 @@
       "action": "Press Command-D again.",
       "expected": "The formula regains keyboard focus with width selected.",
       "dimensions": [
-        1840,
-        1170
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "11-ended.png",
+      "phase": "result",
+      "caption": "One cursor, different route durations",
+      "action": "Switch to North and scrub to 12 s.",
+      "expected": "North is at 12 s; South's eye stays at its 10 s endpoint. The shared cue is now 0%.",
+      "dimensions": [
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "performance/01-authored.png",
+      "phase": "interaction",
+      "caption": "Record five actions",
+      "action": "Record route, time, partition, cue and time actions; finish.",
+      "expected": "The native transcript lists five accepted actions and both eye views follow the resulting session.",
+      "dimensions": [
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "performance/02-exploring.png",
+      "phase": "interaction",
+      "caption": "Explore after step three",
+      "action": "Play the sequence, explore at step three, then edit route, time and score.",
+      "expected": "The eye views follow the exploration while the authored transcript retains its third-step position.",
+      "dimensions": [
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "performance/03-returned.png",
+      "phase": "recovery",
+      "caption": "Return to the recorded prefix",
+      "action": "Return from exploration.",
+      "expected": "South at 4 s, partition −1 m, prior cue and complete history return at step three.",
+      "dimensions": [
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "performance/04-resumed.png",
+      "phase": "result",
+      "caption": "Resume the last two actions",
+      "action": "Step twice.",
+      "expected": "The cue and cursor reach the recorded endpoint at South 5 s without changing the five-action sequence.",
+      "dimensions": [
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "performance/05-undo-light.png",
+      "phase": "recovery",
+      "caption": "Undo the recorded cue",
+      "action": "Undo once.",
+      "expected": "Cue timing returns to the prefix; South stays occluded and prior history is preserved.",
+      "dimensions": [
+        2520,
+        1428
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "performance/06-undo-partition.png",
+      "phase": "recovery",
+      "caption": "Undo the recorded partition",
+      "action": "Undo again.",
+      "expected": "The original partition returns and South's marker reappears, retaining pre-recording history.",
+      "dimensions": [
+        2520,
+        1428
       ],
       "capture_kind": "native-window"
     }

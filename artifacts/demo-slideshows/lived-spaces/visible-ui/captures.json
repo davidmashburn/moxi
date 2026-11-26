@@ -1,0 +1,75 @@
+{
+  "revision": "2852b7d23c729acd51819537688b2062ca903302",
+  "base_revision": "aedd058d1ac9605d25a4b0660c93c9220901362f",
+  "executable_sha256": "4433926276ad127d72636fc6b518ef048462ba217576bcdfefa3663995c000e7",
+  "environment": "macOS 27.2.1 arm64; AppKit; 1260 x 714 pt content at 2x; dark appearance; synthetic fixture; no browser or account",
+  "method": "Normally launched local app, clicked actual controls through computer-use UI automation; window screenshots include title bar. A temporary .app wrapper in ignored dist selected the same executable; nothing was installed.",
+  "provenance": "Captured immediately before the source commit. The wrapper executable SHA-256 equals the executable rebuilt by all final committed-source checks. No source mismatch is known.",
+  "frames": [
+    {
+      "image": "01-baseline.jpg",
+      "steps": "Launch normally at North 7 s.",
+      "expected": "Both route centers clear; cue 75%; partition 0 m; history empty.",
+      "observed": "Both route centers clear; cue 75%; partition 0 m; history empty.",
+      "outcome": "pass",
+      "dimensions": [
+        2520,
+        1492
+      ],
+      "captured_at": "2026-11-26T04:23:31.434657+00:00",
+      "sha256": "3355595b8f1baf8fc9b6c95d51cd8728976e9a6e29a897aabf1dc25514999295"
+    },
+    {
+      "image": "02-partition-cue.jpg",
+      "steps": "Click Partition +1 m, then Peak later.",
+      "expected": "North marker hidden; South marker visible and brighter; peak 7 s, cue 100%, history 2.",
+      "observed": "North marker hidden; South marker visible and brighter; peak 7 s, cue 100%, history 2.",
+      "outcome": "pass",
+      "dimensions": [
+        2520,
+        1492
+      ],
+      "captured_at": "2026-11-26T04:23:38.368764+00:00",
+      "sha256": "746df41e45682e79ed52241a39353ef25453816c245a79ce75127a7cc7130b15"
+    },
+    {
+      "image": "03-south.jpg",
+      "steps": "Click Switch route.",
+      "expected": "South selected at 7 s; North remains occluded; score and history 2 retained.",
+      "observed": "South selected at 7 s; North remains occluded; score and history 2 retained.",
+      "outcome": "pass",
+      "dimensions": [
+        2520,
+        1492
+      ],
+      "captured_at": "2026-11-26T04:23:51.203429+00:00",
+      "sha256": "1be24e02eea39c6c0af17d59d78ee91593f9580e77d802d1b92af2ddb6034fe6"
+    },
+    {
+      "image": "04-undo-light.jpg",
+      "steps": "Click Undo edit once.",
+      "expected": "Peak 6 s, cue 75%, history 1; North still occluded; South retained.",
+      "observed": "Peak 6 s, cue 75%, history 1; North still occluded; South retained.",
+      "outcome": "pass",
+      "dimensions": [
+        2520,
+        1492
+      ],
+      "captured_at": "2026-11-26T04:23:56.395030+00:00",
+      "sha256": "a7833e3b89f851047f33538be946a1187c5b31992794d30b772ab32f8b7d9d4b"
+    },
+    {
+      "image": "05-undo-partition.jpg",
+      "steps": "Click Undo edit again.",
+      "expected": "Partition 0 m, history empty; North marker revealed; South retained at 7 s.",
+      "observed": "Partition 0 m, history empty; North marker revealed; South retained at 7 s.",
+      "outcome": "pass",
+      "dimensions": [
+        2520,
+        1492
+      ],
+      "captured_at": "2026-11-26T04:24:00.604865+00:00",
+      "sha256": "0e6959e351a2f29de26ac15c8debe613f9895274e037efb30a762605fd9ce37a"
+    }
+  ]
+}

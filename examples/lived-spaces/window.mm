@@ -1,4 +1,4 @@
-#include "score.hpp"
+#include "preview.hpp"
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
 #include <optional>
@@ -38,6 +38,48 @@ static NSPoint screen(Vec3 p) {
   camera.pitch = .69;
   auto v = project(p, camera, {10, 40, 500, 310, 1});
   return NSMakePoint(v.x, v.y);
+}
+static void visitorView(StudioSession const &session, Path route, NSRect rect,
+                        double scale) {
+  VisitorPreview preview(session.score, route, session.time);
+  NSInteger width = std::lround(rect.size.width * scale),
+            height = std::lround(rect.size.height * scale);
+  auto bitmap = [[NSBitmapImageRep alloc]
+      initWithBitmapDataPlanes:nil pixelsWide:width pixelsHigh:height
+      bitsPerSample:8 samplesPerPixel:3 hasAlpha:NO isPlanar:NO
+      colorSpaceName:NSDeviceRGBColorSpace bytesPerRow:0 bitsPerPixel:0];
+  for (NSInteger y = 0; y < height; ++y) {
+    auto row = bitmap.bitmapData + y * bitmap.bytesPerRow;
+    for (NSInteger x = 0; x < width; ++x) {
+      auto color = preview.sample(2 * (x + .5) / width - 1,
+                                 1 - 2 * (y + .5) / height,
+                                 rect.size.width / rect.size.height).color;
+      row[3*x] = std::lround(255 * color.x);
+      row[3*x+1] = std::lround(255 * color.y);
+      row[3*x+2] = std::lround(255 * color.z);
+    }
+  }
+  auto image = [[NSImage alloc] initWithSize:rect.size];
+  [image addRepresentation:bitmap];
+  [image drawInRect:rect fromRect:NSZeroRect
+         operation:NSCompositingOperationSourceOver fraction:1
+    respectFlipped:YES hints:nil];
+  [(route == session.route ? teal() : NSColor.separatorColor) setStroke];
+  auto border = [NSBezierPath bezierPathWithRect:rect];
+  border.lineWidth = route == session.route ? 2 : 1;
+  [border stroke];
+  // A small open reticle identifies the tested exhibit center without hiding it.
+  NSPoint center = {NSMidX(rect), NSMidY(rect)};
+  for (double side : {-1., 1.}) {
+    line({center.x + side * 5, center.y}, {center.x + side * 9, center.y}, NSColor.darkGrayColor, 1);
+    line({center.x, center.y + side * 5}, {center.x, center.y + side * 9}, NSColor.darkGrayColor, 1);
+  }
+  NSString *name = route == Path::North ? @"North" : @"South";
+  NSString *end = session.time > duration(route) ? @" · ended" : @"";
+  label([NSString stringWithFormat:@"%@ · %.1f s%@ · center %@", name,
+          std::min(session.time, double(duration(route))), end,
+          visible(session.score, route, session.time) ? @"clear" : @"occluded"],
+        rect.origin.x, rect.origin.y - 21, 13, ink());
 }
 enum class Action { SwitchRoute, Seek, West, East, Earlier, Later, Undo };
 struct Step {
@@ -123,7 +165,7 @@ static NSString *describe(Step step) {
     formula.selectable = YES;
     [self addSubview:formula];
     [self button:@"Inspect cue formula"
-               x:725
+               x:1065
                y:55
           action:@selector(focusFormula:)]
         .keyEquivalent = @"f";
@@ -151,7 +193,7 @@ static NSString *describe(Step step) {
     position = [NSTextField labelWithString:@""];
     position.frame = NSMakeRect(630, 572, 280, 24);
     [self addSubview:position];
-    NSScrollView *scroll = [[NSScrollView alloc] initWithFrame:NSMakeRect(25, 608, 870, 92)];
+    NSScrollView *scroll = [[NSScrollView alloc] initWithFrame:NSMakeRect(25, 608, 1210, 92)];
     scroll.hasVerticalScroller = YES;
     transcript = [[NSTextView alloc] initWithFrame:scroll.contentView.bounds];
     transcript.editable = NO;
@@ -406,9 +448,16 @@ static NSString *describe(Step step) {
   label(@"Exhibit", target.x + 15, target.y - 10, 13, ink());
   label(clear ? @"Sightline clear" : @"Partition blocks sightline", 24, 325, 16,
         ink());
-  label(@"Reveal score", 530, 16, 26, ink());
-  label(@"Cue intensity  /  0–100%", 530, 64, 14, ink());
-  const double left = 544, step = 24, baseline = 180;
+  label(@"Visitor-eye preview", 524, 16, 22, ink());
+  label(@"Stylized · fixed aim at exhibit center", 524, 48, 12, ink());
+  label(@"Cue shades marker only · not photometric", 524, 66, 12, ink());
+  visitorView(session, Path::North, NSMakeRect(524, 110, 328, 101),
+              self.window.backingScaleFactor);
+  visitorView(session, Path::South, NSMakeRect(524, 242, 328, 101),
+              self.window.backingScaleFactor);
+  label(@"Reveal score", 870, 16, 26, ink());
+  label(@"Cue intensity  /  0–100%", 870, 64, 14, ink());
+  const double left = 884, step = 24, baseline = 180;
   line({left, baseline}, {left + 14 * step, baseline}, ink(), 1);
   for (int i = 0; i < 14; ++i)
     line({left + i * step, baseline - 72 * light(session.score, i)},
@@ -499,13 +548,21 @@ static void replay(Studio *v, NSString *dir) {
   require(!sight() && light(v->session.score, 7) == 1,
           "cue edit changes intensity while obscured");
   capture(v, dir, @"03-peak.png");
+  press(v, @selector(route:));
+  require(v->session.route == Path::South && v->session.time == 7 && sight() &&
+          v->session.history.size() == 2 && v->session.score == Score{1, 7},
+          "route comparison keeps shared cursor, score and history");
+  capture(v, dir, @"09-south.png");
   press(v, @selector(undo:));
-  require(!sight() && light(v->session.score, 7) == .75,
+  require(sight() && !visible(v->session.score, Path::North, 7) &&
+          light(v->session.score, 7) == .75 && v->session.history.size() == 1,
           "timing undo preserves spatial edit");
+  capture(v, dir, @"10-undo-light.png");
   press(v, @selector(undo:));
   require(sight() && v->session.score == Score{} && v->session.history.empty(),
           "undo restores both views");
   capture(v, dir, @"04-undo.png");
+  press(v, @selector(route:));
   press(v, @selector(restore:));
   require([v->message isEqual:@"Set a checkpoint first"],
           "missing checkpoint handled");
@@ -556,6 +613,14 @@ static void replay(Studio *v, NSString *dir) {
                 light(score, peak + 4) == 0,
             "envelope landmarks");
   }
+  press(v, @selector(route:));
+  v->clockSlider.doubleValue = 12;
+  [v->clockSlider sendAction:v->clockSlider.action to:v];
+  require(v->session.route == Path::North && v->session.time == 12 &&
+          eye(Path::South, v->session.time) == eye(Path::South, 10) &&
+          light(v->session.score, v->session.time) == 0,
+          "short route ends at 10 s while shared cue follows selected 12 s");
+  capture(v, dir, @"11-ended.png");
   puts("PASS: both routes, scrub/play/pause, sightlines, cue landmarks, linked "
        "undo, rejection, checkpoint and keyboard focus");
 }
@@ -635,7 +700,7 @@ int main(int argc, char **argv) {
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     NSWindow *win = [[NSWindow alloc]
-        initWithContentRect:NSMakeRect(0, 0, 920, 714)
+        initWithContentRect:NSMakeRect(0, 0, 1260, 714)
                   styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
                     backing:NSBackingStoreBuffered
                       defer:NO];
