@@ -1,0 +1,34 @@
+{
+  "revision": "2852b7d23c729acd51819537688b2062ca903302",
+  "checks": [
+    {
+      "command": [
+        "examples/lived-spaces/run.sh",
+        "--check-model"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: 1410 route/time/partition cases, perspective, depth, horizon, cue and endpoint\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "examples/lived-spaces/run.sh",
+        "--check",
+        "artifacts/demo-slideshows/lived-spaces"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: both routes, scrub/play/pause, sightlines, cue landmarks, linked undo, rejection, checkpoint and keyboard focus\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "examples/lived-spaces/run.sh",
+        "--check-performance",
+        "artifacts/demo-slideshows/lived-spaces/performance"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: record five, timed replay, interrupt, explore, return, step twice, ordered undo, manual checkpoint\n",
+      "stderr": ""
+    }
+  ]
+}
