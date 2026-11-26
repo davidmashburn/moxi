@@ -2,78 +2,205 @@
   "version": 1,
   "demo_id": "compose-worlds",
   "title": "Compose Worlds",
-  "scenario": "V02 · Predict and replay grazer density",
-  "revision": "5fb7d858d58f8c33dc5d649ad20fc961554fd76a",
-  "captured_at": "2026-11-26T01:52Z",
-  "host": "T3 collaborative preview / Chromium 152, macOS",
+  "scenario": "V02 · Branch promotion, replay and semantic zoom",
+  "revision": "77edeb0317bae62d8c5f378b76941ab2858f9072",
+  "captured_at": "2026-11-26T02:55:03+00:00",
+  "host": "Chrome 158.0.8127.37 / Darwin 27.2.0, offline file URL",
   "backend": "Moxi Python reference SVG and browser Canvas 2D",
   "fixture": "Seed 2407, 32 × 16, 12 seasons",
   "viewport": [
     1180,
     1050
   ],
-  "scale": 2,
-  "reproduce": "python3 examples/compose-worlds/build.py\npython3 -m http.server --bind 127.0.0.1 --directory dist/compose-worlds 8000\nOpen http://localhost:8000/ at 1180 × 1050 CSS pixels, scale 2. Follow the slide actions.",
+  "scale": 1,
+  "reproduce": "python3 examples/compose-worlds/browser_check.py --capture",
   "slides": [
     {
       "image": "initial.png",
       "phase": "initial",
       "caption": "Identical beds at season zero",
-      "action": "Open the built app.",
-      "expected": "The two maps match and the midpoint is 50%.",
+      "action": "Open the app.",
+      "expected": "All branches inherit 50% and the initial maps match.",
       "dimensions": [
-        2360,
-        2100
+        1180,
+        1235
       ],
-      "capture_kind": "browser"
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
     },
     {
       "image": "edit.png",
       "phase": "interaction",
-      "caption": "High feeding response at half cover",
-      "action": "Focus the rule slider and press End. Leave the prediction at More grazers.",
-      "expected": "The curve reaches full feeding strength at half cover. Both beds remain at season zero.",
+      "caption": "Local midpoint",
+      "action": "Press End on North’s midpoint.",
+      "expected": "Only North uses a 100% local midpoint.",
       "dimensions": [
-        2360,
-        2100
+        1180,
+        1235
       ],
-      "capture_kind": "browser"
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
     },
     {
       "image": "result.png",
       "phase": "result",
-      "caption": "Higher grazing consumes the bed",
-      "action": "Click Run comparison.",
-      "expected": "At season 12 the branch averages 21.11% grazers versus 16.47% in the reference. The prediction matches.",
+      "caption": "Season 12 comparison",
+      "action": "Run comparison.",
+      "expected": "North has 21.11% grazers with the original 50% reference.",
       "dimensions": [
-        2360,
-        2100
+        1180,
+        1298
       ],
-      "capture_kind": "browser"
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
     },
     {
       "image": "reset.png",
       "phase": "recovery",
-      "caption": "Restore the initial bed",
-      "action": "Click Reset beds.",
-      "expected": "Both maps return to season zero and the midpoint returns to 50%. Trial 1 remains in history.",
+      "caption": "Reset the beds",
+      "action": "Reset beds.",
+      "expected": "The original rule returns and trial 1 remains available.",
       "dimensions": [
-        2360,
-        2100
+        1180,
+        1298
       ],
-      "capture_kind": "browser"
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
     },
     {
       "image": "replay.png",
       "phase": "result",
-      "caption": "Recover the edited trial",
-      "action": "Click Replay trial 1.",
-      "expected": "The midpoint returns to 100% and the season-12 maps and densities match the original run. History still contains one trial.",
+      "caption": "Replay the first trial",
+      "action": "Replay trial 1 after recording trial 2.",
+      "expected": "The first trial restores its maps, rule and prediction.",
       "dimensions": [
-        2360,
-        2100
+        1180,
+        1345
       ],
-      "capture_kind": "browser"
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
+    },
+    {
+      "image": "promotion.png",
+      "phase": "result",
+      "caption": "East promoted to shared",
+      "action": "Promote East and compare.",
+      "expected": "South follows East to 100%. North retains its local 0%.",
+      "dimensions": [
+        1180,
+        1581
+      ],
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
+    },
+    {
+      "image": "undo.png",
+      "phase": "recovery",
+      "caption": "Restore branch ownership",
+      "action": "Replay the promoted trial and undo promotion.",
+      "expected": "The shared 70% and both local overrides return with the prior trial’s maps.",
+      "dimensions": [
+        1180,
+        1628
+      ],
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
+    },
+    {
+      "image": "definition.png",
+      "phase": "interaction",
+      "caption": "Inspect the feeding knots",
+      "action": "Edit the midpoint and open Knot definition.",
+      "expected": "Keyboard focus moves into the definition dialog.",
+      "dimensions": [
+        1180,
+        1628
+      ],
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
+    },
+    {
+      "image": "formula.png",
+      "phase": "recovery",
+      "caption": "Resume the draft",
+      "action": "Return from the definition.",
+      "expected": "The edited text and backward selection of 30 return to the focused editor.",
+      "dimensions": [
+        1180,
+        1628
+      ],
+      "capture_kind": "browser",
+      "viewport": [
+        1180,
+        1050
+      ],
+      "result": "pass"
+    },
+    {
+      "image": "promotion-narrow.png",
+      "phase": "result",
+      "caption": "East promoted to shared",
+      "action": "Promote East and compare.",
+      "expected": "South follows East to 100%. North retains its local 0%.",
+      "dimensions": [
+        390,
+        2597
+      ],
+      "capture_kind": "browser",
+      "viewport": [
+        390,
+        844
+      ],
+      "result": "pass"
+    },
+    {
+      "image": "formula-narrow.png",
+      "phase": "recovery",
+      "caption": "Resume the draft",
+      "action": "Return from the definition.",
+      "expected": "The edited text and backward selection of 30 return to the focused editor.",
+      "dimensions": [
+        390,
+        2800
+      ],
+      "capture_kind": "browser",
+      "viewport": [
+        390,
+        844
+      ],
+      "result": "pass"
     }
   ]
 }
