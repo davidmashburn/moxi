@@ -1,0 +1,168 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>When does the shuttle cost less?</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f1e9;color:#192f31;font:16px/1.45 system-ui,sans-serif}main{max-width:990px;margin:auto;padding:28px 24px}header{border-bottom:3px solid #193e40;margin-bottom:18px}h1,h2,h3,p{margin:0 0 8px}h1,h2{font-family:Georgia,serif}h1{font-size:clamp(30px,4vw,46px);font-weight:normal}h2{font-size:24px}small,figcaption{color:#475e60}.grid{display:grid;grid-template-columns:1.08fr 1fr;gap:16px}section{background:#fffef9;border:1px solid #becbc7;padding:18px;margin-bottom:14px}section:target,:focus-visible{outline:3px solid #008078;outline-offset:2px}button,select,input{font:inherit;color:inherit;padding:5px 8px;border:1px solid #849998;border-radius:4px;background:white}button{cursor:pointer}button:disabled{opacity:.55}label{display:block;margin:8px 0}input[type=number]{width:5em}input[type=range]{width:100%;padding:0;accent-color:#176665}button,a{margin:3px 4px 3px 0}a{color:#126367}figure{margin:10px 0}.chart svg{display:block;width:100%;height:auto}.voucher{color:#146d73}.shuttle{color:#aa4616}.finding{border-left:5px solid #19716c;padding-left:12px}.error{color:#9c3217}blockquote{margin:8px 0;border-left:3px solid #849998;padding-left:10px}#stepText{min-height:2.8em}summary{cursor:pointer}@media(max-width:700px){.grid{display:block}main{padding:16px}}
+</style>
+<main><header><small>Transit economics · Synthetic case study</small><h1>When does the shuttle cost less?</h1>
+<p>Compare two ways to carry the same riders on a single run.</p></header>
+<div class="grid"><div>
+<section><h2 id="reading">Author’s argument</h2><p>At 40 riders and a $120 dispatch cost, the shuttle saves $40 per run. Can a change in demand reverse the decision?</p>
+<h3>Performed explanation</h3><p id="stepText"></p><button id="next">Next action</button><button id="checkpoint" disabled>Restore step 3</button></section>
+<section id="premises" tabindex="-1"><h2>Test the premises</h2><label>Demand (riders per run) <input id="riders" type="number" min="0" max="60" step="1" value="40"></label>
+<input id="scrub" aria-label="Adjust demand in riders" type="range" min="0" max="60" value="40">
+<label>Shuttle dispatch per run <select id="dispatch"><option value="80">$80</option><option selected value="120">$120</option><option value="160">$160</option></select></label>
+<label><input id="supported" type="checkbox" checked> Include the demand premise</label>
+<button id="restore">Restore original</button></section>
+<section><h2>Exploration copy</h2><label>Premise note <input maxlength="160" id="note" placeholder="Why dispute this premise?"></label>
+<button id="save">Save alternative</button><button id="reopen" disabled>Reopen alternative</button><p id="saved"></p></section></div>
+<div><section><h2>Derived conclusion</h2><div class="finding" aria-live="polite"><strong id="result"></strong><p id="costs"></p></div>
+<a href="#premises">Inspect premises</a> · <a href="#source">Trace cost rates</a>
+<figure><div class="chart" id="chart"></div><figcaption>Shuttle savings ($/run) versus demand (riders). The dashed line marks break-even. The dot shows the current estimate.</figcaption></figure>
+<p id="condition"></p></section>
+<section id="source" tabindex="-1"><h2>Model and provenance</h2><p id="formula"></p><details id="details"><summary>Inspect synthetic observations and fit</summary><p id="observations"></p></details>
+<p><strong>Limit.</strong> Cost alone omits wait time and access. A claim that riders prefer the shuttle is qualitative and unsupported here.</p></section>
+<section><h2>Static comparison</h2><p>Original: vouchers $240, shuttle $200.</p><button id="insert">Insert current finding</button><button id="export" disabled>Export static essay</button><blockquote id="inserted">No finding inserted.</blockquote></section></div></div></main>
+<script>const fixture = {"observations": [[5, 30, 10], [10, 60, 20], [20, 120, 40]], "rates": [6.0, 2.0], "cases": {"80": {"rows": [{"voucher": 0.0, "shuttle": 80.0, "delta": -80.0}, {"voucher": 6.0, "shuttle": 82.0, "delta": -76.0}, {"voucher": 12.0, "shuttle": 84.0, "delta": -72.0}, {"voucher": 18.0, "shuttle": 86.0, "delta": -68.0}, {"voucher": 24.0, "shuttle": 88.0, "delta": -64.0}, {"voucher": 30.0, "shuttle": 90.0, "delta": -60.0}, {"voucher": 36.0, "shuttle": 92.0, "delta": -56.0}, {"voucher": 42.0, "shuttle": 94.0, "delta": -52.0}, {"voucher": 48.0, "shuttle": 96.0, "delta": -48.0}, {"voucher": 54.0, "shuttle": 98.0, "delta": -44.0}, {"voucher": 60.0, "shuttle": 100.0, "delta": -40.0}, {"voucher": 66.0, "shuttle": 102.0, "delta": -36.0}, {"voucher": 72.0, "shuttle": 104.0, "delta": -32.0}, {"voucher": 78.0, "shuttle": 106.0, "delta": -28.0}, {"voucher": 84.0, "shuttle": 108.0, "delta": -24.0}, {"voucher": 90.0, "shuttle": 110.0, "delta": -20.0}, {"voucher": 96.0, "shuttle": 112.0, "delta": -16.0}, {"voucher": 102.0, "shuttle": 114.0, "delta": -12.0}, {"voucher": 108.0, "shuttle": 116.0, "delta": -8.0}, {"voucher": 114.0, "shuttle": 118.0, "delta": -4.0}, {"voucher": 120.0, "shuttle": 120.0, "delta": 0.0}, {"voucher": 126.0, "shuttle": 122.0, "delta": 4.0}, {"voucher": 132.0, "shuttle": 124.0, "delta": 8.0}, {"voucher": 138.0, "shuttle": 126.0, "delta": 12.0}, {"voucher": 144.0, "shuttle": 128.0, "delta": 16.0}, {"voucher": 150.0, "shuttle": 130.0, "delta": 20.0}, {"voucher": 156.0, "shuttle": 132.0, "delta": 24.0}, {"voucher": 162.0, "shuttle": 134.0, "delta": 28.0}, {"voucher": 168.0, "shuttle": 136.0, "delta": 32.0}, {"voucher": 174.0, "shuttle": 138.0, "delta": 36.0}, {"voucher": 180.0, "shuttle": 140.0, "delta": 40.0}, {"voucher": 186.0, "shuttle": 142.0, "delta": 44.0}, {"voucher": 192.0, "shuttle": 144.0, "delta": 48.0}, {"voucher": 198.0, "shuttle": 146.0, "delta": 52.0}, {"voucher": 204.0, "shuttle": 148.0, "delta": 56.0}, {"voucher": 210.0, "shuttle": 150.0, "delta": 60.0}, {"voucher": 216.0, "shuttle": 152.0, "delta": 64.0}, {"voucher": 222.0, "shuttle": 154.0, "delta": 68.0}, {"voucher": 228.0, "shuttle": 156.0, "delta": 72.0}, {"voucher": 234.0, "shuttle": 158.0, "delta": 76.0}, {"voucher": 240.0, "shuttle": 160.0, "delta": 80.0}, {"voucher": 246.0, "shuttle": 162.0, "delta": 84.0}, {"voucher": 252.0, "shuttle": 164.0, "delta": 88.0}, {"voucher": 258.0, "shuttle": 166.0, "delta": 92.0}, {"voucher": 264.0, "shuttle": 168.0, "delta": 96.0}, {"voucher": 270.0, "shuttle": 170.0, "delta": 100.0}, {"voucher": 276.0, "shuttle": 172.0, "delta": 104.0}, {"voucher": 282.0, "shuttle": 174.0, "delta": 108.0}, {"voucher": 288.0, "shuttle": 176.0, "delta": 112.0}, {"voucher": 294.0, "shuttle": 178.0, "delta": 116.0}, {"voucher": 300.0, "shuttle": 180.0, "delta": 120.0}, {"voucher": 306.0, "shuttle": 182.0, "delta": 124.0}, {"voucher": 312.0, "shuttle": 184.0, "delta": 128.0}, {"voucher": 318.0, "shuttle": 186.0, "delta": 132.0}, {"voucher": 324.0, "shuttle": 188.0, "delta": 136.0}, {"voucher": 330.0, "shuttle": 190.0, "delta": 140.0}, {"voucher": 336.0, "shuttle": 192.0, "delta": 144.0}, {"voucher": 342.0, "shuttle": 194.0, "delta": 148.0}, {"voucher": 348.0, "shuttle": 196.0, "delta": 152.0}, {"voucher": 354.0, "shuttle": 198.0, "delta": 156.0}, {"voucher": 360.0, "shuttle": 200.0, "delta": 160.0}], "chart": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"420\" height=\"128\" viewBox=\"0 0 420 128\"><rect width=\"100%\" height=\"100%\" fill=\"white\"/><g data-moxi=\"plot\" data-version=\"1\"><line x1=\"54\" y1=\"98\" x2=\"402\" y2=\"98\" stroke=\"#667085\"/><line x1=\"54\" y1=\"18\" x2=\"54\" y2=\"98\" stroke=\"#667085\"/><polyline points=\"69.8182,94.3636 75.0909,93.1515 80.3636,91.9394 85.6364,90.7273 90.9091,89.5152 96.1818,88.303 101.455,87.0909 106.727,85.8788 112,84.6667 117.273,83.4545 122.545,82.2424 127.818,81.0303 133.091,79.8182 138.364,78.6061 143.636,77.3939 148.909,76.1818 154.182,74.9697 159.455,73.7576 164.727,72.5455 170,71.3333 175.273,70.1212 180.545,68.9091 185.818,67.697 191.091,66.4848 196.364,65.2727 201.636,64.0606 206.909,62.8485 212.182,61.6364 217.455,60.4242 222.727,59.2121 228,58 233.273,56.7879 238.545,55.5758 243.818,54.3636 249.091,53.1515 254.364,51.9394 259.636,50.7273 264.909,49.5152 270.182,48.303 275.455,47.0909 280.727,45.8788 286,44.6667 291.273,43.4545 296.545,42.2424 301.818,41.0303 307.091,39.8182 312.364,38.6061 317.636,37.3939 322.909,36.1818 328.182,34.9697 333.455,33.7576 338.727,32.5455 344,31.3333 349.273,30.1212 354.545,28.9091 359.818,27.697 365.091,26.4848 370.364,25.2727 375.636,24.0606 380.909,22.8485 386.182,21.6364\" fill=\"none\" stroke=\"rgba(20,110,115,1)\" stroke-width=\"2\" data-mark=\"line\"/><text x=\"210\" y=\"18\" text-anchor=\"middle\" fill=\"#101828\">Shuttle savings per run</text></g></svg>", "threshold": 20.0}, "120": {"rows": [{"voucher": 0.0, "shuttle": 120.0, "delta": -120.0}, {"voucher": 6.0, "shuttle": 122.0, "delta": -116.0}, {"voucher": 12.0, "shuttle": 124.0, "delta": -112.0}, {"voucher": 18.0, "shuttle": 126.0, "delta": -108.0}, {"voucher": 24.0, "shuttle": 128.0, "delta": -104.0}, {"voucher": 30.0, "shuttle": 130.0, "delta": -100.0}, {"voucher": 36.0, "shuttle": 132.0, "delta": -96.0}, {"voucher": 42.0, "shuttle": 134.0, "delta": -92.0}, {"voucher": 48.0, "shuttle": 136.0, "delta": -88.0}, {"voucher": 54.0, "shuttle": 138.0, "delta": -84.0}, {"voucher": 60.0, "shuttle": 140.0, "delta": -80.0}, {"voucher": 66.0, "shuttle": 142.0, "delta": -76.0}, {"voucher": 72.0, "shuttle": 144.0, "delta": -72.0}, {"voucher": 78.0, "shuttle": 146.0, "delta": -68.0}, {"voucher": 84.0, "shuttle": 148.0, "delta": -64.0}, {"voucher": 90.0, "shuttle": 150.0, "delta": -60.0}, {"voucher": 96.0, "shuttle": 152.0, "delta": -56.0}, {"voucher": 102.0, "shuttle": 154.0, "delta": -52.0}, {"voucher": 108.0, "shuttle": 156.0, "delta": -48.0}, {"voucher": 114.0, "shuttle": 158.0, "delta": -44.0}, {"voucher": 120.0, "shuttle": 160.0, "delta": -40.0}, {"voucher": 126.0, "shuttle": 162.0, "delta": -36.0}, {"voucher": 132.0, "shuttle": 164.0, "delta": -32.0}, {"voucher": 138.0, "shuttle": 166.0, "delta": -28.0}, {"voucher": 144.0, "shuttle": 168.0, "delta": -24.0}, {"voucher": 150.0, "shuttle": 170.0, "delta": -20.0}, {"voucher": 156.0, "shuttle": 172.0, "delta": -16.0}, {"voucher": 162.0, "shuttle": 174.0, "delta": -12.0}, {"voucher": 168.0, "shuttle": 176.0, "delta": -8.0}, {"voucher": 174.0, "shuttle": 178.0, "delta": -4.0}, {"voucher": 180.0, "shuttle": 180.0, "delta": 0.0}, {"voucher": 186.0, "shuttle": 182.0, "delta": 4.0}, {"voucher": 192.0, "shuttle": 184.0, "delta": 8.0}, {"voucher": 198.0, "shuttle": 186.0, "delta": 12.0}, {"voucher": 204.0, "shuttle": 188.0, "delta": 16.0}, {"voucher": 210.0, "shuttle": 190.0, "delta": 20.0}, {"voucher": 216.0, "shuttle": 192.0, "delta": 24.0}, {"voucher": 222.0, "shuttle": 194.0, "delta": 28.0}, {"voucher": 228.0, "shuttle": 196.0, "delta": 32.0}, {"voucher": 234.0, "shuttle": 198.0, "delta": 36.0}, {"voucher": 240.0, "shuttle": 200.0, "delta": 40.0}, {"voucher": 246.0, "shuttle": 202.0, "delta": 44.0}, {"voucher": 252.0, "shuttle": 204.0, "delta": 48.0}, {"voucher": 258.0, "shuttle": 206.0, "delta": 52.0}, {"voucher": 264.0, "shuttle": 208.0, "delta": 56.0}, {"voucher": 270.0, "shuttle": 210.0, "delta": 60.0}, {"voucher": 276.0, "shuttle": 212.0, "delta": 64.0}, {"voucher": 282.0, "shuttle": 214.0, "delta": 68.0}, {"voucher": 288.0, "shuttle": 216.0, "delta": 72.0}, {"voucher": 294.0, "shuttle": 218.0, "delta": 76.0}, {"voucher": 300.0, "shuttle": 220.0, "delta": 80.0}, {"voucher": 306.0, "shuttle": 222.0, "delta": 84.0}, {"voucher": 312.0, "shuttle": 224.0, "delta": 88.0}, {"voucher": 318.0, "shuttle": 226.0, "delta": 92.0}, {"voucher": 324.0, "shuttle": 228.0, "delta": 96.0}, {"voucher": 330.0, "shuttle": 230.0, "delta": 100.0}, {"voucher": 336.0, "shuttle": 232.0, "delta": 104.0}, {"voucher": 342.0, "shuttle": 234.0, "delta": 108.0}, {"voucher": 348.0, "shuttle": 236.0, "delta": 112.0}, {"voucher": 354.0, "shuttle": 238.0, "delta": 116.0}, {"voucher": 360.0, "shuttle": 240.0, "delta": 120.0}], "chart": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"420\" height=\"128\" viewBox=\"0 0 420 128\"><rect width=\"100%\" height=\"100%\" fill=\"white\"/><g data-moxi=\"plot\" data-version=\"1\"><line x1=\"54\" y1=\"98\" x2=\"402\" y2=\"98\" stroke=\"#667085\"/><line x1=\"54\" y1=\"18\" x2=\"54\" y2=\"98\" stroke=\"#667085\"/><polyline points=\"69.8182,94.3636 75.0909,93.1515 80.3636,91.9394 85.6364,90.7273 90.9091,89.5152 96.1818,88.303 101.455,87.0909 106.727,85.8788 112,84.6667 117.273,83.4545 122.545,82.2424 127.818,81.0303 133.091,79.8182 138.364,78.6061 143.636,77.3939 148.909,76.1818 154.182,74.9697 159.455,73.7576 164.727,72.5455 170,71.3333 175.273,70.1212 180.545,68.9091 185.818,67.697 191.091,66.4848 196.364,65.2727 201.636,64.0606 206.909,62.8485 212.182,61.6364 217.455,60.4242 222.727,59.2121 228,58 233.273,56.7879 238.545,55.5758 243.818,54.3636 249.091,53.1515 254.364,51.9394 259.636,50.7273 264.909,49.5152 270.182,48.303 275.455,47.0909 280.727,45.8788 286,44.6667 291.273,43.4545 296.545,42.2424 301.818,41.0303 307.091,39.8182 312.364,38.6061 317.636,37.3939 322.909,36.1818 328.182,34.9697 333.455,33.7576 338.727,32.5455 344,31.3333 349.273,30.1212 354.545,28.9091 359.818,27.697 365.091,26.4848 370.364,25.2727 375.636,24.0606 380.909,22.8485 386.182,21.6364\" fill=\"none\" stroke=\"rgba(20,110,115,1)\" stroke-width=\"2\" data-mark=\"line\"/><text x=\"210\" y=\"18\" text-anchor=\"middle\" fill=\"#101828\">Shuttle savings per run</text></g></svg>", "threshold": 30.0}, "160": {"rows": [{"voucher": 0.0, "shuttle": 160.0, "delta": -160.0}, {"voucher": 6.0, "shuttle": 162.0, "delta": -156.0}, {"voucher": 12.0, "shuttle": 164.0, "delta": -152.0}, {"voucher": 18.0, "shuttle": 166.0, "delta": -148.0}, {"voucher": 24.0, "shuttle": 168.0, "delta": -144.0}, {"voucher": 30.0, "shuttle": 170.0, "delta": -140.0}, {"voucher": 36.0, "shuttle": 172.0, "delta": -136.0}, {"voucher": 42.0, "shuttle": 174.0, "delta": -132.0}, {"voucher": 48.0, "shuttle": 176.0, "delta": -128.0}, {"voucher": 54.0, "shuttle": 178.0, "delta": -124.0}, {"voucher": 60.0, "shuttle": 180.0, "delta": -120.0}, {"voucher": 66.0, "shuttle": 182.0, "delta": -116.0}, {"voucher": 72.0, "shuttle": 184.0, "delta": -112.0}, {"voucher": 78.0, "shuttle": 186.0, "delta": -108.0}, {"voucher": 84.0, "shuttle": 188.0, "delta": -104.0}, {"voucher": 90.0, "shuttle": 190.0, "delta": -100.0}, {"voucher": 96.0, "shuttle": 192.0, "delta": -96.0}, {"voucher": 102.0, "shuttle": 194.0, "delta": -92.0}, {"voucher": 108.0, "shuttle": 196.0, "delta": -88.0}, {"voucher": 114.0, "shuttle": 198.0, "delta": -84.0}, {"voucher": 120.0, "shuttle": 200.0, "delta": -80.0}, {"voucher": 126.0, "shuttle": 202.0, "delta": -76.0}, {"voucher": 132.0, "shuttle": 204.0, "delta": -72.0}, {"voucher": 138.0, "shuttle": 206.0, "delta": -68.0}, {"voucher": 144.0, "shuttle": 208.0, "delta": -64.0}, {"voucher": 150.0, "shuttle": 210.0, "delta": -60.0}, {"voucher": 156.0, "shuttle": 212.0, "delta": -56.0}, {"voucher": 162.0, "shuttle": 214.0, "delta": -52.0}, {"voucher": 168.0, "shuttle": 216.0, "delta": -48.0}, {"voucher": 174.0, "shuttle": 218.0, "delta": -44.0}, {"voucher": 180.0, "shuttle": 220.0, "delta": -40.0}, {"voucher": 186.0, "shuttle": 222.0, "delta": -36.0}, {"voucher": 192.0, "shuttle": 224.0, "delta": -32.0}, {"voucher": 198.0, "shuttle": 226.0, "delta": -28.0}, {"voucher": 204.0, "shuttle": 228.0, "delta": -24.0}, {"voucher": 210.0, "shuttle": 230.0, "delta": -20.0}, {"voucher": 216.0, "shuttle": 232.0, "delta": -16.0}, {"voucher": 222.0, "shuttle": 234.0, "delta": -12.0}, {"voucher": 228.0, "shuttle": 236.0, "delta": -8.0}, {"voucher": 234.0, "shuttle": 238.0, "delta": -4.0}, {"voucher": 240.0, "shuttle": 240.0, "delta": 0.0}, {"voucher": 246.0, "shuttle": 242.0, "delta": 4.0}, {"voucher": 252.0, "shuttle": 244.0, "delta": 8.0}, {"voucher": 258.0, "shuttle": 246.0, "delta": 12.0}, {"voucher": 264.0, "shuttle": 248.0, "delta": 16.0}, {"voucher": 270.0, "shuttle": 250.0, "delta": 20.0}, {"voucher": 276.0, "shuttle": 252.0, "delta": 24.0}, {"voucher": 282.0, "shuttle": 254.0, "delta": 28.0}, {"voucher": 288.0, "shuttle": 256.0, "delta": 32.0}, {"voucher": 294.0, "shuttle": 258.0, "delta": 36.0}, {"voucher": 300.0, "shuttle": 260.0, "delta": 40.0}, {"voucher": 306.0, "shuttle": 262.0, "delta": 44.0}, {"voucher": 312.0, "shuttle": 264.0, "delta": 48.0}, {"voucher": 318.0, "shuttle": 266.0, "delta": 52.0}, {"voucher": 324.0, "shuttle": 268.0, "delta": 56.0}, {"voucher": 330.0, "shuttle": 270.0, "delta": 60.0}, {"voucher": 336.0, "shuttle": 272.0, "delta": 64.0}, {"voucher": 342.0, "shuttle": 274.0, "delta": 68.0}, {"voucher": 348.0, "shuttle": 276.0, "delta": 72.0}, {"voucher": 354.0, "shuttle": 278.0, "delta": 76.0}, {"voucher": 360.0, "shuttle": 280.0, "delta": 80.0}], "chart": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"420\" height=\"128\" viewBox=\"0 0 420 128\"><rect width=\"100%\" height=\"100%\" fill=\"white\"/><g data-moxi=\"plot\" data-version=\"1\"><line x1=\"54\" y1=\"98\" x2=\"402\" y2=\"98\" stroke=\"#667085\"/><line x1=\"54\" y1=\"18\" x2=\"54\" y2=\"98\" stroke=\"#667085\"/><polyline points=\"69.8182,94.3636 75.0909,93.1515 80.3636,91.9394 85.6364,90.7273 90.9091,89.5152 96.1818,88.303 101.455,87.0909 106.727,85.8788 112,84.6667 117.273,83.4545 122.545,82.2424 127.818,81.0303 133.091,79.8182 138.364,78.6061 143.636,77.3939 148.909,76.1818 154.182,74.9697 159.455,73.7576 164.727,72.5455 170,71.3333 175.273,70.1212 180.545,68.9091 185.818,67.697 191.091,66.4848 196.364,65.2727 201.636,64.0606 206.909,62.8485 212.182,61.6364 217.455,60.4242 222.727,59.2121 228,58 233.273,56.7879 238.545,55.5758 243.818,54.3636 249.091,53.1515 254.364,51.9394 259.636,50.7273 264.909,49.5152 270.182,48.303 275.455,47.0909 280.727,45.8788 286,44.6667 291.273,43.4545 296.545,42.2424 301.818,41.0303 307.091,39.8182 312.364,38.6061 317.636,37.3939 322.909,36.1818 328.182,34.9697 333.455,33.7576 338.727,32.5455 344,31.3333 349.273,30.1212 354.545,28.9091 359.818,27.697 365.091,26.4848 370.364,25.2727 375.636,24.0606 380.909,22.8485 386.182,21.6364\" fill=\"none\" stroke=\"rgba(20,110,115,1)\" stroke-width=\"2\" data-mark=\"line\"/><text x=\"210\" y=\"18\" text-anchor=\"middle\" fill=\"#101828\">Shuttle savings per run</text></g></svg>", "threshold": 40.0}}};
+const el = id => document.getElementById(id);
+const original = Object.freeze({riders: "40", dispatch: "120", supported: true, note: ""});
+let step = 0;
+let checkpoint;
+let alternative;
+let insertion;
+
+function read() {
+  return {riders: el("riders").value, dispatch: el("dispatch").value,
+          supported: el("supported").checked, note: el("note").value};
+}
+function apply(state) {
+  for (const key of ["riders", "dispatch", "note"]) el(key).value = state[key];
+  el("supported").checked = state.supported;
+  render();
+}
+function finding(delta) {
+  if (delta === 0) return "Both proposals cost the same.";
+  return (delta > 0 ? "Shuttle saves" : "Vouchers save") + " $" + Math.abs(delta) + " per run.";
+}
+function drawSensitivity(model, riders) {
+  const container = el("chart");
+  container.innerHTML = model.chart;
+  const svg = container.querySelector("svg");
+  const points = svg.querySelector("polyline").points;
+  function mark(tag, attrs) {
+    const node = document.createElementNS(svg.namespaceURI, tag);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+    svg.appendChild(node);
+    return node;
+  }
+  const tie = points.getItem(model.threshold);
+  const left = points.getItem(0).x;
+  const right = points.getItem(points.numberOfItems - 1).x;
+  mark("line", {x1:left, x2:right, y1:tie.y, y2:tie.y, stroke:"#586c6b", "stroke-dasharray":"3 3"});
+  mark("text", {x:left - 6, y:tie.y + 4, "text-anchor":"end", "font-size":12}).textContent = "$0";
+  for (const [x, label] of [[left, "0"], [tie.x, String(model.threshold)], [right, "60"]]) {
+    mark("text", {x, y:114, "text-anchor":"middle", "font-size":12}).textContent = label;
+  }
+  if (riders !== null) {
+    const pt = points.getItem(riders);
+    mark("circle", {cx:pt.x, cy:pt.y, r:5, fill:"#ac4b18", stroke:"white"});
+  }
+}
+function render() {
+  const state = read();
+  const model = fixture.cases[state.dispatch];
+  const valid = state.riders !== "" && el("riders").validity.valid;
+  const row = valid && state.supported && model.rows[Number(state.riders)];
+  if (valid) el("scrub").value = state.riders;
+  el("result").classList.toggle("error", !row);
+  el("result").textContent = row ? finding(row.delta) : state.supported
+    ? "Enter a whole number of riders from 0 to 60." : "Demand premise withdrawn. Conclusion unavailable.";
+  el("costs").textContent = row ? `Vouchers $${row.voucher} · Shuttle $${row.shuttle}` : "";
+  drawSensitivity(model, row ? Number(state.riders) : null);
+  el("condition").textContent = `At $${state.dispatch} dispatch, costs tie at ${model.threshold} riders. Below that demand vouchers cost less; above it the shuttle costs less.`;
+  el("save").disabled = el("insert").disabled = !row;
+}
+const [voucherRate, shuttleRate] = fixture.rates;
+el("formula").textContent = `Vouchers = $${voucherRate} × riders. Shuttle = dispatch + $${shuttleRate} × riders.`;
+el("observations").textContent = "Fixture T1 (riders, voucher $, variable shuttle $): " +
+  fixture.observations.map(row => "(" + row.join(", ") + ")").join(", ") +
+  ". Each unit rate is fitted through zero: sum(riders × spend) / sum(riders²). Dispatch is an assumed fixed cost.";
+for (const id of ["riders", "dispatch", "supported"]) el(id).oninput = render;
+el("scrub").oninput = () => { el("riders").value = el("scrub").value; render(); };
+
+const steps = [
+  "Follow five actions, or edit the exploration copy directly.",
+  "Start with the authored demand and dispatch assumptions.",
+  "Trace both cost rates to the synthetic observations.",
+  "Set demand to the break-even point. Checkpoint saved.",
+  "Reduce demand by ten riders and compare the costs.",
+  "Raise demand above break-even and inspect the reversal."
+];
+function showStep() {
+  el("stepText").textContent = step ? `${step} / 5 · ${steps[step]}` : steps[0];
+  el("next").disabled = step === 5;
+  el("checkpoint").disabled = !checkpoint;
+}
+el("next").onclick = () => {
+  step++;
+  // Each action names a complete state so an intervening edit cannot alter playback.
+  const threshold = fixture.cases[original.dispatch].threshold;
+  const demand = [null, 40, 40, threshold, threshold - 10, threshold + 10][step];
+  apply({...original, riders: String(demand)});
+  el("details").open = step >= 2;
+  if (step === 3) checkpoint = read();
+  showStep();
+};
+el("checkpoint").onclick = () => {
+  step = 3;
+  apply(checkpoint);
+  el("details").open = true;
+  showStep();
+};
+el("restore").onclick = () => {
+  step = 0;
+  el("details").open = false;
+  apply(original);
+  showStep();
+};
+el("save").onclick = () => {
+  alternative = read();
+  el("saved").textContent = `Saved for this session: ${alternative.riders} riders, $${alternative.dispatch} dispatch. ${alternative.note}`;
+  el("reopen").disabled = false;
+};
+el("reopen").onclick = () => apply(alternative);
+el("insert").onclick = () => {
+  const state = read();
+  insertion = {
+    text: `${state.riders} riders at $${state.dispatch} dispatch. ${el("costs").textContent}. ${el("result").textContent} ${state.note}`,
+    condition: el("condition").textContent, chart: el("chart").innerHTML
+  };
+  el("inserted").textContent = insertion.text + " Source: fixture T1, through-zero cost fit.";
+  el("export").disabled = false;
+};
+el("export").onclick = () => {
+  const doc = document.implementation.createHTMLDocument("Shuttle cost comparison");
+  doc.documentElement.lang = "en";
+  doc.head.append(document.querySelector("style").cloneNode(true));
+  const main = doc.body.appendChild(doc.createElement("main"));
+  function add(tag, text) { main.appendChild(doc.createElement(tag)).textContent = text; }
+  add("h1", "When does the shuttle cost less?");
+  add("h2", "Authored argument");
+  add("p", "At 40 riders and $120 dispatch: vouchers $240, shuttle $200. Shuttle saves $40 per run.");
+  add("h2", "Inserted comparison");
+  add("p", insertion.text);
+  add("p", insertion.condition);
+  main.appendChild(doc.createElement("figure")).innerHTML = insertion.chart;
+  add("p", document.querySelector("figcaption").textContent);
+  add("h2", "Model, source and limit");
+  for (const id of ["formula", "observations"]) add("p", el(id).textContent);
+  add("p", el("source").lastElementChild.textContent);
+  const url = URL.createObjectURL(new Blob(["<!doctype html>", doc.documentElement.outerHTML], {type:"text/html"}));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "shuttle-comparison.html";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+render();
+showStep();
+</script></html>
