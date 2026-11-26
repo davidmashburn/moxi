@@ -71,6 +71,8 @@ struct MindMapApp:
         self.layout.compute(doc)
         var canvas = CanvasView[TopicControl](self.layout.project(doc))
         canvas.default_commands = False
+        # MapHistory owns the editor transaction, including cancellation and undo.
+        canvas.retain_child_history = False
         canvas.bindings = bindings()
         canvas.surface_hint = "Mind map. Tab child; Enter sibling; F2 edit; Space fold; F6 toolbar and Commands."
         var toolbar: List[MapCommand] = [MapCommand.PALETTE, MapCommand.CHILD, MapCommand.EDIT, MapCommand.MOVE, MapCommand.FOLD, MapCommand.FIND, MapCommand.OUTLINE, MapCommand.UNDO, MapCommand.SAVE, MapCommand.FIT]
@@ -178,31 +180,42 @@ struct MindMapApp:
         self.app.component.state.history = CanvasHistory()
         self.app.component.content_history.clear()
         self.app.component.content_dirty = False
-        var retained = self.app.component.mounts.copy()
-        self.app.component.mounts.clear()
-        var retained_index = Dict[Int, Int]()
-        for i in range(len(retained)):
-            retained_index[retained[i].id] = i
-        for topic in self.doc.topics:
-            var index = retained_index.get(topic.id, -1)
-            if index >= 0:
-                var item = retained[index]
+        # Edits and reparenting keep record order. Only rebuild the mount list
+        # when topics were inserted, removed or replaced.
+        var aligned = len(self.app.component.mounts) == len(self.doc.topics)
+        if aligned:
+            for i in range(len(self.doc.topics)):
+                if self.app.component.mounts[i].id != self.doc.topics[i].id:
+                    aligned = False
+                    break
+        if not aligned:
+            var retained = self.app.component.mounts^
+            self.app.component.mounts = type_of(retained)()
+            var retained_index = Dict[Int, Int]()
+            for i in range(len(retained)):
+                retained_index[retained[i].id] = i
+            for topic in self.doc.topics:
+                var index = retained_index.get(topic.id, -1)
+                if index >= 0:
+                    self.app.component.mounts.append(retained[index])
+                else:
+                    self.app.component.mount(topic.id, TopicControl(topic.text, Self.subtitle(self.doc, topic.id), topic.style))
+        for i in range(len(self.doc.topics)):
+            ref topic = self.doc.topics[i]
+            ref item = self.app.component.mounts[i]
+            if self.mode != MapMode.EDIT or self.edit_id != topic.id:
                 var subtitle = Self.subtitle(self.doc, topic.id)
-                if self.mode != MapMode.EDIT or self.edit_id != topic.id:
-                    if item.child.input.text != topic.text or item.child.subtitle != subtitle or item.child.style != topic.style:
-                        item.child = TopicControl(topic.text, subtitle, topic.style)
-                        item.refresh(self.app.component.document.world_bounds(topic.id))
-                self.app.component.mounts.append(item)
-            else:
-                self.app.component.mount(topic.id, TopicControl(topic.text, Self.subtitle(self.doc, topic.id), topic.style))
+                if item.child.input.text != topic.text or item.child.subtitle != subtitle or item.child.style != topic.style:
+                    item.child = TopicControl(topic.text, subtitle, topic.style)
+                    item.refresh(self.app.component.document.world_bounds(topic.id))
         if not self.doc.contains(self.app.component.state.focus):
             self.app.component.state.select(self.doc.root)
         self.app.rebuild_localized()
 
     def commit(mut self, candidate: MindMapDocument, title: String) raises -> Bool:
         var changed = self.history.commit(self.doc, candidate, self.expected)
+        self.app.component.state.status = title if changed else "No change; history unchanged"
         self.sync()
-        self.status(title if changed else "No change; history unchanged")
         return changed
 
     def begin_edit(mut self, field: EditorField = EditorField.LABEL, provisional: Bool = False) raises:

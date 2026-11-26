@@ -1,5 +1,11 @@
 // Test-only capture of this application's content view; never a screen/window capture.
 #import <Cocoa/Cocoa.h>
+#include <time.h>
+
+uint64_t moxi_mm_thread_cpu_ns(void) {
+    return clock_gettime_nsec_np(CLOCK_THREAD_CPUTIME_ID);
+}
+
 static NSString *const MMTitle = @"Moxi · Mind map";
 static NSWindow *ownWindow(void) {
     for (NSWindow *window in NSApp.windows) if ([window.title isEqualToString:MMTitle]) return window;

@@ -23,6 +23,7 @@ struct PathKind(Equatable, ImplicitlyCopyable):
     var value: Int
     comptime STRAIGHT = Self(0)
     comptime CUBIC = Self(1)
+    comptime ORTHOGONAL = Self(2)
 
 
 @fieldwise_init

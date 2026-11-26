@@ -3,8 +3,12 @@ from std.collections import List, Dict
 from moxi import Rect
 from moxi.measure import measure_text_wrapped
 from moxi.style import default_panel_style
-from moxi_canvas import CanvasDocument, CanvasObject, Port, PortDirection, GraphEdge, ConnectionPolicy
+from moxi_canvas import CanvasDocument, CanvasObject, Port, PortDirection, GraphEdge, PathKind, ConnectionPolicy
 from .model import *
+
+# Wide sibling groups share a horizontal stem and vertical trunk.
+comptime DENSE_SIBLINGS = 8
+comptime ROOT_LEFT_OUTPUT = MAX_ID * 2 + 2
 
 struct MapLayout(ImplicitlyCopyable):
     var boxes: Dict[Int, Rect]
@@ -141,9 +145,19 @@ struct MapLayout(ImplicitlyCopyable):
                 side = Side.RIGHT
             canvas.add_port(Port(topic.id * 2, topic.id, PortDirection.INPUT, Float32(0 if side == Side.RIGHT else 1), 0.5))
             canvas.add_port(Port(topic.id * 2 + 1, topic.id, PortDirection.OUTPUT, Float32(1 if side == Side.RIGHT else 0), 0.5))
+        # Keep the port inventory stable across the density threshold during
+        # reparent previews, including when the final left child moves away.
+        if len(doc.topics) > DENSE_SIBLINGS:
+            canvas.add_port(Port(ROOT_LEFT_OUTPUT, doc.root, PortDirection.OUTPUT, 0, 0.5))
         for topic in doc.topics:
             if topic.parent != -1:
-                canvas.edges.append(GraphEdge(topic.id, topic.parent * 2 + 1, topic.id * 2))
+                var source = topic.parent * 2 + 1
+                var path = PathKind.CUBIC
+                if len(doc.topics[doc.at(topic.parent)].children) >= DENSE_SIBLINGS:
+                    path = PathKind.ORTHOGONAL
+                    if topic.parent == doc.root and topic.side == Side.LEFT and doc.arrangement != Arrangement.RIGHT_ONLY:
+                        source = ROOT_LEFT_OUTPUT
+                canvas.edges.append(GraphEdge(topic.id, source, topic.id * 2, path=path))
         for link in doc.links:
             canvas.edges.append(GraphEdge(MAX_ID + link.id, link.source * 2 + 1, link.target * 2, link.label))
         return canvas^

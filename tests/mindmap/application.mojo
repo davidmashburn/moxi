@@ -225,3 +225,17 @@ def main() raises:
     if map.app.component.state.camera.zoom != 1 or map.app.paint().count() >= 1000:
         raise Error("Large maps must open at readable topic scale with viewport culling")
     print("mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS")
+
+    var dense = MindMapApp(large_map(9))
+    dense.select(9)
+    dense.begin_move()
+    dense.close_search()
+    dense.propose(2, 0)
+    if not dense.app.component.has_destination or dense.doc.topics[dense.doc.at(9)].parent != dense.doc.root:
+        raise Error("Reparent preview across the route threshold lost its destination")
+    dense.finish_move()
+    if dense.doc.topics[dense.doc.at(9)].parent != 2:
+        raise Error("Dense move did not commit")
+    dense.execute(MapCommand.UNDO)
+    if dense.doc.topics[dense.doc.at(9)].parent != dense.doc.root:
+        raise Error("Dense move did not undo")

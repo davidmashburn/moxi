@@ -1,5 +1,6 @@
 """Real AppKit input loop and deterministic replay through the same public controller."""
 from std.ffi import external_call
+from std.collections import List
 from std.sys import argv
 from std.time import perf_counter_ns
 from moxi import Event, WindowConfig, Point, Rect
@@ -186,6 +187,49 @@ def replay(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacO
     capture(map, window, paint, graph, path + "/13-large-expanded.png")
     print("PASS native AppKit F2 queue + public input replay, semantic cancel/undo, disk recovery and bounded import")
 
+def benchmark_input(mut window: MacOSWindowInstance, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer) raises:
+    var doc = large_map(1000)
+    for id in range(2, 1000, 40):
+        doc.connect(id, id + 1, "Related")
+    var map = MindMapApp(doc)
+    map.select(501)
+    var samples = List[Float64]()
+    var cpu_samples = List[Float64]()
+    for trial in range(25):
+        key(map, KEY_F2)
+        var before = map.editor_text(map.app.component.mount_index(501))
+        render_canvas(map.app, paint, graph)
+        window.pump()
+        var start = perf_counter_ns()
+        var cpu_start = external_call["moxi_mm_thread_cpu_ns", UInt64]()
+        text(map, "語")
+        render_canvas(map.app, paint, graph)
+        var cpu_elapsed = external_call["moxi_mm_thread_cpu_ns", UInt64]() - cpu_start
+        var elapsed = Float64(perf_counter_ns() - start) / 1e6
+        if trial >= 4:
+            samples.append(elapsed)
+            cpu_samples.append(Float64(cpu_elapsed) / 1e6)
+        key(map, KEY_ENTER)
+        if map.doc.topics[map.doc.at(501)].text != before + "語":
+            raise Error("Benchmark input did not commit to the selected topic")
+        map.execute(MapCommand.UNDO)
+        if map.doc.topics[map.doc.at(501)].text != before:
+            raise Error("Benchmark undo did not restore text")
+        map.select(501)
+    print("native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples")
+    report_samples("main_thread_cpu", cpu_samples)
+    report_samples("elapsed", samples)
+
+def report_samples(label: String, mut samples: List[Float64]):
+    for i in range(1, len(samples)):
+        var value = samples[i]
+        var j = i
+        while j > 0 and value < samples[j - 1]:
+            samples[j] = samples[j - 1]
+            j -= 1
+        samples[j] = value
+    print(label, "p50_ms", samples[10], "p95_ms", samples[19], "p99_max_ms", samples[20])
+
 def main() raises:
     var map = MindMapApp(useful_map())
     var window = MacOSWindowInstance()
@@ -193,6 +237,10 @@ def main() raises:
     var paint = MacOSRenderer()
     var graph = MacOSCanvasSceneRenderer()
     var args = argv()
+    if len(args) == 2 and args[1] == "--benchmark-input":
+        benchmark_input(window, paint, graph)
+        window.close()
+        return
     if len(args) == 3 and args[1] == "--capture":
         replay(map, window, paint, graph, args[2])
         window.close()

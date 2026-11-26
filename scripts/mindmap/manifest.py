@@ -54,7 +54,7 @@ def main(record):
         ('10-save-recovery', 'recovery', 'Local save and recovery', 'Atomically save, edit, write recovery, and load the recovery envelope.', 'Recovered content appears; original saved file is retained.'),
         ('11-import-loss', 'result', 'Bounded import loss report', 'Parse the synthetic loss.mm fixture and display the paged report.', 'Unsupported data is visible; XML source remains untouched and inert.'),
         ('12-large-folded', 'result', '1,000 topics, folded root', 'Open the large fixture with its root folded.', 'One visible topic; this does not establish expanded native capacity.'),
-        ('13-large-expanded', 'result', '1,000 topics, culled viewport', 'Open the expanded 1,000-topic fixture with the public canvas camera.', 'The initial viewport uses readable topic scale with ordinary-control culling; dense incident edges and native capacity/performance acceptance remain separate concerns.'),
+        ('13-large-expanded', 'result', '1,000 topics, culled viewport', 'Open the expanded 1,000-topic fixture with the public canvas camera.', 'A shared vertical trunk joins the visible sibling stubs at readable scale. The expanded fixture keeps all topic controls and edges in the model.'),
     ]
     sources = source_paths()
     slides = []

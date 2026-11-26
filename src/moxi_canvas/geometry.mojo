@@ -136,6 +136,11 @@ struct EdgeGeometry(ImplicitlyCopyable):
         if edge.path == PathKind.CUBIC:
             var bend = max(Float32(40), abs(b.x - a.x) / 2)
             flatten_cubic(self.points, a, Point(a.x + bend, a.y), Point(b.x - bend, b.y), b, 0)
+        elif edge.path == PathKind.ORTHOGONAL and a.y != b.y:
+            var middle = (a.x + b.x) / 2
+            self.points.append(Point(middle, a.y))
+            self.points.append(Point(middle, b.y))
+            self.points.append(b)
         else:
             self.points.append(b)
         self.bounds = Rect(a.x, a.y, 0, 0)

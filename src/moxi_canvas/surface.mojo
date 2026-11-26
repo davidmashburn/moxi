@@ -112,6 +112,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
     var editor: Int
     var content_before: List[MountedComponent[Self.Child]]
     var content_document_before: CanvasDocument
+    var retain_child_history: Bool
     var content_dirty: Bool
     var control_pointer: Int
     var control_owner: Int
@@ -142,6 +143,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.editor = -1
         self.content_before = List[MountedComponent[Self.Child]]()
         self.content_document_before = document
+        self.retain_child_history = True
         self.content_dirty = False
         self.control_pointer = -1
         self.control_owner = -1
@@ -172,6 +174,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.editor = copy.editor
         self.content_before = copy.content_before.copy()
         self.content_document_before = copy.content_document_before
+        self.retain_child_history = copy.retain_child_history
         self.content_dirty = copy.content_dirty
         self.control_pointer = copy.control_pointer
         self.control_owner = copy.control_owner
@@ -257,7 +260,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         surface.semantics.label = self.surface_hint
         root.add(surface)
         var preview = self.presentation_document()
-        var snapshot = self.snapshot()
+        ref snapshot = self.publication
         for object in preview.objects:
             if object.id not in snapshot.visible:
                 continue
@@ -492,13 +495,13 @@ struct CanvasView[Child: Component & Deinitable](Component):
             if index >= 0:
                 var routed = event
                 routed.target = (target - CONTROL_BASE) % ID_STRIDE
-                if not self.content_dirty:
+                if self.retain_child_history and not self.content_dirty:
                     self.content_before = self.mounts.copy()
                     self.content_document_before = self.document
                 var local = self.child_view(owner, view)
                 var changed = self.mounts[index].child.update(routed, local)
                 if changed:
-                    self.content_dirty = True
+                    self.content_dirty = self.retain_child_history
                     self.mounts[index].refresh(self.document.world_bounds(owner))
                     # Publish content extent and fractional port anchors atomically.
                     var required: Float32 = 0
@@ -578,7 +581,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
 
     def edge_scene(self) -> Scene:
         var scene = Scene()
-        var snapshot = self.snapshot()
+        ref snapshot = self.publication
         scene.push_clip(1, self.interaction_clip())
         for edge in snapshot.edges:
             var color = Color(0.3, 0.77, 0.9, 1) if edge.id != self.state.selected_edge else Color(1, 0.8, 0.3, 1)
@@ -598,7 +601,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
 
     def overlay_scene(self) -> Scene:
         var scene = Scene()
-        var snapshot = self.snapshot()
+        ref snapshot = self.publication
         var camera = self.state.camera
         scene.push_clip(1, self.interaction_clip())
         for id in snapshot.ports.keys():
@@ -652,7 +655,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
     def minimap(self) -> Camera:
         var viewport = self.state.camera.viewport
         var map = Camera(Rect(viewport.x + viewport.width - 180, viewport.y + viewport.height - 125, 170, 115))
-        var snapshot = self.snapshot()
+        ref snapshot = self.publication
         var extent = snapshot.extent
         map.zoom = min(Float64(150) / Float64(max(Float32(1), extent.width)), Float64(95) / Float64(max(Float32(1), extent.height)))
         map.x = Float64(extent.x) - 10 / map.zoom
@@ -729,13 +732,13 @@ struct CanvasView[Child: Component & Deinitable](Component):
         var index = self.mount_index(owner)
         if index < 0:
             return ""
-        if not self.content_dirty:
+        if self.retain_child_history and not self.content_dirty:
             self.content_before = self.mounts.copy()
             self.content_document_before = self.document
         var child_view = self.child_view(owner, view)
         var text = self.mounts[index].child.clipboard_cut((target - CONTROL_BASE) % ID_STRIDE, child_view)
         if text != "":
-            self.content_dirty = True
+            self.content_dirty = self.retain_child_history
             self.mounts[index].refresh(self.document.world_bounds(owner))
         return text
 
@@ -744,13 +747,13 @@ struct CanvasView[Child: Component & Deinitable](Component):
         var index = self.mount_index(owner)
         if index < 0:
             return False
-        if not self.content_dirty:
+        if self.retain_child_history and not self.content_dirty:
             self.content_before = self.mounts.copy()
             self.content_document_before = self.document
         var child_view = self.child_view(owner, view)
         var changed = self.mounts[index].child.clipboard_paste((target - CONTROL_BASE) % ID_STRIDE, text, child_view)
         if changed:
-            self.content_dirty = True
+            self.content_dirty = self.retain_child_history
             self.mounts[index].refresh(self.document.world_bounds(owner))
         return changed
 
@@ -879,7 +882,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         for i in range(len(proposal.edges)):
             var a = proposal.edges[i]
             var b = self.document.edges[i]
-            if a.id != b.id or a.label != b.label or a.path != b.path or (not semantic_graph and (a.source != b.source or a.target != b.target)):
+            if a.id != b.id or a.label != b.label or (not semantic_graph and (a.path != b.path or a.source != b.source or a.target != b.target)):
                 return False
         var changed = False
         for i in range(len(proposal.objects)):
@@ -903,7 +906,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
             for i in range(len(proposal.ports)):
                 changed = changed or proposal.ports[i].x != self.document.ports[i].x or proposal.ports[i].y != self.document.ports[i].y
             for i in range(len(proposal.edges)):
-                changed = changed or proposal.edges[i].source != self.document.edges[i].source or proposal.edges[i].target != self.document.edges[i].target
+                changed = changed or proposal.edges[i].path != self.document.edges[i].path or proposal.edges[i].source != self.document.edges[i].source or proposal.edges[i].target != self.document.edges[i].target
         if not changed:
             return False
         self.destination = proposal
