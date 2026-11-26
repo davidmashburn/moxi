@@ -66,6 +66,9 @@ callbacks and the same frame updates as interactive operation. It asserts
 outcomes before capturing seventeen states, including pointer and keyboard
 drafts, failed, cancelled, stale and minimum-window states. It never changes the
 model directly.
+It also checks that pointer down/move/up on either pinned endpoint preserves an
+existing keyboard draft, then exercises commit, cancel, undo and redo. Four
+supplementary `mixed-pin-*.png` captures show the retained drafts and commits.
 
 `reproduce.py` builds and runs both checks, validates capture dimensions, hashes
 source and PNG bytes, writes a per-scenario verification record, and renders

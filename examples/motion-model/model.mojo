@@ -255,16 +255,17 @@ struct Studio(ImplicitlyCopyable):
         if doc.target[self.knot] != self.doc.target[self.knot]:
             self.commit(doc, "Desired curve edited. Executable parameters are unchanged; request a fit.")
 
-    def begin_drag(mut self, knot: Int):
-        self.knot = knot
+    def begin_drag(mut self, knot: Int) -> Bool:
         if knot == 0 or knot == KNOTS - 1:
             self.message = "Landing and start are pinned to 0 deg. Select an interior knot."
-            return
+            return False
+        self.knot = knot
         self.cancel()
         self.draft = self.doc.target.copy()
         self.dragging = True
         self.playing = False
         self.message = "Desired-curve draft: drag vertically, release to commit, Escape to cancel."
+        return True
 
     def finish_drag(mut self):
         if not self.dragging:

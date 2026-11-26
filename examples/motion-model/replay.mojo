@@ -69,6 +69,88 @@ def capture(mut app: MotionApp, mut window: MacOSWindow, mut paint: MacOSRendere
     external_call["motion_assert_host", NoneType]()
 
 
+def mixed_input_drafts(mut app: MotionApp, mut window: MacOSWindow, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer, directory: String) raises:
+    click(app, window, paint, graph, Command.FORMALIZE)
+    while app.component.studio.knot > 0:
+        activate_keyboard(app, window, paint, graph, Command.KNOT_PREVIOUS)
+    activate_keyboard(app, window, paint, graph, Command.KNOT_NEXT)
+    var bounds = app.view.bounds_for(CANVAS)
+    var target = app.component.studio.doc.target.copy()
+    var parameters = app.component.studio.doc.parameters
+    for endpoint in [0, 8]:
+        var start = knot_point(bounds, endpoint, 0)
+        var end = knot_point(bounds, endpoint, 80)
+        # Rect.contains excludes the right edge. Hit inside the last knot's
+        # rounded selection region so this really tests endpoint 8 acceptance.
+        if endpoint == 8:
+            start.x -= 1
+            end.x -= 1
+        for terminal in [Command.APPLY, Command.CANCEL, Command.UNDO]:
+            var revision = app.component.studio.revision
+            var undo_count = len(app.component.studio.undo_stack)
+            var redo_count = len(app.component.studio.redo_stack)
+            activate_keyboard(app, window, paint, graph, Command.TARGET_UP)
+            var draft = app.component.studio.draft.copy()
+            assert_true(abs(draft[1] - target[1] - 5) < 0.001)
+            for phase in range(3):
+                pointer(app, window, paint, graph, phase, start if phase == 0 else end)
+                print("CHECK mixed-input endpoint", endpoint, "terminal", terminal.value, "phase", phase,
+                      "selected", app.component.studio.knot, "pointer owner", app.component.pointer_drag)
+                assert_true(app.component.studio.dragging)
+                assert_true(not app.component.pointer_drag)
+                assert_equal(app.component.studio.knot, 1)
+                assert_equal(app.component.studio.draft, draft)
+                assert_equal(app.component.studio.doc.target, target)
+                assert_true(app.component.studio.doc.parameters == parameters)
+                assert_equal(app.component.studio.revision, revision)
+                assert_equal(len(app.component.studio.undo_stack), undo_count)
+                assert_equal(len(app.component.studio.redo_stack), redo_count)
+                if phase == 1 and terminal == Command.APPLY:
+                    capture(app, window, paint, graph, directory, String("mixed-pin-", endpoint, "-draft"))
+
+            # The retained selection and draft must still accept keyboard edits.
+            activate_keyboard(app, window, paint, graph, Command.TARGET_UP)
+            assert_true(abs(app.component.studio.draft[1] - target[1] - 10) < 0.001)
+            if terminal == Command.APPLY:
+                click(app, window, paint, graph, Command.APPLY)
+                var committed = target.copy()
+                committed[1] += 10
+                assert_equal(app.component.studio.doc.target, committed)
+                assert_equal(app.component.studio.revision, revision + 1)
+                assert_equal(len(app.component.studio.undo_stack), undo_count + 1)
+                assert_equal(len(app.component.studio.redo_stack), 0)
+                capture(app, window, paint, graph, directory, String("mixed-pin-", endpoint, "-committed"))
+                key(app, window, paint, graph, 122, 2)
+                assert_equal(app.component.studio.doc.target, target)
+                key(app, window, paint, graph, 122, 3)
+                assert_equal(app.component.studio.doc.target, committed)
+                key(app, window, paint, graph, 122, 2)
+                assert_equal(app.component.studio.revision, revision + 4)
+                assert_equal(len(app.component.studio.undo_stack), undo_count)
+                assert_equal(len(app.component.studio.redo_stack), 1)
+            else:
+                key(app, window, paint, graph, 27 if terminal == Command.CANCEL else 122,
+                    0 if terminal == Command.CANCEL else 2)
+                assert_equal(app.component.studio.revision, revision)
+                assert_equal(len(app.component.studio.undo_stack), undo_count)
+                assert_equal(len(app.component.studio.redo_stack), redo_count)
+            assert_true(not app.component.studio.dragging)
+            assert_true(not app.component.pointer_drag)
+            assert_equal(len(app.component.studio.draft), 0)
+            assert_equal(app.component.studio.doc.target, target)
+            assert_true(app.component.studio.doc.parameters == parameters)
+            print("PASS mixed-input endpoint", endpoint, "terminal", terminal.value,
+                  ": pinned down/move/up preserves keyboard draft; commit/cancel/undo retains target ownership")
+        var revision = app.component.studio.revision
+        for phase in range(3):
+            pointer(app, window, paint, graph, phase, start if phase == 0 else end)
+        assert_true(not app.component.studio.dragging)
+        assert_true(not app.component.pointer_drag)
+        assert_equal(app.component.studio.knot, 1)
+        assert_equal(app.component.studio.doc.target, target)
+        assert_equal(app.component.studio.revision, revision)
+
+
 def replay(mut app: MotionApp, mut window: MacOSWindow, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer, directory: String) raises:
     settle(app, window, paint, graph)
     var original = app.component.studio.doc
@@ -251,3 +333,4 @@ def replay(mut app: MotionApp, mut window: MacOSWindow, mut paint: MacOSRenderer
     capture(app, window, paint, graph, directory, "16-minimum-window")
     print("PASS recovery / layout: undo formalization restores sketch and note; 960x760 controls stay in content")
     print("PASS native UI: 17 window captures; no queue drops or command overflows")
+    mixed_input_drafts(app, window, paint, graph, directory)

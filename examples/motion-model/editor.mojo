@@ -140,7 +140,7 @@ struct MotionEditor(Component):
             self.pointer_drag = False
         elif command == Command.TARGET_DOWN or command == Command.TARGET_UP:
             if not self.studio.dragging:
-                self.studio.begin_drag(self.studio.knot)
+                _ = self.studio.begin_drag(self.studio.knot)
                 self.pointer_drag = False
             if self.studio.dragging:
                 var value = self.studio.draft[self.studio.knot] + Float64(-5 if command == Command.TARGET_DOWN else 5)
@@ -180,8 +180,7 @@ struct MotionEditor(Component):
             var plot = plot_bounds(view.bounds_for(CANVAS))
             if plot.contains(event.position):
                 var knot = Int((event.position.x - plot.x) * 8 / plot.width + 0.5)
-                self.studio.begin_drag(max(0, min(8, knot)))
-                self.pointer_drag = self.studio.dragging
+                self.pointer_drag = self.studio.begin_drag(max(0, min(8, knot)))
                 return True
         if self.studio.dragging and self.pointer_drag:
             if event.kind == POINTER_MOVE_KIND or event.kind == DRAG_UPDATE_KIND or event.kind == DRAG_BEGIN_KIND:

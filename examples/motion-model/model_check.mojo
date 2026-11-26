@@ -48,8 +48,14 @@ def main() raises:
     var s = Studio()
     var original = s.doc
     s.formalize()
-    s.begin_drag(3)
+    assert_true(s.begin_drag(3))
     s.draft[3] = 95
+    var draft = s.draft.copy()
+    for endpoint in [0, KNOTS - 1]:
+        assert_true(not s.begin_drag(endpoint))
+        assert_equal(s.knot, 3)
+        assert_true(s.dragging)
+        assert_equal(s.draft, draft)
     s.undo()
     assert_true(not s.dragging)
     assert_true(s.doc.kind == SketchKind.ARM)
@@ -81,7 +87,7 @@ def main() raises:
     assert_equal(s.revision, revision)
     assert_equal(s.doc.target[8], Float64(0))
 
-    s.begin_drag(3)
+    assert_true(s.begin_drag(3))
     s.draft[3] = 110
     s.cancel()
     assert_equal(s.revision, revision)
