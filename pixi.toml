@@ -7,6 +7,7 @@ preview = ["pixi-build"]
 version = "0.6.0"
 
 [tasks]
+execution-debugger = "python3 examples/execution-debugger/app.py"
 d04-mindmap-contract = "bash scripts/mindmap/check.sh contract"
 d04-mindmap-import-check = "bash scripts/mindmap/check.sh import"
 d04-mindmap-probe = "bash scripts/mindmap/check.sh build"

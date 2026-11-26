@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "demo_id": "execution-debugger",
+  "title": "Moxi execution debugger — I13",
+  "scenario": "Replay the existing I15 captured episode through actual Moxi subtrees; inspect correlated work and frames, compare policies, and recover from missing or invalid data.",
+  "revision": "3885e3e184f74520f6e0449bf6b69bfb857c0ae0",
+  "host": "macOS arm64; local T3 Chromium preview",
+  "backend": "Mojo 1.1.0 (8189361e); TypedSubtreeExecutor → ColumnRuntime → Scene → SvgSceneRenderer; Python loopback HTTP host",
+  "fixture": "Existing synthetic I15 v1 episode.json and missing.json, preserved unchanged",
+  "reproduce": "From the repository root: pixi run execution-debugger\nFor a custom port, in the repository pixi environment:\npython3 examples/execution-debugger/app.py --port 18173\nOpen http://127.0.0.1:18173/ at 1280 × 1000 CSS pixels, DPR 2.\nIn the normal page console: const {run} = await import('/ui-tests.js');\nFor a full behavioral run on a fresh page: await (await import('/ui-tests.js')).runAll()\nFor captures, reload first and follow each slide's ordered action, awaiting run(name).\nThe compare-detail image was captured separately with the same complete fixture,\ncapacity 16, selected action 13 and broad comparison; its scroll is recorded.\nFor the narrow capture, reload and reopen the on-disk I15 fixture at 390 × 844.\nUse real browser screenshots, preserve them unmodified, and update their hashes,\ntimestamps and dimensions before rebuilding the deck with the README command.\nSingle-run timing values vary; exact screenshot bytes are not deterministic.\n",
+  "captured_at": "2026-11-26T03:22:49.340616+00:00",
+  "scale": 2,
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "01-initial.png",
+      "dimensions": [
+        2560,
+        2000
+      ],
+      "caption": "Normal entry point before opening an episode",
+      "action": "Freshly navigate to /. await run('initial'); capture at scroll 0.",
+      "expected": "Empty viewer and disabled comparison controls; no fabricated actions.",
+      "sha256": "823aa6259cdbe22c29b84e6ef0416057e3e5fd5aa1cf46d19cd5b568aa9494ed",
+      "captured_at": "2026-11-26T03:18:58.314861+00:00",
+      "viewport": [
+        1280,
+        1000
+      ],
+      "scroll_y": 0
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "02-open.png",
+      "dimensions": [
+        2560,
+        2000
+      ],
+      "caption": "First source observation rebuilds only the reading subtree",
+      "action": "await run('open') on the fresh page; capture at scroll 0.",
+      "expected": "Action 1 is tick 12 (120 ms), value 25; selected build deltas [1, 0]; real Moxi SVG.",
+      "sha256": "f2c67b825de15dc23850ebd757be69589cdbf1750ae35e6a530f85e81dfbc17e",
+      "captured_at": "2026-11-26T03:20:54.243918+00:00",
+      "viewport": [
+        1280,
+        1000
+      ],
+      "scroll_y": 0
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "03-compare.png",
+      "dimensions": [
+        2560,
+        2000
+      ],
+      "caption": "Stored async result correlated with its real frame and subtree work",
+      "action": "await run('reopen'), await run('inspect'), then await run('compare'); capture at scroll 0.",
+      "expected": "Action 13 applies peak 84 at unknown source time; build deltas [0, 1]; comparison final state and selected frame match.",
+      "sha256": "26d5ce2587a5e90506c6f7ffd2bd798cb52bce911f981f0c45a8a118f18e4352",
+      "captured_at": "2026-11-26T03:21:05.167219+00:00",
+      "viewport": [
+        1280,
+        1000
+      ],
+      "scroll_y": 0
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "04-compare-detail.png",
+      "dimensions": [
+        2560,
+        2000
+      ],
+      "caption": "Identical frames with different measured rebuild work",
+      "action": "At capacity 16 select the last action and await run('compare'); scrollTo(0, 300), which clamps to 247.5 CSS px; capture.",
+      "expected": "Both actual Moxi frames show reading 32 / peak 84; totals [13, 2] vs [14, 14], selected deltas [0, 1] vs [1, 1].",
+      "sha256": "9218c8d222827a003a4edbae61275d20aff7357b4e2ab395f88c936ecfc801d0",
+      "captured_at": "2026-11-26T03:22:49.340616+00:00",
+      "viewport": [
+        1280,
+        1000
+      ],
+      "scroll_y": 247.5
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "05-dropped.png",
+      "dimensions": [
+        2560,
+        2000
+      ],
+      "caption": "Trace eviction stays distinct from source eviction",
+      "action": "Return to scroll 0. await run('repeat'), then await run('dropped'); capture.",
+      "expected": "Capacity 5 retains action ordinals 9–13, reports 8 trace drops of 13 and separately reports 12 source evictions.",
+      "sha256": "7fbd2785a080420df60ae6df4c25e2dcce093f5c55a05fb115ab500ca40a8b34",
+      "captured_at": "2026-11-26T03:21:06.523739+00:00",
+      "viewport": [
+        1280,
+        1000
+      ],
+      "scroll_y": 0
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "06-missing.png",
+      "dimensions": [
+        2560,
+        2000
+      ],
+      "caption": "Incomplete I15 episode remains inspectable",
+      "action": "await run('missing'); capture at scroll 0 after selecting the last retained sample.",
+      "expected": "Missing retained tick 13 and absent async result are explicit; peak remains Unavailable, with no invented result action.",
+      "sha256": "f54f05c0d40d9dbabf98b366852b1441fa64ee91f37e83be990519feac96da0b",
+      "captured_at": "2026-11-26T03:21:16.679147+00:00",
+      "viewport": [
+        1280,
+        1000
+      ],
+      "scroll_y": 0
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "07-malformed.png",
+      "dimensions": [
+        2560,
+        2000
+      ],
+      "caption": "Malformed reopen preserves the last valid frame",
+      "action": "await run('malformed'); capture the error and last good incomplete-episode frame.",
+      "expected": "Visible JSON parse error; the prior frame remains unchanged.",
+      "sha256": "3fcc755343cdfa0c2852bd78f02d2ea401116fe40a740a0f4833c48d0abec16a",
+      "captured_at": "2026-11-26T03:21:23.794755+00:00",
+      "viewport": [
+        1280,
+        1000
+      ],
+      "scroll_y": 0
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "08-recover.png",
+      "dimensions": [
+        2560,
+        2000
+      ],
+      "caption": "Opening the complete episode clears the error",
+      "action": "await run('recover'); capture at scroll 0.",
+      "expected": "Complete captured episode restored; error clears; source and trace loss remain explicit at capacity 5.",
+      "sha256": "44de7b215ea27e3abd24054a7ab670f0cabab2eb665c111e7d43ab3648396ba4",
+      "captured_at": "2026-11-26T03:21:26.123361+00:00",
+      "viewport": [
+        1280,
+        1000
+      ],
+      "scroll_y": 0
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "09-narrow.png",
+      "dimensions": [
+        780,
+        1688
+      ],
+      "caption": "Reload and file reopen at a narrow viewport",
+      "action": "Reload /. Resize to 390 × 844 CSS px. Upload examples/flight-recorder/evidence/episode.json through the actual file input. Wait for replay; select the last action. await run('layout'); scroll the selection heading into view; capture at scrollY 935.",
+      "expected": "13 actions reopen from the saved file; stored peak 84 appears; document scroll width is 390 and the counters table scrolls inside its own container.",
+      "sha256": "483332a503c077b317206bb8166a7a257e61c700afcf4c44b02945d62fdedd94",
+      "captured_at": "2026-11-26T03:21:56.409806+00:00",
+      "viewport": [
+        390,
+        844
+      ],
+      "scroll_y": 935
+    }
+  ],
+  "capture_window_utc": [
+    "2026-11-26T03:18:58.314861+00:00",
+    "2026-11-26T03:22:49.340616+00:00"
+  ]
+}
