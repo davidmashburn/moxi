@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "demo_id": "i20-application-operations",
+  "title": "One operation for a high-reading cohort",
+  "scenario": "I20 \u2022 Local application operations",
+  "slides": [
+    {
+      "image": "01-ready.png",
+      "phase": "initial",
+      "caption": "An empty cohort",
+      "action": "Open the notebook.",
+      "expected": "Three observations and no members.",
+      "dimensions": [
+        920,
+        684
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "02-pressed.png",
+      "phase": "interaction",
+      "caption": "Button held",
+      "action": "Send mouseDown to the center of the mounted button.",
+      "expected": "Pressed control and empty cohort before release.",
+      "dimensions": [
+        920,
+        684
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "03-button.png",
+      "phase": "result",
+      "caption": "Mouse selection",
+      "action": "Release, then click the replacement button.",
+      "expected": "Both IDs produce the same cohort of observations 104 and 318.",
+      "dimensions": [
+        920,
+        684
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "04-shortcut.png",
+      "phase": "result",
+      "caption": "Keyboard selection",
+      "action": "Start fresh and send F2 to the canvas.",
+      "expected": "Keyboard status and the same two members without a click.",
+      "dimensions": [
+        920,
+        684
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "05-script.png",
+      "phase": "result",
+      "caption": "Script selection",
+      "action": "Invoke the trusted script adapter on a fresh notebook.",
+      "expected": "Script status and the same two stable IDs.",
+      "dimensions": [
+        920,
+        684
+      ],
+      "capture_kind": "native-window"
+    },
+    {
+      "image": "06-denied.png",
+      "phase": "recovery",
+      "caption": "Read-only caller",
+      "action": "Submit the operation on the populated notebook as an agent.",
+      "expected": "Rejection leaves cohort membership and write count intact.",
+      "dimensions": [
+        920,
+        684
+      ],
+      "capture_kind": "native-window"
+    }
+  ],
+  "revision": "f1a6b769d0ff90167e2b1c0631a9235d5b5c47bd",
+  "captured_at": "2026-11-26T01:53:33.548168+00:00",
+  "host": "macOS 27.2.1",
+  "backend": "AppKit live NSWindow content-view capture",
+  "scale": 2.0,
+  "fixture": "Three synthetic sensor observations",
+  "reproduce": "python3 examples/application-operations/check.py"
+}
