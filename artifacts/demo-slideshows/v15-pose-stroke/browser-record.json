@@ -1,0 +1,101 @@
+{
+  "revision": "9c8a19585f6c4cefac0996354e1597bde7b13951",
+  "dirty_source": [],
+  "captured_at": "2026-11-26T02:57:02.181096+00:00",
+  "host": "Darwin 27.2.0 arm64",
+  "python": "3.12.12",
+  "playwright": "1.65.2",
+  "fixture": "Eleven authored synthetic numeric samples; no devices or accounts",
+  "role": "local author",
+  "source_sha256": {
+    "examples/pose-stroke/gallery.py": "4767c89ccfc3cd138ba9070628c0a767e02a2bbf64f66dd4a556f10f4215072d",
+    "examples/pose-stroke/index.html": "f1fa90e9e8da876426b375c05c0150034e7b6878395d2cbbdfa52fd9401f6699",
+    "examples/pose-stroke/model.js": "60a36d975148f3d68e463af1304d760d81ac5f9b0b729945c2d2e9a5e0aa71dd",
+    "examples/pose-stroke/replay.js": "664cf7eb114cd88a9595a6edb686d97f3a5aa622d4835e8c2b7d92a5330715cf",
+    "examples/pose-stroke/scene.mojo": "8bcd99cec0c07d43c54197695d6385d31c1bb30531cef5857bae9261723d11d9",
+    "examples/pose-stroke/serve.py": "be45f51b7c8a9cb83ebc560a2dbdf1c154d97ceaae97a080722d422bdf34d83b",
+    "examples/pose-stroke/test_consumer.py": "c5a90074a5eb318aa2a9a660607eccc993b2a03d2edc4aa32e4b2ac9ddc4f060"
+  },
+  "binary_sha256": "e66bb8ab579dc3d09353687a3f83856f1676c09b715393589c499798034f7fc1",
+  "scenarios": [
+    {
+      "name": "real Moxi replay",
+      "steps": "Open consumer; advance all 11 samples; compare returned SVG with mounted paths.",
+      "expected": "Fixed table widths, holds and no-jump anchors; final Next disabled; compiled Moxi SVG only.",
+      "observed": "All eleven states and widths match; both paths are Moxi response bytes.",
+      "outcome": "pass",
+      "artifacts": [
+        "sample-01.png",
+        "sample-04.png",
+        "sample-05.png",
+        "sample-07.png",
+        "sample-08.png",
+        "sample-09.png",
+        "sample-10.png"
+      ]
+    },
+    {
+      "name": "keyboard and narrow layout",
+      "steps": "Tab/Shift+Tab and Enter: release, advance, reengage, advance at 390 px.",
+      "expected": "Every replay action reachable; no-jump reengagement; no horizontal overflow.",
+      "observed": "Held at 12/12; anchored at 12/12; resumed 18/14.5 px; no overflow.",
+      "outcome": "pass",
+      "artifacts": [
+        "keyboard-narrow.png"
+      ]
+    },
+    {
+      "name": "author, validate, save and reopen",
+      "steps": "Enter applies edited corners/curve; Escape reverts; reject 29 px; Cmd+S saves; reload and Ctrl+O reopen; reopen in a new page; reject bad saved version; loss/recovery replay.",
+      "expected": "No jump on apply; persisted calibration drives different rendered widths; rejected edits leave state intact.",
+      "observed": "Apply held 24/18.25. Reopened sample 4 rendered 20/17.6875. Loss held, reacquisition anchored; sample 8 resumed 17.28/15.2275.",
+      "outcome": "pass",
+      "artifacts": [
+        "mapping-applied.png",
+        "mapping-reopened.png"
+      ]
+    },
+    {
+      "name": "render rejection and recovery",
+      "steps": "Synthetic 503 after a good scene; retry. Synthetic 503 at startup; Restart retries.",
+      "expected": "Keep prior frame and rendered state after failure; no brushes when Moxi never rendered; recover via retry.",
+      "observed": "Failed Next stayed at sample 8; retry reached 9. Failed startup showed zero paths and disabled Next; Restart restored Moxi.",
+      "outcome": "pass",
+      "artifacts": [
+        "render-failure.png"
+      ]
+    },
+    {
+      "name": "offline deck",
+      "steps": "Disconnect network; open generated file deck; decode images and navigate with keyboard/contact sheet.",
+      "expected": "All images load offline and navigation works.",
+      "observed": "All 11 captures decoded; keyboard and contact sheet navigation passed.",
+      "outcome": "pass",
+      "artifacts": [
+        "index.html",
+        "manifest.json"
+      ]
+    }
+  ],
+  "browser": "Chrome 158.0.8127.37",
+  "viewports": [
+    {
+      "width": 960,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "url": "http://127.0.0.1:63457",
+  "baseline_scene_responses": 11,
+  "page_errors": [],
+  "external_requests": [],
+  "skipped": [
+    "live camera/model/license assessment",
+    "human/physical repeatability, comfort, latency and activation studies",
+    "full Mojo/native suite and CI",
+    "screen reader and additional browser testing"
+  ]
+}

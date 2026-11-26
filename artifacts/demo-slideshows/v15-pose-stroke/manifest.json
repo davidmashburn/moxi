@@ -1,106 +1,158 @@
 {
   "version": 1,
   "demo_id": "v15-pose-stroke",
-  "title": "Pose stroke study",
-  "scenario": "V15 synthetic replay. Released clutch and low confidence freeze both brushes.",
-  "fixture": "Eleven authored numeric samples in model.js",
-  "revision": "e60dc8818e9fc5e77a2db195940eefd0d3ef6233",
+  "title": "Pose stroke study \u00b7 Moxi consumer",
+  "scenario": "V15 synthetic Moxi scene consumer: replay, hold/recovery and saved editable calibration.",
+  "fixture": "Eleven authored synthetic numeric samples; no devices or accounts",
+  "revision": "9c8a19585f6c4cefac0996354e1597bde7b13951",
   "host": "Darwin 27.2.0 arm64",
-  "backend": "Headless Chrome 158.0.8127.37",
+  "backend": "Chrome 158.0.8127.37 + Moxi Scene / SvgSceneRenderer",
   "scale": 1,
-  "captured_at": "2026-11-26T02:31:53.797263+00:00",
+  "captured_at": "2026-11-26T02:57:02.181096+00:00",
   "reproduce": "python examples/pose-stroke/gallery.py",
   "slides": [
     {
       "image": "sample-01.png",
       "phase": "initial",
       "capture_kind": "browser",
-      "caption": "Sample 1 \u00b7 Clutch released",
+      "caption": "Moxi sample 1 \u00b7 Clutch released",
       "dimensions": [
         960,
-        820
+        1299
       ],
-      "action": "Open the demo.",
+      "action": "Open the loopback consumer; advance to sample 1.",
       "expected": "Clutch released. Direct 12.00 px. Interpolated 12.00 px.",
-      "sha256": "6023fede07b3c03295221c1866a327e25d8178c9b3fe4053c6242c22d15d4fb7"
+      "sha256": "0d047ff9458b353a990ebb87f71ebd8521c90da994135b79d46c6648ea6fb365"
     },
     {
       "image": "sample-04.png",
       "phase": "interaction",
       "capture_kind": "browser",
-      "caption": "Sample 4 \u00b7 Engaged",
+      "caption": "Moxi sample 4 \u00b7 Engaged",
       "dimensions": [
         960,
-        820
+        1299
       ],
-      "action": "Advance to sample 4.",
+      "action": "Open the loopback consumer; advance to sample 4.",
       "expected": "Engaged. Direct 24.00 px. Interpolated 18.25 px.",
-      "sha256": "b226993b45dd9fedd56d1a28847ad477d8ed35446534897c775627e4ffb355c4"
+      "sha256": "2bb7c123c1a66ccdd2af5b92d73495a5fbc2983135ecf0991168183284f2f956"
     },
     {
       "image": "sample-05.png",
       "phase": "result",
       "capture_kind": "browser",
-      "caption": "Sample 5 \u00b7 Confidence hold",
+      "caption": "Moxi sample 5 \u00b7 Confidence hold",
       "dimensions": [
         960,
-        820
+        1299
       ],
-      "action": "Advance to sample 5.",
+      "action": "Open the loopback consumer; advance to sample 5.",
       "expected": "Confidence hold. Direct 24.00 px. Interpolated 18.25 px.",
-      "sha256": "6d77ab9c8ae15808ab5615d67ace138018e653453e78307c2fd0093763368e25"
+      "sha256": "ab3e82aecc88f99d130c0913a81e4fd466c6d9ca16f3c5def696994f12f9aed1"
     },
     {
       "image": "sample-07.png",
       "phase": "recovery",
       "capture_kind": "browser",
-      "caption": "Sample 7 \u00b7 Anchored",
+      "caption": "Moxi sample 7 \u00b7 Anchored",
       "dimensions": [
         960,
-        820
+        1299
       ],
-      "action": "Advance to sample 7.",
+      "action": "Open the loopback consumer; advance to sample 7.",
       "expected": "Anchored. Direct 24.00 px. Interpolated 18.25 px.",
-      "sha256": "5175d65456660fdadcbaab19cc8db7da89723cfa296e9d0d4044e385a92671fd"
+      "sha256": "c8aff77ed257a04d01d255b08e3abfbf43baee26b19b5a34bb72d1bb90610e91"
     },
     {
       "image": "sample-08.png",
       "phase": "interaction",
       "capture_kind": "browser",
-      "caption": "Sample 8 \u00b7 Engaged",
+      "caption": "Moxi sample 8 \u00b7 Engaged",
       "dimensions": [
         960,
-        820
+        1299
       ],
-      "action": "Advance to sample 8.",
+      "action": "Open the loopback consumer; advance to sample 8.",
       "expected": "Engaged. Direct 21.60 px. Interpolated 15.09 px.",
-      "sha256": "d83c0f70daaa0c427af1ba2a5c341243db2a0a4cc8dbc51b96480afac88fa46c"
+      "sha256": "a7be7da0f8531bb0515250dce218f10bf8c84fbf96b6b880ad116f8ae93ae34f"
     },
     {
       "image": "sample-09.png",
       "phase": "result",
       "capture_kind": "browser",
-      "caption": "Sample 9 \u00b7 Clutch released",
+      "caption": "Moxi sample 9 \u00b7 Clutch released",
       "dimensions": [
         960,
-        820
+        1299
       ],
-      "action": "Advance to sample 9.",
+      "action": "Open the loopback consumer; advance to sample 9.",
       "expected": "Clutch released. Direct 21.60 px. Interpolated 15.09 px.",
-      "sha256": "e07819457f97ff6626c968b89aeff796a833f08be965be234573be5473c4e616"
+      "sha256": "4d802ea5d89dfb46c6bb95adfd4f1e2a4f4d91a98cacf1e326bbf102496ef6f3"
     },
     {
       "image": "sample-10.png",
       "phase": "recovery",
       "capture_kind": "browser",
-      "caption": "Sample 10 \u00b7 Anchored",
+      "caption": "Moxi sample 10 \u00b7 Anchored",
       "dimensions": [
         960,
-        820
+        1299
       ],
-      "action": "Advance to sample 10.",
+      "action": "Open the loopback consumer; advance to sample 10.",
       "expected": "Anchored. Direct 21.60 px. Interpolated 15.09 px.",
-      "sha256": "7ca6bd35e12f08ccd095c7dc19555f21f74b32e77601ab6010051039256c67d6"
+      "sha256": "3524dfbb2e1a83a7f570072c6f29273b15346b69058c23b617d3d523f2938ae8"
+    },
+    {
+      "image": "keyboard-narrow.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Keyboard clutch, narrow Moxi consumer",
+      "dimensions": [
+        390,
+        1741
+      ],
+      "action": "At 390 px, use Tab/Enter to override clutch, re-anchor and advance.",
+      "expected": "No jump on reengagement, then widths 18.00 / 14.50 px; no horizontal overflow.",
+      "sha256": "cec56ca940e012803e73e6bba7327d394efca4d42068b60e1d9534e0969b52aa"
+    },
+    {
+      "image": "mapping-applied.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Editable mapping applied without a jump",
+      "dimensions": [
+        960,
+        1299
+      ],
+      "action": "At sample 4 change curled width to 20 and response exponent to 2. Enter applies; Cmd+S saves.",
+      "expected": "Widths remain 24.00 / 18.25 px. Mapping is anchored and saved locally.",
+      "sha256": "87f27cdd0d22c190397be2eda57ae25a1a0fb8ac3246e4fdec1c5fd3a7dd64ad"
+    },
+    {
+      "image": "mapping-reopened.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Saved instrument reopened after reload",
+      "dimensions": [
+        960,
+        1299
+      ],
+      "action": "Reload, Ctrl+O to reopen, advance to sample 4.",
+      "expected": "Edited fields persist; new mapping produces 20.00 / 17.69 px through Moxi.",
+      "sha256": "bf880c4c02c9dfe73f340c0b47ce1653ce9d229ded3cf2ca338d932a008ac0e9"
+    },
+    {
+      "image": "render-failure.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Failed Moxi render retains the last state",
+      "dimensions": [
+        960,
+        1324
+      ],
+      "action": "Reject the next /scene request with a synthetic 503.",
+      "expected": "Sample 8 and both previous Moxi strokes remain; error explains retry; no JS fallback.",
+      "sha256": "af1e9de1f6589e13ed066ee8b6fb4f30b53e6a0f75da62f1ea0ac18ed3ef772a"
     }
   ]
 }
