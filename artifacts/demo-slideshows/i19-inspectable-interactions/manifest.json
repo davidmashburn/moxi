@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "demo_id": "i19-inspectable-interactions",
+  "title": "Inspectable signal cursor",
+  "scenario": "I19 · exact and pointer previews, cancel, commit, undo, replay and conflict",
+  "host": "macOS · T3 collaborative preview incognito · Electron 44.10.1 / Chromium 152.0.7977.169",
+  "backend": "Moxi Python reference SVG + DOM pointer/keyboard events",
+  "fixture": "101 synthetic signal samples, cursor starts at 25",
+  "reproduce": "From the repository root follow experiments/inspectable-interactions/README.md at 1100 × 1050 CSS pixels and scale 2. Apply the slide actions in order.",
+  "revision": "854e38e43b3b97b28c369eadbdadd61394886381",
+  "scale": 2,
+  "captured_utc": "2026-11-26T02:18Z",
+  "slides": [
+    {
+      "image": "01-initial.png",
+      "phase": "initial",
+      "caption": "Source trace",
+      "action": "Open a fresh isolated origin.",
+      "expected": "Sample 25, revision 0 and undo depth 0.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "02-numeric.png",
+      "phase": "interaction",
+      "caption": "Numeric preview",
+      "action": "Focus Sample and replace 25 with 70.",
+      "expected": "The orange cursor follows sample 70 while origin and revision stay at 25 and 0.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "03-cancel.png",
+      "phase": "recovery",
+      "caption": "Escape restores the origin",
+      "action": "Press Escape in Sample.",
+      "expected": "The field and marker return to 25. Undo depth stays at 0.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "04-drag.png",
+      "phase": "interaction",
+      "caption": "Pointer preview",
+      "action": "Drag the orange cursor to the horizontal center of the SVG and release.",
+      "expected": "The inspector shows preview 47, origin 25. Commit move is available.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "05-commit.png",
+      "phase": "result",
+      "caption": "One committed move",
+      "action": "Click Commit move.",
+      "expected": "The command records revision 0 and move 25 to 47. Undo depth increases to 1.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "06-undo.png",
+      "phase": "recovery",
+      "caption": "Single undo",
+      "action": "Click Undo move once.",
+      "expected": "The marker returns to 25 at revision 2, undo depth 0. The recording remains available.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "07-layout.png",
+      "phase": "interaction",
+      "caption": "Changed layout",
+      "action": "Click Open compact copy.",
+      "expected": "The independent baseline copy starts at 25 and revision 0 in a plot two thirds as wide.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "08-replay.png",
+      "phase": "result",
+      "caption": "Semantic replay",
+      "action": "Click Replay command.",
+      "expected": "Sample 47 on the narrower trace becomes the committed cursor at revision 1.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "09-stale.png",
+      "phase": "recovery",
+      "caption": "Stale target",
+      "action": "Click Replay command again.",
+      "expected": "A stale-target message appears. Sample 47, revision 1 and undo depth 1 are preserved.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    },
+    {
+      "image": "10-invalid.png",
+      "phase": "recovery",
+      "caption": "Out-of-range numeric entry",
+      "action": "Replace the value with 101.",
+      "expected": "The active constraint is explained. Commit is disabled and the marker stays at 47.",
+      "capture_kind": "browser",
+      "dimensions": [
+        2200,
+        2100
+      ]
+    }
+  ]
+}
