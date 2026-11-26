@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Living linkage · Moxi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f3ec;color:#223e3b;font:16px system-ui,sans-serif}
+main{max-width:1160px;margin:auto;padding:28px 24px}h1,h2{font:normal 2.7rem Georgia,serif;margin:0}h2{font-size:1.45rem}p{line-height:1.5;margin:.65rem 0 1rem}
+.eyebrow{font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:#5f736a}.workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+section{background:#fffef9;border:1px solid #ccd3c5;border-radius:8px;padding:20px;min-width:0}button,input,textarea{font:inherit;border:1px solid #91a69b;border-radius:4px;padding:.5rem;background:#fffef9;color:inherit}
+button{cursor:pointer;background:#e5eee4}button:disabled{cursor:default;opacity:.5}button:focus-visible,input:focus-visible,textarea:focus-visible,svg:focus-visible{outline:3px solid #be622b;outline-offset:3px}
+.modes,.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.modes button[aria-pressed=true]{background:#244f48;color:#fff}
+textarea{width:100%;resize:vertical;min-height:210px;line-height:1.75;font:16px/1.8 ui-monospace,monospace;white-space:pre;overflow:auto}
+.label{display:block;font-size:.85rem;margin:10px 0}.equations{min-height:230px;padding:12px 0}.equation{display:flex;align-items:baseline;gap:10px;margin:12px 0;font:1.45rem Georgia,serif;flex-wrap:wrap}.equation input{font:1rem ui-monospace,monospace;width:12ch;max-width:100%;background:#f3f6ec}.unit{font:1rem system-ui,sans-serif;color:#596d64}
+math{font-size:1.45rem}pre{font:14px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#f0f2e9;padding:12px}summary{cursor:pointer;font-size:.85rem}
+#mechanism{display:block;width:100%;height:auto;background:#f1f5ee;border-radius:4px;touch-action:none;cursor:crosshair}#tip{fill:#e7a054;stroke:#7b441b;stroke-width:2}#bar{stroke:#285b52;stroke-width:6;stroke-linecap:round}
+.pose{display:grid;gap:5px;margin-top:14px}.pose input{width:100%;accent-color:#2c675a}output{display:block;line-height:1.5}.hint{color:#576f65;font-size:.86rem}.state{font-size:.82rem;text-transform:uppercase;letter-spacing:.05em;color:#8c4d20}#diagnostic{font-size:.9rem;color:#8d371f;min-height:2.8em;margin:8px 0}#status{min-height:1.5em;font-size:.9rem}#coordinates{font-family:ui-monospace,monospace;font-size:.9rem;margin-top:12px}[hidden]{display:none!important}
+@media(max-width:760px){main{padding:16px}.workspace{grid-template-columns:1fr}h1{font-size:2.1rem}section{padding:16px}.equations{min-height:210px}}
+</style>
+<main><div class="eyebrow">Moxi · I21 · one moving bar</div><h1>Living linkage</h1>
+<p>Write the equations, edit their numbers in layout, or move the arm. Preview each change, then apply or cancel it.</p>
+<div class="workspace"><section aria-labelledby="equation-heading"><h2 id="equation-heading">Equations</h2>
+<div class="modes" role="group" aria-label="Equation representation"><button id="show-layout" aria-pressed="true">Structured layout</button><button id="show-text" aria-pressed="false">Equation text</button></div>
+<div id="layout-view"><div id="layout" class="equations"></div></div>
+<div id="text-view" hidden><label class="label" for="equation-text">Exact equation source</label><textarea id="equation-text" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div>
+<output id="diagnostic" aria-live="polite"></output>
+<details><summary>Supported equations and bounds</summary><pre>L = 100.00 mm
+θ = 30.0 deg
+x = L * cos(θ)
+y = L * sin(θ)</pre><p class="hint">Length 40–140 mm; angle 0–90°. Edit either number. Whitespace, decimal spelling, line endings and trailing # comments are retained. The two endpoint relations stay fixed. No other notation is evaluated.</p></details>
+<div class="actions"><button id="apply">Apply change</button><button id="cancel">Cancel preview</button><button id="undo">Undo</button><button id="redo">Redo</button></div>
+<output id="status" aria-live="polite">Applied state. No pending edit.</output></section>
+<section aria-labelledby="mechanism-heading"><h2 id="mechanism-heading">Pinned arm &amp; endpoint trace</h2><p class="hint">Pivot fixed at (0, 0). Dashed path shows the endpoint sweep for the displayed length.</p>
+<svg id="mechanism" viewBox="0 0 384 360" tabindex="0" role="slider" aria-label="Arm pose" aria-valuemin="0" aria-valuemax="90" aria-describedby="pose-help">
+<path id="axes" stroke="#a5b5a9" fill="none"></path><polyline id="trace" fill="none" stroke="#799a8c" stroke-width="2" stroke-dasharray="5 5"></polyline>
+<line id="bar"></line><circle id="pivot" r="6" fill="#294b43"></circle><circle id="tip" r="10"></circle>
+<text x="334" y="345" fill="#547367" font-size="14">x / mm</text><text x="10" y="25" fill="#547367" font-size="14">y / mm</text></svg>
+<label class="pose" for="pose">Preview angle (whole degrees)<input id="pose" type="range" min="0" max="90" step="1"></label>
+<output id="phase" class="state"></output><output id="coordinates"></output>
+<p id="pose-help" class="hint">Drag the endpoint, use the slider, or focus the arm and press arrow keys (Shift: 10°). Release keeps a preview; Apply stores one change. Escape, pointer cancellation or losing window focus cancels a geometry preview. Apply or cancel equation drafts before moving the arm.</p>
+</section></div><p class="hint">Ideal rigid bar, zero thickness, no force or dynamics model. Session-only history (100 changes); reload starts fresh.</p></main>
+<script type="module">const projection = /* PROJECTION */null;
+/* APP */
+</script></html>
