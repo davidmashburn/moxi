@@ -123,6 +123,11 @@ Run from the implementation checkout. All generated reference and Moxi files
 stay outside tracked source; screenshots/HTML and E01 exports are ignored.
 Use a fresh temporary directory if these example paths already contain other work.
 
+`pixi run test` (also run by the required `pixi run check` CI job) executes the
+shared Wave A fixtures with `--mojo-only`, including the compact population
+pyramid resize regressions. This mode needs no Pillow; the full command below
+also compares Python images and primitive geometry.
+
 With the pinned gallery images already available, pass
 `--gallery artifacts/demo-slideshows` to `scripts/wave_a/verify.py` to verify
 their reference hashes and write a reference, Canvas, and Python comparison

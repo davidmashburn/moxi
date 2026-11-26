@@ -7,7 +7,6 @@ import hashlib
 import json
 import xml.etree.ElementTree as ET
 import subprocess
-from PIL import Image, ImageChops
 from pathlib import Path
 from fixtures import CASES, ROOT, figure
 from moxi.specialized import GlyphKind, PALETTE, layout
@@ -40,6 +39,8 @@ def generate(output):
 
 
 def check_canvas_labels(case, output):
+    from PIL import Image
+
     name = case['id']
     root = ET.parse(output / (name + '-scene.svg'))
     labels = root.findall('.//{*}text[@font-family="monospace"]')
@@ -69,6 +70,8 @@ def check_canvas_labels(case, output):
 
 def compare_reference(case, output, gallery, observed):
     """Compare the pinned image, native Canvas and Python PNG at original scale."""
+    from PIL import Image
+
     name = case['id']
     reference = gallery / ('e01-' + name.replace('_', '-')) / '02-reference.png'
     assert hashlib.sha256(reference.read_bytes()).hexdigest() == observed[name]['sha256']['reference_png'], name
@@ -84,14 +87,20 @@ def compare_reference(case, output, gallery, observed):
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('output', type=Path)
     parser.add_argument('--gallery', type=Path, help='directory containing verified e01-*/02-reference.png captures')
+    parser.add_argument('--mojo-only', action='store_true', help='run fixture-backed Mojo regressions without Python image comparisons or Pillow')
     args=parser.parse_args()
-    observed = json.loads((ROOT / 'tests/fixtures/wave_a/observed.json').read_text())['cases']
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=True)
     driver=output/'wave_a_driver.mojo';driver.write_text(generate(output))
     command=['pixi','run','mojo','run','-I','src','-I','tests',str(driver)]
     result=subprocess.run(command,cwd=ROOT,text=True,capture_output=True)
     (output/'run.log').write_text(result.stdout+result.stderr)
     if result.returncode:raise SystemExit(f'Mojo failed: {output}/run.log')
+    if args.mojo_only:
+        print(f'Nine Wave A Mojo fixture regressions passed. {output}/run.log')
+        return
+    from PIL import Image, ImageChops
+
+    observed = json.loads((ROOT / 'tests/fixtures/wave_a/observed.json').read_text())['cases']
     glyphs={c['id']:[] for c in CASES};bench={}
     for line in result.stdout.splitlines():
         parts=[x.strip() for x in line.split('|')]

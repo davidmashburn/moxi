@@ -102,4 +102,7 @@ for test_file in "${tests[@]}"; do
   mojo run -I src "$test_file"
 done
 
-echo "Moxi test suite passed (${#tests[@]} files)"
+# The generated fixture driver reaches the compact-pyramid resize assertions.
+PYTHONPATH=python python3 scripts/wave_a/verify.py dist/wave-a-check --mojo-only
+
+echo "Moxi test suite passed (${#tests[@]} files plus Wave A fixtures)"
