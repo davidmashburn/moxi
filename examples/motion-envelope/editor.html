@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion phrase · Moxi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f1ea;color:#142e30;font:16px/1.5 "Helvetica Neue",sans-serif}
+main{max-width:1000px;margin:auto;padding:clamp(16px,4vw,48px)}h1{font:normal clamp(36px,6vw,64px)/1 Georgia,serif;margin:0}
+header p{max-width:61ch}.plots{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:12px}
+section{background:white;border:1px solid #cad3cc;padding:16px;border-radius:6px}h2{font:normal 23px Georgia,serif;margin:0}
+svg{width:100%;height:auto;display:block}.panel{margin-top:12px}label{display:block;font-weight:600}input{width:100%;accent-color:#086b65;touch-action:none}
+button{padding:9px 14px;border:1px solid #8b9d98;border-radius:4px;background:white;color:inherit;font:inherit}button:first-child{background:#155452;color:white}
+button:disabled{opacity:.5}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}output{font-variant-numeric:tabular-nums}small{color:#48605b}
+</style><main><header><h1>Motion phrase</h1><p>Move the apex of a two-second flight. As the point climbs, its height raises the gain of a 220 Hz tone. Landing brings the voice back to silence.</p></header>
+<div class="plots"><section id="path"><h2>Flight path</h2><small>Horizontal position × height</small><!--path--></section>
+<section id="gain"><h2>Gain envelope</h2><small>0–2 seconds · 0–0.25 linear gain</small><!--gain--></section></div>
+<section class="panel"><label for="beat">Time to apex · <output id="value"></output></label>
+<input id="beat" type="range" min="200" max="1800" step="10" value="1000">
+<small>Drag or use the arrow keys in 10 ms steps. Play to audition the edit.</small>
+<label for="seek">Inspect phrase at · <output id="position"></output></label>
+<input id="seek" type="range" min="0" max="2000" step="10" value="750">
+<div class="actions"><button id="play">Play phrase</button><button id="commit">Commit edit</button><button id="discard">Discard preview</button>
+<button id="save">Set checkpoint</button><button id="restore">Restore checkpoint</button></div>
+<div id="score"></div><div role="status" id="message">Ready.</div></section></main><script type="module">/*instrument*/</script></html>
