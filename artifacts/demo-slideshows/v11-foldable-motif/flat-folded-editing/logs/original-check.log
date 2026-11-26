@@ -1,0 +1,4 @@
+Passed numeric draft measurement.
+Passed slider preview measurement.
+Passed neighbor picking at 10 mm / 75 degrees.
+Passed offline Chrome 158.0.8127.37 geometry, linked picking, edit, preview, rejection, undo and narrow layout.
