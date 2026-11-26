@@ -2,6 +2,14 @@
 
 ## Remaining work after the gallery review
 
+### November 26 verification
+
+The [master gallery](https://github.com/davidmashburn/moxi/blob/10571e4/artifacts/demo-slideshows/MASTER-GALLERY.md) catalogs 98 galleries at this revision. Chrome opened all 39 delivered decks at desktop and mobile widths. Of 777 frame references, 397 resolved in a clean checkout. The other 380 belong to 52 galleries with incomplete captures. Recoverable originals and fresh application captures need separate provenance.
+
+The signed workbench passed 31 checks after the legend fix. Filtering the sample retained rows 6, 7 and 10 across export and reopen. Tick and legend rows were distinct at both window sizes. The test drove the native controls from inside the packaged process. The external desktop bridge could not attach. Physical input, external accessibility navigation, independent authoring and sustained presentation timing remain open. [Packaged replay](https://github.com/davidmashburn/moxi/blob/10571e4/docs/workbench-native-acceptance.md)
+
+The Linux X11 CI launcher now supplies Openbox with an absolute configuration path. Openbox changes directories at startup. The relative path loaded the default mouse bindings and caused queued keystrokes to reach an earlier editor. Both Cairo and GSK passed the reviewed 17 input checks and 20 rapid-input trials per renderer with the absolute path. [CI correction](https://github.com/davidmashburn/moxi/commit/22adaab)
+
 ### November 25 implementation
 
 | Track | Verified on the implementation branch | Open acceptance |
