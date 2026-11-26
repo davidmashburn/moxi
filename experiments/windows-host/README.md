@@ -30,10 +30,9 @@ single named function export, and the import library's machines, DLL and symbol.
 
 ## Native Windows CI gate
 
-`.github/workflows/windows-host-experimental.yml` prepares the outstanding scalar
-C ABI run. It is triggered by pull requests affecting this experiment, the mobile
+`.github/workflows/windows-host-experimental.yml` tests the scalar C ABI on both Windows architectures. It is triggered by pull requests affecting this experiment, the mobile
 counter/caller/control, their source imports, or the compiler manifest/lock, and
-can be dispatched manually by the parent. It has no push trigger. Jobs are gated
+can be dispatched manually. It has no push trigger. Jobs are gated
 to public repositories and use only standard `ubuntu-24.04`, `windows-2025`
 (AMD64), and `windows-11-arm` (ARM64) runners. See GitHub's
 [runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
@@ -66,31 +65,20 @@ PASS: C called the Mojo Counter increment for three transitions
 PASS: AMD64 native Windows scalar C ABI
 ```
 
-The ARM64 native machine is `0xAA64`. A matching target and an exit status of zero
-from **both** Windows jobs are required; a crossbuild alone does not pass this
-gate. There are no additional result artifacts; the run logs are the evidence.
-The runner images and their installed MSVC/SDK versions can change independently
-of the locked Mojo environment. This workflow has not been run as part of its
-preparation; the parent handles GitHub execution and records the actual run.
+## Native result
 
-## Decision and remaining gates
+On November 26, 2026, the Ubuntu crossbuild and both native Windows jobs passed at revision `7eb6d88`. Each C caller loaded its architecture’s DLL through the MSVC import library and returned the expected results for 0 → 1 → 2 and −3 → −2. The caller import tables listed `moxi-counter.dll` and `KERNEL32.dll`. [GitHub Actions run 45764035618](https://github.com/davidmashburn/moxi/actions/runs/45764035618)
 
-A loader and C ABI trial is feasible. Moxi's Windows descriptor in
-`src/moxi/backend.mojo` still reports no native bridge, and the workspace
-declares only Linux and macOS compiler environments. No Windows guest was
-provisioned for this test.
+| Windows runner | MSVC host and target | Native machine reported by the caller | Result |
+| --- | --- | --- | --- |
+| AMD64 | x64 | `0x8664` | All three calls passed |
+| ARM64 | arm64 | `0xAA64` | All three calls passed |
 
-1. Run both native Windows CI jobs above. The normal imports must load each DLL
-   and call its Int32 C ABI through the existing three-transition test. Inspect
-   the logged dependencies. A hosted-runner pass does not establish clean-machine
-   packaging or redistribution requirements.
-2. Link and execute a representative shared application that needs the Mojo
-   runtime, including allocation and cleanup. Establish a supported compiler
-   workflow, SDK/import libraries and redistribution requirements.
-3. Specify and implement the Win32 host boundary. A canonical run needs
-   window creation, a message loop, frame presentation, DPI/resize, keyboard,
-   pointer and text composition, accessibility and orderly shutdown.
+Both runs used MSVC tools 14.52.37025 and Windows SDK 10.0.26100.0. Each process reported a 64-bit pointer and a process machine of `0x0000`, confirming native execution.
 
-The exported leaf and its DLL headers establish a cross-link result only.
-Execution, native Windows compilation, graphical behavior, packaging and
-signing are unverified. The P11 Windows scenario sequence awaits a working host.
+## Remaining gates
+
+1. Link and execute a shared application that uses the Mojo runtime, including allocation and cleanup. Verify clean-machine packaging, signing and redistribution requirements.
+2. Specify and implement the Win32 bridge. A working host needs window creation, a message loop, frame presentation, DPI and resize handling, keyboard and pointer input, text composition, accessibility and orderly shutdown.
+
+The current build cross-compiles Mojo on Linux and compiles the C caller on Windows. Building Mojo source directly on Windows remains unverified.

@@ -309,10 +309,10 @@
       ],
       "verification": [
         "Two private Sway runs exercised the GTK workbench with Xwayland disabled. Seven captures covered focus, modal dismissal, resize and restoration. Both Windows DLL targets exported the counter and the Linux control executed three transitions.",
-        "The experimental workflow builds one scalar DLL and its import library for each Windows architecture. Local Ubuntu checks verified both PE targets. Actual calls require execution on the matching Windows AMD64 and ARM64 runners."
+        "The experimental workflow builds one scalar DLL and its import library for each Windows architecture. Local Ubuntu checks verified both PE targets. At revision 7eb6d88 both native Windows C callers loaded their matching DLLs and returned 1, 2 and -2 for the three counter transitions. Each architecture check confirmed native execution. https://github.com/davidmashburn/moxi/actions/runs/45764035618"
       ],
       "remaining_gates": [
-        "Windows DLL loading, a runtime-dependent Windows workload, Wayland IME, clipboard, accessibility, desktop integration and GPU presentation remain open."
+        "A runtime-dependent Windows workload, packaging, a Win32 host, Wayland IME, clipboard, accessibility, desktop integration and GPU presentation remain open."
       ],
       "slideshows": [
         "artifacts/demo-slideshows/p11-wayland/index.html"
@@ -685,7 +685,8 @@
         "f7de496",
         "3c4469f",
         "780c662",
-        "596eb38"
+        "596eb38",
+        "bcbb1f0"
       ],
       "verification": [
         "Five real v0.8.0 APIs exported reference SVGs. All five Moxi static catalog fixtures exported SVG/PNG, with 40 source-row hits and matching tables. See dataviz-migration.md#e06-catalog-reconciliation.",
@@ -693,10 +694,11 @@
         "Mojo and Python rank adjacent Int64 counts above the binary64 exact-integer boundary. The Python table retains the source counts. The native replay and 372 Python and specialized tests passed.",
         "Native and Python parallel coordinates, bump rankings and weighted arc diagrams matched the pinned fixture geometry. Eleven native segment or edge clicks and seven browser selections identified their source rows. The three galleries contain 24 frames.",
         "NumPy Int64 extremes normalize correctly, invalid native updates retain the previous geometry, and wide arcs fit the viewport. Thirty-six collapsed and restored viewport cycles retained finite coordinates and keyed selection with zero Canvas errors. All three galleries decoded correctly over HTTP and offline.",
-        "Parallel dimension names, bump stages and ranks, and arc node names render in Python PNG and vector PDF. Geometry and sampled source-row picks matched the preceding version."
+        "Parallel dimension names, bump stages and ranks, and arc node names render in Python PNG and vector PDF. Geometry and sampled source-row picks matched the preceding version.",
+        "Specialized Python funnels show ranked stage labels and corresponding colors in SVG, PNG and PDF. Regression checks cover narrow legends, rendered text, Int64 source identity and unchanged band geometry."
       ],
       "remaining_gates": [
-        "Funnel palette, margins and legend treatment differ from the reference. Funnel annotations, live native-window input, cross-host interaction, family benchmarks and independent visual acceptance remain open.",
+        "Funnel palette, margins and legend treatment differ from the reference. Native funnel annotations, live native-window input, cross-host interaction, family benchmarks and independent visual acceptance remain open.",
         "The native software renderer fills polygon bounds. Canvas and SVG preserve the funnel taper."
       ],
       "slideshows": [
@@ -777,13 +779,15 @@
       "commits": [
         "fb387fe",
         "892e44e",
-        "56cbeb3"
+        "56cbeb3",
+        "9f064f4"
       ],
       "verification": [
-        "Compatible schema changes retained slot identity and focus. Incompatible revisions preserved the score. Fourteen model and persistence tests and Chrome recovery checks passed, including original-source download after edits and same-origin restart."
+        "Compatible schema changes retained slot identity and focus. Incompatible revisions preserved the score. Fourteen model and persistence tests and Chrome recovery checks passed, including original-source download after edits and same-origin restart.",
+        "A second score nested a sequence inside a parallel group. A WebKit replay checked all five motion identities and their timings, the revision from 8 to 24 ticks, atomic rejection, undo and reload."
       ],
       "remaining_gates": [
-        "Independent second-author completion, discoverability, a second notation and other browser engines remain open."
+        "Independent second-author completion, discoverability and a substantially different notation remain open."
       ],
       "slideshows": [
         "artifacts/demo-slideshows/v03-invent-notation/index.html"
