@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "demo_id": "v06-recorded-gesture",
+  "title": "Record and edit a motion and sound gesture",
+  "scenario": "Record a two-second gesture, edit its height curve and replay it as motion and sound.",
+  "revision": "0abf208",
+  "host": "Chrome 158 on macOS, desktop and narrow viewports",
+  "backend": "Moxi Python SVG and Web Audio",
+  "fixture": "Synthetic flight and authored height gesture",
+  "reproduce": "Run the recorded-gesture browser check from examples/motion-envelope as described in its README.",
+  "scale": 1,
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "1280-ready.png",
+      "dimensions": [
+        1280,
+        918
+      ],
+      "caption": "The original flight is ready to play at revision zero.",
+      "action": "Open the motion and sound editor.",
+      "expected": "The original flight is ready to play at revision zero."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "1280-recording.png",
+      "dimensions": [
+        1280,
+        918
+      ],
+      "caption": "The two-second take records a height curve while the saved flight stays available.",
+      "action": "Start recording and change Height during the take.",
+      "expected": "The two-second take records a height curve while the saved flight stays available."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "1280-edited-committed.png",
+      "dimensions": [
+        1280,
+        918
+      ],
+      "caption": "Motion and sound gain follow the edited curve on repeated playback.",
+      "action": "Edit one point while stopped, then commit the take.",
+      "expected": "Motion and sound gain follow the edited curve on repeated playback."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "1280-cancelled-replacement.png",
+      "dimensions": [
+        1280,
+        918
+      ],
+      "caption": "The editor restores the preceding take.",
+      "action": "Start a replacement take and cancel it.",
+      "expected": "The editor restores the preceding take."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "390-pending-audio.png",
+      "dimensions": [
+        390,
+        1332
+      ],
+      "caption": "The pending recording can be cancelled.",
+      "action": "Start recording while audio activation is pending.",
+      "expected": "The pending recording can be cancelled."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "390-audio-unavailable.png",
+      "dimensions": [
+        390,
+        1356
+      ],
+      "caption": "The prior draft survives and the author can retry.",
+      "action": "Try recording with audio activation unavailable.",
+      "expected": "The prior draft survives and the author can retry."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "390-checkpoint-restored.png",
+      "dimensions": [
+        390,
+        1380
+      ],
+      "caption": "The full recorded curve and the 750 ms inspection position return.",
+      "action": "Save the gesture at 750 ms, commit a different flight, then restore.",
+      "expected": "The full recorded curve and the 750 ms inspection position return."
+    }
+  ]
+}

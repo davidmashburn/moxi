@@ -2,10 +2,7 @@
 
 The normal author can record a bounded height gesture, make a stopped point edit,
 commit it, and repeatedly replay the same curve as flight motion and sound gain.
-This extends the entire ancestral public feature through `4c486de`, brought into
-the isolated `t3/record-replay-gestures` checkout with `git merge --no-edit 4c486de`
-(a clean fast-forward). No planning ledger, shared gallery index, or existing
-gallery evidence was edited. No push or external write was performed.
+[Open the seven-state offline slideshow](index.html).
 
 ## Tested environment and provenance
 

@@ -762,16 +762,19 @@
         "705707d",
         "c4fa6d5",
         "31687d0",
-        "4c486de"
+        "4c486de",
+        "0abf208"
       ],
       "verification": [
-        "One timing edit moves the motion apex and audio peak together. Both input routes and checkpoint restoration passed at two widths. Forty phrases rendered twice at each sample rate had at most half a sample of peak error."
+        "One timing edit moves the motion apex and audio peak together. Both input routes and checkpoint restoration passed at two widths. Forty phrases rendered twice at each sample rate had at most half a sample of peak error.",
+        "A two-second gesture can be recorded, edited while stopped and played as motion and sound. Repeat playback produced identical offline PCM at 44.1 and 48 kHz. Cancelling a replacement and restoring a checkpoint both retained the full prior curve."
       ],
       "remaining_gates": [
-        "Recording user gestures, an artist comparison with manual synchronization and physical display/speaker timing remain open."
+        "An artist comparison with manual synchronization, physical display and speaker timing, other browsers and touch devices remain open."
       ],
       "slideshows": [
-        "artifacts/demo-slideshows/motion-envelope/index.html"
+        "artifacts/demo-slideshows/motion-envelope/index.html",
+        "artifacts/v06-recorded-gesture/index.html"
       ]
     },
     {
