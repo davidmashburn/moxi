@@ -45,6 +45,16 @@ def feature_checks(img, scale=1):
     }
 
 
+def check_vector_triangle(page):
+    # These are the three line segments of the filled feature-cell path, in points.
+    a, b, c = pymupdf.Point(2, 2), pymupdf.Point(20, 20), pymupdf.Point(2, 20)
+    triangle = [("l", a, b), ("l", b, c), ("l", c, a)]
+    assert any(
+        path["items"] == triangle and path["fill"] == (0, 0, 0)
+        for path in page.get_drawings()
+    ), "feature triangle must be a filled vector path in the PDF"
+
+
 def main():
     pinned = {}
     for line in (
@@ -102,9 +112,8 @@ def main():
             with pymupdf.open(name + ".pdf") as doc:
                 page = doc[0]
                 assert len(doc) == 1 and page.rect == pymupdf.Rect(0, 0, w, h)
-                assert (
-                    page.get_drawings() and "A" in page.get_text() and page.get_images()
-                )
+                check_vector_triangle(page)
+                assert "A" in page.get_text() and page.get_images()
                 zoom = page.get_pixmap(matrix=pymupdf.Matrix(4, 4))
                 detail = Image.frombytes("RGB", (zoom.width, zoom.height), zoom.samples)
                 assert all(feature_checks(detail, 4).values()), "PDF replay"
