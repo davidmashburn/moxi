@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moxi synthetic environmental replay</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f4ed;color:#192f30;font:16px/1.45 system-ui,sans-serif}main{max-width:1000px;margin:auto;padding:24px 20px}header{border-bottom:2px solid #1f5656}header p{color:#365d5c;font-weight:650;letter-spacing:.04em}h1{font:clamp(2rem,6vw,3rem)/1.05 Georgia,serif;margin:8px 0 16px}h2{font-size:1.15rem;margin:0}section{background:white;padding:16px;margin-top:12px;border-radius:6px}svg{display:block;width:100%;height:auto}button,input,select{accent-color:#175f63}button,select{font:inherit;padding:6px 12px}input{width:100%}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}p{margin:8px 0}output,td{font-variant-numeric:tabular-nums}#verdict{font-weight:700}.legend{font-size:14px}.trace{color:#195e63}.without{color:#a75008}.with{color:#197451}.persistence{color:#656b80}table{border-collapse:collapse;width:100%;font-size:14px;text-align:left}td,th{padding:6px;border-bottom:1px solid #d6e0dc}caption{text-align:left;font-weight:650;margin:10px 0 4px}.scroll{overflow-x:auto}small{display:block;color:#365453}#plot-error{color:#9a321b;font-weight:650}[hidden]{display:none!important}
+</style>
+<main><header><p>ARTIFICIAL DATA ONLY · OFFLINE MOXI APP / PLOT EXPORT</p><h1>Environmental forecast replay</h1>
+<p>No recordings, real chemical predictions, biological data or autonomous control.</p></header>
+<section><div class="row"><h2 id="scenario-title">Original temperature replay</h2>
+<label for="scenario">Session</label><select id="scenario"><option value="temperature">Original temperature B</option><option value="B">Proxy B · coupled</option><option value="C">Proxy C · coupled</option><option value="D">Proxy D · reversed coupling</option></select></div>
+<p id="context"></p><div id="plot" role="img" aria-label="Moxi synthetic temperature forecast"></div>
+<p id="plot-error" role="alert" hidden></p>
+<p class="legend"><span class="trace">Teal: full retrospective temperature</span> · <span class="without">Orange: trend without proxy</span> · <span class="with">Green: with proxy (when present)</span> · <span class="persistence">Gray: persistence</span>. Purple marks: origin/outcome; lower purple mark: input at origin. Vertical marks at target: calibration residual intervals.</p>
+<p id="route"></p><label for="cursor">Forecast origin (elapsed seconds)</label>
+<input id="cursor" type="range" min="10" max="210" step="10" value="10"><div class="row"><button id="play">Play</button><button id="inspect">Inspect reversal</button><button id="reset">Restart</button></div></section>
+<section><h2>30-second forecast</h2><output id="details"></output><p id="verdict"></p><p id="scores"></p></section>
+<section id="comparison"><h2>Held-out synthetic comparison</h2><p id="training"></p>
+<div class="scroll"><table><caption>Same 21 origins per session · mean absolute error (°C)</caption><thead><tr><th scope="col">Test session</th><th scope="col">Without proxy</th><th scope="col">With proxy</th><th scope="col">Δ (with − without)</th><th scope="col">Band hits (without / with)</th></tr></thead><tbody id="results"></tbody></table></div>
+<p>The generator intentionally couples an artificial indoor CO2 proxy to future temperature curvature. D reverses that relationship. The proxy uses arbitrary units, not calibrated ppm. Overlapping forecast windows are not independent trials; these three sessions do not support statistical significance or real-world performance claims.</p></section>
+<section><h2>Open gates</h2><p>True real-world chemical prediction, instrument calibration, independent field evaluation, and robot/device integration remain open. This offline replay has no device or control interface. Synthetic residual bands have no real-world coverage guarantee.</p>
+<small id="provenance"></small></section></main>
+<script src="model.js"></script><script src="sensor.js"></script><script src="moxi-frames.js"></script><script src="consumer.js"></script></html>
