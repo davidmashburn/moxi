@@ -28,9 +28,25 @@ uv pip install --python "$runtime/env/bin/python" playwright==1.65.2
 "$runtime/env/bin/python" examples/invent-notation/replay.py --images "$runtime/captures"
 ```
 
+The second replay authors a nested Cluster / Run / Pulse score through the UI.
+Use the same Python environment with its matching Playwright WebKit browser
+installed. The replay saves six screenshots and their corresponding score
+documents to the specified directory.
+
+```sh
+"$runtime/env/bin/python" -m playwright install webkit
+"$runtime/env/bin/python" examples/invent-notation/replay_second.py --evidence "$runtime/second-score"
+```
+
+In the forward score, a six-beat run and a four-beat pulse play together.
+A final two-beat pulse brings the total to eight ticks. Reversing sequence
+order and setting three ticks per beat gives 24 ticks. The replay checks each
+event's ID and endpoints, rejects a group capacity of one, and verifies the
+saved tree after undo and reload. Both scores use the same three phrase types.
+
 ## Evidence and open gates
 
-[Open the seven-slide offline slideshow](../../artifacts/demo-slideshows/v03-invent-notation/index.html). The [manifest](../../artifacts/demo-slideshows/v03-invent-notation/manifest.json) ties each original collaborative-preview PNG to the tested commit, fixture, viewport, action and expected observation. The second run used Chrome 158 on macOS, a 1280 × 800 viewport at 2× scale and a 390 × 844 reload check.
+[Open the seven-slide offline slideshow](../../artifacts/demo-slideshows/v03-invent-notation/index.html). The [manifest](../../artifacts/demo-slideshows/v03-invent-notation/manifest.json) ties each original collaborative-preview PNG to the tested commit, fixture, viewport, action and expected observation. The original recovery replay used Chrome 158 on macOS, a 1280 × 800 viewport at 2× scale and a 390 × 844 reload check.
 
 | Scenario | Observed |
 | --- | --- |
@@ -40,4 +56,4 @@ uv pip install --python "$runtime/env/bin/python" playwright==1.65.2
 | I01 progressive formalization | A 41-unit arm rotated 70.5° at tick 0.60. Two undos restored the exact pre-arm document including the informal note and joint at (70, 85). |
 | Render and recovery | Chrome decoded the Moxi SVG, rejected a malformed plot request with HTTP 400, and reopened the six-tick result at phone width without horizontal overflow. The replay recorded zero page exceptions. |
 
-Five core tests cover schedule semantics, atomic rejection, identity, serialization, timing, sketch conversion and insertion constraints. Nine persistence tests cover exact source retention, selection/edit/reload, archive and active-write failures, earlier recovery copies and denied reads. The browser replay also checks actual recovery downloads, failed selection/edit/undo handlers and restarting the host on the same origin. This constrained replacement runs a fixed evaluator. Native Mojo UI, collaborative editing, a second notation, screen-reader behavior and cross-browser compatibility remain unverified. Second-author completion, discoverability and prediction accuracy require a participant study.
+Five core tests cover schedule semantics, atomic rejection, identity, serialization, timing, sketch conversion and insertion constraints. Nine persistence tests cover exact source retention, selection/edit/reload, archive and active-write failures, earlier recovery copies and denied reads. The browser replay also checks actual recovery downloads, failed selection/edit/undo handlers and restarting the host on the same origin. This constrained replacement runs a fixed evaluator. The second-score replay adds WebKit coverage for nested composition, revisions, undo and reload; recovery and narrow-screen checks remain Chrome-only. Native Mojo UI, collaborative editing, a second substantially different notation and screen-reader behavior remain unverified. Second-author completion, discoverability and prediction accuracy require a participant study.
