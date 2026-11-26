@@ -864,15 +864,18 @@
         "ff5530d",
         "7d33a81",
         "dcee81e",
-        "7c0857f"
+        "7c0857f",
+        "2852b7d",
+        "17142aa"
       ],
       "verification": [
         "The native replay exercised both visitor routes, scrubbing and playback. At seven seconds, moving the partition blocked only North. Moving the light peak raised intensity from 75% to 100%. Two undos reversed the edits in order.",
         "Checkpoint restoration recovered route, time, score and history. Returning from the width definition restored focus and text selection. Eight window captures reproduced byte for byte in independent review.",
-        "A five-action recording resumed after exploration at step three and retained ordered undo. Independent checks compared every prefix of a 16-action recording and 30 explore/return cycles."
+        "A five-action recording resumed after exploration at step three and retained ordered undo. Independent checks compared every prefix of a 16-action recording and 30 explore/return cycles.",
+        "The paired stylized visitor views track center visibility and cue intensity on both routes. The model passed 1,410 geometry cases and an independent replay reproduced all 17 native frames."
       ],
       "remaining_gates": [
-        "Visitor-eye preview, independent designer use and physical lighting and timing remain open. Performance recordings last for the window session."
+        "Independent designer use and physical lighting and timing remain open. Performance recordings last for the window session."
       ],
       "slideshows": [
         "artifacts/demo-slideshows/lived-spaces/index.html"
