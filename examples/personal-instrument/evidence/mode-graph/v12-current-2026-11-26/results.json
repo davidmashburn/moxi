@@ -1,0 +1,331 @@
+{
+  "startedAt": "2026-11-26T03:46:24.919Z",
+  "url": "http://127.0.0.1:62502/",
+  "fixture": "Repository CSV pitches; isolated synthetic score and panel",
+  "revision": "b2bfa42d713b4e78b50298c83b1fde5dfad76d6a",
+  "viewport": {
+    "width": 1120,
+    "height": 960
+  },
+  "sourceSha256": {
+    "app.py": "05b3cb020f5f1ded11aa8a7b3ab1eea36695bc7f51424107284f0703c25a58cd",
+    "index.html": "9064ed33e85a36255aa6699c6479ca348f761334ec3b597f6de1d2a6ed78821f",
+    "graph-check.cjs": "45a037934b5cb0cad8b01ebcb17fe4e131b30b5f966dd8f91836ba454c9dc98a",
+    "check.cjs": "5ba525c835ad93d1bee109bb11d96c79daf646c68a292499506098c66d42d754"
+  },
+  "scenarios": [
+    {
+      "name": "Extract and author the graph",
+      "expected": "Direct source edit persists; extraction and graph/curve drafts do not affect installed mapping or score; both curves build.",
+      "startedAt": "2026-11-26T03:46:26.832Z",
+      "observed": {
+        "config": {
+          "version": 2,
+          "startMode": "accent",
+          "modes": [
+            {
+              "id": "accent",
+              "calculation": {
+                "version": 1,
+                "midpoint": 75
+              },
+              "next": {
+                "mode": "length",
+                "step": "keep"
+              }
+            },
+            {
+              "id": "length",
+              "calculation": {
+                "version": 1,
+                "midpoint": 37
+              },
+              "next": {
+                "mode": "accent",
+                "step": "advance"
+              }
+            }
+          ]
+        },
+        "score": [
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 1
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          }
+        ],
+        "captures": [
+          "authored-draft.png",
+          "reopened-graph.png"
+        ]
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Perform changed transitions by pointer and keyboard",
+      "expected": "Accent → Length on same step; Length → Accent advances; equal full score after Next/Apply and real Right/Space, with stable pad focus.",
+      "startedAt": "2026-11-26T03:46:27.702Z",
+      "observed": {
+        "actualPointerInput": 68,
+        "pointerAndKeyboardScore": [
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 1
+          },
+          {
+            "accent": 70,
+            "length": 60
+          },
+          {
+            "accent": 84,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          }
+        ],
+        "focus": "pad",
+        "wrap": "8 Accent → 8 Length → 1 Accent",
+        "captures": [
+          "pointer-performance.png",
+          "keyboard-performance.png"
+        ]
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Replace and fail a calculation build",
+      "expected": "Custom midpoint 41 builds, retains the same focused input/pad nodes and score; invalid calculation receives HTTP 400 and leaves active/stored state unchanged.",
+      "startedAt": "2026-11-26T03:46:28.880Z",
+      "observed": {
+        "replacementMidpoint": 41,
+        "failedBuildStatus": 400,
+        "retained": [
+          "mapping",
+          "score",
+          "focused input node",
+          "pad node"
+        ],
+        "capture": "failed-build.png"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Reject invalid and unsupported configuration imports",
+      "expected": "Ten malformed/unsupported configurations reject without changing installed or stored graph/score or the current mode.",
+      "startedAt": "2026-11-26T03:46:29.264Z",
+      "observed": {
+        "rejected": 10,
+        "retainedMode": "length",
+        "capture": "invalid-configuration.png"
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Retain last good state on storage/transport/stale build failures",
+      "expected": "Failed save/restore/apply, failed local build and stale build leave both records intact.",
+      "startedAt": "2026-11-26T03:46:30.129Z",
+      "observed": {
+        "failures": [
+          "save quota",
+          "restore quota",
+          "apply quota",
+          "renderer 500",
+          "stale draft"
+        ],
+        "retained": [
+          "mapping",
+          "score"
+        ]
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Recover corrupt storage and failed rebuild",
+      "expected": "Unsupported/dangling saved graph defaults without overwriting it; valid score survives; explicit repair only changes mapping; saved custom graph survives unavailable rebuild.",
+      "startedAt": "2026-11-26T03:46:30.493Z",
+      "observed": {
+        "invalidRecords": 3,
+        "readDenial": true,
+        "failedRebuild": true,
+        "recoveredGraph": {
+          "version": 2,
+          "startMode": "accent",
+          "modes": [
+            {
+              "id": "accent",
+              "calculation": {
+                "version": 1,
+                "midpoint": 75
+              },
+              "next": {
+                "mode": "length",
+                "step": "keep"
+              }
+            },
+            {
+              "id": "length",
+              "calculation": {
+                "version": 1,
+                "midpoint": 41
+              },
+              "next": {
+                "mode": "accent",
+                "step": "advance"
+              }
+            }
+          ]
+        },
+        "retainedScore": [
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 1
+          },
+          {
+            "accent": 70,
+            "length": 60
+          },
+          {
+            "accent": 84,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          },
+          {
+            "accent": 70,
+            "length": 80
+          }
+        ],
+        "captures": [
+          "stored-recovery.png",
+          "saved-rebuild-failed.png",
+          "saved-graph-recovered.png"
+        ]
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Keep version 1 configurations compatible",
+      "expected": "All 6 legacy operation/preset combinations retain wire data until Save; self transitions advance and wrap; explicit Save emits v2 with identical response/score.",
+      "startedAt": "2026-11-26T03:46:32.906Z",
+      "observed": {
+        "legacyCases": 6,
+        "converted": {
+          "version": 2,
+          "startMode": "length",
+          "modes": [
+            {
+              "id": "length",
+              "calculation": {
+                "version": 1,
+                "midpoint": 75
+              },
+              "next": {
+                "mode": "length",
+                "step": "advance"
+              }
+            }
+          ]
+        }
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Validate bounded build contract with an independent oracle",
+      "expected": "Every returned value for 7 curves matches integer rounding; unsupported versions/types/ranges/counts reject.",
+      "startedAt": "2026-11-26T03:46:34.227Z",
+      "observed": {
+        "curveValues": 707,
+        "rejectedBuilds": 8
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Keep authoring independent of startup rebuild",
+      "expected": "Extracting a new mode during a delayed custom-curve rebuild preserves the draft, keeps installed controls separate, and does not use mismatched plot data.",
+      "startedAt": "2026-11-26T03:46:34.293Z",
+      "observed": {
+        "draftModes": 2,
+        "installedModes": 1,
+        "scoreRetained": true
+      },
+      "outcome": "PASS"
+    },
+    {
+      "name": "Inspect narrow layout and retained accessibility state",
+      "expected": "390×844 has no horizontal overflow; eight named notes, one selected, mode labels and native controls remain; no uncaught page errors.",
+      "startedAt": "2026-11-26T03:46:34.551Z",
+      "observed": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "namedNotes": 8,
+        "selectedNotes": 1,
+        "capture": "narrow-graph.png"
+      },
+      "outcome": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "browser": "Chrome 158.0.8127.37",
+  "completedAt": "2026-11-26T03:46:34.738Z"
+}

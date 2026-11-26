@@ -1,0 +1,68 @@
+diff --git a/examples/probability-instrument/check_browser.py b/examples/probability-instrument/check_browser.py
+index 927b34f..a88dba0 100644
+--- a/examples/probability-instrument/check_browser.py
++++ b/examples/probability-instrument/check_browser.py
+@@ -2,0 +3,3 @@ import argparse
++from datetime import datetime, timezone
++import hashlib
++import json
+@@ -3,0 +7 @@ from pathlib import Path
++import subprocess
+@@ -7 +11 @@ from playwright.sync_api import expect, sync_playwright
+-from instrument import Handler
++from instrument import Handler, INITIAL, chart
+@@ -148,0 +153,3 @@ def fractional_layout(page, capture):
++    expect(page.locator("#draft td")).to_have_text(values)
++    expect(page.get_by_label("Requested P(x)")).to_have_value(".3333333333333333")
++    expect(page.get_by_label("Fix the committed mean")).not_to_be_checked()
+@@ -157,0 +165 @@ if __name__ == "__main__":
++    parser.add_argument("--capture-state", action="append", help="Retain only this width-state PNG; repeat as needed.")
+@@ -158,0 +167,6 @@ if __name__ == "__main__":
++    here = Path(__file__).resolve().parent
++    record = {"startedAt": datetime.now(timezone.utc).isoformat(),
++              "revision": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
++              "sourceSha256": {name: hashlib.sha256((here / name).read_bytes()).hexdigest()
++                               for name in ("instrument.py", "instrument.html", "triangle.json", "triangle.mojo", "check_browser.py")},
++              "runs": []}
+@@ -161,0 +176 @@ if __name__ == "__main__":
++        record["browser"] = "Chrome " + browser.version
+@@ -165 +179,0 @@ if __name__ == "__main__":
+-                page.goto(f"http://127.0.0.1:{server.server_port}/")
+@@ -167,0 +182,6 @@ if __name__ == "__main__":
++                response = page.goto(f"http://127.0.0.1:{server.server_port}/")
++                expected_html = (here / "instrument.html").read_text().replace("<!--chart-->", chart(INITIAL)).replace("/*basis*/", (here / "triangle.json").read_text()).encode()
++                assert response.body() == expected_html, "Running server must serve this checkout's HTML and geometry"
++                run = {"viewport": page.viewport_size, "url": page.url, "servedHtmlSha256": hashlib.sha256(response.body()).hexdigest(),
++                       "observations": [], "pageErrors": errors}
++                record["runs"].append(run)
+@@ -169 +189,15 @@ if __name__ == "__main__":
+-                    if args.capture:
++                    observation = {"state": state, "capturedAt": datetime.now(timezone.utc).isoformat(),
++                                   "observed": page.evaluate("""() => ({
++                        attachment: document.querySelector('#attachment').value,
++                        outcome: document.querySelector('#outcome').value,
++                        requested: document.querySelector('#target').value,
++                        pinned: document.querySelector('input[type=checkbox]').checked,
++                        committed: [...document.querySelectorAll('#saved td')].map(e => e.textContent),
++                        preview: [...document.querySelectorAll('#draft td')].map(e => e.textContent),
++                        probe: document.querySelector('#probe').textContent,
++                        status: document.querySelector('#status').textContent,
++                        applyDisabled: document.querySelector('#apply').disabled,
++                        scrollWidth: document.documentElement.scrollWidth, innerWidth
++                    })""")}
++                    name = f"{width}-{state}"
++                    if args.capture and (not args.capture_state or name in args.capture_state):
+@@ -171 +205,3 @@ if __name__ == "__main__":
+-                        page.screenshot(path=args.capture / f"{width}-{state}.png", full_page=True)
++                        page.screenshot(path=args.capture / f"{name}.png", full_page=True)
++                        observation["image"] = name + ".png"
++                    run["observations"].append(observation)
+@@ -172,0 +209 @@ if __name__ == "__main__":
++                capture("initial")
+@@ -176,0 +214 @@ if __name__ == "__main__":
++                run["outcome"] = "PASS"
+@@ -179,0 +218,4 @@ if __name__ == "__main__":
++            record["completedAt"] = datetime.now(timezone.utc).isoformat()
++            if args.capture:
++                args.capture.mkdir(parents=True, exist_ok=True)
++                (args.capture / "results.json").write_text(json.dumps(record, indent=2) + "\n")

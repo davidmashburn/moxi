@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "audit": "d1da7c0b6e8c326e664a51d82ff92176f8bdf1b8",
+  "cleanPublicMainStart": "b2bfa42d713b4e78b50298c83b1fde5dfad76d6a",
+  "applicationSourceUnchanged": true,
+  "sourcePaths": {
+    "examples/personal-instrument/app.py": {
+      "sha256": "05b3cb020f5f1ded11aa8a7b3ab1eea36695bc7f51424107284f0703c25a58cd",
+      "matchesPublicBase": true
+    },
+    "examples/personal-instrument/index.html": {
+      "sha256": "9064ed33e85a36255aa6699c6479ca348f761334ec3b597f6de1d2a6ed78821f",
+      "matchesPublicBase": true
+    },
+    "examples/personal-instrument/graph-check.cjs": {
+      "sha256": "45a037934b5cb0cad8b01ebcb17fe4e131b30b5f966dd8f91836ba454c9dc98a",
+      "matchesPublicBase": false
+    },
+    "examples/personal-instrument/check.cjs": {
+      "sha256": "5ba525c835ad93d1bee109bb11d96c79daf646c68a292499506098c66d42d754",
+      "matchesPublicBase": true
+    },
+    "examples/data/workbench-tail.csv": {
+      "sha256": "f81fa8f1b669890e10e4590049c49df688fef6a0b9761e05a85cb585cdf92c6f",
+      "matchesPublicBase": true
+    },
+    "scripts/demo_slideshows.py": {
+      "sha256": "d9bfa8ef8e7f23afdb3275fc492f6a930af4ea5cbd1bf7034b8c0f4826edc66d",
+      "matchesPublicBase": true
+    }
+  },
+  "dependencyGitTrees": {
+    "python/moxi": "0616ce535dc3e157246814584b8833456cc8865f",
+    "src/moxi": "e35c55c384135574255d739e277b2f5549cb89fb"
+  },
+  "captureRecord": "results.json",
+  "actionsExpectedObserved": "manifest.json slides; results.json assertions/observations",
+  "offlineVerification": {
+    "record": "offline.json",
+    "script": "examples/personal-instrument/evidence/mode-graph/v12-current-2026-11-26/offline-check.cjs",
+    "scriptSha256": "d6ff4e691d7b0f471cb783af3acb6422e7694cbc9932fc99ea1265e71bb9a34e",
+    "networkOffline": true,
+    "protocol": "file:",
+    "allNavigation": "PASS",
+    "allEmbeddedPngHashesAndDimensions": "PASS"
+  },
+  "historicalArtifactsPreserved": {
+    "authored-draft.png": {
+      "sha256": "cd52c05fa75fc43c69c3d8a4d7ae7cd0df25f69dd7756c61930ffbcfe6029ddc",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "baseline.log": {
+      "sha256": "fa1f9fcb6ac4c2451cb25b194f88d4b028a9cd78bcef349ee21c8c555e321f29",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "fail-first.log": {
+      "sha256": "31ee4a97615b3cda09de4ce6673afa1e576ddac535b570b653b88d0f8953057a",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "failed-build.png": {
+      "sha256": "5728abe6c9b729348ab9a3cd5aa8c14ed272cced05fc7355bab2e49e7adc3ebe",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "invalid-configuration.png": {
+      "sha256": "0c42fad36a8c5ccd69c04e127cacdad61944e9700318ba398c1f175424a9f8a4",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "keyboard-performance.png": {
+      "sha256": "bd08156cb907e23c1fd13a147183f9dc1cdf48dce68c8f757c605ba1033541a1",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "narrow-graph.png": {
+      "sha256": "11a36299838136291d62b533dd3410584ad4e76089ea8a1cc9ca5c6f3c8a7d5a",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "plot-regression.log": {
+      "sha256": "bb3cc3477b68715f84c578cf9fefd8d7ca212ad33e8c36010037f287f9fe3b9d",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "pointer-performance.png": {
+      "sha256": "fbe90eb6bbe1a581475dd43020e7fb543a7982db6014c9114694235c9c24f6ce",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "reopened-graph.png": {
+      "sha256": "c001579e48de283b42ae6e8989b02653f5fc2ded0656e314d0b64d0b74a1bb6a",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "replay.log": {
+      "sha256": "ec444a3daa0f792f476502df5031a6eb7a9716518df2f9f815c20d406612b4b8",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "results.json": {
+      "sha256": "b26fa5f0ceb6edab4b812c7dc3762983c3008ba428f1b735516ae4b2832d01b4",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "stored-recovery.png": {
+      "sha256": "99f4fd7d8a3dc46cc3d58f9252c68dbb39700ab36ae120eed1f77c2c1fa8eff8",
+      "matchesHistoricalManifestAndPublicBase": true
+    },
+    "verification.md": {
+      "sha256": "eff676729178516e274a41e0e9b8f6f67bec9479c590452b52155ff59bda30d2",
+      "matchesHistoricalManifestAndPublicBase": true
+    }
+  },
+  "verification": {
+    "applicationReplay": "PASS",
+    "uncaughtPageErrors": [],
+    "narrowLayout": "PASS at 390x844; full-page image height is content dependent",
+    "manifestValidation": "Existing scripts/demo_slideshows.py load_manifest; all four required phases",
+    "mojoFixtureRegeneration": "NOT RUN; pinned fixture/generator path hashes retained",
+    "physicalHardwareVoiceOverHumanEvaluationOtherEnginesBroadSuiteCI": "NOT RUN"
+  },
+  "pngs": {
+    "authored-draft.png": {
+      "sha256": "cd52c05fa75fc43c69c3d8a4d7ae7cd0df25f69dd7756c61930ffbcfe6029ddc",
+      "dimensions": [
+        1120,
+        1479
+      ]
+    },
+    "failed-build.png": {
+      "sha256": "5728abe6c9b729348ab9a3cd5aa8c14ed272cced05fc7355bab2e49e7adc3ebe",
+      "dimensions": [
+        1120,
+        1207
+      ]
+    },
+    "initial.png": {
+      "sha256": "894ebc51318487820b6b7c14c68892f12033dc7ee85c1de37c9718a7c15c4275",
+      "dimensions": [
+        1120,
+        1333
+      ]
+    },
+    "invalid-configuration.png": {
+      "sha256": "0c42fad36a8c5ccd69c04e127cacdad61944e9700318ba398c1f175424a9f8a4",
+      "dimensions": [
+        1120,
+        1651
+      ]
+    },
+    "keyboard-performance.png": {
+      "sha256": "bd08156cb907e23c1fd13a147183f9dc1cdf48dce68c8f757c605ba1033541a1",
+      "dimensions": [
+        1120,
+        1354
+      ]
+    },
+    "narrow-graph.png": {
+      "sha256": "11a36299838136291d62b533dd3410584ad4e76089ea8a1cc9ca5c6f3c8a7d5a",
+      "dimensions": [
+        390,
+        2088
+      ]
+    },
+    "offline-navigation.png": {
+      "sha256": "98c6ae3c54bd3f0bf7c4a60a94125f45a69a6987c9d1f7e343a1690fc4496ab2",
+      "dimensions": [
+        1120,
+        900
+      ]
+    },
+    "pointer-performance.png": {
+      "sha256": "fbe90eb6bbe1a581475dd43020e7fb543a7982db6014c9114694235c9c24f6ce",
+      "dimensions": [
+        1120,
+        1354
+      ]
+    },
+    "reopened-graph.png": {
+      "sha256": "c001579e48de283b42ae6e8989b02653f5fc2ded0656e314d0b64d0b74a1bb6a",
+      "dimensions": [
+        1120,
+        1354
+      ]
+    },
+    "saved-graph-recovered.png": {
+      "sha256": "d70004d6b2946b97711f845e27f1de0f42f31858b589901aad3a7befa14c8cc8",
+      "dimensions": [
+        1120,
+        1354
+      ]
+    },
+    "saved-rebuild-failed.png": {
+      "sha256": "2142a15beec0e79c8a0d4f2b590137ca44edfd9c3eb3604a6252c1e09a05c2ec",
+      "dimensions": [
+        1120,
+        1333
+      ]
+    },
+    "stored-recovery.png": {
+      "sha256": "c91147a98e207d574538573a5f70f01a32acdf46cd2644e8f6cedbe0e64fe434",
+      "dimensions": [
+        1120,
+        1333
+      ]
+    }
+  },
+  "artifactSha256": {
+    "README.md": "bda9fca40818d205ec8a8f81ef34c9a2379297130506729af5037cdbff47e584",
+    "authored-draft.png": "cd52c05fa75fc43c69c3d8a4d7ae7cd0df25f69dd7756c61930ffbcfe6029ddc",
+    "baseline.log": "fa1f9fcb6ac4c2451cb25b194f88d4b028a9cd78bcef349ee21c8c555e321f29",
+    "capture-check.patch": "28e999159b54f54a3786dcb98a05b448132048cdde4c73bd7def2ef2eddef49d",
+    "failed-build.png": "5728abe6c9b729348ab9a3cd5aa8c14ed272cced05fc7355bab2e49e7adc3ebe",
+    "index.html": "d1ea52b639760e373e266d65735752af2500159ac2e4f58331da4a98b60cd04e",
+    "initial.png": "894ebc51318487820b6b7c14c68892f12033dc7ee85c1de37c9718a7c15c4275",
+    "invalid-configuration.png": "0c42fad36a8c5ccd69c04e127cacdad61944e9700318ba398c1f175424a9f8a4",
+    "keyboard-performance.png": "bd08156cb907e23c1fd13a147183f9dc1cdf48dce68c8f757c605ba1033541a1",
+    "manifest.json": "88b2ef5e53989249895db0762a2c4ca88b8c03b6dc56e924df04dcbfcdd68ab5",
+    "narrow-graph.png": "11a36299838136291d62b533dd3410584ad4e76089ea8a1cc9ca5c6f3c8a7d5a",
+    "offline-check.cjs": "d6ff4e691d7b0f471cb783af3acb6422e7694cbc9932fc99ea1265e71bb9a34e",
+    "offline-navigation.png": "98c6ae3c54bd3f0bf7c4a60a94125f45a69a6987c9d1f7e343a1690fc4496ab2",
+    "offline.json": "f1ff04719dd62a977cd4e329450b7d41d82722ce3fab17efd4549629b3e5e4ae",
+    "pointer-performance.png": "fbe90eb6bbe1a581475dd43020e7fb543a7982db6014c9114694235c9c24f6ce",
+    "reopened-graph.png": "c001579e48de283b42ae6e8989b02653f5fc2ded0656e314d0b64d0b74a1bb6a",
+    "replay.log": "ec444a3daa0f792f476502df5031a6eb7a9716518df2f9f815c20d406612b4b8",
+    "results.json": "c59d42650b9d68abf8c21c1c84fa2323e4d82e91829564a50e82c5c394a21b2c",
+    "saved-graph-recovered.png": "d70004d6b2946b97711f845e27f1de0f42f31858b589901aad3a7befa14c8cc8",
+    "saved-rebuild-failed.png": "2142a15beec0e79c8a0d4f2b590137ca44edfd9c3eb3604a6252c1e09a05c2ec",
+    "stored-recovery.png": "c91147a98e207d574538573a5f70f01a32acdf46cd2644e8f6cedbe0e64fe434"
+  }
+}

@@ -1,0 +1,424 @@
+{
+  "startedAt": "2026-11-26T03:46:24.944161+00:00",
+  "revision": "b2bfa42d713b4e78b50298c83b1fde5dfad76d6a",
+  "sourceSha256": {
+    "instrument.py": "6e2275b4ca1fd312dc08be61fefa4aafdae5fc4b81a4a6ca44eaa0df13480b9f",
+    "instrument.html": "eb3593cd5db16c0bf5adf7ca149af13a0395b4753f24a10e37b56ac7a217f59b",
+    "triangle.json": "b0425e1baeb6fcbcb5d06a02d77643ee4e9d1a916d5d73dc8905d6dda1ba31c6",
+    "triangle.mojo": "e056bcaf633e354e8b31a54a1b68b146fb773e86eb600e6f15a776ede0f50da1",
+    "check_browser.py": "f347872478314f8f7fb96ac4db540f2b924c227ee5efd3445e48469bda162cef"
+  },
+  "runs": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "url": "http://127.0.0.1:62777/",
+      "servedHtmlSha256": "b0da6a0ffa590fe0911248458e644fcef251d1924b075e64f5a8d60c4a9cc179",
+      "observations": [
+        {
+          "state": "initial",
+          "capturedAt": "2026-11-26T03:46:27.559677+00:00",
+          "observed": {
+            "attachment": "plot",
+            "outcome": "2",
+            "requested": "0.25",
+            "pinned": false,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "\u2014",
+              "\u2014",
+              "\u2014",
+              "\u2014"
+            ],
+            "probe": "P(2) = 0.25 probability \u00b7 committed reference 0.25 \u00b7 change 0",
+            "status": "Drag a bar or enter a probability to preview.",
+            "applyDisabled": true,
+            "scrollWidth": 1280,
+            "innerWidth": 1280
+          },
+          "image": "1280-initial.png"
+        },
+        {
+          "state": "plot",
+          "capturedAt": "2026-11-26T03:46:28.565572+00:00",
+          "observed": {
+            "attachment": "plot",
+            "outcome": "1",
+            "requested": ".2",
+            "pinned": true,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "0.4",
+              "0.2",
+              "0.4",
+              "1"
+            ],
+            "probe": "P(1) = 0.2 probability \u00b7 committed reference 0.5 \u00b7 change -0.3",
+            "status": "Preview shown. Apply to commit this distribution.",
+            "applyDisabled": false,
+            "scrollWidth": 1280,
+            "innerWidth": 1280
+          },
+          "image": "1280-plot.png"
+        },
+        {
+          "state": "triangle",
+          "capturedAt": "2026-11-26T03:46:28.737515+00:00",
+          "observed": {
+            "attachment": "geometry",
+            "outcome": "1",
+            "requested": ".2",
+            "pinned": true,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "0.4",
+              "0.2",
+              "0.4",
+              "1"
+            ],
+            "probe": "P(1) = 0.2 probability \u00b7 committed reference 0.5 \u00b7 change -0.3",
+            "status": "Preview shown. Apply to commit this distribution.",
+            "applyDisabled": false,
+            "scrollWidth": 1280,
+            "innerWidth": 1280
+          },
+          "image": "1280-triangle.png"
+        },
+        {
+          "state": "rejected",
+          "capturedAt": "2026-11-26T03:46:29.002300+00:00",
+          "observed": {
+            "attachment": "geometry",
+            "outcome": "2",
+            "requested": ".8",
+            "pinned": true,
+            "committed": [
+              "0.5",
+              "0",
+              "0.5",
+              "1"
+            ],
+            "preview": [
+              "\u2014",
+              "\u2014",
+              "\u2014",
+              "\u2014"
+            ],
+            "probe": "P(2) = 0.5 probability \u00b7 committed reference 0.5 \u00b7 change 0",
+            "status": "With P(2) = 0.8, the possible mean is 1.6 to 1.8. The pinned mean is 1. Committed distribution retained.",
+            "applyDisabled": true,
+            "scrollWidth": 1280,
+            "innerWidth": 1280
+          },
+          "image": "1280-rejected.png"
+        },
+        {
+          "state": "fractional-plot",
+          "capturedAt": "2026-11-26T03:46:29.584112+00:00",
+          "observed": {
+            "attachment": "plot",
+            "outcome": "2",
+            "requested": ".3333333333333333",
+            "pinned": false,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "0.2222222",
+              "0.4444444",
+              "0.3333333",
+              "1.111111"
+            ],
+            "probe": "P(2) = 0.3333333 probability \u00b7 committed reference 0.25 \u00b7 change 0.08333333",
+            "status": "Preview shown. Apply to commit this distribution.",
+            "applyDisabled": false,
+            "scrollWidth": 1280,
+            "innerWidth": 1280
+          }
+        },
+        {
+          "state": "fractional-triangle",
+          "capturedAt": "2026-11-26T03:46:29.628821+00:00",
+          "observed": {
+            "attachment": "geometry",
+            "outcome": "2",
+            "requested": ".3333333333333333",
+            "pinned": false,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "0.2222222",
+              "0.4444444",
+              "0.3333333",
+              "1.111111"
+            ],
+            "probe": "P(2) = 0.3333333 probability \u00b7 committed reference 0.25 \u00b7 change 0.08333333",
+            "status": "Preview shown. Apply to commit this distribution.",
+            "applyDisabled": false,
+            "scrollWidth": 1280,
+            "innerWidth": 1280
+          }
+        },
+        {
+          "state": "fractional-committed",
+          "capturedAt": "2026-11-26T03:46:29.683629+00:00",
+          "observed": {
+            "attachment": "geometry",
+            "outcome": "2",
+            "requested": "0.3333333333333333",
+            "pinned": false,
+            "committed": [
+              "0.2222222",
+              "0.4444444",
+              "0.3333333",
+              "1.111111"
+            ],
+            "preview": [
+              "\u2014",
+              "\u2014",
+              "\u2014",
+              "\u2014"
+            ],
+            "probe": "P(2) = 0.3333333 probability \u00b7 committed reference 0.3333333 \u00b7 change 0",
+            "status": "Distribution committed.",
+            "applyDisabled": true,
+            "scrollWidth": 1280,
+            "innerWidth": 1280
+          }
+        }
+      ],
+      "pageErrors": [],
+      "outcome": "PASS"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:62777/",
+      "servedHtmlSha256": "b0da6a0ffa590fe0911248458e644fcef251d1924b075e64f5a8d60c4a9cc179",
+      "observations": [
+        {
+          "state": "initial",
+          "capturedAt": "2026-11-26T03:46:30.468485+00:00",
+          "observed": {
+            "attachment": "plot",
+            "outcome": "2",
+            "requested": "0.25",
+            "pinned": false,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "\u2014",
+              "\u2014",
+              "\u2014",
+              "\u2014"
+            ],
+            "probe": "P(2) = 0.25 probability \u00b7 committed reference 0.25 \u00b7 change 0",
+            "status": "Drag a bar or enter a probability to preview.",
+            "applyDisabled": true,
+            "scrollWidth": 390,
+            "innerWidth": 390
+          }
+        },
+        {
+          "state": "plot",
+          "capturedAt": "2026-11-26T03:46:31.549598+00:00",
+          "observed": {
+            "attachment": "plot",
+            "outcome": "1",
+            "requested": ".2",
+            "pinned": true,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "0.4",
+              "0.2",
+              "0.4",
+              "1"
+            ],
+            "probe": "P(1) = 0.2 probability \u00b7 committed reference 0.5 \u00b7 change -0.3",
+            "status": "Preview shown. Apply to commit this distribution.",
+            "applyDisabled": false,
+            "scrollWidth": 390,
+            "innerWidth": 390
+          }
+        },
+        {
+          "state": "triangle",
+          "capturedAt": "2026-11-26T03:46:31.667925+00:00",
+          "observed": {
+            "attachment": "geometry",
+            "outcome": "1",
+            "requested": ".2",
+            "pinned": true,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "0.4",
+              "0.2",
+              "0.4",
+              "1"
+            ],
+            "probe": "P(1) = 0.2 probability \u00b7 committed reference 0.5 \u00b7 change -0.3",
+            "status": "Preview shown. Apply to commit this distribution.",
+            "applyDisabled": false,
+            "scrollWidth": 390,
+            "innerWidth": 390
+          }
+        },
+        {
+          "state": "rejected",
+          "capturedAt": "2026-11-26T03:46:31.984694+00:00",
+          "observed": {
+            "attachment": "geometry",
+            "outcome": "2",
+            "requested": ".8",
+            "pinned": true,
+            "committed": [
+              "0.5",
+              "0",
+              "0.5",
+              "1"
+            ],
+            "preview": [
+              "\u2014",
+              "\u2014",
+              "\u2014",
+              "\u2014"
+            ],
+            "probe": "P(2) = 0.5 probability \u00b7 committed reference 0.5 \u00b7 change 0",
+            "status": "With P(2) = 0.8, the possible mean is 1.6 to 1.8. The pinned mean is 1. Committed distribution retained.",
+            "applyDisabled": true,
+            "scrollWidth": 390,
+            "innerWidth": 390
+          }
+        },
+        {
+          "state": "fractional-plot",
+          "capturedAt": "2026-11-26T03:46:32.315464+00:00",
+          "observed": {
+            "attachment": "plot",
+            "outcome": "2",
+            "requested": ".3333333333333333",
+            "pinned": false,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "0.2222222",
+              "0.4444444",
+              "0.3333333",
+              "1.111111"
+            ],
+            "probe": "P(2) = 0.3333333 probability \u00b7 committed reference 0.25 \u00b7 change 0.08333333",
+            "status": "Preview shown. Apply to commit this distribution.",
+            "applyDisabled": false,
+            "scrollWidth": 390,
+            "innerWidth": 390
+          },
+          "image": "390-fractional-plot.png"
+        },
+        {
+          "state": "fractional-triangle",
+          "capturedAt": "2026-11-26T03:46:32.398853+00:00",
+          "observed": {
+            "attachment": "geometry",
+            "outcome": "2",
+            "requested": ".3333333333333333",
+            "pinned": false,
+            "committed": [
+              "0.25",
+              "0.5",
+              "0.25",
+              "1"
+            ],
+            "preview": [
+              "0.2222222",
+              "0.4444444",
+              "0.3333333",
+              "1.111111"
+            ],
+            "probe": "P(2) = 0.3333333 probability \u00b7 committed reference 0.25 \u00b7 change 0.08333333",
+            "status": "Preview shown. Apply to commit this distribution.",
+            "applyDisabled": false,
+            "scrollWidth": 390,
+            "innerWidth": 390
+          },
+          "image": "390-fractional-triangle.png"
+        },
+        {
+          "state": "fractional-committed",
+          "capturedAt": "2026-11-26T03:46:32.511851+00:00",
+          "observed": {
+            "attachment": "geometry",
+            "outcome": "2",
+            "requested": "0.3333333333333333",
+            "pinned": false,
+            "committed": [
+              "0.2222222",
+              "0.4444444",
+              "0.3333333",
+              "1.111111"
+            ],
+            "preview": [
+              "\u2014",
+              "\u2014",
+              "\u2014",
+              "\u2014"
+            ],
+            "probe": "P(2) = 0.3333333 probability \u00b7 committed reference 0.3333333 \u00b7 change 0",
+            "status": "Distribution committed.",
+            "applyDisabled": true,
+            "scrollWidth": 390,
+            "innerWidth": 390
+          },
+          "image": "390-fractional-committed.png"
+        }
+      ],
+      "pageErrors": [],
+      "outcome": "PASS"
+    }
+  ],
+  "browser": "Chrome 158.0.8127.37",
+  "completedAt": "2026-11-26T03:46:32.597808+00:00"
+}

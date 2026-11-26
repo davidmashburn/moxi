@@ -59,6 +59,7 @@ async function check() {
       'Running server must serve this checkout’s HTML');
     // Fail immediately on 5768f2b, rather than timing out on a selector.
     assert.equal(await el('graph').count(),1,'V12 needs an editable mode graph in the normal desk');
+    await capture('initial');
     let graphFixture;
     await scenario('Extract and author the graph','Direct source edit persists; extraction and graph/curve drafts do not affect installed mapping or score; both curves build.',async () => {
       assert.equal(await notes.count(),8);
@@ -221,6 +222,7 @@ async function check() {
       await page.route('**/build',route => route.fulfill({status:500,contentType:'application/json',body:'{"error":"Synthetic rebuild failure."}'}));
       await page.reload(); await ready(); await status('Saved response could not be built');
       assert.deepEqual(await saved(),graphFixture);
+      await capture('saved-rebuild-failed');
       await page.unroute('**/build');
       await page.getByText('Versioned configuration',{exact:true}).click();
       await el('export').click();
@@ -230,6 +232,7 @@ async function check() {
       await page.reload(); await ready();
       assert.deepEqual(await saved(),graphFixture);
       assert.equal(await el('mode-length').isVisible(),true);
+      await capture('saved-graph-recovered');
       // A read-denial hook is restricted to this temporary page and flag.
       await page.addInitScript(() => {
         if (sessionStorage.getItem('deny-reads')) Storage.prototype.getItem = () => { throw new Error('read fixture'); };
@@ -242,7 +245,9 @@ async function check() {
       assert.equal(await el('configuration').inputValue(),'retained draft');
       await page.evaluate(() => sessionStorage.removeItem('deny-reads'));
       await page.reload(); await ready(); assert.deepEqual(await saved(),graphFixture);
-      return {invalidRecords:badRecords.length,readDenial:true,failedRebuild:true,capture:'stored-recovery.png'};
+      return {invalidRecords:badRecords.length,readDenial:true,failedRebuild:true,
+        recoveredGraph:good,retainedScore:JSON.parse(graphFixture.score),
+        captures:['stored-recovery.png','saved-rebuild-failed.png','saved-graph-recovered.png']};
     });
     await scenario('Keep version 1 configurations compatible','All 6 legacy operation/preset combinations retain wire data until Save; self transitions advance and wrap; explicit Save emits v2 with identical response/score.',async () => {
       for (const operation of Object.values(Operation)) for (const midpoint of [25,50,75]) {

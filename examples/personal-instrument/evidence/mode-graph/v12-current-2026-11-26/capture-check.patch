@@ -1,0 +1,15 @@
+diff --git a/examples/personal-instrument/graph-check.cjs b/examples/personal-instrument/graph-check.cjs
+index 94c5526..f52fc15 100644
+--- a/examples/personal-instrument/graph-check.cjs
++++ b/examples/personal-instrument/graph-check.cjs
+@@ -61,0 +62 @@ async function check() {
++    await capture('initial');
+@@ -223,0 +225 @@ async function check() {
++      await capture('saved-rebuild-failed');
+@@ -232,0 +235 @@ async function check() {
++      await capture('saved-graph-recovered');
+@@ -245 +248,3 @@ async function check() {
+-      return {invalidRecords:badRecords.length,readDenial:true,failedRebuild:true,capture:'stored-recovery.png'};
++      return {invalidRecords:badRecords.length,readDenial:true,failedRebuild:true,
++        recoveredGraph:good,retainedScore:JSON.parse(graphFixture.score),
++        captures:['stored-recovery.png','saved-rebuild-failed.png','saved-graph-recovered.png']};

@@ -1,10 +1,14 @@
 """Exercise the running example with Chrome. Run with PYTHONPATH=python."""
 import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
 from pathlib import Path
+import subprocess
 from threading import Thread
 from http.server import ThreadingHTTPServer
 from playwright.sync_api import expect, sync_playwright
-from instrument import Handler
+from instrument import Handler, INITIAL, chart
 
 
 def exercise(page):
@@ -146,6 +150,9 @@ def fractional_layout(page, capture):
     expect(page.locator("#draft td")).to_have_text(values)
     capture("fractional-plot")
     page.locator("#attachment").select_option("geometry")
+    expect(page.locator("#draft td")).to_have_text(values)
+    expect(page.get_by_label("Requested P(x)")).to_have_value(".3333333333333333")
+    expect(page.get_by_label("Fix the committed mean")).not_to_be_checked()
     capture("fractional-triangle")
     page.get_by_role("button", name="Apply preview").click()
     expect(page.locator("#saved td")).to_have_text(values)
@@ -155,27 +162,62 @@ def fractional_layout(page, capture):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--capture", type=Path)
+    parser.add_argument("--capture-state", action="append", help="Retain only this width-state PNG; repeat as needed.")
     args = parser.parse_args()
+    here = Path(__file__).resolve().parent
+    record = {"startedAt": datetime.now(timezone.utc).isoformat(),
+              "revision": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "sourceSha256": {name: hashlib.sha256((here / name).read_bytes()).hexdigest()
+                               for name in ("instrument.py", "instrument.html", "triangle.json", "triangle.mojo", "check_browser.py")},
+              "runs": []}
     with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server, sync_playwright() as pw:
         Thread(target=server.serve_forever, daemon=True).start()
         browser = pw.chromium.launch(channel="chrome")
+        record["browser"] = "Chrome " + browser.version
         try:
             for width, height in ((1280, 800), (390, 844)):
                 page = browser.new_page(viewport={"width": width, "height": height})
-                page.goto(f"http://127.0.0.1:{server.server_port}/")
                 errors = []
                 page.on("pageerror", lambda error: errors.append(str(error)))
+                response = page.goto(f"http://127.0.0.1:{server.server_port}/")
+                expected_html = (here / "instrument.html").read_text().replace("<!--chart-->", chart(INITIAL)).replace("/*basis*/", (here / "triangle.json").read_text()).encode()
+                assert response.body() == expected_html, "Running server must serve this checkout's HTML and geometry"
+                run = {"viewport": page.viewport_size, "url": page.url, "servedHtmlSha256": hashlib.sha256(response.body()).hexdigest(),
+                       "observations": [], "pageErrors": errors}
+                record["runs"].append(run)
                 def capture(state):
-                    if args.capture:
+                    observation = {"state": state, "capturedAt": datetime.now(timezone.utc).isoformat(),
+                                   "observed": page.evaluate("""() => ({
+                        attachment: document.querySelector('#attachment').value,
+                        outcome: document.querySelector('#outcome').value,
+                        requested: document.querySelector('#target').value,
+                        pinned: document.querySelector('input[type=checkbox]').checked,
+                        committed: [...document.querySelectorAll('#saved td')].map(e => e.textContent),
+                        preview: [...document.querySelectorAll('#draft td')].map(e => e.textContent),
+                        probe: document.querySelector('#probe').textContent,
+                        status: document.querySelector('#status').textContent,
+                        applyDisabled: document.querySelector('#apply').disabled,
+                        scrollWidth: document.documentElement.scrollWidth, innerWidth
+                    })""")}
+                    name = f"{width}-{state}"
+                    if args.capture and (not args.capture_state or name in args.capture_state):
                         args.capture.mkdir(parents=True, exist_ok=True)
-                        page.screenshot(path=args.capture / f"{width}-{state}.png", full_page=True)
+                        page.screenshot(path=args.capture / f"{name}.png", full_page=True)
+                        observation["image"] = name + ".png"
+                    run["observations"].append(observation)
                     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+                capture("initial")
                 exercise(page)
                 attachment_check(page, capture)
                 fractional_layout(page, capture)
                 assert not errors, errors
+                run["outcome"] = "PASS"
                 print(f"PASS Chrome {browser.version}, {width} × {height}")
                 page.close()
         finally:
+            record["completedAt"] = datetime.now(timezone.utc).isoformat()
+            if args.capture:
+                args.capture.mkdir(parents=True, exist_ok=True)
+                (args.capture / "results.json").write_text(json.dumps(record, indent=2) + "\n")
             browser.close()
             server.shutdown()

@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "demo_id": "v08-current-2026-11-26",
+  "title": "V08 · Current probe attachment evidence",
+  "revision": "b2bfa42d713b4e78b50298c83b1fde5dfad76d6a",
+  "host": "macOS 27.2.1 arm64 · Chrome 158.0.8127.37",
+  "backend": "Running local Python app / public Moxi Python SVG rendering",
+  "fixture": "Synthetic probability model (0.25, 0.5, 0.25)",
+  "scale": 1,
+  "scenario": "Current evidence for the bounded provenance gaps in concept audit d1da7c0b6e8c326e664a51d82ff92176f8bdf1b8. Historical evidence remains unchanged.",
+  "reproduce": "PYTHONPATH=python python3 -m unittest discover -s examples/probability-instrument\nPYTHONPATH=python uv run --no-project --with playwright==1.65.2 python examples/probability-instrument/check_browser.py --capture /tmp/v08-current --capture-state 1280-initial --capture-state 1280-plot --capture-state 1280-triangle --capture-state 1280-rejected --capture-state 390-fractional-plot --capture-state 390-fractional-triangle --capture-state 390-fractional-committed",
+  "capturedAt": {
+    "started": "2026-11-26T03:46:24.944161+00:00",
+    "completed": "2026-11-26T03:46:32.597808+00:00"
+  },
+  "testedSource": {
+    "publicMain": "b2bfa42d713b4e78b50298c83b1fde5dfad76d6a",
+    "cleanStart": true,
+    "applicationChanges": [],
+    "uncommittedCaptureOnlyChange": "examples/probability-instrument/check_browser.py",
+    "patch": "capture-check.patch",
+    "sourceSha256": {
+      "examples/probability-instrument/instrument.py": "6e2275b4ca1fd312dc08be61fefa4aafdae5fc4b81a4a6ca44eaa0df13480b9f",
+      "examples/probability-instrument/instrument.html": "eb3593cd5db16c0bf5adf7ca149af13a0395b4753f24a10e37b56ac7a217f59b",
+      "examples/probability-instrument/triangle.json": "b0425e1baeb6fcbcb5d06a02d77643ee4e9d1a916d5d73dc8905d6dda1ba31c6",
+      "examples/probability-instrument/triangle.mojo": "e056bcaf633e354e8b31a54a1b68b146fb773e86eb600e6f15a776ede0f50da1",
+      "examples/probability-instrument/test_instrument.py": "b9fc6d67fe0c69a321b86fb93638ff5f2aa539917bd30f5f4f9fdef7c8d930a3",
+      "examples/probability-instrument/check_browser.py": "f347872478314f8f7fb96ac4db540f2b924c227ee5efd3445e48469bda162cef",
+      "scripts/demo_slideshows.py": "d9bfa8ef8e7f23afdb3275fc492f6a930af4ea5cbd1bf7034b8c0f4826edc66d"
+    },
+    "dependencyGitTrees": {
+      "python/moxi": "0616ce535dc3e157246814584b8833456cc8865f",
+      "src/moxi": "e35c55c384135574255d739e277b2f5549cb89fb"
+    }
+  },
+  "slides": [
+    {
+      "image": "1280-initial.png",
+      "dimensions": [
+        1280,
+        963
+      ],
+      "sha256": "ee546a198d2dfacabe425cf5518efe500ce553ff96304f00b0309abe3e25b733",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "caption": "Start a fresh probability experiment",
+      "action": "Open the running local app in a fresh context.",
+      "expected": "Committed (0.25, 0.5, 0.25), mean 1; plot selected, no preview.",
+      "observed": "PASS: initial committed cells matched; no horizontal overflow."
+    },
+    {
+      "image": "1280-plot.png",
+      "dimensions": [
+        1280,
+        963
+      ],
+      "sha256": "bed6f9663782edeaf3c3592f211f825c2804655a11cd0cb0bced1e8aaeab7e23",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Pending probe on the plot",
+      "action": "Pin the mean, select outcome 1, enter .2.",
+      "expected": "Preview (0.4, 0.2, 0.4); reading .2, reference .5, change −.3; committed mean 1.",
+      "observed": "PASS: exact draft and probe text matched; Apply enabled."
+    },
+    {
+      "image": "1280-triangle.png",
+      "dimensions": [
+        1280,
+        986
+      ],
+      "sha256": "7a0be74be2b2653a62e4ef7240498121b883781fbb246758b1e3a4beb57e0636",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Transfer the same pending probe",
+      "action": "Choose Probability triangle without committing.",
+      "expected": "Outcome 1, pin, requested .2, draft, units, reading/reference retained; model dot (266,121).",
+      "observed": "PASS: all transfer assertions matched; Enter then committed and advanced reference to .2."
+    },
+    {
+      "image": "1280-rejected.png",
+      "dimensions": [
+        1280,
+        987
+      ],
+      "sha256": "6c39abf8ed56a882996086194819ca64ebef612e916e3c34ec66feb9a60dece1",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Cancel a held edit, then reject an infeasible one",
+      "action": "Select outcome 2; pointer-down at halfway triangle; Escape, move/release. Repeat, commit, then enter .8 and switch attachments.",
+      "expected": "Cancellation survives release. Second edit commits (0.5,0,0.5). Rejection retains .8 with Apply disabled and committed reference .5 on both attachments.",
+      "observed": "PASS: cancellation, committed cells, rejection message and probe/reference assertions matched at both widths."
+    },
+    {
+      "image": "390-fractional-plot.png",
+      "dimensions": [
+        390,
+        1047
+      ],
+      "sha256": "a727c7485138b078506f0b81b11d276f67a60c8a61d3f032228749bc4639dc6e",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Narrow fractional preview",
+      "action": "Reload; leave mean free, select outcome 2, enter .3333333333333333.",
+      "expected": "Preview (0.2222222,0.4444444,0.3333333), mean 1.111111; committed distribution unchanged; document stays within 390 CSS px.",
+      "observed": "PASS: exact preview cells and width assertion matched."
+    },
+    {
+      "image": "390-fractional-triangle.png",
+      "dimensions": [
+        390,
+        1094
+      ],
+      "sha256": "06ccc3913679d0368ab9620d78a0692b7758481dbbb7233e574fe83ccccf6e04",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Transfer the fractional preview",
+      "action": "Choose Probability triangle before Apply.",
+      "expected": "The fractional draft and requested input persist with mean free; controls/table stay within 390 CSS px.",
+      "observed": "PASS: exact draft, input, free-mean and width assertions matched."
+    },
+    {
+      "image": "390-fractional-committed.png",
+      "dimensions": [
+        390,
+        1094
+      ],
+      "sha256": "654ab7411ad08d00c5783a0d5ac57a84e14ae226597f1bc82fc1e5a6f019eb71",
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Commit the transferred fractional edit",
+      "action": "Click Apply preview.",
+      "expected": "Committed cells become (0.2222222,0.4444444,0.3333333), mean 1.111111; reference advances.",
+      "observed": "PASS: exact committed cells and width assertion matched; results.json retains the actual probe text."
+    }
+  ]
+}

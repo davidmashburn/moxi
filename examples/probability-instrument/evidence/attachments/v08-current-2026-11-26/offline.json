@@ -1,0 +1,40 @@
+{
+  "startedAt": "2026-11-26T03:49:58.363Z",
+  "protocol": "file:",
+  "networkOffline": true,
+  "viewport": {
+    "width": 1120,
+    "height": 900
+  },
+  "deviceScaleFactor": 1,
+  "htmlSha256": "68ba224a8bade664784156ff0e6473b87625d05220aee9a2f81547cc716eee92",
+  "checks": [
+    {
+      "action": "Open index.html offline and decode every embedded slide",
+      "expected": "All PNG hashes/dimensions match the manifest without HTTP resources",
+      "observed": {
+        "decoded": 7,
+        "hashesAndDimensionsMatched": 7
+      },
+      "outcome": "PASS"
+    },
+    {
+      "action": "Visit every slide with Next and thumbnails; exercise Previous and both arrow keys with wrapping",
+      "expected": "Exactly one visible slide and correct counter after every action",
+      "observed": {
+        "nextVisits": 7,
+        "thumbnailVisits": 7,
+        "previous": true,
+        "arrowKeys": true,
+        "wrap": true
+      },
+      "outcome": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "failedRequests": [],
+  "httpRequests": [],
+  "browser": "Chrome 158.0.8127.37",
+  "outcome": "PASS",
+  "completedAt": "2026-11-26T03:50:00.436Z"
+}

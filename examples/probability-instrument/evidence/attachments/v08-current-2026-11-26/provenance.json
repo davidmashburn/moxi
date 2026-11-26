@@ -1,0 +1,209 @@
+{
+  "version": 1,
+  "audit": "d1da7c0b6e8c326e664a51d82ff92176f8bdf1b8",
+  "cleanPublicMainStart": "b2bfa42d713b4e78b50298c83b1fde5dfad76d6a",
+  "applicationSourceUnchanged": true,
+  "sourcePaths": {
+    "examples/probability-instrument/instrument.py": {
+      "sha256": "6e2275b4ca1fd312dc08be61fefa4aafdae5fc4b81a4a6ca44eaa0df13480b9f",
+      "matchesPublicBase": true
+    },
+    "examples/probability-instrument/instrument.html": {
+      "sha256": "eb3593cd5db16c0bf5adf7ca149af13a0395b4753f24a10e37b56ac7a217f59b",
+      "matchesPublicBase": true
+    },
+    "examples/probability-instrument/triangle.json": {
+      "sha256": "b0425e1baeb6fcbcb5d06a02d77643ee4e9d1a916d5d73dc8905d6dda1ba31c6",
+      "matchesPublicBase": true
+    },
+    "examples/probability-instrument/triangle.mojo": {
+      "sha256": "e056bcaf633e354e8b31a54a1b68b146fb773e86eb600e6f15a776ede0f50da1",
+      "matchesPublicBase": true
+    },
+    "examples/probability-instrument/test_instrument.py": {
+      "sha256": "b9fc6d67fe0c69a321b86fb93638ff5f2aa539917bd30f5f4f9fdef7c8d930a3",
+      "matchesPublicBase": true
+    },
+    "examples/probability-instrument/check_browser.py": {
+      "sha256": "f347872478314f8f7fb96ac4db540f2b924c227ee5efd3445e48469bda162cef",
+      "matchesPublicBase": false
+    },
+    "scripts/demo_slideshows.py": {
+      "sha256": "d9bfa8ef8e7f23afdb3275fc492f6a930af4ea5cbd1bf7034b8c0f4826edc66d",
+      "matchesPublicBase": true
+    }
+  },
+  "dependencyGitTrees": {
+    "python/moxi": "0616ce535dc3e157246814584b8833456cc8865f",
+    "src/moxi": "e35c55c384135574255d739e277b2f5549cb89fb"
+  },
+  "captureRecord": "results.json",
+  "actionsExpectedObserved": "manifest.json slides; results.json assertions/observations",
+  "offlineVerification": {
+    "record": "offline.json",
+    "script": "examples/personal-instrument/evidence/mode-graph/v12-current-2026-11-26/offline-check.cjs",
+    "scriptSha256": "d6ff4e691d7b0f471cb783af3acb6422e7694cbc9932fc99ea1265e71bb9a34e",
+    "networkOffline": true,
+    "protocol": "file:",
+    "allNavigation": "PASS",
+    "allEmbeddedPngHashesAndDimensions": "PASS"
+  },
+  "historicalArtifactsPreserved": {
+    "390-rejected.png": {
+      "sha256": "14104ffbdb6e127e963c216bcc6a45b032e107d1a53d81b19b41f0057132e41d",
+      "dimensions": [
+        390,
+        1118
+      ],
+      "matchesPublicBase": true
+    },
+    "1280-rejected.png": {
+      "sha256": "6c39abf8ed56a882996086194819ca64ebef612e916e3c34ec66feb9a60dece1",
+      "dimensions": [
+        1280,
+        987
+      ],
+      "matchesPublicBase": true
+    },
+    "390-fractional-plot.png": {
+      "sha256": "45054d8ce80c28130662225d5a29947b3f2ccb8a927add9d63cc94a62a116987",
+      "dimensions": [
+        390,
+        1047
+      ],
+      "matchesPublicBase": true
+    },
+    "390-fractional-triangle.png": {
+      "sha256": "06ccc3913679d0368ab9620d78a0692b7758481dbbb7233e574fe83ccccf6e04",
+      "dimensions": [
+        390,
+        1094
+      ],
+      "matchesPublicBase": true
+    },
+    "390-triangle.png": {
+      "sha256": "7665c6021944d47a44387df88671e7e6d04a46fc5086633a7e2e63555ec742f0",
+      "dimensions": [
+        390,
+        1094
+      ],
+      "matchesPublicBase": true
+    },
+    "390-fractional-committed.png": {
+      "sha256": "654ab7411ad08d00c5783a0d5ac57a84e14ae226597f1bc82fc1e5a6f019eb71",
+      "dimensions": [
+        390,
+        1094
+      ],
+      "matchesPublicBase": true
+    },
+    "1280-triangle.png": {
+      "sha256": "7a0be74be2b2653a62e4ef7240498121b883781fbb246758b1e3a4beb57e0636",
+      "dimensions": [
+        1280,
+        986
+      ],
+      "matchesPublicBase": true
+    },
+    "1280-plot.png": {
+      "sha256": "0dd88b36885de9f15be658d08359aaaf286107426299b26bb3072002c19d5618",
+      "dimensions": [
+        1280,
+        963
+      ],
+      "matchesPublicBase": true
+    },
+    "390-plot.png": {
+      "sha256": "5d2b939a12bce0ba683d9d002cfb816c854544a11b9a3c8577f74440c4c026d8",
+      "dimensions": [
+        390,
+        1047
+      ],
+      "matchesPublicBase": true
+    }
+  },
+  "verification": {
+    "applicationReplay": "PASS",
+    "uncaughtPageErrors": [],
+    "narrowLayout": "PASS at 390x844; full-page image height is content dependent",
+    "manifestValidation": "Existing scripts/demo_slideshows.py load_manifest; all four required phases",
+    "mojoFixtureRegeneration": "NOT RUN; pinned fixture/generator path hashes retained",
+    "physicalHardwareVoiceOverHumanEvaluationOtherEnginesBroadSuiteCI": "NOT RUN"
+  },
+  "pngs": {
+    "1280-initial.png": {
+      "sha256": "ee546a198d2dfacabe425cf5518efe500ce553ff96304f00b0309abe3e25b733",
+      "dimensions": [
+        1280,
+        963
+      ]
+    },
+    "1280-plot.png": {
+      "sha256": "bed6f9663782edeaf3c3592f211f825c2804655a11cd0cb0bced1e8aaeab7e23",
+      "dimensions": [
+        1280,
+        963
+      ]
+    },
+    "1280-rejected.png": {
+      "sha256": "6c39abf8ed56a882996086194819ca64ebef612e916e3c34ec66feb9a60dece1",
+      "dimensions": [
+        1280,
+        987
+      ]
+    },
+    "1280-triangle.png": {
+      "sha256": "7a0be74be2b2653a62e4ef7240498121b883781fbb246758b1e3a4beb57e0636",
+      "dimensions": [
+        1280,
+        986
+      ]
+    },
+    "390-fractional-committed.png": {
+      "sha256": "654ab7411ad08d00c5783a0d5ac57a84e14ae226597f1bc82fc1e5a6f019eb71",
+      "dimensions": [
+        390,
+        1094
+      ]
+    },
+    "390-fractional-plot.png": {
+      "sha256": "a727c7485138b078506f0b81b11d276f67a60c8a61d3f032228749bc4639dc6e",
+      "dimensions": [
+        390,
+        1047
+      ]
+    },
+    "390-fractional-triangle.png": {
+      "sha256": "06ccc3913679d0368ab9620d78a0692b7758481dbbb7233e574fe83ccccf6e04",
+      "dimensions": [
+        390,
+        1094
+      ]
+    },
+    "offline-navigation.png": {
+      "sha256": "637f50e239dc3756dbcedcacbae77be7576c6cd804ff3868a3211762ebd01eac",
+      "dimensions": [
+        1120,
+        900
+      ]
+    }
+  },
+  "artifactSha256": {
+    "1280-initial.png": "ee546a198d2dfacabe425cf5518efe500ce553ff96304f00b0309abe3e25b733",
+    "1280-plot.png": "bed6f9663782edeaf3c3592f211f825c2804655a11cd0cb0bced1e8aaeab7e23",
+    "1280-rejected.png": "6c39abf8ed56a882996086194819ca64ebef612e916e3c34ec66feb9a60dece1",
+    "1280-triangle.png": "7a0be74be2b2653a62e4ef7240498121b883781fbb246758b1e3a4beb57e0636",
+    "390-fractional-committed.png": "654ab7411ad08d00c5783a0d5ac57a84e14ae226597f1bc82fc1e5a6f019eb71",
+    "390-fractional-plot.png": "a727c7485138b078506f0b81b11d276f67a60c8a61d3f032228749bc4639dc6e",
+    "390-fractional-triangle.png": "06ccc3913679d0368ab9620d78a0692b7758481dbbb7233e574fe83ccccf6e04",
+    "README.md": "c8fc1ca37f5cfaa7e720a87c23f47b2a2fb8d2f3ac11652fccd5f85bec90c726",
+    "capture-check.patch": "04d9533960fe0c4d026c7d60b22ade8cb25ea49fe66d2fe5892b680eb3d45033",
+    "index.html": "68ba224a8bade664784156ff0e6473b87625d05220aee9a2f81547cc716eee92",
+    "manifest.json": "2c80d3c9a7c0d0bf0ea6ef79f87ce094d87059563cec7b4d06c5f71a6dc4de27",
+    "model.log": "4717f13866ed86c152aea00baa1351a2bdcb3b855d9a83637a52f45dde3acb90",
+    "offline-navigation.png": "637f50e239dc3756dbcedcacbae77be7576c6cd804ff3868a3211762ebd01eac",
+    "offline.json": "2fb2714308eae608e0609328dc65d9b2d435c0858adab97575502f7dcc9c1b5c",
+    "replay.log": "9d978c9aad0f134543f606341f82a9853bdfe8b8c15967debdae8db0bd96be25",
+    "results.json": "9014d63a4c8cf9fc637c43302cf94375e525f318d461e7b2a1c2b17e1a4f7a0c"
+  }
+}
