@@ -1,8 +1,6 @@
 # D03 native capacity follow-up
 
-The 1,000-visible-node workload now fits the ordinary AppKit presenter. The
-8 ms p95 pan gate remains open. This work starts at public `bbf8b25`; it leaves
-the D03 ledger and the D04 mind-map implementation unchanged.
+This record covers the first 4,096-slot AppKit implementation. Its 1,000-visible-node fixture fit, and the 8 ms p95 pan target remained open. The shipped adapter starts each window at 1,024 slots and grows its tables on demand. The measurements below preserve the earlier fixed-size baseline. [Current storage and timing measurements](canvas-table-storage-evidence.md)
 
 ## Bounded design
 

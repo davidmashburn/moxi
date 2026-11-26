@@ -363,17 +363,21 @@
       "state": "partial",
       "commits": [
         "5db9a01",
-        "3c288b9"
+        "3c288b9",
+        "9d5ee8d"
       ],
       "verification": [
         "Parent reviewed and corrected native edge/control/overlay layering, per-slice clips and owner restoration; negative edge IDs and no-op ungroup are rejected.",
         "Four canvas contracts, clean precompiled-package consumer, strict native pixel-layer test and F02 ownership/lifecycle regressions passed. Both real native demo replays passed editor identity/frame/clip/font assertions.",
         "Twenty-two AppKit offscreen renders visually reviewed; source/PNG hashes and dimensions verified; both galleries load all images and navigate.",
         "Parent CPU benchmark: 100-node pan p95 2.067 ms; 1,000-visible-node pan p95 24.982 ms, before native submission. See docs/canvas-interaction-evidence.md.",
-        "Review fix: canvas Create allocates beyond retained mount identities; create/delete/create and delete/undo/redo/create regressions pass with retained content/history."
+        "Review fix: canvas Create allocates beyond retained mount identities; create/delete/create and delete/undo/redo/create regressions pass with retained content/history.",
+        "Public AppKit presenter renders all 1,000 visible nodes in the 3,015-view fixture. Selection, moving geometry, native input, ordered and semantic overflow refusal, independent window ownership and the installed native package consumer passed.",
+        "AppKit starts at 1,024 native slots and grows on demand to 4,096. Allocator totals for window state plus backing were 22,396,928 bytes before growth and 27,049,984 after. See docs/canvas-table-storage-evidence.md.",
+        "Integrated replay of 40 scrolls through publication, submission, semantics and AppKit drawRect measured 323.798 ms p95. This excludes compositor presentation. The 8 ms budget remains open."
       ],
       "remaining_gates": [
-        "The 8 ms large-graph budget fails before native submission; native 1,024 ordinary-slot capacity cannot present the 3,015-view workload. Allocation/GPU/input-to-presentation costs remain unmeasured.",
+        "The 8 ms large-graph budget remains unmet. GPU, input-to-presentation latency, whole-process allocation and other native host capacity need measurements.",
         "Physical IME, trackpad, keyboard layouts, capture-loss feel and independent usability remain unverified. VoiceOver stays paused.",
         "Dense edge labels overlap; compositor capture, other platforms, full repository suite, sanitizers and remote CI were not verified in parent integration."
       ],
