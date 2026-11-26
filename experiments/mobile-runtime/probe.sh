@@ -17,4 +17,4 @@ case "${1:-host}" in
   *) echo "usage: $0 [host|ios-simulator|ios-device|android]" >&2; exit 2 ;;
 esac
 mojo build -I src --target-triple "$triple" --emit object "$source_path" -o "$out/$triple.o"
-file "$out/$triple.o"
+bash experiments/mobile-runtime/check-object.sh "$1" "$out/$triple.o"

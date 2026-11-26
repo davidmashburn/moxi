@@ -16,9 +16,10 @@ pixi run --locked bash experiments/mobile-runtime/probe.sh android
 ```
 
 The host probe links the Mojo object to a C executable that calls it three
-times. The mobile probes stop after object emission. Inspect the objects in
-`dist/mobile-runtime/` with a target-aware symbol tool such as LLVM nm.
-For Apple objects, `otool -l` shows the platform under `LC_BUILD_VERSION`.
+times. Each mobile probe checks the emitted object's architecture, format and
+exported function. The Apple probes also check the device or simulator platform
+and minimum OS. The checks use `file` and LLVM objdump (Apple's `objdump` on
+macOS). Set `LLVM_OBJDUMP` to select an LLVM binary elsewhere.
 
 ## Results on November 25, 2026
 
@@ -28,6 +29,10 @@ For Apple objects, `otool -l` shows the platform under `LC_BUILD_VERSION`.
 | iOS arm64 | Object exported the function. Mach-O recorded platform 2 (iOS) and minimum OS 17.0. |
 | iOS Simulator arm64 | Object exported the function. Mach-O recorded platform 7 (iOS Simulator) and minimum OS 17.0. |
 | Android AArch64 API 26 target triple | Produced an AArch64 ELF relocatable object exporting the function. The API level was supplied to the compiler. |
+
+On a fresh rebuild of all four targets, the checker rejected swapped device and
+simulator objects, a host object passed as Android, and a device object missing
+the exported function.
 
 P10 remains partial. Xcode's outstanding license agreement blocked simulator
 tools. This machine also lacked the Android platform and NDK at the build
