@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<pre id="results"></pre>
+<script type="module">
+import {getDrawFractalIterator} from "./drawFractal.js";
+import {Generator} from "./generator.js";
+import {cases} from "./cases.js";
+
+const results = [];
+for (const {lines, base, depth} of cases) {
+  const generator = new Generator(lines);
+  const trials = [];
+  for (let trial = 0; trial < 9; trial++) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 920;
+    canvas.height = 620;
+    const ctx = canvas.getContext("2d");
+    let leaves = 0;
+    const start = performance.now();
+    for (const _ of getDrawFractalIterator(ctx, generator, base, depth)) leaves++;
+    const submitted = performance.now();
+    const {data} = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const readable = performance.now();
+    if (!data.some((value, index) => index % 4 === 3 && value > 0)) {
+      throw new Error("Expected painted pixels");
+    }
+    trials.push({leaves, submit: submitted - start, readback: readable - start});
+    canvas.width = 0;
+  }
+  results.push(trials);
+}
+document.querySelector("#results").textContent = JSON.stringify(results);
+</script>
