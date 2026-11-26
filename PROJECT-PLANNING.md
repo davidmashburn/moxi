@@ -161,21 +161,20 @@ untouched proposals.
 | [Math backend](docs/design/math-backend-experiment.md) / [editor](docs/design/math-editing.md), D01/D02 | Physical US/non-US keyboard/IME, typography, simultaneous font/view sessions, lifecycle/leak checks and fresh-host packaging/signing/runtime redistribution. D02 now exists; D01's old “editor integration must follow” is not unstarted work. |
 | [Canvas](docs/design/canvas-interaction.md) / [mindmap](docs/design/mind-mapping.md), D03/D04 | AppKit presents 1,000 visible nodes and grows a window from 1,024 to 4,096 slots on demand. The integrated 40-scroll replay reached 323.798 ms p95 through native drawing. The 8 ms budget remains open, along with compositor latency, physical input, chooser behavior and independent usability. [Capacity and allocator measurements](https://github.com/davidmashburn/moxi/blob/9d5ee8d/docs/canvas-table-storage-evidence.md). |
 | [Spatial](docs/design/3d-interaction.md), D05–D08 | Keep S0's negative renderer decision. Production selection requires a public per-window compositable GPU interface, a maintained candidate and sustained presentation-inclusive measurements. D06/D07 consumers exist; D08 promotion stays rejected until transformed IME and semantic geometry agree. Retain screen-space controls as the supported alternative within the experiment. |
-| [Ecosystem](ECOSYSTEM-CONVERGENCE-PLAN.md), E01–E04 | Resolve labels/legends/theme and reference parity gaps. Contour and contourf have a pinned upstream comparison for saddle connectivity. Tricontour still needs an independent reference. [Contour comparisons](https://github.com/davidmashburn/moxi/tree/1f67c39/artifacts/plot-contour-connectivity). E04 remains experimental pending ABI/host/sanitizer/runtime redistribution evidence; native raster text/vector PDF are unsupported. |
+| [Ecosystem](ECOSYSTEM-CONVERGENCE-PLAN.md), E01–E04 | Resolve labels/legends/theme and reference parity gaps. Contour and contourf have a pinned upstream comparison for saddle connectivity. At dataviz 0.15.0, the Delaunay reference agreed with the supplied tricontour fixture mesh and all three levels had zero endpoint error. Parity for other meshes remains open. [Triangular mesh results](https://github.com/davidmashburn/moxi/blob/c267034/artifacts/demo-slideshows/plot-contour-followup/results.json) · [Saddle comparisons](https://github.com/davidmashburn/moxi/tree/1f67c39/artifacts/plot-contour-connectivity). E04 remains experimental pending ABI/host/sanitizer/runtime redistribution evidence; native raster text/vector PDF are unsupported. |
 | [NotImplemented](docs/not-implemented-pattern.md), N01 | Native/manual acceptance and explicit character-wrapping limits; no new component implementation is needed. |
 
 VoiceOver remains **paused**. Record that gate as open; do not schedule or run a
 VoiceOver session without the user's decision to resume it. Accessibility models
 and automated semantics do not replace that human acceptance.
 
-### 4. Keep untouched proposals visible and deferred
+### 4. November 9 deferrals and their current status
 
-P08 SWS4D, P09 Linux GPU/H4, P10 additional mobile adapters, P11 additional host
-follow-through, E05 Cairo evaluation, E06 catalog reconciliation, V01–V15 and
-I10/I11/I13/I15/I18/I19/I20 remain pending. The
-[master list](DEFERRED-IMPLEMENTATION-MASTER.md#current-delivery-status) retains
-scope, dependencies and storyboards for all 50 IDs. Starting them needs a new
-implementation decision; this planning update does not reprioritize them.
+On November 9 the project deferred P08–P11, E05–E06, V01–V15 and
+I10/I11/I13/I15/I18/I19/I20. All 28 subsequently reopened and have runnable
+results on main. Seven bounded experiments are complete and 21 tracks remain
+partial. The [master list](DEFERRED-IMPLEMENTATION-MASTER.md#current-delivery-status)
+records their current status alongside the original scope.
 
 ## Historical execution plan
 
