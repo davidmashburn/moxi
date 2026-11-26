@@ -546,23 +546,27 @@
         "52c6a5e",
         "6004afb",
         "93a18d5",
-        "ad50f0d"
+        "ad50f0d",
+        "780c662",
+        "596eb38"
       ],
       "verification": [
         "Integrated with Wave C using typed contributor keys and distinct glyph identities; Wave A compatibility preserved.",
         "315 combined Python tests; 14 native Wave B family contracts and 89 boundary cases passed. Stable-key resize regression passes with viewport/visibility preservation.",
         "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour.",
-        "The pinned reference and native replay agreed on all 42 saddle segments and 50,601 filled-cell probes. The four-corner mean resolves the ambiguous diagonal. Constant threshold cells retain the documented upper-band policy."
+        "The pinned reference and native replay agreed on all 42 saddle segments and 50,601 filled-cell probes. The four-corner mean resolves the ambiguous diagonal. Constant threshold cells retain the documented upper-band policy.",
+        "Python PNG and vector PDF exports carry category legends for supported radial families, radar indicators and series, and gauge values. Narrow and wide exports retained label ink and PDF text."
       ],
       "remaining_gates": [
-        "Broader contour grids, native fill seams, radial labels and padding, independent scientific input and controlled performance remain open.",
+        "Broader contour grids, native fill seams, native radial label and padding parity, independent scientific input and controlled performance remain open.",
         "Fresh integrated-source review of every historical family sequence remains open. The supplemental gallery covers the contour cases."
       ],
       "slideshows": [
         "14 historical e02-* manifests with a tracked comparison frame per family",
         "artifacts/demo-slideshows/plot-wave-b-c-review",
         "artifacts/demo-slideshows/plot-contour-followup",
-        "artifacts/plot-contour-connectivity/README.md"
+        "artifacts/plot-contour-connectivity/README.md",
+        "examples/python-annotations/README.md"
       ]
     },
     {
@@ -575,16 +579,19 @@
         "52c6a5e",
         "6004afb",
         "99e04a4",
-        "4915156"
+        "4915156",
+        "780c662",
+        "596eb38"
       ],
       "verification": [
         "Integrated with Wave B; typed provenance preserves C primary selection and B contributor selection.",
         "315 combined Python tests; 12 native family contracts, 91 negative and 10 positive boundaries passed. Legacy spec/view/runtime/selection, API and scenario checks pass.",
         "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour.",
-        "All nine chord shapes exceeded 0.995 sampled overlap against the pinned SVG and preserved source-row picking. The 19 calendar and four real Sankey node labels matched the reference text within 0.48 px of their anchors."
+        "All nine chord shapes exceeded 0.995 sampled overlap against the pinned SVG and preserved source-row picking. The 19 calendar and four real Sankey node labels matched the reference text within 0.48 px of their anchors.",
+        "Python PNG and vector PDF carry the fitted weekday, month and real flow-node names. All 19 calendar and four Sankey Python SVG anchors retain their pinned alignment within 0.48 pixels."
       ],
       "remaining_gates": [
-        "Annotation parity across raster/PDF exports, mixed-layer framing, native-window input, independent scientific assessment and large-data performance remain open.",
+        "Long adjacent labels can be omitted. Native raster annotation parity, mixed-layer framing, native-window input, independent scientific assessment and large-data performance remain open.",
         "Fresh integrated-source review of every historical family sequence remains open. The supplemental gallery covers the contour cases.",
         "E6 acceptance remains open."
       ],
@@ -592,7 +599,8 @@
         "12 historical e03-* manifests with a tracked comparison frame per family",
         "artifacts/demo-slideshows/plot-wave-b-c-review",
         "artifacts/demo-slideshows/plot-contour-followup",
-        "artifacts/demo-slideshows/e03-flow-calendar-followup/README.md"
+        "artifacts/demo-slideshows/e03-flow-calendar-followup/README.md",
+        "examples/python-annotations/README.md"
       ]
     },
     {
@@ -649,22 +657,26 @@
         "367a7b3",
         "66f4720",
         "f7de496",
-        "3c4469f"
+        "3c4469f",
+        "780c662",
+        "596eb38"
       ],
       "verification": [
         "Five real v0.8.0 APIs exported reference SVGs. All five Moxi static catalog fixtures exported SVG/PNG, with 40 source-row hits and matching tables. See dataviz-migration.md#e06-catalog-reconciliation.",
         "A three-stage specialized funnel matches the pinned upstream geometry within 0.001905 of the plot span in both native and Python SVG exports. Replay checked source identity after value changes, selection and export. All five legacy fixtures passed.",
         "Mojo and Python rank adjacent Int64 counts above the binary64 exact-integer boundary. The Python table retains the source counts. The native replay and 372 Python and specialized tests passed.",
         "Native and Python parallel coordinates, bump rankings and weighted arc diagrams matched the pinned fixture geometry. Eleven native segment or edge clicks and seven browser selections identified their source rows. The three galleries contain 24 frames.",
-        "NumPy Int64 extremes normalize correctly, invalid native updates retain the previous geometry, and wide arcs fit the viewport. Thirty-six collapsed and restored viewport cycles retained finite coordinates and keyed selection with zero Canvas errors. All three galleries decoded correctly over HTTP and offline."
+        "NumPy Int64 extremes normalize correctly, invalid native updates retain the previous geometry, and wide arcs fit the viewport. Thirty-six collapsed and restored viewport cycles retained finite coordinates and keyed selection with zero Canvas errors. All three galleries decoded correctly over HTTP and offline.",
+        "Parallel dimension names, bump stages and ranks, and arc node names render in Python PNG and vector PDF. Geometry and sampled source-row picks matched the preceding version."
       ],
       "remaining_gates": [
-        "Funnel palette, margins and legend treatment differ from the reference. Text labels in Python PNG and PDF, live native-window input, cross-host interaction, family benchmarks and independent visual acceptance remain open.",
+        "Funnel palette, margins and legend treatment differ from the reference. Funnel annotations, live native-window input, cross-host interaction, family benchmarks and independent visual acceptance remain open.",
         "The native software renderer fills polygon bounds. Canvas and SVG preserve the funnel taper."
       ],
       "slideshows": [
         "examples/funnel/evidence/comparison.html",
-        "artifacts/demo-slideshows/e06/index.html"
+        "artifacts/demo-slideshows/e06/index.html",
+        "examples/python-annotations/README.md"
       ]
     },
     {
