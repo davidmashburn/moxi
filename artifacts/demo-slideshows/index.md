@@ -15,5 +15,6 @@
 | I20 | Reusable cohort operation | [Slideshow](../../examples/application-operations/i20-application-operations/index.html) · [Run instructions](../../examples/application-operations/README.md) |
 | V02 | Two seeded populations and rule edits | [Slideshow](../../examples/compose-worlds/evidence/compose-worlds/index.html) · [Run instructions](../../examples/compose-worlds/README.md) |
 | V08 | Constrained probability edits | [Slideshow](../../examples/probability-instrument/evidence/v08-probability/index.html) · [Run instructions](../../examples/probability-instrument/README.md) |
+| V09 | Timed exhibition sightlines and lighting | [Slideshow](lived-spaces/index.html) · [Run instructions](../../examples/lived-spaces/README.md) |
 
-The E05, E06, I11, I15, I18, I19, I20, V02 and V08 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The E05, E06, I11, I15, I18, I19, I20, V02, V08 and V09 galleries open from a clean checkout. Earlier entries may require running their capture recipes.

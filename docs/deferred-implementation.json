@@ -705,11 +705,21 @@
     {
       "id": "V09",
       "scope": "Spatial experience: small scene, two routes, line-of-sight test and light envelope.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "ff5530d",
+        "7d33a81"
+      ],
+      "verification": [
+        "The native replay exercised both visitor routes, scrubbing and playback. At seven seconds, moving the partition blocked only North. Moving the light peak raised intensity from 75% to 100%. Two undos reversed the edits in order.",
+        "Checkpoint restoration recovered route, time, score and history. Returning from the width definition restored focus and text selection. Eight window captures reproduced byte for byte in independent review."
+      ],
+      "remaining_gates": [
+        "Preserving an authored sequence through exploration and resuming its later actions, a visitor-eye view, independent designer use and physical lighting and timing remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/lived-spaces/index.html"
+      ]
     },
     {
       "id": "V10",

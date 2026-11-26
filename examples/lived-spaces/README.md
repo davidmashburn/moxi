@@ -14,7 +14,7 @@ From a clean committed example, run `python3 examples/lived-spaces/gallery.py`. 
 | --- | --- |
 | V09 linked edits | At 7 s, changing partition offset from 0 to +1 m blocks only North. Moving the peak from 6 s to 7 s changes intensity from 75% to 100%. The first undo restores 75% with North still blocked. The second restores clear sight and empty history. |
 | Failure | Restoring before setting a checkpoint reports the missing checkpoint. Moving below −2 m preserves the previous partition and history depth. |
-| I07 performed explanation | Switch to South, scrub to 5 s, move the partition −1 m. Set a checkpoint after action three. Explore an earlier peak and another partition move. Restore to the saved route, time, score and undo history. This is a scripted five-action performance with an in-memory checkpoint. Recording arbitrary performances and reopening them across sessions remain open. |
+| I07 checkpoint | Switch to South, scrub to 5 s, move the partition −1 m. Set a checkpoint after action three. Explore an earlier peak and another partition move. Restore to the saved route, time, score and undo history. The checkpoint restores state in memory. Recording an authored sequence and resuming its later actions after exploration remain open. |
 | I06 semantic zoom | Command-F from the plot selects the width term. Command-D opens its definition. Command-D again returns keyboard focus and the original selection to the formula. The formula is read-only. |
 | Timed preview | Play advances the shared cursor on the native run loop. Pause invalidates the timer. The check evaluates the rise, peak and fall for every allowed peak time. |
 
