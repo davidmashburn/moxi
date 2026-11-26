@@ -476,18 +476,23 @@
       "commits": [
         "45cc7cf",
         "9664137",
-        "6a8b784"
+        "6a8b784",
+        "52c6a5e",
+        "6004afb"
       ],
       "verification": [
         "Integrated with Wave C using typed contributor keys and distinct glyph identities; Wave A compatibility preserved.",
-        "315 combined Python tests; 14 native Wave B family contracts and 89 boundary cases passed. Stable-key resize regression passes with viewport/visibility preservation."
+        "315 combined Python tests; 14 native Wave B family contracts and 89 boundary cases passed. Stable-key resize regression passes with viewport/visibility preservation.",
+        "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour."
       ],
       "remaining_gates": [
-        "Fresh integrated-source galleries and human/native/scientific acceptance remain open.",
-        "Contour reference APIs absent at pinned upstream; full parity and controlled performance remain open."
+        "Contour connectivity, outstanding radial differences, independent scientific/native acceptance, full parity and controlled performance remain open.",
+        "Fresh integrated-source review of every historical family sequence remains open. The supplemental gallery covers the contour cases."
       ],
       "slideshows": [
-        "14 e02-* manifests integrated; original captures retained in worker worktree"
+        "14 historical e02-* manifests with a tracked comparison frame per family",
+        "artifacts/demo-slideshows/plot-wave-b-c-review",
+        "artifacts/demo-slideshows/plot-contour-followup"
       ]
     },
     {
@@ -496,18 +501,24 @@
       "state": "partial",
       "commits": [
         "9664137",
-        "6a8b784"
+        "6a8b784",
+        "52c6a5e",
+        "6004afb"
       ],
       "verification": [
         "Integrated with Wave B; typed provenance preserves C primary selection and B contributor selection.",
-        "315 combined Python tests; 12 native family contracts, 91 negative and 10 positive boundaries passed. Legacy spec/view/runtime/selection, API and scenario checks pass."
+        "315 combined Python tests; 12 native family contracts, 91 negative and 10 positive boundaries passed. Legacy spec/view/runtime/selection, API and scenario checks pass.",
+        "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour."
       ],
       "remaining_gates": [
-        "Fresh integrated-source gallery review, VoiceOver, human usability and large-data performance remain open.",
-        "Pinned upstream tricontour is absent; E6 acceptance remains open."
+        "Chord aspect and seams, calendar and flow annotations, independent scientific/user acceptance and large-data performance remain open. VoiceOver remains paused.",
+        "Fresh integrated-source review of every historical family sequence remains open. The supplemental gallery covers the contour cases.",
+        "E6 acceptance remains open."
       ],
       "slideshows": [
-        "12 e03-* manifests integrated; original captures retained in worker worktree"
+        "12 historical e03-* manifests with a tracked comparison frame per family",
+        "artifacts/demo-slideshows/plot-wave-b-c-review",
+        "artifacts/demo-slideshows/plot-contour-followup"
       ]
     },
     {
