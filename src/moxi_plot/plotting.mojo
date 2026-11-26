@@ -1389,6 +1389,7 @@ struct Plot:
         var kind = self.series[0].kind
         return not (
             kind == PLOT_PIE
+            or kind == PLOT_FUNNEL
             or kind == PLOT_DONUT
             or kind == PLOT_RADAR
             or kind == PLOT_GAUGE

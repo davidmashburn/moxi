@@ -6,15 +6,16 @@ Wide named columns correspond to upstream series/range matrices, in declared ord
 """
 from .plot_layout_c import _wave_c, _c_validate, _c_layout
 from std.collections import List
-from .plot_wave_b import _wave_b, _b_valid, _b_series
+from .plot_wave_b import _wave_b, _b_valid, _b_series, _emit
 from std.math import isfinite
+from moxi.geometry import Point
 from moxi.style import Color
-from .plot_data import PlotDataTable, COLUMN_STRING, COLUMN_CATEGORY, COLUMN_BOOL
+from .plot_data import PlotDataTable, COLUMN_STRING, COLUMN_CATEGORY, COLUMN_BOOL, COLUMN_FLOAT64, COLUMN_INT64, COLUMN_TIMESTAMP, COLUMN_DURATION
 from .plot_point import PlotPoint, PlotGlyphKind
 from .plot_series import PlotSeries
 from .plot_spec_types import PlotLayer, PlotLayoutVersion
 from .plot_spec_json import _string_array
-from .plot_marks import (PLOT_LOLLIPOP, PLOT_WATERFALL, PLOT_CANDLESTICK, PLOT_BULLET, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_GANTT, PLOT_SPAN_CHART, PLOT_POPULATION_PYRAMID)
+from .plot_marks import (PLOT_FUNNEL, PLOT_LOLLIPOP, PLOT_WATERFALL, PLOT_CANDLESTICK, PLOT_BULLET, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_GANTT, PLOT_SPAN_CHART, PLOT_POPULATION_PYRAMID)
 
 
 
@@ -50,7 +51,9 @@ def specialized_valid(layer: PlotLayer) -> Bool:
         return _fields_valid(layer.series_fields_json) and _b_valid(layer)
     if layer.x2_field != "" or layer.color_field != "" or layer.fill_field != "" or layer.stroke_field != "" or layer.size_field != "" or layer.opacity_field != "" or layer.text_field != "" or layer.median_field != "":
         return False
-    if not (mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
+    if mark == PLOT_FUNNEL and (layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
+        return False
+    if not (mark == PLOT_FUNNEL or mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
         return False
     if not _fields_valid(layer.series_fields_json) or not _fields_valid(layer.range_fields_json) or not _fields_valid(layer.error_fields_json):
         return False
@@ -78,6 +81,17 @@ def specialized_valid(layer: PlotLayer) -> Bool:
     if layer.total_field != "" and mark != PLOT_WATERFALL:
         return False
     return True
+
+
+def _stage_value(data: PlotDataTable, field: String, row: Int) -> Float64:
+    var index = data.column_index(field)
+    if index >= 0:
+        var kind = data.columns[index].kind
+        if kind == COLUMN_FLOAT64:
+            return data.columns[index].float64_values[row]
+        if kind == COLUMN_INT64 or kind == COLUMN_TIMESTAMP or kind == COLUMN_DURATION:
+            return Float64(data.int_field_at(field, row))
+    return Float64(data.float_field_at(field, row))
 
 
 def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
@@ -115,9 +129,17 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
         if data.field_kind(name) == COLUMN_BOOL and name != layer.total_field:
             return False
         for i in range(data.row_count()):
-            if not data.field_is_valid(name, i) or not isfinite(data.float_field_at(name, i)):
+            if not data.field_is_valid(name, i):
                 return False
+            if layer.mark != PLOT_FUNNEL and not isfinite(data.float_field_at(name, i)):
+                return False
+    var positive_stage = False
     for i in range(data.row_count()):
+        if layer.mark == PLOT_FUNNEL:
+            var value = _stage_value(data, layer.y_field, i)
+            if not isfinite(value) or value < 0:
+                return False
+            positive_stage = positive_stage or value > 0
         if not data.field_is_valid(layer.x_field, i):
             return False
         if layer.total_field != "":
@@ -140,7 +162,7 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
             var high = data.float_field_at(layer.stat_high_field, i)
             if low > min(opened, closed) or high < max(opened, closed) or low > high:
                 return False
-    return True
+    return layer.mark != PLOT_FUNNEL or positive_stage
 
 
 def _palette(index: Int) -> Color:
@@ -195,6 +217,35 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
     var errors = _string_array(layer.error_fields_json)
     var mark = layer.mark
     var n = data.row_count()
+    if mark == PLOT_FUNNEL:
+        var order = List[Int]()
+        var values = List[Float64]()
+        for row in range(n):
+            values.append(_stage_value(data, layer.y_field, row))
+            order.append(row)
+            # Stable insertion order for short categorical pipelines.
+            var rank = row
+            while rank > 0 and values[order[rank - 1]] < values[row]:
+                order[rank] = order[rank - 1]
+                rank -= 1
+            order[rank] = row
+        var largest = values[order[0]]
+        result.has_layout_domain = True
+        result.layout_x_min = -1
+        result.layout_x_max = 1
+        result.layout_y_min = 0
+        result.layout_y_max = Float32(n)
+        for rank in range(n):
+            var row = order[rank]
+            var upper = Float32(values[row] / largest)
+            var lower = Float32(values[order[min(rank + 1, n - 1)]] / largest)
+            var top = Float32(n - rank)
+            var bottom = top - 1
+            var vertices: List[Point] = [Point(-upper, top), Point(upper, top),
+                                         Point(lower, bottom), Point(-lower, bottom)]
+            _emit(result, layer, data, [row], PlotGlyphKind.POLYGON, "stage",
+                  vertices, _palette(rank), upper > 0, data.string_field_at(layer.x_field, row))
+        return result^
     var running: Float32 = 0.0
     var previous_right: Float32 = 0.0
     var low: Float32 = 0.0
