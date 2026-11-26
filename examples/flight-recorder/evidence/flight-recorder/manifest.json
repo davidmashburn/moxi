@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "demo_id": "flight-recorder",
+  "title": "Experiment flight recorder",
+  "scenario": "I15. Capture a bounded episode, inspect its last sample, reopen the saved observation window and identify an incomplete capture.",
+  "revision": "b6f0f3b805703d752690beb9d869a7320c381270",
+  "host": "macOS 27.2.1 arm64, T3 Code collaborative preview, Chromium 152.0.7977.169",
+  "backend": "Moxi Python reference SVG",
+  "fixture": "bench-probe/1, seed 37, 24 logical ticks, 12 retained; see ../episode.json and ../missing.json",
+  "reproduce": "PYTHONPATH=python python3 examples/flight-recorder/app.py --port 18175\nOpen http://127.0.0.1:18175/ and follow each slide's action. Start at 1280 x 800 CSS pixels. Resize to 1000 x 1100 for slides 2–4.",
+  "captured_at": "2026-11-26T01:52Z",
+  "scale": 2,
+  "slides": [
+    {"phase":"initial","capture_kind":"browser","image":"initial.png","dimensions":[2560,1600],"caption":"Instrument ready","action":"Open a fresh viewer.","expected":"The viewer offers capture and reopen, with no recorded episode displayed."},
+    {"phase":"interaction","capture_kind":"browser","image":"interaction.png","dimensions":[2000,2200],"caption":"Inspect the last retained reading","action":"Capture an episode, click the sample slider and press End.","expected":"Tick 23 reads 32. Request probe-peak/16 returned 84. The viewer reports 12 dropped observations."},
+    {"phase":"result","capture_kind":"browser","image":"result.png","dimensions":[2000,2200],"caption":"Reopen the saved episode","action":"Save the JSON, reload the viewer and choose the downloaded episode.json.","expected":"The reopened file plots the retained observations, starts inspection at tick 12 with reading 25, and displays the recorded peak of 84."},
+    {"phase":"recovery","capture_kind":"browser","image":"recovery.png","dimensions":[2000,2200],"caption":"Investigate an incomplete episode","action":"Select Omit async result, capture and save. Remove the tick 13 sample from the saved JSON and reopen it as missing.json.","expected":"The plot contains 11 samples. The status identifies tick 13 as missing, and the async panel explains that the peak cannot be replayed."}
+  ]
+}

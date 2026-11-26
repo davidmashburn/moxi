@@ -1,0 +1,64 @@
+{
+  "format": "moxi.synthetic-episode/1",
+  "source": "bench-probe/1",
+  "clock": "logical ticks, 10 ms per tick",
+  "seed": 37,
+  "capacity": 12,
+  "emitted": 24,
+  "dropped": 12,
+  "samples": [
+    [
+      12,
+      25
+    ],
+    [
+      13,
+      32
+    ],
+    [
+      14,
+      50
+    ],
+    [
+      15,
+      53
+    ],
+    [
+      16,
+      3
+    ],
+    [
+      17,
+      62
+    ],
+    [
+      18,
+      55
+    ],
+    [
+      19,
+      37
+    ],
+    [
+      20,
+      34
+    ],
+    [
+      21,
+      84
+    ],
+    [
+      22,
+      25
+    ],
+    [
+      23,
+      32
+    ]
+  ],
+  "request": "probe-peak/16",
+  "result": {
+    "request": "probe-peak/16",
+    "peak": 84
+  }
+}

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Experiment flight recorder</title>
+<style>
+*{box-sizing:border-box}body{background:#f5f3ec;color:#183d40;font:16px/1.5 "Source Sans 3",system-ui,sans-serif;margin:0}
+main{max-width:920px;margin:auto;padding:clamp(18px,5vw,60px) 22px}h1,h2,p{margin:0 0 .6em}h1{font:500 clamp(34px,6vw,54px)/1.1 Georgia,serif}
+fieldset,article{margin:22px 0;padding:18px;border:1px solid #aab9b5;background:#fffefa}
+button,input::file-selector-button,a{font:inherit;cursor:pointer}button,a{display:inline-block;border:0;background:#195859;color:white;padding:7px 16px;border-radius:4px;text-decoration:none}
+label{display:block;margin:8px 0}input{max-width:100%}fieldset{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+figure{margin:0}#plot svg{max-width:100%;height:auto}#limit{border-left:4px solid #bd7937;padding:8px 12px;background:#faf1df}
+output{font-family:monospace}input[type=range]{width:min(360px,90%)}[hidden]{display:none}
+</style>
+<main><h1>Experiment flight recorder</h1>
+<p>Capture the last 12 ticks from a 24-tick synthetic instrument run.</p>
+<fieldset id="controls"><legend>Episode controls</legend>
+<button id="capture">Capture episode</button><label><input id="omit" type="checkbox"> Omit async result</label>
+<label>Reopen file <input id="file" type="file" accept=".json,application/json"></label></fieldset>
+<p id="status" role="status">Ready to record.</p>
+<article id="panel" hidden><h2>Retained observations</h2>
+<p id="source"></p><figure><div id="plot"></div><figcaption>Instrument reading by logical tick</figcaption></figure>
+<label for="cursor">Inspect recorded sample</label><input id="cursor" type="range" min="0" value="0"> <output id="reading" for="cursor"></output>
+<h2>Async peak reading</h2><p id="result"></p><p id="limit"></p>
+<a download="episode.json" id="save">Save episode JSON</a></article></main>
+<script type="module">
+const el = id => document.getElementById(id);
+let episode, download;
+function inspectSample() {
+  const row = episode.samples[Number(el("cursor").value)];
+  el("reading").textContent = row ? `Tick ${row[0]} · reading ${row[1]}` : "No recorded samples";
+}
+async function show(route, readBody, status) {
+  el("controls").disabled = true;
+  el("status").textContent = "Reading episode…";
+  try {
+    const response = await fetch(route, {method:"POST", body:await readBody()});
+    if (!response.ok) throw new Error(await response.text());
+    const data = await response.json();
+    episode = data.episode;
+    el("source").textContent = `${episode.source} · seed ${episode.seed} · ${episode.clock}`;
+    el("plot").innerHTML = data.svg;
+    el("cursor").disabled = episode.samples.length === 0;
+    el("cursor").max = Math.max(0, episode.samples.length - 1);
+    el("cursor").value = 0;
+    inspectSample();
+    el("result").textContent = episode.result
+      ? `${episode.request} returned ${episode.result.peak} (peak of ticks 5–16).`
+      : `${episode.request} has no recorded result. Its peak cannot be replayed.`;
+    el("limit").textContent = `${episode.dropped} earlier samples dropped. Ticks 0–11 cannot be replayed. `
+      + (data.missing.length ? `Missing ticks inside the window: ${data.missing.join(", ")}. ` : "")
+      + "Replay shows recorded observations only. Worker scheduling and external state are unavailable.";
+    if (download) URL.revokeObjectURL(download);
+    download = URL.createObjectURL(new Blob([JSON.stringify(episode,null,2)], {type:"application/json"}));
+    el("save").href = download;
+    el("panel").hidden = false;
+    el("status").textContent = status;
+  } catch (error) {
+    el("status").textContent = "Episode rejected. " + error.message;
+    el("panel").hidden = true;
+  } finally {
+    el("controls").disabled = false;
+  }
+}
+el("cursor").oninput = inspectSample;
+el("capture").onclick = () => show("/capture", () => JSON.stringify(el("omit").checked ? "omit-result" : "complete"), "Captured ticks 12–23.");
+el("file").onchange = () => {
+  const file = el("file").files[0];
+  if (!file) return;
+  el("file").value = "";
+  show("/open", () => {
+    if (file.size > 8192) throw new Error("File exceeds the 8192-byte limit.");
+    return file.text();
+  }, "Reopened " + file.name + " from recorded values.");
+};
+</script></html>
