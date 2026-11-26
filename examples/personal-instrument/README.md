@@ -29,3 +29,5 @@ Pass a temporary output directory as the final argument to capture the four scre
 - **I17** — Pointer and keyboard exercise the same operations and score. Controls expose step names, selection and focus. Screen-reader navigation and switch-device use await direct trials.
 - The fixed transition advances through the phrase and wraps. Response curves are editable. User-authored navigation graphs and key sequences remain open.
 - Automated browser checks observe scheduled playback. Audibility, physical input comfort, independent configuration authoring and repeat use by people with different interaction preferences require human observation.
+
+The four [offline slides](evidence/personal-instrument/index.html) show the initial, draft, reopened and recovery states. The [manifest](evidence/personal-instrument/manifest.json) identifies the checkout, fixture and capture environment. All four expected states passed in headless Chrome. The same run also passed the explicit repair and reload, denied-write checks for mapping and score, last-step wrap, 390 × 844 viewport width check and playback scheduling.
