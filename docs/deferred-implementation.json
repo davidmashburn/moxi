@@ -604,11 +604,22 @@
     {
       "id": "V02",
       "scope": "Compose worlds: seeded two-population 2D world with editable response rules and compared predictions.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "5fb7d85",
+        "c6394b0"
+      ],
+      "verification": [
+        "The offline application ran through branch edits, reset and historical replay in Chrome. Deterministic tests covered all 11 rule settings, density bounds and wrapped dispersal.",
+        "An independent Chrome replay checked all 11 rule settings across 13 seasons. Out-of-order replay reproduced the seasonal canvas hashes, stored predictions and results without creating new trials."
+      ],
+      "remaining_gates": [
+        "An independent participant trial is needed to assess whether authors can explain the delayed response and intentionally produce a pattern.",
+        "Mapped I04 promotion/undo and I06 semantic zoom have separate acceptance scenarios."
+      ],
+      "slideshows": [
+        "examples/compose-worlds/evidence/compose-worlds/index.html"
+      ]
     },
     {
       "id": "V03",

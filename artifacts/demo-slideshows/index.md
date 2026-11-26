@@ -11,6 +11,7 @@
 | I11 | Inspectable fit proposals | [Slideshow](visible-proposals/index.html) · [Run instructions](../../examples/visible-proposals/README.md) |
 | I15 | Synthetic experiment flight recorder | [Slideshow](../../examples/flight-recorder/evidence/flight-recorder/index.html) · [Run instructions](../../examples/flight-recorder/README.md) |
 | I20 | Reusable cohort operation | [Slideshow](../../examples/application-operations/i20-application-operations/index.html) · [Run instructions](../../examples/application-operations/README.md) |
+| V02 | Two seeded populations and rule edits | [Slideshow](../../examples/compose-worlds/evidence/compose-worlds/index.html) · [Run instructions](../../examples/compose-worlds/README.md) |
 | V08 | Constrained probability edits | [Slideshow](../../examples/probability-instrument/evidence/v08-probability/index.html) · [Run instructions](../../examples/probability-instrument/README.md) |
 
-The E05, E06, I11, I15, I20 and V08 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The E05, E06, I11, I15, I20, V02 and V08 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
