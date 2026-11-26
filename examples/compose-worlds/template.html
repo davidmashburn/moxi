@@ -2,15 +2,22 @@
 <title>Compose Worlds · Kelp bed</title>
 <style>
 *{box-sizing:border-box}body{margin:0 auto;padding:28px;max-width:1100px;background:#f4f4eb;color:#183f38;font:16px/1.45 "DM Sans",system-ui,sans-serif}h1,h2,p{margin:0 0 10px}h1{font:46px Georgia,serif}h2{font-size:20px}header{border-bottom:2px solid;padding-bottom:8px}.maps,.editor{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:18px 0}.map,.editor,section.history{padding:16px;background:white;border:1px solid #ccd4c9;border-radius:8px}canvas{display:block;width:100%;image-rendering:pixelated;background:#102d32}button,select,input{font:inherit;accent-color:#1b6856}button,select{padding:7px 12px;border:1px solid #657f73;border-radius:4px;background:#fff;color:inherit}button{cursor:pointer}#compare{background:#185d4f;color:white}button:disabled{opacity:.5}label{display:block;margin:8px 0}svg{max-width:100%;height:auto;display:block}output{font-weight:bold}.stats,#status{font-variant-numeric:tabular-nums}.stats{margin-top:7px}.history li{padding:4px}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d07719}.actions{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:650px){body{padding:12px}.maps,.editor{grid-template-columns:1fr}}
-</style>
+.editor section,.map{min-width:0}#formula{width:100%;font-family:monospace}dialog{max-width:min(32rem,90vw)}#curve{display:block;background:white;border:1px solid #ccd4c9;padding:0;max-width:100%}</style>
 <header><h1>Compose Worlds</h1><p>Kelp bed · Seed <strong id="seed"></strong> · 32 × 16 cells</p></header>
 <p style="margin-top:12px">Green kelp feeds amber grazers. Grazers spread to neighboring cells and consume local kelp.</p>
 <div class="maps">
 <section class="map"><h2>Reference bed</h2><canvas id="reference" aria-label="Reference population map"></canvas><div class="stats" id="baseStats"></div></section>
-<section class="map"><h2>Branch bed</h2><canvas id="branch" aria-label="Branch population map"></canvas><div class="stats" id="branchStats"></div></section></div>
-<div class="editor"><section><h2>Grazing response</h2><div id="curve" role="img"></div>
+<section class="map"><h2>Branch bed · <span id="branchName"></span></h2><canvas id="branch" aria-label="Branch population map"></canvas><div class="stats" id="branchStats"></div></section></div>
+<div class="editor"><section><h2>Grazing response</h2><button id="curve" title="Edit feeding formula"></button>
 <small>Horizontal: kelp cover · Vertical: feeding strength (0–100%)</small><label for="rule">Feeding at 50% kelp cover · <output id="value"></output></label><input id="rule" type="range" min="0" max="100" step="10" value="50">
-</section><section><h2>Compare season 12</h2><p>Both beds start from the same seed. The reference feeds at 50% strength at half cover.</p>
+<p id="source"></p>
+<div id="formulaPanel" hidden><label for="formula">Feeding knots (%)</label><input id="formula" spellcheck="false">
+<div class="actions"><button id="apply">Apply formula</button><button id="define">Knot definition</button></div><p id="formulaError" role="status"></p></div>
+<dialog id="definition"><h2>Feeding knots</h2><p>The three values give feeding strength at 0%, 50% and 100% kelp cover. Between knots the model interpolates linearly. Edit the middle value in steps of ten.</p><button id="back" autofocus>Return to formula</button></dialog>
+</section><section><h2>Compare season 12</h2><p>Both beds start from the same seed. The reference uses the shared midpoint. Each branch inherits it until you edit its midpoint.</p>
+<label for="shared">Shared midpoint · <output id="sharedValue"></output></label><input id="shared" type="range" min="0" max="100" step="10" value="50">
+<label for="active">Parameter branch</label><select id="active"><option>North</option><option>East</option><option>South</option></select>
+<p id="settings"></p><div class="actions"><button id="inherit">Use shared</button><button id="promote">Promote to shared</button><button id="undo">Undo promotion</button></div>
 <label for="prediction">I predict the branch will have</label><select id="prediction"><option value="more">More grazers</option><option value="fewer">Fewer grazers</option><option value="equal">Equal grazer density</option></select>
 <div class="actions" style="margin:14px 0"><button id="compare">Run comparison</button><button id="reset">Reset beds</button></div>
 <label for="season">Inspect season <output id="seasonValue"></output></label><input id="season" type="range" min="0" max="12" value="0" disabled></section></div>
