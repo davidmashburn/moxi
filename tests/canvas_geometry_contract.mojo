@@ -7,12 +7,14 @@ from moxi_canvas.native import clip_scene
 from moxi.scene import Scene
 from moxi.style import Color
 from canvas_demo.fixtures import freeform_graph
+from canvas_edge_hits import check_edge_hits
 
 def check(value: Bool, message: String) raises:
     if not value:
         raise Error(message)
 
 def main() raises:
+    check_edge_hits()
     var source = Scene()
     source.push_clip(1, Rect(10, 20, 100, 100))
     source.append_rect(1, Rect(-100, -100, 400, 400), Color(1, 1, 1, 1))

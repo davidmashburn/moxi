@@ -16,7 +16,7 @@ from moxi_mindmap.model import MindMapDocument
 from moxi_mindmap.history import MapHistory
 from moxi_mindmap.codec import encode
 from moxi_mindmap.storage import LocalFile, LocalSession, import_mm, choose_file, destination_file
-from moxi_mindmap.fixtures import useful_map, large_map
+from moxi_mindmap.fixtures import useful_map, large_map, uneven_dense_map
 
 
 def key(mut map: MindMapApp, code: Int, modifiers: Int = 0):
@@ -61,6 +61,56 @@ def assert_reflow_clear(map: MindMapApp) raises:
     for item in map.app.component.document.objects:
         if item.id != 5 and not item.hidden and overlaps(branch, item.bounds):
             raise Error("Native replay reflow neighbor obscures the committed moved branch")
+
+def terminal_midpoint(map: MindMapApp, id: Int) raises -> Point:
+    for edge in map.app.component.publication.edges:
+        if edge.id == id:
+            var last = len(edge.points) - 1
+            return Point((edge.points[last - 1].x + edge.points[last].x) / 2, edge.points[last].y)
+    raise Error("Dense terminal is missing from publication")
+
+def replay_dense_hits(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer, path: String) raises:
+    var failures = 0
+    var slide = 14
+    for zoom in List[Float64]([1.0, 0.5]):
+        for id in List[Int]([7, 15]):
+            map = MindMapApp(uneven_dense_map())
+            map.app.component.state.camera.zoom = zoom
+            map.app.rebuild_localized()
+            var point = terminal_midpoint(map, id)
+            var clip = map.app.component.interaction_clip()
+            map.app.component.state.camera.pan(clip.x + clip.width / 2 - point.x, clip.y + clip.height / 2 - point.y)
+            map.app.rebuild_localized()
+            point = terminal_midpoint(map, id)
+            var snapshot = map.app.component.publication
+            if snapshot.hit_port(point) >= 0 or snapshot.hit_object(point) >= 0:
+                raise Error("Native terminal midpoint must remain outside higher-priority ports/objects")
+            window.activate()
+            render_canvas(map.app, paint, graph)
+            window.pump()
+            # Construct AppKit mouse events, traverse the native view handlers and
+            # drain the same native event queue used by the ordinary main loop.
+            if external_call["moxi_mm_native_click", Int32](Float64(point.x), Float64(point.y)) != 1:
+                raise Error("Native mouse event delivery failed")
+            var event = window.poll_event()
+            var downs = 0
+            var ups = 0
+            while event.kind != NONE_KIND:
+                downs += Int(event.kind == POINTER_DOWN_KIND)
+                ups += Int(event.kind == POINTER_UP_KIND)
+                _ = map.dispatch(event)
+                event = window.poll_event()
+            var selected = map.app.component.state.selected_edge
+            print("native dense terminal zoom", zoom, "expected", id, "selected", selected, "downs", downs, "ups", ups)
+            if downs != 1 or ups != 1 or selected != id:
+                failures += 1
+            var suffix = "-dense-left-" if id == 7 else "-dense-right-"
+            var scale = "1x" if zoom == 1 else "half"
+            capture(map, window, paint, graph, String(path, "/", slide, suffix, scale, ".png"))
+            slide += 1
+    if failures:
+        raise Error(String("Native dense terminal selection failures: ", failures))
+    print("PASS native dense terminal selection on both sides at zoom 1/0.5")
 
 def replay(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer, path: String) raises:
     capture(map, window, paint, graph, path + "/01-initial.png")
@@ -185,6 +235,7 @@ def replay(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacO
     capture(map, window, paint, graph, path + "/12-large-folded.png")
     map = MindMapApp(large_map(1000))
     capture(map, window, paint, graph, path + "/13-large-expanded.png")
+    replay_dense_hits(map, window, paint, graph, path)
     print("PASS native AppKit F2 queue + public input replay, semantic cancel/undo, disk recovery and bounded import")
 
 def benchmark_input(mut window: MacOSWindowInstance, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer) raises:

@@ -3,7 +3,7 @@ from std.collections import List, Dict
 from moxi import Rect
 from moxi.measure import measure_text_wrapped
 from moxi.style import default_panel_style
-from moxi_canvas import CanvasDocument, CanvasObject, Port, PortDirection, GraphEdge, PathKind, ConnectionPolicy
+from moxi_canvas import CanvasDocument, CanvasObject, Port, PortDirection, GraphEdge, PathKind, EdgeHitPolicy, ConnectionPolicy
 from .model import *
 
 # Wide sibling groups share a horizontal stem and vertical trunk.
@@ -153,11 +153,13 @@ struct MapLayout(ImplicitlyCopyable):
             if topic.parent != -1:
                 var source = topic.parent * 2 + 1
                 var path = PathKind.CUBIC
+                var hit_policy = EdgeHitPolicy.SNAPSHOT_ORDER
                 if len(doc.topics[doc.at(topic.parent)].children) >= DENSE_SIBLINGS:
                     path = PathKind.ORTHOGONAL
+                    hit_policy = EdgeHitPolicy.NEAREST_TERMINAL
                     if topic.parent == doc.root and topic.side == Side.LEFT and doc.arrangement != Arrangement.RIGHT_ONLY:
                         source = ROOT_LEFT_OUTPUT
-                canvas.edges.append(GraphEdge(topic.id, source, topic.id * 2, path=path))
+                canvas.edges.append(GraphEdge(topic.id, source, topic.id * 2, path=path, hit_policy=hit_policy))
         for link in doc.links:
             canvas.edges.append(GraphEdge(MAX_ID + link.id, link.source * 2 + 1, link.target * 2, link.label))
         return canvas^

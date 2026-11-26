@@ -27,3 +27,13 @@ int moxi_mm_native_key(int code, int command) {
     NSEvent *event=[NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:command ? NSEventModifierFlagCommand : 0 timestamp:NSProcessInfo.processInfo.systemUptime windowNumber:window.windowNumber context:nil characters:text charactersIgnoringModifiers:text isARepeat:NO keyCode:0];
     [window.contentView keyDown:event]; return 1;
 }
+int moxi_mm_native_click(double x, double y) {
+    NSWindow *window=ownWindow(); if (!window) return 0;
+    NSPoint location=[window.contentView convertPoint:NSMakePoint(x,y) toView:nil];
+    for (int release=0; release<2; ++release) {
+        NSEvent *event=[NSEvent mouseEventWithType:release ? NSEventTypeLeftMouseUp : NSEventTypeLeftMouseDown location:location modifierFlags:0 timestamp:NSProcessInfo.processInfo.systemUptime windowNumber:window.windowNumber context:nil eventNumber:0 clickCount:1 pressure:release ? 0 : 1];
+        if (release) [window.contentView mouseUp:event];
+        else [window.contentView mouseDown:event];
+    }
+    return 1;
+}

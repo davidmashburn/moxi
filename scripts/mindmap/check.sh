@@ -5,7 +5,7 @@ mode=${1:-contract}
 mkdir -p dist
 case "$mode" in
   contract)
-    for part in model layout application failures reflow reflow_exact; do
+    for part in model layout application dense_hits failures reflow reflow_exact; do
       mojo run -I "$PWD/src" "tests/mindmap/$part.mojo" > "/tmp/moxi-d04-$part.log" 2>&1
       tail -n 1 "/tmp/moxi-d04-$part.log"
     done

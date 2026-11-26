@@ -27,6 +27,13 @@ struct PathKind(Equatable, ImplicitlyCopyable):
 
 
 @fieldwise_init
+struct EdgeHitPolicy(Equatable, ImplicitlyCopyable):
+    var value: Int
+    comptime SNAPSHOT_ORDER = Self(0)
+    comptime NEAREST_TERMINAL = Self(1)
+
+
+@fieldwise_init
 struct SessionKind(Equatable, ImplicitlyCopyable):
     var value: Int
     comptime IDLE = Self(0)
@@ -81,13 +88,15 @@ struct GraphEdge(ImplicitlyCopyable):
     var target: Int
     var label: String
     var path: PathKind
+    var hit_policy: EdgeHitPolicy
 
-    def __init__(out self, id: Int, source: Int, target: Int, label: String = "", path: PathKind = PathKind.CUBIC):
+    def __init__(out self, id: Int, source: Int, target: Int, label: String = "", path: PathKind = PathKind.CUBIC, hit_policy: EdgeHitPolicy = EdgeHitPolicy.SNAPSHOT_ORDER):
         self.id = id
         self.source = source
         self.target = target
         self.label = label
         self.path = path
+        self.hit_policy = hit_policy
 
 
 

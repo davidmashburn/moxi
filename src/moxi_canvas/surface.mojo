@@ -929,7 +929,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         for i in range(len(proposal.edges)):
             var a = proposal.edges[i]
             var b = self.document.edges[i]
-            if a.id != b.id or a.label != b.label or (not semantic_graph and (a.path != b.path or a.source != b.source or a.target != b.target)):
+            if a.id != b.id or a.label != b.label or (not semantic_graph and (a.path != b.path or a.hit_policy != b.hit_policy or a.source != b.source or a.target != b.target)):
                 return False
         var changed = False
         for i in range(len(proposal.objects)):
@@ -953,7 +953,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
             for i in range(len(proposal.ports)):
                 changed = changed or proposal.ports[i].x != self.document.ports[i].x or proposal.ports[i].y != self.document.ports[i].y
             for i in range(len(proposal.edges)):
-                changed = changed or proposal.edges[i].path != self.document.edges[i].path or proposal.edges[i].source != self.document.edges[i].source or proposal.edges[i].target != self.document.edges[i].target
+                changed = changed or proposal.edges[i].path != self.document.edges[i].path or proposal.edges[i].hit_policy != self.document.edges[i].hit_policy or proposal.edges[i].source != self.document.edges[i].source or proposal.edges[i].target != self.document.edges[i].target
         if not changed:
             return False
         self.destination = proposal
