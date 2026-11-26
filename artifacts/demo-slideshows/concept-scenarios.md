@@ -643,6 +643,8 @@ and three additional fractional-result states. CSS viewports are 1280 × 800
 and 390 × 844; full-page PNG heights vary with content. No manifest, image
 checksum or exact tested-source hash is retained for either set.
 
+A fresh replay on the public implementation recorded the exact source and image hashes for both consumers. It covers transferring a fractional probability preview at 390 px and recovering the saved two-mode graph after a failed rebuild. [Probability walkthrough](../../examples/probability-instrument/evidence/attachments/v08-current-2026-11-26/index.html) · [Phrase desk walkthrough](../../examples/personal-instrument/evidence/mode-graph/v12-current-2026-11-26/index.html)
+
 **M only:** [recorded-gesture evidence](../v06-recorded-gesture/evidence.json)
 matches **5/5 source hashes** at `0abf208`; all 12 committed PNGs have valid
 headers/dimensions, including the ten named normal-flow captures and two audio
