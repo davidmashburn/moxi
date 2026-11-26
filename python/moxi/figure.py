@@ -129,6 +129,25 @@ class _LabelAnchor(str, Enum):
     END = "end"
 
 
+@dataclass(frozen=True)
+class _PlotLabel:
+    text: str
+    x: float
+    baseline: float
+    anchor: _LabelAnchor = _LabelAnchor.START
+    swatch: Optional[ColorValue] = None
+
+    @property
+    def cell(self) -> Tuple[str, int, int, Optional[ColorValue]]:
+        """Raster/PDF cell, retaining the original SVG anchor separately."""
+        x = self.x
+        if self.anchor is _LabelAnchor.END:
+            x -= len(self.text) * 7
+        elif self.anchor is _LabelAnchor.MIDDLE:
+            x -= len(self.text) * 3.5
+        return self.text, round(x), round(self.baseline - 9), self.swatch
+
+
 class _Raster:
     def __init__(self, width: int, height: int) -> None:
         self.width = width
@@ -377,13 +396,10 @@ class Figure:
         text = _fit_label(str(text), int(space / 7))
         if not text:
             return None
-        if anchor is _LabelAnchor.END:
-            x -= len(text) * 7
-        elif anchor is _LabelAnchor.MIDDLE:
-            x -= len(text) * 3.5
-        x, y = round(x), round(baseline - 9)
+        label = _PlotLabel(text, x, baseline, anchor, swatch)
+        _, x, y, _ = label.cell
         if 0 <= x <= self.width - len(text) * 7 and 0 <= y <= self.height - 9:
-            return text, x, y, swatch
+            return label
         return None
 
     def _radial_labels(self, layer, left, top, width, height):
@@ -434,10 +450,11 @@ class Figure:
     def _plot_labels(self):
         """Shared, noninteractive text for SVG, software PNG and vector PDF.
 
-        E01 tuples are top-left text cells with an optional palette swatch.
+        Labels retain SVG anchors and expose fitted E01 top-left text cells.
         Source labels remain intact in the spec/table even when fitted or sampled.
         """
-        yield from self._wave_a_labels()
+        for text, x, y, swatch in self._wave_a_labels():
+            yield _PlotLabel(text, x, y + 9, swatch=swatch)
         from .specialized import CatalogMark, LayoutVersion
         from .specialized_c import flow_calendar_labels
         from .wave_b import RADIAL
@@ -467,7 +484,7 @@ class Figure:
         for label in candidates:
             if label is None:
                 continue
-            text, x, y, swatch = label
+            text, x, y, swatch = label.cell
             bounds = (x - 13 if swatch else x, y, x + len(text) * 7, y + 9)
             a, b, c, d = bounds
             if any(a < right + 2 and c + 2 > left and b < bottom + 2 and d + 2 > top
@@ -1228,10 +1245,11 @@ class Figure:
                         parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{_svg_color(fill, opacity)}" data-mark="{layer.mark}"/>')
             if label:
                 parts.append('</g>')
-        for text, x, y, swatch in self._plot_labels():
+        for label in self._plot_labels():
+            text, x, y, swatch = label.cell
             if swatch:
                 parts.append(f'<rect x="{x-13}" y="{y}" width="9" height="9" fill="{_svg_color(swatch)}"/>')
-            parts.append(f'<text x="{x}" y="{y+9}" font-family="monospace" font-size="11" fill="#24324a">{escape(text)}</text>')
+            parts.append(f'<text x="{label.x:g}" y="{label.baseline:g}" text-anchor="{label.anchor.value}" font-family="monospace" font-size="11" fill="#24324a">{escape(text)}</text>')
         if self.spec.title:
             parts.append(f'<text x="{self.width/2:g}" y="18" text-anchor="middle" fill="#101828">{escape(self.spec.title)}</text>')
         parts.append("</g></svg>")
@@ -1307,7 +1325,8 @@ class Figure:
                     for radius, fill in self._marker_discs(geometry, layer, index):
                         raster.circle(x, y, radius, _rgba(fill, opacity))
         from ._label_font import ink
-        for text, x, y, swatch in self._plot_labels():
+        for label in self._plot_labels():
+            text, x, y, swatch = label.cell
             if swatch:
                 raster.rect(x - 13, y, 9, 9, _rgba(swatch))
             for px, py in ink(text, x, y):
@@ -1395,7 +1414,8 @@ class Figure:
                         continue
                     commands.append(f"{fill} {x-radius:g} {self.height-y-radius:g} {radius*2:g} {radius*2:g} re f")
         labels = list(self._plot_labels())
-        for text, x, y, swatch in labels:
+        for label in labels:
+            text, x, y, swatch = label.cell
             if swatch:
                 r, g, b, _ = swatch
                 commands.append(f"{r:g} {g:g} {b:g} rg {x-13} {self.height-y-9} 9 9 re f")

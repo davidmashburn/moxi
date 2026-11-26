@@ -36,7 +36,9 @@ def svg_labels(chart):
 
 
 def label_box(element):
-    x, y = int(element.get("x")), int(element.get("y")) - 9
+    offset = {"start": 0, "middle": .5, "end": 1}[element.get("text-anchor")]
+    x = round(float(element.get("x")) - len(element.text) * 7 * offset)
+    y = round(float(element.get("y")) - 9)
     return x, y, x + len(element.text) * 7, y + 9
 
 
@@ -44,6 +46,28 @@ def without_labels(chart):
     plain = copy.copy(chart)
     plain._plot_labels = lambda: iter(())
     return plain
+
+
+@pytest.mark.parametrize("name, expected", [
+    ("calendar_heatmap",
+     [(text, 39, y, "end") for text, y in zip(
+         "Sun Mon Tue Wed Thu Fri Sat".split(), [75, 130, 185, 240, 295, 350, 405])]
+     + [(text, x, 40, "start") for text, x in zip(
+         "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(),
+         [48, 90, 133, 185, 228, 270, 323, 365, 418, 460, 502, 555])]),
+    ("sankey", [("A", 74, 232, "start"), ("B", 343, 132, "start"),
+                ("C", 343, 292, "start"), ("D", 612, 232, "start")]),
+])
+def test_normal_svg_labels_preserve_pinned_anchors(name, expected):
+    # Independent 640x480 SVG values from dataviz_mojo at
+    # 3fd5a7e7c622d6130c99a290b88c4fee039deab2, checked by check_labels.
+    labels = svg_labels(figure(name))
+    assert len(labels) == len(expected)
+    for label, (text, x, y, anchor) in zip(labels, expected):
+        assert label.text == text
+        assert label.get("text-anchor") == anchor
+        assert abs(float(label.get("x")) - x) <= 1.1
+        assert abs(float(label.get("y")) - y) <= 1.1
 
 
 @pytest.mark.parametrize("name", EXPECTED)
@@ -129,8 +153,8 @@ def test_radial_legend_keeps_zero_rows_and_palette_order():
     data = {"category": ["North", "North", "South", "West"], "value": [4, 0, 3, 1]}
     chart = plot(data, chart.spec, width=320, height=240)
     labels = list(chart._plot_labels())
-    assert [item[0] for item in labels] == data["category"]
-    assert [item[3] for item in labels] == list(PALETTE)
+    assert [item.text for item in labels] == data["category"]
+    assert [item.swatch for item in labels] == list(PALETTE)
     assert [row["value"] for row in chart.table()] == data["value"]
     assert not any(g.source_row == 1 and g.interactive for _, g in chart._render_geometries())
 
