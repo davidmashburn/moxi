@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "demo_id": "v13-visual-instrument",
+  "title": "Wire an executable pulse instrument",
+  "scenario": "V13; I20 shared preview and caller-policy consumer check.",
+  "revision": "9404fd7330f77a5dc8e55a9ee1d1adf4d33afd91",
+  "host": "macOS 27.2.1 arm64, headless Chrome 158.0.8127.37, 1160 \u00d7 890 CSS pixels",
+  "backend": "Loopback Python 3.14.7; Moxi PlotSpec and Figure SVG reference renderer",
+  "fixture": "Signal Playground synthetic 04-pulse.wav, first 1024 PCM samples, single local operator",
+  "captured_at": "2026-11-26T02:29:38.174780+00:00",
+  "scale": 1,
+  "reproduce": "From the repository root run node examples/visual-instrument/check.cjs /tmp/v13-captures with locally installed Chrome and puppeteer-core. See the example README for setup. The check starts a fresh loopback server on an ephemeral port, drives the panel and asserts the results.",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "01-empty.png",
+      "dimensions": [
+        1160,
+        890
+      ],
+      "caption": "Disconnected instrument",
+      "action": "Open a fresh server and page.",
+      "expected": "Five fixed nodes are present. No wires, trace or recording exist."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "02-recorded.png",
+      "dimensions": [
+        1160,
+        890
+      ],
+      "caption": "Recorded filter state",
+      "action": "Tab through both port selects and Connect to construct the four wires. Record, select the Low-pass probe and press End on the block slider.",
+      "expected": "All four edges appear. The recorder retains 32 rows and the last probe time is 23.220 ms."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "03-preview.png",
+      "dimensions": [
+        1160,
+        890
+      ],
+      "caption": "Compare the coefficient edit",
+      "action": "Set the coefficient to 0.04 and press P with focus on a button.",
+      "expected": "Orange previews the edit against the teal 0.25 recording. The two traces differ."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "04-rate.png",
+      "dimensions": [
+        1160,
+        890
+      ],
+      "caption": "Inspect a clock mismatch",
+      "action": "Press Escape, select 22050 and try Record.",
+      "expected": "Cancellation restores the 0.25 trace. The status identifies both incompatible rates."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "05-invalid.png",
+      "dimensions": [
+        1160,
+        890
+      ],
+      "caption": "Reject a sample-to-feature wire",
+      "action": "Return to 44100 and connect WAV source to Recorder.",
+      "expected": "The status rejects the wire. The recorder still receives Block RMS."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "06-failed.png",
+      "dimensions": [
+        1160,
+        890
+      ],
+      "caption": "Interrupt the RMS node",
+      "action": "Check Fail block 7 and press Record.",
+      "expected": "The run stops at block 7. Downloadable recording data and filter probe still match the previous successful run."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "07-recovered.png",
+      "dimensions": [
+        1160,
+        890
+      ],
+      "caption": "Record after clearing the fault",
+      "action": "Uncheck the fault, set the coefficient to 0.04 and press Record.",
+      "expected": "The recorder replaces its 32 rows with the recovered run. The automated check then undoes it and reloads to verify the original rows."
+    }
+  ]
+}
