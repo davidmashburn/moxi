@@ -31,21 +31,26 @@ The headless application benchmark times different work through paint-list gener
 
 ## Reproduce the paired native benchmark
 
-Use a macOS checkout of the implementation revision shown in the capture manifest. Build the ordinary MindMapApp executable and its native objects. For the baseline, compile the identical benchmark driver against the previous revision's Mojo sources. Both executables link the same AppKit objects, including the thread CPU clock probe.
+Use a macOS checkout with the D04 changes. The ordinary app build supplies the shared AppKit objects. Both timing binaries use the driver from the original density study. Its benchmark works with both source revisions. The current app driver also imports a fixture for the newer branch-picking replay.
 
 ```sh
 pixi run d04-mindmap-probe
 mkdir -p dist/d04-before
 git archive 0da6f295b6d20cdf663aaf66a039a43e8fb66dd0 src | tar -x -C dist/d04-before
-pixi run mojo build -I dist/d04-before/src \
-  -Xlinker "$PWD/dist/mindmap-window.o" -Xlinker "$PWD/dist/mindmap-text.o" \
-  -Xlinker -framework -Xlinker CoreText -Xlinker "$PWD/dist/mindmap-storage.o" \
-  -Xlinker "$PWD/dist/mindmap-capture.o" -Xlinker -framework -Xlinker Cocoa \
-  -Xlinker -framework -Xlinker QuartzCore examples/mindmap_native_app.mojo -o dist/native-before
+git show 58609ab6e2bd02ac6366db0b60ea25968552d4a4:examples/mindmap_native_app.mojo > dist/d04-before/driver.mojo
+build_benchmark() {
+  pixi run mojo build -I "$1" \
+    -Xlinker "$PWD/dist/mindmap-window.o" -Xlinker "$PWD/dist/mindmap-text.o" \
+    -Xlinker -framework -Xlinker CoreText -Xlinker "$PWD/dist/mindmap-storage.o" \
+    -Xlinker "$PWD/dist/mindmap-capture.o" -Xlinker -framework -Xlinker Cocoa \
+    -Xlinker -framework -Xlinker QuartzCore dist/d04-before/driver.mojo -o "$2"
+}
+build_benchmark dist/d04-before/src dist/native-before
+build_benchmark src dist/native-after
 dist/native-before --benchmark-input
-dist/moxi-mindmap --benchmark-input
+dist/native-after --benchmark-input
 # Repeat in reverse order to check the ordering effect.
-dist/moxi-mindmap --benchmark-input
+dist/native-after --benchmark-input
 dist/native-before --benchmark-input
 ```
 
