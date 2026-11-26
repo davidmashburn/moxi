@@ -594,22 +594,57 @@ struct CanvasView[Child: Component & Deinitable](Component):
     def edge_scene(self) -> Scene:
         var scene = Scene()
         ref snapshot = self.publication
-        scene.push_clip(1, self.interaction_clip())
-        for edge in snapshot.edges:
-            var color = Color(0.3, 0.77, 0.9, 1) if edge.id != self.state.selected_edge else Color(1, 0.8, 0.3, 1)
-            for i in range(1, len(edge.points)):
+        var clip = self.interaction_clip()
+        scene.push_clip(1, clip)
+        # Each orthogonal route retains its complete hit geometry. Paint the
+        # common opaque stem and vertical span once per aligned branch group.
+        var trunks = Dict[Tuple[Float32, Float32, Float32], Int]()
+        var selected = -1
+        for i in range(len(snapshot.edges)):
+            ref edge = snapshot.edges[i]
+            if edge.id == self.state.selected_edge:
+                selected = i
+                continue
+            self.paint_edge(scene, edge, clip, trunks, False)
+        if selected >= 0:
+            self.paint_edge(scene, snapshot.edges[selected], clip, trunks, True)
+        scene.pop_clip()
+        return scene^
+
+    def paint_edge(self, mut scene: Scene, edge: EdgeGeometry, clip: Rect, mut trunks: Dict[Tuple[Float32, Float32, Float32], Int], selected: Bool):
+        var color = Color(1, 0.8, 0.3, 1) if selected else Color(0.3, 0.77, 0.9, 1)
+        var first = 1
+        if edge.path == PathKind.ORTHOGONAL and len(edge.points) == 4 and not selected:
+            var a = edge.points[0]
+            var turn = edge.points[1]
+            var key = (a.x, a.y, turn.x)
+            var slot = trunks.get(key, -1)
+            var low = min(turn.y, edge.points[2].y)
+            var high = max(turn.y, edge.points[2].y)
+            if slot < 0:
+                scene.append_line(edge.id, a, turn, color, 2)
+                trunks[key] = scene.count()
+                scene.append_line(edge.id, Point(turn.x, low), Point(turn.x, high), color, 2)
+            else:
+                ref trunk = scene.commands[slot]
+                trunk.point_start.y = min(trunk.point_start.y, low)
+                trunk.point_end.y = max(trunk.point_end.y, high)
+            first = 3
+        var end = edge.points[len(edge.points) - 1]
+        # The final orthogonal segment is horizontal. The arrow extends by at
+        # most 12 points. A labeled route still needs its independent label.
+        var outside = end.y < clip.y - 12 or end.y > clip.y + clip.height + 12
+        if first != 3 or not outside:
+            for i in range(first, len(edge.points)):
                 scene.append_line(edge.id, edge.points[i - 1], edge.points[i], color, 2)
-            var end = edge.points[len(edge.points) - 1]
             var prev = edge.points[len(edge.points) - 2]
             var length = max(Float32(0.001), distance(prev, end))
             var dx = (end.x - prev.x) / length
             var dy = (end.y - prev.y) / length
             scene.append_line(edge.id, end, Point(end.x - dx * 10 + dy * 5, end.y - dy * 10 - dx * 5), color, 2)
             scene.append_line(edge.id, end, Point(end.x - dx * 10 - dy * 5, end.y - dy * 10 + dx * 5), color, 2)
-            if edge.text != "":
-                scene.append_text_styled(edge.id, edge.text, edge.label, color, SceneTextStyle("system-ui", 11))
-        scene.pop_clip()
-        return scene^
+        if edge.text != "":
+            scene.append_text_styled(edge.id, edge.text, edge.label, color, SceneTextStyle("system-ui", 11))
 
     def overlay_scene(self) -> Scene:
         var scene = Scene()

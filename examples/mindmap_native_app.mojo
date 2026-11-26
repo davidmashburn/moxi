@@ -7,7 +7,7 @@ from moxi import Event, WindowConfig, Point, Rect
 from moxi.event import *
 from moxi.macos import MacOSRenderer, MacOSCanvasSceneRenderer, MacOSClipboard
 from moxi.native_instance import MacOSWindowInstance
-from moxi_canvas.native import render_canvas
+from moxi_canvas.native import render_canvas, clip_scene
 from moxi_canvas.geometry import overlaps
 from moxi_mindmap.application import MindMapApp, MapMode
 from moxi_mindmap.reflow import MotionPolicy
@@ -193,6 +193,8 @@ def benchmark_input(mut window: MacOSWindowInstance, mut paint: MacOSRenderer, m
         doc.connect(id, id + 1, "Related")
     var map = MindMapApp(doc)
     map.select(501)
+    var edges = clip_scene(map.app.component.edge_scene(), map.app.root_bounds)
+    print("viewport_ordinary_commands", map.app.paint().count(), "clipped_edge_commands", edges.count())
     var samples = List[Float64]()
     var cpu_samples = List[Float64]()
     for trial in range(25):

@@ -228,6 +228,12 @@ def main() raises:
     map = MindMapApp(large_map(1000))
     if map.app.component.state.camera.zoom != 1 or map.app.paint().count() >= 1000:
         raise Error("Large maps must open at readable topic scale with viewport culling")
+    if map.app.component.edge_scene().count() > 40:
+        raise Error("Culled tree must paint one shared trunk and only visible child stubs")
+    map.app.component.state.selected_edge = 500
+    var selected_scene = map.app.component.edge_scene()
+    if selected_scene.count() > 46 or selected_scene.commands[selected_scene.count() - 2].id != 500:
+        raise Error("Selecting a dense edge must paint its complete route above the trunk")
     print("mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS")
 
     var dense = MindMapApp(large_map(9))

@@ -114,6 +114,7 @@ def segment_distance(p: Point, a: Point, b: Point) -> Float32:
 
 
 struct EdgeGeometry(ImplicitlyCopyable):
+    var path: PathKind
     var id: Int
     var points: List[Point]
     var bounds: Rect
@@ -121,6 +122,7 @@ struct EdgeGeometry(ImplicitlyCopyable):
     var text: String
 
     def __init__(out self, *, copy: Self):
+        self.path = copy.path
         self.id = copy.id
         self.points = copy.points.copy()
         self.bounds = copy.bounds
@@ -129,6 +131,7 @@ struct EdgeGeometry(ImplicitlyCopyable):
 
 
     def __init__(out self, edge: GraphEdge, a: Point, b: Point):
+        self.path = edge.path
         self.id = edge.id
         self.text = edge.label
         self.points = List[Point]()
