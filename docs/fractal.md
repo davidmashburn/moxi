@@ -18,16 +18,33 @@ currently requires the [pinned Apple Silicon toolchain](#measurement-and-reprodu
 Both hosts use [`FractalState`](../src/moxi/fractal.mojo) for presets,
 sub-pixel stopping, traversal and rasterization. Change that file to change the
 lines drawn by both demos, then rerun each launch command and reload the
-browser page. For host-specific changes, start with these entry points.
+browser page.
 
-| Native macOS | WebAssembly and browser |
-| --- | --- |
-| [`interactive_fractal.mojo`](../examples/interactive_fractal.mojo) owns the window loop. It dispatches events, calls `advance_frame()` and presents the canvas. | [`browser.mojo`](../experiments/fractal-web/browser.mojo) exposes the Mojo state, event handling, `advance_render()` and pixel buffer to JavaScript. [`demo.mjs`](../experiments/fractal-web/demo.mjs) wires the DOM controls, schedules batches and presents the buffer through `MoxiRasterPresenter`. |
+### Where the UI lives
 
-Open the two Mojo entry points side by side in Bygone from the repository root.
+The demos have two separately authored control panels. On macOS,
+`FractalState.build()` constructs Moxi widgets, including a depth field,
+checkboxes and two grids of preset buttons. In the browser, HTML declares
+the controls, CSS lays them out, and JavaScript populates a preset dropdown
+from Mojo. The browser's Mojo view contains just the canvas bounds used for
+pointer hit testing. Changing the native widget tree therefore changes only
+the macOS panel. [Native widget declarations](../src/moxi/fractal.mojo#L970) ·
+[Browser markup](../experiments/fractal-web/index.html#L7) ·
+[Browser styles](../experiments/fractal-web/style.css) ·
+[Wasm canvas view](../experiments/fractal-web/browser.mojo#L20).
+
+| Follow an action | Native macOS | Browser |
+| --- | --- | --- |
+| Click **Depth +** | The Mojo widget handler increments a `Natural` and calls `set_depth`. | The JS click handler increments the DOM value with `BigInt` and passes its decimal text to Wasm. Mojo parses it into a `Natural` and calls the same `set_depth`. [Native handler](../src/moxi/fractal.mojo#L1193) · [JS handler](../experiments/fractal-web/demo.mjs#L132) · [Wasm entry](../experiments/fractal-web/browser.mojo#L100) |
+| Drag a handle | Moxi dispatches a canvas event to `FractalState.update_canvas()`. | JS maps the pointer to raster coordinates and forwards the latest move. The Wasm entry calls the same Mojo handler, which picks the target, edits the geometry and restarts the render. [Shared drag handler](../src/moxi/fractal.mojo#L1227) · [JS input](../experiments/fractal-web/demo.mjs#L84) · [Wasm event dispatch](../experiments/fractal-web/browser.mojo#L149) |
+| Show the result | The native window loop advances the renderer. Mojo paints the bitmap and the editing guides through the native painter. | JS schedules batches of Mojo work and presents the finished pixels for each update. JS also draws the coarse preview, guide lines and handles on a second Canvas 2D layer and formats the status text. Mojo traverses, colors and rasterizes the terminal lines for both hosts. [Native loop](../examples/interactive_fractal.mojo#L28) · [Shared raster loop](../src/moxi/fractal.mojo#L1393) · [JS frame](../experiments/fractal-web/demo.mjs#L106) · [JS overlay](../experiments/fractal-web/demo.mjs#L18) |
+
+To explore the UI source in Bygone, open the native component, browser markup
+and browser event handlers together. Start at `FractalState.build()` in the
+Mojo pane.
 
 ```sh
-bygone --diff examples/interactive_fractal.mojo experiments/fractal-web/browser.mojo
+bygone --diff src/moxi/fractal.mojo experiments/fractal-web/index.html experiments/fractal-web/demo.mjs
 ```
 
 ## How rendering works
