@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "demo_id": "v14-room-temperature",
+  "title": "Synthetic room-temperature replay",
+  "scenario": "Held-out session B, aligned interval, cooling reversal and restart.",
+  "revision": "1cd56a5d94a1bdb43a79aabe1e6f0496a4a9b2f6",
+  "host": "Darwin 27.2.0 arm64",
+  "backend": "Chrome 158.0.8127.37",
+  "scale": 1,
+  "fixture": "Deterministic ambient-temperature sessions A and B",
+  "reproduce": "From the repo root with Node, Playwright, Chrome and Python 3, run node examples/temperature-replay/capture.cjs.",
+  "slides": [
+    {
+      "phase": "initial",
+      "caption": "First eligible forecast",
+      "action": "Open the offline example.",
+      "expected": "Selected 10–40 s · Route 2–8 m · Origin 21.18 °C",
+      "image": "1-initial.png",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "interaction",
+      "caption": "Advance the aligned interval",
+      "action": "Press Right Arrow on the time slider.",
+      "expected": "Selected 20–50 s · Route 4–10 m · Origin 21.23 °C",
+      "image": "2-interaction.png",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "result",
+      "caption": "Rising trend misses the cooling transition",
+      "action": "Select Inspect reversal.",
+      "expected": "Synthetic outcome at 150 s: 21.80 °C · Outside the band",
+      "image": "3-result.png",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "recovery",
+      "caption": "Return to the first forecast",
+      "action": "Select Restart.",
+      "expected": "Selected 10–40 s · Route 2–8 m · Origin 21.18 °C",
+      "image": "4-recovery.png",
+      "dimensions": [
+        960,
+        900
+      ],
+      "capture_kind": "browser"
+    }
+  ]
+}
