@@ -14,7 +14,8 @@ paths = sorted([*ROOT.glob('src/moxi_canvas/*.mojo'), *ROOT.glob('examples/canva
                 ROOT / 'examples/canvas_probe.mojo', ROOT / 'examples/canvas_graph.mojo',
                 ROOT / 'src/moxi/column_view.mojo', ROOT / 'native/macos_window.m',
                 ROOT / 'tests/canvas/capture.m', ROOT / 'tests/canvas/native_layers.m', ROOT / 'native/macos_window_state.h',
-                ROOT / 'native/macos_paragraph.h', ROOT / 'src/moxi/native_window.mojo',
+                ROOT / 'native/macos_paragraph.h', ROOT / 'native/macos_window_tables.def',
+                ROOT / 'src/moxi/native_window.mojo',
                 ROOT / 'scripts/canvas_checks.sh', ROOT / 'scripts/canvas_gallery.py',
                 ROOT / 'scripts/demo_slideshows.py'])
 digest = hashlib.sha256()

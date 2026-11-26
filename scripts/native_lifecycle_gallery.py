@@ -44,7 +44,7 @@ def main():
     subprocess.run(["pixi", "run", "native-lifecycle-check"], cwd=ROOT, env=environment, check=True)
     sources = sorted((ROOT / "src/moxi").glob("*.mojo"))
     sources += [ROOT / name for name in (
-        "native/macos_window.m", "native/macos_window_state.h", "native/macos_text.m",
+        "native/macos_window.m", "native/macos_window_state.h", "native/macos_window_tables.def", "native/macos_text.m",
         "tests/native_lifecycle.mojo", "tests/native_lifecycle_probe.m",
         "scripts/native_lifecycle_check.sh", "scripts/native_lifecycle_gallery.py")]
     digest = hashlib.sha256()

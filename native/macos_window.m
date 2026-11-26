@@ -52,7 +52,10 @@
 @property(nonatomic, strong) NSMutableArray *moxiChildren;
 @end
 
-#define MOXI_MAX_DRAW_COMMANDS 1024
+/* Bounded per-kind slots and ordered entries. Fits the D03 1,000-visible-node
+ * consumer (3,015 views), including selection/move overlays. Instance-owned
+ * tables grow from the original 1024-entry baseline on valid demand. */
+#define MOXI_MAX_DRAW_COMMANDS 4096
 #define MOXI_MAX_CUSTOM_LINES 32768
 #define MOXI_MAX_CUSTOM_CIRCLES 4096
 #define MOXI_MAX_CUSTOM_RECTS 262144 /* 100k observations plus selection overlays */
@@ -240,6 +243,7 @@ typedef struct {
 static NSTask *moxi_demo_task;
 static void *moxi_live_handle;
 static MoxiLiveFrameFunction moxi_live_frame;
+static void moxi_copy_color(float destination[4], float red, float green, float blue, float alpha);
 #include "macos_window_state.h"
 
 static uint64_t moxi_native_timing_now_ns(void) {
@@ -511,8 +515,13 @@ static NSAccessibilityRole moxi_accessibility_role(int role) {
 }
 
 static NSAccessibilityElement *moxi_accessibility_element_for_id(int id) {
-    for (int i = 0; i < moxi_accessibility_count; i++) {
-        if (moxi_accessibility_ids[i] == id) {
+    /* Resolve the main-thread owner's lookup metadata before scanning. The
+     * dispatch cursor is save/restored by Cocoa callbacks; looking it up for
+     * every slot also retains/releases the window state on every comparison. */
+    int count = moxi_accessibility_count;
+    const int *ids = moxi_accessibility_ids;
+    for (int i = 0; i < count; i++) {
+        if (ids[i] == id) {
             return moxi_accessibility_elements[i];
         }
     }
@@ -520,8 +529,10 @@ static NSAccessibilityElement *moxi_accessibility_element_for_id(int id) {
 }
 
 static int moxi_accessibility_index_for_id(int id) {
-    for (int i = 0; i < moxi_accessibility_count; i++) {
-        if (moxi_accessibility_ids[i] == id) {
+    int count = moxi_accessibility_count;
+    const int *ids = moxi_accessibility_ids;
+    for (int i = 0; i < count; i++) {
+        if (ids[i] == id) {
             return i;
         }
     }
@@ -532,8 +543,10 @@ static int moxi_previous_accessibility_index_for_id(int id) {
     if (!moxi_accessibility_has_previous_snapshot) {
         return -1;
     }
-    for (int i = 0; i < moxi_previous_accessibility_count; i++) {
-        if (moxi_previous_accessibility_ids[i] == id) {
+    int count = moxi_previous_accessibility_count;
+    const int *ids = moxi_previous_accessibility_ids;
+    for (int i = 0; i < count; i++) {
+        if (ids[i] == id) {
             return i;
         }
     }
@@ -541,53 +554,16 @@ static int moxi_previous_accessibility_index_for_id(int id) {
 }
 
 static void moxi_accessibility_capture_previous(void) {
-    moxi_accessibility_has_previous_snapshot = moxi_accessibility_count > 0;
-    moxi_previous_accessibility_count = moxi_accessibility_count;
-    for (int i = 0; i < moxi_accessibility_count; i++) {
-        moxi_previous_accessibility_ids[i] = moxi_accessibility_ids[i];
-        moxi_previous_accessibility_roles[i] = moxi_accessibility_roles[i];
-        moxi_previous_accessibility_values[i] = moxi_accessibility_values[i] == nil
-            ? @""
-            : [moxi_accessibility_values[i] copy];
-        moxi_previous_accessibility_checked[i] = moxi_accessibility_checked[i];
-        moxi_previous_accessibility_expanded[i] = moxi_accessibility_expanded[i];
-        moxi_previous_accessibility_selected[i] = moxi_accessibility_selected[i];
-        moxi_previous_accessibility_enabled[i] = moxi_accessibility_enabled[i];
-        moxi_previous_accessibility_focused[i] = moxi_accessibility_focused[i];
-        moxi_previous_accessibility_has_value_range[i] =
-            moxi_accessibility_has_value_range[i];
-        moxi_previous_accessibility_value_min[i] = moxi_accessibility_value_min[i];
-        moxi_previous_accessibility_value_max[i] = moxi_accessibility_value_max[i];
-        moxi_previous_accessibility_value_now[i] = moxi_accessibility_value_now[i];
-    }
+    [moxi_current_context() captureAccessibilitySnapshot];
 }
 
 static void moxi_accessibility_reset_storage(void) {
+    [moxi_current_context() resetAccessibilitySlots];
     moxi_accessibility_count = 0;
     moxi_accessibility_focused_text_input = NO;
     if (!moxi_ordered_paint_enabled) moxi_retained_accessibility_elements = nil;
-    moxi_accessibility_owned_elements = [[NSMutableArray alloc] initWithCapacity:MOXI_MAX_DRAW_COMMANDS];
-    moxi_accessibility_root_children = [[NSMutableArray alloc] initWithCapacity:MOXI_MAX_DRAW_COMMANDS];
-    for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
-        moxi_accessibility_ids[i] = -1;
-        moxi_accessibility_parent_ids[i] = -1;
-        moxi_accessibility_roles[i] = 0;
-        moxi_accessibility_labels[i] = nil;
-        moxi_accessibility_values[i] = nil;
-        moxi_accessibility_hints[i] = nil;
-        moxi_accessibility_frames[i] = NSZeroRect;
-        moxi_accessibility_enabled[i] = YES;
-        moxi_accessibility_focused[i] = NO;
-        moxi_accessibility_selected[i] = NO;
-        moxi_accessibility_checked[i] = NO;
-        moxi_accessibility_expanded[i] = NO;
-        moxi_accessibility_has_value_range[i] = NO;
-        moxi_accessibility_value_min[i] = 0.0;
-        moxi_accessibility_value_max[i] = 0.0;
-        moxi_accessibility_value_now[i] = 0.0;
-        moxi_accessibility_actions[i] = 0;
-        moxi_accessibility_elements[i] = nil;
-    }
+    moxi_accessibility_owned_elements = [NSMutableArray new];
+    moxi_accessibility_root_children = [NSMutableArray new];
 }
 
 static void moxi_accessibility_build_elements(void) {
@@ -957,6 +933,7 @@ static void moxi_reset_commands(void) {
     moxi_ordered_paint_count = 0;
     moxi_current_context()->customSliceCount = 0;
     moxi_native_text_editor_seen = NO;
+    [moxi_current_context() resetDrawSlots];
     moxi_label_count = 0;
     moxi_button_count = 0;
     moxi_checkbox_count = 0;
@@ -979,141 +956,6 @@ static void moxi_reset_commands(void) {
         moxi_reset_custom_commands();
     }
     moxi_copy_color(moxi_surface_fill, 0.08, 0.10, 0.16, 1.0);
-    for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
-        moxi_label_texts[i] = nil;
-        moxi_label_paragraphs[i] = nil;
-        moxi_button_texts[i] = nil;
-        moxi_checkbox_texts[i] = nil;
-        moxi_progress_texts[i] = nil;
-        moxi_text_input_texts[i] = nil;
-        moxi_image_alt_texts[i] = nil;
-        moxi_image_resources[i] = nil;
-        moxi_image_nearest[i] = NO;
-        moxi_image_resource_ids[i] = -1;
-        moxi_label_frames[i] = NSZeroRect;
-        moxi_button_frames[i] = NSZeroRect;
-        moxi_checkbox_frames[i] = NSZeroRect;
-        moxi_progress_frames[i] = NSZeroRect;
-        moxi_text_input_frames[i] = NSZeroRect;
-        moxi_image_frames[i] = NSZeroRect;
-        moxi_image_clip_enabled[i] = NO;
-        moxi_image_clip_frames[i] = NSZeroRect;
-        moxi_panel_frames[i] = NSZeroRect;
-        moxi_copy_color(moxi_panel_fills[i], 0.16, 0.20, 0.30, 1.0);
-        moxi_panel_radii[i] = 0.0;
-        moxi_panel_clip_enabled[i] = NO;
-        moxi_panel_clip_frames[i] = NSZeroRect;
-        moxi_native_widget_slots[i].text = nil;
-        moxi_native_widget_slots[i].frame = NSZeroRect;
-        moxi_copy_color(moxi_native_widget_slots[i].fill, 0.12, 0.15, 0.22, 1.0);
-        moxi_copy_color(moxi_native_widget_slots[i].textColor, 1.0, 1.0, 1.0, 1.0);
-        moxi_native_widget_slots[i].radius = 6.0;
-        moxi_native_widget_slots[i].fontSize = 14.0;
-        moxi_native_widget_slots[i].kind = 18;
-        moxi_native_widget_slots[i].focused = NO;
-        moxi_native_widget_slots[i].enabled = YES;
-        moxi_native_widget_slots[i].selected = NO;
-        moxi_native_widget_slots[i].expanded = NO;
-        moxi_native_widget_slots[i].clipEnabled = NO;
-        moxi_native_widget_slots[i].clipFrame = NSZeroRect;
-
-        moxi_scrollbar_slots[i].track = NSZeroRect;
-        moxi_scrollbar_slots[i].thumb = NSZeroRect;
-        moxi_copy_color(moxi_scrollbar_slots[i].trackColor, 0.055, 0.075, 0.125, 0.72);
-        moxi_copy_color(moxi_scrollbar_slots[i].thumbColor, 0.48, 0.79, 1.0, 0.94);
-        moxi_scrollbar_slots[i].radius = 4.0;
-        moxi_scrollbar_slots[i].visible = NO;
-        moxi_scrollbar_slots[i].clipEnabled = NO;
-        moxi_scrollbar_slots[i].clipFrame = NSZeroRect;
-
-        moxi_copy_color(moxi_label_text_colors[i], 1.0, 1.0, 1.0, 1.0);
-        moxi_label_font_sizes[i] = 24.0;
-        moxi_label_wraps[i] = NO;
-        moxi_label_badges[i] = NO;
-        moxi_label_padding[i] = 0.0;
-        moxi_label_clip_enabled[i] = NO;
-        moxi_label_clip_frames[i] = NSZeroRect;
-
-        moxi_copy_color(moxi_button_fill_colors[i], 0.18, 0.48, 0.92, 1.0);
-        moxi_copy_color(moxi_button_text_colors[i], 1.0, 1.0, 1.0, 1.0);
-        moxi_button_radii[i] = 10.0;
-        moxi_button_font_sizes[i] = 16.0;
-        moxi_button_wraps[i] = NO;
-        moxi_button_clip_enabled[i] = NO;
-        moxi_button_clip_frames[i] = NSZeroRect;
-        moxi_button_focused[i] = NO;
-        moxi_button_hovered[i] = NO;
-        moxi_button_pressed[i] = NO;
-        moxi_button_enabled[i] = YES;
-
-        moxi_copy_color(moxi_checkbox_fill_colors[i], 0.07, 0.09, 0.14, 1.0);
-        moxi_copy_color(moxi_checkbox_text_colors[i], 1.0, 1.0, 1.0, 1.0);
-        moxi_checkbox_radii[i] = 5.0;
-        moxi_checkbox_font_sizes[i] = 16.0;
-        moxi_checkbox_clip_enabled[i] = NO;
-        moxi_checkbox_clip_frames[i] = NSZeroRect;
-        moxi_checkbox_focused[i] = NO;
-        moxi_checkbox_hovered[i] = NO;
-        moxi_checkbox_pressed[i] = NO;
-        moxi_checkbox_enabled[i] = YES;
-        moxi_checkbox_checked[i] = NO;
-
-        moxi_copy_color(moxi_progress_fill_colors[i], 0.10, 0.14, 0.22, 1.0);
-        moxi_copy_color(moxi_progress_text_colors[i], 1.0, 1.0, 1.0, 1.0);
-        moxi_progress_radii[i] = 8.0;
-        moxi_progress_font_sizes[i] = 14.0;
-        moxi_progress_values[i] = 0.0;
-        moxi_progress_clip_enabled[i] = NO;
-        moxi_progress_clip_frames[i] = NSZeroRect;
-
-        moxi_slider_slots[i].text = nil;
-        moxi_slider_slots[i].frame = NSZeroRect;
-        moxi_copy_color(moxi_slider_slots[i].fill, 0.10, 0.14, 0.22, 1.0);
-        moxi_copy_color(moxi_slider_slots[i].textColor, 0.35, 0.72, 1.0, 1.0);
-        moxi_slider_slots[i].radius = 8.0;
-        moxi_slider_slots[i].fontSize = 14.0;
-        moxi_slider_slots[i].value = 0.0;
-        moxi_slider_slots[i].focused = NO;
-        moxi_slider_slots[i].hovered = NO;
-        moxi_slider_slots[i].pressed = NO;
-        moxi_slider_slots[i].enabled = YES;
-        moxi_slider_slots[i].clipEnabled = NO;
-        moxi_slider_slots[i].clipFrame = NSZeroRect;
-
-        moxi_toggle_slots[i].text = nil;
-        moxi_toggle_slots[i].frame = NSZeroRect;
-        moxi_copy_color(moxi_toggle_slots[i].fill, 0.14, 0.18, 0.28, 1.0);
-        moxi_copy_color(moxi_toggle_slots[i].textColor, 1.0, 1.0, 1.0, 1.0);
-        moxi_toggle_slots[i].radius = 10.0;
-        moxi_toggle_slots[i].fontSize = 16.0;
-        moxi_toggle_slots[i].focused = NO;
-        moxi_toggle_slots[i].hovered = NO;
-        moxi_toggle_slots[i].pressed = NO;
-        moxi_toggle_slots[i].enabled = YES;
-        moxi_toggle_slots[i].checked = NO;
-        moxi_toggle_slots[i].radio = NO;
-        moxi_toggle_slots[i].clipEnabled = NO;
-        moxi_toggle_slots[i].clipFrame = NSZeroRect;
-
-        moxi_copy_color(moxi_text_input_fill_colors[i], 0.07, 0.09, 0.14, 1.0);
-        moxi_copy_color(moxi_text_input_text_colors[i], 1.0, 1.0, 1.0, 1.0);
-        moxi_text_input_radii[i] = 8.0;
-        moxi_text_input_font_sizes[i] = 18.0;
-        moxi_text_input_wraps[i] = NO;
-        moxi_text_input_clip_enabled[i] = NO;
-        moxi_text_input_clip_frames[i] = NSZeroRect;
-        moxi_text_input_focused[i] = NO;
-        moxi_text_input_cursors[i] = 0;
-        moxi_text_input_selection_starts[i] = 0;
-        moxi_text_input_selection_ends[i] = 0;
-        moxi_text_input_compositions[i] = nil;
-        moxi_text_input_composition_selection_starts[i] = 0;
-        moxi_text_input_composition_selection_ends[i] = 0;
-
-        moxi_copy_color(moxi_image_fill_colors[i], 0.12, 0.15, 0.22, 1.0);
-        moxi_copy_color(moxi_image_text_colors[i], 1.0, 1.0, 1.0, 1.0);
-        moxi_image_radii[i] = 4.0;
-    }
 }
 
 static void moxi_reset_custom_commands(void) {
@@ -3663,7 +3505,8 @@ void moxi_window_open(
         if (fullscreen != 0) {
             [moxi_window toggleFullScreen:nil];
         }
-        for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
+        int allocatedCapacity = moxi_current_context()->tableCapacity;
+        for (int i = 0; i < allocatedCapacity; i++) {
             moxi_registered_image_ids[i] = -1;
             moxi_registered_images[i] = nil;
         }
@@ -3692,6 +3535,8 @@ void moxi_window_ordered_paint(int kind, int slot) {
         moxi_command_overflow_count++;
         return;
     }
+    moxi_ensure_table_capacity(MAX(slot + 1,
+        moxi_ordered_paint_count + 1 - MoxiCustomSliceCapacity));
     moxi_ordered_paint_kinds[moxi_ordered_paint_count] = kind;
     moxi_ordered_paint_slots[moxi_ordered_paint_count++] = slot;
 }
@@ -3717,6 +3562,7 @@ int moxi_window_ordered_custom_slice(void) {
         moxi_command_overflow_count++;
         return 0;
     }
+    moxi_ensure_table_capacity(moxi_ordered_paint_count + 1 - MoxiCustomSliceCapacity);
     owner->customSlices[index] = slice;
     owner->customSliceCount++;
     moxi_ordered_paint_kinds[moxi_ordered_paint_count] = MoxiOrderedCustomSlice;
@@ -4033,6 +3879,7 @@ void moxi_window_set_accessibility_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
         moxi_accessibility_ids[index] = id;
         moxi_accessibility_parent_ids[index] = parent_id;
         moxi_accessibility_roles[index] = role;
@@ -4127,6 +3974,7 @@ static void moxi_window_set_panel_impl(
         }
         return;
     }
+    moxi_ensure_table_capacity(slot + 1);
     moxi_panel_frames[slot] = NSMakeRect(x, y, width, height);
     moxi_copy_color(moxi_panel_fills[slot], red, green, blue, alpha);
     moxi_panel_radii[slot] = radius;
@@ -4241,6 +4089,7 @@ void moxi_window_set_native_widget_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
         MoxiNativeWidgetSlot *slot = &moxi_native_widget_slots[index];
         slot->text = text == NULL ? @"" : [NSString stringWithUTF8String:text];
         if (slot->text == nil) {
@@ -4293,6 +4142,7 @@ void moxi_window_set_scrollbar_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
         MoxiScrollbarSlot *slot = &moxi_scrollbar_slots[index];
         slot->track = NSMakeRect(track_x, track_y, track_width, track_height);
         slot->thumb = NSMakeRect(thumb_x, thumb_y, thumb_width, thumb_height);
@@ -4315,7 +4165,8 @@ void moxi_window_register_image(int resource_id, const char *source) {
             return;
         }
         int slot = -1;
-        for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
+        int allocatedCapacity = moxi_current_context()->tableCapacity;
+        for (int i = 0; i < allocatedCapacity; i++) {
             if (moxi_registered_image_ids[i] == resource_id) {
                 slot = i;
                 break;
@@ -4323,6 +4174,10 @@ void moxi_window_register_image(int resource_id, const char *source) {
             if (slot < 0 && moxi_registered_image_ids[i] < 0) {
                 slot = i;
             }
+        }
+        if (slot < 0 && allocatedCapacity < MOXI_MAX_DRAW_COMMANDS) {
+            slot = allocatedCapacity;
+            moxi_ensure_table_capacity(slot + 1);
         }
         if (slot < 0) {
             return;
@@ -4365,10 +4220,12 @@ void moxi_window_set_image_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
         moxi_image_resource_ids[index] = resource_id;
         moxi_image_resources[index] = nil;
         moxi_image_nearest[index] = NO;
-        for (int i = 0; i < MOXI_MAX_DRAW_COMMANDS; i++) {
+        int allocatedCapacity = moxi_current_context()->tableCapacity;
+        for (int i = 0; i < allocatedCapacity; i++) {
             if (moxi_registered_image_ids[i] == resource_id) {
                 moxi_image_resources[index] = moxi_registered_images[i];
                 break;
@@ -4433,6 +4290,7 @@ void moxi_window_set_label_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
 
         NSString *label = text == NULL
             ? @""
@@ -4517,6 +4375,7 @@ void moxi_window_set_button_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
 
         NSString *button = text == NULL
             ? @""
@@ -4587,6 +4446,7 @@ void moxi_window_set_checkbox_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
         moxi_checkbox_texts[index] = text == NULL
             ? @""
             : [NSString stringWithUTF8String:text];
@@ -4635,6 +4495,7 @@ void moxi_window_set_progress_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
         moxi_progress_texts[index] = text == NULL
             ? @""
             : [NSString stringWithUTF8String:text];
@@ -4683,6 +4544,7 @@ void moxi_window_set_slider_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
         MoxiSliderSlot *slot = &moxi_slider_slots[index];
         slot->text = text == NULL ? @"" : [NSString stringWithUTF8String:text];
         if (slot->text == nil) {
@@ -4738,6 +4600,7 @@ static void moxi_window_set_toggle_at_impl(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
         MoxiToggleSlot *slot = &moxi_toggle_slots[index];
         slot->text = text == NULL ? @"" : [NSString stringWithUTF8String:text];
         if (slot->text == nil) {
@@ -4846,6 +4709,7 @@ void moxi_window_set_text_input_at(
             }
             return;
         }
+        moxi_ensure_table_capacity(index + 1);
 
         NSString *input = text == NULL
             ? @""
@@ -5129,6 +4993,10 @@ int moxi_window_event_dropped_count(void) {
 
 int moxi_window_command_overflow_count(void) {
     return moxi_command_overflow_count;
+}
+
+int moxi_window_command_capacity(void) {
+    return MOXI_MAX_DRAW_COMMANDS;
 }
 
 int moxi_window_event_key(void) {
@@ -5417,7 +5285,7 @@ int moxi_window_destroy_instance(uint64_t handle) {
         moxi_reset_event_queue();
         moxi_reset_commands();
         moxi_reset_custom_commands();
-        for (int resource = 0; resource < MOXI_MAX_DRAW_COMMANDS; ++resource) {
+        for (int resource = 0; resource < state->tableCapacity; ++resource) {
             moxi_registered_images[resource] = nil;
             moxi_image_resources[resource] = nil;
             moxi_label_paragraphs[resource] = nil;

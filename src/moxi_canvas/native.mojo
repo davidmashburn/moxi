@@ -1,12 +1,11 @@
 """Optional AppKit presenter. Uses ordinary Moxi controls and the existing ABI."""
 from std.ffi import external_call
-from std.collections import List
+from std.collections import Dict, List
 from moxi import App, Component, Rect, Point
 from moxi.style import Color
 from moxi.scene import Scene, SCENE_LINE, SCENE_TEXT, SCENE_RECT, SCENE_ROUNDED_RECT, SCENE_CLIP, SCENE_POP_CLIP
 from moxi.paint import SURFACE_KIND
 
-comptime NATIVE_ORDERED_CAPACITY = 1024
 comptime NATIVE_LINE_CAPACITY = 32768
 comptime NATIVE_TEXT_CAPACITY = 256
 from moxi.accessibility import AccessibilitySnapshot
@@ -74,6 +73,13 @@ def clip_scene(scene: Scene, root: Rect) -> Scene:
 
 def canvas_accessibility[Child: Component & Deinitable](app: App[CanvasView[Child]]) -> AccessibilitySnapshot:
     var snapshot = app.accessibility()
+    # This index belongs to this publication, not the retained component. A
+    # rebuild, pan, reparent or clip edit must always read the current view.
+    var indices = Dict[Int, Int]()
+    for i in range(len(app.view.children)):
+        var id = app.view.children[i].id
+        if id not in indices:
+            indices[id] = i
     # Runtime supplies semantic roles/state; publish the same ancestor clip as paint.
     for i in range(len(snapshot.nodes)):
         var bounds = snapshot.nodes[i].bounds.intersection(app.root_bounds)
@@ -81,25 +87,26 @@ def canvas_accessibility[Child: Component & Deinitable](app: App[CanvasView[Chil
         var remaining = len(app.view.children)
         while parent >= 0 and remaining > 0:
             remaining -= 1
-            var found = False
-            for node in app.view.children:
-                if node.id == parent:
-                    if node.clip_children:
-                        bounds = bounds.intersection(node.bounds)
-                    parent = node.parent_id
-                    found = True
-                    break
-            if not found:
+            var index = indices.get(parent, -1)
+            if index < 0:
                 break
+            ref node = app.view.children[index]
+            if node.clip_children:
+                bounds = bounds.intersection(node.bounds)
+            parent = node.parent_id
         snapshot.nodes[i].bounds = bounds
     return snapshot^
 
 
 def render_canvas[Child: Component & Deinitable](mut app: App[CanvasView[Child]], mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer) raises:
     var commands = app.paint()
-    # The shared native ordered buffer is fixed at 1024 entries. Fail visibly.
-    if commands.count() > NATIVE_ORDERED_CAPACITY:
-        raise Error("Canvas native ordered-paint capacity exceeded (1024 commands)")
+    # Ask the linked adapter rather than duplicating its bounded slot ceiling.
+    var capacity = Int(external_call["moxi_window_command_capacity", Int32]())
+    if commands.count() > capacity:
+        raise Error(String("Canvas native ordered-paint capacity exceeded (", capacity, " commands)"))
+    var semantics = canvas_accessibility(app)
+    if len(semantics.nodes) > capacity:
+        raise Error(String("Canvas native accessibility capacity exceeded (", capacity, " nodes)"))
     paint.begin_frame()
     external_call["moxi_window_ordered_paint_begin", NoneType]()
     for i in range(commands.count()):
@@ -178,6 +185,8 @@ def render_canvas[Child: Component & Deinitable](mut app: App[CanvasView[Child]]
         var command = commands.command(i)
         if command.id == SEARCH_PANEL_ID or command.id == SEARCH_LABEL_ID:
             external_call["moxi_window_ordered_paint", NoneType](Int32(command.kind), Int32(command.slot))
-    paint.update_accessibility(canvas_accessibility(app))
+    paint.update_accessibility(semantics)
+    if external_call["moxi_window_command_overflow_count", Int32]() != 0:
+        raise Error("Canvas native adapter capacity exceeded; refusing truncated output")
     paint.end_frame()
     app.clear_invalidation()

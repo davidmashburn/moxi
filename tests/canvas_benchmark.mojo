@@ -1,5 +1,6 @@
 """Reproducible CPU measurements; deliberately separate from native presentation."""
 from std.time import perf_counter_ns
+from std.sys import argv
 from std.collections import List
 from moxi import Component, ColumnView, Rect, Point
 from moxi.scene import Scene
@@ -44,6 +45,8 @@ def consume(view: ColumnView, scene: Scene) -> Float64:
     return result
 
 def report(name: String, mut samples: List[Float64]):
+    for i in range(len(samples)):
+        print("sample", name, "index", i, "ms", samples[i])
     for i in range(1, len(samples)):
         var j = i
         while j > 0 and samples[j] < samples[j - 1]:
@@ -106,7 +109,11 @@ def measure[Child: Component & Deinitable](doc: CanvasDocument, child: Child, na
     print(name, "transaction_ms", Float64(perf_counter_ns() - start) / 1_000_000, "history_snapshots", len(canvas.state.history.before) * 2, "history_objects", len(canvas.state.history.before) * len(doc.objects) * 2)
 
 def main() raises:
-    print("CPU only; native submission/GPU/presentation/allocation bytes NOT measured. Native ordered paint has a 1024-command cap. These results do not pass the 8ms native budget.")
+    print("CPU only; native submission/GPU/presentation/allocation bytes NOT measured. These results alone cannot pass the 8ms native budget.")
+    var args = argv()
+    if len(args) == 2 and args[1] == "--large-only":
+        measure(fixture(1000, 2000), SimpleNode(), "simple-1000-visible", True)
+        return
     measure(fixture(100, 200), SimpleNode(), "simple-100", False)
     measure(fixture(1000, 2000), SimpleNode(), "simple-1000-visible", True)
     measure(fixture(100, 200), RichNode(), "rich-100", False)

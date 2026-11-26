@@ -75,9 +75,11 @@ movement, and full history snapshots remain significant. One 1,000-node commit
 retains 2,000 object records in its before/after history pair; the history limit
 is 100 transactions. Allocation count/bytes and resident memory were not measured.
 
-The proposed 8 ms p95 budget already fails before native submission. The current
-native ordered-paint capacity of 1,024 commands also prevents presenting this
-large fixture. A capacity increase alone would not resolve the CPU cost.
+The proposed 8 ms p95 budget already fails before native submission. At this
+measurement revision, the native ordered-paint capacity of 1,024 commands also
+prevented presenting this large fixture. The subsequent
+[capacity follow-up](canvas-capacity-evidence.md) removes that capacity blocker
+and records new measurements; the historical timings above are unchanged.
 
 ## Open acceptance and integration work
 
@@ -90,7 +92,7 @@ large fixture. A capacity increase alone would not resolve the CPU cost.
 - End-to-end 60/120 Hz input-to-presentation latency, allocations, GPU time,
   device variation, cold install/environment provisioning and non-macOS native
   hosts were not tested. The existing environment was reused.
-- Large native scenes need a reviewed shared renderer capacity change. Parent
+- Larger scenes remain bounded by the renderer limits in the capacity follow-up. Parent
   integration resolves edge/control ordering with two instance-owned custom
   slices. Dense reconnect labels can still overlap. The D03 adapter bounds
   per-command clipping locally; partially clipped edge labels are omitted.

@@ -57,7 +57,7 @@ def main():
     run([str(ROOT / "dist/spatial-probe/comparison"), "--replay", str(DEST)], f"{LOG_PREFIX}-replay.log")
     source_paths = sorted((ROOT / "experiments/spatial-probe").glob("*"))
     source_paths = [p for p in source_paths if p.suffix in (".m", ".h", ".sh", ".py")]
-    source_paths += [ROOT / p for p in ("native/macos_metal.m", "native/macos_window.m", "native/macos_window_state.h", "native/macos_paragraph.h", "scripts/demo_slideshows.py")]
+    source_paths += [ROOT / p for p in ("native/macos_metal.m", "native/macos_window.m", "native/macos_window_state.h", "native/macos_window_tables.def", "native/macos_paragraph.h", "scripts/demo_slideshows.py")]
     fingerprint = hashlib.sha256()
     files = {}
     for path in source_paths:

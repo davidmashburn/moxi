@@ -23,6 +23,17 @@ case "$mode" in
     clang -O1 -Wall -Wextra -Werror -fobjc-arc -fmodules tests/canvas/native_layers.m -framework Cocoa -o dist/moxi-canvas-native-layers > "${log_prefix}-layer-build.log" 2>&1
     ./dist/moxi-canvas-native-layers > "${log_prefix}-layers.log" 2>&1
     cat "${log_prefix}-layers.log"
+    clang -O1 -Wall -Wextra -Werror -fobjc-arc -fmodules tests/canvas/native_capacity.m -framework Cocoa -o dist/moxi-canvas-native-capacity > "${log_prefix}-capacity-build.log" 2>&1
+    ./dist/moxi-canvas-native-capacity > "${log_prefix}-capacity.log" 2>&1
+    cat "${log_prefix}-capacity.log"
+    clang -O1 -Wall -Wextra -Werror -fobjc-arc -fmodules tests/canvas/native_table_growth.m -framework Cocoa -framework QuartzCore -o dist/moxi-canvas-native-table-growth > "${log_prefix}-table-growth-build.log" 2>&1
+    ./dist/moxi-canvas-native-table-growth > "${log_prefix}-table-growth.log" 2>&1
+    cat "${log_prefix}-table-growth.log"
+    ;;
+  window-cost)
+    clang -O2 -Wall -Wextra -Werror -fobjc-arc -fmodules tests/canvas/native_window_cost.m -framework Cocoa -framework QuartzCore -o dist/moxi-canvas-window-cost > "${log_prefix}-window-cost-build.log" 2>&1
+    ./dist/moxi-canvas-window-cost > "${log_prefix}-window-cost.log" 2>&1
+    cat "${log_prefix}-window-cost.log"
     ;;
   build|capture)
     clang -c -fobjc-arc native/macos_window.m -o dist/canvas_window.o > "${log_prefix}-clang.log" 2>&1
@@ -42,5 +53,13 @@ case "$mode" in
     mojo run -I "$PWD/src" -I "$PWD/examples" "$PWD/tests/canvas_benchmark.mojo" > "${log_prefix}-benchmark.log" 2>&1
     cat "${log_prefix}-benchmark.log"
     ;;
-  *) echo "Usage: $0 check|consumer|layers|build|capture|benchmark" >&2; exit 2 ;;
+  capacity)
+    capacity_dir=${MOXI_CANVAS_CAPACITY_OUTPUT:-$PWD/dist/canvas-capacity}
+    mkdir -p "$capacity_dir"
+    clang -O2 -Wall -Wextra -Werror -fobjc-arc -fmodules -c tests/canvas/capacity_probe.m -o dist/canvas_capacity_probe.o > "${log_prefix}-capacity-probe-build.log" 2>&1
+    mojo build -I "$PWD/src" -I "$PWD/tests" -I "$PWD/examples" -Xlinker "$PWD/dist/canvas_capacity_probe.o" -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker QuartzCore "$PWD/tests/canvas_capacity.mojo" -o "$PWD/dist/moxi-canvas-capacity" > "${log_prefix}-capacity-consumer-build.log" 2>&1
+    ./dist/moxi-canvas-capacity "$capacity_dir" > "${log_prefix}-capacity-consumer.log" 2>&1
+    cat "${log_prefix}-capacity-consumer.log"
+    ;;
+  *) echo "Usage: $0 check|consumer|layers|build|capture|benchmark|capacity|window-cost" >&2; exit 2 ;;
 esac

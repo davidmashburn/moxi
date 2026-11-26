@@ -11,17 +11,65 @@ typedef struct {
     NSRect clip;
 } MoxiCustomSlice;
 
+/* Ordinary windows retain the pre-D03 1024-entry baseline. A valid writer
+ * promotes the whole table set once; custom-paint storage is independent.
+ * Fixed Objective-C layouts let ARC own every reference, including slot structs.
+ */
+enum { MoxiBaselineTableCapacity = 1024 };
+@interface MoxiBaselineWindowTables : NSObject {
+@public
+#define MOXI_TABLE_VALUE(type, name) type name[MoxiBaselineTableCapacity];
+#define MOXI_TABLE_OBJECT(type, name) MOXI_TABLE_VALUE(type, name)
+#define MOXI_TABLE_COLOR(name) float name[MoxiBaselineTableCapacity][4];
+#define MOXI_TABLE_ORDER(name) int name[MoxiBaselineTableCapacity + MoxiCustomSliceCapacity];
+#include "macos_window_tables.def"
+#undef MOXI_TABLE_VALUE
+#undef MOXI_TABLE_OBJECT
+#undef MOXI_TABLE_COLOR
+#undef MOXI_TABLE_ORDER
+}
+@end
+@implementation MoxiBaselineWindowTables
+@end
+
+@interface MoxiExpandedWindowTables : NSObject {
+@public
+#define MOXI_TABLE_VALUE(type, name) type name[MOXI_MAX_DRAW_COMMANDS];
+#define MOXI_TABLE_OBJECT(type, name) MOXI_TABLE_VALUE(type, name)
+#define MOXI_TABLE_COLOR(name) float name[MOXI_MAX_DRAW_COMMANDS][4];
+#define MOXI_TABLE_ORDER(name) int name[MOXI_MAX_DRAW_COMMANDS + MoxiCustomSliceCapacity];
+#include "macos_window_tables.def"
+#undef MOXI_TABLE_VALUE
+#undef MOXI_TABLE_OBJECT
+#undef MOXI_TABLE_COLOR
+#undef MOXI_TABLE_ORDER
+}
+@end
+@implementation MoxiExpandedWindowTables
+@end
+
 @interface MoxiWindowState : NSObject {
 @public
     BOOL retired;
+    /* Views borrow storage only from this strong owner; none escape the ABI.
+     * Promotion rebinds them before releasing the old backing object. */
+    NSObject *tableStorage;
+    int tableCapacity;
+#define MOXI_TABLE_VALUE(type, name) type *name;
+#define MOXI_TABLE_OBJECT(type, name) type __strong *name;
+#define MOXI_TABLE_COLOR(name) float (*name)[4];
+#define MOXI_TABLE_ORDER(name) int *name;
+#include "macos_window_tables.def"
+#undef MOXI_TABLE_VALUE
+#undef MOXI_TABLE_OBJECT
+#undef MOXI_TABLE_COLOR
+#undef MOXI_TABLE_ORDER
     NSMenu *menu;
     NSInteger menuResult;
     NSAlert *dialog;
     /* Opt-in retained submission order; legacy hosts keep their original order. */
     BOOL moxi_ordered_paint_enabled;
     int moxi_ordered_paint_count;
-    int moxi_ordered_paint_kinds[MOXI_MAX_DRAW_COMMANDS + MoxiCustomSliceCapacity];
-    int moxi_ordered_paint_slots[MOXI_MAX_DRAW_COMMANDS + MoxiCustomSliceCapacity];
     int customSliceCount;
     MoxiCustomSlice customSlices[MoxiCustomSliceCapacity];
     NSWindow *moxi_window;
@@ -69,106 +117,20 @@ typedef struct {
     FILE *moxi_native_timing_output;
     int moxi_label_count;
     int moxi_command_overflow_count;
-    NSString *moxi_label_texts[MOXI_MAX_DRAW_COMMANDS];
-    id<MoxiParagraphDrawing> moxi_label_paragraphs[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_label_frames[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_label_fills[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_label_radii[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_label_badges[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_label_padding[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_label_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_label_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_label_wraps[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_label_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_label_clip_frames[MOXI_MAX_DRAW_COMMANDS];
     int moxi_button_count;
-    NSString *moxi_button_texts[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_button_frames[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_button_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_button_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_button_radii[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_button_borders[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_button_border_widths[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_button_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_button_wraps[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_button_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_button_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_button_focused[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_button_hovered[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_button_pressed[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_button_enabled[MOXI_MAX_DRAW_COMMANDS];
     int moxi_checkbox_count;
-    NSString *moxi_checkbox_texts[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_checkbox_frames[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_checkbox_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_checkbox_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_checkbox_radii[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_checkbox_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_checkbox_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_checkbox_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_checkbox_focused[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_checkbox_hovered[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_checkbox_pressed[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_checkbox_enabled[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_checkbox_checked[MOXI_MAX_DRAW_COMMANDS];
     int moxi_progress_count;
-    NSString *moxi_progress_texts[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_progress_frames[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_progress_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_progress_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_progress_radii[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_progress_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_progress_values[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_progress_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_progress_clip_frames[MOXI_MAX_DRAW_COMMANDS];
     int moxi_slider_count;
-    MoxiSliderSlot moxi_slider_slots[MOXI_MAX_DRAW_COMMANDS];
     int moxi_toggle_count;
-    MoxiToggleSlot moxi_toggle_slots[MOXI_MAX_DRAW_COMMANDS];
     int moxi_text_input_count;
-    NSString *moxi_text_input_texts[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_text_input_frames[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_text_input_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_text_input_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_text_input_radii[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_text_input_font_sizes[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_text_input_wraps[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_text_input_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_text_input_clip_frames[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_text_input_focused[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_text_input_cursors[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_text_input_selection_starts[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_text_input_selection_ends[MOXI_MAX_DRAW_COMMANDS];
-    NSString *moxi_text_input_compositions[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_text_input_composition_selection_starts[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_text_input_composition_selection_ends[MOXI_MAX_DRAW_COMMANDS];
     int moxi_image_count;
-    int moxi_image_resource_ids[MOXI_MAX_DRAW_COMMANDS];
-    NSImage *moxi_image_resources[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_image_nearest[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_registered_image_ids[MOXI_MAX_DRAW_COMMANDS];
-    NSImage *moxi_registered_images[MOXI_MAX_DRAW_COMMANDS];
-    NSString *moxi_image_alt_texts[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_image_frames[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_image_fill_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_image_text_colors[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_image_radii[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_image_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_image_clip_frames[MOXI_MAX_DRAW_COMMANDS];
     int moxi_active_text_input_index;
     int moxi_retained_text_editor_key;
     BOOL moxi_native_text_editor_seen;
     float moxi_surface_fill[4];
     int moxi_panel_count;
-    NSRect moxi_panel_frames[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_panel_fills[MOXI_MAX_DRAW_COMMANDS][4];
-    float moxi_panel_radii[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_panel_clip_enabled[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_panel_clip_frames[MOXI_MAX_DRAW_COMMANDS];
     int moxi_native_widget_count;
-    MoxiNativeWidgetSlot moxi_native_widget_slots[MOXI_MAX_DRAW_COMMANDS];
     int moxi_scrollbar_count;
-    MoxiScrollbarSlot moxi_scrollbar_slots[MOXI_MAX_DRAW_COMMANDS];
     int moxi_custom_line_count;
     NSPoint moxi_custom_line_starts[MOXI_MAX_CUSTOM_LINES];
     NSPoint moxi_custom_line_ends[MOXI_MAX_CUSTOM_LINES];
@@ -211,24 +173,6 @@ typedef struct {
     BOOL moxi_current_clip_enabled;
     NSRect moxi_current_clip_frame;
     int moxi_accessibility_count;
-    int moxi_accessibility_ids[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_accessibility_parent_ids[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_accessibility_roles[MOXI_MAX_DRAW_COMMANDS];
-    NSString *moxi_accessibility_labels[MOXI_MAX_DRAW_COMMANDS];
-    NSString *moxi_accessibility_values[MOXI_MAX_DRAW_COMMANDS];
-    NSString *moxi_accessibility_hints[MOXI_MAX_DRAW_COMMANDS];
-    NSRect moxi_accessibility_frames[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_accessibility_enabled[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_accessibility_focused[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_accessibility_selected[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_accessibility_checked[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_accessibility_expanded[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_accessibility_has_value_range[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_accessibility_value_min[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_accessibility_value_max[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_accessibility_value_now[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_accessibility_actions[MOXI_MAX_DRAW_COMMANDS];
-    NSAccessibilityElement *moxi_accessibility_elements[MOXI_MAX_DRAW_COMMANDS];
     NSMutableArray *moxi_accessibility_owned_elements;
     NSMutableArray *moxi_accessibility_root_children;
     /* Preserve AX identity only for this window's active semantic keys. */
@@ -236,24 +180,290 @@ typedef struct {
     BOOL moxi_accessibility_focused_text_input;
     BOOL moxi_accessibility_has_previous_snapshot;
     int moxi_previous_accessibility_count;
-    int moxi_previous_accessibility_ids[MOXI_MAX_DRAW_COMMANDS];
-    int moxi_previous_accessibility_roles[MOXI_MAX_DRAW_COMMANDS];
-    NSString *moxi_previous_accessibility_values[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_previous_accessibility_checked[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_previous_accessibility_expanded[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_previous_accessibility_selected[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_previous_accessibility_enabled[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_previous_accessibility_focused[MOXI_MAX_DRAW_COMMANDS];
-    BOOL moxi_previous_accessibility_has_value_range[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_previous_accessibility_value_min[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_previous_accessibility_value_max[MOXI_MAX_DRAW_COMMANDS];
-    float moxi_previous_accessibility_value_now[MOXI_MAX_DRAW_COMMANDS];
 }
+- (void)ensureTableCapacity:(int)required;
+- (void)resetDrawSlots;
+- (void)resetDrawSlotsFrom:(int)start initializing:(BOOL)initializing;
+- (void)resetAccessibilitySlots;
+- (void)resetAccessibilitySlotsFrom:(int)start initializing:(BOOL)initializing;
+- (void)captureAccessibilitySnapshot;
 @end
 @implementation MoxiWindowState
+/* Defaults remain available for sparse public slots and holes. Initialize a
+ * new tail once; frame resets still touch only the prior per-kind counts. */
+- (void)resetDrawSlots {
+    [self resetDrawSlotsFrom:0 initializing:NO];
+}
+- (void)resetDrawSlotsFrom:(int)start initializing:(BOOL)initializing {
+    int labelLimit = initializing ? tableCapacity : moxi_label_count;
+    for (int i = start; i < labelLimit; ++i) {
+        moxi_label_texts[i] = nil;
+        moxi_label_paragraphs[i] = nil;
+        moxi_label_frames[i] = NSZeroRect;
+        moxi_copy_color(moxi_label_text_colors[i], 1.0, 1.0, 1.0, 1.0);
+        moxi_label_font_sizes[i] = 24.0;
+        moxi_label_wraps[i] = NO;
+        moxi_label_badges[i] = NO;
+        moxi_label_padding[i] = 0.0;
+        moxi_label_clip_enabled[i] = NO;
+        moxi_label_clip_frames[i] = NSZeroRect;
+    }
+    int buttonLimit = initializing ? tableCapacity : moxi_button_count;
+    for (int i = start; i < buttonLimit; ++i) {
+        moxi_button_texts[i] = nil;
+        moxi_button_frames[i] = NSZeroRect;
+        moxi_copy_color(moxi_button_fill_colors[i], 0.18, 0.48, 0.92, 1.0);
+        moxi_copy_color(moxi_button_text_colors[i], 1.0, 1.0, 1.0, 1.0);
+        moxi_button_radii[i] = 10.0;
+        moxi_button_font_sizes[i] = 16.0;
+        moxi_button_wraps[i] = NO;
+        moxi_button_clip_enabled[i] = NO;
+        moxi_button_clip_frames[i] = NSZeroRect;
+        moxi_button_focused[i] = NO;
+        moxi_button_hovered[i] = NO;
+        moxi_button_pressed[i] = NO;
+        moxi_button_enabled[i] = YES;
+    }
+    int checkboxLimit = initializing ? tableCapacity : moxi_checkbox_count;
+    for (int i = start; i < checkboxLimit; ++i) {
+        moxi_checkbox_texts[i] = nil;
+        moxi_checkbox_frames[i] = NSZeroRect;
+        moxi_copy_color(moxi_checkbox_fill_colors[i], 0.07, 0.09, 0.14, 1.0);
+        moxi_copy_color(moxi_checkbox_text_colors[i], 1.0, 1.0, 1.0, 1.0);
+        moxi_checkbox_radii[i] = 5.0;
+        moxi_checkbox_font_sizes[i] = 16.0;
+        moxi_checkbox_clip_enabled[i] = NO;
+        moxi_checkbox_clip_frames[i] = NSZeroRect;
+        moxi_checkbox_focused[i] = NO;
+        moxi_checkbox_hovered[i] = NO;
+        moxi_checkbox_pressed[i] = NO;
+        moxi_checkbox_enabled[i] = YES;
+        moxi_checkbox_checked[i] = NO;
+    }
+    int progressLimit = initializing ? tableCapacity : moxi_progress_count;
+    for (int i = start; i < progressLimit; ++i) {
+        moxi_progress_texts[i] = nil;
+        moxi_progress_frames[i] = NSZeroRect;
+        moxi_copy_color(moxi_progress_fill_colors[i], 0.10, 0.14, 0.22, 1.0);
+        moxi_copy_color(moxi_progress_text_colors[i], 1.0, 1.0, 1.0, 1.0);
+        moxi_progress_radii[i] = 8.0;
+        moxi_progress_font_sizes[i] = 14.0;
+        moxi_progress_values[i] = 0.0;
+        moxi_progress_clip_enabled[i] = NO;
+        moxi_progress_clip_frames[i] = NSZeroRect;
+    }
+    int sliderLimit = initializing ? tableCapacity : moxi_slider_count;
+    for (int i = start; i < sliderLimit; ++i) {
+        moxi_slider_slots[i].text = nil;
+        moxi_slider_slots[i].frame = NSZeroRect;
+        moxi_copy_color(moxi_slider_slots[i].fill, 0.10, 0.14, 0.22, 1.0);
+        moxi_copy_color(moxi_slider_slots[i].textColor, 0.35, 0.72, 1.0, 1.0);
+        moxi_slider_slots[i].radius = 8.0;
+        moxi_slider_slots[i].fontSize = 14.0;
+        moxi_slider_slots[i].value = 0.0;
+        moxi_slider_slots[i].focused = NO;
+        moxi_slider_slots[i].hovered = NO;
+        moxi_slider_slots[i].pressed = NO;
+        moxi_slider_slots[i].enabled = YES;
+        moxi_slider_slots[i].clipEnabled = NO;
+        moxi_slider_slots[i].clipFrame = NSZeroRect;
+    }
+    int toggleLimit = initializing ? tableCapacity : moxi_toggle_count;
+    for (int i = start; i < toggleLimit; ++i) {
+        moxi_toggle_slots[i].text = nil;
+        moxi_toggle_slots[i].frame = NSZeroRect;
+        moxi_copy_color(moxi_toggle_slots[i].fill, 0.14, 0.18, 0.28, 1.0);
+        moxi_copy_color(moxi_toggle_slots[i].textColor, 1.0, 1.0, 1.0, 1.0);
+        moxi_toggle_slots[i].radius = 10.0;
+        moxi_toggle_slots[i].fontSize = 16.0;
+        moxi_toggle_slots[i].focused = NO;
+        moxi_toggle_slots[i].hovered = NO;
+        moxi_toggle_slots[i].pressed = NO;
+        moxi_toggle_slots[i].enabled = YES;
+        moxi_toggle_slots[i].checked = NO;
+        moxi_toggle_slots[i].radio = NO;
+        moxi_toggle_slots[i].clipEnabled = NO;
+        moxi_toggle_slots[i].clipFrame = NSZeroRect;
+    }
+    int textInputLimit = initializing ? tableCapacity : moxi_text_input_count;
+    for (int i = start; i < textInputLimit; ++i) {
+        moxi_text_input_texts[i] = nil;
+        moxi_text_input_frames[i] = NSZeroRect;
+        moxi_copy_color(moxi_text_input_fill_colors[i], 0.07, 0.09, 0.14, 1.0);
+        moxi_copy_color(moxi_text_input_text_colors[i], 1.0, 1.0, 1.0, 1.0);
+        moxi_text_input_radii[i] = 8.0;
+        moxi_text_input_font_sizes[i] = 18.0;
+        moxi_text_input_wraps[i] = NO;
+        moxi_text_input_clip_enabled[i] = NO;
+        moxi_text_input_clip_frames[i] = NSZeroRect;
+        moxi_text_input_focused[i] = NO;
+        moxi_text_input_cursors[i] = 0;
+        moxi_text_input_selection_starts[i] = 0;
+        moxi_text_input_selection_ends[i] = 0;
+        moxi_text_input_compositions[i] = nil;
+        moxi_text_input_composition_selection_starts[i] = 0;
+        moxi_text_input_composition_selection_ends[i] = 0;
+    }
+    int imageLimit = initializing ? tableCapacity : moxi_image_count;
+    for (int i = start; i < imageLimit; ++i) {
+        moxi_image_alt_texts[i] = nil;
+        moxi_image_resources[i] = nil;
+        moxi_image_nearest[i] = NO;
+        moxi_image_resource_ids[i] = -1;
+        moxi_image_frames[i] = NSZeroRect;
+        moxi_image_clip_enabled[i] = NO;
+        moxi_image_clip_frames[i] = NSZeroRect;
+        moxi_copy_color(moxi_image_fill_colors[i], 0.12, 0.15, 0.22, 1.0);
+        moxi_copy_color(moxi_image_text_colors[i], 1.0, 1.0, 1.0, 1.0);
+        moxi_image_radii[i] = 4.0;
+    }
+    int panelLimit = initializing ? tableCapacity : moxi_panel_count;
+    for (int i = start; i < panelLimit; ++i) {
+        moxi_panel_frames[i] = NSZeroRect;
+        moxi_copy_color(moxi_panel_fills[i], 0.16, 0.20, 0.30, 1.0);
+        moxi_panel_radii[i] = 0.0;
+        moxi_panel_clip_enabled[i] = NO;
+        moxi_panel_clip_frames[i] = NSZeroRect;
+    }
+    int nativeWidgetLimit = initializing ? tableCapacity : moxi_native_widget_count;
+    for (int i = start; i < nativeWidgetLimit; ++i) {
+        moxi_native_widget_slots[i].text = nil;
+        moxi_native_widget_slots[i].frame = NSZeroRect;
+        moxi_copy_color(moxi_native_widget_slots[i].fill, 0.12, 0.15, 0.22, 1.0);
+        moxi_copy_color(moxi_native_widget_slots[i].textColor, 1.0, 1.0, 1.0, 1.0);
+        moxi_native_widget_slots[i].radius = 6.0;
+        moxi_native_widget_slots[i].fontSize = 14.0;
+        moxi_native_widget_slots[i].kind = 18;
+        moxi_native_widget_slots[i].focused = NO;
+        moxi_native_widget_slots[i].enabled = YES;
+        moxi_native_widget_slots[i].selected = NO;
+        moxi_native_widget_slots[i].expanded = NO;
+        moxi_native_widget_slots[i].clipEnabled = NO;
+        moxi_native_widget_slots[i].clipFrame = NSZeroRect;
+    }
+    int scrollbarLimit = initializing ? tableCapacity : moxi_scrollbar_count;
+    for (int i = start; i < scrollbarLimit; ++i) {
+        moxi_scrollbar_slots[i].track = NSZeroRect;
+        moxi_scrollbar_slots[i].thumb = NSZeroRect;
+        moxi_copy_color(moxi_scrollbar_slots[i].trackColor, 0.055, 0.075, 0.125, 0.72);
+        moxi_copy_color(moxi_scrollbar_slots[i].thumbColor, 0.48, 0.79, 1.0, 0.94);
+        moxi_scrollbar_slots[i].radius = 4.0;
+        moxi_scrollbar_slots[i].visible = NO;
+        moxi_scrollbar_slots[i].clipEnabled = NO;
+        moxi_scrollbar_slots[i].clipFrame = NSZeroRect;
+    }
+}
+- (void)resetAccessibilitySlots {
+    [self resetAccessibilitySlotsFrom:0 initializing:NO];
+}
+- (void)resetAccessibilitySlotsFrom:(int)start initializing:(BOOL)initializing {
+    int limit = initializing ? tableCapacity : moxi_accessibility_count;
+    for (int i = start; i < limit; i++) {
+        moxi_accessibility_ids[i] = -1;
+        moxi_accessibility_parent_ids[i] = -1;
+        moxi_accessibility_roles[i] = 0;
+        moxi_accessibility_labels[i] = nil;
+        moxi_accessibility_values[i] = nil;
+        moxi_accessibility_hints[i] = nil;
+        moxi_accessibility_frames[i] = NSZeroRect;
+        moxi_accessibility_enabled[i] = YES;
+        moxi_accessibility_focused[i] = NO;
+        moxi_accessibility_selected[i] = NO;
+        moxi_accessibility_checked[i] = NO;
+        moxi_accessibility_expanded[i] = NO;
+        moxi_accessibility_has_value_range[i] = NO;
+        moxi_accessibility_value_min[i] = 0.0;
+        moxi_accessibility_value_max[i] = 0.0;
+        moxi_accessibility_value_now[i] = 0.0;
+        moxi_accessibility_actions[i] = 0;
+        moxi_accessibility_elements[i] = nil;
+    }
+}
+- (void)captureAccessibilitySnapshot {
+    for (int i = moxi_accessibility_count; i < moxi_previous_accessibility_count; ++i) {
+        moxi_previous_accessibility_values[i] = nil;
+    }
+    moxi_accessibility_has_previous_snapshot = moxi_accessibility_count > 0;
+    moxi_previous_accessibility_count = moxi_accessibility_count;
+    for (int i = 0; i < moxi_accessibility_count; i++) {
+        moxi_previous_accessibility_ids[i] = moxi_accessibility_ids[i];
+        moxi_previous_accessibility_roles[i] = moxi_accessibility_roles[i];
+        moxi_previous_accessibility_values[i] = moxi_accessibility_values[i] == nil
+            ? @""
+            : [moxi_accessibility_values[i] copy];
+        moxi_previous_accessibility_checked[i] = moxi_accessibility_checked[i];
+        moxi_previous_accessibility_expanded[i] = moxi_accessibility_expanded[i];
+        moxi_previous_accessibility_selected[i] = moxi_accessibility_selected[i];
+        moxi_previous_accessibility_enabled[i] = moxi_accessibility_enabled[i];
+        moxi_previous_accessibility_focused[i] = moxi_accessibility_focused[i];
+        moxi_previous_accessibility_has_value_range[i] =
+            moxi_accessibility_has_value_range[i];
+        moxi_previous_accessibility_value_min[i] = moxi_accessibility_value_min[i];
+        moxi_previous_accessibility_value_max[i] = moxi_accessibility_value_max[i];
+        moxi_previous_accessibility_value_now[i] = moxi_accessibility_value_now[i];
+    }
+}
+- (void)ensureTableCapacity:(int)required {
+    if (required <= tableCapacity) return;
+    NSCAssert(required <= MOXI_MAX_DRAW_COMMANDS, @"Invalid native table capacity");
+    MoxiBaselineWindowTables *previous = (MoxiBaselineWindowTables *)tableStorage;
+    MoxiExpandedWindowTables *next = [MoxiExpandedWindowTables new];
+    /* Assignment preserves ARC ownership for object arrays and slot structs.
+     * Only colors and integer ordering arrays are copied as raw bytes. */
+    for (int i = 0; i < MoxiBaselineTableCapacity; ++i) {
+#define MOXI_TABLE_VALUE(type, name) next->name[i] = previous->name[i];
+#define MOXI_TABLE_OBJECT(type, name) MOXI_TABLE_VALUE(type, name)
+#define MOXI_TABLE_COLOR(name)
+#define MOXI_TABLE_ORDER(name)
+#include "macos_window_tables.def"
+#undef MOXI_TABLE_VALUE
+#undef MOXI_TABLE_OBJECT
+#undef MOXI_TABLE_COLOR
+#undef MOXI_TABLE_ORDER
+    }
+#define MOXI_TABLE_VALUE(type, name)
+#define MOXI_TABLE_OBJECT(type, name)
+#define MOXI_TABLE_COLOR(name) memcpy(next->name, previous->name, sizeof(previous->name));
+#define MOXI_TABLE_ORDER(name) MOXI_TABLE_COLOR(name)
+#include "macos_window_tables.def"
+#undef MOXI_TABLE_VALUE
+#undef MOXI_TABLE_OBJECT
+#undef MOXI_TABLE_COLOR
+#undef MOXI_TABLE_ORDER
+#define MOXI_TABLE_VALUE(type, name) name = next->name;
+#define MOXI_TABLE_OBJECT(type, name) MOXI_TABLE_VALUE(type, name)
+#define MOXI_TABLE_COLOR(name) name = next->name;
+#define MOXI_TABLE_ORDER(name) name = next->name;
+#include "macos_window_tables.def"
+#undef MOXI_TABLE_VALUE
+#undef MOXI_TABLE_OBJECT
+#undef MOXI_TABLE_COLOR
+#undef MOXI_TABLE_ORDER
+    tableStorage = next;
+    tableCapacity = MOXI_MAX_DRAW_COMMANDS;
+    [self resetDrawSlotsFrom:MoxiBaselineTableCapacity initializing:YES];
+    [self resetAccessibilitySlotsFrom:MoxiBaselineTableCapacity initializing:YES];
+    for (int i = MoxiBaselineTableCapacity; i < tableCapacity; ++i)
+        moxi_registered_image_ids[i] = -1;
+}
 - (instancetype)init {
     self = [super init];
     if (self) {
+        MoxiBaselineWindowTables *initial = [MoxiBaselineWindowTables new];
+#define MOXI_TABLE_VALUE(type, name) name = initial->name;
+#define MOXI_TABLE_OBJECT(type, name) MOXI_TABLE_VALUE(type, name)
+#define MOXI_TABLE_COLOR(name) name = initial->name;
+#define MOXI_TABLE_ORDER(name) name = initial->name;
+#include "macos_window_tables.def"
+#undef MOXI_TABLE_VALUE
+#undef MOXI_TABLE_OBJECT
+#undef MOXI_TABLE_COLOR
+#undef MOXI_TABLE_ORDER
+        tableStorage = initial;
+        tableCapacity = MoxiBaselineTableCapacity;
+        [self resetDrawSlotsFrom:0 initializing:YES];
+        [self resetAccessibilitySlotsFrom:0 initializing:YES];
+        for (int i = 0; i < tableCapacity; ++i) moxi_registered_image_ids[i] = -1;
         moxi_ordered_paint_enabled = NO;
         moxi_ordered_paint_count = 0;
         moxi_retained_text_editor_key = -1;
@@ -311,6 +521,13 @@ int moxi_window_select_instance(uint64_t handle) {
         }
     }
     return 0;
+}
+
+/* The common path does not send a message or allocate. Validated writers call
+ * before taking a slot address; callbacks never retain pointers across growth. */
+static void moxi_ensure_table_capacity(int required) {
+    MoxiWindowState *owner = moxi_current_context();
+    if (required > owner->tableCapacity) [owner ensureTableCapacity:required];
 }
 
 #define moxi_ordered_paint_enabled (moxi_current_context()->moxi_ordered_paint_enabled)

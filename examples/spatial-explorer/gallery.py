@@ -64,7 +64,7 @@ def main():
     paths = set()
     for directory in ("examples/spatial-explorer", "native/spatial", "src/moxi_spatial", "src/moxi", "tests/spatial"):
         paths.update(p for p in (ROOT / directory).rglob("*") if p.suffix in {".m", ".h", ".hpp", ".cpp", ".mojo", ".sh", ".py", ".md"})
-    for name in ("native/macos_window.m", "native/macos_window_state.h", "native/macos_composition.h", "native/macos_composition.inc", "native/macos_metal.m", "native/macos_text.m", "native/macos_paragraph.h", "scripts/demo_slideshows.py", "pixi.lock", "pixi.toml"):
+    for name in ("native/macos_window.m", "native/macos_window_state.h", "native/macos_window_tables.def", "native/macos_composition.h", "native/macos_composition.inc", "native/macos_metal.m", "native/macos_text.m", "native/macos_paragraph.h", "scripts/demo_slideshows.py", "pixi.lock", "pixi.toml"):
         paths.add(ROOT / name)
     files = {str(p.relative_to(ROOT)): sha(p.read_bytes()) for p in sorted(paths)}
     fingerprint = sha(json.dumps(files, sort_keys=True).encode())

@@ -23,6 +23,7 @@ pixi run canvas-graph
 pixi run canvas-native-check
 pixi run canvas-gallery
 pixi run canvas-interaction-benchmark
+pixi run canvas-capacity
 ```
 
 `canvas-native-check` compiles both executables, opens each native window,
@@ -172,13 +173,17 @@ The native ordered painter currently accepts label/button/panel/text/native
 widget slots, but omits slider slots. The optional canvas presenter paints the
 actual `SliderControl` PaintCommand through Scene; its ordinary state, input and
 accessibility are unchanged. This is a presenter implementation, not a substitute
-control or screenshot overlay. Native ordered paint is capped at 1,024 commands;
-custom lines at 32,768 and custom text at 256. The presenter raises on these
-limits instead of silently truncating. The native custom ABI has one global clip;
+control or screenshot overlay. The linked AppKit adapter provides 4,096 ordinary
+slots and semantic nodes, plus 64 ordered custom slices. The canvas presenter
+queries this capacity and refuses excessive paint or semantic counts before
+replacing the frame. Custom lines remain capped at 32,768 and custom text at 256;
+adapter overflow is an error. The native custom ABI has one global clip;
 the Canvas adapter analytically clips line segments and intersects filled shapes
 against the Scene clip stack. Partially clipped edge labels are omitted. Ordinary
-control text retains the native control clip. Large native scenes require a shared
-renderer capacity change. Instance-owned ordered custom slices put connections
+control text retains the native control clip. The 1,000-visible-node fixture now
+fits; this does not establish the 8 ms performance budget. See the
+[capacity measurements and limits](canvas-capacity-evidence.md).
+Instance-owned ordered custom slices put connections
 behind node controls and interaction overlays above them. Each slice retains its
 own clip and bounded command ranges; legacy whole-scene painting is unchanged.
 

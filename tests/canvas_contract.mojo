@@ -1,6 +1,6 @@
 """Behavioral replay of the public canvas through actual ordinary components."""
 from std.collections import List
-from moxi import App, Rect, Point, Event, test_check
+from moxi import App, Component, Rect, Point, Event, test_check
 from moxi.event import *
 from moxi_canvas import *
 from moxi_canvas.native import canvas_accessibility
@@ -18,6 +18,36 @@ def pointer(kind: Int, x: Float32, y: Float32, id: Int = 0) -> Event:
     event.position = Point(x, y)
     event.pointer_id = id
     return event
+
+
+def check_accessibility_clips[Child: Component & Deinitable](app: App[CanvasView[Child]]) raises:
+    # Deliberately retain the old scan as an independent reference for indexed
+    # publication, including missing parents and bounded cycle handling.
+    var expected = app.accessibility()
+    var actual = canvas_accessibility(app)
+    check(actual.count() == expected.count(), "AX count preserved")
+    for i in range(expected.count()):
+        var bounds = expected.nodes[i].bounds.intersection(app.root_bounds)
+        var parent = expected.nodes[i].parent_id
+        var remaining = len(app.view.children)
+        while parent >= 0 and remaining > 0:
+            remaining -= 1
+            var found = False
+            for node in app.view.children:
+                if node.id == parent:
+                    if node.clip_children:
+                        bounds = bounds.intersection(node.bounds)
+                    parent = node.parent_id
+                    found = True
+                    break
+            if not found:
+                break
+        var node = actual.nodes[i]
+        var original = expected.nodes[i]
+        check(node.bounds.x == bounds.x and node.bounds.y == bounds.y and node.bounds.width == bounds.width and node.bounds.height == bounds.height, "AX ancestor intersection equals reference")
+        check(node.id == original.id and node.parent_id == original.parent_id and node.role == original.role and node.label == original.label and node.value == original.value and node.hint == original.hint, "AX identity and text preserved")
+        check(node.enabled == original.enabled and node.focused == original.focused and node.selected == original.selected and node.checked == original.checked and node.expanded == original.expanded and node.actions == original.actions, "AX state and actions preserved")
+        check(node.has_value_range == original.has_value_range and node.value_min == original.value_min and node.value_max == original.value_max and node.value_now == original.value_now, "AX range preserved")
 
 
 def key(code: Int, modifiers: Int = 0) -> Event:
@@ -43,6 +73,7 @@ def main() raises:
     var after = camera.unproject(WindowPoint(anchor.x, anchor.y))
     check(abs(old.x - after.x) < 0.001, "zoom anchor")
     var app = App(rich_probe(), Rect(0, 0, 1060, 780))
+    check_accessibility_clips(app)
     var first = app.component.document.world_bounds(1)
     var input_bounds = app.view.bounds_for(11001)
     _ = dispatch_canvas(app, pointer(POINTER_DOWN_KIND, input_bounds.x + 20, input_bounds.y + 10))
@@ -53,6 +84,7 @@ def main() raises:
     input.text = "!"
     _ = dispatch_canvas(app, input)
     check("!" in app.component.mounts[0].child.input.text, "text routed to ordinary child")
+    check_accessibility_clips(app)
     _ = dispatch_canvas(app, key(KEY_A, MOD_COMMAND))
     _ = dispatch_canvas(app, key(KEY_C, MOD_COMMAND))
     check(app.clipboard_text() == app.component.mounts[0].child.input.text, "ordinary clipboard selection")
@@ -122,6 +154,26 @@ def main() raises:
     for node in ax.nodes:
         if node.id == 11001:
             check(node.bounds.width <= app.view.bounds_for(11001).width, "semantics clip agrees")
+    check_accessibility_clips(app)
+    # Repeated calls must use this publication's current clips and ancestry.
+    # Change only the view inputs to the clip projection, then rebuild them.
+    for i in range(len(app.view.children)):
+        if app.view.children[i].id == app.component.control_id(1, 999):
+            app.view.children[i].clip_children = True
+            app.view.children[i].bounds = Rect(22, 104, 7, 9)
+        elif app.view.children[i].id == app.component.control_id(2, 999):
+            app.view.children[i].parent_id = app.component.control_id(1, 999)
+    check_accessibility_clips(app)
+    for i in range(len(app.view.children)):
+        if app.view.children[i].id == app.component.control_id(1, 999):
+            app.view.children[i].parent_id = app.component.control_id(2, 999)
+    check_accessibility_clips(app)  # A malformed ancestry cycle remains bounded.
+    for i in range(len(app.view.children)):
+        if app.view.children[i].id == app.component.control_id(1, 999):
+            app.view.children[i].parent_id = 999999
+    check_accessibility_clips(app)  # Missing ancestors retain the prior behavior.
+    app.rebuild_localized()
+    check_accessibility_clips(app)
     app.component.state.select(1)
     _ = invoke_canvas(app, CanvasCommand.MOVE)
     app.component.document.revision += 1

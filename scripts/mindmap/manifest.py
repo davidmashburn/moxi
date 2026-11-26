@@ -23,7 +23,7 @@ def source_paths():
     sources = set()
     for directory in ('src/moxi', 'src/moxi_canvas', 'src/moxi_mindmap', 'native', 'scripts/mindmap', 'tests/mindmap'):
         for p in (ROOT / directory).rglob('*'):
-            if p.suffix in {'.mojo', '.m', '.h', '.inc', '.py', '.sh', '.mm', '.json'} and '__pycache__' not in p.parts:
+            if p.suffix in {'.mojo', '.m', '.h', '.inc', '.def', '.py', '.sh', '.mm', '.json'} and '__pycache__' not in p.parts:
                 sources.add(p)
     sources.update(ROOT / p for p in ['examples/mindmap_native_app.mojo', 'scripts/demo_slideshows.py', 'pixi.toml', 'pixi.lock'])
     sources = sorted(p for p in sources if p.exists() and str(p.relative_to(ROOT)) in authored)
