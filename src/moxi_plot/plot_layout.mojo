@@ -5,9 +5,9 @@ MIT Copyright (c) 2026 Randy Zwitch. Full notice: tests/fixtures/wave_a/DATAVIZ-
 Wide named columns correspond to upstream series/range matrices, in declared order.
 """
 from .plot_layout_c import _wave_c, _c_validate, _c_layout
-from std.collections import List
+from std.collections import Dict, List
 from .plot_wave_b import _wave_b, _b_valid, _b_series, _emit
-from std.math import isfinite
+from std.math import cos, isfinite, pi, sin
 from moxi.geometry import Point
 from moxi.style import Color
 from .plot_data import PlotDataTable, COLUMN_STRING, COLUMN_CATEGORY, COLUMN_BOOL, COLUMN_FLOAT64, COLUMN_INT64, COLUMN_TIMESTAMP, COLUMN_DURATION
@@ -15,7 +15,7 @@ from .plot_point import PlotPoint, PlotGlyphKind
 from .plot_series import PlotSeries
 from .plot_spec_types import PlotLayer, PlotLayoutVersion
 from .plot_spec_json import _string_array
-from .plot_marks import (PLOT_BUMP, PLOT_PARALLEL, PLOT_FUNNEL, PLOT_LOLLIPOP, PLOT_WATERFALL, PLOT_CANDLESTICK, PLOT_BULLET, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_GANTT, PLOT_SPAN_CHART, PLOT_POPULATION_PYRAMID)
+from .plot_marks import (PLOT_ARC_DIAGRAM, PLOT_BUMP, PLOT_PARALLEL, PLOT_FUNNEL, PLOT_LOLLIPOP, PLOT_WATERFALL, PLOT_CANDLESTICK, PLOT_BULLET, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_GANTT, PLOT_SPAN_CHART, PLOT_POPULATION_PYRAMID)
 
 
 
@@ -49,13 +49,15 @@ def specialized_valid(layer: PlotLayer) -> Bool:
     var mark = layer.mark
     if _wave_b(mark):
         return _fields_valid(layer.series_fields_json) and _b_valid(layer)
-    if layer.x2_field != "" or layer.color_field != "" or layer.fill_field != "" or layer.stroke_field != "" or layer.size_field != "" or layer.opacity_field != "" or layer.text_field != "" or layer.median_field != "":
+    if (mark != PLOT_ARC_DIAGRAM and layer.x2_field != "") or layer.color_field != "" or layer.fill_field != "" or layer.stroke_field != "" or layer.size_field != "" or layer.opacity_field != "" or layer.text_field != "" or layer.median_field != "":
         return False
     if mark == PLOT_FUNNEL and (layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
         return False
     if (mark == PLOT_PARALLEL or mark == PLOT_BUMP) and (layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
         return False
-    if not (mark == PLOT_BUMP or mark == PLOT_PARALLEL or mark == PLOT_FUNNEL or mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
+    if mark == PLOT_ARC_DIAGRAM and (layer.x2_field == "" or layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
+        return False
+    if not (mark == PLOT_ARC_DIAGRAM or mark == PLOT_BUMP or mark == PLOT_PARALLEL or mark == PLOT_FUNNEL or mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
         return False
     if not _fields_valid(layer.series_fields_json) or not _fields_valid(layer.range_fields_json) or not _fields_valid(layer.error_fields_json):
         return False
@@ -126,6 +128,13 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
             return False
     if data.row_count() == 0 or data.field_kind(layer.x_field) == 0:
         return False
+    if layer.mark == PLOT_ARC_DIAGRAM:
+        for field in [layer.x_field, layer.x2_field]:
+            if data.field_kind(field) != COLUMN_STRING and data.field_kind(field) != COLUMN_CATEGORY: return False
+            for row in range(data.row_count()):
+                if not data.field_is_valid(field,row): return False
+        for row in range(data.row_count()):
+            if _stage_value(data,layer.y_field,row)<0: return False
     var fields: List[String] = [layer.y_field]
     var optional_fields: List[String] = [layer.y2_field, layer.stat_low_field, layer.stat_high_field, layer.total_field]
     for name in optional_fields:
@@ -148,9 +157,9 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
         for i in range(data.row_count()):
             if not data.field_is_valid(name, i):
                 return False
-            if (layer.mark == PLOT_BUMP or layer.mark == PLOT_PARALLEL) and not isfinite(_stage_value(data, name, i)):
+            if (layer.mark == PLOT_ARC_DIAGRAM or layer.mark == PLOT_BUMP or layer.mark == PLOT_PARALLEL) and not isfinite(_stage_value(data, name, i)):
                 return False
-            if layer.mark != PLOT_BUMP and layer.mark != PLOT_PARALLEL and layer.mark != PLOT_FUNNEL and not isfinite(data.float_field_at(name, i)):
+            if layer.mark != PLOT_ARC_DIAGRAM and layer.mark != PLOT_BUMP and layer.mark != PLOT_PARALLEL and layer.mark != PLOT_FUNNEL and not isfinite(data.float_field_at(name, i)):
                 return False
     var positive_stage = False
     for i in range(data.row_count()):
@@ -236,6 +245,40 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
     var errors = _string_array(layer.error_fields_json)
     var mark = layer.mark
     var n = data.row_count()
+    if mark == PLOT_ARC_DIAGRAM:
+        result.has_layout_domain = True
+        var nodes = List[String]()
+        var indices = Dict[String,Int]()
+        for field in [layer.x_field, layer.x2_field]:
+            for row in range(n):
+                var name = data.string_field_at(field,row)
+                if name not in indices:
+                    indices[name] = len(nodes)
+                    nodes.append(name)
+        var largest: Float64 = 0
+        for row in range(n):
+            largest = max(largest,_stage_value(data,layer.y_field,row))
+        for row in range(n):
+            var src = indices.get(data.string_field_at(layer.x_field,row),-1)
+            var dst = indices.get(data.string_field_at(layer.x2_field,row),-1)
+            if src == dst: continue
+            var left = Float32(min(src,dst))/Float32(len(nodes)-1)
+            var right = Float32(max(src,dst))/Float32(len(nodes)-1)
+            var radius = (right-left)*0.5
+            _glyph(result,layer,data,row,PlotGlyphKind.POLYLINE,"edge",left,0,right,0,_palette(src))
+            ref edge = result.points[len(result.points)-1]
+            var frac = Float32(_stage_value(data,layer.y_field,row)/largest) if largest>0 else Float32(0)
+            edge.stroke_width = layer.line_width*(1+2*frac)
+            edge.text = String(nodes[src], " → ", nodes[dst])
+            for i in range(49):
+                var angle = Float32(pi)*Float32(i)/48
+                edge.vertices.append(Point(left+radius*(1-cos(angle)),radius*width/height*sin(angle)))
+        for i in range(len(nodes)):
+            var x = Float32(i)/Float32(len(nodes)-1) if len(nodes)>1 else Float32(0.5)
+            _glyph(result,layer,data,0,PlotGlyphKind.POINT,"arc-node",x,0,x,0,_palette(i),False)
+            result.points[len(result.points)-1].text = nodes[i]
+            result.points[len(result.points)-1].size = 8
+        return result^
     if mark == PLOT_PARALLEL or mark == PLOT_BUMP:
         result.has_layout_domain = True
         var dimensions: List[String] = [layer.y_field]

@@ -948,7 +948,12 @@ class Figure:
                 y1 = top + _scale(y1, *result.y_domain, height, invert=True)
                 g = _Geometry("points", result.x_domain, result.y_domain,
                               colors=[glyph.color], opacities=[1.0], sizes=[glyph.size if glyph.size != 6.0 or layer.mark == WaveCMark.PUNCHCARD else layer.size])
-                if glyph.kind is GlyphKind.POLYGON:
+                if glyph.kind is GlyphKind.POLYLINE:
+                    points = [(left + _scale(x,*result.x_domain,width),
+                               top + _scale(y,*result.y_domain,height,invert=True)) for x,y in glyph.vertices]
+                    g.segments = [(*a,*b) for a,b in zip(points, points[1:])]
+                    g.colors = [glyph.color] * len(g.segments)
+                elif glyph.kind is GlyphKind.POLYGON:
                     g.polygons = [[(left + _scale(x, *result.x_domain, width), top + _scale(y, *result.y_domain, height, invert=True)) for x,y in glyph.vertices]]
                 elif glyph.kind is GlyphKind.RECT:
                     g.rects = [(min(x0,x1), min(y0,y1), max(x0,x1), max(y0,y1), 1.)]
@@ -1027,7 +1032,7 @@ class Figure:
             return True
         layer = self.spec.layers[0]
         return layer.layout_version != LayoutVersion.SPECIALIZED or (
-            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, WaveCMark.CALENDAR, WaveCMark.SANKEY, CatalogMark.BUMP, CatalogMark.PARALLEL, CatalogMark.FUNNEL)
+            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, WaveCMark.CALENDAR, WaveCMark.SANKEY, CatalogMark.ARC, CatalogMark.BUMP, CatalogMark.PARALLEL, CatalogMark.FUNNEL)
         )
 
     def to_svg(self) -> bytes:
@@ -1099,6 +1104,9 @@ class Figure:
                     opacity = self._geometry_opacity(geometry, layer, index)
                     for radius, fill in self._marker_discs(geometry, layer, index):
                         parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{_svg_color(fill, opacity)}" data-mark="{layer.mark}"/>')
+            if getattr(geometry, "part", "") == "arc-node":
+                x, y = points[0]
+                parts.append(f'<text x="{x:g}" y="{y+16:g}" text-anchor="middle">{escape(label)}</text>')
             if getattr(geometry, "part", "") in ("dimension", "stage", "rank") and geometry.segments:
                 x, y, *_ = geometry.segments[0]
                 if geometry.part == "rank":

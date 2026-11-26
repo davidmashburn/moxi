@@ -47,6 +47,7 @@ struct PlotGlyphKind(ImplicitlyCopyable):
     comptime POINT = Self(3)
     comptime POLYGON = Self(4)
     comptime TRIANGLE = Self(5)
+    comptime POLYLINE = Self(6)
 
     def __init__(out self, value: Int):
         self.value = value

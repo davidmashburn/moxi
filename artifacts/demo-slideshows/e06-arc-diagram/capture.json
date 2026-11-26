@@ -1,0 +1,87 @@
+{
+  "demo": "arc_diagram",
+  "captured_utc": "2026-11-26T02:50:10.753135+00:00",
+  "host": "Darwin arm64",
+  "browser": "Chrome 158.0.8127.37",
+  "viewport": [
+    1100,
+    540
+  ],
+  "scale": 1,
+  "figure_size": [
+    640,
+    420
+  ],
+  "fixture": [
+    {
+      "row_index": 0,
+      "source": "A",
+      "destination": "C",
+      "weight": 3,
+      "layer": 1
+    },
+    {
+      "row_index": 1,
+      "source": "B",
+      "destination": "A",
+      "weight": 9,
+      "layer": 1
+    },
+    {
+      "row_index": 2,
+      "source": "C",
+      "destination": "B",
+      "weight": 6,
+      "layer": 1
+    }
+  ],
+  "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+  "checkout_base": "5db70765c12dda07b8a8f626026afe86a141f828",
+  "source_sha256": {
+    "examples/catalog-remainder/replay.py": "8e744bcc5d04516db7f02535dd0d2381c3447422652ff6ddc94ccd0450ab9a50",
+    "examples/catalog-remainder/arc_diagram/main.mojo": "7b8bb496a2ece4bc86f8972841909da4df10216f69d144c453a5eeaaac87c3d3",
+    "python/moxi/figure.py": "54f533f51b7cb5fcb699ced97015e354a14de0e0013d2552c88c36b3ce34f610",
+    "python/moxi/specialized.py": "781e57aac92710f3535bcf4475a48fe27d0fcf77adaa4c2952630705c1c5a318",
+    "src/moxi_plot/plot_layout.mojo": "7f3adcdafeffa09491be0be38cae5d6db9a71dbde73e0c153a8033d4716c4a56",
+    "src/moxi_plot/plotting.mojo": "4e5ee41b72f84fa89396d75f6e6d7dc1e3701739555a2668b66189cef7a2d7a4",
+    "src/moxi_plot/plot_point.mojo": "81a6655af70fafd33ee2060c9ccdf4fea1cb38a7084084d72c30ed7579cf1195"
+  },
+  "command": "PYTHONPATH=python python examples/catalog-remainder/replay.py arc_diagram NATIVE_SVG OUTPUT_DIR",
+  "native_backend": "offscreen Mojo PlotView / SvgSceneRenderer",
+  "screenshots": [
+    {
+      "file": "source.png",
+      "observation": "Source table in input order"
+    },
+    {
+      "file": "reference.png",
+      "observation": "dataviz_mojo v0.8.0"
+    },
+    {
+      "file": "native.png",
+      "observation": "Native Scene exported through SvgSceneRenderer (offscreen)"
+    },
+    {
+      "file": "initial.png",
+      "observation": "Python figure and source inspector"
+    },
+    {
+      "file": "selected.png",
+      "observation": "Click a line to select its original source row"
+    },
+    {
+      "file": "reset.png",
+      "observation": "Escape clears the selection"
+    },
+    {
+      "file": "comparison.png",
+      "observation": "Compare normalized geometry across different margins, palettes and legends"
+    }
+  ],
+  "browser_checks": [
+    "source rows selected by chart clicks",
+    "Escape clears selection",
+    "offline keyboard next wraps",
+    "thumbnail and Previous navigate"
+  ]
+}

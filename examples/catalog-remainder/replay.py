@@ -3,6 +3,10 @@ import argparse
 import base64
 import html
 import json
+import hashlib
+import subprocess
+import platform
+from datetime import datetime, timezone
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -19,6 +23,11 @@ WIDTH, HEIGHT = 640, 420
 
 
 def fixture(family):
+    if family == "arc_diagram":
+        data = {"source": ["A","B","C"], "target": ["C","A","B"], "weight": [3,9,6]}
+        spec = PlotSpec()
+        spec.specialize(spec.add_catalog_mark(family, "Edges", "source", "weight", x2_field="target"))
+        return plot(data,spec,width=WIDTH,height=HEIGHT)
     data = {"team": ["East", "West"], "A": [3, 8], "B": [9, 4], "C": [6, 7]}
     spec = PlotSpec()
     spec.specialize(spec.add_catalog_mark(family, "Teams", "team", "A"),
@@ -29,6 +38,9 @@ def fixture(family):
 def compare(family, reference, python_svg, native_svg):
     """Compare ordered segment endpoints after mapping each drawing to its extent."""
     reference_paths = ET.fromstring(reference).findall(".//{*}path")
+    if family == "arc_diagram":
+        compare_arcs(reference_paths, python_svg, native_svg)
+        return
     expected = []
     for path in reference_paths:
         coords = list(map(float, re.findall(r"-?[\d.]+", path.attrib["d"])))
@@ -49,6 +61,44 @@ def compare(family, reference, python_svg, native_svg):
             if a["x1"] != a["x2"] and a["y1"] != a["y2"]:
                 lines.append(tuple((float(a["x"+i]), float(a["y"+i])) for i in ["1", "2"]))
         assert normalize(lines) == normalize(segments), lines
+
+
+def compare_arcs(reference_paths, python_svg, native_svg):
+    """Check radii, endpoints and stroke widths against upstream's SVG arcs."""
+    def numbers(path):
+        return list(map(float, re.findall(r"-?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?", path)))
+
+    targets = []
+    for arc in reference_paths:
+        x,y,r,ry,_,_,_,end,baseline = numbers(arc.attrib["d"])
+        assert r == ry and y == baseline and end-x == 2*r
+        targets.append((x,end,float(arc.attrib["stroke-width"])))
+    root = ET.fromstring(python_svg)
+    groups = []
+    for group in root.findall(".//{*}g"):
+        lines = group.findall("{*}line")
+        if not lines: continue
+        pts = [(float(line.attrib["x1"]),float(line.attrib["y1"])) for line in lines]
+        pts.append((float(lines[-1].attrib["x2"]),float(lines[-1].attrib["y2"])))
+        groups.append((pts, float(lines[0].attrib["stroke-width"])))
+    native = []
+    for path in ET.fromstring(native_svg).findall(".//{*}path"):
+        coords = numbers(path.attrib["d"])
+        native.append((list(zip(coords[::2], coords[1::2])),float(path.attrib["stroke-width"])))
+    for drawing in (groups,native):
+        assert len(drawing) == len(targets)
+        left = min(points[0][0] for points,_ in drawing)
+        right = max(points[-1][0] for points,_ in drawing)
+        for (points, stroke), (start,end,width) in zip(drawing,targets):
+            assert abs(stroke-width)<.001
+            assert abs((points[0][0]-left)/(right-left)-(start-60)/560)<.0001
+            assert abs((points[-1][0]-left)/(right-left)-(end-60)/560)<.0001
+            cx = (points[0][0]+points[-1][0])/2
+            cy = points[0][1]
+            radius = cx-points[0][0]
+            assert len(points) == 49
+            for x,y in points:
+                assert y <= cy+.002 and abs(((x-cx)**2+(y-cy)**2)**.5-radius)<.002
 
 
 STYLE = """body{font:16px system-ui;color:#13283b;margin:16px;background:#fff}
@@ -122,7 +172,7 @@ def replay(family, native, output):
         picked = set()
         for _, geometry in fig._render_geometries():
             if geometry.interactive and geometry.segments and geometry.source_row not in picked:
-                x,y,xx,yy = geometry.segments[0]
+                x,y,xx,yy = geometry.segments[len(geometry.segments)//2]
                 page.locator("#chart").click(position={"x": .75*x+.25*xx, "y": .75*y+.25*yy})
                 page.locator(f'tr.selected[data-row="{geometry.source_row}"]').wait_for(timeout=3000)
                 picked.add(geometry.source_row)
@@ -152,6 +202,24 @@ def replay(family, native, output):
         page.locator("#thumbs button").last.click()
         page.locator("#prev").click()
         assert page.locator("#caption").inner_text() == slides[-2][0]
+        metadata = {
+            "demo": family, "captured_utc": datetime.now(timezone.utc).isoformat(),
+            "host": platform.system()+" "+platform.machine(),
+            "browser": "Chrome "+browser.version, "viewport": [1100,540], "scale": 1,
+            "figure_size": [WIDTH,HEIGHT], "fixture": rows, "reference_revision": PIN,
+            "checkout_base": subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip(),
+            "source_sha256": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+                              for path in [Path(__file__).resolve(), ROOT/f"examples/catalog-remainder/{family}/main.mojo",
+                                           ROOT/"python/moxi/figure.py", ROOT/"python/moxi/specialized.py",
+                                           ROOT/"src/moxi_plot/plot_layout.mojo", ROOT/"src/moxi_plot/plotting.mojo",
+                                           ROOT/"src/moxi_plot/plot_point.mojo"]},
+            "command": f"PYTHONPATH=python python examples/catalog-remainder/replay.py {family} NATIVE_SVG OUTPUT_DIR",
+            "native_backend": "offscreen Mojo PlotView / SvgSceneRenderer",
+            "screenshots": [{"file": path.name,"observation": caption} for caption,path in slides],
+            "browser_checks": ["source rows selected by chart clicks","Escape clears selection",
+                               "offline keyboard next wraps","thumbnail and Previous navigate"],
+        }
+        (output/"capture.json").write_text(json.dumps(metadata,indent=2)+"\n")
         browser.close()
     server.shutdown()
     for suffix in ("svg","pdf","png"):

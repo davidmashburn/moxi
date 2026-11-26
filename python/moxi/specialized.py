@@ -8,7 +8,7 @@ matrix order. Glyphs retain source category rows, including decorative pieces.
 """
 from dataclasses import dataclass
 from enum import Enum, IntEnum
-from math import isfinite
+from math import cos, isfinite, pi, sin
 from typing import Any, List, Tuple
 
 
@@ -18,6 +18,7 @@ class LayoutVersion(IntEnum):
 
 
 class CatalogMark(str, Enum):
+    ARC = "arc_diagram"
     BUMP = "bump"
     PARALLEL = "parallel"
     FUNNEL = "funnel"
@@ -39,6 +40,7 @@ class GlyphKind(str, Enum):
     RECT = "rect"
     SEGMENT = "segment"
     POINT = "point"
+    POLYLINE = "polyline"
     POLYGON = "polygon"
     TRIANGLE = "triangle"
 
@@ -98,7 +100,12 @@ def validate_layout(layer: Any) -> None:
         raise ValueError("series_fields require grouped/stacked bars")
     if layer.range_fields and mark is not WaveAMark.BULLET:
         raise ValueError("range_fields require bullet")
-    if any(getattr(layer, name) for name in ("x2", "color_field", "fill_field", "stroke_field", "size_field", "opacity_field", "text_field", "median_field")):
+    if mark is CatalogMark.ARC:
+        if not layer.x2 or layer.y2 or layer.stat_low_field or layer.stat_high_field:
+            raise ValueError("arc_diagram requires x and x2 endpoints and a y weight")
+    elif layer.x2:
+        raise ValueError("specialized v1 does not support secondary x")
+    if any(getattr(layer, name) for name in ( "color_field", "fill_field", "stroke_field", "size_field", "opacity_field", "text_field", "median_field")):
         raise ValueError("specialized v1 uses layout colors/sizes and source-row text; row visual encodings are unsupported")
     for fields in (layer.series_fields, layer.range_fields, layer.error_fields):
         if not isinstance(fields, list) or any(not isinstance(f, str) or not f for f in fields) or len(set(fields)) != len(fields):
@@ -141,6 +148,33 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
             raise ValueError(f"{name}: expected {n} finite numeric values")
         return [float(v) for v in values]
 
+    if mark is CatalogMark.ARC:
+        targets = data.column(layer.x2)
+        weights = column(layer.y)
+        if min(weights) < 0 or any(not isinstance(v, str) for v in [*categories, *targets]):
+            raise ValueError("arc_diagram requires named endpoints and nonnegative weights")
+        nodes = dict.fromkeys([*categories, *targets])
+        positions = {name: i / (len(nodes)-1) if len(nodes)>1 else .5
+                     for i, name in enumerate(nodes)}
+        colors = {name: PALETTE[i % len(PALETTE)] for i, name in enumerate(nodes)}
+        largest = max(weights)
+        rows, glyphs = [], []
+        for row, (src, dst, weight) in enumerate(zip(categories, targets, weights)):
+            rows.append(dict(row_index=row, source=src, destination=dst, weight=data.column(layer.y)[row]))
+            if src == dst:
+                continue
+            left, right = sorted((positions[src], positions[dst]))
+            radius = (right-left)/2
+            vertices = tuple((left + radius*(1-cos(pi*i/48)), radius*width/height*sin(pi*i/48))
+                             for i in range(49))
+            stroke = layer.line_width * (1 + 2*(weight/largest if largest else 0))
+            glyphs.append(Glyph(GlyphKind.POLYLINE, row, "edge", (left, 0, right, 0),
+                                colors[src], vertices=vertices, source_rows=(row,),
+                                stroke_width=stroke, label=f"{src} → {dst}"))
+        for name, x in positions.items():
+            glyphs.append(Glyph(GlyphKind.POINT, 0, "arc-node", (x,0,x,0), colors[name],
+                                False, label=name, size=8))
+        return Layout(glyphs, (0.,1.), (0.,1.), rows)
     if mark in (CatalogMark.PARALLEL, CatalogMark.BUMP):
         fields = [layer.y, *layer.series_fields]
         rows = [dict(row_index=i, **{f: data.column(f)[i] for f in [layer.x, *fields]})

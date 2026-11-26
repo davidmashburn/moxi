@@ -25,3 +25,9 @@ Each linked offline gallery includes the original PNG captures beside its index.
 ## Bump rankings
 
 [Open the bump slideshow](../../artifacts/demo-slideshows/e06-bump/index.html). Use the same wide series rows as parallel coordinates. Each stage sorts scores in descending order, retaining input order for ties. The fixture exchanges ranks twice. Both normalized traces match the pinned geometry. The Mojo replay picks all four segments by stable key and repeats the ranking after a tie. The Python replay selects both original table rows. The Python test also separates adjacent integers above 2⁵³. SVG and native Scene include rank and stage labels. PNG and PDF cover geometry.
+
+## Arc diagram
+
+[Open the arc diagram slideshow](../../artifacts/demo-slideshows/e06-arc-diagram/index.html). Set x and x2 to named source and destination columns and y to nonnegative weight. Node order follows first appearance across the source column, then the destination column. Self-loops retain their table row and omit the edge. The fixture connects A→C, B→A and C→B. Both Moxi renderers approximate each semicircle with 48 line segments. The comparator checks every vertex against the reference circle and checks endpoints and stroke widths for all three edges. Native clicks at the three apexes return keys 10, 11 and 12. SVG and native Scene include node labels. The Python PNG and PDF exports contain unlabeled geometry.
+
+[Browse all three galleries](../../artifacts/demo-slideshows/e06/index.html). Each capture directory includes the native and Python SVG, Python PNG and vector PDF, original screenshots and a capture manifest.
