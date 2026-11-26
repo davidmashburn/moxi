@@ -1,15 +1,10 @@
 # Deferred implementation master list
 
-Status: reconciled November 9, 2026 against published `main` at `b2361c2`.
-The scope inventoried at `fe79a32` was taken into implementation; it is no longer
-awaiting initial confirmation. Landed slices retain the acceptance limits in
-[current state](CURRENT-STATE.md) and the [remaining-work list](PROJECT-PLANNING.md#remaining-work--november-9-2026).
-
-The [current scheduling decision](PROJECT-PLANNING.md#reopened-proposals) reopens all 28 proposals listed as pending in the November 9 baseline below.
-
 ## Current delivery status
 
-The [November 25 execution update](PROJECT-PLANNING.md#november-25-implementation) records the published experiments, their verification and the remaining acceptance criteria. The [live implementation ledger](https://github.com/davidmashburn/moxi/blob/main/docs/deferred-implementation.json) tracks the current state of each ID.
+All 28 proposals reopened from the November 9 baseline now have runnable results on published main. Seven have completed their bounded experiments and 21 have partial implementations. Across the full inventory of 50 tracks, seven are implemented, nine have completed their experiments and 34 are partial. [Published ledger at `b7d8da2`](https://github.com/davidmashburn/moxi/blob/b7d8da2/docs/deferred-implementation.json)
+
+The execution plan records the remaining criteria for each proposal, including independent user trials, platform checks and performance measurements. The November 9 table below preserves the original scope and delivery state. [Execution plan](PROJECT-PLANNING.md#remaining-work-after-the-gallery-review) · [Current implementation ledger](https://github.com/davidmashburn/moxi/blob/main/docs/deferred-implementation.json)
 
 ## November 9 delivery baseline
 
@@ -45,12 +40,12 @@ P07's application is in separate `moxi-sws`; `dbd145e` is only the Moxi hook com
 | E04 | Native Python experiment | partial | [`f68c965`](https://github.com/davidmashburn/moxi/commit/f68c965), [`6a8b784`](https://github.com/davidmashburn/moxi/commit/6a8b784), [`95d6615`](https://github.com/davidmashburn/moxi/commit/95d6615) |
 | N01 | NotImplemented component | implemented | [`b4d8109`](https://github.com/davidmashburn/moxi/commit/b4d8109) |
 
-Pending IDs are P08–P11 (4), E05–E06 (2), V01–V15 (15), and
+The pending IDs on November 9 were P08–P11 (4), E05–E06 (2), V01–V15 (15), and
 I10/I11/I13/I15/I18/I19/I20 (7). Their original scope rows below remain the
-inventory; no implementation is recorded. I01–I09/I12/I14/I16/I17/I21 are coverage
+inventory at that revision. I01–I09/I12/I14/I16/I17/I21 are coverage
 mappings into other tracks, not extra independently completed or pending plans.
 
-Main CI is not green: the native package recipe omits a required header.
+At that revision, main CI failed because the native package recipe omitted a required header.
 See the [confirmed blocker](CURRENT-STATE.md#integration-checks-and-a-confirmed-packaging-blocker).
 Fresh integrated-source galleries and human/platform/performance gates remain
 open. VoiceOver remains paused. At that checkpoint, the untouched proposals were deferred.
