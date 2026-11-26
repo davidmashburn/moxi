@@ -1,0 +1,111 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Folding lamp · Spring linkage</title>
+<style>
+*{box-sizing:border-box}body{margin:auto;max-width:1100px;padding:28px;background:#f6f4ed;color:#203738;font:16px system-ui}
+h1,h2,p{margin:0 0 12px}h1{font:normal 42px Georgia}h2{font-size:19px}header{border-bottom:2px solid;padding-bottom:8px}
+main{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}section,footer{background:white;border:1px solid #c6cfca;border-radius:5px;padding:18px}
+svg{display:block;width:100%;height:auto}label{display:inline-flex;gap:6px;align-items:center;margin:4px 10px 4px 0}
+button,input,select{font:inherit;color:inherit}button,select,input[type=number]{border:1px solid #9aaea8;border-radius:4px;background:#fff;padding:5px}input[type=number]{width:5em}
+button{cursor:pointer;padding:6px 12px}#sweep,#apply{background:#135d57;color:white}button:disabled{opacity:.45}output{font-variant-numeric:tabular-nums}
+footer p{margin-top:10px}svg text{font:13px system-ui;fill:#354849}#choices label{display:block}
+@media(max-width:700px){body{padding:14px}main{grid-template-columns:1fr}}
+</style>
+<header><h1>Folding lamp</h1><p>Explore how a spring-loaded arm feels through its travel.</p></header>
+<main><section><h2>Planar linkage</h2>
+<svg viewBox="0 -36 440 293" aria-label="Pivoting arm, spring and dashed tip trajectory" role="img">
+<path d="M35 144h95" stroke="#92a29d" stroke-width="3"/><path id="trace" fill="none" stroke="#7c9292" stroke-dasharray="4 4"/>
+<line id="armLine" x1="80" y1="144" stroke="#284a50" stroke-width="8" stroke-linecap="round"/>
+<line id="spring" stroke="#bd6035" stroke-width="4" stroke-dasharray="5 2"/>
+<circle cx="80" cy="144" r="6" fill="#e9d7a1"/><circle id="pin" cx="80" r="5" fill="#bd6035"/>
+<text x="8" y="135">Pivot</text><text id="anchorLabel" x="93">Spring anchor</text></svg>
+<label>Pose <input id="pose" type="range" min="15" max="75" step="5" value="45"><output id="degrees"></output></label>
+<p>Fixed pivot · anchor below hinge · spring at half span</p></section>
+<section><h2>Tangential tip force</h2>
+<svg viewBox="0 0 440 225" role="img" aria-label="Response and target in newtons from 15 to 75 degrees">
+<path id="axes" fill="none" stroke="#778b89"/><g id="ticks"></g>
+<polyline id="goal" fill="none" stroke="#bd6035" stroke-width="3" stroke-dasharray="6 4"/>
+<polyline id="actual" fill="none" stroke="#136758" stroke-width="2.5"/><circle id="cursor" r="4" fill="#136758"/></svg>
+<p>Solid response · dashed target</p><output id="reading"></output></section></main>
+<footer><h2>Design dimensions</h2><form id="hand"><label>Arm (mm) <input id="arm" type="number" min="80" max="140" step="10" required></label>
+<label>Anchor depth (mm) <input id="anchor" type="number" min="30" max="80" step="10" required></label><button>Apply dimensions</button></form>
+<label>Target curve <select id="target"></select></label><button id="sweep">Sweep 42 designs</button>
+<button id="undo">Undo</button><div id="choices"></div>
+<div id="actions" hidden><button id="apply">Use preview</button> <button id="cancel">Cancel preview</button></div>
+<p id="message" role="status"></p><small>Ideal tension spring · 0.12 N/mm · 35 mm free length · horizontal base position fixed</small></footer>
+<script>
+const model = /*MODEL*/null;
+const el = id => document.getElementById(id);
+let design = model.designs.find(d => d.arm === 100 && d.anchor === 40);
+let targetIndex = 1, preview = null;
+const history = [];
+const target = () => model.targets[targetIndex];
+const error = d => Math.sqrt(d.values.reduce((sum,v,i) => sum + (v-target().values[i])**2,0)/d.values.length);
+function clearPreview(){
+  preview = null;
+  el('choices').replaceChildren();
+  el('actions').hidden = true;
+}
+function save(next,index){
+  if(next !== design || index !== targetIndex) history.push([design,targetIndex]);
+  design = next; targetIndex = index; clearPreview();
+}
+function draw(message){
+  const d = preview || design, angle = +el('pose').value, theta = angle*Math.PI/180;
+  const tip = a => [80+d.arm*1.25*Math.cos(a),144-d.arm*1.25*Math.sin(a)];
+  const [x,y] = tip(theta);
+  const pinY = 144+d.anchor*1.25;
+  const line=el('armLine');
+  line.setAttribute('x2',x); line.setAttribute('y2',y);
+  const spring=el('spring');
+  for(const [k,v] of Object.entries({x1:80,y1:pinY,x2:(80+x)/2,y2:(144+y)/2}))spring.setAttribute(k,v);
+  el('pin').setAttribute('cy',pinY); el('anchorLabel').setAttribute('y',pinY+4);
+  el('trace').setAttribute('d','M'+model.angles.map(a=>tip(a*Math.PI/180).join(',')).join(' L'));
+  const i=model.angles.indexOf(angle);
+  el('degrees').textContent=angle+'°'; el('goal').setAttribute('points',target().points);
+  el('actual').setAttribute('points',d.points);
+  const [cx,cy]=d.points.split(' ')[i].split(',');
+  el('cursor').setAttribute('cx',cx);el('cursor').setAttribute('cy',cy);
+  el('reading').textContent=d.values[i].toFixed(2)+' N at '+angle+'° · target '+target().values[i].toFixed(2)+' N · RMS error '+error(d).toFixed(3)+' N';
+  el('target').value=targetIndex; el('undo').disabled=history.length===0;
+  if(message!==undefined)el('message').textContent=message;
+}
+function syncFields(){el('arm').value=design.arm;el('anchor').value=design.anchor}
+model.targets.forEach((t,i)=>el('target').add(new Option(t.label,i)));
+const [[left,bottom],[right,topY]]=model.axes.map(p=>p.split(',').map(Number));
+el('axes').setAttribute('d',`M${left},${topY}V${bottom}H${right}`);
+for(const [x,y,t] of [[left-30,topY+5,'5 N'],[left-30,bottom,'0 N'],[left-10,bottom+19,'15°'],[right-12,bottom+19,'75°']]){
+  const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+  label.setAttribute('x',x);label.setAttribute('y',y);label.textContent=t;el('ticks').append(label);
+}
+el('pose').oninput=()=>draw();
+el('hand').oninput=()=>{
+  clearPreview();
+  draw('Dimension draft. Apply to update the linkage, or press Escape to discard.');
+};
+el('hand').onsubmit=e=>{
+  e.preventDefault();
+  const d=model.designs.find(row=>row.arm===+el('arm').value && row.anchor===+el('anchor').value);
+  if(d){save(d,targetIndex);draw('Hand-tuned dimensions applied.')}
+};
+el('target').onchange=e=>{save(design,+e.target.value);syncFields();draw('Target changed. Sweep to compare with the current design.')};
+el('sweep').onclick=()=>{
+  clearPreview();syncFields();
+  const matches=model.designs.filter(d=>error(d)<=model.tolerance).sort((a,b)=>error(a)-error(b));
+  if(!matches.length){draw('Infeasible on the 42-design grid. No pair meets 0.16 N RMS within the allowed dimensions. Geometry preserved.');return}
+  matches.slice(0,3).forEach((d,i)=>{
+    const label=document.createElement('label'), radio=document.createElement('input');
+    radio.type='radio';radio.name='candidate';radio.checked=i===0;
+    radio.onchange=()=>{preview=d;draw()};
+    label.append(radio,` ${d.arm} mm arm · ${d.anchor} mm depth · ${error(d).toFixed(3)} N RMS`);
+    el('choices').append(label);
+  });
+  preview=matches[0];el('actions').hidden=false;
+  draw('Previewing ranked matches. Committed design: '+design.arm+' / '+design.anchor+' mm · '+error(design).toFixed(3)+' N RMS.');
+};
+el('apply').onclick=()=>{if(preview){save(preview,targetIndex);syncFields();draw('Candidate applied.')}};
+function cancel(){clearPreview();syncFields();draw('Preview cancelled. Committed design restored.')}
+el('cancel').onclick=cancel;
+el('undo').onclick=()=>{if(history.length){[design,targetIndex]=history.pop();clearPreview();syncFields();draw('Last edit undone.')}};
+document.onkeydown=e=>{if(e.key==='Escape')cancel()};
+syncFields();draw('Hand tune either dimension in 10 mm steps, or compare candidates against the target.');
+</script></html>

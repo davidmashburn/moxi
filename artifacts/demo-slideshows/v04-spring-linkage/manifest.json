@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "demo_id": "v04-spring-linkage",
+  "title": "Folding lamp",
+  "scenario": "V04 / I03 / I21",
+  "host": "Darwin 27.2.0 \u00b7 headless Chrome 158.0.8127.37",
+  "backend": "Moxi Python reference SVG / browser",
+  "fixture": "42 dimension pairs, 13 poses",
+  "scale": 1,
+  "revision": "73c260f3ca424faff7b24536d9c9b3d280f41747",
+  "reproduce": "PYTHONPATH=python python3 examples/spring-linkage/check.py",
+  "slides": [
+    {
+      "image": "01-linkage.png",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "dimensions": [
+        1120,
+        1040
+      ],
+      "caption": "Linkage",
+      "action": "Open the synthetic folding lamp.",
+      "expected": "The 100 mm arm and 40 mm anchor give 0.98 N at 45 degrees."
+    },
+    {
+      "image": "02-hand-tuning.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "dimensions": [
+        1120,
+        1040
+      ],
+      "caption": "Hand tuning",
+      "action": "Nudge anchor depth up and apply dimensions.",
+      "expected": "Depth reads 50 mm. The spring attachment and solid response update together."
+    },
+    {
+      "image": "03-preview-alternative.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "dimensions": [
+        1120,
+        1040
+      ],
+      "caption": "Preview alternative",
+      "action": "Sweep the grid and select the second match.",
+      "expected": "The preview changes while the comparison retains the hand-tuned dimensions and error."
+    },
+    {
+      "image": "04-apply-alternative.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1120,
+        1040
+      ],
+      "caption": "Apply alternative",
+      "action": "Repeat the sweep and use the second preview.",
+      "expected": "The committed fields now match the selected alternative."
+    },
+    {
+      "image": "05-infeasible.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "dimensions": [
+        1120,
+        1040
+      ],
+      "caption": "Infeasible",
+      "action": "Select High load and run the same sweep.",
+      "expected": "The flat 4.8 N target exceeds all admissible matches. Geometry and response are preserved."
+    },
+    {
+      "image": "06-undo.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "dimensions": [
+        1120,
+        1040
+      ],
+      "caption": "Undo",
+      "action": "Undo the high-load target edit.",
+      "expected": "The firm target, chosen geometry and previous response return exactly."
+    }
+  ],
+  "captured_at": "2026-11-26T02:35:58.866136+00:00"
+}
