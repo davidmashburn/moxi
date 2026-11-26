@@ -1,7 +1,7 @@
 PASS D08 portable plane: perspective, capture, cancel, stale lifecycle, parallel/degenerate/nonfinite, near/behind, clip/occlusion, scale
 PASS spatial-contract + spatial-interaction: 1832 assertions
 PASS assembly hierarchy/shared views/probes/clipping/lifecycle: 2522 assertions
-PASS D08 native owner snapshot isolation, bounds, source retirement and mount rejection
+PASS D08 native projected ranges, focus, clipping, populated scene, snapshot isolation and retirement
 PASS spatial native composition/F02/Metal: 143 assertions
 PASS assembly native shared Metal geometry/independent owners: 140 assertions
 PASS D08 clean public panel boundary / invalid wire mode / stale handle
@@ -10,5 +10,5 @@ PASS clean packaged assembly consumer: hierarchy, linked views, measurement, cli
 PASS public Mojo CompositionSurface (owned copy, serial, slot, release)
 PASS native NSTextView selection / named AppKit clipboard / marked-text protocol; synthetic only
 PASS native public Mojo replay: 17 captures; camera uploads=0 derived mesh rebuilds=0 unrelated controls=0; idle submissions=0 / 0.3 seconds
-PASS assembly native public replay: 14 captures; two views / one geometry; camera uploads=0 derived=0 controls=0; idle submissions=0
-PASS D08 and focused D06/D07 checks; source-free import directory /tmp/moxi-d08-consumer.bSg8v8
+PASS assembly native public replay: 14 captures; two views / one geometry; camera submissions=60/view uploads=0 derived=0 controls=0; idle submissions=0
+PASS D08 and focused D06/D07 checks; source-free import directory <consumer>

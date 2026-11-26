@@ -1,0 +1,353 @@
+{
+  "revision": "85b915424e7a7de85b18c0ccea46195d3617948c",
+  "recorded_at": "2026-11-26T03:26:52.192074+00:00",
+  "html_sha256": "705a8d49d7b5a52bb31d23678bdd6f06ba26f187a0bf66a7345e4aaeb6016823",
+  "checker_sha256": "9af5f9767710b6bf72e42980aea49def030781cf6523e41a36dd4f8ae5c5d0cb",
+  "playwright_version": "1.65.2",
+  "timeout_seconds": 90,
+  "url": "file://<repo>/artifacts/demo-slideshows/spatial-world-panel/index.html",
+  "offline": true,
+  "isolated_profile": true,
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "device_scale_factor": 1,
+      "embedded_images": [
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "3f4edc40a90ec01e24362a2fabf14368b8df6b98b4f1fe5ff27481f1e6f1ed53"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "c2eab160a2f7cfaab998e62c2b923c4846a763651351c1e97eed71befd6a20cb"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "206b181fa3a37d0d97aeed9a46ec5be4d3a4e91a76fb1ede990ea177f40faac2"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "ae4d0ba3220e79b2f9235f6e6ca37a76155567a9e1557f75da7d224cb57afdec"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "21d92c41665445f71da09f147f1c8bd5689d387db9d6a57f476fb0635261459f"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "a382e3b171532e363907be4eb0e0c3ec6c6e814997f7e382215b869e28e5a294"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "3f4edc40a90ec01e24362a2fabf14368b8df6b98b4f1fe5ff27481f1e6f1ed53"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "c2eab160a2f7cfaab998e62c2b923c4846a763651351c1e97eed71befd6a20cb"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "206b181fa3a37d0d97aeed9a46ec5be4d3a4e91a76fb1ede990ea177f40faac2"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "ae4d0ba3220e79b2f9235f6e6ca37a76155567a9e1557f75da7d224cb57afdec"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "21d92c41665445f71da09f147f1c8bd5689d387db9d6a57f476fb0635261459f"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "a382e3b171532e363907be4eb0e0c3ec6c6e814997f7e382215b869e28e5a294"
+        }
+      ],
+      "checks": [
+        {
+          "action": "open actual file offline",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "02-capture-outside"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "03-projected-range"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "04-hidden-click"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "05-screen-editor"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "06-cancel-recovery"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "06-cancel-recovery"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "05-screen-editor"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "04-hidden-click"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "03-projected-range"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "02-capture-outside"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "ArrowLeft wrap",
+          "scenario_id": "06-cancel-recovery"
+        },
+        {
+          "action": "ArrowRight wrap",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "modified arrow leaves state unchanged",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "02-capture-outside"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "03-projected-range"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "04-hidden-click"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "05-screen-editor"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "06-cancel-recovery"
+        },
+        {
+          "action": "reload resets to first slide",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "projected range selected for appearance inspection",
+          "scenario_id": "03-projected-range"
+        }
+      ],
+      "horizontal_overflow": false,
+      "screenshot": "deck-1440.png",
+      "screenshot_sha256": "d6c852b666d59e0204495cb48fb6a8454b87b2cf887effa45dbd091e9bd03170"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "device_scale_factor": 1,
+      "embedded_images": [
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "3f4edc40a90ec01e24362a2fabf14368b8df6b98b4f1fe5ff27481f1e6f1ed53"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "c2eab160a2f7cfaab998e62c2b923c4846a763651351c1e97eed71befd6a20cb"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "206b181fa3a37d0d97aeed9a46ec5be4d3a4e91a76fb1ede990ea177f40faac2"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "ae4d0ba3220e79b2f9235f6e6ca37a76155567a9e1557f75da7d224cb57afdec"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "21d92c41665445f71da09f147f1c8bd5689d387db9d6a57f476fb0635261459f"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "a382e3b171532e363907be4eb0e0c3ec6c6e814997f7e382215b869e28e5a294"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "3f4edc40a90ec01e24362a2fabf14368b8df6b98b4f1fe5ff27481f1e6f1ed53"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "c2eab160a2f7cfaab998e62c2b923c4846a763651351c1e97eed71befd6a20cb"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "206b181fa3a37d0d97aeed9a46ec5be4d3a4e91a76fb1ede990ea177f40faac2"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "ae4d0ba3220e79b2f9235f6e6ca37a76155567a9e1557f75da7d224cb57afdec"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "21d92c41665445f71da09f147f1c8bd5689d387db9d6a57f476fb0635261459f"
+        },
+        {
+          "width": 2000,
+          "height": 1420,
+          "sha256": "a382e3b171532e363907be4eb0e0c3ec6c6e814997f7e382215b869e28e5a294"
+        }
+      ],
+      "checks": [
+        {
+          "action": "open actual file offline",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "02-capture-outside"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "03-projected-range"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "04-hidden-click"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "05-screen-editor"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "06-cancel-recovery"
+        },
+        {
+          "action": "Next, including wrap",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "06-cancel-recovery"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "05-screen-editor"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "04-hidden-click"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "03-projected-range"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "02-capture-outside"
+        },
+        {
+          "action": "Previous, including wrap",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "ArrowLeft wrap",
+          "scenario_id": "06-cancel-recovery"
+        },
+        {
+          "action": "ArrowRight wrap",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "modified arrow leaves state unchanged",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "02-capture-outside"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "03-projected-range"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "04-hidden-click"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "05-screen-editor"
+        },
+        {
+          "action": "contact sheet button",
+          "scenario_id": "06-cancel-recovery"
+        },
+        {
+          "action": "reload resets to first slide",
+          "scenario_id": "01-oblique"
+        },
+        {
+          "action": "projected range selected for appearance inspection",
+          "scenario_id": "03-projected-range"
+        }
+      ],
+      "horizontal_overflow": false,
+      "screenshot": "deck-390.png",
+      "screenshot_sha256": "b7e2830da25766e5a486027cb6c9db69bc120bfe21499be8803eb1b7e62a5cee"
+    }
+  ],
+  "browser": "158.0.8127.37",
+  "page_errors": [],
+  "failed_requests": [],
+  "http_requests": []
+}

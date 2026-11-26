@@ -469,19 +469,21 @@
       "commits": [
         "511b60b",
         "e28f28f",
-        "9d3206b"
+        "9d3206b",
+        "6028f06"
       ],
       "verification": [
         "Parent reran integrated world-panel checks: portable/native contracts, source-free public consumers and D06/D07 native replays passed.",
         "World semantics remain suppressed and the equivalent screen-space editor remains the supported route.",
-        "The native replay projected AppKit insertion and substring ranges to the oblique destination panel within 0.01 point. A partially clipped two-character range previously returned half its actual width. The repaired path rejects it and preserves screen editing and owner isolation."
+        "The native replay projected AppKit insertion and substring ranges to the oblique destination panel within 0.01 point. A partially clipped two-character range previously returned half its actual width. The repaired path rejects it and preserves screen editing and owner isolation.",
+        "Six AppKit frames captured at 85b9154 show oblique editing, projected text, a blocked click, screen editing and recovery. Three native replays and 13 focused checks passed. The published deck passed offline navigation at desktop and narrow widths."
       ],
       "remaining_gates": [
         "World panels remain experimental. Physical IME candidate placement, inverse character and world semantic hit testing, horizontal scrolling and mixed-display scaling still need evidence.",
-        "Fresh integrated gallery review, physical IME, human/assistive-tech acceptance, sustained performance and D05 production decision remain open."
+        "Physical IME and human assessment, assistive technology, sustained performance and the D05 production decision remain open."
       ],
       "slideshows": [
-        "artifacts/demo-slideshows/spatial-world-panel/manifest.json",
+        "artifacts/demo-slideshows/spatial-world-panel/index.html",
         "examples/spatial-world-panel/README.md"
       ]
     },

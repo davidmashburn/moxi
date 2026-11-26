@@ -3,11 +3,11 @@
   "demo_id": "spatial-world-panel",
   "title": "Spatial S4 \u2014 world panel feasibility",
   "scenario": "Ordinary components: real world plane versus native screen editor",
-  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
-  "host": "macOS-27.2-arm64-arm-64bit-Mach-O",
+  "revision": "85b915424e7a7de85b18c0ccea46195d3617948c",
+  "host": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
   "backend": "Experimental D05 copied-image Metal + actual AppKit ordinary components",
   "scale": 2.0,
-  "fixture": "400\u00d7240 source; 940\u00d7420 depth target; source SHA-256 3a5c2de74340be52b381b84f7e5f8802a7325adb513797be706b6129a722667a; scoped dirty source: False",
+  "fixture": "400\u00d7240 source; 940\u00d7420 depth target; source SHA-256 ff972c8f7c77528d7e9723689a95d5024d1979d3c0f1c01df80f423148cb3def; scoped dirty source: False",
   "reproduce": "pixi install --locked && python3 artifacts/demo-slideshows/spatial-world-panel/capture.py",
   "slides": [
     {
@@ -22,7 +22,7 @@
       "caption": "Ordinary text, button and slider on a real oblique plane",
       "action": "Launch native probe",
       "expected": "Perspective-correct texture in the existing depth pass",
-      "png_sha256": "f6cb8ec12904f2c18886a345d62f3bf78c9b8f366261a333612fb2ebdcfd2274"
+      "png_sha256": "3f4edc40a90ec01e24362a2fabf14368b8df6b98b4f1fe5ff27481f1e6f1ed53"
     },
     {
       "scenario_id": "02-capture-outside",
@@ -36,21 +36,21 @@
       "caption": "Ray slider drag retains capture outside the panel",
       "action": "Drag local x=100 to x=500 on a 400-point panel",
       "expected": "Slider reaches 100; capture remains active until release",
-      "png_sha256": "27233aa84e1ee6a813cf3370cd0805b6848c86119f68c8670146c75d0ff80eb7"
+      "png_sha256": "c2eab160a2f7cfaab998e62c2b923c4846a763651351c1e97eed71befd6a20cb"
     },
     {
-      "scenario_id": "03-text-focus-failure",
+      "scenario_id": "03-projected-range",
       "phase": "result",
       "capture_kind": "offscreen-render",
-      "image": "03-text-focus-failure.png",
+      "image": "03-projected-range.png",
       "dimensions": [
         2000,
         1420
       ],
-      "caption": "Focus survives; native world text geometry fails",
-      "action": "Click button and text; compare actual caret with its world projection",
-      "expected": "One click and stable focus; source-local IME coordinates explicitly unsupported",
-      "png_sha256": "72bd2838a17413cbd6a8853c9a9d2defb17727ab7bf6c3c513da47e18a100c25"
+      "caption": "Oblique projection of native field-editor ranges",
+      "action": "Click button and text; query destination canvas insertion and substring rectangles",
+      "expected": "One click and stable focus; destination ranges enclose projected source geometry",
+      "png_sha256": "206b181fa3a37d0d97aeed9a46ec5be4d3a4e91a76fb1ede990ea177f40faac2"
     },
     {
       "scenario_id": "04-hidden-click",
@@ -64,7 +64,7 @@
       "caption": "Clipping and real scene occlusion reject input",
       "action": "Clip x<0; add foreground geometry; attempt both hidden targets",
       "expected": "Clipped and depth-occluded clicks return HIDDEN",
-      "png_sha256": "3fa393fe4eb9dfd029a9b86a6558ab3b984b0e6104dcb493f5b6c22985c02607"
+      "png_sha256": "ae4d0ba3220e79b2f9235f6e6ca37a76155567a9e1557f75da7d224cb57afdec"
     },
     {
       "scenario_id": "05-screen-editor",
@@ -78,7 +78,7 @@
       "caption": "Equivalent screen editor controls the same model",
       "action": "Switch mode; replay native text protocols, selection, clipboard and keyboard",
       "expected": "Same text/count/level; actual native roles and coherent screen caret",
-      "png_sha256": "4d13fdd5ab589393e77e4567fa97dd5ede448fcf2ea27f46800ffb079897e12d"
+      "png_sha256": "21d92c41665445f71da09f147f1c8bd5689d387db9d6a57f476fb0635261459f"
     },
     {
       "scenario_id": "06-cancel-recovery",
@@ -91,8 +91,8 @@
       ],
       "caption": "Cancellation restores state; world promotion rejected",
       "action": "Return to world; drag slider then Escape",
-      "expected": "Level restored to 99; explicit supported geometry and failed world IME/AX cases",
-      "png_sha256": "2ebb16fab862d5560df953fd4de0acacde36f6f66efd2010d8748b62e1c31fb0"
+      "expected": "Level restored to 99; screen editing remains supported",
+      "png_sha256": "a382e3b171532e363907be4eb0e0c3ec6c6e814997f7e382215b869e28e5a294"
     }
   ]
 }
