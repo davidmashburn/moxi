@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
-const {Mode, State, poses, mappedWidth, Stroke} = require("./model.js");
+const {Mode, State, poses, mappedWidth, Stroke, CalibrationKey, defaultCalibration,
+  calibration, savedMapping, reopenedMapping} = require("./model.js");
 const close = (a,b) => assert.ok(Math.abs(a-b) < 1e-9, a + " != " + b);
 const states = [State.FREE, State.ANCHOR, State.ACTIVE, State.ACTIVE, State.HOLD,
   State.HOLD, State.ANCHOR, State.ACTIVE, State.FREE, State.ANCHOR, State.ACTIVE];
@@ -39,3 +40,36 @@ for (const mode of Object.values(Mode)) {
   console.log(mode + " · 100 exact replays identical · seeded ±0.01 jitter, 1100 samples · RMS "
     + Math.sqrt(squared/(100*poses.length)).toFixed(4) + " px · max " + worst.toFixed(4) + " px");
 }
+
+// Authored mapping boundaries, versioned persistence, and no-jump recalibration.
+const edited = {...defaultCalibration, [CalibrationKey.CURLED]: 20, [CalibrationKey.RESPONSE]: 2};
+assert.deepEqual(reopenedMapping(savedMapping(edited)), edited);
+for (const invalid of [null, {}, {...edited, extra: 1}, {...edited, relaxed: "4"},
+  {...edited, curled: 29}, {...edited, spread: 3}, {...edited, response: 0}, {...edited, response: NaN}]) {
+  assert.throws(() => calibration(invalid));
+}
+for (const invalid of ["{", "null", "{}", '{"version":2,"calibration":{}}',
+  JSON.stringify({version: 1, calibration: edited, extra: true})]) assert.throws(() => reopenedMapping(invalid));
+for (const mode of Object.values(Mode)) {
+  close(mappedWidth(mode, {curl: 0.5, spread: 0.5}, edited), mode === Mode.DIRECT ? 8 : 11.5);
+  const brush = new Stroke(mode);
+  poses.slice(0, 4).forEach(sample => brush.accept(sample));
+  const width = brush.width;
+  const fork = brush.copy();
+  fork.recalibrate(edited);
+  fork.accept(poses[3]);
+  close(fork.width, width);
+  assert.equal(fork.state, State.ANCHOR);
+  assert.deepEqual(brush.mapping, defaultCalibration); // Preview cannot mutate committed state.
+  fork.accept({...poses[3], curl: 0.5});
+  close(fork.width, width + (mode === Mode.DIRECT ? -5 : -1.875));
+  fork.accept(poses[4]);
+  fork.recalibrate(defaultCalibration);
+  fork.accept(poses[5]);
+  assert.equal(fork.state, State.HOLD);
+  const held = fork.width;
+  fork.accept(poses[6]);
+  close(fork.width, held);
+  assert.equal(fork.state, State.ANCHOR);
+}
+console.log("Passed edited curve, calibration validation, save/reopen and no-jump remapping.");
