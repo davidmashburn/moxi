@@ -20,6 +20,18 @@ def exercise(page):
     y = bar["y"] + bar["height"]
     page.mouse.move(x, bar["y"])
     page.mouse.down()
+    page.mouse.move(x, y - 1.6 * bar["height"])
+    expect(apply).to_be_enabled()
+    page.keyboard.press("Escape")
+    page.mouse.move(x, y - 1.4 * bar["height"])
+    page.mouse.up()
+    expect(page.get_by_role("status")).to_have_text("Preview discarded.")
+    expect(draft).to_have_text(["—"] * 4)
+    expect(saved).to_have_text(initial)
+    expect(apply).to_be_disabled()
+
+    page.mouse.move(x, bar["y"])
+    page.mouse.down()
     page.mouse.move(x, y - 1.6 * bar["height"], steps=5)
     page.mouse.up()
     expect(apply).to_be_enabled()
