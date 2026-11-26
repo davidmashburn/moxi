@@ -8,7 +8,7 @@ from moxi import PlotSpec, plot
 
 ROOT = Path(__file__).resolve().parent
 ASSETS = {"index.html": "text/html", "score.mjs": "text/javascript",
-          "studio.mjs": "text/javascript", "studio.css": "text/css"}
+          "persistence.mjs": "text/javascript", "studio.mjs": "text/javascript", "studio.css": "text/css"}
 
 
 class Handler(BaseHTTPRequestHandler):

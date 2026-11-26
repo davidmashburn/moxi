@@ -27,6 +27,8 @@ button[aria-pressed=true],form button { background:#194d48; color:white}
 #arm { stroke:#b7562c; stroke-width:5; stroke-linecap:round}
 #annotation { font:12px sans-serif}
 #candidate,#status { color:#744022}
+#recovery { border:1px solid #a1b5a9; border-radius:6px; padding:12px; margin-top:16px}
+#recovery a { display:block; color:#194d48; overflow-wrap:anywhere}
 button:focus-visible,input:focus-visible,select:focus-visible { outline:3px solid #cc7227; outline-offset:2px}
 [hidden] { display:none!important}
 @media(max-width:800px) { main { grid-template-columns:1fr}

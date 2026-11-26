@@ -1,19 +1,16 @@
-import {Kind, initial, nodes, selected, validate, edit, append, revise, schedule, angleAt} from "./score.mjs";
+import {Kind, nodes, selected, edit, append, revise, schedule, angleAt} from "./score.mjs";
+import {openScore} from "./persistence.mjs";
 
 const $ = id => document.getElementById(id);
 const fields = $("rules").elements;
-const key = "moxi.v03.score.v1";
-let doc = initial(), history = [], startupError = "";
-try {
-  const stored = localStorage.getItem(key);
-  if (stored !== null) doc = validate(JSON.parse(stored));
-} catch (error) { startupError = "Saved score could not be opened. Showing the starter score."; }
+const persistence = openScore();
+let doc = persistence.doc, history = [], recoveryURLs = [];
 let compiled, plotRequest = 0;
 function report(message) { $("status").textContent = message; }
 function change(fn, message) {
   try {
     const next = fn(doc);
-    localStorage.setItem(key, JSON.stringify(next));
+    persistence.save(next);
     history.push(doc);
     doc = next;
     draw();
@@ -45,7 +42,7 @@ $("rules").onsubmit = event => {
 function selectSlot(id) {
   try {
     const next = edit(doc, d => { d.selected = id; });
-    localStorage.setItem(key, JSON.stringify(next));
+    persistence.save(next);
     doc = next;
     draw();
     $("slot-" + id).focus();
@@ -68,6 +65,27 @@ function slots(n, depth) {
   button.onclick = () => selectSlot(n.id);
   $("slots").append(button);
   n.children?.forEach(child => slots(child, depth + 1));
+}
+function drawRecoveries() {
+  recoveryURLs.forEach(url => URL.revokeObjectURL(url));
+  recoveryURLs = [];
+  $("recovery-links").replaceChildren();
+  let sources = [], error = "";
+  try { sources = persistence.recoverySources(); }
+  catch {
+    if (persistence.unreadableSource !== null) sources = [persistence.unreadableSource];
+    error = "The recovery archive could not be read. Reload once storage is available; unreadable saved source will not be replaced.";
+  }
+  sources.forEach((source, index) => {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([source], {type:"application/json"}));
+    recoveryURLs.push(link.href);
+    link.download = `moxi-score-recovery-${index + 1}.json`;
+    link.textContent = `Download saved source ${index + 1}`;
+    $("recovery-links").append(link);
+  });
+  $("recovery-error").textContent = error;
+  $("recovery").hidden = !sources.length && !error;
 }
 async function plotCurve() {
   const request = ++plotRequest;
@@ -123,6 +141,7 @@ function draw() {
   $("length").hidden = doc.sketch.arm === null;
   $("radius").value = doc.sketch.arm;
   $("undo").disabled = !history.length;
+  drawRecoveries();
   scrub(); preview(); plotCurve();
 }
 for (const k of Object.values(Kind)) {
@@ -139,9 +158,9 @@ $("radius").onchange = () => change(d => edit(d, x => { x.sketch.arm = $("radius
 $("undo").onclick = () => {
   if (!history.length) return;
   try {
-    localStorage.setItem(key, JSON.stringify(history.at(-1)));
+    persistence.save(history.at(-1));
     doc = history.pop();
     resetForm(); draw(); report("Edit undone.");
   } catch (error) { report(error.message); }
 };
-resetForm(); draw(); report(startupError);
+resetForm(); draw(); report(persistence.loadFailed ? "Saved score could not be opened. Showing the starter score. Original saved source will not be replaced without a recovery copy." : "");

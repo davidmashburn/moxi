@@ -5,8 +5,12 @@ Build a movement score from motions, ordered sequences and parallel groups. Rena
 From the repository root, run the loopback host and open its printed URL.
 
 ```sh
-PYTHONPATH=python python3 examples/invent-notation/app.py --port 0
+PYTHONPATH=python python3 examples/invent-notation/app.py --port 8763
 ```
+
+For persistence across host launches, reopen `http://127.0.0.1:8763` in the same browser profile. Browser storage belongs to the full origin (scheme, hostname and port): `localhost` and `127.0.0.1` are different origins. Choose another fixed port if needed and keep using it. `--port 0` chooses an ephemeral port and does not guarantee the same origin on the next launch. Clearing browser data or using a temporary/private profile also removes or isolates saved scores.
+
+If a saved score is malformed or incompatible, the editor shows the starter score and offers its original source as a download. Before selection, edits or undo can replace the active save, the exact unreadable source string must be retained in a separate browser recovery archive. Recovery downloads remain available after edits and reloads, including earlier retained sources. A failed archive write blocks replacement; a failed active-score write leaves the displayed document and undo history unchanged. If storage could not be read at startup, saving stays blocked until a successful reload. Recovery copies use the same origin and browser storage, so download them for safekeeping; automatic format migration and importing recovered files are not implemented.
 
 The root is a sequence. Select a container and use the three insertion buttons to compose its children. Up and Down select adjacent slots in document order. Select a motion to change its duration. A group starts all children together and lasts until the longest child finishes. Each active motion contributes a half-sine rotation with a peak of 60 degrees. The slider samples their sum. Formalizing the joint attaches a length-editable arm to the sketch. Undo restores its previous state.
 
@@ -17,7 +21,7 @@ The browser owns the notation grammar, selection and motion evaluator. The loopb
 Use Node for core tests. The browser replay needs desktop Google Chrome and the Python Playwright package. It starts its own host on an ephemeral port, opens a temporary browser profile and closes both on exit.
 
 ```sh
-node --test examples/invent-notation/score.test.mjs
+node --test examples/invent-notation/score.test.mjs examples/invent-notation/persistence.test.mjs
 runtime=$(mktemp -d)
 uv venv "$runtime/env"
 uv pip install --python "$runtime/env/bin/python" playwright==1.65.2
@@ -36,4 +40,4 @@ uv pip install --python "$runtime/env/bin/python" playwright==1.65.2
 | I01 progressive formalization | A 41-unit arm rotated 70.5° at tick 0.60. Two undos restored the exact pre-arm document including the informal note and joint at (70, 85). |
 | Render and recovery | Chrome decoded the Moxi SVG, rejected a malformed plot request with HTTP 400, and reopened the six-tick result at phone width without horizontal overflow. The replay recorded zero page exceptions. |
 
-Five core tests cover schedule semantics, atomic rejection, identity, serialization, timing, sketch conversion and insertion constraints. This constrained replacement runs a fixed evaluator. Native Mojo UI, collaborative editing, a second notation, screen-reader behavior and cross-browser compatibility remain unverified. Second-author completion, discoverability and prediction accuracy require a participant study.
+Five core tests cover schedule semantics, atomic rejection, identity, serialization, timing, sketch conversion and insertion constraints. Nine persistence tests cover exact source retention, selection/edit/reload, archive and active-write failures, earlier recovery copies and denied reads. The browser replay also checks actual recovery downloads, failed selection/edit/undo handlers and restarting the host on the same origin. This constrained replacement runs a fixed evaluator. Native Mojo UI, collaborative editing, a second notation, screen-reader behavior and cross-browser compatibility remain unverified. Second-author completion, discoverability and prediction accuracy require a participant study.
