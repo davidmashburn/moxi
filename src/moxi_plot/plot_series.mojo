@@ -20,6 +20,10 @@ struct PlotSeries:
     var marker_size: Float32
     var opacity: Float32
     var points: List[PlotPoint]
+    var category_labels: List[String]
+    var categories_on_y: Bool
+    var legend_labels: List[String]
+    var legend_colors: List[Color]
     var visible: Bool
     var has_layout_domain: Bool
     var layout_x_min: Float32
@@ -42,6 +46,10 @@ struct PlotSeries:
         self.marker_size = 6.0
         self.opacity = 1.0
         self.points = List[PlotPoint]()
+        self.category_labels = List[String]()
+        self.categories_on_y = False
+        self.legend_labels = List[String]()
+        self.legend_colors = List[Color]()
         self.visible = True
         self.has_layout_domain = False
         self.layout_x_min = 0.0

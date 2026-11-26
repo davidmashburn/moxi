@@ -32,7 +32,7 @@ NOTES = {
  'span_chart':'Vertical intervals, category order left-to-right, reversed endpoints sorted. This is a distinct orientation from Gantt.',
  'population_pyramid':'Both input sides use magnitudes, left negative/right positive, symmetric domain, first category at the top.',
 }
-COMMON = 'Visual: own theme, margins, rounding, grid and palette. Canvas text/series legend are absent; source table and semantic rows are the fallback. Structural: upstream SVG uses paths/groups/text; Moxi uses Scene primitives. No pixel-parity claim.'
+COMMON = 'Visual: own theme, margins, rounding, grid and palette. Category labels use a compact font; named series use a bottom legend row. Structural: upstream SVG uses paths/groups/text; Moxi uses Scene primitives. No pixel-parity claim.'
 
 
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest()

@@ -95,11 +95,15 @@ lollipop and grouped/stacked bars, and exact Python/Mojo data-space primitive
 coordinates for all nine fixtures. Unit assertions independently check layout
 rules. The unaligned RGB delta is descriptive, never a pass threshold.
 
-Common visual differences are the theme, palette, margins, grid, rounding and
-text/legend handling. The current Canvas capture does not draw upstream's text
-labels or per-series legend. Source tables and semantic rows are available;
-this remains a visual fidelity gap. Python SVG carries the title; its raster/PDF
-text support differs. Upstream uses circles for lollipop; Mojo uses rounded
+The pinned gallery records the original unlabeled captures. Current specialized
+plots label each category at its band center. Grouped and stacked bars show
+their declared series in palette order. The pyramid shows Left and Right.
+Moxi uses a separate bottom legend row. Narrow bands sample or shorten labels
+and the source table retains full text. Canvas, software, AppKit, Metal, and Python RGBA/PNG
+use fixed-width glyphs for printable ASCII, en dash, and ellipsis, with a
+question mark for other glyphs. SVG retains Unicode text and Python PDF uses
+WinAnsi Courier. Theme, grid, margins, title rendering and palette differ.
+Upstream uses circles for lollipop; Mojo uses rounded
 rectangles and Python PDF uses its existing square marker fallback. Moxi's
 candlestick/Gantt domains include zero while upstream fits the data. Grouped
 errors paint above the bars in Moxi, below them upstream. Bullet shades differ.
@@ -118,6 +122,11 @@ host details are in `observed.json`; reruns replace those observations.
 Run from the implementation checkout. All generated reference and Moxi files
 stay outside tracked source; screenshots/HTML and E01 exports are ignored.
 Use a fresh temporary directory if these example paths already contain other work.
+
+With the pinned gallery images already available, pass
+`--gallery artifacts/demo-slideshows` to `scripts/wave_a/verify.py` to verify
+their reference hashes and write a reference, Canvas, and Python comparison
+PNG for each family to the requested output directory.
 
 ```sh
 pixi install --locked

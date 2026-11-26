@@ -1660,6 +1660,8 @@ def plot_from_spec(
             var series_id = plot.add_series(layer.label, layer.color, layer.mark)
             var series = specialized_series(layer, transformed, series_id, plot.plot_area.width, plot.plot_area.height)
             plot.series[plot.series_index(series_id)] = series^
+            if plot.series[plot.series_index(series_id)].categories_on_y:
+                plot.update_plot_area()
             continue
         var color_field = layer.color_field
         if color_field.count_codepoints() == 0:

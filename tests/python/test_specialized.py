@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import pytest
 from moxi import PlotSpec, plot
-from moxi.specialized import GlyphKind, LayoutVersion, layout
+from moxi.specialized import GlyphKind, LayoutVersion, PALETTE, layout
 
 CASES = json.loads((Path(__file__).parents[1]/'fixtures/wave_a/cases.json').read_text())
 
@@ -143,3 +143,59 @@ def test_row_layout_accessibility_keeps_existing_bounded_summary():
     spec.add_line(x_field="x", y_field="y")
     figure = plot({"x": list(range(1000)), "y": list(range(1000))}, spec)
     assert [row["role"] for row in figure.accessibility()] == ["chart", "mark"]
+
+
+@pytest.mark.parametrize("case", CASES, ids=lambda c: c["id"])
+def test_wave_a_output_labels(case):
+    import xml.etree.ElementTree as ET
+    f = make(case)
+    root = ET.fromstring(f.to_svg())
+    labels = [e for e in root.findall(".//{*}text") if e.get("font-family") == "monospace"]
+    categories = case["columns"]["category"]
+    legend = case["layout"].get("series_fields", [])
+    if case["id"] in ("gantt", "population_pyramid"):
+        categories = categories[::-1]
+    if case["id"] == "population_pyramid":
+        legend = ["Left", "Right"]
+    assert [e.text for e in labels] == categories + legend
+    rgba = f.to_rgba()
+    pdf = f.to_pdf()
+    previous = []
+    for index, element in enumerate(labels):
+        text = element.text
+        x, y = int(element.get("x")), int(element.get("y")) - 9
+        right, bottom = x + 7 * len(text), y + 9
+        assert 0 <= x < right <= f.width and 0 <= y < bottom <= f.height
+        assert all(right <= a or x >= c or bottom <= b or y >= d for a, b, c, d in previous)
+        previous.append((x, y, right, bottom))
+        assert any(rgba[4 * (row * f.width + col)] == 36
+                   for row in range(y, bottom) for col in range(x, right))
+        assert f.hit_test(x + 2, y + 3, 1) is None
+        assert b"<" + text.encode("cp1252").hex().encode() + b"> Tj" in pdf
+        if index >= len(categories):
+            pixel = 4 * ((y + 4) * f.width + x - 9)
+            assert rgba[pixel:pixel + 4] == bytes(round(c * 255) for c in PALETTE[index - len(categories)])
+
+
+def test_horizontal_and_narrow_category_labels_keep_source_identity():
+    import xml.etree.ElementTree as ET
+    case = copy.deepcopy(next(c for c in CASES if c["id"] == "grouped_bar"))
+    case["columns"]["category"] = ["North & East", "North & East", "West"]
+    case["layout"]["horizontal"] = True
+    figure = make(case)
+    narrow = plot(case["columns"], figure.spec, width=180, height=150)
+    labels = ET.fromstring(narrow.to_svg()).findall(".//{*}text[@font-family]")
+    assert labels[0].text.endswith("…") and labels[0].text == labels[1].text
+    assert int(labels[0].get("y")) > int(labels[1].get("y"))
+    assert [item["category"] for item in narrow.table()] == case["columns"]["category"]
+    assert "North &amp; East" in figure.to_svg().decode()
+
+
+def test_dense_category_axis_samples_labels_and_preserves_rows():
+    import xml.etree.ElementTree as ET
+    case = copy.deepcopy(next(c for c in CASES if c["id"] == "lollipop"))
+    case["columns"] = {"category": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), "value": list(range(26))}
+    f = plot(case["columns"], make(case).spec, width=180, height=150)
+    labels = ET.fromstring(f.to_svg()).findall(".//{*}text[@font-family]")
+    assert 1 < len(labels) < len(f.table()) == 26
+    assert all(int(b.get("x")) - int(a.get("x")) >= 7 for a, b in zip(labels, labels[1:]))

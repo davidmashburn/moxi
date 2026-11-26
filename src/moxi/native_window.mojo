@@ -42,6 +42,7 @@ from .geometry import Point, Rect, Size
 from .paint import PANEL_KIND, SURFACE_KIND, PaintCommand, Renderer
 from .resources import ImageResource
 from .raster import RasterImage
+from .label_font import LABEL_FONT, label_ink
 from .scene import (
     SCENE_BITMAP,
     SCENE_LINE,
@@ -773,6 +774,14 @@ struct NativeCanvasSceneRenderer[backend_kind: Int](SceneRenderer):
                     command.bounds.width,
                     command.bounds.height,
                     command.opacity,
+                )
+        elif command.kind == SCENE_TEXT and command.has_text_style and command.text_style.family == LABEL_FONT:
+            for pixel in label_ink(command.text, command.bounds.x, command.bounds.y):
+                external_call["moxi_window_add_custom_rect", NoneType](
+                    pixel.x, pixel.y, pixel.width, pixel.height,
+                    command.fill.red, command.fill.green, command.fill.blue,
+                    command.fill.alpha * command.opacity,
+                    Float32(0), Float32(0), Float32(0), Float32(0), Float32(0),
                 )
         elif command.kind == SCENE_TEXT:
             var text = command.text

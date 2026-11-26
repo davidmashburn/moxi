@@ -71,6 +71,19 @@ def check_case(name: String, document: String, data: PlotDataTable, output: Stri
     with open(output+"/"+name+"-table.csv", "w") as file:
         file.write(view.data_table_csv())
     print("selection|", name, "|", first.row_key, "|", click.position.x, "|", click.position.y)
+    # Text and swatches are plot chrome. Only marks contribute selection hits.
+    for command in plot.build_scene().commands:
+        if command.has_text_style:
+            test_check(not runtime.hit_test(Point(command.bounds.x + 2, command.bounds.y + 3), 1).found())
+    var renamed = data.clone()
+    test_check(renamed.set_string_field(spec.layers[0].x_field, 0, "Edited"))
+    test_check(view.replace_data(renamed))
+    var updated_label = False
+    for command in view.build_scene().commands:
+        if command.has_text_style and command.text == "Edited":
+            updated_label = True
+    test_check(updated_label)
+    test_check(view.replace_data(data))
     var changed = data.clone()
     for column_index in range(len(data.columns)):
         var field = data.columns[column_index].name

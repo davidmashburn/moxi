@@ -257,6 +257,18 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
             _emit(result, layer, data, [row], PlotGlyphKind.POLYGON, "stage",
                   vertices, _palette(rank), upper > 0, data.string_field_at(layer.x_field, row))
         return result^
+    var reverse_categories = mark == PLOT_GANTT or mark == PLOT_POPULATION_PYRAMID
+    result.categories_on_y = layer.horizontal or reverse_categories
+    for i in range(n):
+        var row = n - 1 - i if reverse_categories else i
+        result.category_labels.append(data.string_field_at(layer.x_field, row))
+    if mark == PLOT_POPULATION_PYRAMID:
+        result.legend_labels.append("Left")
+        result.legend_labels.append("Right")
+    else:
+        result.legend_labels = fields.copy()
+    for i in range(len(result.legend_labels)):
+        result.legend_colors.append(_palette(i))
     var running: Float32 = 0.0
     var previous_right: Float32 = 0.0
     var low: Float32 = 0.0

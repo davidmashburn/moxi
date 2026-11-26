@@ -1248,6 +1248,28 @@ static int moxi_metal_draw_coretext_text(
     }
 }
 
+/* The plot layout reserves a seven-point advance per fixed-width glyph. */
+void moxi_metal_draw_label_glyphs(
+    const uint64_t *glyphs, int count, float x, float y,
+    float red, float green, float blue, float alpha,
+    float m11, float m12, float m21, float m22, float tx, float ty
+) {
+    if (moxi_metal_encoder == nil || glyphs == NULL || count <= 0) return;
+    moxi_metal_flush_instanced_batches();
+    float color[4] = {red, green, blue, alpha};
+    for (int i = 0; i < count; i++) {
+        for (int row = 0; row < 7; row++) {
+            uint8_t bits = (uint8_t)(glyphs[i] >> (8 * (6 - row)));
+            for (int column = 0; column < 5; column++) {
+                if (bits & (16u >> column)) {
+                    moxi_append_text_rect(x + i * 7 + column, y + row, 1, 1,
+                        color, m11, m12, m21, m22, tx, ty);
+                }
+            }
+        }
+    }
+}
+
 int moxi_metal_draw_text(
     const char *text,
     float x,

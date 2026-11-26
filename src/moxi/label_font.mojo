@@ -1,0 +1,54 @@
+"""Portable fixed-width plot font. Glyph rows match python/moxi/_label_font.py."""
+from std.collections import List
+from .geometry import Rect
+
+comptime LABEL_FONT = "Moxi Mono"
+
+def label_glyphs(text: String) -> List[UInt64]:
+    var rows: List[UInt64] = [
+        0x00000000000000, 0x04040404040004, 0x0a0a0000000000, 0x0a0a1f0a1f0a0a, 0x040f140e051e04,
+        0x19190204081313, 0x0c12140c15120d, 0x04040000000000, 0x02040808080402, 0x08040202020408,
+        0x00150e1f0e1500, 0x0004041f040400, 0x00000000000408, 0x0000001f000000, 0x00000000000004,
+        0x01020204080810, 0x0e11131519110e, 0x040c040404040e, 0x0e11010204081f, 0x1e01010e01011e,
+        0x02060a121f0202, 0x1f10101e01011e, 0x0608101e11110e, 0x1f010204080808, 0x0e11110e11110e,
+        0x0e11110f01020c, 0x00000400000400, 0x00000400000408, 0x01020408040201, 0x00001f001f0000,
+        0x10080402040810, 0x0e110102040004, 0x0e11171517100f, 0x0e11111f111111, 0x1e11111e11111e,
+        0x0e11101010110e, 0x1e11111111111e, 0x1f10101e10101f, 0x1f10101e101010, 0x0e11101711110e,
+        0x1111111f111111, 0x0e04040404040e, 0x0702020212120c, 0x11121418141211, 0x1010101010101f,
+        0x111b1515111111, 0x11191915131311, 0x0e11111111110e, 0x1e11111e101010, 0x0e11111115120d,
+        0x1e11111e141211, 0x0f10100e01011e, 0x1f040404040404, 0x1111111111110e, 0x11111111110a04,
+        0x1111111515150a, 0x11110a040a1111, 0x11110a04040404, 0x1f01020408101f, 0x0e08080808080e,
+        0x10080804020201, 0x0e02020202020e, 0x040a1100000000, 0x0000000000001f, 0x08040000000000,
+        0x00000e010f110f, 0x1010161911111e, 0x00000e1110100f, 0x01010d1311110f, 0x00000e111f100e,
+        0x0609081c080808, 0x000f11110f010e, 0x10101619111111, 0x04000c0404040e, 0x0200060202120c,
+        0x10101214181412, 0x0c04040404040e, 0x00001a15151515, 0x00001619111111, 0x00000e1111110e,
+        0x001e11111e1010, 0x000f11110f0101, 0x00001619101010, 0x00000f100e011e, 0x08081c08080906,
+        0x0000111111130d, 0x00001111110a04, 0x0000111115150a, 0x0000110a040a11, 0x001111110f010e,
+        0x00001f0204081f, 0x02040408040402, 0x04040404040404, 0x08040402040408, 0x00000815020000,
+        0x0000001f000000, 0x00000000000015,
+    ]
+    var result = List[UInt64](capacity=text.count_codepoints())
+    for character in text.codepoints():
+        var code = ord(String(character))
+        var index = code - 32
+        if code == 8211:
+            index = 95
+        elif code == 8230:
+            index = 96
+        elif index < 0 or index >= 95:
+            index = 31  # '?'
+        result.append(rows[index])
+    return result^
+
+
+def label_ink(text: String, x: Float32, y: Float32) -> List[Rect]:
+    var result = List[Rect]()
+    var origin = x
+    for glyph in label_glyphs(text):
+        for row in range(7):
+            var bits = glyph >> UInt64(8 * (6 - row))
+            for column in range(5):
+                if (bits & (UInt64(16) >> UInt64(column))) != 0:
+                    result.append(Rect(origin + Float32(column), y + Float32(row), 1, 1))
+        origin += 7
+    return result^

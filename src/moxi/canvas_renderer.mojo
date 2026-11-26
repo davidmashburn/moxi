@@ -28,6 +28,7 @@ from canvas import (
 
 from .backend import BACKEND_HEADLESS, BackendCapabilities
 from .geometry import Point, Rect, Transform
+from .label_font import LABEL_FONT, label_ink
 from .scene import (
     SCENE_BITMAP,
     SCENE_CLIP,
@@ -482,6 +483,9 @@ struct CanvasSceneRenderer(SceneRenderer):
                     ),
                     Float64(command.stroke_width),
                 )
+        elif command.kind == SCENE_TEXT and command.has_text_style and command.text_style.family == LABEL_FONT:
+            for pixel in label_ink(command.text, command.bounds.x, command.bounds.y):
+                fill_rect(self.canvas, Float64(pixel.x), Float64(pixel.y), 1, 1, _canvas_color(command.fill, self.opacity * command.opacity))
         elif (
             command.kind == SCENE_TEXT
             or command.kind == SCENE_IMAGE
