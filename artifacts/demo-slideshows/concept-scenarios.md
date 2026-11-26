@@ -42,7 +42,7 @@ criterion would change the latter assessment.
 | ID | Sequence status at P / R | Additional received coverage or remaining hole |
 | --- | --- | --- |
 | I01 | Recorded sequence | Bounded note-to-arm formalization; no arbitrary sketch recognition. |
-| I02 | Partial | Matrix-entry/basis manipulation and its shared undo are missing. |
+| I02 | Recorded sequence | Numeric entries and keyboard basis moves share selection and undo. Singular and zero matrices remain editable. |
 | I03 | Partial | Force-grid inverse design exists; trajectory-target solving is missing. |
 | I04 | Recorded sequence | Allocation at P; Compose Worlds adds rule promotion/undo at R. |
 | I05 | P partial; R recorded sequence | Same probe transfers from plot to geometry in A/R; capture provenance remains incomplete. |
@@ -61,7 +61,7 @@ criterion would change the latter assessment.
 | I18 | Recorded sequence | Linked IDs and exceptional mappings in two domains. |
 | I19 | Partial | Plot cursor sequence exists; named canvas/spatial consumers remain open. |
 | I20 | Partial | Notebook sequence recorded; specified I10/V13 consumers remain open. |
-| I21 | Partial | Exact numeric/geometry undo exists; editable equation text/layout round trip is unestablished. |
+| I21 | Recorded sequence | Edit the equation or move the linkage, cancel a draft and undo across both representations. |
 
 ## I01 — Progressively executable sketch
 
@@ -89,25 +89,9 @@ arbitrary drawn-shape recognition or second-author usability is established.
 
 ## I02 — Tangible mathematics
 
-**Status: partial at P and R.** The oscillator shows an actual matrix/basis
-projection, but parameter changes are not direct matrix/basis editing.
+Open the matrix instrument and edit one entry. Select the same basis vector and move it with the arrow keys. Undo traverses both edits in order. Set the columns equal to form a singular matrix, then use the numeric editor to restore the original basis. The eleven captures also show a zero matrix and recovery after a failed render. The tests exercised desktop and narrow Chrome windows. [Run instructions](../../examples/matrix-instrument/README.md) · [Matrix walkthrough](matrix-instrument/index.html)
 
-Run `PYTHONPATH=python python3 examples/oscillator/serve.py` and open its printed
-loopback URL. Enter and lock a prediction, set mass to 4 kg and Compare. Inspect
-the sample at 0.5 s; focus the basis control and use ArrowDown to select velocity.
-The `−Aω` row and velocity basis vector highlight together. Explore a copy, set
-amplitude to zero and Compare: both vectors collapse, exposing the singular
-case. This is a runnable constrained illustration, not the missing matrix-entry
-interaction.
-
-Evidence: [launch](../../examples/oscillator/README.md),
-[capture actions](../../examples/oscillator/capture.py),
-[gallery](oscillator/index.html), [historical manifest](oscillator/manifest.json),
-[source-matched recovery checks](oscillator/recovery/scenarios.json).
-Remaining: editable matrix entries, keyboard basis movement, shared matrix/vector
-selection during those edits and one undo history, with singular handling in
-that same consumer. Generic D02 editing checks and the probability plot do not
-close these steps.
+The oscillator and probability examples demonstrate related basis and constraint behavior. [Oscillator replay](oscillator/index.html) · [Probability instrument](../../examples/probability-instrument/README.md)
 
 ## I03 — Inverse design
 
@@ -541,7 +525,9 @@ integration or a general automation system.
 
 ## I21 — Living linkage sketch
 
-**Status: partial at P and R.** Build/open Folding Lamp as in I03. Use pointer
+Open the equation editor, enter a length with trailing zeros and switch to structured layout. Change the angle, preview a pose with the arrow keys or by dragging the endpoint, then cancel. Undo and redo traverse applied text, layout and geometry edits while preserving exact source spelling. The offline Chrome replay covered all fifteen scenarios, including invalid input and narrow layout. Its four equations describe a single planar arm. [Run instructions](../../examples/equation-linkage/README.md) · [Equation walkthrough](i21-equation-linkage/index.html)
+
+Build/open Folding Lamp as in I03. Use pointer
 and keyboard Pose controls (Right to 50°, Left to 45°) to inspect the same arm
 tip and trace. Edit its length/anchor, preview/cancel, apply and undo in the
 shared history. Enter invalid arm length 85 and Escape: committed dimensions
@@ -562,12 +548,6 @@ Evidence: [Folding Lamp assertions](../../examples/spring-linkage/check.py),
 [exact numeric/geometry assertions](../../examples/foldable-motif/check.cjs),
 [Accordion gallery](v11-foldable-motif/index.html),
 [manifest](v11-foldable-motif/manifest.json).
-Remaining: the retained “exact text/layout round trips” criterion is not
-demonstrated by an editable equation tied to this mechanism. The checks restore
-numeric field values and fixture geometry; they do not edit equation source,
-round-trip it through structured layout and return exact text in this consumer.
-This conservative distinction does not request arbitrary notation/import, CAD,
-3D or a general solver.
 
 ## Evidence integrity across P and received revisions
 

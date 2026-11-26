@@ -19,12 +19,14 @@
 | E03 | Chord geometry, calendar and Sankey labels | [Comparisons and source picking](e03-flow-calendar-followup/README.md) |
 | E05 | Cairo Scene export | [Render comparison](cairo-scene/index.html) · [Decision and replay](../../experiments/cairo-scene/README.md) |
 | E06 | Funnel stage order and source selection | [Slideshow](../../examples/funnel/evidence/comparison.html) · [Run instructions](../../examples/funnel/README.md) |
+| I02 | Edit matrix entries and move basis vectors | [11-frame walkthrough](matrix-instrument/index.html) · [Run the instrument](../../examples/matrix-instrument/README.md) |
 | I11 | Inspectable fit proposals | [Slideshow](visible-proposals/index.html) · [Run instructions](../../examples/visible-proposals/README.md) |
 | I13 | Compare subtree executions and inspect frozen frames | [Slideshow](../../examples/execution-debugger/evidence/execution-debugger/index.html) · [Run instructions](../../examples/execution-debugger/README.md) |
 | I15 | Synthetic experiment flight recorder | [Slideshow](../../examples/flight-recorder/evidence/flight-recorder/index.html) · [Run instructions](../../examples/flight-recorder/README.md) |
 | I18 | Linked table, plot and spatial selection | [Slideshow](i18-coordinated-representations/index.html) · [Run instructions](../../examples/coordinated-representations/README.md) |
 | I19 | Inspectable signal cursor and command replay | [Slideshow](i19-inspectable-interactions/index.html) · [Run instructions](../../experiments/inspectable-interactions/README.md) |
 | I20 | Reusable cohort operation | [Slideshow](../../examples/application-operations/i20-application-operations/index.html) · [Run instructions](../../examples/application-operations/README.md) |
+| I21 | Edit an equation and manipulate its linked arm | [Equation and geometry walkthrough](i21-equation-linkage/index.html) · [Run the editor](../../examples/equation-linkage/README.md) |
 | V02 | Seeded populations, shared rules and formula navigation | [Slideshow](../../examples/compose-worlds/evidence/compose-worlds/index.html) · [Run instructions](../../examples/compose-worlds/README.md) |
 | V03 | Revise a movement notation and recover a score | [Slideshow](v03-invent-notation/index.html) · [Run instructions](../../examples/invent-notation/README.md) |
 | V04 | Tune a linkage against a force curve | [Slideshow](v04-spring-linkage/index.html) · [Run instructions](../../examples/spring-linkage/README.md) |
@@ -40,4 +42,4 @@
 | V14 | Replay a temperature forecast and inspect a failed proxy | [Temperature](v14-room-temperature/index.html) · [Moxi sensor comparison](v14-moxi-sensor/index.html) · [Run instructions](../../examples/temperature-replay/README.md) |
 | V15 | Calibrate direct and interpolated pose controls | [Slideshow](v15-pose-stroke/index.html) · [Run instructions](../../examples/pose-stroke/README.md) |
 
-The D04, P08, P09, P11, E05, E06, I11, I13, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13, V14 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The D04, P08, P09, P11, E05, E06, I02, I11, I13, I15, I18, I19, I20, I21, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13, V14 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
