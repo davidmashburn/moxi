@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>When does the shuttle cost less?</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f1e9;color:#192f31;font:16px/1.45 system-ui,sans-serif}main{max-width:990px;margin:auto;padding:28px 24px}header{border-bottom:3px solid #193e40;margin-bottom:18px}h1,h2,h3,p{margin:0 0 8px}h1,h2{font-family:Georgia,serif}h1{font-size:clamp(30px,4vw,46px);font-weight:normal}h2{font-size:24px}small,figcaption{color:#475e60}.grid{display:grid;grid-template-columns:1.08fr 1fr;gap:16px}section{background:#fffef9;border:1px solid #becbc7;padding:18px;margin-bottom:14px}section:target,:focus-visible{outline:3px solid #008078;outline-offset:2px}button,select,input{font:inherit;color:inherit;padding:5px 8px;border:1px solid #849998;border-radius:4px;background:white}button{cursor:pointer}button:disabled{opacity:.55}label{display:block;margin:8px 0}input[type=number]{width:5em}input[type=range]{width:100%;padding:0;accent-color:#176665}button,a{margin:3px 4px 3px 0}a{color:#126367}figure{margin:10px 0}.chart svg{display:block;width:100%;height:auto}.voucher{color:#146d73}.shuttle{color:#aa4616}.finding{border-left:5px solid #19716c;padding-left:12px}.error{color:#9c3217}blockquote{margin:8px 0;border-left:3px solid #849998;padding-left:10px}#stepText{min-height:2.8em}summary{cursor:pointer}@media(max-width:700px){.grid{display:block}main{padding:16px}}
+</style>
+<main><header><small>Transit economics · Synthetic case study</small><h1>When does the shuttle cost less?</h1>
+<p>Compare two ways to carry the same riders on a single run.</p></header>
+<div class="grid"><div>
+<section><h2 id="reading">Author’s argument</h2><p>At 40 riders and a $120 dispatch cost, the shuttle saves $40 per run. Can a change in demand reverse the decision?</p>
+<h3>Performed explanation</h3><p id="stepText"></p><button id="next">Next action</button><button id="checkpoint" disabled>Restore step 3</button></section>
+<section id="premises" tabindex="-1"><h2>Test the premises</h2><label>Demand (riders per run) <input id="riders" type="number" min="0" max="60" step="1" value="40"></label>
+<input id="scrub" aria-label="Adjust demand in riders" type="range" min="0" max="60" value="40">
+<label>Shuttle dispatch per run <select id="dispatch"><option value="80">$80</option><option selected value="120">$120</option><option value="160">$160</option></select></label>
+<label><input id="supported" type="checkbox" checked> Include the demand premise</label>
+<button id="restore">Restore original</button></section>
+<section><h2>Exploration copy</h2><label>Premise note <input maxlength="160" id="note" placeholder="Why dispute this premise?"></label>
+<button id="save">Save alternative</button><button id="reopen" disabled>Reopen alternative</button><p id="saved"></p></section></div>
+<div><section><h2>Derived conclusion</h2><div class="finding" aria-live="polite"><strong id="result"></strong><p id="costs"></p></div>
+<a href="#premises">Inspect premises</a> · <a href="#source">Trace cost rates</a>
+<figure><div class="chart" id="chart"></div><figcaption>Shuttle savings ($/run) versus demand (riders). The dashed line marks break-even. The dot shows the current estimate.</figcaption></figure>
+<p id="condition"></p></section>
+<section id="source" tabindex="-1"><h2>Model and provenance</h2><p id="formula"></p><details id="details"><summary>Inspect synthetic observations and fit</summary><p id="observations"></p></details>
+<p><strong>Limit.</strong> Cost alone omits wait time and access. A claim that riders prefer the shuttle is qualitative and unsupported here.</p></section>
+<section><h2>Static comparison</h2><p>Original: vouchers $240, shuttle $200.</p><button id="insert">Insert current finding</button><button id="export" disabled>Export static essay</button><blockquote id="inserted">No finding inserted.</blockquote></section></div></div></main>
+<script>const fixture = /*FIXTURE*/;
+/*APP*/</script></html>
