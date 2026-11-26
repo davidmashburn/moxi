@@ -1,0 +1,226 @@
+{
+  "source_revision": "0b96d2c906e99e927e8d4ad584df4516427ac598",
+  "source_dirty": false,
+  "source_sha256": {
+    "examples/motion-model/app.mojo": "713a5fe0c8a8ff7e33a5da3a557e14b2d850d149a2d11ada045ba818e6c6670d",
+    "examples/motion-model/drawing.mojo": "d86e05e389e80ffc1e84806188e1f1bc9c5ed2b39fed6e3cfd7a68d85db6f553",
+    "examples/motion-model/editor.mojo": "a364c50d1b165ddbdce39abdb41248f72a291fe911c8c423adc0f6804b2a6a69",
+    "examples/motion-model/host.mojo": "a57e4600bd7c2a6d3db0a2590894e9f025e0aa692a00d35091af14a786a1725b",
+    "examples/motion-model/model.mojo": "2e42d1eb3397e8f73cb74d8297a1845d6da5e4883f031373cc9d04a93de3b938",
+    "examples/motion-model/model_check.mojo": "021ddfb12642a43ac24b93eaacc01bfddb0ad50407d674881927a80ebd08ed87",
+    "examples/motion-model/replay.mojo": "b95a72716fa157a06bab07970fd4aeef9bc34e6dab9b868339e4483a4f55a9d2",
+    "examples/motion-model/native.m": "f11168473b0dc3bf1ad99de0b6719ba0a5355d55087a3d8120f8278326550340",
+    "examples/motion-model/run.py": "7a143c0edfaf2fde8cb35351697dd32f71a667cefae6fd4ef76c2f3ceda0e90a",
+    "examples/motion-model/reproduce.py": "a8f9bfbc03d36b3696f6675a446c4edb078c0864dc341709cf5b2082357c8467",
+    "examples/motion-model/check_slideshow.py": "e5f5bc1dc6566f45dcea7bd04c4e8d33f473c6ef4e64d0d056aea2e10fd5d999"
+  },
+  "pixi_lock_sha256": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0",
+  "started_at": "2026-11-26T03:39:28.806710+00:00",
+  "completed_at": "2026-11-26T03:39:42.579873+00:00",
+  "stack": "Normal examples/motion-model/app.mojo executable, Cocoa, Moxi Component/Scene; native AX press, pointer/key callbacks, deterministic frame ticks",
+  "viewports_points": [
+    [
+      1120,
+      860
+    ],
+    [
+      960,
+      760
+    ]
+  ],
+  "role": "Local synthetic fixture; no account or customer data",
+  "capture_method": "NSWindow.contentView display/cacheDisplayInRect to NSBitmapImageRep PNG; live mounted view, no titlebar or desktop compositor",
+  "model_checks": [
+    "PASS: 117 curves / 23517 sample bounds, response laws, pins, states, ownership, sketch undo, three fits, failed/cancelled/stale solve, apply/undo/redo"
+  ],
+  "ui_checks": [
+    "PASS sketch: local formalization, length, unfinished note and position",
+    "PASS ownership: parameters leave target; drag drafts until release and leaves parameters",
+    "PASS alternatives: three fits, separate preview, atomic apply, Cmd+Z / Cmd+Shift+Z",
+    "PASS cancellation: pending solve and Escape-drag survive later ticks / release",
+    "PASS keyboard: Tab/Space preview, nudge, select and play; pinned start leaves revision unchanged",
+    "PASS inverse recovery: infeasible request preserves implementation; undo; edited revision invalidates search",
+    "PASS recovery / layout: undo formalization restores sketch and note; 960x760 controls stay in content",
+    "PASS native UI: 17 window captures; no queue drops or command overflows"
+  ],
+  "captures": [
+    {
+      "image": "01-informal.png",
+      "sha256": "b0e0f75d0fe051afd3d43642087b5f3dba5b9ae1f09eb6e720b93400618148c0",
+      "captured_at": "2026-11-26T03:39:39.119670+00:00",
+      "steps": "Launch the normal app",
+      "expected": "Fit and parameter controls disabled; no executable arm",
+      "observed": "Fit and parameter controls disabled; no executable arm",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "02-formalized.png",
+      "sha256": "72704297a8cd9fc623a610d52752f7745aacb8da7dd79f89b07eaae25387b518",
+      "captured_at": "2026-11-26T03:39:39.239597+00:00",
+      "steps": "Formalize arm; Length +10",
+      "expected": "130 px arm; note content and position preserved",
+      "observed": "130 px arm; note content and position preserved",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "03-parameters.png",
+      "sha256": "e0c67f1aa446feae2edeb94c876febaf678eba0e97c8a895569c85cab8f4e5c4",
+      "captured_at": "2026-11-26T03:39:39.337141+00:00",
+      "steps": "Peak +5; Scrub +0.25 s",
+      "expected": "50 degree peak; original target retained; RETURN active",
+      "observed": "50 degree peak; original target retained; RETURN active",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "04-target-draft.png",
+      "sha256": "51a6ddc7c4d239db3d0d4c8e4b8bf05d1cb82b36a4f3c78b8c9ef1ebb9b503a8",
+      "captured_at": "2026-11-26T03:39:39.434035+00:00",
+      "steps": "Pointer-down on knot 3; drag to 65 degrees",
+      "expected": "Draft visible; committed target and parameters unchanged",
+      "observed": "Draft visible; committed target and parameters unchanged",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "05-target-committed.png",
+      "sha256": "11746ac894dcc909ac0c08e87a2db6e1da6e155246e396df13b8c48c51fbfcbf",
+      "captured_at": "2026-11-26T03:39:39.521849+00:00",
+      "steps": "Release pointer",
+      "expected": "Knot 3 is 65 degrees; executable parameters unchanged",
+      "observed": "Knot 3 is 65 degrees; executable parameters unchanged",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "06-alternatives.png",
+      "sha256": "1b56e5debb3599745a9831fdee01ba44e36e6d8029398ab75a19f509afe16f1e",
+      "captured_at": "2026-11-26T03:39:40.525725+00:00",
+      "steps": "Find alternatives; 40 frame ticks; Preview 2",
+      "expected": "Three valid fits; preview separate from committed parameters",
+      "observed": "Three valid fits; preview separate from committed parameters",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "07-applied.png",
+      "sha256": "1057fe76c17f36e8597227a2c1d41d3b610c915f185ef3e840be8ca1d02cd1c8",
+      "captured_at": "2026-11-26T03:39:40.749520+00:00",
+      "steps": "Escape rejects preview; find alternatives again; Preview 2 via Tab/Space; click Apply",
+      "expected": "Selected pair committed; target/length/note retained; keyboard undo/redo checked next",
+      "observed": "Selected pair committed; target/length/note retained; keyboard undo/redo checked next",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "08-pending.png",
+      "sha256": "069a86fa1ca52b905256b57e3b3d466cbbe832b820f28df09cf5df78582890de",
+      "captured_at": "2026-11-26T03:39:40.857273+00:00",
+      "steps": "Find alternatives; one frame tick",
+      "expected": "3 of 117 pairs evaluated; Apply disabled",
+      "observed": "3 of 117 pairs evaluated; Apply disabled",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "09-cancelled.png",
+      "sha256": "5d46077203ce549d7f6fe073e713f29b204c23b6e189c7598b1f94cac3316139",
+      "captured_at": "2026-11-26T03:39:40.956714+00:00",
+      "steps": "Cancel; 40 frame ticks",
+      "expected": "Cancelled; committed pair and desired knots preserved",
+      "observed": "Cancelled; committed pair and desired knots preserved",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "10-draft-cancelled.png",
+      "sha256": "0d1d4b99cbdfe8fb87c0bcbc1e287d926096e6b8351b295fe4da60e59a9aa3db",
+      "captured_at": "2026-11-26T03:39:41.072819+00:00",
+      "steps": "Drag to 95 degrees; Escape; release",
+      "expected": "Committed curve and implementation preserved",
+      "observed": "Committed curve and implementation preserved",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "11-keyboard-draft.png",
+      "sha256": "2d88332bbb0918468e76d699165b0d453f452af1d86f0142c2b698e741e5d575",
+      "captured_at": "2026-11-26T03:39:41.281675+00:00",
+      "steps": "Tab/Space Target +5",
+      "expected": "Draft rises five degrees; committed curve unchanged; Cmd+Z cancels just the draft",
+      "observed": "Draft rises five degrees; committed curve unchanged; Cmd+Z cancels just the draft",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "11-pinned.png",
+      "sha256": "529b3671ec20f0e30102b84675037e8ad51f9730c3092ec391f23f5bf2d59ea4",
+      "captured_at": "2026-11-26T03:39:41.894376+00:00",
+      "steps": "Commit/undo a keyboard draft; Previous knot three times; Target +5 via Tab/Space",
+      "expected": "Committed keyboard edit undoes; start stays zero without revision change",
+      "observed": "Committed keyboard edit undoes; start stays zero without revision change",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "12-infeasible.png",
+      "sha256": "6222b02ff06af23ccac621a6560009e1b6aa7a36c2cdc9f1f5eec89f23100ac6",
+      "captured_at": "2026-11-26T03:39:42.093375+00:00",
+      "steps": "Drag knot 3 to 120 degrees; Find alternatives; 40 ticks",
+      "expected": "No fit within six degrees RMS; implementation unchanged; target retained",
+      "observed": "No fit within six degrees RMS; implementation unchanged; target retained",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "13-failure-undo.png",
+      "sha256": "77d10b635695f4641f9069c0fe74493ef33f2291138e6c3c8045631d3c5b147d",
+      "captured_at": "2026-11-26T03:39:42.183136+00:00",
+      "steps": "Undo",
+      "expected": "Prior target restored without changing the applied implementation",
+      "observed": "Prior target restored without changing the applied implementation",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "14-stale.png",
+      "sha256": "0caf96f13e2df54988c9ac8b531188ab20561eee59524bf1b3fcedb414378894",
+      "captured_at": "2026-11-26T03:39:42.290145+00:00",
+      "steps": "Find alternatives; Peak +5; 40 ticks",
+      "expected": "STALE; Apply disabled; no late parameter overwrite",
+      "observed": "STALE; Apply disabled; no late parameter overwrite",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "15-sketch-undo.png",
+      "sha256": "57d04f05b59feaea4aaa8eecc3167e8676773fd4545afe2ec50ea2402ae92cc9",
+      "captured_at": "2026-11-26T03:39:42.426940+00:00",
+      "steps": "Undo until history is empty",
+      "expected": "Original sketch kind, length, note content and position restored",
+      "observed": "Original sketch kind, length, note content and position restored",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    },
+    {
+      "image": "16-minimum-window.png",
+      "sha256": "963d234c7544f73398cf51d2f96dc979d905351e18f056ebc1f4f603dcde442e",
+      "captured_at": "2026-11-26T03:39:42.511593+00:00",
+      "steps": "Resize content to 960 by 760 points",
+      "expected": "Every declared control stays inside the content height",
+      "observed": "Every declared control stays inside the content height",
+      "outcome": "pass",
+      "assertion_source": "examples/motion-model/replay.mojo"
+    }
+  ],
+  "not_verified": [
+    "Physical input",
+    "VoiceOver (explicitly excluded)",
+    "Wall-clock responsiveness",
+    "Other OS/backends and display scale matrix",
+    "Independent human comprehension",
+    "Persistence (no save/load feature)"
+  ]
+}

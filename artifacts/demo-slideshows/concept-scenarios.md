@@ -43,14 +43,14 @@ criterion would change the latter assessment.
 | --- | --- | --- |
 | I01 | Recorded sequence | Bounded note-to-arm formalization; no arbitrary sketch recognition. |
 | I02 | Recorded sequence | Numeric entries and keyboard basis moves share selection and undo. Singular and zero matrices remain editable. |
-| I03 | Partial | Force-grid inverse design exists; trajectory-target solving is missing. |
+| I03 | Partial | Force-grid inverse design at P/R. The later V01 native consumer solves an editable trajectory with pinned endpoints. |
 | I04 | Recorded sequence | Allocation at P; Compose Worlds adds rule promotion/undo at R. |
 | I05 | P partial; R recorded sequence | Same probe transfers from plot to geometry in A/R; capture provenance remains incomplete. |
 | I06 | Recorded sequence | Native formula selection/focus return; editable caret return added at R. |
 | I07 | Recorded sequence | Five actions, third-step exploration and restoration. |
 | I08 | Recorded sequence | Synthetic source/fit/plot provenance and invalidation. |
-| I09 | Partial | Actual extraction/save/reopen exists in G/R; I10 consumption still open. |
-| I10 | Missing | No named-cohort fit/residuals/alternatives/saved-panel consumer. |
+| I09 | Partial | Phrase desk and the investigation workbench both expose reusable controls. |
+| I10 | Recorded sequence | Fit three alternative models to a named cohort and reopen its saved controls in another native process. |
 | I11 | Recorded sequence | Deterministic local proposal, including stale rejection. |
 | I12 | P partial; R recorded sequence | G/R supplies actual calculation build failure and last-good replacement. |
 | I13 | Recorded sequence on main | The debugger exposes measured subtree builds, equivalent frames, source eviction and action-record loss. |
@@ -60,7 +60,7 @@ criterion would change the latter assessment.
 | I17 | Recorded sequence | Pointer/keyboard equivalence and accessible structure, bounded to software checks. |
 | I18 | Recorded sequence | Linked IDs and exceptional mappings in two domains. |
 | I19 | Partial | Plot cursor sequence exists; named canvas/spatial consumers remain open. |
-| I20 | Partial | Notebook sequence recorded; specified I10/V13 consumers remain open. |
+| I20 | Partial | The notebook and I10 investigation share the registered collection operation. V13 has separate trusted adapters. |
 | I21 | Recorded sequence | Edit the equation or move the linkage, cancel a draft and undo across both representations. |
 
 ## I01 — Progressively executable sketch
@@ -112,8 +112,7 @@ Evidence: [launch/model limits](../../examples/spring-linkage/README.md),
 [manifest](v04-spring-linkage/manifest.json). Remaining: an editable trajectory
 target with a pinned geometric constraint and alternatives from that target.
 The synchronous grid has no pending solve to cancel or stale response to reject;
-preview cancellation is the behavior actually present. Route the trajectory
-hole to the existing V01 work rather than counting this force example as V01.
+preview cancellation is the behavior actually present. The subsequent V01 consumer supports trajectory editing. Drag a target knot, preview two candidate motion models, then apply or cancel. Edit the model during a solve to exercise stale-result rejection. [Native motion walkthrough](motion-model/index.html) · [Model and replay instructions](../../examples/motion-model/README.md).
 
 ## I04 — Possible worlds
 
@@ -257,26 +256,16 @@ Evidence **G/R**: [normal actions, expected/observed values](../../examples/pers
 [reopened panel](../../examples/personal-instrument/evidence/mode-graph/reopened-graph.png),
 [results](../../examples/personal-instrument/evidence/mode-graph/results.json),
 [hash manifest](../../examples/personal-instrument/evidence/mode-graph/manifest.json).
-Remaining: I10's extracted investigation panel has no consumer yet.
+The [investigation workbench](../../examples/investigation-tools/README.md) also saves the refit and coefficient controls for its specific cohort.
 The evidence covers the fixed Accent/Length vocabulary, not arbitrary control
 extraction. Reload intentionally resets selection/input while preserving the
 saved panel and composition.
 
 ## I10 — Investigations become tools
 
-**Status: missing at P/R and the inspected incoming feature revisions.** No
-`investigation-tools` consumer providing this sequence was found. A nearby
-normal-UI action is to build/run I20's notebook and click its collect button:
-the cohort becomes `[104, 318]`. That is the stopping point; there is no UI route
-from it to a named editable cohort, explicit fit/residuals, compared alternatives
-and a saved fixed panel.
+Build with `bash examples/investigation-tools/build.sh` and launch `dist/investigation-tools/investigation` on macOS. Enter a name, collect the six sensor readings at or above 70, and fit a linear model. Compare mean, linear and quadratic alternatives on those same observations. For the quadratic fit, changing the constant from 68 to 69 gives six signed residuals of −1 and a sum of squared errors of 6.
 
-Evidence of the nearby boundary: [I20 controls](../../examples/application-operations/README.md),
-[I20 action check](../../examples/application-operations/check.py),
-[I20 gallery](../../examples/application-operations/i20-application-operations/index.html).
-V05's fitted synthetic cost rates and V12's saved music mapping do not compose
-into an I10 consumer. All of the requested I10 chain remains to be demonstrated
-in one runnable app.
+Save the fixed panel, close the app, and reopen the panel in a fresh process. The cohort IDs, fitted model and edited coefficient survive. Refit from the saved panel to recover the original coefficients. The replay also exercises an incompatible saved version and a failed write. [Native walkthrough](investigation-tools/index.html) · [Reproduction and checks](../../examples/investigation-tools/README.md)
 
 ## I11 — Visible agent work
 
@@ -519,9 +508,7 @@ Evidence: [launch/operation boundary](../../examples/application-operations/READ
 [gallery](../../examples/application-operations/i20-application-operations/index.html),
 [manifest](../../examples/application-operations/i20-application-operations/manifest.json).
 Script and agent are documented invocation paths, not hidden browser APIs.
-Caller assignment is trusted in-process policy, not authentication. Consumption
-by I10/V13 is still absent; this independent notebook does not prove that
-integration or a general automation system.
+Caller assignment is trusted in-process policy, not authentication. I10 reuses the registered collection operation through its button and F2 routes. [Native investigation replay](investigation-tools/REVIEW.md)
 
 ## I21 — Living linkage sketch
 

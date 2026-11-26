@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "demo_id": "motion-model",
+  "title": "Motion from a sketch",
+  "scenario": "V01 with I01 and I03: mounted native Moxi app; partial formalization, parameter/target ownership, bounded alternatives, cancellation, failure, stale revision and undo. AppKit content-view raster captures; no desktop compositor or human efficacy claim.",
+  "revision": "0b96d2c906e99e927e8d4ad584df4516427ac598",
+  "source_dirty": false,
+  "host": "Darwin 27.2.0 arm64",
+  "backend": "Cocoa / Moxi App + Scene / AppKit content-view capture",
+  "scale": 2.0,
+  "fixture": "Deterministic informal arm, length 120 px; parameters 45 deg / 1 s; desired knots from 60 deg / 0.75 s",
+  "reproduce": "python3 examples/motion-model/reproduce.py\nopen artifacts/demo-slideshows/motion-model/index.html\nOptional: MOXI_PIXI_MANIFEST=/path/to/locked/toolchain/pixi.toml",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "01-informal.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "An informal arm beside an unfinished note",
+      "action": "Launch the normal app",
+      "expected": "Fit and parameter controls disabled; no executable arm"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "02-formalized.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Only the arm becomes executable",
+      "action": "Formalize arm; Length +10",
+      "expected": "130 px arm; note content and position preserved"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "03-parameters.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Parameter editing owns the blue response",
+      "action": "Peak +5; Scrub +0.25 s",
+      "expected": "50 degree peak; original target retained; RETURN active"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "04-target-draft.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "A desired curve is a cancellable draft",
+      "action": "Pointer-down on knot 3; drag to 65 degrees",
+      "expected": "Draft visible; committed target and parameters unchanged"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "05-target-committed.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Releasing commits the target alone",
+      "action": "Release pointer",
+      "expected": "Knot 3 is 65 degrees; executable parameters unchanged"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "06-alternatives.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Three bounded fits; second candidate previewed",
+      "action": "Find alternatives; 40 frame ticks; Preview 2",
+      "expected": "Three valid fits; preview separate from committed parameters"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "07-applied.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Apply commits a parameter pair atomically",
+      "action": "Escape rejects preview; find alternatives again; Preview 2 via Tab/Space; click Apply",
+      "expected": "Selected pair committed; target/length/note retained; keyboard undo/redo checked next"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "08-pending.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "The bounded search yields between batches",
+      "action": "Find alternatives; one frame tick",
+      "expected": "3 of 117 pairs evaluated; Apply disabled"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "09-cancelled.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Cancelled search cannot apply later",
+      "action": "Cancel; 40 frame ticks",
+      "expected": "Cancelled; committed pair and desired knots preserved"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "10-draft-cancelled.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Escape discards an uncommitted target",
+      "action": "Drag to 95 degrees; Escape; release",
+      "expected": "Committed curve and implementation preserved"
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "11-keyboard-draft.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Keyboard editing has the same draft boundary",
+      "action": "Tab/Space Target +5",
+      "expected": "Draft rises five degrees; committed curve unchanged; Cmd+Z cancels just the draft"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "11-pinned.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Pinned endpoints reject target edits",
+      "action": "Commit/undo a keyboard draft; Previous knot three times; Target +5 via Tab/Space",
+      "expected": "Committed keyboard edit undoes; start stays zero without revision change"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "12-infeasible.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Unsupported target fails within the stated grid",
+      "action": "Drag knot 3 to 120 degrees; Find alternatives; 40 ticks",
+      "expected": "No fit within six degrees RMS; implementation unchanged; target retained"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "13-failure-undo.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Undo restores the prior desired curve",
+      "action": "Undo",
+      "expected": "Prior target restored without changing the applied implementation"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "14-stale.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Editing invalidates a pending result",
+      "action": "Find alternatives; Peak +5; 40 ticks",
+      "expected": "STALE; Apply disabled; no late parameter overwrite"
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "15-sketch-undo.png",
+      "dimensions": [
+        2240,
+        1720
+      ],
+      "caption": "Undo formalization returns to the sketch",
+      "action": "Undo until history is empty",
+      "expected": "Original sketch kind, length, note content and position restored"
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "16-minimum-window.png",
+      "dimensions": [
+        1920,
+        1520
+      ],
+      "caption": "The minimum native window retains every control",
+      "action": "Resize content to 960 by 760 points",
+      "expected": "Every declared control stays inside the content height"
+    }
+  ]
+}

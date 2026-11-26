@@ -1,0 +1,29 @@
+{
+  "source_revision": "0b96d2c906e99e927e8d4ad584df4516427ac598",
+  "chrome_version": "158.0.8127.37",
+  "checked_at": "2026-11-26T03:40:58.076623+00:00",
+  "viewer_sha256": "8b8afa18392cfff68a3b0abc5e30c7702c853e0ffbb9b04d2400744d7bfb9240",
+  "host": "Darwin 27.2.0 arm64",
+  "result": "PASS",
+  "image_count": 17,
+  "viewports": [
+    [
+      1280,
+      1000
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "checks": [
+    "Every full-size image decoded",
+    "Next/previous wrap",
+    "Arrow navigation",
+    "Thumbnail jump",
+    "Reload",
+    "Mobile width and navigation"
+  ],
+  "page_errors": [],
+  "limits": "Offline viewer only; native consumer outcomes are in verification.json"
+}

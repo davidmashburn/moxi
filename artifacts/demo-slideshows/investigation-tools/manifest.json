@@ -1,0 +1,346 @@
+{
+  "version": 1,
+  "demo_id": "investigation-tools",
+  "title": "An investigation becomes a saved tool",
+  "scenario": "I10 / named cohort, explicit fits and residuals, alternatives, fixed panel, reopen",
+  "slides": [
+    {
+      "image": "01-entry.png",
+      "phase": "initial",
+      "caption": "Normal native entry",
+      "action": "Launch investigation with no arguments.",
+      "expected": "Fresh sensor workbench; no cohort or fitted model.",
+      "observed": "Fresh sensor workbench; no cohort or fitted model.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "2e457704d13da165f88c6818f8f5fba8e470bf7d1ad6572be4cee0251336e9df"
+    },
+    {
+      "image": "02-linear.png",
+      "phase": "result",
+      "caption": "Name, collect and fit",
+      "action": "Edit name and hypothesis, click Collect, then Fit linear.",
+      "expected": "I20 collects six stable IDs; slope 16, SSE 149.333 and signed residuals.",
+      "observed": "I20 collects six stable IDs; slope 16, SSE 149.333 and signed residuals.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "233640c18eba9766f3ea2197a8f9825bb3060e299b19d0c8a25c1137fe922836"
+    },
+    {
+      "image": "03-invalid-coefficient.png",
+      "phase": "recovery",
+      "caption": "Rejected numeric edit",
+      "action": "Enter oops for c0 and click Apply coefficients.",
+      "expected": "Visible error; the previous model and residuals remain intact.",
+      "observed": "Visible error; the previous model and residuals remain intact.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "7bdd91b13a308d7ec81d5283775d072da6f1bd05df1d20519cb0cf66a5728feb"
+    },
+    {
+      "image": "04-alternatives.png",
+      "phase": "interaction",
+      "caption": "Compare identical observations",
+      "action": "Click Compare alternatives and resize to 980 by 800 points.",
+      "expected": "Mean, linear and quadratic list parameter counts and training SSE on the same cohort; all remain above status.",
+      "observed": "Mean, linear and quadratic list parameter counts and training SSE on the same cohort; all remain above status.",
+      "outcome": "pass",
+      "dimensions": [
+        1960,
+        1600
+      ],
+      "capture_kind": "native-window",
+      "sha256": "7bc9a93c84afed89bf634a47521b30dbd717d7b753bb05ddc7b98818cbd78625"
+    },
+    {
+      "image": "05-quadratic.png",
+      "phase": "result",
+      "caption": "Choose another explicit model",
+      "action": "Click Fit quadratic.",
+      "expected": "Coefficients 68, -2, 2 and zero residuals on the synthetic cohort.",
+      "observed": "Coefficients 68, -2, 2 and zero residuals on the synthetic cohort.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "02e501815cda475cf3b1b0162f05a2cbc503db389f97fdd862fdf3aebbc1b3ad"
+    },
+    {
+      "image": "06-edited.png",
+      "phase": "interaction",
+      "caption": "Edit the model",
+      "action": "Enter c0=69, verify Save refuses the pending edit, then Apply coefficients.",
+      "expected": "Six residuals of -1; SSE 6. The alternatives remain separately fitted.",
+      "observed": "Six residuals of -1; SSE 6. The alternatives remain separately fitted.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "9aa8e776dbdc0be368596542e5fd5094269ece234c5888abbd70280c2cc51c31"
+    },
+    {
+      "image": "07-stable-ids.png",
+      "phase": "result",
+      "caption": "Filter and reorder",
+      "action": "Filter the table to >=70 and reverse its order.",
+      "expected": "Membership, coefficients and fitted data remain unchanged.",
+      "observed": "Membership, coefficients and fitted data remain unchanged.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "bfe2b6f880fb57a2d386db51ddf828d9f195b40bfeb3e753d361ce0a8a5d4503"
+    },
+    {
+      "image": "08-frozen.png",
+      "phase": "result",
+      "caption": "Frozen membership",
+      "action": "Toggle reading 207 from 58 to 76.",
+      "expected": "207 becomes visible but stays outside the frozen cohort; the old fit is invalidated.",
+      "observed": "207 becomes visible but stays outside the frozen cohort; the old fit is invalidated.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "b71e61e6bbdc3da38e0f2892d08688dea7cf4deb581d917892e88606da7f9237"
+    },
+    {
+      "image": "09-live.png",
+      "phase": "result",
+      "caption": "Live membership",
+      "action": "Switch membership to live and fit quadratic.",
+      "expected": "207 enters the cohort through I20; the fit and residuals use seven observations.",
+      "observed": "207 enters the cohort through I20; the fit and residuals use seven observations.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "2f2c1eab79b8af5c5c33c0ed8dad72617cdc3d608c0ff6f3313704a4cc02e34b"
+    },
+    {
+      "image": "10-saved-panel.png",
+      "phase": "result",
+      "caption": "Extract and save a fixed panel",
+      "action": "Restore baseline readings, freeze IDs, fit quadratic, apply c0=69, then Save fixed panel.",
+      "expected": "Compact panel records cohort, provenance, target, coefficients, refit and coefficient controls.",
+      "observed": "Compact panel records cohort, provenance, target, coefficients, refit and coefficient controls.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "97d882971ccecff18d9aec8e3ed9f60ea085cb76bb54f773787c501797f6662c"
+    },
+    {
+      "image": "11-narrow-panel.png",
+      "phase": "result",
+      "caption": "Narrow native layout",
+      "action": "Resize the actual window to 980 by 800 points.",
+      "expected": "Saved panel and its controls remain visible and clickable.",
+      "observed": "Saved panel and its controls remain visible and clickable.",
+      "outcome": "pass",
+      "dimensions": [
+        1960,
+        1600
+      ],
+      "capture_kind": "native-window",
+      "sha256": "5bacd56107b6bb16a15a63e71eb98b16832492ccbfe61d9e8aafe47c51c499d3"
+    },
+    {
+      "image": "12-internals.png",
+      "phase": "interaction",
+      "caption": "Reopen and inspect internals",
+      "action": "Refit at the narrow size, Reopen the saved panel, Open investigation internals, focus the table filter button, then press F2.",
+      "expected": "Saved c0=69 is restored first; F2 outside text editing re-collects the same stable IDs and invalidates the old fit.",
+      "observed": "Saved c0=69 is restored first; F2 outside text editing re-collects the same stable IDs and invalidates the old fit.",
+      "outcome": "pass",
+      "dimensions": [
+        1960,
+        1600
+      ],
+      "capture_kind": "native-window",
+      "sha256": "474702d806859b79af8aeadfd0f382e3f0f08de44a60363b9fdd105255067c82"
+    },
+    {
+      "image": "13-new-process-reopen.png",
+      "phase": "recovery",
+      "caption": "Reopen in a new process",
+      "action": "Launch the same no-argument executable again and click Reopen panel.",
+      "expected": "Name, hypothesis, frozen IDs, fixture, quadratic model and edited c0=69 survive process exit.",
+      "observed": "Name, hypothesis, frozen IDs, fixture, quadratic model and edited c0=69 survive process exit.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "17931d7d4a5c945712c5f4f2f3f7943f31a362df7a3a4bd6ce84e887d2e4af79"
+    },
+    {
+      "image": "14-panel-refit.png",
+      "phase": "result",
+      "caption": "Saved refit control",
+      "action": "Click Refit quadratic in the reopened panel.",
+      "expected": "The intended six sensor observations produce 68, -2, 2 and zero residuals.",
+      "observed": "The intended six sensor observations produce 68, -2, 2 and zero residuals.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "0d69082ec3d242e10efaff0d09086ff681d84de741b5292096545beef29081f6"
+    },
+    {
+      "image": "15-panel-edit.png",
+      "phase": "interaction",
+      "caption": "Saved coefficient control",
+      "action": "Change c1 to -1 and click Apply coefficients.",
+      "expected": "The intended observations produce SSE 139; this edit is unsaved.",
+      "observed": "The intended observations produce SSE 139; this edit is unsaved.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "fbd08c7e80fc0e76f7372aee53dd64c5a0433d8dd363beb27db6654798400f31"
+    },
+    {
+      "image": "16-load-rejected.png",
+      "phase": "recovery",
+      "caption": "Reject an incompatible panel",
+      "action": "In a fresh workbench fit linear, then Reopen an unsupported panel version.",
+      "expected": "The error is visible and the current investigation is unchanged.",
+      "observed": "The error is visible and the current investigation is unchanged.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "028415cf488efd4f8f1ab72e7b6029e98f802f80476b3b373c2f6a9561476f38"
+    },
+    {
+      "image": "17-save-rejected.png",
+      "phase": "recovery",
+      "caption": "Preserve state after a save failure",
+      "action": "Fit linear and Save where panel.json is a directory.",
+      "expected": "Atomic write fails visibly; the investigation and existing destination survive.",
+      "observed": "Atomic write fails visibly; the investigation and existing destination survive.",
+      "outcome": "pass",
+      "dimensions": [
+        2280,
+        1720
+      ],
+      "capture_kind": "native-window",
+      "sha256": "ea3eeac6fe6c31fd3a45362b5b48dfb61a693bfa7c89ffc80ac6570f50ba68b1"
+    }
+  ],
+  "revision": "f0682a1828d85d1bd2a301bc11be331447216795",
+  "captured_at": "2026-11-26T03:41:14.234146+00:00",
+  "host": "macOS 27.2.1",
+  "backend": "Moxi AppKit / moxi_plot / live NSWindow content-view capture",
+  "architecture": "arm64",
+  "scale": 2.0,
+  "fixture": "Eight synthetic sensor observations / sensor-curve-v1",
+  "reproduce": "python3 examples/investigation-tools/check.py",
+  "viewports_points": [
+    [
+      1140,
+      860
+    ],
+    [
+      980,
+      800
+    ]
+  ],
+  "role": "local synthetic fixture; no external accounts",
+  "binary_sha256": "aecd3d1cb5c715f754632e2ccb397c86970a7a98a4cddb2962e23f230c49fc2a",
+  "source_sha256": {
+    "examples/application-operations/cohort.mojo": "df5e70c0dad33da352b30225049bbbd36528b1eb6238d66927f1be069b8bf051",
+    "examples/application-operations/host.m": "c0a10b6aaf69696f190701fd394aeec861936f1311eac4140be1e8853dff3da1",
+    "examples/investigation-tools/build.sh": "337b40d3d7d913dc7392fd1e73a67516173d2802a929f4be9f430d5af0ca85b6",
+    "examples/investigation-tools/check.py": "0944229faae84f396fdbf2d004703f3e3858e8c69cd2a3b5f713f40ae4a78b5b",
+    "examples/investigation-tools/host.m": "470a3651cd61a088f4f7447b1c4ddb8daf38765307bcdf91614628a843eb578c",
+    "examples/investigation-tools/main.mojo": "15be2251db1adb9f015291caaf80b67177810152df0d5ac77f6cc7cea281c25b",
+    "examples/investigation-tools/model.mojo": "32b50e22fa2411b2ba1cfa608005d53ec40419b4c171bf175df79d37288d6840",
+    "examples/investigation-tools/panel.mojo": "56f1159df7235ec82d2ed3a8292429f7b713fcd90a7b8088257ad7aa3d7e8ebb",
+    "examples/investigation-tools/replay.mojo": "56afa5977feaed4faef8c7b04394cc97d4eda44d37b5b88c3173d5d8f3fb8e1e",
+    "examples/investigation-tools/runtime.mojo": "c6c2ac12e4c293ac26b79f700a3a8e00ff181c830f3f99baceec6ebff9e746aa",
+    "examples/investigation-tools/screen.mojo": "1ff6f4711252aa409a7d476ced191b7d495c2590c3ad39c6f76af152b15da5db",
+    "examples/investigation-tools/tests.mojo": "835a84a988238e96637b34f2ff3fd597477b6c211530b91599ff2c0f3726d6d5"
+  },
+  "source_status": "",
+  "verification": {
+    "domain": "PASS domain: I20 IDs, OLS coefficients, residuals, alternatives, edits, Unicode round-trip, live/frozen, boundary and invalid inputs",
+    "create": "PASS native UI: entry, text, I20 collection/F2, fits, residuals, alternatives, editing, rejection, stable IDs, live/frozen, save, narrow layout and internals",
+    "reopen": "PASS fresh-process reopen: full configuration, stable IDs, saved refit and coefficient controls",
+    "invalid": "PASS file failure: visible error and unchanged investigation",
+    "missing": "PASS file failure: visible error and unchanged investigation",
+    "write_failure": "PASS file failure: visible error and unchanged investigation",
+    "rejected_boundary_cases": [
+      "version",
+      "fixture",
+      "target",
+      "fixture-state",
+      "mode",
+      "rule",
+      "model",
+      "controls",
+      "empty-members",
+      "duplicate-members",
+      "unknown-members",
+      "insufficient-members",
+      "fractional-id",
+      "empty-name",
+      "long-name",
+      "long-hypothesis",
+      "control-text",
+      "coefficient-count",
+      "coefficient-range",
+      "coefficient-type",
+      "linear-c2",
+      "mean-c1",
+      "live-mismatch",
+      "unknown-field",
+      "missing-field",
+      "duplicate-field",
+      "truncated",
+      "trailing-data",
+      "oversized",
+      "nonfinite",
+      "unpaired-surrogate"
+    ],
+    "valid_boundary": "reordered fields, escaped Unicode and live mode"
+  },
+  "limitations": [
+    "Native callbacks, not physical mouse or keyboard input",
+    "No VoiceOver or screen-reader testing",
+    "Synthetic fixture; no scientific validity or user-reuse claim",
+    "macOS only; other hosts and full repository suite were not tested"
+  ]
+}
