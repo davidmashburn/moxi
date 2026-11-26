@@ -41,51 +41,46 @@ def compare(family, reference, python_svg, native_svg):
     if family == "arc_diagram":
         compare_arcs(reference_paths, python_svg, native_svg)
         return
-    expected = []
-    for path in reference_paths:
-        coords = list(map(float, re.findall(r"-?[\d.]+", path.attrib["d"])))
-        expected.append(list(zip(coords[::2], coords[1::2])))
-    segments = [(start, end) for path in expected for start, end in zip(path, path[1:])]
+    expected = [read_points(path.attrib["d"]) for path in reference_paths]
+    x0 = 78 if family == "bump" else 60
 
-    def normalize(lines):
-        points = [point for line in lines for point in line]
-        xs, ys = zip(*points)
-        return sorted(tuple(round((v - lo) / (hi - lo), 4)
-                            for point in line for v, lo, hi in zip(point, map(min, (xs, ys)), map(max, (xs, ys))))
-                      for line in lines)
+    def normalized(paths, left, top, width, height):
+        return [[((x-left)/width,(y-top)/height) for x,y in path] for path in paths]
 
-    for svg in [python_svg, native_svg]:
-        lines = []
-        for item in ET.fromstring(svg).findall(".//{*}line"):
-            a = item.attrib
-            if a["x1"] != a["x2"] and a["y1"] != a["y2"]:
-                lines.append(tuple((float(a["x"+i]), float(a["y"+i])) for i in ["1", "2"]))
-        assert normalize(lines) == normalize(segments), lines
+    reference_points = normalized(expected,x0,20,490-x0,350)
+    for paths, frame in [(svg_paths(python_svg,"polyline"), (54,18,568,372)),
+                         (svg_paths(native_svg,"path"), (48,28,560,340))]:
+        actual = normalized([points for points,_ in paths],*frame)
+        assert len(actual) == len(reference_points)
+        for trace, expected_trace in zip(actual,reference_points):
+            assert len(trace) == len(expected_trace)
+            for (x,y), (ex,ey) in zip(trace,expected_trace):
+                assert abs(x-ex)<.00001 and abs(y-ey)<.00001
+
+
+def numbers(path):
+    return list(map(float, re.findall(r"-?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?", path)))
+
+
+def read_points(path):
+    coords = numbers(path)
+    return list(zip(coords[::2],coords[1::2]))
+
+
+def svg_paths(svg, tag):
+    return [(read_points(path.attrib.get("points") or path.attrib["d"]),
+             float(path.attrib["stroke-width"]))
+            for path in ET.fromstring(svg).findall(".//{*}"+tag)]
 
 
 def compare_arcs(reference_paths, python_svg, native_svg):
     """Check radii, endpoints and stroke widths against upstream's SVG arcs."""
-    def numbers(path):
-        return list(map(float, re.findall(r"-?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?", path)))
-
     targets = []
     for arc in reference_paths:
         x,y,r,ry,_,_,_,end,baseline = numbers(arc.attrib["d"])
         assert r == ry and y == baseline and end-x == 2*r
         targets.append((x,end,float(arc.attrib["stroke-width"])))
-    root = ET.fromstring(python_svg)
-    groups = []
-    for group in root.findall(".//{*}g"):
-        lines = group.findall("{*}line")
-        if not lines: continue
-        pts = [(float(line.attrib["x1"]),float(line.attrib["y1"])) for line in lines]
-        pts.append((float(lines[-1].attrib["x2"]),float(lines[-1].attrib["y2"])))
-        groups.append((pts, float(lines[0].attrib["stroke-width"])))
-    native = []
-    for path in ET.fromstring(native_svg).findall(".//{*}path"):
-        coords = numbers(path.attrib["d"])
-        native.append((list(zip(coords[::2], coords[1::2])),float(path.attrib["stroke-width"])))
-    for drawing in (groups,native):
+    for drawing in (svg_paths(python_svg,"polyline"),svg_paths(native_svg,"path")):
         assert len(drawing) == len(targets)
         left = min(points[0][0] for points,_ in drawing)
         right = max(points[-1][0] for points,_ in drawing)
@@ -107,7 +102,7 @@ td,th{padding:6px;border-bottom:1px solid #ccd}tr.selected{background:#ffe7ae}
 img,svg{max-width:100%}button{font:inherit;margin:4px}h1{font-size:24px}"""
 
 
-def replay(family, native, output):
+def replay(family, native, output, inspect=False):
     fig = fixture(family)
     svg = fig.to_svg()
     ref = (ROOT / f"tests/fixtures/plot_catalog/{family}.svg").read_bytes()
@@ -146,13 +141,22 @@ def replay(family, native, output):
         def log_message(self, *args):
             pass
 
-    output.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    if inspect:
+        print(f"Open http://127.0.0.1:{server.server_port} to inspect {family}.", flush=True)
+        with server:
+            server.serve_forever()
+        return
+
+    output.mkdir(parents=True, exist_ok=True)
+    for suffix in ("svg", "pdf", "png"):
+        fig.save(output / ("export." + suffix))
     Thread(target=server.serve_forever, daemon=True).start()
     slides = []
 
     def capture(page, name, caption):
         path = output / (name + ".png")
+        page.locator("img").evaluate_all("images => Promise.all(images.map(img => img.decode()))")
         page.screenshot(path=str(path))
         slides.append((caption, path))
 
@@ -183,6 +187,9 @@ def replay(family, native, output):
         capture(page, "reset", "Escape clears the selection")
         show("Export comparison", '<main>'+''.join('<section>'+title+'<br><img width="490" src="data:image/svg+xml;base64,'+base64.b64encode(blob).decode()+'"></section>' for title,blob in [('Reference',ref),('Moxi SVG',svg)])+'</main>')
         capture(page, "comparison", "Compare normalized geometry across different margins, palettes and legends")
+        exported_png = base64.b64encode((output / "export.png").read_bytes()).decode()
+        show("Python PNG export", f'<img width="{WIDTH}" height="{HEIGHT}" src="data:image/png;base64,{exported_png}">')
+        capture(page, "png-export", "Software PNG export at 640 × 420 with unlabeled geometry")
         report = f"<style>{STYLE}#thumbs img{{width:100px}}</style><h1>{family} · E06</h1><img id=frame width=880><p id=caption></p><button id=prev>Previous</button><button id=next>Next</button><div id=thumbs></div>"
         images = ["data:image/png;base64,"+base64.b64encode(p.read_bytes()).decode() for _,p in slides]
         report += "<script>const images="+json.dumps(images)+", captions="+json.dumps([s for s,_ in slides])+""";let i=0;
@@ -197,7 +204,7 @@ def replay(family, native, output):
         page.goto(index.resolve().as_uri())
         for caption,_ in slides:
             assert page.locator("#caption").inner_text() == caption
-            assert page.locator("#frame").evaluate("img=>img.complete && img.naturalWidth===1100")
+            assert page.locator("#frame").evaluate("async img=>{await img.decode(); return img.naturalWidth===1100}")
             page.keyboard.press("ArrowRight")
         page.locator("#thumbs button").last.click()
         page.locator("#prev").click()
@@ -222,16 +229,15 @@ def replay(family, native, output):
         (output/"capture.json").write_text(json.dumps(metadata,indent=2)+"\n")
         browser.close()
     server.shutdown()
-    for suffix in ("svg","pdf","png"):
-        fig.save(output / ("export."+suffix))
     (output / "native.svg").write_bytes(native)
     print(f"{family}: {len(rows)} source picks, reference geometry, exports and offline navigation passed")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("family")
+    parser.add_argument("--inspect", action="store_true", help="serve the interactive source inspector on loopback")
+    parser.add_argument("family", choices=("arc_diagram","bump","parallel"))
     parser.add_argument("native", type=Path)
     parser.add_argument("output", type=Path)
     args = parser.parse_args()
-    replay(args.family, args.native.read_bytes(), args.output)
+    replay(args.family, args.native.read_bytes(), args.output, inspect=args.inspect)

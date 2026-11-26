@@ -951,6 +951,7 @@ class Figure:
                 if glyph.kind is GlyphKind.POLYLINE:
                     points = [(left + _scale(x,*result.x_domain,width),
                                top + _scale(y,*result.y_domain,height,invert=True)) for x,y in glyph.vertices]
+                    g.kind = glyph.kind.value
                     g.segments = [(*a,*b) for a,b in zip(points, points[1:])]
                     g.colors = [glyph.color] * len(g.segments)
                 elif glyph.kind is GlyphKind.POLYGON:
@@ -1047,7 +1048,12 @@ class Figure:
             label = getattr(geometry, 'label', '')
             if label:
                 parts.append(f'<g role="img" aria-label="{escape(label, quote=True)}"><title>{escape(label)}</title>')
-            if geometry.kind == "line" and len(points) > 1:
+            if geometry.kind == "polyline":
+                trace = [(x, y) for x,y,_,_ in geometry.segments]
+                trace.append(geometry.segments[-1][2:])
+                coords = " ".join(f"{x:g},{y:g}" for x,y in trace)
+                parts.append(f'<polyline points="{coords}" fill="none" stroke="{self._svg_style(geometry, layer, 0)}" stroke-width="{geometry.stroke_width:g}" data-mark="{layer.mark}"/>')
+            elif geometry.kind == "line" and len(points) > 1:
                 points_text = " ".join(f"{x:g},{y:g}" for x, y in points)
                 parts.append(f'<polyline points="{points_text}" fill="none" stroke="{self._svg_style(geometry, layer, 0)}" stroke-width="{layer.line_width:g}" data-mark="{layer.mark}"/>')
             elif layer.mark == "area" and points:

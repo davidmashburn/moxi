@@ -283,8 +283,8 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
         result.has_layout_domain = True
         var dimensions: List[String] = [layer.y_field]
         for name in fields: dimensions.append(name)
-        var previous = List[Float32](length=n, fill=0)
-        var last_x: Float32 = 0
+        var paths = List[List[Point]]()
+        for _ in range(n): paths.append(List[Point]())
         var bump = mark == PLOT_BUMP
         if bump:
             for rank in range(n):
@@ -293,39 +293,52 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
                 result.points[len(result.points)-1].text = String(rank+1)
         for dim in range(len(dimensions)):
             var field = dimensions[dim]
-            var low = _stage_value(data, field, 0)
+            var kind = data.field_kind(field)
+            var integral = kind == COLUMN_INT64 or kind == COLUMN_TIMESTAMP or kind == COLUMN_DURATION
+            var values = List[Float64](capacity=n)
+            for row in range(n):
+                if integral:
+                    # Center before converting to Float64 to retain adjacent large counts.
+                    var value = Int128(data.int_field_at(field,row))
+                    values.append(Float64(value - Int128(data.int_field_at(field,0))))
+                else:
+                    values.append(_stage_value(data,field,row))
+            var low = values[0]
             var high = low
-            for row in range(1, n):
-                var value = _stage_value(data, field, row)
-                low = min(low, value)
-                high = max(high, value)
+            for value in values:
+                low = min(low,value)
+                high = max(high,value)
             var x = Float32(dim) / Float32(len(dimensions)-1) if len(dimensions)>1 else Float32(0.5)
             var ranks = List[Int](length=n, fill=0)
             if bump:
                 x = (Float32(dim)+0.5)/Float32(len(dimensions))
-                var order = List[Int]()
-                var kind = data.field_kind(field)
-                if kind == COLUMN_INT64 or kind == COLUMN_TIMESTAMP or kind == COLUMN_DURATION:
+                var order: List[Int]
+                if integral:
                     var measures = List[Int64]()
                     for row in range(n): measures.append(data.int_field_at(field,row))
                     order = _stage_order(measures)
                 else:
-                    var measures = List[Float64]()
-                    for row in range(n): measures.append(_stage_value(data,field,row))
-                    order = _stage_order(measures)
+                    order = _stage_order(values)
                 for rank in range(n): ranks[order[rank]] = rank
             _glyph(result, layer, data, 0, PlotGlyphKind.SEGMENT, "stage" if bump else "dimension", x, 0, x, Float32(0 if bump else 1), Color(0.15,0.20,0.28,1), False)
             result.points[len(result.points)-1].text = field
             for row in range(n):
-                var y = Float32((_stage_value(data, field, row)-low)/(high-low)) if high>low else Float32(0.5)
+                var y = Float32(0.5)
                 if bump:
-                    y = 1 - Float32(ranks[row])/Float32(n-1) if n>1 else Float32(0.5)
-                if dim > 0:
-                    _glyph(result, layer, data, row, PlotGlyphKind.SEGMENT, "record", last_x, previous[row], x, y, _palette(row))
-                elif len(dimensions) == 1:
-                    _glyph(result, layer, data, row, PlotGlyphKind.POINT, "record", x, y, x, y, _palette(row))
-                previous[row] = y
-            last_x = x
+                    if n > 1: y = 1 - Float32(ranks[row])/Float32(n-1)
+                elif high != low:
+                    if isfinite(high-low):
+                        y = Float32((values[row]-low)/(high-low))
+                    else:
+                        y = Float32((values[row]*0.5-low*0.5)/(high*0.5-low*0.5))
+                paths[row].append(Point(x,y))
+        for row in range(n):
+            var start = paths[row][0]
+            var end = paths[row][len(dimensions)-1]
+            var kind = PlotGlyphKind.POLYLINE if len(dimensions)>1 else PlotGlyphKind.POINT
+            _glyph(result,layer,data,row,kind,"record",start.x,start.y,end.x,end.y,_palette(row))
+            result.points[len(result.points)-1].vertices = paths[row].copy()
+            result.points[len(result.points)-1].stroke_width = layer.line_width
         return result^
     if mark == PLOT_FUNNEL:
         var values = List[Float64](capacity=n)

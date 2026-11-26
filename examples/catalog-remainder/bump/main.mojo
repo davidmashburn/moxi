@@ -35,16 +35,20 @@ def main() raises:
     for i in range(len(view.runtime.plot.series[0].points)):
         var p = view.runtime.plot.series[0].points[i]
         if not p.interactive: continue
-        var probe = p.copy()
-        probe.x += (p.x2 - p.x) * 0.25
-        probe.y += (p.y2 - p.y) * 0.25
-        var click = Event()
-        click.kind = CLICK_KIND
-        click.position = view.runtime.plot.screen_point(probe)
-        test_check(view.dispatch(click))
-        test_check(view.runtime.selected.row_key == p.row_key)
-        checked += 1
+        test_check(len(p.vertices) == 3)
+        for j in range(2):
+            var probe = p.copy()
+            var a = p.vertices[j]
+            var b = p.vertices[j+1]
+            probe.x = a.x + (b.x-a.x)*0.25
+            probe.y = a.y + (b.y-a.y)*0.25
+            var click = Event()
+            click.kind = CLICK_KIND
+            click.position = view.runtime.plot.screen_point(probe)
+            test_check(view.dispatch(click) == (j == 0))
+            test_check(view.runtime.selected.row_key == p.row_key)
+            checked += 1
     test_check(checked == 4)
     _ = data.set_float64_field("B", 0, 4)
     test_check(view.replace_data(data))
-    test_check(view.runtime.plot.series[0].points[4].y2 == 1)
+    test_check(view.runtime.plot.series[0].points[5].vertices[1].y == 1)

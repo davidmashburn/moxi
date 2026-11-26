@@ -1830,6 +1830,12 @@ struct Plot:
                             for j in range(len(source_point.vertices)):
                                 var v = source_point.vertices[j]
                                 var projected = self._screen_point(PlotPoint(v.x,v.y))
+                                if path.command_count == ScenePath.MAX_EXTENDED_COMMANDS:
+                                    scene.append_typed_path(identity,path,Color(0,0,0,0),point_color,source_point.stroke_width)
+                                    scene.commands[len(scene.commands)-1].set_opacity(point_opacity)
+                                    path = ScenePath(ScenePathStorage.EXTENDED)
+                                    var previous = source_point.vertices[j-1]
+                                    path.move_to(self._screen_point(PlotPoint(previous.x,previous.y)))
                                 if j == 0: path.move_to(projected)
                                 else: path.line_to(projected)
                             scene.append_typed_path(identity,path,Color(0,0,0,0),point_color,source_point.stroke_width)

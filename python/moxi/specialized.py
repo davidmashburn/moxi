@@ -148,6 +148,10 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
             raise ValueError(f"{name}: expected {n} finite numeric values")
         return [float(v) for v in values]
 
+    def source_rows() -> List[dict]:
+        return [{**{field: values[i] for field, values in data.columns.items()}, "row_index": i}
+                for i in range(n)]
+
     if mark is CatalogMark.ARC:
         targets = data.column(layer.x2)
         weights = column(layer.y)
@@ -158,9 +162,8 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
                      for i, name in enumerate(nodes)}
         colors = {name: PALETTE[i % len(PALETTE)] for i, name in enumerate(nodes)}
         largest = max(weights)
-        rows, glyphs = [], []
+        glyphs = []
         for row, (src, dst, weight) in enumerate(zip(categories, targets, weights)):
-            rows.append(dict(row_index=row, source=src, destination=dst, weight=data.column(layer.y)[row]))
             if src == dst:
                 continue
             left, right = sorted((positions[src], positions[dst]))
@@ -174,13 +177,11 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
         for name, x in positions.items():
             glyphs.append(Glyph(GlyphKind.POINT, 0, "arc-node", (x,0,x,0), colors[name],
                                 False, label=name, size=8))
-        return Layout(glyphs, (0.,1.), (0.,1.), rows)
+        return Layout(glyphs, (0.,1.), (0.,1.), source_rows())
     if mark in (CatalogMark.PARALLEL, CatalogMark.BUMP):
         fields = [layer.y, *layer.series_fields]
-        rows = [dict(row_index=i, **{f: data.column(f)[i] for f in [layer.x, *fields]})
-                for i in range(n)]
         glyphs = []
-        previous = []
+        paths = [[] for _ in range(n)]
         bump = mark is CatalogMark.BUMP
         if bump:
             for rank in range(n):
@@ -200,20 +201,21 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
             glyphs.append(Glyph(GlyphKind.SEGMENT, 0, part, (x, 0, x, 0 if bump else 1),
                                 INK, False, label=field))
             for row, value in enumerate(values):
-                y = (value - low) / (high - low) if low != high else .5
                 if bump:
                     y = 1 - ranks[row] / (n - 1) if n > 1 else .5
-                if index or len(fields) == 1:
-                    start = previous[row] if index else (x, y)
-                    kind = GlyphKind.SEGMENT if index else GlyphKind.POINT
-                    glyphs.append(Glyph(kind, row, "record", (*start, x, y),
-                                        PALETTE[row % len(PALETTE)], source_rows=(row,),
-                                        label=str(categories[row])))
-                if index:
-                    previous[row] = (x, y)
+                elif low == high:
+                    y = .5
+                elif isfinite(high - low):
+                    y = (value - low) / (high - low)
                 else:
-                    previous.append((x, y))
-        return Layout(glyphs, (0., 1.), (0., 1.), rows)
+                    y = (.5*value - .5*low) / (.5*high - .5*low)
+                paths[row].append((x, y))
+        for row, path in enumerate(paths):
+            kind = GlyphKind.POLYLINE if len(path) > 1 else GlyphKind.POINT
+            glyphs.append(Glyph(kind, row, "record", (*path[0], *path[-1]),
+                                PALETTE[row % len(PALETTE)], vertices=tuple(path),
+                                source_rows=(row,), label=str(categories[row])))
+        return Layout(glyphs, (0., 1.), (0., 1.), source_rows())
     values = column(layer.y)
     if mark is CatalogMark.FUNNEL:
         largest = max(values)

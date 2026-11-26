@@ -24,17 +24,17 @@ these comparisons establish structural differences and carry no pixel score.
 
 | Family | Upstream behavior exercised | Current Moxi behavior and proposed acceptance case |
 | --- | --- | --- |
-| [Parallel](../tests/fixtures/plot_catalog/parallel.svg) | Two records cross three independently scaled dimension axes. | Python connects raw x/y rows in input order. Native draws row markers. Require one path per record, named axes and a constant-dimension case. |
+| [Parallel](../tests/fixtures/plot_catalog/parallel.svg) | Two records cross three independently scaled dimension axes. | With specialized layouts, both backends draw one selectable path per record on named axes. Constant dimensions meet at the midpoint. [Replay](../artifacts/demo-slideshows/e06-parallel/index.html). |
 | [Funnel](../tests/fixtures/plot_catalog/funnel.svg) | Values 3, 9 and 6 produce stages B, C and A in descending order. Each band tapers to the next width. | Python emits points and native emits rectangles. Require centered trapezoids, a rectangular final band, and hit/table results that preserve original row IDs after sorting. |
-| [Bump](../tests/fixtures/plot_catalog/bump.svg) | Two series exchange ranks across three categories. Rank 1 is at the top. | Python draws one raw-value line and native draws row markers. Require per-stage ranking, series identity, a tie fixture and rank-axis labels. |
+| [Bump](../tests/fixtures/plot_catalog/bump.svg) | Two series exchange ranks across three categories. Rank 1 is at the top. | Specialized layouts rank each stage in descending order. Ties retain source order, and either segment selects the same series. [Replay](../artifacts/demo-slideshows/e06-bump/index.html). |
 | [Effect scatter](../tests/fixtures/plot_catalog/effect_scatter.svg) | Three observations produce six circles. Each marker sits above a larger, lighter halo. | Both backends draw a straight segment when secondary endpoints are supplied. The plain x/y form now paints a halo beneath each point in native Scene and Python SVG, PNG and PDF. Endpoint specs retain the segment behavior. |
-| [Arc diagram](../tests/fixtures/plot_catalog/arc_diagram.svg) | Three named nodes share a baseline, with weighted semicircles connecting them. | Both backends draw straight row-to-endpoint segments. Require shared node positions, curved weighted edges, node labels and edge selection that identifies the source record. |
+| [Arc diagram](../tests/fixtures/plot_catalog/arc_diagram.svg) | Three named nodes share a baseline, with weighted semicircles connecting them. | Specialized layouts connect labeled nodes with weighted semicircles. Selecting an edge identifies the source record. [Replay](../artifacts/demo-slideshows/e06-arc-diagram/index.html). |
 
 Python SVG and PNG exports succeeded for all five current catalog fixtures.
 All 40 tested anchor hits returned their original row index and all table
 values matched the input. The native Scene contract test also checks the two effect-scatter discs, their relative size, tint and opacity. Python tests check three source rows, six SVG circles and six vector PDF discs. At the middle marker of the half-opacity fixture, independent Poppler rasterization and the Python PNG returned identical center, halo and white background pixels. Other native behavior in this audit comes from the
 catalog branch in [plotting.mojo](../src/moxi_plot/plotting.mojo).
-Native interaction, specialized geometry, timing and visual parity remain open.
+The three linked replays compare specialized Python and native geometry against the pinned fixtures and exercise source-row selection. Timing and cross-host visual parity remain open.
 
 Run the evidence check from the repository root:
 
