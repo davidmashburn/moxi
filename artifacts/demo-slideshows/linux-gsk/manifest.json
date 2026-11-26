@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "demo_id": "linux-gsk",
+  "title": "Linux workbench scene parity",
+  "scenario": "P09 · chart, collection editing, Unicode, modal, responsive layout and recovery",
+  "revision": "cbfc3ff3a8ac5e5330cc37707ec5768833c694e1",
+  "host": "Ubuntu 24.04 x86-64 · Xvfb / Openbox",
+  "backend": "GTK 4.14 · Cairo and GSK NGL on Mesa llvmpipe",
+  "fixture": "Canonical layout_workbench_linux, deterministic synthetic X11 input",
+  "scale": 1,
+  "reproduce": "See experiments/linux-gsk/README.md for build, capture and measurement commands.",
+  "slides": [
+    {
+      "image": "oracle-initial.png",
+      "dimensions": [
+        1100,
+        800
+      ],
+      "phase": "initial",
+      "caption": "GTK Cairo reference",
+      "action": "Open the canonical workbench.",
+      "expected": "The results pane contains the clipped teal chart below the data grid.",
+      "capture_kind": "native-window",
+      "state": "initial",
+      "frame": 1,
+      "renderer": "GTK Cairo",
+      "viewport": [
+        1100,
+        800
+      ],
+      "scale": 1,
+      "chart": [
+        348,
+        624,
+        736,
+        160
+      ],
+      "canvas_offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "image": "ngl-initial.png",
+      "dimensions": [
+        1100,
+        800
+      ],
+      "phase": "initial",
+      "caption": "The same scene through OpenGL ES",
+      "action": "Select the GSK adapter and open the workbench.",
+      "expected": "The same chart, text and table appear at the same logical coordinates.",
+      "capture_kind": "native-window",
+      "state": "initial",
+      "frame": 1,
+      "renderer": "GskNglRenderer",
+      "viewport": [
+        1100,
+        800
+      ],
+      "scale": 1,
+      "chart": [
+        348,
+        624,
+        736,
+        160
+      ],
+      "canvas_offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "image": "ngl-collection.png",
+      "dimensions": [
+        1100,
+        800
+      ],
+      "phase": "interaction",
+      "caption": "Edit a collection cell",
+      "action": "Click a visible value and type q.",
+      "expected": "The cell gains focus and its published value includes q.",
+      "capture_kind": "native-window",
+      "state": "collection",
+      "frame": 3,
+      "renderer": "GskNglRenderer",
+      "viewport": [
+        1100,
+        800
+      ],
+      "scale": 1,
+      "chart": [
+        348,
+        624,
+        736,
+        160
+      ],
+      "canvas_offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "image": "ngl-unicode.png",
+      "dimensions": [
+        1100,
+        800
+      ],
+      "phase": "result",
+      "caption": "Commit Unicode input",
+      "action": "Focus Dataset and enter U+3042 with GTK simple input.",
+      "expected": "The editor commits あ and ends preedit.",
+      "capture_kind": "native-window",
+      "state": "unicode",
+      "frame": 10,
+      "renderer": "GskNglRenderer",
+      "viewport": [
+        1100,
+        800
+      ],
+      "scale": 1,
+      "chart": [
+        348,
+        624,
+        736,
+        160
+      ],
+      "canvas_offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "image": "ngl-popup.png",
+      "dimensions": [
+        1100,
+        800
+      ],
+      "phase": "interaction",
+      "caption": "Open the modal",
+      "action": "Click Dialog.",
+      "expected": "Modal controls appear over the workbench and the background editor leaves the active semantic tree.",
+      "capture_kind": "native-window",
+      "state": "popup",
+      "frame": 11,
+      "renderer": "GskNglRenderer",
+      "viewport": [
+        1100,
+        800
+      ],
+      "scale": 1,
+      "chart": null,
+      "canvas_offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "image": "ngl-narrow.png",
+      "dimensions": [
+        540,
+        800
+      ],
+      "phase": "recovery",
+      "caption": "Dismiss and resize",
+      "action": "Press Escape and narrow the window to 540 pixels.",
+      "expected": "Focus returns to Dataset and the results pane moves below the form.",
+      "capture_kind": "native-window",
+      "state": "narrow",
+      "frame": 13,
+      "renderer": "GskNglRenderer",
+      "viewport": [
+        540,
+        800
+      ],
+      "scale": 1,
+      "chart": [
+        16,
+        624,
+        508,
+        160
+      ],
+      "canvas_offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "image": "scale2-initial.png",
+      "dimensions": [
+        2200,
+        1600
+      ],
+      "phase": "result",
+      "caption": "Double the device scale",
+      "action": "Open a fresh window with GDK_SCALE=2.",
+      "expected": "The initial composition covers twice the device pixels on each axis.",
+      "capture_kind": "native-window",
+      "state": "initial",
+      "frame": 1,
+      "renderer": "GskNglRenderer",
+      "viewport": [
+        1100,
+        800
+      ],
+      "scale": 2,
+      "chart": [
+        348,
+        624,
+        736,
+        160
+      ],
+      "canvas_offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "image": "fallback-initial.png",
+      "dimensions": [
+        1100,
+        800
+      ],
+      "phase": "recovery",
+      "caption": "Recover with graphics APIs disabled",
+      "action": "Disable GL and Vulkan at process startup while requesting the GL renderer.",
+      "expected": "GTK falls back to Cairo and presents the chart from the same GSK node stream.",
+      "capture_kind": "native-window",
+      "state": "initial",
+      "frame": 1,
+      "renderer": "GskCairoRenderer",
+      "viewport": [
+        1100,
+        800
+      ],
+      "scale": 1,
+      "chart": [
+        348,
+        624,
+        736,
+        160
+      ],
+      "canvas_offset": [
+        0,
+        0
+      ]
+    }
+  ]
+}

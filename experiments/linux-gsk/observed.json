@@ -1,0 +1,206 @@
+{
+  "capture_utc": "2026-11-26T02:42:47+00:00",
+  "source_revision": "cbfc3ff3a8ac5e5330cc37707ec5768833c694e1",
+  "implementation_revision": "39d56d6b9146d2bb4ea6e10231a82042282766db",
+  "linux_workbench_sha256": "e1223a4c7034c50f538fb248d09a29a2b1abb62b5caf97d81d63174e7270e30f",
+  "pixi_lock_sha256": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0",
+  "environment": {
+    "distro": "Ubuntu 24.04 x86_64",
+    "gtk": "4.14.5",
+    "display": "X11 Xvfb 2560x1920x24 with Openbox",
+    "driver": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "version": "OpenGL ES 3.2 Mesa 25.2.8-0ubuntu0.24.04.5",
+    "classification": "software rasterizer",
+    "device_nodes": "/dev/dri absent"
+  },
+  "pixel_comparisons": {
+    "initial": {
+      "pixels": 880000,
+      "mean_abs_channel": 1.0379,
+      "exact_pct": 4.443,
+      "within_8_pct": 99.6623
+    },
+    "collection": {
+      "pixels": 880000,
+      "mean_abs_channel": 1.0308,
+      "exact_pct": 5.0905,
+      "within_8_pct": 99.6637
+    },
+    "unicode": {
+      "pixels": 880000,
+      "mean_abs_channel": 1.0308,
+      "exact_pct": 5.0905,
+      "within_8_pct": 99.6637
+    },
+    "popup": {
+      "pixels": 880000,
+      "mean_abs_channel": 0.9846,
+      "exact_pct": 9.216,
+      "within_8_pct": 99.6847
+    },
+    "narrow": {
+      "pixels": 432000,
+      "mean_abs_channel": 0.9939,
+      "exact_pct": 10.7005,
+      "within_8_pct": 99.5273
+    },
+    "chart": {
+      "pixels": 117760,
+      "mean_abs_channel": 1.6987,
+      "exact_pct": 0.0034,
+      "within_8_pct": 97.59,
+      "stroke_iou": 0.9443
+    },
+    "fallback": {
+      "pixels": 880000,
+      "mean_abs_channel": 0.0728,
+      "exact_pct": 96.5667,
+      "within_8_pct": 99.9195
+    }
+  },
+  "matching_semantic_nodes": {
+    "ngl": {
+      "initial": 88,
+      "collection": 88,
+      "unicode": 88,
+      "popup": 5,
+      "narrow": 55
+    },
+    "fallback": {
+      "initial": 88
+    },
+    "scale2": {
+      "initial": 88
+    }
+  },
+  "captures": {
+    "oracle": {
+      "initial": {
+        "frame": 1,
+        "renderer": "GTK Cairo",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "60dc3c3689317bd2779e3735aef775fb35eda923d5cf89b5a594f4c894c89890"
+      },
+      "collection": {
+        "frame": 3,
+        "renderer": "GTK Cairo",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "a80ab1db83e2b7aef781207c8580609377227df61439c9d34e12c2072576b674"
+      },
+      "unicode": {
+        "frame": 10,
+        "renderer": "GTK Cairo",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "2c5a77cd249ce832e51c674f4bc6507263939a2e9a5b0b40ce58928f854527ae"
+      },
+      "popup": {
+        "frame": 11,
+        "renderer": "GTK Cairo",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "21aaa7b2d63e2f335b0ace09aecf88e371d7fd8e77ac638b19988ee60a826e1e"
+      },
+      "narrow": {
+        "frame": 13,
+        "renderer": "GTK Cairo",
+        "logical_viewport": [
+          540,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "0c612447db9dd873d1504a57cfb5e76f789d7546f06baafde81adca8bfdd3e6c"
+      }
+    },
+    "ngl": {
+      "initial": {
+        "frame": 1,
+        "renderer": "GskNglRenderer",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "c388d6ad82e3ca57d3e429efa34699962aadda348f8a4962ecf858c6dc55c11d"
+      },
+      "collection": {
+        "frame": 3,
+        "renderer": "GskNglRenderer",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "fa0d72698d4affbd2c13da1a537430eb980357ae1e6142c3b69a96545a0f90e9"
+      },
+      "unicode": {
+        "frame": 10,
+        "renderer": "GskNglRenderer",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "48efc9af34bcc460344395660c43def0e4104150f162b26988e0105fb9d4cc0f"
+      },
+      "popup": {
+        "frame": 11,
+        "renderer": "GskNglRenderer",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "7d7101191e65324f8f61ea692a461bf2eba6ab7d553dc0b41c5b7be661c1ab13"
+      },
+      "narrow": {
+        "frame": 13,
+        "renderer": "GskNglRenderer",
+        "logical_viewport": [
+          540,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "2d167a79ca9319b2cb8055649fe8705b7778546278b1f64657ae524e8a143d67"
+      }
+    },
+    "fallback": {
+      "initial": {
+        "frame": 1,
+        "renderer": "GskCairoRenderer",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 1,
+        "png_sha256": "1c9226e7c0d3b3e62103aa5f3461f55291769373e953df0258de85a1ab7a7340"
+      }
+    },
+    "scale2": {
+      "initial": {
+        "frame": 1,
+        "renderer": "GskNglRenderer",
+        "logical_viewport": [
+          1100,
+          800
+        ],
+        "device_scale": 2,
+        "png_sha256": "3647d00287e13051bd1d7f3128bd8a7b0e7ac3abcd3efd37c7a5ef54f3bf4f6d"
+      }
+    }
+  }
+}
