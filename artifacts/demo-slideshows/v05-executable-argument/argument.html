@@ -142,6 +142,7 @@ el("insert").onclick = () => {
 el("export").onclick = () => {
   const doc = document.implementation.createHTMLDocument("Shuttle cost comparison");
   doc.documentElement.lang = "en";
+  doc.head.append(document.querySelector('meta[name="viewport"]').cloneNode(true));
   doc.head.append(document.querySelector("style").cloneNode(true));
   const main = doc.body.appendChild(doc.createElement("main"));
   function add(tag, text) { main.appendChild(doc.createElement(tag)).textContent = text; }
@@ -151,7 +152,9 @@ el("export").onclick = () => {
   add("h2", "Inserted comparison");
   add("p", insertion.text);
   add("p", insertion.condition);
-  main.appendChild(doc.createElement("figure")).innerHTML = insertion.chart;
+  const figure = main.appendChild(doc.createElement("figure"));
+  figure.className = "chart";
+  figure.innerHTML = insertion.chart;
   add("p", document.querySelector("figcaption").textContent);
   add("h2", "Model, source and limit");
   for (const id of ["formula", "observations"]) add("p", el(id).textContent);

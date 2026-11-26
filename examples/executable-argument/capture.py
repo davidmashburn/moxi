@@ -108,6 +108,10 @@ def capture(output):
         shot("static-essay", "result", "Download, reopen and reload the standalone essay.",
              "Frozen inserted values, curve, original argument, fit, and limit survive reload.")
         page.set_viewport_size(dict(width=390, height=844))
+        assert page.evaluate("document.documentElement.scrollWidth === innerWidth")
+        assert item('meta[name="viewport"]').get_attribute("content") == "width=device-width,initial-scale=1"
+        chart = item("figure svg").bounding_box()
+        assert chart["x"] >= 0 and chart["x"] + chart["width"] <= 390
         page.goto(article.as_uri())
         assert page.evaluate("document.documentElement.scrollWidth === innerWidth")
         item("#riders").fill("-1")
