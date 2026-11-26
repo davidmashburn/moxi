@@ -208,12 +208,14 @@
       "state": "partial",
       "commits": [
         "dbd145e",
-        "e9fd68f"
+        "e9fd68f",
+        "e2f75cf"
       ],
       "verification": [
         "Moxi sampling hooks integrated; separate moxi-sws repository checkpoint 440abc2 and fixes 3ac37ef are committed locally.",
         "33 app tests pass, including startup recovery/new-destination saves and accepted labels across both history stacks. Native build and 18 pinned-original partition/stable-ID scientific comparisons pass.",
-        "The packaged consumer passed 33 application contracts, all 18 reference partitions and stable-label comparisons, and 168 sampled pixels. The 13-frame native replay exercised editing, history, failed requests, save/reopen and corrupt-file recovery."
+        "The packaged consumer passed 33 application contracts, all 18 reference partitions and stable-label comparisons, and 168 sampled pixels. The 13-frame native replay exercised editing, history, failed requests, save/reopen and corrupt-file recovery.",
+        "Eight forced process exits, immediately before and after four file publication points, left every published document byte-correct and reopenable. Five cases left an unpublished temporary file. Native Recover, Save and Reopen preserved the three original files and recovered the newer edit with history. An independent clean build passed all 33 application tests."
       ],
       "remaining_gates": [
         "Physical editing, independent scientific acceptance, IME, screen readers, external stacks, other hosts, power-loss durability and sustained performance remain open. VoiceOver remains paused.",
