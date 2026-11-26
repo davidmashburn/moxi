@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "demo_id": "v03-invent-notation",
+  "title": "Phrase Studio",
+  "scenario": "V03 notation revision with I01 progressive formalization and I12 last-working calculation.",
+  "host": "macOS / T3 collaborative preview / Chromium 152",
+  "backend": "Moxi Python reference SVG plus browser DOM",
+  "fixture": "Synthetic empty Chain with a fixed informal joint note",
+  "scale": 2,
+  "revision": "fb387fe123fe977fc99c1ea85ce092cd8bbfb8bd",
+  "captured_utc": "2026-11-26 02:22–02:24 UTC",
+  "viewport": [
+    1280,
+    800
+  ],
+  "reproduce": "python examples/invent-notation/replay.py --images output/v03",
+  "slides": [
+    {
+      "image": "01-definition.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "capture_kind": "browser",
+      "phase": "initial",
+      "scenario": "V03",
+      "caption": "Define the movement notation",
+      "action": "Open a fresh score in the isolated browser.",
+      "expected": "Three named phrase types, forward sequence order, group capacity three and two ticks per beat."
+    },
+    {
+      "image": "02-compose.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "capture_kind": "browser",
+      "phase": "interaction",
+      "scenario": "V03",
+      "caption": "Place two sweeps in parallel",
+      "action": "Append Sweep and Unison to Chain. Select Sweep, press Down to select Unison, click + Sweep and press Enter.",
+      "expected": "Three motions fill four ticks. Slots 4 and 5 share their start."
+    },
+    {
+      "image": "03-candidate.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "capture_kind": "browser",
+      "phase": "interaction",
+      "scenario": "I12",
+      "caption": "Preview a replacement calculation",
+      "action": "Choose Last to first. Increase ticks per beat to three with Up.",
+      "expected": "The proposal spans six ticks while the working score still spans four."
+    },
+    {
+      "image": "04-replaced.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "capture_kind": "browser",
+      "phase": "result",
+      "scenario": "I12",
+      "caption": "Apply revision 2",
+      "action": "Activate Apply revision.",
+      "expected": "Group 3 stays selected. Its two motions run first, followed by slot 2. All slot identities survive."
+    },
+    {
+      "image": "05-rejected.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "capture_kind": "browser",
+      "phase": "recovery",
+      "scenario": "V03 / I12",
+      "caption": "Reject an incompatible group rule",
+      "action": "Reduce capacity to one and press Enter.",
+      "expected": "The error identifies group 3 and its two slots. Revision 2 still runs the same six-tick score."
+    },
+    {
+      "image": "06-joint.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "capture_kind": "browser",
+      "phase": "result",
+      "scenario": "I01",
+      "caption": "Give the sketch a moving arm",
+      "action": "Restore committed rules, formalize the arm, increase length to 41 and scrub with Home then PageUp.",
+      "expected": "At tick 0.60 the two overlapping motions rotate the joint 70.5 degrees. The informal note stays beside it."
+    },
+    {
+      "image": "07-undo.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "capture_kind": "browser",
+      "phase": "recovery",
+      "scenario": "I01",
+      "caption": "Return to the unfinished sketch",
+      "action": "Undo the length change, then undo formalization.",
+      "expected": "The arm disappears. The original note and joint remain at their original location and the score is intact."
+    }
+  ]
+}

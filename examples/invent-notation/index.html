@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phrase Studio · V03</title><link rel="stylesheet" href="studio.css">
+<header><small>MOXI / MOVEMENT STUDIES</small><h1>Phrase Studio</h1><p>Compose a movement score and revise the notation that gives it meaning.</p></header>
+<main><section><h2>Notation <output id="revision"></output></h2>
+<form id="rules"><fieldset><legend>Phrase names</legend>
+<label>Motion <input name="motion" maxlength="24"></label>
+<label>Sequence <input name="sequence" maxlength="24"></label>
+<label>Group <input name="group" maxlength="24"></label></fieldset>
+<label>Sequence order <select name="order"><option value="forward">First to last</option><option value="reverse">Last to first</option></select></label>
+<label>Parallel group capacity <input type="number" name="capacity" min="1" max="8"></label>
+<label>Ticks per beat <input type="number" name="beat" min="1" max="8"></label>
+<p id="candidate"></p><button>Apply revision</button></form>
+</section><section><h2>Movement score</h2><p>Use ↑ and ↓ to select a slot. Add phrases inside a sequence or parallel group.</p>
+<div id="slots" role="group" aria-label="Score slots"></div><div id="insert"></div>
+<label id="duration">Motion beats <input id="beats" type="number" min="1" max="16"></label>
+<button id="undo">Undo edit</button>
+<p id="status" role="status"></p>
+<aside id="recovery" aria-label="Saved score recovery" hidden>
+<p>Original saved source retained for recovery. Download a copy for safekeeping; this editor cannot open it.</p>
+<div id="recovery-links"></div><p id="recovery-error" role="status"></p></aside></section>
+<section><h2>Motion study</h2><p id="summary"></p><div id="timeline"></div>
+<img id="curve" alt="Moxi plot of joint rotation across the score"><p id="plotError" role="status"></p>
+<label>Preview tick <input id="tick" type="range" min="0" step=".05" value="0"></label><output id="readout"></output>
+<svg id="sketch" viewBox="0 0 300 120" aria-label="Joint, arm and informal note"><circle cx="70" cy="85" r="5"/><line id="arm" x1="70" y1="85"/><text id="annotation" x="82" y="104"></text></svg>
+<label>Sketch note <input id="note" maxlength="80"></label>
+<button id="formal">Formalize arm at joint</button><label id="length">Arm length <input id="radius" type="number" min="10" max="60"></label>
+</section></main><script type="module" src="studio.mjs"></script></html>
