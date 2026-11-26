@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "demo_id": "personal-instrument",
+  "title": "Phrase desk",
+  "scenario": "V12. Compare input routes, preview and replace a response curve, reopen the panel and recover the mapping while preserving the score.",
+  "revision": "03360a1b15632e70a501d27fe60feff8323f413d",
+  "host": "macOS 27.2.1 arm64, headless Chrome 158.0.8127.37, 1120 × 840 CSS pixels",
+  "backend": "Moxi Python reference SVG, loopback server at 127.0.0.1:18182",
+  "fixture": "First eight observations of examples/data/workbench-tail.csv, fresh local browser profile",
+  "reproduce": "From the repository root, run PYTHONPATH=python python3 examples/personal-instrument/app.py --port 18182. In another shell with playwright-core resolvable, run PORT=18182 node examples/personal-instrument/check.cjs /tmp/phrase-desk-captures.",
+  "captured_at": "2026-11-26T02:36Z",
+  "scale": 1,
+  "slides": [
+    {"phase":"initial","capture_kind":"browser","image":"initial.png","dimensions":[1120,840],"caption":"Linear accent mapping","action":"Open the instrument in a fresh profile.","expected":"Eight pitches appear. Step 1 is selected, with stored accent 70 and length 80. Half input maps to 50% accent."},
+    {"phase":"interaction","capture_kind":"browser","image":"interaction.png","dimensions":[1120,840],"caption":"Compare the draft with the active control","action":"Apply to step 1 by button. Focus the keyboard pad, advance and apply to step 2. Choose Length and 25% midpoint.","expected":"Both steps have accent 50. The active target is accent 50% and the draft is length 25%."},
+    {"phase":"result","capture_kind":"browser","image":"result.png","dimensions":[1120,840],"caption":"Perform with the reopened mapping","action":"Save mapping, reload, focus the pad and press Space.","expected":"Step 1 retains accent 50 and receives length 25. Step 2 retains its prior edit."},
+    {"phase":"recovery","capture_kind":"browser","image":"recovery.png","dimensions":[1120,840],"caption":"Recover the control while keeping the music","action":"Replace only the saved mapping with the future-version fixture in check.cjs and reload.","expected":"An unreadable-mapping message appears, linear accent is active and step 1 still has accent 50 and length 25."}
+  ]
+}
