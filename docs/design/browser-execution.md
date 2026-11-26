@@ -1,6 +1,10 @@
 # Browser execution for Moxi and Jupyter
 
-## Current status — November 9, 2026
+## Browser verification on November 26, 2026
+
+Firefox 159 on Linux arm64 and Playwright WebKit 27.2 on macOS arm64 passed selection, dragging, pan, zoom, resize, animation, search, disposal, recreation and reload in the two-instance graph demo. Each passed 6,515 native/Wasm comparisons and 100 disposal cycles with zero tracked live allocations. Both supported memory64 by default. The diagnostic for an unavailable runtime passed through its forced test path. Safari, macOS Firefox and devices without memory64 still need direct testing. [Replay records and screenshots](https://github.com/davidmashburn/moxi/tree/ecd8134/experiments/browser-moxi/evidence/alternate-engines-2026-11-26)
+
+## Status on November 9, 2026
 
 P01's bounded Moxi browser runtime is implemented in `5921b47`, now on `main`
 at `b2361c2`. Actual application input, scene/SVG output, semantics and lifecycle
