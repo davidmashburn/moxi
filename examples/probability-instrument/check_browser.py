@@ -134,7 +134,22 @@ def attachment_check(page, capture):
         page.mouse.click(*xy)
         expect(apply).to_be_enabled()
         assert abs(float(target.input_value()) - expected) < .01
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         expect(page.locator("#saved td")).to_have_text(["0.25", "0.5", "0.25", "1"])
+
+
+def fractional_layout(page, capture):
+    page.reload()
+    values = ["0.2222222", "0.4444444", "0.3333333", "1.111111"]
+    page.locator("#outcome").select_option("2")
+    page.get_by_label("Requested P(x)").fill(".3333333333333333")
+    expect(page.locator("#draft td")).to_have_text(values)
+    capture("fractional-plot")
+    page.locator("#attachment").select_option("geometry")
+    capture("fractional-triangle")
+    page.get_by_role("button", name="Apply preview").click()
+    expect(page.locator("#saved td")).to_have_text(values)
+    capture("fractional-committed")
 
 
 if __name__ == "__main__":
@@ -157,6 +172,7 @@ if __name__ == "__main__":
                     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
                 exercise(page)
                 attachment_check(page, capture)
+                fractional_layout(page, capture)
                 assert not errors, errors
                 print(f"PASS Chrome {browser.version}, {width} × {height}")
                 page.close()

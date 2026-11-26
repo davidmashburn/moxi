@@ -9,6 +9,14 @@ h1{font:normal clamp(32px,6vw,48px)/1.1 Georgia,serif;margin:0}p{margin:.65em 0}
 rect[data-mark]{cursor:ns-resize;fill:#dfebe4}rect[data-mark]:nth-of-type(odd){fill:#247b63}
 table{width:100%;border-collapse:collapse;text-align:right;font-variant-numeric:tabular-nums}
 td,th{padding:5px;border-bottom:1px solid #d8e3dc}th:first-child{text-align:left}
+/* On phones, compare the committed and preview values side by side for each outcome. */
+@media(max-width:32rem){
+  table{display:grid;grid-auto-flow:column;grid-template-columns:auto 1fr 1fr}
+  thead,tbody{display:contents}
+  table tr{display:grid;grid-template-rows:subgrid;grid-row:span 5}
+  table tr th:first-child{text-align:inherit}
+  thead tr{text-align:left}
+}
 form{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:20px 0 10px}
 button,select,input{font:inherit}select,input[type=number],button{padding:.4em .65em}
 input[type=number]{width:8em}label span{display:block;font-size:.85em}

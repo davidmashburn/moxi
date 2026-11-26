@@ -18,3 +18,7 @@ PYTHONPATH=python uv run --no-project --with playwright python examples/probabil
 ```
 
 All three unit tests passed, including 4,356 feasibility requests. The regenerated Mojo affine transform fixture compared byte-for-byte equal. The observations cover software behavior with synthetic inputs. Human understanding, physical touch, assistive technology and other browser engines were untested.
+
+## Fractional results on phones
+
+Chrome 158 on macOS ran the attachment checks on the integrated implementation at 1280 × 800 and 390 × 844. Entering one third for outcome 2 had previously expanded the 390 px document to 457 px. The phone layout now compares committed and preview values side by side for each outcome. The page stayed within the viewport with the [plot preview](390-fractional-plot.png), after [transfer to the triangle](390-fractional-triangle.png), and after [applying the edit](390-fractional-committed.png). All six narrow captures above were regenerated from this layout. The fixture used synthetic inputs with the mean free. Physical touch and screen-reader interaction remain unverified.
