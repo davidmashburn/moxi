@@ -28,6 +28,19 @@ class Phase(str, Enum):
 
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+# PNG color type -> sample count and legal sample/index bit depths.
+PNG_ENCODINGS = {
+    0: (1, (1, 2, 4, 8, 16)),
+    2: (3, (8, 16)),
+    3: (1, (1, 2, 4, 8)),
+    4: (2, (8, 16)),
+    6: (4, (8, 16)),
+}
+# Each Adam7 pass gives its first x/y coordinate and column/row step.
+PNG_ADAM7_PASSES = (
+    (0, 0, 8, 8), (4, 0, 8, 8), (0, 4, 4, 8), (2, 0, 4, 4),
+    (0, 2, 2, 4), (1, 0, 2, 2), (0, 1, 1, 2),
+)
 STYLE = """
 body{font:16px system-ui,sans-serif;background:#101822;color:#eef3fb;margin:0 auto;
 max-width:1100px;padding:24px}a{color:#9bd5ff}button{font:inherit;padding:8px 14px;
@@ -58,14 +71,20 @@ def capture_path(directory, name):
 
 
 def read_png(path, dimensions=None, digest=None):
-    """Check PNG structure/CRCs as well as any recorded dimensions and checksum."""
+    """Check PNG encoding, filtered scanlines, CRCs and recorded metadata."""
     data = path.read_bytes()
     if len(data) < 33 or data[:8] != PNG_SIGNATURE or data[12:16] != b"IHDR":
         raise ValueError(f"not a PNG: {path.name}")
-    width, height = struct.unpack(">II", data[16:24])
+    if struct.unpack(">I", data[8:12])[0] != 13:
+        raise ValueError(f"broken PNG header: {path.name}")
+    width, height, depth, color, compression, filtering, interlace = struct.unpack(
+        ">IIBBBBB", data[16:29])
     if width < 1 or height < 1 or (dimensions is not None and [width, height] != dimensions):
         raise ValueError(f"capture dimensions do not match PNG: {path.name}")
-    offset, chunks, compressed = 8, [], []
+    if (color not in PNG_ENCODINGS or depth not in PNG_ENCODINGS[color][1]
+            or compression != 0 or filtering != 0 or interlace not in (0, 1)):
+        raise ValueError(f"unsupported PNG encoding: {path.name}")
+    offset, chunks, compressed, palettes = 8, [], [], []
     while offset + 12 <= len(data):
         length = struct.unpack(">I", data[offset:offset + 4])[0]
         end = offset + 12 + length
@@ -75,16 +94,42 @@ def read_png(path, dimensions=None, digest=None):
         chunks.append(chunk[:4])
         if chunk[:4] == b"IDAT":
             compressed.append(chunk[4:])
+        if chunk[:4] == b"PLTE":
+            palettes.append(chunk[4:])
         offset = end
         if chunk[:4] == b"IEND":
+            if length != 0:
+                raise ValueError(f"broken PNG end: {path.name}")
             break
-    if offset != len(data) or chunks[-1:] != [b"IEND"] or b"IDAT" not in chunks:
+    if (offset != len(data) or chunks[-1:] != [b"IEND"] or b"IDAT" not in chunks
+            or chunks.count(b"IHDR") != 1):
         raise ValueError(f"incomplete PNG: {path.name}")
+    if (palettes and (len(palettes) != 1 or not 0 < len(palettes[0]) <= 768
+                      or len(palettes[0]) % 3 or color in (0, 4)
+                      or chunks.index(b"PLTE") > chunks.index(b"IDAT"))
+            or color == 3 and (not palettes or len(palettes[0]) > 3 * (1 << depth))):
+        raise ValueError(f"invalid PNG palette: {path.name}")
     try:
-        if not zlib.decompress(b"".join(compressed)):
-            raise ValueError(f"empty PNG pixels: {path.name}")
+        decoder = zlib.decompressobj()
+        pixels = decoder.decompress(b"".join(compressed)) + decoder.flush()
+        if not decoder.eof or decoder.unused_data:
+            raise ValueError(f"incomplete PNG pixels: {path.name}")
     except zlib.error as error:
         raise ValueError(f"broken PNG pixels: {path.name}") from error
+    offset = 0
+    channels = PNG_ENCODINGS[color][0]
+    for x, y, dx, dy in PNG_ADAM7_PASSES if interlace else ((0, 0, 1, 1),):
+        pass_width = max(0, (width - x + dx - 1) // dx)
+        pass_height = max(0, (height - y + dy - 1) // dy)
+        if not pass_width or not pass_height:
+            continue
+        stride = 1 + (pass_width * channels * depth + 7) // 8
+        end = offset + stride * pass_height
+        if end > len(pixels) or any(pixels[row] > 4 for row in range(offset, end, stride)):
+            raise ValueError(f"invalid PNG scanlines: {path.name}")
+        offset = end
+    if offset != len(pixels):
+        raise ValueError(f"invalid PNG pixel length: {path.name}")
     if digest is not None and hashlib.sha256(data).hexdigest() != digest:
         raise ValueError(f"capture SHA-256 mismatch: {path.name}")
     return data

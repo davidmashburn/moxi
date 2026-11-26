@@ -81,7 +81,9 @@ def audit(root=GALLERIES):
         committed_images, local_uncommitted_images, absent_uncommitted_images = [], [], []
         kinds = Counter()
         for slide in frames:
-            kinds[slide.get("capture_kind", "missing")] += 1
+            kind = slide.get("capture_kind", "missing")
+            if isinstance(kind, str):
+                kinds[kind] += 1
             image = capture_path(path.parent, slide["image"])
             if relative(image) in COMMITTED_PATHS:
                 committed_images.append(slide.get("image"))
