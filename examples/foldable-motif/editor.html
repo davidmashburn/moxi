@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accordion study · Moxi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f2eb;color:#243936;font:16px system-ui,sans-serif}
+main{max-width:1120px;margin:auto;padding:32px 24px}h1,h2{font-family:Georgia,serif;font-weight:normal}
+h1{font-size:2.6rem;margin:0}h2{margin:0;font-size:1.4rem}p{margin:.55rem 0 1rem}
+.views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}section,form{background:#fffdf7;border:1px solid #c6cdc1;padding:18px;border-radius:6px}
+svg{display:block;width:100%;background:#f2f4ed;margin:.8rem 0}.panel{stroke:#375853;stroke-width:1.4;cursor:pointer}
+.panel:nth-child(odd){fill:#a3c9bb}.panel:nth-child(even){fill:#77a598}.panel.active{fill:#eca551;stroke:#724617;stroke-width:2.4}
+button,input,select{font:inherit;padding:.4rem;border:1px solid #86988e;border-radius:4px}button{cursor:pointer;background:#e7eee5}button:disabled{opacity:.5}
+form{margin:16px 0;display:flex;flex-wrap:wrap;align-items:end;gap:14px}label{display:grid;gap:5px}input{width:7rem}
+output{display:block;min-height:1.5em}#status{color:#823b16}table{margin-top:.65rem;border-collapse:collapse;width:100%}th,td{text-align:left;padding:.4rem;border-bottom:1px solid #d8ded4}
+@media(max-width:720px){.views{grid-template-columns:1fr}main{padding:16px}th,td{padding:.25rem;font-size:.87rem}}
+</style>
+<main><h1>Accordion study</h1><p>Three two-panel repeats on a 40 mm deep strip. Pick a panel in either view to follow it across the fold.</p>
+<div class="views"><section><h2>Flat crease pattern</h2><svg id="flat" viewBox="0 0 500 200" aria-label="Flat pattern"></svg><output id="sheet"></output><button type="button" id="measure">Measure crease 3</button></section>
+<section><h2>Folded surface</h2><svg id="folded" viewBox="0 0 500 200" aria-label="Folded surface"></svg><output id="adjacency"></output></section></div>
+<form novalidate><label>Panel pitch (mm)<input id="pitch" type="number" min="10" max="30" step="0.1"></label>
+<label>Panel tilt (°)<input id="tilt" type="number" min="0" max="75" step="1"></label>
+<label>Preview tilt<input id="sweep" type="range" min="0" max="75" step="1"></label>
+<label>Active panel<select id="pick"></select></label>
+<button>Apply edit</button><button type="button" id="undo">Undo</button></form>
+<output aria-live="polite" id="status"></output>
+<section><h2>Compare configurations</h2><table><thead><tr><th>Patch</th><th>Pitch</th><th>Tilt</th><th>Span</th><th>Rise</th></tr></thead><tbody id="comparison"></tbody></table></section></main>
+<script>
+const geometry = /* GEOMETRY */;
+const $ = id => document.getElementById(id);
+const baseline = Object.freeze({pitch:20, tilt:30});
+let current = baseline, selected = 1, measuring = false;
+const historyStack = [];
+const count = geometry.sections[0].offsets.length - 1;
+for (let i=1; i<=count; i++) $('pick').add(new Option('Panel '+i, i));
+
+function panel(view, index, corners) {
+  const face = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  face.setAttribute('points', corners.map(p => p.join(',')).join(' '));
+  face.setAttribute('class', index === selected ? 'panel active' : 'panel');
+  face.dataset.panel = index;
+  face.addEventListener('click', () => select(index));
+  view.append(face);
+}
+function select(index) {
+  selected = index;
+  $('pick').value = index;
+  draw();
+}
+function row(label, config) {
+  const {run,rise} = geometry.sections[config.tilt];
+  return '<tr><th>'+label+'</th>'+[
+    config.pitch+' mm',config.tilt+'°',(count*config.pitch*run).toFixed(1)+' mm',
+    (config.pitch*rise).toFixed(1)+' mm'
+  ].map(cell=>'<td>'+cell+'</td>').join('')+'</tr>';
+}
+let preview = null;
+function draw() {
+  const shown = preview || current;
+  const section = geometry.sections[shown.tilt];
+  $('flat').replaceChildren();
+  $('folded').replaceChildren();
+  const width = shown.pitch*2.5;
+  const edge = (i, anchor) => section.offsets[i].map((d,k)=>anchor[k]+d*shown.pitch/10);
+  for (let i=count-1; i>=0; i--) {
+    const x = 250+(i-count/2)*width;
+    panel($('flat'), i+1, [[x,50],[x+width,50],[x+width,150],[x,150]]);
+    panel($('folded'), i+1, [edge(i,geometry.back),edge(i+1,geometry.back),
+      edge(i+1,geometry.front),edge(i,geometry.front)]);
+  }
+  for (let i=1; i<count; i++) {
+    const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x',250+(i-count/2)*width);
+    label.setAttribute('y',172);
+    label.setAttribute('text-anchor','middle');
+    label.textContent = i%2 ? 'M' : 'V';
+    $('flat').append(label);
+  }
+  // The note stays attached to the central material crease. Promoting it
+  // instruments that crease and traces the front endpoint through the sweep.
+  const note = document.createElementNS('http://www.w3.org/2000/svg','text');
+  note.setAttribute('x',250);
+  note.setAttribute('y',37);
+  note.setAttribute('text-anchor','middle');
+  note.textContent = measuring ? 'Crease 3 · '+(section.rise*shown.pitch).toFixed(1)+' mm high' : 'Crease 3 · how high?';
+  $('flat').append(note);
+  if (measuring) {
+    const trace = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    const path = geometry.sections.map(sample => sample.offsets[3].map(
+      (v,k) => geometry.front[k]+v*shown.pitch/10).join(','));
+    trace.setAttribute('points',path.join(' '));
+    trace.setAttribute('fill','none');
+    trace.setAttribute('stroke','#8c371b');
+    trace.setAttribute('stroke-dasharray','3 2');
+    trace.setAttribute('stroke-width',3);
+    trace.style.pointerEvents = 'none';
+    $('folded').append(trace);
+  }
+  $('measure').disabled = measuring;
+  $('sheet').textContent = 'Sheet '+(count*shown.pitch).toFixed(1)+' × 40 mm · M mountain / V valley';
+  const neighbors = [selected-1,selected+1].filter(i=>i>=1 && i<=count);
+  $('adjacency').textContent = 'Panel '+selected+' · adjacent to '+neighbors.join(' and ')+
+    ' · hinge opening '+(180-2*shown.tilt)+'°';
+  $('comparison').innerHTML = row('Starting patch',baseline)+row(preview ? 'Preview' : 'Current',shown);
+  $('undo').disabled = !historyStack.length;
+}
+function syncInputs() {
+  preview = null;
+  $('sweep').value = current.tilt;
+  $('pitch').value = current.pitch;
+  $('tilt').value = current.tilt;
+}
+$('sweep').oninput = () => {
+  $('tilt').value = $('sweep').value;
+  const pitch = $('pitch').valueAsNumber;
+  if (!validPitch(pitch)) {
+    preview = null;
+    $('status').textContent = 'Preview needs a pitch of 10–30 mm in tenths.';
+  } else {
+    preview = {pitch, tilt: Number($('sweep').value)};
+    $('status').textContent = 'Previewing tilt. Apply to keep it, or press Escape.';
+  }
+  draw();
+};
+for (const input of [$('pitch'), $('tilt')]) {
+  input.oninput = () => {
+    preview = null;
+    $('status').textContent = 'Draft ready to apply.';
+    draw();
+  };
+}
+function validPitch(pitch) {
+  return Number.isFinite(pitch) && pitch >= 10 && pitch <= 30 && Number.isInteger(pitch*10);
+}
+$('pick').onkeydown = event => {
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault();
+    select(Math.min(count,Math.max(1,selected+(event.key === 'ArrowDown' ? 1 : -1))));
+  }
+};
+$('pick').onchange = () => select(Number($('pick').value));
+document.querySelector('form').onsubmit = event => {
+  event.preventDefault();
+  const pitch = $('pitch').valueAsNumber, tilt = $('tilt').valueAsNumber;
+  if (!validPitch(pitch)
+      || !Number.isInteger(tilt) || tilt<0 || tilt>=geometry.sections.length) {
+    preview = null;
+    draw();
+    $('status').textContent = 'Edit rejected. Use a pitch of 10–30 mm in tenths and a whole tilt of 0–75°. The last valid patch is displayed.';
+    return;
+  }
+  if (pitch !== current.pitch || tilt !== current.tilt) {
+    historyStack.push({current, measuring});
+    current = {pitch,tilt};
+  }
+  syncInputs();
+  $('status').textContent = 'Edit applied.';
+  draw();
+};
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    syncInputs();
+    draw();
+    $('status').textContent = 'Draft cancelled.';
+  }
+});
+$('measure').onclick = () => {
+  historyStack.push({current, measuring});
+  measuring = true;
+  syncInputs();
+  draw();
+  $('status').textContent = 'Tracking crease 3. Dashes trace its front endpoint over the tilt range.';
+};
+$('undo').onclick = () => {
+  ({current, measuring} = historyStack.pop());
+  syncInputs();
+  draw();
+  $('status').textContent = 'Previous patch restored.';
+};
+syncInputs();
+draw();
+</script></html>
