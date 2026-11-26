@@ -1,0 +1,67 @@
+{
+  "chrome": "158.0.8127.37",
+  "python": "3.12.12",
+  "platform": "Darwin",
+  "viewport": [
+    1000,
+    850
+  ],
+  "captured": "2026-11-26T02:33:56.156393+00:00",
+  "sources": {
+    "capture.py": "ee85fa75dd19a87fe9591d86a7d0077901b7ade61f44701d25dab14ee17ecc6e",
+    "index.html": "d4d0c0b9196a9182520f26b7f781f0a21edb95e7266a8e11bf569dc6c933e93b",
+    "lesson.js": "53fb072f68242a9e2b72e607fad0d748b07a42453fdd14797312c32db30c3ac4",
+    "lesson.py": "83decfe04b434dcd9eb6a451c5026850508c1297084cfc27ecf9f56606841304",
+    "serve.py": "ed75f02125bf0f509c5c59acc1ba9b666c884e54614e6dca87984a7e88815491",
+    "style.css": "c9e4b4ff9a3043a1ebb1fa5e3736af7b37c2bce248daf7cb65d9dbe684189bbc",
+    "test_lesson.py": "afeb342502b305927a421f052c9abd9042ce6b10ffd98537785b297a57524257"
+  },
+  "slides": [
+    [
+      "01.png",
+      "Prediction",
+      "Synthetic response before the trial is available."
+    ],
+    [
+      "02.png",
+      "Rejected mass",
+      "Zero mass is rejected before a run is created."
+    ],
+    [
+      "03.png",
+      "Manipulate mass",
+      "The corrected trial is ready to compare."
+    ],
+    [
+      "04.png",
+      "Compare runs",
+      "Reference and trial periods at the committed mass."
+    ],
+    [
+      "05.png",
+      "Inspect notation",
+      "The sampled motion leads to the angular-frequency definition."
+    ],
+    [
+      "06.png",
+      "Collapsed basis",
+      "Zero amplitude collapses the working copy to rest."
+    ],
+    [
+      "07.png",
+      "Insert result",
+      "The report records the copied trial, source checkpoint and trace."
+    ],
+    [
+      "08.png",
+      "Restore the checkpoint",
+      "Restore the sampled trial while retaining the inserted result."
+    ],
+    [
+      "09.png",
+      "Unfamiliar case",
+      "A keyboard-entered explanation precedes the model comparison."
+    ]
+  ],
+  "pageErrors": []
+}
