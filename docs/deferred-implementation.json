@@ -927,11 +927,25 @@
     {
       "id": "V14",
       "scope": "Chemical prediction investigation: replay one outcome/horizon with sensor traces, baseline comparison and held-out session evaluation.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "1cd56a5",
+        "3689e17",
+        "688bef1",
+        "fa17c00"
+      ],
+      "verification": [
+        "A native Moxi App rendered 84 offline plot frames for the synthetic temperature and paired proxy experiments. Independent coordinate checks matched within 0.00018 SVG units.",
+        "Training, calibration and held-out observations used separate sessions. The artificial CO\u2082 covariate reduced error on B and C. On reversed-coupling D it raised mean absolute error from 0.04475 to 0.08600 \u00b0C and its band covered 4 of 21 outcomes.",
+        "Desktop and narrow Chrome replays passed stepping, playback, missing-frame recovery and reload. Both committed galleries opened offline."
+      ],
+      "remaining_gates": [
+        "Synthetic indoor signals only. Instrument calibration, field measurements, physical device integration, participant assessment and assistive technology remain open. The captures used isolated Chrome."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/v14-room-temperature/index.html",
+        "artifacts/demo-slideshows/v14-moxi-sensor/index.html"
+      ]
     },
     {
       "id": "V15",
