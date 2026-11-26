@@ -101,7 +101,30 @@ def check_pixel_cutoff(depth: Natural):
     test_check(cursor.finished and cursor.emitted == 1001)
 
 
+def check_colored_replay():
+    var state = FractalState()
+    state.random_colors = True
+    _ = state.set_depth(4)
+    state.reset_render_progress()
+    while not state.render_complete():
+        _ = state.advance_render(1)
+    var first = state.raster.pixels.copy()
+    state.reset_render_progress()
+    while not state.render_complete():
+        _ = state.advance_render(128)
+    test_check(first == state.raster.pixels)
+    var first_red = -1
+    for i in range(0, len(first), 4):
+        if first[i + 3] > 0:
+            if first_red == -1:
+                first_red = Int(first[i])
+            elif first_red != Int(first[i]):
+                return
+    test_check(False)  # Expected multiple colors across visible leaves.
+
+
 def main():
+    check_colored_replay()
     var number = Natural(7)
     test_check(not number.parse(""))
     test_check(not number.parse("-1"))

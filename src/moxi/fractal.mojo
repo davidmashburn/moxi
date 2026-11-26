@@ -7,7 +7,8 @@ interface; the state itself remains independent of a native renderer.
 """
 
 from std.collections import List
-from std.math import cos, isfinite, sin, sqrt
+from std.math import cos, sin, sqrt
+from std.memory import bitcast
 from std.time import perf_counter_ns
 
 from .accessibility import ACTION_PRESS
@@ -692,16 +693,21 @@ def _geometry_equal(left: FractalGeometry, right: FractalGeometry) -> Bool:
 
 
 def _random_line_color(start: Point, end: Point) -> Color:
-    var seed = abs(sin(
-        Float64(start.x) * 12.9898 + Float64(start.y) * 78.233
-        + Float64(end.x) * 37.719 + Float64(end.y) * 11.173
-    ))
-    if not isfinite(seed):
-        return Color(0.20, 0.20, 0.20, 1.0)
-    var red = 0.20 + 0.55 * abs(sin(seed * 17.13))
-    var green = 0.20 + 0.55 * abs(sin(seed * 29.71 + 1.7))
-    var blue = 0.20 + 0.55 * abs(sin(seed * 43.37 + 3.2))
-    return Color(Float32(red), Float32(green), Float32(blue), 1.0)
+    # Mix the endpoints' Float32 bits so rendering the same line in a later
+    # frame gives it the same color without maintaining random generator state.
+    var bits = bitcast[DType.uint32](start.x) * 2654435761
+    bits = (bits ^ bitcast[DType.uint32](start.y)) * 2654435761
+    bits ^= bitcast[DType.uint32](end.x)
+    bits = bits * 2246822519 ^ bitcast[DType.uint32](end.y)
+    bits = (bits ^ (bits >> 16)) * 3266489917
+    bits ^= bits >> 16
+    comptime scale = Float32(0.55 / 255)
+    return Color(
+        0.20 + Float32(bits & 255) * scale,
+        0.20 + Float32((bits >> 8) & 255) * scale,
+        0.20 + Float32((bits >> 16) & 255) * scale,
+        1.0,
+    )
 
 
 def _append_scene_circle(

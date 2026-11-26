@@ -39,7 +39,7 @@ struct RasterImage(ImplicitlyCopyable):
         if alpha <= 0.0:
             return
         var channels = SIMD[DType.float64, 4](Float64(color.red), Float64(color.green), Float64(color.blue), 0.0)
-        for channel in range(3):
+        comptime for channel in range(3):
             var value = (channels[channel] * source_alpha + Float64(self.pixels[offset + channel]) / 255.0 * destination_alpha * (1.0 - source_alpha)) / alpha
             self.pixels[offset + channel] = UInt8(max(0.0, min(value * 255.0 + 0.5, 255.0)))
         self.pixels[offset + 3] = UInt8(min(alpha * 255.0 + 0.5, 255.0))
