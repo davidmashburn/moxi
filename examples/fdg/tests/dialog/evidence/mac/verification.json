@@ -1,0 +1,247 @@
+{
+  "recorded_utc": "2026-11-26T04:00:15.674642+00:00",
+  "base": "4bd66362f68613e3bbf44f2a7edf69fb8c9854a7",
+  "product_source": {
+    "unchanged_from_base": true,
+    "directories": [
+      "src",
+      "native",
+      "examples/fdg/src",
+      "examples/fdg/native"
+    ],
+    "files_compared": 269,
+    "comparison": "Each tracked file compared byte for byte with git show BASE:path; no untracked files in these directories.",
+    "manifest_sha256": "4d6fc0cfda215bba4d1a8f60a4d8a8c1fb1bb13c907c47fb490f5ef63f5fd9f6",
+    "manifest_encoding": "UTF-8 JSON, relative path to SHA-256, sorted keys, compact separators, no trailing newline"
+  },
+  "build": {
+    "command": "bash examples/fdg/scripts/build.sh",
+    "exit_code": 0,
+    "output_sha256": {
+      "dist/moxi-fdg": "0e38c9eca75bb8bdac2e07f989df14183e3aa5de0066bd7ea440f0eb11d1846d",
+      "dist/Moxi Force Graph.app/Contents/MacOS/moxi-fdg": "9604b3547d266264331d0dcd3cb0b4924ee0695fe712fe288000599af5fd64f4"
+    },
+    "note": "The bundle is ad-hoc signed by the build script; its executable digest differs from the unbundled executable. Disposable bundle copies used in diagnostics did not change either build output."
+  },
+  "environment": {
+    "os": "macOS 27.2.1 (26B131)",
+    "architecture": "arm64",
+    "application": "Native AppKit FDG viewer; no server or external account",
+    "content_bounds": [
+      1100,
+      800
+    ],
+    "backing_scale": 2,
+    "user_role": "Local synthetic fixture user",
+    "fixture": "examples/fdg/tests/fixtures/export.json",
+    "fixture_sha256": "45178e433f71927b7f7795aee7c472df23f843b57fb37d12835b640e35905f42",
+    "isolation": "Fresh temporary directories, synthetic HOME and destinations; no real user document opened or modified. No VoiceOver, permission grants or remote writes.",
+    "capture_method": "AppKit bitmapImageRepForCachingDisplayInRect of the viewer content view; not a screen capture. Cached remote chooser pixels were black and rejected."
+  },
+  "svg_save": {
+    "outcome": "pass",
+    "sequence_complete": false,
+    "setup": "Exploratory injected probe posted synthetic clicks and a search key to Pause, search A, Find next, Neighbors and Export. It set directoryURL and nameFieldStringValue before original runModal.",
+    "input": "External native automation sent Return to the real save panel. No OK response was stubbed and no exporter was called directly.",
+    "expected": "current.svg in the disposable exports directory; viewer shows Saved snapshot; reopened file contains the three-node neighborhood.",
+    "observed": "Viewer logged Exported and SUCCESS, exited 0, and captured the saved status. XML and independent librsvg reopen passed.",
+    "saved_file_mtime_utc": "2026-11-26T03:22:36.976780+00:00",
+    "capture_mtime_utc": "2026-11-26T03:22:37.232824+00:00",
+    "timestamp_limit": "These are original artifact filesystem mtimes, not timestamps recorded by the exploratory probe.",
+    "exploratory_probe_source_sha256": "7fc74c6befe4f955c19d589c8db38122794f44335cfeeeceb9167e5ebdce6dd4",
+    "source_limit": "Exploratory probe predates mac.m/mac.py; its source and full log remain in local temporary storage, not this evidence package.",
+    "binary_limit": "The successful exploratory child did not record its executable digest at launch. Both contemporaneous build-output digests are above; the exact chosen executable is not independently attested for this run.",
+    "chooser_limit": "No accepted painted chooser capture retained for this successful run.",
+    "labels": [
+      "A & <α>",
+      "B β",
+      "C γ"
+    ],
+    "dimensions": [
+      1068,
+      560
+    ],
+    "edge_segments": 5,
+    "distinct_edge_widths": 3,
+    "independent_reopen": {
+      "xml_parser": "Python ElementTree",
+      "rasterizer": "rsvg-convert 2.63.2",
+      "raster": "reopened-svg.png",
+      "decoded_dimensions": [
+        1068,
+        560
+      ],
+      "visually_inspected": true
+    },
+    "rendered_status_check": {
+      "method": "linux.visible_text reused on the content capture, Tesseract English, bounds [32,272,2168,348]",
+      "required_fragments": [
+        "Saved snapshot:",
+        "current.svg"
+      ],
+      "passed": true
+    },
+    "artifacts": {
+      "current.svg": "59ea58fefa6b5f4823a52b867ede731c9c13573b3e1ab2fcfa1d154c0ad7cab0",
+      "current.svg-result.png": "f4d3243760ea1f14e5ab89a5add16a5d1a6a0d2fa7da551b393ac39e64a0e358",
+      "reopened-svg.png": "baf2dc4c4dc7e1bc50429beec892d81de8c8e44850bda6574c7a53236fa6284e"
+    }
+  },
+  "cancellation": {
+    "outcome": "pass",
+    "command": "python3 examples/fdg/tests/dialog/mac_cancel.py",
+    "exit_code": 0,
+    "input": "Existing child-local AppKit cancel: action on the real NSSavePanel, not Escape.",
+    "expected": "Only the post-cancel app capture exists in the destination.",
+    "observed": "Expected destination contents; rendered Export cancelled status.",
+    "captured_file_mtime_utc": "2026-11-26T03:40:24.669947+00:00",
+    "binary_sha256": "0e38c9eca75bb8bdac2e07f989df14183e3aa5de0066bd7ea440f0eb11d1846d",
+    "capture": "../mac-cancel.png",
+    "capture_sha256": "76f363cd2c6ebf19f7f551b2febd4280a583a4ae1016655fe13ac1f60985c65c",
+    "retained_capture_matches_fresh_run": true,
+    "sequence_limit": "Independent cancellation run, not Save then Cancel in the successful SVG process."
+  },
+  "nine_step_replay": {
+    "completed": false,
+    "external": {
+      "started_utc": "2026-11-26T03:52:33.149528+00:00",
+      "finished_utc": "2026-11-26T03:55:36.097621+00:00",
+      "input_delivery": "External native automation: getApp(full built bundle path) failed with Computer Use server error -10005: cgWindowNotFound. No key sent.",
+      "command": "python3 examples/fdg/tests/dialog/mac.py",
+      "replay_sources": {
+        "mac.py": "12bd2ecbc7a7345f121aa91b36be95220c3bb768c9136ca73335c823cd2a1500",
+        "mac.m": "32c9f1b991e8e8b7009e466a9ba302893e82aac7f84cf08e25ef59ac4b82b784"
+      },
+      "binary_sha256": "9604b3547d266264331d0dcd3cb0b4924ee0695fe712fe288000599af5fd64f4",
+      "runner_exit_code": 1,
+      "child_exit_code": 2,
+      "result_passed": false,
+      "completed_steps": [],
+      "failure": {
+        "phase": 5,
+        "scenario": 0,
+        "reason": "Timed out waiting for a native panel response"
+      },
+      "exports": [],
+      "ready_filename": "current.svg",
+      "native_window_number": 6099,
+      "child_permissions": {
+        "screen_capture_access": false,
+        "post_event_access": false,
+        "accessibility_trusted": 0
+      },
+      "permission_note": "These are child-process preflight results; they do not establish the native automation service permissions."
+    },
+    "process_local_negative_control": {
+      "started_utc": "2026-11-26T03:56:23.193496+00:00",
+      "finished_utc": "2026-11-26T03:57:02.220018+00:00",
+      "input_delivery": "NSEvent keyDown/keyUp posted through NSApp to the visible panel, Return key code 36.",
+      "command": "python3 examples/fdg/tests/dialog/mac.py --local-events",
+      "replay_sources": {
+        "mac.py": "6210f905d453c46f6db6f987ed5add225b2b0594af59fb30f2ad697843e0486d",
+        "mac.m": "5df85633150bf9cc1216d1ca5888b0d2f1210cd9c00c131e7286e7809f7426eb"
+      },
+      "binary_sha256": "9604b3547d266264331d0dcd3cb0b4924ee0695fe712fe288000599af5fd64f4",
+      "runner_exit_code": 1,
+      "child_exit_code": 2,
+      "result_passed": false,
+      "completed_steps": [],
+      "failure": {
+        "phase": 5,
+        "scenario": 0,
+        "reason": "Timed out waiting for a native panel response"
+      },
+      "exports": [],
+      "ready_filename": "current.svg",
+      "native_window_number": 6218,
+      "child_permissions": {
+        "screen_capture_access": false,
+        "post_event_access": false,
+        "accessibility_trusted": 0
+      },
+      "permission_note": "These are child-process preflight results; they do not establish the native automation service permissions."
+    },
+    "intended_sequence": [
+      "current.svg",
+      "cancelled.svg",
+      "recovered.svg",
+      "current.png",
+      "cancelled.png",
+      "recovered.png",
+      "current.pdf",
+      "cancelled.pdf",
+      "recovered.pdf"
+    ],
+    "verification_limit": "The all-nine response/recovery/reopen verifier has not reached a complete AppKit run. Its positive path remains unverified."
+  },
+  "diagnostic_controls": [
+    {
+      "method": "CG-backed NSEvents delivered with NSWindow.sendEvent",
+      "observed": "No response before the 30-second phase deadline; child exited 2.",
+      "exports": [],
+      "probe_source_sha256": "dadd0bbece62401004d2e515699d80f5b3e7d3e1fe00252539ad4a79f0779d5a",
+      "viewer_log_sha256": "1223c8a1c84b33f7d262aac31480a4332d5872b56250bd0aa232bfef5b240f1a"
+    },
+    {
+      "method": "NSWindow.performKeyEquivalent with Return",
+      "observed": "Returned false; first responder NSRemoteView; no response before the 30-second phase deadline; child exited 2.",
+      "exports": [],
+      "probe_source_sha256": "ed3c76bab8dddfa71af02a7567ea0c13f7dceaa41ad6d0609c888dde1de57815",
+      "viewer_log_sha256": "739924cc5bef5befb8a80e9b7bfe3d1e709838a33936a02856c4b38afa008886"
+    },
+    {
+      "method": "Public accessibility tree lookup for the remote Save button",
+      "observed": "NSInvalidArgumentException while querying the remote tree; no response before the 30-second phase deadline; child exited 2.",
+      "exports": [],
+      "probe_source_sha256": "7889a6723fa512728e5cb269d7f00bf040691c99eddadbb24e3fff4422d2b943",
+      "viewer_log_sha256": "61df8c913dc968e416d24fa06524f5b728e3f69db1bc68f0d216419d8615fa1d"
+    },
+    {
+      "method": "NSSavePanel.ok after destination configuration before runModal",
+      "observed": "ok: blocked the timer too; outer subprocess timeout killed the owned child after 45 seconds. No failure.json was produced.",
+      "exports": [],
+      "probe_source_sha256": "2e5760f4066dedab1acc066776aeb30e436902ad74e9e88a89d8da221dbce75f",
+      "viewer_log_sha256": "4343cd1955d701a4840c341d5c14c985337b3f87d5ce96085d36434fc96f5dbd"
+    }
+  ],
+  "interpretation": {
+    "observed": "One normal external Return completed SVG Save, while local OK and key probes failed; subsequent native automation could not select the live window.",
+    "inference": "The failed OK-action probe is a verification/input-delivery problem, not sufficient evidence of an application exporter defect. No product code repair is justified by these observations.",
+    "uncertainty": "The cause of cgWindowNotFound is undetermined. Child permission preflight values do not diagnose it, and an AppKit PNG/PDF-specific defect has not been ruled out.",
+    "confidence": {
+      "svg_save_and_reopen": "high",
+      "input_delivery_explanation": "moderate"
+    },
+    "would_change_conclusion": [
+      "A supported-host normal-input rerun of all nine steps",
+      "A source or binary identity mismatch",
+      "A discrepancy after reopening a saved file"
+    ]
+  },
+  "checks": {
+    "appkit_probe_compile": "clang -dynamiclib -Wall -Wextra -Werror -fobjc-arc: passed",
+    "python_syntax": "ast.parse: passed",
+    "gtk_pixel_regression": {
+      "command": "python -m unittest discover -s examples/fdg/tests/dialog -p test_capture.py",
+      "tests": 4,
+      "exit_code": 0,
+      "unchanged_since_base": true
+    },
+    "svg_xml_and_independent_raster": "passed",
+    "saved_status_pixels": "passed"
+  },
+  "unverified": [
+    "Save-Cancel-Save as a complete AppKit sequence",
+    "Normal Escape cancellation",
+    "Recovery Save after cancellation",
+    "AppKit PNG/PDF Save and reopen",
+    "Positive all-nine mac.py verifier path",
+    "Fresh live GTK replay",
+    "Physical input",
+    "Wayland",
+    "VoiceOver",
+    "Clean distribution installation",
+    "Full repository suite",
+    "Remote CI"
+  ]
+}
