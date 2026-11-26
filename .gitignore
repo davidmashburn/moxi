@@ -8,6 +8,7 @@ __pycache__/
 *.py[cod]
 artifacts/demo-slideshows/**/*.png
 artifacts/demo-slideshows/**/*.html
+!artifacts/demo-slideshows/index.html
 artifacts/demo-slideshows/e01-*/*.svg
 artifacts/demo-slideshows/e01-*/*.pdf
 artifacts/demo-slideshows/e02-*/*.svg

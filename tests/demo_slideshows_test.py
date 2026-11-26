@@ -2,17 +2,32 @@
 
 import base64
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import struct
+import sys
 import tempfile
 import unittest
+from unittest.mock import patch
+import zlib
+
+sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
+import audit_demo_manifests as auditor
+import demo_gallery as catalog
 
 spec = importlib.util.spec_from_file_location("slideshows", Path(__file__).parents[1] / "scripts/demo_slideshows.py")
 slideshows = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(slideshows)
 
-PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j4O8AAAAASUVORK5CYII=")
+def png_chunk(kind, data):
+    return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+
+
+# A valid synthetic 1-pixel unit fixture, never used as gallery evidence.
+PNG = (slideshows.PNG_SIGNATURE + png_chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+       + png_chunk(b"IDAT", zlib.compress(b"\x00\xff\x00\x00")) + png_chunk(b"IEND", b""))
 
 
 class SlideshowTest(unittest.TestCase):
@@ -67,6 +82,230 @@ class SlideshowTest(unittest.TestCase):
                 manifest["slides"][0][field] = value
                 with self.assertRaises((ValueError, FileNotFoundError)):
                     self.load(manifest)
+
+    def test_reject_checksum_mismatch_and_truncated_or_corrupt_png(self):
+        self.manifest["slides"][0]["sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "SHA-256"):
+            self.load()
+        for data in (PNG[:33], PNG[:-4], PNG[:45] + b"broken" + PNG[51:]):
+            with self.subTest(size=len(data)):
+                (self.demo / "unit.png").write_bytes(data)
+                with self.assertRaises(ValueError):
+                    self.load()
+
+    def test_audit_distinguishes_missing_stale_current_and_unknown(self):
+        source = "scripts/demo_gallery.py"
+        digest = hashlib.sha256((catalog.ROOT / source).read_bytes()).hexdigest()
+        self.manifest["source_sha256"] = {source: digest}
+        self.load()
+        current = auditor.audit(self.root)["demos"][0]
+        self.assertEqual(current["source_status"], "recorded-files-match")
+        self.assertEqual(current["captured_revision"], "abcdef0")  # Old revision alone is not stale.
+        self.manifest["source_sha256"][source] = "0" * 64
+        self.load()
+        stale = auditor.audit(self.root)["demos"][0]
+        self.assertEqual(stale["source_status"], "recorded-source-differs")
+        self.assertEqual(stale["changed_source_files"], [source])
+        self.manifest["source_sha256"] = {"src/unit-fixture-missing.mojo": "0" * 64}
+        self.load()
+        missing = auditor.audit(self.root)["demos"][0]
+        self.assertEqual(missing["source_status"], "recorded-source-differs")
+        self.assertEqual(missing["missing_source_files"], ["src/unit-fixture-missing.mojo"])
+        self.manifest.pop("source_sha256")
+        self.load()
+        (self.demo / "unit.png").unlink()
+        unknown = auditor.audit(self.root)["demos"][0]
+        self.assertEqual(unknown["source_status"], "no-per-file-source-hashes")
+        self.assertEqual(unknown["missing_images"], ["unit.png"] * 4)
+        self.assertEqual(unknown["schema_and_images"], "fail")
+
+    def test_master_keeps_missing_and_unknown_entries_without_deck_links(self):
+        self.load()
+        (self.demo / "unit.png").unlink()
+        other = self.root / "future"
+        other.mkdir()
+        (other / "manifest.json").write_text(json.dumps({"version": 9, "slides": [["x.png"]]}))
+        self.assertEqual(slideshows.build(self.root), 2)
+        output = (self.root / "index.html").read_text()
+        self.assertIn("id='unit-fixture'", output)
+        self.assertIn("id='future'", output)
+        self.assertIn("unit-fixture/manifest.json", output)
+        self.assertIn("unit-test", output)
+        self.assertNotIn("Open recorded deck", output)
+        self.assertFalse((self.demo / "index.html").exists())
+        with self.assertRaisesRegex(ValueError, "2 galleries"):
+            slideshows.build(self.root, check_only=True)
+        rows = auditor.audit(self.root)["demos"]
+        self.assertEqual(rows[0]["format"], "unsupported")
+        self.assertIn("unsupported", rows[0]["capture_errors"][0])
+
+    def test_malformed_evidence_is_reported_without_aborting_other_entries(self):
+        self.load()
+        for content in ("{bad", "[]", '{"version":1,"slides":[[]]}'):
+            with self.subTest(content=content):
+                other = self.root / "malformed"
+                other.mkdir(exist_ok=True)
+                (other / "manifest.json").write_text(content)
+                report = auditor.audit(self.root)
+                self.assertEqual(report["gallery_count"], 2)
+                self.assertEqual(report["schema_pass_count"], 1)
+
+    def test_existing_deck_is_preserved_and_checked_against_images(self):
+        loaded = self.load()
+        original = slideshows.render(loaded) + "<!-- historical deck -->"
+        deck = self.demo / "index.html"
+        deck.write_text(original)
+        slideshows.build(self.root)
+        self.assertEqual(deck.read_text(), original)
+        deck.write_text("<html>wrong deck</html>")
+        slideshows.build(self.root)
+        self.assertNotIn("Open recorded deck", (self.root / "index.html").read_text())
+        self.assertEqual(deck.read_text(), "<html>wrong deck</html>")
+
+    def test_index_only_links_evidence_without_materializing_deck(self):
+        self.load()
+        slideshows.build(self.root, index_only=True)
+        self.assertFalse((self.demo / "index.html").exists())
+        self.assertNotIn("Open recorded deck", (self.root / "index.html").read_text())
+
+    def test_oscillator_list_adapter_and_broken_custom_captures(self):
+        self.load()
+        other = self.root / "oscillator"
+        other.mkdir()
+        (other / "actual.png").write_bytes(PNG)
+        (other / "manifest.json").write_text(json.dumps({
+            "slides": [["actual.png", "Title", "Observation"]], "pageErrors": [],
+            "sources": {"lesson.py": "0" * 64}}))
+        (other / "index.html").write_text('<img src="actual.png">')
+        entry = next(e for e in catalog.discover(self.root) if e.demo_id == "oscillator")
+        self.assertIs(entry.format, catalog.GalleryFormat.OSCILLATOR)
+        report = auditor.audit(self.root)
+        self.assertEqual(report["gallery_count"], 2)
+        self.assertEqual(report["schema_pass_count"], 2)
+        row = next(r for r in report["demos"] if r["demo_id"] == "oscillator")
+        self.assertIn("examples/oscillator/lesson.py", row["changed_source_files"])
+        self.assertEqual(row["frames"], 1)
+        slideshows.build(self.root)
+        self.assertIn("oscillator/index.html", (self.root / "index.html").read_text())
+        (other / "actual.png").write_bytes(PNG[:40])
+        slideshows.build(self.root)
+        self.assertNotIn("oscillator/index.html", (self.root / "index.html").read_text())
+
+    def test_outside_root_links_are_discovered_once_and_geometry_overview_is_not_duplicated(self):
+        self.load()
+        outside = self.root / "examples/outside"
+        outside.mkdir(parents=True)
+        manifest = copy.deepcopy(self.manifest)
+        manifest["demo_id"] = "outside"
+        (outside / "manifest.json").write_text(json.dumps(manifest))
+        (self.root / "index.md").write_text(
+            "[one](examples/outside/index.html) [again](examples/outside/index.html) "
+            "[local](unit-fixture/index.html) [remote](https://example.test/index.html)")
+        overview = self.root / "e06"
+        overview.mkdir()
+        (overview / "index.html").write_text("family links only")
+        with patch.object(catalog, "ROOT", self.root.resolve()):
+            entries = catalog.discover(self.root)
+        self.assertEqual([e.demo_id for e in entries], ["outside", "unit-fixture"])
+
+    def test_matrix_adapter_preserves_deck_and_audits_example_relative_hashes(self):
+        demo = self.root / "matrix-instrument"
+        demo.mkdir()
+        (demo / "unit.png").write_bytes(PNG)
+        (demo / "README.md").write_text("Synthetic capture instructions")
+        source = self.root / "examples/matrix-instrument/instrument.js"
+        source.parent.mkdir(parents=True)
+        source.write_text("synthetic unit fixture")
+        manifest = dict(revision="abcdef0", sources={
+            "instrument.js": hashlib.sha256(source.read_bytes()).hexdigest()},
+            slides=[dict(image="unit.png", title="Synthetic matrix",
+                         sha256=hashlib.sha256(PNG).hexdigest())])
+        (demo / "manifest.json").write_text(json.dumps(manifest))
+        deck = '<img src="unit.png"><!-- delivered matrix deck -->'
+        (demo / "index.html").write_text(deck)
+        with patch.object(auditor, "ROOT", self.root.resolve()), \
+                patch.object(auditor.subprocess, "check_output", return_value=""):
+            entry = catalog.discover(self.root)[0]
+            self.assertIs(entry.format, catalog.GalleryFormat.MATRIX)
+            row = auditor.audit(self.root)["demos"][0]
+            self.assertEqual(row["source_status"], auditor.SourceStatus.MATCH.value)
+            self.assertEqual(row["recorded_source_files"], 1)
+            self.assertEqual(row["image_hashes_verified"], 1)
+            slideshows.build(self.root, index_only=True)
+            self.assertIn("matrix-instrument/index.html", (self.root / "index.html").read_text())
+            self.assertEqual((demo / "index.html").read_text(), deck)
+            manifest["slides"][0]["sha256"] = "0" * 64
+            (demo / "manifest.json").write_text(json.dumps(manifest))
+            self.assertEqual(auditor.audit(self.root)["demos"][0]["schema_and_images"], "fail")
+
+    def test_equation_scenarios_deduplicate_aliases_and_keep_document_filename_case(self):
+        demo = self.root / "i21-equation-linkage"
+        demo.mkdir()
+        (demo / "unit.png").write_bytes(PNG)
+        (demo / "verification.md").write_text("Synthetic capture limits")
+        source = self.root / "examples/equation-linkage/model.mjs"
+        source.parent.mkdir(parents=True)
+        source.write_text("synthetic unit fixture")
+        manifest = dict(sourceHashes={"model.mjs": hashlib.sha256(source.read_bytes()).hexdigest()},
+                        scenarios=[dict(name="No screenshot"), dict(name="Synthetic equation",
+                                   screenshots=["unit.png"], screenshot="unit.png")])
+        (demo / "manifest.json").write_text(json.dumps(manifest))
+        (demo / "index.html").write_text('<img src="unit.png">')
+        with patch.object(auditor, "ROOT", self.root.resolve()), \
+                patch.object(auditor.subprocess, "check_output", return_value=""):
+            entry = catalog.discover(self.root)[0]
+            self.assertIs(entry.format, catalog.GalleryFormat.EQUATION)
+            self.assertEqual(entry.documentation.name, "verification.md")
+            row = auditor.audit(self.root)["demos"][0]
+            self.assertEqual(row["frames"], 1)
+            self.assertEqual(row["source_status"], auditor.SourceStatus.MATCH.value)
+            self.assertEqual(row["recorded_source_files"], 1)
+            slideshows.build(self.root, index_only=True)
+            master = (self.root / "index.html").read_text()
+            self.assertIn("i21-equation-linkage/index.html", master)
+            self.assertIn("i21-equation-linkage/verification.md", master)
+            self.assertNotIn("i21-equation-linkage/VERIFICATION.md", master)
+            source.write_text("changed synthetic fixture")
+            self.assertEqual(auditor.audit(self.root)["demos"][0]["source_status"], auditor.SourceStatus.STALE.value)
+            manifest["scenarios"][1]["screenshots"] = "unit.png"
+            (demo / "manifest.json").write_text(json.dumps(manifest))
+            self.assertEqual(auditor.audit(self.root)["demos"][0]["schema_and_images"], "fail")
+
+    def test_native_transform_deck_discovery_and_provenance_link(self):
+        galleries = self.root / "artifacts/demo-slideshows"
+        galleries.mkdir(parents=True)
+        demo = self.root / "examples/inspectable-transforms/evidence/i19-transforms"
+        demo.mkdir(parents=True)
+        (demo / "canvas").mkdir()
+        (demo / "canvas/unit.png").write_bytes(PNG)
+        manifest = copy.deepcopy(self.manifest)
+        manifest["demo_id"] = demo.name
+        for slide in manifest["slides"]:
+            slide["image"] = "canvas/unit.png"
+        (demo / "manifest.json").write_text(json.dumps(manifest))
+        (demo / "index.html").write_text('<img src="canvas/unit.png">')
+        (demo / "VERIFICATION.md").write_text("Synthetic native capture instructions")
+        source = self.root / "examples/inspectable-transforms/main.mojo"
+        source.write_text("synthetic unit fixture")
+        (demo / "provenance.json").write_text(json.dumps(dict(sources={
+            "examples/inspectable-transforms/main.mojo": hashlib.sha256(source.read_bytes()).hexdigest()})))
+        (galleries / "index.md").write_text(
+            "[native](../../examples/inspectable-transforms/evidence/i19-transforms/index.html)")
+        with patch.object(catalog, "ROOT", self.root.resolve()), \
+                patch.object(auditor, "ROOT", self.root.resolve()), \
+                patch.object(auditor.subprocess, "check_output", return_value=""):
+            entries = catalog.discover(galleries)
+            self.assertEqual(len(entries), 1)
+            self.assertIs(entries[0].format, catalog.GalleryFormat.STANDARD)
+            row = auditor.audit(galleries)["demos"][0]
+            self.assertEqual(row["source_status"], auditor.SourceStatus.MATCH.value)
+            self.assertEqual(row["schema_and_images"], "pass")
+            with patch.object(auditor, "COMMITTED_PATHS", {str((demo / "index.html").relative_to(self.root))}):
+                slideshows.build(galleries, index_only=True)
+            master = (galleries / "index.html").read_text()
+            self.assertIn("i19-transforms/index.html", master)
+            self.assertIn("i19-transforms/VERIFICATION.md", master)
+            self.assertIn("i19-transforms/provenance.json", master)
 
 
 if __name__ == "__main__":

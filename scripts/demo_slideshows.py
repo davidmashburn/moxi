@@ -4,11 +4,13 @@
 import argparse
 import base64
 from enum import Enum
+import hashlib
 import html
 import json
 from pathlib import Path
 import re
 import struct
+import zlib
 
 
 class CaptureKind(str, Enum):
@@ -36,6 +38,7 @@ nav{display:flex;gap:12px;align-items:center;flex-wrap:wrap}figure{margin:20px 0
 .meta{color:#b8c9da;font-size:14px;overflow-wrap:anywhere}.contact{display:flex;gap:12px;
 flex-wrap:wrap}.contact button{width:150px}.contact img{width:100%;height:85px;object-fit:contain}
 details{margin:20px 0}li{margin:14px 0}[hidden]{display:none!important}
+pre{white-space:pre-wrap;overflow-wrap:anywhere}input{font:inherit;max-width:100%;box-sizing:border-box}
 """
 
 
@@ -46,10 +49,51 @@ def nonempty(record, key):
     return value
 
 
+def capture_path(directory, name):
+    relative = Path(name)
+    path = (directory / relative).resolve()
+    if relative.is_absolute() or not path.is_relative_to(directory.resolve()):
+        raise ValueError("capture image must remain inside its demo directory")
+    return path
+
+
+def read_png(path, dimensions=None, digest=None):
+    """Check PNG structure/CRCs as well as any recorded dimensions and checksum."""
+    data = path.read_bytes()
+    if len(data) < 33 or data[:8] != PNG_SIGNATURE or data[12:16] != b"IHDR":
+        raise ValueError(f"not a PNG: {path.name}")
+    width, height = struct.unpack(">II", data[16:24])
+    if width < 1 or height < 1 or (dimensions is not None and [width, height] != dimensions):
+        raise ValueError(f"capture dimensions do not match PNG: {path.name}")
+    offset, chunks, compressed = 8, [], []
+    while offset + 12 <= len(data):
+        length = struct.unpack(">I", data[offset:offset + 4])[0]
+        end = offset + 12 + length
+        chunk = data[offset + 4:end - 4]
+        if end > len(data) or zlib.crc32(chunk) != struct.unpack(">I", data[end - 4:end])[0]:
+            raise ValueError(f"broken PNG chunk: {path.name}")
+        chunks.append(chunk[:4])
+        if chunk[:4] == b"IDAT":
+            compressed.append(chunk[4:])
+        offset = end
+        if chunk[:4] == b"IEND":
+            break
+    if offset != len(data) or chunks[-1:] != [b"IEND"] or b"IDAT" not in chunks:
+        raise ValueError(f"incomplete PNG: {path.name}")
+    try:
+        if not zlib.decompress(b"".join(compressed)):
+            raise ValueError(f"empty PNG pixels: {path.name}")
+    except zlib.error as error:
+        raise ValueError(f"broken PNG pixels: {path.name}") from error
+    if digest is not None and hashlib.sha256(data).hexdigest() != digest:
+        raise ValueError(f"capture SHA-256 mismatch: {path.name}")
+    return data
+
+
 def load_manifest(path):
     """Fail closed on missing evidence; never fill a sequence with mock images."""
     manifest = json.loads(path.read_text())
-    if manifest.get("version") != 1:
+    if not isinstance(manifest, dict) or manifest.get("version") != 1:
         raise ValueError("manifest version must be 1")
     demo_id = nonempty(manifest, "demo_id")
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", demo_id) or path.parent.name != demo_id:
@@ -65,21 +109,17 @@ def load_manifest(path):
         raise ValueError("slides must contain real captures")
     phases = set()
     for slide in slides:
+        if not isinstance(slide, dict):
+            raise ValueError("version-1 slides must be objects")
         slide["phase"] = Phase(slide["phase"])
         slide["capture_kind"] = CaptureKind(slide["capture_kind"])
         phases.add(slide["phase"])
         for key in ("caption", "action", "expected"):
             nonempty(slide, key)
-        relative = Path(nonempty(slide, "image"))
-        image_path = (path.parent / relative).resolve()
-        if relative.is_absolute() or not image_path.is_relative_to(path.parent.resolve()):
-            raise ValueError("capture image must remain inside its demo directory")
-        data = image_path.read_bytes()
-        if len(data) < 33 or data[:8] != PNG_SIGNATURE or data[12:16] != b"IHDR":
-            raise ValueError(f"not a PNG: {relative}")
-        width, height = struct.unpack(">II", data[16:24])
-        if width < 1 or height < 1 or [width, height] != slide.get("dimensions"):
-            raise ValueError(f"capture dimensions do not match PNG: {relative}")
+        image_path = capture_path(path.parent, nonempty(slide, "image"))
+        if not isinstance(slide.get("dimensions"), list) or len(slide["dimensions"]) != 2:
+            raise ValueError("dimensions must contain width and height")
+        data = read_png(image_path, slide["dimensions"], slide.get("sha256", slide.get("png_sha256")))
         slide["data_url"] = "data:image/png;base64," + base64.b64encode(data).decode()
     if phases != set(Phase):
         raise ValueError("sequence requires initial, interaction, result, and recovery evidence")
@@ -133,25 +173,15 @@ if(event.key==='ArrowRight'){event.preventDefault();show(current+1);}});show(0);
     return page(manifest["title"], body, script)
 
 
-def build(root, check_only=False):
-    manifests = [(path, load_manifest(path)) for path in sorted(root.glob("*/manifest.json"))]
-    if not check_only:
-        root.mkdir(parents=True, exist_ok=True)
-        links = []
-        for path, manifest in manifests:
-            (path.parent / "index.html").write_text(render(manifest))
-            links.append(f"<li><a href='{manifest['demo_id']}/index.html'>"
-                         f"{html.escape(manifest['title'])}</a> — {len(manifest['slides'])} captures</li>")
-        body = ("<h1>Moxi demo slideshows</h1><p>Actual captured sequences. Missing or "
-                "blocked demos are tracked in the implementation ledger, not represented by mockups.</p>"
-                f"<ul>{''.join(links)}</ul>")
-        (root / "index.html").write_text(page("Moxi demo slideshows", body))
-    return len(manifests)
+def build(root, check_only=False, index_only=False):
+    from demo_gallery import build_catalog
+    return build_catalog(root, check_only, index_only)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", type=Path, nargs="?", default=Path("artifacts/demo-slideshows"))
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--index-only", action="store_true", help="Refresh the master using delivered decks only; never write individual decks")
     args = parser.parse_args()
-    print(f"Validated {build(args.root, args.check)} demo slideshow manifests")
+    print(f"Cataloged {build(args.root, args.check, args.index_only)} demo galleries")

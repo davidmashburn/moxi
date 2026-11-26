@@ -6,11 +6,13 @@ from collections import Counter
 from datetime import datetime, timezone
 from enum import Enum
 import hashlib
-import importlib.util
 import json
 from pathlib import Path
 import re
 import subprocess
+
+from demo_gallery import GalleryFormat, discover, evidence, validate
+from demo_slideshows import capture_path
 
 ROOT = Path(__file__).resolve().parents[1]
 GALLERIES = ROOT / "artifacts/demo-slideshows"
@@ -47,30 +49,41 @@ def source_maps(value):
             yield from source_maps(item)
 
 
-def audit():
-    spec = importlib.util.spec_from_file_location("demo_slideshows", ROOT / "scripts/demo_slideshows.py")
-    gallery = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(gallery)
+def audit(root=GALLERIES):
     rows = []
     audited_sources = set()
-    for path in sorted(GALLERIES.glob("*/manifest.json")):
-        data = json.loads(path.read_text())
-        row = dict(demo_id=path.parent.name, manifest_sha256=sha(path),
-                   captured_revision=data.get("revision"), frames=len(data.get("slides", [])))
+    for entry in discover(root):
+        path = entry.evidence
+        data, frames = {}, []
         errors = []
         try:
-            gallery.load_manifest(path)
-        except (ValueError, KeyError, FileNotFoundError, TypeError) as error:
+            data, frames = evidence(entry)
+            validate(entry)
+        except (ValueError, KeyError, OSError, TypeError) as error:
             errors.append(str(error).replace(str(ROOT) + "/", ""))
+            if path.suffix == ".json":
+                try:
+                    raw = json.loads(path.read_text())
+                    data = raw if isinstance(raw, dict) else {}
+                except (ValueError, OSError):
+                    pass
+        def relative(path):
+            return str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
+        row = dict(demo_id=entry.demo_id, format=entry.format.value,
+                   evidence_path=relative(path), evidence_sha256=sha(path) if path.is_file() else None,
+                   captured_revision=data.get("revision", data.get("source_revision", data.get("checkout_base"))),
+                   frames=len(frames))
+        if path.name == "manifest.json":
+            row["manifest_sha256"] = row["evidence_sha256"]
         row["schema_and_images"] = "fail" if errors else "pass"
         row["capture_errors"] = errors
         image_hashes, missing_hashes, mismatches, absent_images = 0, [], [], []
         committed_images, local_uncommitted_images, absent_uncommitted_images = [], [], []
         kinds = Counter()
-        for slide in data.get("slides", []):
+        for slide in frames:
             kinds[slide.get("capture_kind", "missing")] += 1
-            image = path.parent / slide.get("image", "")
-            if str(image.relative_to(ROOT)) in COMMITTED_PATHS:
+            image = capture_path(path.parent, slide["image"])
+            if relative(image) in COMMITTED_PATHS:
                 committed_images.append(slide.get("image"))
             elif image.is_file():
                 local_uncommitted_images.append(slide.get("image"))
@@ -90,13 +103,13 @@ def audit():
                    missing_images=absent_images, committed_images=committed_images,
                    local_uncommitted_images=local_uncommitted_images,
                    absent_uncommitted_images=absent_uncommitted_images)
-        documents = [(str(path.relative_to(ROOT)), data)]
+        documents = [(relative(path), data)]
         candidates = {path.parent / filename for filename in (
             "provenance.json", "source-hashes.json", "evidence.json", "capture-provenance.json",
             "frames.json", "build.json", "capture.json")}
         invalid_inventories = []
         published_hashes = data.get("artifacts_sha256", {})
-        if "publication.json" in published_hashes:
+        if isinstance(published_hashes, dict) and "publication.json" in published_hashes:
             # Installed-wheel proofs retain machine-specific build logs locally.
             # Audit the source inventory that a clean checkout can reproduce.
             candidates.discard(path.parent / "build.json")
@@ -113,9 +126,23 @@ def audit():
             candidates.add(path.parent / provenance["source_hashes_file"])
         for sidecar in sorted(candidates):
             if sidecar.is_file():
-                documents.append((str(sidecar.relative_to(ROOT)), json.loads(sidecar.read_text())))
+                try:
+                    documents.append((relative(sidecar), json.loads(sidecar.read_text())))
+                except (ValueError, OSError) as error:
+                    invalid_inventories.append(dict(path=relative(sidecar), reason=str(error)))
         recorded, conflicts, inventories, external = {}, [], [], []
         for name, document in documents:
+            if entry.source_prefix and name == relative(path):
+                document = dict(document)
+                for field in ("sources", "sourceHashes"):
+                    if isinstance(document.get(field), dict):
+                        document[field] = {
+                            f"{entry.source_prefix}/{source}": digest
+                            for source, digest in document[field].items()}
+            if entry.format is GalleryFormat.SWS4D:
+                external.append(dict(path=name, namespace="moxi-sws4d",
+                                     recorded_files=len(document.get("source_sha256", {})),
+                                     reason="Separate application repository; not checked against Moxi paths."))
             # The SWS consumer records its application and Moxi repositories
             # separately. Application-relative paths do not name this checkout.
             if (isinstance(document, dict) and isinstance(document.get("moxi"), dict)
@@ -126,7 +153,7 @@ def audit():
                 document = document["moxi"]
             entries = list(source_maps(document))
             if entries:
-                inventories.append(dict(path=name, sha256=sha(ROOT / name), entries=len(entries)))
+                inventories.append(dict(path=name, sha256=sha(Path(name) if Path(name).is_absolute() else ROOT / name), entries=len(entries)))
             for source, digest in entries:
                 if source in recorded and recorded[source] != digest:
                     conflicts.append(source)
@@ -150,9 +177,12 @@ def audit():
                 audited_source_worktree_status=subprocess.check_output(
                     ["git", "status", "--short", "--", *sorted(audited_sources)],
                     cwd=ROOT, text=True).splitlines(),
-                scope="All one-level catalog manifests: schema, image presence/dimensions, recorded PNG checksums and recorded per-file source fingerprints. No capture, visual review, dependency-completeness certification, binary verification or acceptance promotion.",
+                scope="One-level manifests, supported custom evidence, and outside-root galleries linked from index.md; duplicate directories and the E06 family overview are excluded. Schema, PNG structure/presence/dimensions, recorded PNG checksums and recorded per-file source fingerprints. No capture, visual review, dependency-completeness certification, binary verification or acceptance promotion.",
                 source_status_meaning="Recorded-files-match verifies only the explicit inventory; omitted dependencies and provenance completeness remain unverified. Old revision equality alone is not current-source evidence.",
-                manifest_count=len(rows), frame_count=sum(row["frames"] for row in rows),
+                gallery_count=len(rows),
+                manifest_count=sum(row["evidence_path"].endswith("/manifest.json") for row in rows),
+                format_counts=dict(Counter(row["format"] for row in rows)),
+                frame_count=sum(row["frames"] for row in rows),
                 image_hashes_verified=sum(row["image_hashes_verified"] for row in rows),
                 images_without_recorded_hash=sum(len(row["images_without_recorded_hash"]) for row in rows),
                 image_hash_mismatches=sum(len(row["image_hash_mismatches"]) for row in rows),
@@ -174,6 +204,6 @@ if __name__ == "__main__":
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(result, indent=2) + "\n")
-        print(json.dumps({key: result[key] for key in ("manifest_count", "frame_count", "schema_pass_count", "source_status_counts")}))
+        print(json.dumps({key: result[key] for key in ("gallery_count", "manifest_count", "format_counts", "frame_count", "schema_pass_count", "source_status_counts")}))
     else:
         print(json.dumps(result, indent=2))
