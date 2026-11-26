@@ -43,12 +43,14 @@ inline std::array<Vec3, 4> corners(Score s) {
   double low = s.partition - 1.5, high = s.partition + 1.5;
   return {Vec3{0, 0, low}, {0, 2, low}, {0, 2, high}, {0, 0, high}};
 }
-inline bool visible(Score score, Path path, double time) {
+inline std::vector<Triangle> partitionMesh(Score score) {
   auto p = corners(score);
+  return {{p[0], p[1], p[2], 1}, {p[0], p[2], p[3], 1}};
+}
+inline bool visible(Score score, Path path, double time) {
   auto start = eye(path, time);
   auto direction = exhibit - start;
-  auto hit = pick({start, unit(direction)},
-                  {{p[0], p[1], p[2], 1}, {p[0], p[2], p[3], 1}});
+  auto hit = pick({start, unit(direction)}, partitionMesh(score));
   return !hit.id || hit.distance >= length(direction);
 }
 inline double light(Score score, double time) {
