@@ -125,7 +125,7 @@ async function check() {
 
     // Attachment and its undo must not resolve a draft or commit a preview.
     const draftState = async () => ({
-      inputs: await page.locator('input').evaluateAll(inputs => inputs.map(input => input.value)),
+      inputs: await page.locator('input:not([type=file])').evaluateAll(inputs => inputs.map(input => input.value)),
       comparison: await comparison(), flat: await points('flat'), folded: await points('folded')
     });
     const measurementDraft = async previewing => {
@@ -153,7 +153,7 @@ async function check() {
       await page.keyboard.press('Escape');
       assert.equal(await comparison(),initial,'Attachment must not implicitly commit the draft');
       assert.equal(await points('folded'),initialFold);
-      assert.deepEqual(await page.locator('input').evaluateAll(inputs => inputs.map(input => input.value)),['20','30','30']);
+      assert.deepEqual(await page.locator('input:not([type=file])').evaluateAll(inputs => inputs.map(input => input.value)),['20','30','30']);
       assert.match(await note.textContent(),/10.0 mm high/);
       await page.locator('#undo').click();
       assert.equal(await page.locator('#undo').isDisabled(),true);

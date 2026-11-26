@@ -38,7 +38,7 @@ async function check() {
     const state = () => page.evaluate(() => ({
       faces:['flat','folded'].map(id=>[...document.querySelectorAll('#'+id+' polygon')].map(p=>p.getAttribute('points'))),
       selected:document.querySelector('#pick').value,
-      inputs:[...document.querySelectorAll('input')].map(n=>n.value),
+      inputs:[...document.querySelectorAll('input:not([type=file])')].map(n=>n.value),
       comparison:document.querySelector('#comparison').innerText.replace(/Preview|Current/,'Patch'),
       sheet:document.querySelector('#sheet').textContent,
       adjacency:document.querySelector('#adjacency').textContent,

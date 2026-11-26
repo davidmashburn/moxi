@@ -15,7 +15,28 @@ Pick a panel in either view, or use the active-panel control and arrow keys. Swe
 
 Drag the right corner circle in either representation to change panel pitch (10–30 mm, in tenths). Drag the middle front crease circle up or down in the folded view to change tilt (0–75°, in whole degrees). Pitch in the folded view follows the projected sheet direction; tilt follows the crease endpoint through the same Moxi samples used for drawing. Pointer edits stop at the supported bounds. Flat paper exposes pitch; its unfolded geometry does not show tilt.
 
-Tab to any circle for the same edit using arrows, Home/End for limits, and Enter to apply. Each circle reports its parameter and current value. Both views, the comparison and numeric fields preview together. Release leaves the preview pending; Apply edit or Enter commits one undo step. Escape or Cancel edit restores the committed patch, including during a captured drag. Invalid numeric drafts are rejected before direct editing; correct them or cancel. Valid numeric drafts participate in the next handle edit, as with the tilt slider. Undo is shared across both views and measurement attachment. Reload starts a fresh fixture; this study does not save documents.
+Tab to any circle for the same edit using arrows, Home/End for limits, and Enter to apply. Each circle reports its parameter and current value. Both views, the comparison and numeric fields preview together. Release leaves the preview pending; Apply edit or Enter commits one undo step. Escape or Cancel edit restores the committed patch, including during a captured drag. Invalid numeric drafts are rejected before direct editing; correct them or cancel. Valid numeric drafts participate in the next handle edit, as with the tilt slider. Undo is shared across both views, measurement attachment and document import.
+
+## Save and reopen offline
+
+Use **Export document** to download `accordion-v1.json`. In a fresh browser instance, open the built editor and choose **Import document**, then select that file. No server, account or browser storage is required. Reload still starts the fixture; import the file to resume saved work.
+
+Export includes committed pitch and tilt, the currently selected panel and whether the crease 3 measurement is attached. Numeric drafts, slider/handle previews and undo history are excluded. Export leaves those pending edits and history untouched, including invalid drafts. Import validates the entire file before changing anything. A successful import clears pending edits and creates one whole-document undo step, even for identical geometry. Undo restores the prior committed pitch, tilt, selection and measurement; it does not resurrect the discarded draft. Earlier edit and measurement undo steps remain available, with their existing behavior of preserving selection and preserving drafts when only measurement changes.
+
+Version 1 describes this fixed six-panel, 40 mm deep fixture:
+
+```json
+{
+  "format": "moxi-accordion",
+  "version": 1,
+  "pitch": 24.5,
+  "tilt": 60,
+  "selectedPanel": 5,
+  "measuring": true
+}
+```
+
+All six fields are required; extra fields and other formats/versions are rejected. Pitch must be a number from 10–30 mm in tenths, tilt a whole number from 0–75°, selection a whole panel ID from 1–6, and measurement a boolean. The file limit is 16 KiB. Invalid JSON, invalid values and read failures report an error while preserving the current geometry, selection, measurement, pending inputs/previews and undo history. Correct the file and select it again to recover. Cancelling the picker leaves the editor unchanged.
 
 ## Repeat the check
 
@@ -25,14 +46,17 @@ With Node, Playwright and Google Chrome already present locally, run the followi
 examples/foldable-motif/build.sh /tmp/accordion.html
 node examples/foldable-motif/check.cjs /tmp/accordion.html /tmp/accordion-frames
 node examples/foldable-motif/editing-check.cjs /tmp/accordion.html /tmp/accordion-editing
+node examples/foldable-motif/document-check.cjs /tmp/accordion.html /tmp/accordion-documents
 ```
 
 The check compares all 76 geometry samples with the analytic camera and unit-length constraints, exercises both picking directions, keyboard traversal, preview/cancel, edit/undo, range endpoints and invalid inputs, and checks the stacked layout at 390 CSS pixels. Regressions cover measurement attachment/undo during numeric drafts and slider previews, explicit cancellation without an implicit commit, and a pointer click at the center of the neighboring folded panel at 10 mm pitch and 75° tilt. The optional last argument writes six walkthrough screenshots plus four regression screenshots. Open the [offline slideshow](../../artifacts/demo-slideshows/v11-foldable-motif/index.html) for the recorded walkthrough.
 
 `editing-check.cjs` adds direct pointer/numeric parity for all three circles, real Tab traversal, arrow steps and endpoints, in-flight cancellation and limits, rejected drafts, every panel's centroid in each view at pitch/tilt bounds, and measurement interleaved with flat/folded edits and undo. It repeats these at 1180 × 900 and 390 × 844 CSS pixels, then checks the original offline deck's images and navigation. Its required output directory receives screenshots and a scenario record with source/build hashes. See the separate [current editing evidence](../../artifacts/demo-slideshows/v11-foldable-motif/flat-folded-editing/README.md); the original deck and captures retain their historical baseline.
 
+`document-check.cjs` exports through the visible button and imports the actual download through the file chooser in a newly launched Chrome process. At both widths it checks committed-only exports with valid previews and invalid drafts, imported geometry/selection/measurement, reload/reimport, atomic undo and prior history, identical-geometry imports, schema/type/range/size rejection, synthetic file-read failure, cancellation, same-file correction and boundary documents. It records exact sources/build hashes, scenarios, exported JSON and screenshots in its required output directory. See [saved-document evidence](../../artifacts/demo-slideshows/v11-foldable-motif/saved-document/README.md). Use temporary output directories to preserve historical captures.
+
 ## Evidence limits
 
-V11 covers the bounded geometric preview and comparison, including direct pitch editing in flat and folded views and direct crease tilt editing in the folded view. I01 is represented by promoting the crease question into a live measurement and undoing it at its original location. Arbitrary sketch-to-linkage formalization remains open. I21 is represented by the single tilt degree of freedom, editable length, endpoint trace, keyboard and pointer routes, preview cancellation and shared undo. Exact numeric values and the fixture layout round-trip. Free-form notation, saved document round trips and arbitrary joint dragging remain open.
+V11 covers the bounded geometric preview and comparison, including direct pitch editing in flat and folded views and direct crease tilt editing in the folded view. I01 is represented by promoting the crease question into a live measurement and undoing it at its original location. Arbitrary sketch-to-linkage formalization remains open. I21 is represented by the single tilt degree of freedom, editable length, endpoint trace, keyboard and pointer routes, preview cancellation and shared undo. Committed geometry, panel selection and measurement round-trip through a validated versioned document for this fixed fixture. Free-form notation and arbitrary joint dragging remain open; this is file export/import, without automatic saving or a general origami document model.
 
 A maker trial is needed to assess prediction and intentional revision. Folding a measured paper sample and comparing it with the preview is still required to assess the influence of thickness, crease placement and material behavior. No physical, fabrication, independent usability or screen-reader assessment was performed.
