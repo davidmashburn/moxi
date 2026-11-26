@@ -1,0 +1,1678 @@
+{
+  "version": 1,
+  "demo_id": "i19-transforms",
+  "title": "I19 \u00b7 Canvas and projected spatial commands",
+  "revision": "da93a988f939b7fa45b9d599d958ce5793ff39ba",
+  "host": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "scale": 2.0,
+  "backend": "Native Moxi CanvasSnapshot / public SpatialViewport with experimental Metal; AppKit callbacks",
+  "fixture": "One synthetic card (ID 1) or one generated surface (ID 101); independent source/copy documents; no external services",
+  "scenario": "Numeric and native pointer preview, visible numeric/pointer re-grabs, held arrow followed by live pointer motion, shared commit/cancel/undo, world-value replay after camera/viewport/window change, repeat and undo-ABA stale rejection. Automated native replay through field-editor insertion, AppKit key dispatch and pointer callbacks; no human or hardware input evaluation. VoiceOver remains paused.",
+  "reproduce": "bash examples/inspectable-transforms/build.sh\ndist/inspectable-transforms/transforms canvas\ndist/inspectable-transforms/transforms spatial\npython3 examples/inspectable-transforms/gallery.py\npython3 examples/inspectable-transforms/gallery.py --render-only",
+  "slides": [
+    {
+      "image": "canvas/01-initial.png",
+      "phase": "initial",
+      "caption": "Canvas: Independent public Moxi documents",
+      "action": "Launch the canvas or spatial entry mode in a fresh process",
+      "expected": "Both panes have the same X and initial revision, with undo depth zero",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "canvas/02-numeric-preview.png",
+      "phase": "interaction",
+      "caption": "Canvas: Exact entry previews without committing",
+      "action": "Replace Exact X with 230 (canvas) or 700 (spatial)",
+      "expected": "Only the native preview changes; committed X, revision and undo stay unchanged",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 80,
+          "preview_x": 230,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "canvas/03-held-pointer-cancel.png",
+      "phase": "recovery",
+      "caption": "Canvas: Escape cancels during native pointer capture",
+      "action": "Escape the numeric preview; drag the card or red X handle; press Escape while held, then move and release",
+      "expected": "The original committed value and empty undo history survive the late move and release",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "canvas/04-pointer-preview.png",
+      "phase": "interaction",
+      "caption": "Canvas: Release keeps an inspectable pointer preview",
+      "action": "Drag the card or red X handle again and release",
+      "expected": "Native preview persists after release; revision and undo remain unchanged",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 80,
+          "preview_x": 230,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "canvas/05-committed-command.png",
+      "phase": "result",
+      "caption": "Canvas: One native undo unit and a world-value command",
+      "action": "Refine Exact X to 230 or 700, then click Commit",
+      "expected": "X commits once; revision advances once; JSON identifies operation, target, expected revision and world before/after",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 230,
+          "preview_x": 230,
+          "revision": 2,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "canvas/06-source-undo.png",
+      "phase": "recovery",
+      "caption": "Canvas: Undo restores X without rewinding revision",
+      "action": "Press Cmd-Z",
+      "expected": "X returns to 80 (canvas) or 0 (spatial), undo becomes zero and revision advances again",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 3,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 1,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "canvas/07-reprojected-replay.png",
+      "phase": "result",
+      "caption": "Canvas: Replay survives different geometry and real resize",
+      "action": "Click Reproject / resize, widen the actual window, then Replay command",
+      "expected": "Canvas camera zoom/pan or spatial orthographic camera changes; copy commits the same semantic X with one undo unit",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 3,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 230,
+          "preview_x": 230,
+          "revision": 2,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/08-stale-after-undo.png",
+      "phase": "recovery",
+      "caption": "Canvas: Returning to the original X does not revive a command",
+      "action": "Replay again (stale); Undo copy; Replay command again",
+      "expected": "Stale rejection preserves restored X, advanced revision and zero undo depth",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 3,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 80,
+          "preview_x": 80,
+          "revision": 3,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/09-numeric-grab.png",
+      "phase": "interaction",
+      "caption": "Canvas: A grab keeps the displayed numeric draft",
+      "action": "Enter X 300 (canvas) or 700 (spatial), miss the target once, then grab the displayed card or red handle",
+      "expected": "The miss preserves the draft; the visible grab starts at that same X with the committed baseline untouched",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 1,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 300,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/10-numeric-grab-moved.png",
+      "phase": "interaction",
+      "caption": "Canvas: Pointer movement refines exact entry",
+      "action": "Move the grabbed numeric preview 20 points right and release",
+      "expected": "The native projected delta is added to the pending X; release retains one uncommitted draft",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 320,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/11-before-regrab.png",
+      "phase": "interaction",
+      "caption": "Canvas: A released draft can be grabbed again",
+      "action": "Commit and undo the mixed edit; make a fresh native pointer preview and release",
+      "expected": "The pointer preview remains visible with the original committed baseline and unchanged history",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 300,
+          "revision": 8,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/12-regrab-moved.png",
+      "phase": "interaction",
+      "caption": "Canvas: A second grab refines the same edit",
+      "action": "Grab the displayed pointer preview, move 10 points right and release",
+      "expected": "The second grab adds motion to the displayed X and creates no intermediate commit",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 310,
+          "revision": 8,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/13-held-arrow.png",
+      "phase": "interaction",
+      "caption": "Canvas: An arrow preserves held pointer ownership",
+      "action": "Commit and undo the two-grab edit; drag again and press Right while held",
+      "expected": "The pending X increases by 10 canvas points or 50 milliworld units while the drag stays live",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 1,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 310,
+          "revision": 10,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/14-held-arrow-moved.png",
+      "phase": "interaction",
+      "caption": "Canvas: Pointer motion retains the arrow step",
+      "action": "Move the held pointer another 20 points right after the arrow",
+      "expected": "Preview equals the independently measured native pointer result plus the arrow step; history is unchanged",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 1,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 330,
+          "revision": 10,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/15-held-mixed-commit.png",
+      "phase": "result",
+      "caption": "Canvas: Commit ends one shared mixed session",
+      "action": "Press Enter while the pointer is held; send late motion/release and repeat Enter",
+      "expected": "The final mixed preview commits once and late events cannot revive it",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 330,
+          "preview_x": 330,
+          "revision": 11,
+          "undo": 2,
+          "native_undo": 2,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "canvas/16-mixed-cancel.png",
+      "phase": "recovery",
+      "caption": "Canvas: One undo and Escape preserve the baseline",
+      "action": "Undo the mixed commit; start another held drag and arrow; Escape, then move and release",
+      "expected": "One undo restores the original X; Escape discards the next mixed draft without changing revision or history",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 12,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 6,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/01-initial.png",
+      "phase": "initial",
+      "caption": "Spatial: Independent public Moxi documents",
+      "action": "Launch the canvas or spatial entry mode in a fresh process",
+      "expected": "Both panes have the same X and initial revision, with undo depth zero",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "spatial/02-numeric-preview.png",
+      "phase": "interaction",
+      "caption": "Spatial: Exact entry previews without committing",
+      "action": "Replace Exact X with 230 (canvas) or 700 (spatial)",
+      "expected": "Only the native preview changes; committed X, revision and undo stay unchanged",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 0,
+          "preview_x": 700,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "spatial/03-held-pointer-cancel.png",
+      "phase": "recovery",
+      "caption": "Spatial: Escape cancels during native pointer capture",
+      "action": "Escape the numeric preview; drag the card or red X handle; press Escape while held, then move and release",
+      "expected": "The original committed value and empty undo history survive the late move and release",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "spatial/04-pointer-preview.png",
+      "phase": "interaction",
+      "caption": "Spatial: Release keeps an inspectable pointer preview",
+      "action": "Drag the card or red X handle again and release",
+      "expected": "Native preview persists after release; revision and undo remain unchanged",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 0,
+          "preview_x": 698,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "spatial/05-committed-command.png",
+      "phase": "result",
+      "caption": "Spatial: One native undo unit and a world-value command",
+      "action": "Refine Exact X to 230 or 700, then click Commit",
+      "expected": "X commits once; revision advances once; JSON identifies operation, target, expected revision and world before/after",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 700,
+          "preview_x": 700,
+          "revision": 3,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "spatial/06-source-undo.png",
+      "phase": "recovery",
+      "caption": "Spatial: Undo restores X without rewinding revision",
+      "action": "Press Cmd-Z",
+      "expected": "X returns to 80 (canvas) or 0 (spatial), undo becomes zero and revision advances again",
+      "observed": {
+        "window_points": [
+          1200.0,
+          760.0
+        ],
+        "scale": 2.0,
+        "reprojected": 0,
+        "dragging": 0,
+        "source": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 4,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 2,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2400,
+        1520
+      ]
+    },
+    {
+      "image": "spatial/07-reprojected-replay.png",
+      "phase": "result",
+      "caption": "Spatial: Replay survives different geometry and real resize",
+      "action": "Click Reproject / resize, widen the actual window, then Replay command",
+      "expected": "Canvas camera zoom/pan or spatial orthographic camera changes; copy commits the same semantic X with one undo unit",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 4,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 700,
+          "preview_x": 700,
+          "revision": 3,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/08-stale-after-undo.png",
+      "phase": "recovery",
+      "caption": "Spatial: Returning to the original X does not revive a command",
+      "action": "Replay again (stale); Undo copy; Replay command again",
+      "expected": "Stale rejection preserves restored X, advanced revision and zero undo depth",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 4,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 0,
+          "preview_x": 0,
+          "revision": 4,
+          "undo": 0,
+          "native_undo": 1,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/09-numeric-grab.png",
+      "phase": "interaction",
+      "caption": "Spatial: A grab keeps the displayed numeric draft",
+      "action": "Enter X 300 (canvas) or 700 (spatial), miss the target once, then grab the displayed card or red handle",
+      "expected": "The miss preserves the draft; the visible grab starts at that same X with the committed baseline untouched",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 1,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 700,
+          "revision": 136,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 300,
+          "preview_x": 300,
+          "revision": 7,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/10-numeric-grab-moved.png",
+      "phase": "interaction",
+      "caption": "Spatial: Pointer movement refines exact entry",
+      "action": "Move the grabbed numeric preview 20 points right and release",
+      "expected": "The native projected delta is added to the pending X; release retains one uncommitted draft",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 917,
+          "revision": 136,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 300,
+          "preview_x": 300,
+          "revision": 7,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/11-before-regrab.png",
+      "phase": "interaction",
+      "caption": "Spatial: A released draft can be grabbed again",
+      "action": "Commit and undo the mixed edit; make a fresh native pointer preview and release",
+      "expected": "The pointer preview remains visible with the original committed baseline and unchanged history",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 698,
+          "revision": 138,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 300,
+          "preview_x": 300,
+          "revision": 7,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/12-regrab-moved.png",
+      "phase": "interaction",
+      "caption": "Spatial: A second grab refines the same edit",
+      "action": "Grab the displayed pointer preview, move 10 points right and release",
+      "expected": "The second grab adds motion to the displayed X and creates no intermediate commit",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 807,
+          "revision": 138,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 300,
+          "preview_x": 300,
+          "revision": 7,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/13-held-arrow.png",
+      "phase": "interaction",
+      "caption": "Spatial: An arrow preserves held pointer ownership",
+      "action": "Commit and undo the two-grab edit; drag again and press Right while held",
+      "expected": "The pending X increases by 10 canvas points or 50 milliworld units while the drag stays live",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 1,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 748,
+          "revision": 140,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 300,
+          "preview_x": 300,
+          "revision": 7,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/14-held-arrow-moved.png",
+      "phase": "interaction",
+      "caption": "Spatial: Pointer motion retains the arrow step",
+      "action": "Move the held pointer another 20 points right after the arrow",
+      "expected": "Preview equals the independently measured native pointer result plus the arrow step; history is unchanged",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 1,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 965,
+          "revision": 140,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 1,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 300,
+          "preview_x": 300,
+          "revision": 7,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/15-held-mixed-commit.png",
+      "phase": "result",
+      "caption": "Spatial: Commit ends one shared mixed session",
+      "action": "Press Enter while the pointer is held; send late motion/release and repeat Enter",
+      "expected": "The final mixed preview commits once and late events cannot revive it",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 965,
+          "preview_x": 965,
+          "revision": 141,
+          "undo": 1,
+          "native_undo": 1,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 300,
+          "preview_x": 300,
+          "revision": 7,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    },
+    {
+      "image": "spatial/16-mixed-cancel.png",
+      "phase": "recovery",
+      "caption": "Spatial: One undo and Escape preserve the baseline",
+      "action": "Undo the mixed commit; start another held drag and arrow; Escape, then move and release",
+      "expected": "One undo restores the original X; Escape discards the next mixed draft without changing revision or history",
+      "observed": {
+        "window_points": [
+          1320.0,
+          800.0
+        ],
+        "scale": 2.0,
+        "reprojected": 1,
+        "dragging": 0,
+        "source": {
+          "committed_x": 100,
+          "preview_x": 100,
+          "revision": 142,
+          "undo": 0,
+          "native_undo": 0,
+          "fixture_history_floor": 0,
+          "draft": 0,
+          "viewport_points": [
+            24.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        },
+        "copy": {
+          "committed_x": 300,
+          "preview_x": 300,
+          "revision": 7,
+          "undo": 1,
+          "native_undo": 2,
+          "fixture_history_floor": 1,
+          "draft": 0,
+          "viewport_points": [
+            644.0,
+            192.0,
+            530.0,
+            330.0
+          ]
+        }
+      },
+      "outcome": "pass",
+      "capture_kind": "native-window",
+      "dimensions": [
+        2640,
+        1600
+      ]
+    }
+  ]
+}
