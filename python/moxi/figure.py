@@ -1002,8 +1002,9 @@ class Figure:
                 for index, (x0, y0, x1, y1, _) in enumerate(geometry.rects):
                     parts.append(f'<rect x="{x0:g}" y="{y0:g}" width="{max(1.0, x1-x0):g}" height="{max(1.0, y1-y0):g}" fill="{self._svg_style(geometry, layer, index)}" data-mark="{layer.mark}"/>')
             elif geometry.segments:
+                stroke_width = getattr(geometry, "stroke_width", layer.line_width)
                 for index, (x0, y0, x1, y1) in enumerate(geometry.segments):
-                    parts.append(f'<line x1="{x0:g}" y1="{y0:g}" x2="{x1:g}" y2="{y1:g}" stroke="{self._svg_style(geometry, layer, index)}" stroke-width="{getattr(geometry,'stroke_width',layer.line_width):g}" data-mark="{layer.mark}"/>')
+                    parts.append(f'<line x1="{x0:g}" y1="{y0:g}" x2="{x1:g}" y2="{y1:g}" stroke="{self._svg_style(geometry, layer, index)}" stroke-width="{stroke_width:g}" data-mark="{layer.mark}"/>')
             elif geometry.rects and layer.mark in {"heatmap", "hexbin"}:
                 for x0, y0, x1, y1, weight in geometry.rects:
                     parts.append(f'<rect x="{x0:g}" y="{y0:g}" width="{max(1.0, x1-x0):g}" height="{max(1.0, y1-y0):g}" fill="{color}" opacity="{max(0.05, min(1.0, weight)):g}" data-mark="{layer.mark}"/>')
