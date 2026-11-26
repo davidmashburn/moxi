@@ -1,5 +1,26 @@
 # Native acceptance follow-up
 
+## Packaged workflow after the legend fix, November 26, 2026
+
+On macOS 27.2.1 arm64, `pixi run data-workbench-build` built and signed the
+ordinary app from `a5c87af`. A temporary driver inside the packaged process
+operated the native controls. The signed executable retained SHA-256
+`f36d37811913bab7009205134b4dda3ba5e5bcb63952e2baaa9e49c7560a0330`
+throughout the replay.
+
+| Action | Observed result |
+| --- | --- |
+| Import the 12-row sample, filter on `value > 10`, select all three matches, then export | The CSV preserved keys 6, 7 and 10, values 18, 21 and 28, and weights 3, 2 and 4 in order. Reopening the CSV restored the three rows. |
+| Inspect tick and legend placement | The 572 × 252 SVG placed the legend baseline 24 points below the horizontal tick labels. Native captures showed separate rows at 1180 × 820 and 980 × 720. |
+| Enter an invalid threshold, then correct it. Try empty, missing and malformed imports | The last valid table and selection survived each failure. The corrected threshold took effect. |
+| Focus the path field, resize, restore and close the window | The field retained its focus flag and path. The native close action exited the packaged process with status 0. |
+
+All 31 [recorded checks](benchmarks/workbench-acceptance-2026-11-26/checks.json)
+passed. The external desktop bridge returned `cgWindowNotFound`. Physical
+keyboard input, external accessibility navigation and Command-Q remain open
+for this build. Independent authoring and sustained presentation timing also
+require separate runs.
+
 ## Packaged workflow and plot layout, November 23, 2026
 
 The signed app built from clean `045f9a5` ran on macOS 27.2.1 arm64. The

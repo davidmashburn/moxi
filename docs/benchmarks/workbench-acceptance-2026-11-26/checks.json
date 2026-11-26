@@ -1,0 +1,130 @@
+{
+  "passed": 31,
+  "failed": 0,
+  "results": [
+    {
+      "check": "instrumented process exits 0 after native close action",
+      "passed": true
+    },
+    {
+      "check": "exact signed bundle executable remains unchanged",
+      "passed": true
+    },
+    {
+      "check": "import copied 12-row sample",
+      "passed": true
+    },
+    {
+      "check": "native path setter committed the copied path",
+      "passed": true
+    },
+    {
+      "check": "filter field cycles to value",
+      "passed": true
+    },
+    {
+      "check": "value > 10 retains only source keys 6, 7, 10",
+      "passed": true
+    },
+    {
+      "check": "06-selected-six: selection changes once",
+      "passed": true
+    },
+    {
+      "check": "07-selected-seven: selection changes once",
+      "passed": true
+    },
+    {
+      "check": "08-selected-three: selection changes once",
+      "passed": true
+    },
+    {
+      "check": "CSV wire header",
+      "passed": true
+    },
+    {
+      "check": "CSV exact source identity, values, weights and order",
+      "passed": true
+    },
+    {
+      "check": "SVG parses with local 572x252 viewport",
+      "passed": true
+    },
+    {
+      "check": "SVG 14 expected text elements",
+      "passed": true
+    },
+    {
+      "check": "SVG legend baseline is 24 points below horizontal tick baselines",
+      "passed": true
+    },
+    {
+      "check": "SVG retains a data clip",
+      "passed": true
+    },
+    {
+      "check": "SVG labels are outside data clips",
+      "passed": true
+    },
+    {
+      "check": "invalid threshold preserves active filter and selection",
+      "passed": true
+    },
+    {
+      "check": "valid threshold replacement recovers",
+      "passed": true
+    },
+    {
+      "check": "reopened export retains keys and 3 rows",
+      "passed": true
+    },
+    {
+      "check": "15-empty-import: explicit error and previous table/selection preserved",
+      "passed": true
+    },
+    {
+      "check": "16-missing-import: explicit error and previous table/selection preserved",
+      "passed": true
+    },
+    {
+      "check": "17-malformed-import: explicit error and previous table/selection preserved",
+      "passed": true
+    },
+    {
+      "check": "18-focused: app-local focus/path/model retained",
+      "passed": true
+    },
+    {
+      "check": "18-focused: expected native view size and 2x PNG",
+      "passed": true
+    },
+    {
+      "check": "19-minimum-size: app-local focus/path/model retained",
+      "passed": true
+    },
+    {
+      "check": "19-minimum-size: expected native view size and 2x PNG",
+      "passed": true
+    },
+    {
+      "check": "20-restored: app-local focus/path/model retained",
+      "passed": true
+    },
+    {
+      "check": "20-restored: expected native view size and 2x PNG",
+      "passed": true
+    },
+    {
+      "check": "all actions accepted without driver error",
+      "passed": true
+    },
+    {
+      "check": "final action uses native NSWindow performClose",
+      "passed": true
+    },
+    {
+      "check": "observed states identify the launched packaged process",
+      "passed": true
+    }
+  ]
+}
