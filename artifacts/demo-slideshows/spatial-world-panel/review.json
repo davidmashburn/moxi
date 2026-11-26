@@ -1,7 +1,7 @@
 {
-  "version": 1,
-  "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
-  "recorded_at": "2026-11-20T22:58:40.454049+00:00",
+  "version": 2,
+  "revision": "85b915424e7a7de85b18c0ccea46195d3617948c",
+  "recorded_at": "2026-11-26T03:29:38.053654+00:00",
   "planning": {
     "ref": "origin/project-planning",
     "revision": "2e46d93667166d077e47311277689c54d35942dc",
@@ -9,15 +9,15 @@
     "section": "2. Certify the reviewed integration's demo evidence"
   },
   "environment": {
-    "capture_started_at": "2026-11-20T22:49:57Z",
+    "capture_started_at": "2026-11-26T03:19:50Z",
     "toolchain": {
       "mojo": "Mojo 1.1.0 (8189361e)",
       "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
       "sdk": "27.0",
       "pixi_lock_sha256": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0",
-      "host": "macOS-27.2-arm64-arm-64bit-Mach-O"
+      "host": "macOS-27.2.1-arm64-arm-64bit-Mach-O"
     },
-    "browser": "not used; native AppKit/Metal replay",
+    "browser": "Offline isolated headless Google Chrome; see deck-check.json",
     "fixture": "ordinary synthetic Controls model; no account/customer fixture",
     "canvas_points": [
       1000,
@@ -72,19 +72,19 @@
       "outcome": "pass",
       "replay_assertions": "pass",
       "frame": "01-oblique.png",
-      "png_sha256": "f6cb8ec12904f2c18886a345d62f3bf78c9b8f366261a333612fb2ebdcfd2274",
+      "png_sha256": "3f4edc40a90ec01e24362a2fabf14368b8df6b98b4f1fe5ff27481f1e6f1ed53",
       "dimensions": [
         2000,
         1420
       ],
       "steps": "Launch native probe",
       "expected": "Perspective-correct texture in the existing depth pass",
-      "observed": "Legible oblique panel with text Spatial ordinary controls, Apply 0 and shared level 40. Genuine perspective texture draw/snapshot succeeded; text is visibly rasterized/softer than the screen editor.",
+      "observed": "Complete oblique AppKit/Metal frame shows Spatial ordinary controls, Apply 0 and shared level 40. Text is visibly rasterized and softer than screen mode; no unintended clipping.",
       "limits": [
         "One fixed camera/plane and native capture scale; appearance does not prove compositor display, multi-DPI quality or native world text usability."
       ],
       "visually_inspected": true,
-      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "visual_reviewed_at": "2026-11-26T03:29:38.053654+00:00",
       "assertion_source": "examples/spatial-world-panel/main.mojo",
       "native_contract_source": "examples/spatial-world-panel/host.m",
       "evidence_logs": [
@@ -98,19 +98,19 @@
       "outcome": "pass",
       "replay_assertions": "pass",
       "frame": "02-capture-outside.png",
-      "png_sha256": "27233aa84e1ee6a813cf3370cd0805b6848c86119f68c8670146c75d0ff80eb7",
+      "png_sha256": "c2eab160a2f7cfaab998e62c2b923c4846a763651351c1e97eed71befd6a20cb",
       "dimensions": [
         2000,
         1420
       ],
       "steps": "Drag local x=100 to x=500 on a 400-point panel",
       "expected": "Slider reaches 100; capture remains active until release",
-      "observed": "Shared level 100 and slider at right endpoint are visible. Replay asserts value 100 and active drag before capture, then releases capture afterward.",
+      "observed": "Slider is at its right endpoint and shared level 100 is visible. Replay asserts capture remains active at local x=500 outside the 400-point panel and releases afterward.",
       "limits": [
         "Injected NSEvent/ordinary runtime replay, not a physical pointer or hardware capture-loss exercise. Still frame alone does not prove capture."
       ],
       "visually_inspected": true,
-      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "visual_reviewed_at": "2026-11-26T03:29:38.053654+00:00",
       "assertion_source": "examples/spatial-world-panel/main.mojo",
       "native_contract_source": "examples/spatial-world-panel/host.m",
       "evidence_logs": [
@@ -120,23 +120,23 @@
       ]
     },
     {
-      "scenario_id": "03-text-focus-failure",
+      "scenario_id": "03-projected-range",
       "outcome": "partial",
       "replay_assertions": "pass",
-      "frame": "03-text-focus-failure.png",
-      "png_sha256": "72bd2838a17413cbd6a8853c9a9d2defb17727ab7bf6c3c513da47e18a100c25",
+      "frame": "03-projected-range.png",
+      "png_sha256": "206b181fa3a37d0d97aeed9a46ec5be4d3a4e91a76fb1ede990ea177f40faac2",
       "dimensions": [
         2000,
         1420
       ],
-      "steps": "Click button and text; compare actual caret with its world projection",
-      "expected": "One click and stable focus; source-local IME coordinates explicitly unsupported",
-      "observed": "Apply 1 and shared level 100; WORLD FAILED message. Replay asserts focus ID 1 and retained field identity. Native source caret (26,58) requires world projection (388.62122951131903,259.6678344576862); native world IME geometry fails. Both world owners suppress semantic children/focus.",
+      "steps": "Click button and text; query destination canvas insertion and substring rectangles",
+      "expected": "One click and stable focus; destination ranges enclose projected source geometry",
+      "observed": "Apply 1, shared level 100, and a yellow projected 3+2 substring outline are visible on the oblique field. Footer reports projected native range. Replay independently checks 0+0 and 3+2 four-corner bounds to 0.01 point; the old WORLD FAILED diagnostic is gone.",
       "limits": [
-        "Geometry rejection verified; native world IME/semantic support remains unsupported. Source-owner marked-text callbacks are synthetic. World text-input rejection branch was source-inspected, not separately driven in the recorded replay."
+        "Forward range geometry is verified for the recorded native fixture; native world text-input session, inverse text hit testing and selection are not proxied. World semantic children/focus remain suppressed. This is partial world-editor acceptance, not a range assertion failure."
       ],
       "visually_inspected": true,
-      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "visual_reviewed_at": "2026-11-26T03:29:38.053654+00:00",
       "assertion_source": "examples/spatial-world-panel/main.mojo",
       "native_contract_source": "examples/spatial-world-panel/host.m",
       "evidence_logs": [
@@ -150,19 +150,19 @@
       "outcome": "pass",
       "replay_assertions": "pass",
       "frame": "04-hidden-click.png",
-      "png_sha256": "3fa393fe4eb9dfd029a9b86a6558ab3b984b0e6104dcb493f5b6c22985c02607",
+      "png_sha256": "ae4d0ba3220e79b2f9235f6e6ca37a76155567a9e1557f75da7d224cb57afdec",
       "dimensions": [
         2000,
         1420
       ],
       "steps": "Clip x<0; add foreground geometry; attempt both hidden targets",
       "expected": "Clipped and depth-occluded clicks return HIDDEN",
-      "observed": "Left side of panel is visibly clipped; red scene geometry occludes controls. Both clipped and depth-occluded direct route calls assert HIDDEN.",
+      "observed": "Left half is deliberately clipped and the rendered red scene sphere occludes the right. Replay rejects both clipped and depth-occluded target routes.",
       "limits": [
         "Direct picking calls and rendered state; no physical pointer or accessibility hit testing."
       ],
       "visually_inspected": true,
-      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "visual_reviewed_at": "2026-11-26T03:29:38.053654+00:00",
       "assertion_source": "examples/spatial-world-panel/main.mojo",
       "native_contract_source": "examples/spatial-world-panel/host.m",
       "evidence_logs": [
@@ -176,19 +176,19 @@
       "outcome": "partial",
       "replay_assertions": "pass",
       "frame": "05-screen-editor.png",
-      "png_sha256": "4d13fdd5ab589393e77e4567fa97dd5ede448fcf2ea27f46800ffb079897e12d",
+      "png_sha256": "21d92c41665445f71da09f147f1c8bd5689d387db9d6a57f476fb0635261459f",
       "dimensions": [
         2000,
         1420
       ],
       "steps": "Switch mode; replay native text protocols, selection, clipboard and keyboard",
       "expected": "Same text/count/level; actual native roles and coherent screen caret",
-      "observed": "Crisp axis-aligned screen controls show Spatial ordinary controls · native, Apply 2 and shared level 99. Caret (398.093017578125,273.0361328125) is contained in the screen field. Native text/button/slider roles and owner-local frames, selection, named pasteboard, marked-text/insertion, ordinary App clipboard and Tab/Enter/arrows pass.",
+      "observed": "Crisp screen controls show Spatial ordinary controls \u00b7 native, Apply 2 and shared level 99, with a yellow substring outline. Screen caret (398.093017578125,273.0361328125), native text/button/slider roles, selection, named clipboard, marked text/insertion, and Tab/Enter/arrows pass synthetic checks.",
       "limits": [
         "Screen alternative verified only within the experiment. No physical keyboard/IME candidates, non-US layout, VoiceOver, assistive-technology client, or human acceptance. Owner-local frame equality does not establish AT usability."
       ],
       "visually_inspected": true,
-      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "visual_reviewed_at": "2026-11-26T03:29:38.053654+00:00",
       "assertion_source": "examples/spatial-world-panel/main.mojo",
       "native_contract_source": "examples/spatial-world-panel/host.m",
       "evidence_logs": [
@@ -202,19 +202,19 @@
       "outcome": "pass",
       "replay_assertions": "pass",
       "frame": "06-cancel-recovery.png",
-      "png_sha256": "2ebb16fab862d5560df953fd4de0acacde36f6f66efd2010d8748b62e1c31fb0",
+      "png_sha256": "a382e3b171532e363907be4eb0e0c3ec6c6e814997f7e382215b869e28e5a294",
       "dimensions": [
         2000,
         1420
       ],
       "steps": "Return to world; drag slider then Escape",
-      "expected": "Level restored to 99; explicit supported geometry and failed world IME/AX cases",
-      "observed": "After returning to world mode, edited text and Apply 2 persist in memory; shared level 99 is visible. Escape restores 99 and clears drag. NOT PROMOTED message remains legible.",
+      "expected": "Level restored to 99; screen editing remains supported",
+      "observed": "Oblique recovery retains the edited text and Apply 2, with shared level 99. Replay asserts Escape restores 99 and clears capture. Footer reports projected range verified and world editing experimental.",
       "limits": [
-        "Synthetic Escape and mode transition; only in-memory shared state, not persistence across restart."
+        "Synthetic Escape and mode transitions; only in-memory shared state, not persistence across restart."
       ],
       "visually_inspected": true,
-      "visual_reviewed_at": "2026-11-20T22:55:47Z",
+      "visual_reviewed_at": "2026-11-26T03:29:38.053654+00:00",
       "assertion_source": "examples/spatial-world-panel/main.mojo",
       "native_contract_source": "examples/spatial-world-panel/host.m",
       "evidence_logs": [
@@ -227,95 +227,141 @@
   "decision": {
     "world_promotion": "rejected",
     "confidence": "high",
-    "evidence": "Measured source/world caret mismatch; source-local native role/frame contract; world semantic children/focus explicitly suppressed. Screen owner-local contracts and same-model replay pass.",
-    "evidence_to_reconsider": "Coherent transformed native IME/semantic geometry followed by physical IME, human and AT acceptance.",
+    "evidence": "Forward insertion/substring projection and conservative clipping rejection pass. Native world input session/selection and inverse text hit testing are not proxied; world semantic children/focus are suppressed. Screen same-model synthetic contracts pass.",
+    "evidence_to_reconsider": "A complete destination native input and semantic contract, followed by physical IME, human and assistive-technology acceptance.",
     "production_renderer": "D05 remains unselected/OPEN"
   },
   "baseline_comparison": {
-    "artifact_commit": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
-    "recorded_revision": "bd3cccdb96f9136fda303ee4ca7517116e9e885a",
-    "captured_before_build_at": "2026-11-06T18:12:22Z",
-    "recorded_uncommitted_source": true,
-    "old_source_sha256": "f6093658eb10a518d2e93b585bce59d0d59195424f76309a811a01fcdf2099f2",
-    "new_source_sha256": "3a5c2de74340be52b381b84f7e5f8802a7325adb513797be706b6129a722667a",
-    "old_source_files": 186,
-    "new_source_files": 189,
+    "artifact_commit": "85b915424e7a7de85b18c0ccea46195d3617948c",
+    "recorded_revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
+    "captured_before_build_at": "2026-11-20T22:49:57Z",
+    "recorded_uncommitted_source": false,
+    "old_source_sha256": "3a5c2de74340be52b381b84f7e5f8802a7325adb513797be706b6129a722667a",
+    "new_source_sha256": "ff972c8f7c77528d7e9723689a95d5024d1979d3c0f1c01df80f423148cb3def",
+    "old_source_files": 189,
+    "new_source_files": 194,
     "source_files_added": [
-      "native/macos_live_editor.inc",
-      "native/macos_source_editor.inc",
-      "tests/spatial/composition_sampling.m"
+      "native/button_state.h",
+      "src/moxi/natural.mojo",
+      "src/moxi/palette.mojo",
+      "src/moxi/raster.mojo",
+      "tests/spatial/resize_close.m"
     ],
     "source_files_removed": [],
     "source_files_changed": [
-      "native/macos_composition.h",
-      "native/macos_composition.inc",
+      "examples/spatial-assembly/gallery.py",
+      "examples/spatial-assembly/main.mojo",
+      "examples/spatial-world-panel/README.md",
+      "examples/spatial-world-panel/gallery.py",
+      "examples/spatial-world-panel/host.m",
+      "examples/spatial-world-panel/main.mojo",
+      "native/linux_window.h",
       "native/macos_metal.m",
       "native/macos_window.m",
       "native/macos_window_state.h",
-      "native/mindmap/storage.h",
-      "native/mindmap/storage.m",
+      "native/math/font.m",
+      "native/spatial/api.cpp",
+      "native/spatial/api.h",
       "pixi.toml",
       "src/moxi/__init__.mojo",
+      "src/moxi/authoring/runtime.mojo",
+      "src/moxi/canvas_renderer.mojo",
       "src/moxi/capability_walkthrough.mojo",
       "src/moxi/column_runtime.mojo",
+      "src/moxi/column_view.mojo",
+      "src/moxi/component.mojo",
+      "src/moxi/controls_basic.mojo",
+      "src/moxi/controls_text.mojo",
+      "src/moxi/coretext.mojo",
+      "src/moxi/event.mojo",
       "src/moxi/fractal.mojo",
-      "src/moxi/interaction_showcase.mojo",
-      "src/moxi/live_script.mojo",
       "src/moxi/macos.mojo",
+      "src/moxi/metal.mojo",
+      "src/moxi/native_paragraph.mojo",
+      "src/moxi/native_window.mojo",
+      "src/moxi/paint.mojo",
+      "src/moxi/recipes.mojo",
+      "src/moxi/retained_leaf.mojo",
       "src/moxi/scenarios.mojo",
-      "src/moxi/scene_path.mojo",
-      "src/moxi/wxstyle.mojo"
+      "src/moxi/scene.mojo",
+      "src/moxi/scrollbar.mojo",
+      "src/moxi/style.mojo",
+      "src/moxi/theme_showcase.mojo",
+      "src/moxi/tokens.mojo",
+      "src/moxi/view_node.mojo",
+      "src/moxi/widget.mojo",
+      "src/moxi_spatial/panel.mojo",
+      "tests/spatial/panel_native.m"
     ],
     "frames": [
       {
+        "old_scenario_id": "01-oblique",
         "scenario_id": "01-oblique",
-        "old_sha256": "7ca11f8f1ddea23a205797d269c65a44fa56d6627a4eb2ea89515a02c319787a",
-        "new_sha256": "f6cb8ec12904f2c18886a345d62f3bf78c9b8f366261a333612fb2ebdcfd2274",
+        "changed_fields": [],
+        "old_sha256": "f6cb8ec12904f2c18886a345d62f3bf78c9b8f366261a333612fb2ebdcfd2274",
+        "new_sha256": "3f4edc40a90ec01e24362a2fabf14368b8df6b98b4f1fe5ff27481f1e6f1ed53",
         "hash_equal": false,
         "dimensions_equal": true
       },
       {
+        "old_scenario_id": "02-capture-outside",
         "scenario_id": "02-capture-outside",
-        "old_sha256": "96054790c33e71e2f1ce1302777d21761a9fce333c3e410436ccd92651b9a51e",
-        "new_sha256": "27233aa84e1ee6a813cf3370cd0805b6848c86119f68c8670146c75d0ff80eb7",
+        "changed_fields": [],
+        "old_sha256": "27233aa84e1ee6a813cf3370cd0805b6848c86119f68c8670146c75d0ff80eb7",
+        "new_sha256": "c2eab160a2f7cfaab998e62c2b923c4846a763651351c1e97eed71befd6a20cb",
         "hash_equal": false,
         "dimensions_equal": true
       },
       {
-        "scenario_id": "03-text-focus-failure",
-        "old_sha256": "dbfe6e3c517006a2d9a8a4d65301a1c441e87f73194cb39de5db065bb082c837",
-        "new_sha256": "72bd2838a17413cbd6a8853c9a9d2defb17727ab7bf6c3c513da47e18a100c25",
+        "old_scenario_id": "03-text-focus-failure",
+        "scenario_id": "03-projected-range",
+        "changed_fields": [
+          "scenario_id",
+          "caption",
+          "action",
+          "expected"
+        ],
+        "old_sha256": "72bd2838a17413cbd6a8853c9a9d2defb17727ab7bf6c3c513da47e18a100c25",
+        "new_sha256": "206b181fa3a37d0d97aeed9a46ec5be4d3a4e91a76fb1ede990ea177f40faac2",
         "hash_equal": false,
         "dimensions_equal": true
       },
       {
+        "old_scenario_id": "04-hidden-click",
         "scenario_id": "04-hidden-click",
-        "old_sha256": "044b01e373d2d34a464122a1288e1862444095ab02dbc53467138715102ad02d",
-        "new_sha256": "3fa393fe4eb9dfd029a9b86a6558ab3b984b0e6104dcb493f5b6c22985c02607",
+        "changed_fields": [],
+        "old_sha256": "3fa393fe4eb9dfd029a9b86a6558ab3b984b0e6104dcb493f5b6c22985c02607",
+        "new_sha256": "ae4d0ba3220e79b2f9235f6e6ca37a76155567a9e1557f75da7d224cb57afdec",
         "hash_equal": false,
         "dimensions_equal": true
       },
       {
+        "old_scenario_id": "05-screen-editor",
         "scenario_id": "05-screen-editor",
-        "old_sha256": "ecc99b3c5637e66c817920999f706e6e65a0ccb04bb7ce49015200e169251fde",
-        "new_sha256": "4d13fdd5ab589393e77e4567fa97dd5ede448fcf2ea27f46800ffb079897e12d",
+        "changed_fields": [],
+        "old_sha256": "4d13fdd5ab589393e77e4567fa97dd5ede448fcf2ea27f46800ffb079897e12d",
+        "new_sha256": "21d92c41665445f71da09f147f1c8bd5689d387db9d6a57f476fb0635261459f",
         "hash_equal": false,
         "dimensions_equal": true
       },
       {
+        "old_scenario_id": "06-cancel-recovery",
         "scenario_id": "06-cancel-recovery",
-        "old_sha256": "d05c4a330e5781c3b7ce9a785549fa16b20f23d39a2da0c09175c944b4393bfd",
-        "new_sha256": "2ebb16fab862d5560df953fd4de0acacde36f6f66efd2010d8748b62e1c31fb0",
+        "changed_fields": [
+          "expected"
+        ],
+        "old_sha256": "2ebb16fab862d5560df953fd4de0acacde36f6f66efd2010d8748b62e1c31fb0",
+        "new_sha256": "a382e3b171532e363907be4eb0e0c3ec6c6e814997f7e382215b869e28e5a294",
         "hash_equal": false,
         "dimensions_equal": true
       }
     ],
-    "baseline_png_bytes_available": false,
-    "pixel_and_baseline_visual_comparison": "blocked: old PNGs absent in this checkout and main implementation checkout; only metadata/hash comparison possible",
-    "scenario_definitions_unchanged": true,
-    "old_host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
-    "new_host": "macOS-27.2-arm64-arm-64bit-Mach-O",
-    "timing_comparison": "not controlled across source, host version and concurrent load; no regression or production-performance conclusion"
+    "baseline_png_bytes_available": true,
+    "baseline_png_retention": "Checksum-matching copies from existing implementation checkout; ignored local baseline-*.png files.",
+    "visual_comparison": "Old third frame inspected at full resolution: source-local WORLD FAILED message and no projected range outline. New third frame inspected at full resolution: projected substring outline and range-verification footer. Other old frames were checksum-checked, not visually re-certified.",
+    "old_host": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "new_host": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+    "timing_comparison": "Different source and host; no controlled performance-regression conclusion."
   },
   "checks": [
     {
@@ -340,7 +386,7 @@
       "name": "panel_native",
       "outcome": "pass",
       "log": "review-logs/check-panel_native.log",
-      "expected_marker": "PASS D08 native owner snapshot isolation, bounds, source retirement and mount rejection"
+      "expected_marker": "PASS D08 native projected ranges, focus, clipping, populated scene, snapshot isolation and retirement"
     },
     {
       "name": "native",
@@ -403,23 +449,13 @@
   "capture_exit_code": 0,
   "logs": [
     {
-      "path": "review-logs/attempt-01-build.log",
-      "sha256": "bbcef135f7c23211976ef192f7ed7382bac92d1d0f0b4dfabb09c6bf97dde05f",
-      "original_sha256": "3923b7ca3c606e6281fdab40c6fb8e1e57064af32c29b161b64e0bcaa2424281"
-    },
-    {
-      "path": "review-logs/attempt-01-gallery.log",
-      "sha256": "484b6305c8479947320eede1ded826bef7c43155648084cb2a85fb5f74f7eb01",
-      "original_sha256": "e0ead24fa31b5ecdb47275956eafe034638be3157f375ffb6c72b70d6e83c777"
-    },
-    {
       "path": "review-logs/build.log",
-      "sha256": "66dd06ea989a8b72c4bbdf165f7f656a6f17fbb5d1d07bda8fe517cb5e7cf53c",
-      "original_sha256": "afd044f5d99fdab8637b199db758979b3a41d2e5eb544fb7e3682597c64046a4"
+      "sha256": "ee2ab2db44b174c0cdd1782b6ea4ff38e5ebdf52efdef8229f70daca301ee753",
+      "original_sha256": "f5b3727324992df7dc41f8f3500c1c5f69b98a6f82c1082d04819c62110b455a"
     },
     {
       "path": "review-logs/capture.log",
-      "sha256": "2183391296143294051cbfdcdbe173c22bc3760376a60c7e7e281682e387be94"
+      "sha256": "5ce6b71aa7f5e06f9a437664a79a8010058ff30479f8ca017c5705a7222199f9"
     },
     {
       "path": "review-logs/check-assembly.log",
@@ -439,34 +475,34 @@
     },
     {
       "path": "review-logs/check-package.log",
-      "sha256": "5192f5d5fdc06297b2135f4359097570a9cc1d7bf88652a4891e508f446aa8b2"
+      "sha256": "186667b52606b02b7f608997b272a5022714b7d53a98e6c6418cf9dd10bd5906"
     },
     {
       "path": "review-logs/check-packaged-spatial-assembly-build.log",
-      "sha256": "50e8ac0ddf9917e23c52fe26d7ce0f9566c28981f7a2f136a5c61d042f7719a1",
-      "original_sha256": "5d0602c3e229f8e744a53c9470a8409cbad7d87df449966ab0420351683ed3e9"
+      "sha256": "6185d61af1618e10eed07a17d9b5afd27d4a38c523523a29c6f47d12de58fbb3",
+      "original_sha256": "33f1c67cfebe3f8047ca8ba2b39cddf3d3d83de077d17e7dbdc55d5d714c87c9"
     },
     {
       "path": "review-logs/check-packaged-spatial-assembly.log",
-      "sha256": "1543c2c4deed1ad8d6b34580a0a11235dc5393aa97d516717e86b084511607c8"
+      "sha256": "3ee7bd44ee1729a70712099de5bc7a469bd604b1f70f6ffb3484b76f2add61c6"
     },
     {
       "path": "review-logs/check-packaged-spatial-explorer-build.log",
-      "sha256": "926d478c9ebfc2d8816b11678ce7e3c594ba15cb4d22bafabdfae190e16f45f4",
-      "original_sha256": "6063e3411954a971a900394c0610ac7f033a91e8850517198b8a190e96a2d35f"
+      "sha256": "14a1c5314fd6ca8af7c1888c6cce984328e77f5afd3b49d53867424c1c192b88",
+      "original_sha256": "f7cce0409327016fa03e81f02b8574864c0f595183ca70477483ad6c368635ee"
     },
     {
       "path": "review-logs/check-packaged-spatial-explorer.log",
-      "sha256": "339475a241f88b89f9ea64949b3d7fec3bf3a1107b4f2aee6d02b905dac8f305"
+      "sha256": "4bd458aa990c0b1d9215372a64ad011c8a53acf37ba5c1ccc5c771f351d0f380"
     },
     {
       "path": "review-logs/check-packaged-spatial-world-panel-build.log",
-      "sha256": "d9aa248aeae4e3b225ae729dac4cdf64d7e1a2e970cc1666305a826912403278",
-      "original_sha256": "4321616fb7c2b66a62b12cb7961de3c78009bddef74460991e5e0aad1ba1910d"
+      "sha256": "5a136d8c4f2ac021dcacfc76f57d7f30a00299c55820e4056f356520db13cf27",
+      "original_sha256": "f86e5b92a8b1116427d389c1edb0466d48b722b6b9b3b5503670b66f25cc1610"
     },
     {
       "path": "review-logs/check-packaged-spatial-world-panel.log",
-      "sha256": "1b889a905f21327b7244701698c8a7d7cee83869b72c5ac386ad02cfab20602d"
+      "sha256": "d82e1bf105d3cb4941a84c63199fcf06f2be1746933bf0fd95832973ffea8b44"
     },
     {
       "path": "review-logs/check-panel.log",
@@ -474,12 +510,12 @@
     },
     {
       "path": "review-logs/check-panel_native.log",
-      "sha256": "92e81bfdc30ef70322231e60fab084e73845ca7ef039f60694ba8e84f07e78fd"
+      "sha256": "1c6cb9c0fef9b62a735f061ef434542bba1c0282616def56d7f7644f31ef40b8"
     },
     {
       "path": "review-logs/check-public_assembly-build.log",
-      "sha256": "2452926edbb77a571a2874105bd9f6b415861608865f04ee80996189a1d04c9b",
-      "original_sha256": "76a1523b9b53a2dac3a6b99a1cea9b12a81d7766f891d647f31515ddec6883e8"
+      "sha256": "fd981ea30a55948daca5a21e2d65eaedd93fdb5ee90b8cbfc06946a4a8031e3f",
+      "original_sha256": "d9a1b0e41a5b5f16df06f7883c7ed7fc6a1284a96371309c1e5c0204b0c3d13a"
     },
     {
       "path": "review-logs/check-public_assembly.log",
@@ -487,8 +523,8 @@
     },
     {
       "path": "review-logs/check-public_composition-build.log",
-      "sha256": "14f84cc83db2d904c0c0f02ee19a215c84e636f039ac09ade75764eec33b1117",
-      "original_sha256": "959e628e90e3ade885d70ee294ac37441eac85648fe12b8969e2f0d9b7be5202"
+      "sha256": "96d61164a1c8fe325ef431f19866972163765b34f5880e1103141ba6897e765f",
+      "original_sha256": "ea14308fe08b2bb9459694847a61be985dd895b7e0899b16321256a14974b8c8"
     },
     {
       "path": "review-logs/check-public_composition.log",
@@ -496,8 +532,8 @@
     },
     {
       "path": "review-logs/check-public_consumer-build.log",
-      "sha256": "723f9eced7234afb926f2c98d2c5d95548b44bfc8fa9156296ddbc3d9faf0e93",
-      "original_sha256": "e92628e594a8abfeddce1dbc391bf58a5f57527559653b2d4e6ef70f72661836"
+      "sha256": "e6637899d542994357ea84bc17520f0ffb6f473a8e7fc1fae40dac789a7f8709",
+      "original_sha256": "119a2919e73092caec6608471c9df2116942a652f7d0f008ee1039786c2017df"
     },
     {
       "path": "review-logs/check-public_consumer.log",
@@ -505,8 +541,8 @@
     },
     {
       "path": "review-logs/check-public_panel-build.log",
-      "sha256": "9a88eaa627cb255d8f7180f63e0a0bc1fb47a6b5b297c0339a5402f57ef8bb97",
-      "original_sha256": "dee232366300081d85fe32bcea949807b143b7a5fe5cef72e7f01b3c48e8de89"
+      "sha256": "19071dd46eda2483be70f3a3ca949563cfc028e7b3d4745c9a6010385e83e970",
+      "original_sha256": "6b9c1efec3a040853118f463428a75d8e2a002f7397122a7089c07f4e4a5d122"
     },
     {
       "path": "review-logs/check-public_panel.log",
@@ -514,19 +550,36 @@
     },
     {
       "path": "review-logs/checks.log",
-      "sha256": "8073f0f4641f1e8dd07842bef1dd4e19d6393885aaff70f57e320a3cdc358246"
+      "sha256": "66ac11caeaa2c6d15cbf3dbe03f31aaf4c770d2528ba16f243088ffd25ae4aaa",
+      "original_sha256": "3097e380510bee7aecdfceb540fd9d5e9c979076c43f4d2f720b31017dc927e1"
+    },
+    {
+      "path": "review-logs/deck.log",
+      "sha256": "0497603af38501fb4d3d2808cc80f7d95a5e5a8f547b2376027f2fd1755eea68"
     },
     {
       "path": "review-logs/replay-0.log",
-      "sha256": "e6144f1d6cab61de9a949938ca0ffb6929764dba12f428995cfc004081955b59"
+      "sha256": "062d77b0f0db53a9002b021cf95556aa680a6dcdf838d41f95dcb36b8ec25c49"
     },
     {
       "path": "review-logs/replay-1.log",
-      "sha256": "7e6461d07741d51451b39f32951169af577156e32cddd493cbd29020c5066167"
+      "sha256": "38badcdd1e14eaa1cadd6936b6614c1f887053c8742560f83b0da9eca85a774b"
     },
     {
       "path": "review-logs/replay-2.log",
-      "sha256": "5149d9a3c4762f1fe58c8a805240f6d4adedcdccf8d7680e96a970286c1c4269"
+      "sha256": "0942627efeb7e4297128f11c24cec9a97fb62a5e436f6c22f457946ce604757d"
+    },
+    {
+      "path": "review-logs/source-before.json",
+      "sha256": "38595949ca6a1f503f73a93c6ab02c1d80eb280c7b8c9330229ff7d676fa525e"
+    },
+    {
+      "path": "review-logs/timeout-check.json",
+      "sha256": "5e810810ba058e1ecd9c67e26ef63cf882363ff5be022cf9d80944b227bb8f7d"
+    },
+    {
+      "path": "review-logs/verifier-negative-check.json",
+      "sha256": "5a28ad0abb235b3e55ad3d103c44ae4242d838590aef1cedef914009ca55fed5"
     }
   ],
   "not_verified": [
@@ -537,36 +590,72 @@
     "sustained/thermal, memory pressure or fresh-host distribution installation",
     "full repository suite or GitHub CI",
     "visual certification of D06/D07 packaged replay frames; assertions only",
-    "baseline image pixel/visual comparison; original PNGs unavailable"
+    "other historical gallery recapture/visual certification or complete dependency inventories",
+    "expanded Reproduce disclosure layout; offline navigation used the normal collapsed state"
   ],
   "retention": {
-    "tracked_refreshed": [
-      "README.md",
-      "manifest.json",
-      "provenance.json",
-      "timing.json"
-    ],
-    "tracked_unchanged": [
-      "decision.json"
-    ],
-    "new_untracked": [
-      "REVIEW.md",
-      "review.json",
-      "capture.py",
-      "verify.py",
-      "review-logs/"
-    ],
+    "tracked": "D08 metadata, reproduction/verification scripts, review records, current build/replay/check logs, and separate historical finding. Superseded timeout-attempt logs removed.",
     "ignored_local": [
       "01-oblique.png",
       "02-capture-outside.png",
-      "03-text-focus-failure.png",
+      "03-projected-range.png",
       "04-hidden-click.png",
       "05-screen-editor.png",
       "06-cancel-recovery.png",
-      "index.html"
+      "index.html",
+      "deck-1440.png",
+      "deck-390.png",
+      "baseline-*.png"
     ],
     "ignored_binary": "dist/spatial-world-panel/panel",
-    "other_galleries_or_shared_indexes_updated": false
+    "other_galleries_or_shared_indexes_updated": false,
+    "raw_log_policy": "Only machine-local repository, temporary archive and ephemeral consumer paths are replaced. Original and published hashes are recorded when bytes differ; raw logs remain in /tmp."
   },
-  "verify_command": "python3 artifacts/demo-slideshows/spatial-world-panel/verify.py"
+  "verify_command": "python3 artifacts/demo-slideshows/spatial-world-panel/verify.py",
+  "checks_execution": {
+    "command": [
+      "bash",
+      "examples/spatial-world-panel/check.sh",
+      "--skip-build"
+    ],
+    "timeout_seconds": 900,
+    "started_at_epoch": 1795663295.112066,
+    "wall_seconds": 181.88745570898755,
+    "exit_code": 0,
+    "runner": "capture.py run(), 900-second process-group bound; same published check.sh --skip-build"
+  },
+  "range_regression": {
+    "log": "review-logs/check-panel_native.log",
+    "requested_range": "3+2",
+    "source_full_rect": [
+      49.28125,
+      56,
+      14.6015625,
+      19
+    ],
+    "native_shortened_rect": [
+      49.28125,
+      56,
+      7.30078125,
+      19
+    ],
+    "native_actual_range_unchanged": true,
+    "destination_rect": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "destination_actual_range": "NSNotFound,0",
+    "verified_contract": "Reject a partially visible requested range even when native firstRect shortens the rectangle but leaves actualRange unchanged; allow a visible zero-width insertion."
+  },
+  "deck": {
+    "record": "deck-check.json",
+    "screenshots_visually_inspected": [
+      "deck-1440.png",
+      "deck-390.png"
+    ],
+    "visual_reviewed_at": "2026-11-26T03:29:38.053654+00:00",
+    "observed": "Complete image, captions and six contact-sheet buttons visible; narrow layout wraps into two columns without horizontal overflow. At 390px the native frame is a scaled overview, not readable full-resolution native text. Reproduce disclosure remained collapsed."
+  }
 }

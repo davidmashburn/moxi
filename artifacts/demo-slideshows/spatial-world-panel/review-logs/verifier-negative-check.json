@@ -1,0 +1,16 @@
+{
+  "checks": [
+    {
+      "controlled_mutation": "incorrect recorded PNG hash",
+      "rejected": true,
+      "exit_code": 1,
+      "original_bytes_restored": true
+    },
+    {
+      "controlled_mutation": "extra bytes in generated HTML",
+      "rejected": true,
+      "exit_code": 1,
+      "original_bytes_restored": true
+    }
+  ]
+}

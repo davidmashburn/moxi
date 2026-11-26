@@ -9,7 +9,7 @@
     "clip_occlusion_near_behind_policy": "executable",
     "ordinary_component_state_and_keyboard": "synthetic replay verified",
     "native_text_protocol": "synthetic source-owner calls only",
-    "native_ime_geometry": "unsupported: source owner coordinates do not follow perspective plane",
+    "native_ime_geometry": "forward insertion/substring range projection verified; native input session, inverse text hit testing and selection are not proxied",
     "native_semantic_geometry": "unsupported: world children suppressed; source-owner native roles are diagnostic only"
   },
   "screen": {
@@ -18,6 +18,15 @@
     "native_text": "caret containment, selection, named clipboard, marked text and insertion protocol",
     "keyboard": "Tab/Enter/slider arrows through ordinary App"
   },
-  "not_verified": ["physical IME", "human acceptance", "VoiceOver (paused)", "assistive technology usability", "compositor/input-to-photon", "sustained/thermal performance", "hardware"],
-  "evidence_to_reconsider": "Native transformed IME/semantic geometry contract and subsequent physical IME/human/AT validation"
+  "not_verified": [
+    "physical IME",
+    "human acceptance",
+    "VoiceOver (paused)",
+    "assistive technology usability",
+    "compositor/input-to-photon",
+    "sustained/thermal performance",
+    "hardware"
+  ],
+  "evidence_to_reconsider": "A complete destination native input and semantic contract, followed by physical IME, human and assistive-technology acceptance.",
+  "revision": "85b915424e7a7de85b18c0ccea46195d3617948c"
 }
