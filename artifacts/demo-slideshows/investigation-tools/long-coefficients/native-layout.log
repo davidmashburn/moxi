@@ -1,0 +1,104 @@
+[domain]
+PASS domain: I20 IDs, OLS coefficients, residuals, alternatives, edits, Unicode round-trip, live/frozen, boundary and invalid inputs
+
+[create]
+VIEW linear 980 800
+FIELD 13 text 33.33333333333333 available 430.0 needed 173.98535 fits True
+FIELD 14 text 16.0 available 430.0 needed 52.374023 fits True
+FIELD 15 text 0.0 available 430.0 needed 45.47461 fits True
+VIEW linear 1140 860
+FIELD 13 text 33.33333333333333 available 510.0 needed 173.98535 fits True
+FIELD 14 text 16.0 available 510.0 needed 52.374023 fits True
+FIELD 15 text 0.0 available 510.0 needed 45.47461 fits True
+VIEW edited 980 800
+FIELD 13 text -33.333333333333336 available 430.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 430.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 430.0 needed 222.79394 fits True
+VIEW edited 1140 860
+FIELD 13 text -33.333333333333336 available 510.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 510.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 510.0 needed 222.79394 fits True
+VIEW saved-frozen 980 800
+FIELD 13 text -33.333333333333336 available 430.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 430.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 430.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 12 characters; all native glyphs fit True
+TABLE bottom 698.0 column ends 706.0 status starts 712.0
+VIEW saved-frozen 1140 860
+FIELD 13 text -33.333333333333336 available 510.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 510.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 510.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 12 characters; all native glyphs fit True
+TABLE bottom 680.0 column ends 766.0 status starts 772.0
+VIEW saved-frozen 980 800
+FIELD 13 text -33.333333333333336 available 430.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 430.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 430.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 12 characters; all native glyphs fit True
+TABLE bottom 698.0 column ends 706.0 status starts 712.0
+VIEW saved-frozen 1140 860
+FIELD 13 text -33.333333333333336 available 510.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 510.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 510.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 12 characters; all native glyphs fit True
+TABLE bottom 680.0 column ends 766.0 status starts 772.0
+VIEW saved-live 980 800
+FIELD 13 text -33.333333333333336 available 430.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 430.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 430.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 10 characters; all native glyphs fit True
+TABLE bottom 698.0 column ends 706.0 status starts 712.0
+VIEW saved-live 1140 860
+FIELD 13 text -33.333333333333336 available 510.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 510.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 510.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 10 characters; all native glyphs fit True
+TABLE bottom 680.0 column ends 766.0 status starts 772.0
+VIEW saved-live 980 800
+FIELD 13 text -33.333333333333336 available 430.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 430.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 430.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 10 characters; all native glyphs fit True
+TABLE bottom 698.0 column ends 706.0 status starts 712.0
+VIEW saved-live 1140 860
+FIELD 13 text -33.333333333333336 available 510.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 510.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 510.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 10 characters; all native glyphs fit True
+TABLE bottom 680.0 column ends 766.0 status starts 772.0
+PASS layout: native min/large, all editors, invalid/pending edits, end navigation, exact Apply, maximum metadata, frozen/live Save and Reopen
+
+[reopen]
+VIEW reopened 980 800
+FIELD 13 text -33.333333333333336 available 430.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 430.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 430.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 10 characters; all native glyphs fit True
+TABLE bottom 698.0 column ends 706.0 status starts 712.0
+VIEW reopened 1140 860
+FIELD 13 text -33.333333333333336 available 510.0 needed 190.14258 fits True
+FIELD 14 text 16.123456789012344 available 510.0 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 510.0 needed 222.79394 fits True
+LABEL 64 characters; all native glyphs fit True
+LABEL 140 characters; all native glyphs fit True
+LABEL 10 characters; all native glyphs fit True
+TABLE bottom 680.0 column ends 766.0 status starts 772.0
+PASS layout reopen: maximum metadata, live mode, exact coefficients, no-op Apply, refit and disk restoration

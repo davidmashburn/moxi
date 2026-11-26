@@ -1,5 +1,6 @@
 """An actual Moxi component: investigation workbench and its fixed saved panel."""
 from std.math import round
+from std.ffi import external_call
 from moxi import ColumnView, Component, Event, Rect, Color, Scene, TextInputControl, TextInputState
 from moxi.event import TEXT_INPUT_KIND, KEY_DOWN_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND, KEY_F2
 from moxi.scene import SCENE_TEXT
@@ -196,8 +197,8 @@ struct InvestigationScreen(Component):
             self.status = String("Cannot apply: ", e)
         return True
 
-    def input(self, mut view: ColumnView, parent: Int, id: Int, state: TextInputState):
-        var control = TextInputControl(id, state.text, state.cursor, state.anchor, 32)
+    def input(self, mut view: ColumnView, parent: Int, id: Int, state: TextInputState, height: Float32 = 32):
+        var control = TextInputControl(id, state.text, state.cursor, state.anchor, height)
         control.set_composition(state.composition, state.composition_selection_start, state.composition_selection_end)
         view.add_to(parent, control.node())
 
@@ -211,8 +212,9 @@ struct InvestigationScreen(Component):
         view.add_button_to(file_row, REOPEN_ID, "Reopen panel", 34)
         view.add_button_to(file_row, SAVE_ID, "Save fixed panel", 34)
         var body = view.add_row(101, 0, bounds.height - 220, 0, 16)
-        var left = view.add_column_to(body, 102, 0, 0, 4)
-        var right = view.add_column_to(body, 103, 0, 0, 5)
+        # Wrapped metadata needs more room at the supported minimum size.
+        var left = view.add_column_to(body, 102, 0, 0, Float32(2 if self.panel_open else 4))
+        var right = view.add_column_to(body, 103, 0, 0, 3)
         view.add_label_to(left, 3, "1  /  Cohort & provenance", 28)
         if not self.panel_open:
             view.add_label_to(left, 4, "Cohort name", 20)
@@ -223,8 +225,11 @@ struct InvestigationScreen(Component):
             view.add_button_to(cohort_row, COLLECT_ID, "Collect >= 70  (F2)", 36)
             view.add_button_to(cohort_row, MODE_ID, "Mode: " + self.model.mode.value, 36)
         else:
-            view.add_label_to(left, 4, self.model.name + "  /  " + self.model.mode.value, 30)
-            view.add_label_to(left, 5, self.model.hypothesis, 44)
+            view.add_label_to(left, 4, self.model.name, 0)
+            view.add_label_to(left, MODE_ID, "Mode: " + self.model.mode.value, 24)
+            view.add_label_to(left, 5, self.model.hypothesis, 0)
+            view.set_wrap_text(4)
+            view.set_wrap_text(5)
             view.add_label_to(left, 6, "Source: sensor-curve-v1 / " + self.model.fixture.value, 24)
             view.add_label_to(left, 7, "Target: reading by stable observation ID; x = sample index", 28)
             view.add_button_to(left, INTERNALS_ID, "Open investigation internals", 34)
@@ -242,7 +247,7 @@ struct InvestigationScreen(Component):
             if self.high_only and row.reading < THRESHOLD:
                 continue
             var residual = number(self.model.residual(i, self.model.fit)) if self.model.fitted and self.model.contains(row.id) else String("—")
-            view.add_label_to(left, 200+i, String(row.id, "     ", i, "     ", row.reading, "     ", "●" if self.model.contains(row.id) else "—", "     ", residual), 24)
+            view.add_label_to(left, 200+i, String(row.id, "     ", i, "     ", row.reading, "     ", "●" if self.model.contains(row.id) else "—", "     ", residual), Float32(20 if self.panel_open else 24))
         view.add_label_to(right, 51, "2  /  Explicit model & residuals", 28)
         if not self.panel_open:
             var models = view.add_row_to(right, 106, 0, 34, 0, 6)
@@ -250,18 +255,25 @@ struct InvestigationScreen(Component):
             view.add_button_to(models, LINEAR_ID, "Fit linear", 34)
             view.add_button_to(models, QUADRATIC_ID, "Fit quadratic", 34)
         view.add_label_to(right, 52, String("y ≈ ", number(self.model.fit.c0), " + (", number(self.model.fit.c1), ")x + (", number(self.model.fit.c2), ")x²") if self.model.fitted else String("y = c0 + c1·x + c2·x²   /   fields: c0, c1, c2"), 24)
-        var coefficients = view.add_row_to(right, 107, 0, 32, 0, 6)
-        self.input(view, coefficients, C0_ID, self.c0_input)
-        self.input(view, coefficients, C1_ID, self.c1_input)
-        self.input(view, coefficients, C2_ID, self.c2_input)
+        # A third of this column clips full-precision Float64 strings even at
+        # the default window size. Keep the normal editors, each on its own row.
+        var coefficients = view.add_column_to(right, 107, 76, 0, 2)
+        for i in range(3):
+            var row = view.add_row_to(coefficients, 109+i, 0, 24, 0, 6)
+            view.add_label_to(row, 60+i, String("c", i), 24)
+            view.set_fixed_width(60+i, 28)
+            var state = self.c0_input if i == 0 else (self.c1_input if i == 1 else self.c2_input)
+            self.input(view, row, C0_ID+i, state, 24)
         var operations = view.add_row_to(right, 108, 0, 34, 0, 6)
         view.add_button_to(operations, APPLY_ID, "Apply coefficients", 34)
         view.add_button_to(operations, REFIT_ID, "Refit " + self.model.fit.kind.value, 34)
         view.add_label_to(right, 53, String(self.model.fit.kind.value, " / n=", len(self.model.members), " / SSE=", number(self.model.sse(self.model.fit)), " / RMSE=", number(self.model.rmse(self.model.fit))) if self.model.fitted else String("No current fit. Collect a cohort, then choose a model."), 26)
         var show_alternatives = self.compared and not self.panel_open
-        var plot_reduction = max(Float32(0), (860 - bounds.height) / 2) + Float32(10 if show_alternatives else 0)
-        view.add_canvas_to(right, FIT_CANVAS_ID, "Observed readings & model (sample index, reading)", max(Float32(100), Float32(210 if self.panel_open else 170) - plot_reduction))
-        view.add_canvas_to(right, RESIDUAL_CANVAS_ID, "Residual = observed - predicted (sample index, reading)", max(Float32(80), Float32(190 if self.panel_open else 150) - plot_reduction))
+        # Share the extra 44 points of coefficient height between the plots.
+        # Keep 110 points for plot margins, marks and distinct endpoint labels.
+        var plot_reduction = 22 + max(Float32(0), (860 - bounds.height) / 2) + Float32(10 if show_alternatives else 0)
+        view.add_canvas_to(right, FIT_CANVAS_ID, "Observed readings & model (sample index, reading)", max(Float32(110), Float32(210 if self.panel_open else 170) - plot_reduction))
+        view.add_canvas_to(right, RESIDUAL_CANVAS_ID, "Residual = observed - predicted (sample index, reading)", max(Float32(110), Float32(190 if self.panel_open else 150) - plot_reduction))
         if not self.panel_open:
             view.add_button_to(right, COMPARE_ID, "3  /  Compare alternatives on this cohort", 34)
         if show_alternatives and self.model.fitted:
@@ -274,6 +286,17 @@ struct InvestigationScreen(Component):
         view.add_label(54, self.status, 40)
         view.add_label(55, "Synthetic demonstration. Training fit and residuals do not establish causation or generalization.", 22)
         view.layout()
+        if self.panel_open:
+            # Measure at the allocated column width, with the actual AppKit font.
+            # The portable average-glyph estimate undercounts long runs of W.
+            for index in range(len(view.children)):
+                var id = view.children[index].id
+                if id == 4 or id == 5:
+                    var text = view.children[index].text
+                    var height = external_call["investigation_wrapped_height", Float32](text.as_c_string_span().ptr(), view.children[index].style.font_size, view.children[index].bounds.width)
+                    view.set_min_height(id, height)
+                    view.set_max_height(id, height)
+            view.layout()
         return view^
 
     def plot_scene(self, bounds: Rect, residuals: Bool) -> Scene:

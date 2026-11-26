@@ -1,0 +1,16 @@
+VIEW reopened 980 800
+FIELD 13 text -33.333333333333336 available 150.66667 needed 190.14258 fits False
+FIELD 14 text 16.123456789012344 available 150.66667 needed 175.30371 fits False
+FIELD 15 text -1.2345678901234567e-123 available 150.66667 needed 222.79394 fits False
+LABEL 64 characters; all native glyphs fit False
+LABEL 140 characters; all native glyphs fit False
+LABEL 10 characters; all native glyphs fit False
+VIEW reopened 1140 860
+FIELD 13 text -33.333333333333336 available 177.33333 needed 190.14258 fits False
+FIELD 14 text 16.123456789012344 available 177.33333 needed 175.30371 fits True
+FIELD 15 text -1.2345678901234567e-123 available 177.33333 needed 222.79394 fits False
+LABEL 64 characters; all native glyphs fit False
+LABEL 140 characters; all native glyphs fit False
+LABEL 10 characters; all native glyphs fit False
+stack trace was not collected. Enable stack trace collection with environment variable `MODULAR_DEBUG=stack-trace-on-error`
+Unhandled exception caught during execution: Reopened coefficients, metadata and mode fit at both sizes

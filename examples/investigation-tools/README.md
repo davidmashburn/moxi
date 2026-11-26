@@ -31,7 +31,8 @@ network service or external account is used.
    observed minus predicted. Edit c0, c1 and c2, then **Apply coefficients**.
    Linear requires c2=0; mean requires c1=c2=0.
    The equation and metrics round to three decimal places for reading; coefficient
-   fields and saved values retain full precision.
+   fields and saved values retain full precision. Each coefficient has its own
+   labeled editor so its full Float64 value fits at the 980×800 minimum size.
 3. **Compare alternatives** lists parameter counts and training SSE for the same
    cohort. Selecting another fit replaces the active model. Editing coefficients
    recomputes active residuals; the independently fitted alternatives stay separate.
@@ -75,6 +76,25 @@ and [verification record](../../artifacts/demo-slideshows/investigation-tools/RE
 retain steps, expectations, observed outcomes, source hashes, executable hash,
 capture time, native environment, viewport sizes and the exact reproduction command.
 The published walkthrough includes the original seventeen PNGs, offline HTML, short replay logs and saved JSON configuration. A second build of the integrated consumer reproduced all seventeen PNGs byte for byte.
+
+Saved panels wrap the full accepted name and hypothesis, with membership mode
+on its own line. Their height follows the actual native font and column width.
+The workbench keeps its normal single-line native editors and end navigation.
+
+The scoped layout regression additionally exercises negative and scientific
+notation in all three editors, native last-digit navigation/deletion/insertion,
+no-op Apply without precision loss, invalid and pending edits, saving and
+fresh-process reopening at 980×800 and 1140×860. It also saves and reopens the
+accepted 64-character name and 140-character hypothesis and checks both frozen
+and live mode remain independently visible:
+
+```sh
+python3 examples/investigation-tools/check_layout.py --dest /tmp/moxi-i10-layout
+```
+
+It retains native PNGs, source and executable hashes, exact saved JSON and short
+assertion logs. The [layout verification](../../artifacts/demo-slideshows/investigation-tools/long-coefficients/REVIEW.md)
+records the original clipping and the repaired layout.
 
 ## Scope and limits
 

@@ -4,7 +4,8 @@ from moxi import App, Rect, WindowConfig
 from moxi.macos import MacOSWindow, MacOSRenderer, MacOSCanvasSceneRenderer, MacOSClipboard
 from screen import InvestigationScreen
 from runtime import render, dispatch_pending
-from replay import replay
+from replay import replay, REOPEN_MODE
+from layout_replay import replay_layout
 
 
 def main() raises:
@@ -19,6 +20,9 @@ def main() raises:
     var clipboard = MacOSClipboard()
     render(app, renderer, plots)
     var mode = external_call["investigation_replay_mode", Int32]()
+    if external_call["investigation_layout_check", Int32]():
+        replay_layout(app, window, renderer, plots, mode == REOPEN_MODE)
+        return
     if mode:
         replay(app, window, renderer, plots, mode)
         return
