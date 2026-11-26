@@ -1,9 +1,36 @@
 # Streaming fractal demo
 
-Run `pixi run demo` and select Line fractal, or run
-`pixi run interactive-fractal-demo` for the standalone Metal canvas. For the interactive Wasm version, run
-`pixi run web-fractal-demo` and open the [local browser demo](http://127.0.0.1:8776/experiments/fractal-web/).
-The [browser benchmarks](#browser-throughput) use the same Mojo renderer.
+## Switch between native and web
+
+Choose a host by running its command from the repository root. Both commands
+build the demo before launching it. Each host starts its own session, so to
+compare a shape interactively, select the same preset, depth and colors in both.
+
+| Host | Command | Where the demo opens |
+| --- | --- | --- |
+| Native macOS | `pixi run interactive-fractal-demo` | A standalone window using Metal when available, with an AppKit fallback. Close the window to quit. |
+| WebAssembly | `pixi run web-fractal-demo` | Open the [local browser demo](http://127.0.0.1:8776/experiments/fractal-web/) in a browser with memory64 support. Keep the server running while you use it. Press Ctrl-C in its terminal to stop it. |
+
+To run them side by side, use a separate terminal for each command. The native
+demo is also available under **Line fractal** in `pixi run demo`. The web build
+currently requires the [pinned Apple Silicon toolchain](#measurement-and-reproduction).
+
+Both hosts use [`FractalState`](../src/moxi/fractal.mojo) for presets,
+sub-pixel stopping, traversal and rasterization. Change that file to change the
+lines drawn by both demos, then rerun each launch command and reload the
+browser page. For host-specific changes, start with these entry points.
+
+| Native macOS | WebAssembly and browser |
+| --- | --- |
+| [`interactive_fractal.mojo`](../examples/interactive_fractal.mojo) owns the window loop. It dispatches events, calls `advance_frame()` and presents the canvas. | [`browser.mojo`](../experiments/fractal-web/browser.mojo) exposes the Mojo state, event handling, `advance_render()` and pixel buffer to JavaScript. [`demo.mjs`](../experiments/fractal-web/demo.mjs) wires the DOM controls, schedules batches and presents the buffer through `MoxiRasterPresenter`. |
+
+Open the two Mojo entry points side by side in Bygone from the repository root.
+
+```sh
+bygone --diff examples/interactive_fractal.mojo experiments/fractal-web/browser.mojo
+```
+
+## How rendering works
 
 Depth accepts nonnegative decimal integers of arbitrary length. The plus and
 minus controls operate on the full value. Each branch draws its current segment
