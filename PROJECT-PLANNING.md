@@ -2,6 +2,13 @@
 
 ## Remaining work after the gallery review
 
+### November 25 implementation
+
+| Track | Verified on the implementation branch | Open acceptance |
+| --- | --- | --- |
+| I11 · Visible proposals | The native line-fit demo previews both edits, rejects stale proposals after an intervening user edit, and applies a fresh pair in one revision. The six-step AppKit replay passed. [Example and instructions](https://github.com/davidmashburn/moxi/tree/07272f4/examples/visible-proposals) · [Offline gallery](https://github.com/davidmashburn/moxi/tree/07272f4/artifacts/demo-slideshows/visible-proposals) | The bounded experiment is complete. Physical input and independent comprehension of the conflict message remain unassessed. |
+| P10 · Mobile hosts | A C caller exercised the existing Mojo counter on macOS. The locked compiler emitted ARM64 objects exporting that operation for iOS device, iOS Simulator and Android. [Reproduce the compiler probes](https://github.com/davidmashburn/moxi/tree/92bc25d/experiments/mobile-runtime) | Partial. Neither mobile shell has executed the transition. Simulator tooling requires the Xcode license agreement. Android needs a configured SDK platform and NDK. |
+
 ### November 23 implementation
 
 | Track | Delivered and verified | Remaining decision or evidence |
@@ -28,7 +35,7 @@ All 28 previously deferred proposals are open for implementation alongside the f
 | Product experiments | V01–V15 | Start each proposal with its bounded experiment and use its evidence to decide on expansion. |
 | Independent ideas | I10, I11, I13, I15, I18, I19, I20 | Use the seven independent entries in the master coverage map. The other idea IDs already map to existing workstreams. |
 
-E06 is partial. The [five-family audit](https://github.com/davidmashburn/moxi/blob/53fab67/docs/dataviz-migration.md#e06-catalog-reconciliation) includes five runnable upstream references and checks 40 Moxi source rows. [Effect scatter](https://github.com/davidmashburn/moxi/commit/53fab67) now paints the halo for ordinary x/y input. Parallel coordinates, funnel stages, bump rankings and arc diagrams still need their family layouts. Native interaction and visual parity remain open. The other 27 reopened proposals await their first recorded implementation or experiment. The existing pause on VoiceOver sessions still applies.
+E06 is partial. The [five-family audit](https://github.com/davidmashburn/moxi/blob/53fab67/docs/dataviz-migration.md#e06-catalog-reconciliation) includes five runnable upstream references and checks 40 Moxi source rows. [Effect scatter](https://github.com/davidmashburn/moxi/commit/53fab67) now paints the halo for ordinary x/y input. Parallel coordinates, funnel stages, bump rankings and arc diagrams still need their family layouts. Native interaction and visual parity remain open. Of the 28 reopened proposals, I11 has completed its bounded experiment, P10 and E06 have partial results, and 25 await their first recorded result. The existing pause on VoiceOver sessions still applies.
 
 ### November 20 baseline
 

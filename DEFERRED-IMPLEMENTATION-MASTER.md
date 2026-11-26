@@ -9,6 +9,10 @@ The [current scheduling decision](PROJECT-PLANNING.md#reopened-proposals) reopen
 
 ## Current delivery status
 
+The [November 25 execution update](PROJECT-PLANNING.md#november-25-implementation) records the completed I11 proposal experiment and the first P10 mobile compiler results. The [live implementation ledger](https://github.com/davidmashburn/moxi/blob/main/docs/deferred-implementation.json) tracks the current state of each ID.
+
+## November 9 delivery baseline
+
 The [implementation ledger](https://github.com/davidmashburn/moxi/blob/b2361c2d4131cb6bbc25ebf5e4816e2fe347250b/docs/deferred-implementation.json)
 records 50 tracks: **7 implemented, 2 experiment complete, 13 partial, 28 pending**.
 “Implemented” means the bounded slice exists, not that all acceptance/release gates
