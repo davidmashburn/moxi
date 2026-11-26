@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Synthetic room-temperature replay</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f4ed;color:#192f30;font:16px/1.5 system-ui,sans-serif}main{max-width:880px;margin:auto;padding:32px 20px}header{border-bottom:2px solid #1f5656}header p{color:#365d5c;font-weight:650;letter-spacing:.04em}h1{font:clamp(2rem,6vw,3.8rem)/1.05 Georgia,serif;margin:8px 0 16px}h2{font-size:1.15rem;margin:0}section{background:white;padding:18px;margin-top:12px;border-radius:6px}svg{display:block;width:100%;height:auto}button,input{accent-color:#175f63}button{font:inherit;padding:4px 14px}input{width:100%}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}p{margin:8px 0}output{font-variant-numeric:tabular-nums}#verdict{font-weight:700}
+</style>
+<main><header><p>SYNTHETIC DATA · HELD-OUT SESSION B</p><h1>Room-temperature replay</h1></header>
+<section><h2>Temperature along a simulated transect</h2>
+<svg id="plot" viewBox="0 0 640 150" role="img" aria-label="Synthetic temperature trace by elapsed seconds, with the selected forecast interval highlighted"></svg>
+<p id="route"></p><label for="cursor">Forecast origin (elapsed seconds)</label>
+<input id="cursor" type="range" step="10"><div class="row"><button id="play">Play</button><button id="drift">Inspect reversal</button><button id="reset">Restart</button></div></section>
+<section><h2>30-second forecast</h2><output id="details"></output><p id="verdict"></p></section>
+<section><h2>Held-out evaluation</h2><p id="scores"></p><small>Band width uses the 90th percentile of absolute errors in synthetic calibration session A. The fixture introduces cooling after 120 s. No real recordings.</small></section>
+</main><script src="model.js"></script><script src="replay.js"></script></html>
