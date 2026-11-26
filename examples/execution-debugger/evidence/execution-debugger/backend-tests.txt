@@ -1,0 +1,11 @@
+ld: warning: Mojo archive was built for macOS27.2 while linking for27.0 (temporary archive path omitted).
+test_incomplete_and_empty_episodes_do_not_invent_actions (test_debugger.DebuggerTest.test_incomplete_and_empty_episodes_do_not_invent_actions) ... ok
+test_input_affects_real_frame_and_boundary_rejects_bad_data (test_debugger.DebuggerTest.test_input_affects_real_frame_and_boundary_rejects_bad_data) ... ok
+test_measured_dispatch_and_frame (test_debugger.DebuggerTest.test_measured_dispatch_and_frame) ... ok
+test_replays_compare_actual_work_and_same_frames (test_debugger.DebuggerTest.test_replays_compare_actual_work_and_same_frames) ... ok
+test_trace_eviction_is_independent_of_source_eviction (test_debugger.DebuggerTest.test_trace_eviction_is_independent_of_source_eviction) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 15.438s
+
+OK

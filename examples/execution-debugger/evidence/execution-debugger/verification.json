@@ -1,0 +1,309 @@
+{
+  "source_revision": "3885e3e184f74520f6e0449bf6b69bfb857c0ae0",
+  "relevant_uncommitted_source_changes": [],
+  "verified_at": "2026-11-26T03:25:08.519742+00:00",
+  "environment": {
+    "normal_entry": "examples/execution-debugger/app.py; the pixi execution-debugger task calls this same script",
+    "url": "http://127.0.0.1:18173/",
+    "role": "Local synthetic episode reader; no account or real external service",
+    "stack": "Python ThreadingHTTPServer + runner compiled from this checkout/src, native/benchmark_clock.c and runner.mojo on every launch",
+    "toolchain": "Mojo 1.1.0 (8189361e), repository pixi environment reused from an existing local checkout",
+    "source_match": "Compiler -I and absolute script/runner paths target the tested worktree. Shared toolchain supplies libraries only. Relevant source stayed unchanged after the source commit.",
+    "browser": "T3CodeBeta/0.1.9 Chrome/152.0.7977.169 Electron/44.10.1 Safari/537.36 on macOS arm64; DPR2",
+    "viewports": [
+      [
+        1280,
+        1000
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "warning": "Host linker warned that the Mojo archive targets macOS27.2 while linking for27.0. Build and execution succeeded.",
+    "src_tree": "0e9e5521aad6418974a34da37d81d916b94a11eb",
+    "screenshot_capture_window_utc": [
+      "2026-11-26T03:18:58.314861+00:00",
+      "2026-11-26T03:22:49.340616+00:00"
+    ]
+  },
+  "source_sha256": {
+    "examples/execution-debugger/app.py": "f55b051359aefde978c55778509a13c634732b82d31ded5a853c0b515a7ca93f",
+    "examples/execution-debugger/runner.mojo": "aeec9bc4cc419a32dc6d1d7a0c73430c3cf522c202e33d220e204a7c241f64de",
+    "examples/execution-debugger/index.html": "22cdd70ebd683c5aeefe447ea9110084cddbd9400412904f781c5cd219ba0c33",
+    "examples/execution-debugger/ui-tests.js": "2025d9a0c21391a4bb21c7aaeca538ecbcb7cce6bd9176a8833eaad6d60568ca",
+    "examples/execution-debugger/test_debugger.py": "46732d1041bb9a53de08a06d6be4f436d234832f22e598a708668ca4038f1d3e",
+    "pixi.toml": "c94fc77aa78023e0474bd91feae86028393074e1c11ef86b64440a9af5e35017",
+    "examples/flight-recorder/recorder.py": "909d3d19c33b46461f80e267fcec749171cb6d49286a8c6821203a447b51cd4d",
+    "examples/flight-recorder/evidence/episode.json": "1260667d7b6a38f636f607cac59ccf94fa9dea7c27852f36795c0d27674473d6",
+    "examples/flight-recorder/evidence/missing.json": "de7da8b37ba21dc905aa15772dcba6f8e4e40217257a09f2d32e9b35e8de6f6d",
+    "native/benchmark_clock.c": "63dbe3e70ba33fc38ddd2d182d8a31188c6f66643f2f7ee1392df0f287022d7b"
+  },
+  "backend": {
+    "command": "pixi run python3 -m unittest discover -v -s examples/execution-debugger",
+    "invocation": "Executed with the existing repository pixi environment activated and this worktree test path.",
+    "outcome": "pass",
+    "tests": [
+      "test_incomplete_and_empty_episodes_do_not_invent_actions",
+      "test_input_affects_real_frame_and_boundary_rejects_bad_data",
+      "test_measured_dispatch_and_frame",
+      "test_replays_compare_actual_work_and_same_frames",
+      "test_trace_eviction_is_independent_of_source_eviction"
+    ],
+    "count": 5,
+    "elapsed_seconds": 15.438,
+    "log": "backend-tests.txt"
+  },
+  "browser": {
+    "command": "On a fresh normal / page: await (await import('/ui-tests.js')).runAll()",
+    "outcome": "pass",
+    "scenarios": [
+      {
+        "outcome": "pass",
+        "scenario": "initial",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Load normal / entry point",
+        "expected": "Empty viewer and compare disabled",
+        "observed": "Observed both; correct document title",
+        "evidence": [
+          "01-initial.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "open",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Click Open I15 episode",
+        "expected": "13 real actions; first sample tick12 changes reading to25; sibling build delta0",
+        "observed": "Observed 13 actions, real SVG and deltas [1, 0]",
+        "evidence": [
+          "02-open.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "reopen",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Set browser File/DataTransfer on Reopen JSON and dispatch change",
+        "expected": "Saved episode replays from its first retained observation",
+        "observed": "Observed 13 actions and reading No retained sample → 25",
+        "evidence": [
+          "03-compare.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "inspect",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Select final action",
+        "expected": "Stored peak applied with unknown source timestamp",
+        "observed": "Observed peak Unavailable → 84, time unknown and reading build delta0",
+        "evidence": [
+          "03-compare.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "compare",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Click Compare broad rebuild with action13 selected",
+        "expected": "Same final state and frame; different actual work",
+        "observed": "Observed builds [13, 2] vs [14, 14], selected [0, 1] vs [1, 1], equal frame markup",
+        "evidence": [
+          "04-compare-detail.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "repeat",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Click Repeat localized replay",
+        "expected": "Independent localized execution has equal final state, frame and work",
+        "observed": "Observed localized totals [13, 2] on both sides and selected frame match",
+        "evidence": [
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "dropped",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Change Trace capacity to5",
+        "expected": "Only last5 frames retained, explicit trace loss independent of source loss",
+        "observed": "Observed ordinals9–13, trace8/13, source12",
+        "evidence": [
+          "05-dropped.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "missing",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Reopen missing.json and select final sample",
+        "expected": "Retained gap and absent result visible; do not fabricate peak",
+        "observed": "Observed missing tick13, peak Unavailable and no async-result action",
+        "evidence": [
+          "06-missing.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "malformed",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Reopen malformed JSON",
+        "expected": "Error shown; preserve last good viewer",
+        "observed": "Observed error and byte-identical prior frame markup",
+        "evidence": [
+          "07-malformed.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "recover",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Click Open I15 episode after error",
+        "expected": "Error clears and complete source restores",
+        "observed": "Observed recorded peak84, no missing retained ticks and5 trace records",
+        "evidence": [
+          "08-recover.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "empty",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Upload valid empty-samples episode without result, then reopen complete fixture",
+        "expected": "No invented actions or frame; recover normally",
+        "observed": "Observed No retained actions and successful reopen",
+        "evidence": [
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "httpBoundary",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "POST unsupported mode and oversized request from browser",
+        "expected": "400 and413 respectively",
+        "observed": "Observed expected400 and413",
+        "evidence": [
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "outcome": "pass",
+        "scenario": "layout",
+        "viewport": [
+          1280,
+          1000
+        ],
+        "steps": "Check document width and frame size at1280 ×1000",
+        "expected": "No document overflow; frame width above250px",
+        "observed": "Observed both assertions pass",
+        "evidence": [
+          "04-compare-detail.png",
+          "../../ui-tests.js"
+        ]
+      },
+      {
+        "scenario": "reload-file-input-narrow",
+        "outcome": "pass",
+        "viewport": [
+          390,
+          844
+        ],
+        "steps": "Reload normal /, upload on-disk episode.json through file-input automation, select last action, inspect narrow layout.",
+        "expected": "13 reopened actions, peak84, no document overflow; inner table may scroll.",
+        "observed": "13 actions and peak84; document scrollWidth390; frame remains visible and table scrolls within card.",
+        "evidence": [
+          "09-narrow.png"
+        ]
+      }
+    ],
+    "suite_count": 13,
+    "supplemental_count": 1,
+    "total_scenarios": 14
+  },
+  "inference": {
+    "confidence": "high for this bounded synthetic I13 experiment",
+    "basis": "Actual Moxi work counters and SVG frames, five backend tests, normal-entry browser tests and unmodified browser captures.",
+    "would_change": "A failure replaying these fixtures through the normal entry point, source/binary mismatch, or divergent frame/state in a supported replay would change the conclusion."
+  },
+  "limits": [
+    "Synthetic captured I15 input only; no sensor, generator, async worker, account, production system or external service was rerun.",
+    "Async completion time/order was not captured by I15. The stored peak is applied after retained samples with time explicitly unknown.",
+    "Broad mode explicitly rebuilds the unrelated sibling; this is policy comparison, not App root fallback, arbitrary changed-code replay or hot reload.",
+    "Single-run monotonic dispatch and capture timings are diagnostics. No stable overhead, throughput, memory/allocation or latency benchmark is claimed.",
+    "Source eviction, absent retained observations, missing result and trace buffer eviction are independent; unavailable history cannot be reconstructed.",
+    "Native OS file-picker interaction was attempted but the automation did not open a picker. File-input upload of the on-disk saved fixture after reload passed; OS picker is unverified.",
+    "No VoiceOver by instruction; other browser/OS combinations, full repository tests, native-window Moxi rendering, physical instruments and production workloads were not tested.",
+    "The pixi task alias was inspected; the equivalent normal app.py entry was executed in an already installed repository environment. A new-environment pixi installation was not tested.",
+    "Screenshots establish appearance; the browser assertions and backend tests establish the specific behaviors. Capture timing text is intentionally variable.",
+    "No shared ledger/index, external write, push or further delegation occurred.",
+    "A complete browser console/network trace was not retained; expected400/413 responses and malformed-file recovery were asserted directly and are recorded here."
+  ],
+  "slideshow": {
+    "outcome": "pass",
+    "captures": 9,
+    "manifest_validator": "scripts/demo_slideshows.py:load_manifest",
+    "offline_render": "index.html exactly matches render(load_manifest(manifest.json)); PNGs embedded as data URLs, no remote assets.",
+    "previews": [
+      {
+        "width": 728,
+        "content_height": 1317
+      },
+      {
+        "width": 390,
+        "content_height": 1723
+      }
+    ],
+    "interaction": "Browser preview self-test clicked Next, Previous and a contact thumbnail, dispatched ArrowLeft, checked selected slide/counter, then selected comparison detail.",
+    "observed": "All four navigation assertions passed in both browser preview widths; no preview console errors.",
+    "limits": "Interaction self-test exercised the same navigation script in a chat presentation of the deck. The standalone offline file was validated for exact regeneration; a file:// launch was not separately tested."
+  }
+}

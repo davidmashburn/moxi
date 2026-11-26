@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moxi execution debugger</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,sans-serif;color:#18343f;background:#f2f6f5}
+*{box-sizing:border-box}body{max-width:1320px;margin:auto;padding:24px}h1{font-size:30px;margin:0 0 8px}h2{font-size:18px;margin:0 0 12px}p{line-height:1.5;margin:8px 0}
+.eyebrow{color:#327466;font-size:13px;font-weight:700;letter-spacing:.08em}.muted,small{color:#4c6570}
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0}.controls label{display:flex;align-items:center;gap:6px}
+button,input,select{font:inherit}button,select,input[type=number]{border:1px solid #8aa5a3;border-radius:5px;padding:8px;background:white;color:#18343f}button{cursor:pointer}button.primary{background:#185c54;color:white}button:disabled{cursor:default;opacity:.5}input[type=number]{width:70px}input[type=file]{max-width:300px}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #b76612;outline-offset:2px}
+.notice{padding:10px 14px;border-left:4px solid #428177;background:#e0efeb;border-radius:3px}.warning{border-color:#b57a23;background:#fff0d3}#error{border-color:#b83b31;background:#fbe5e2;color:#79271e}[hidden]{display:none!important}
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;margin-top:16px}.card{background:white;border:1px solid #c4d4d1;border-radius:9px;padding:16px;min-width:0}.timeline{max-height:565px;overflow:auto;display:grid;gap:6px}.timeline button{text-align:left;padding:8px 10px;display:flex;justify-content:space-between;gap:8px;font-size:14px}.timeline button[aria-pressed=true]{background:#185c54;color:white;border-color:#185c54}.right{display:grid;gap:16px}.frame svg{display:block;max-width:100%;height:auto;border-radius:5px;border:1px solid #d6dfdd}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:8px;text-align:left;border-bottom:1px solid #dbe4e1}thead{background:#edf4f1}.table-wrap{overflow-x:auto}#state{font-family:ui-monospace,monospace;font-size:14px}#comparison{font-weight:600}.metric{font-variant-numeric:tabular-nums}footer{margin:16px 0;font-size:13px;color:#4c6570}
+@media(max-width:800px){body{padding:12px}.grid{grid-template-columns:1fr}.timeline{max-height:180px}h1{font-size:25px}.controls{gap:8px}}
+</style>
+<header><div class="eyebrow">I13 · LOCAL EXECUTION OBSERVATORY</div><h1>Moxi execution debugger</h1>
+<p class="muted">Replay I15’s captured episode through two real Mojo component subtrees. Select an action to freeze its work and frame.</p></header>
+<div class="controls">
+  <button id="open" class="primary">Open I15 episode</button>
+  <label>Reopen JSON <input id="file" type="file" accept="application/json,.json"></label>
+  <label>Trace capacity <input id="capacity" type="number" min="1" max="32" value="16"></label>
+  <button id="compare" disabled>Compare broad rebuild</button>
+  <button id="repeat" disabled>Repeat localized replay</button>
+</div>
+<div id="error" class="notice" role="alert" hidden></div>
+<p id="status" class="notice" role="status">Ready. Open the saved synthetic episode; no sensor or worker will be rerun.</p>
+<div id="viewer" hidden>
+  <p id="gaps" class="notice warning"></p>
+  <div class="grid">
+    <section class="card"><h2>Actions → subtrees</h2><p id="trace" class="muted"></p><div id="actions" class="timeline" aria-label="Recorded actions"></div></section>
+    <div class="right">
+      <section class="card"><h2 id="selection">Frozen frame</h2><p id="state"></p><div id="frame" class="frame" role="img" aria-label="Selected Moxi frame"></div><p class="muted"><small>Actual ColumnView → ColumnRuntime → paint → Scene → SVG. Both retained subtrees are painted; only dirty subtrees rebuild.</small></p></section>
+      <section class="card"><h2>Measured work for selected action</h2><div class="table-wrap"><table><thead><tr><th>Subtree</th><th>Builds</th><th>Nodes</th><th>Paints¹</th><th>Scope visits</th><th>Total builds²</th></tr></thead><tbody id="work"></tbody></table></div><small>¹ Moxi counts paint commands during rebuild and frame capture. ² Includes initial mount.</small></section>
+      <section class="card"><h2>Replay comparison</h2><p id="comparison">Run a second replay to compare the same action and final frame.</p><div id="other-frame" class="frame" hidden role="img" aria-label="Comparison Moxi frame"></div><p id="timing" class="muted metric"></p></section>
+    </div>
+  </div>
+</div>
+<footer>Bounded deterministic experiment, not a full causal profiler. Ticks are source logical timestamps (10 ms/tick). Async completion time was not captured; the stored result is applied after the retained samples. No allocation or scheduling trace. Local files are processed in memory.</footer>
+<script type="module">
+const Mode=Object.freeze({LOCALIZED:'localized',BROAD:'broad'});
+const $=id=>document.getElementById(id);
+let current=null,other=null,selected=0,loading=false;
+function busy(value){loading=value;$('open').disabled=value;$('file').disabled=value;$('capacity').disabled=value;$('compare').disabled=value||!current;$('repeat').disabled=value||!current;}
+function fail(error){$('error').hidden=false;$('error').textContent=error.message;}
+async function request(episode,mode){
+  const response=await fetch('/replay',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({episode,mode,capacity:Number($('capacity').value)})});
+  if(!response.ok)throw Error(await response.text());
+  return response.json();
+}
+function select(index){
+  selected=index;const row=current.records[index];
+  [...$('actions').children].forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));
+  if(!row){$('selection').textContent='No retained actions';$('state').textContent='The episode contains no samples or result.';$('frame').innerHTML='';$('work').replaceChildren();showComparison();return;}
+  $('selection').textContent=`Action ${row.ordinal} · ${row.action} → ${row.target}${row.tick<0?' · time unknown':` · tick ${row.tick} (${row.tick*10} ms)`}`;
+  $('state').textContent=`Reading: ${row.before[0]} → ${row.after[0]}   |   Peak: ${row.before[1]} → ${row.after[1]}`;
+  $('frame').innerHTML=row.svg;
+  $('work').replaceChildren(...row.work.map((work,i)=>{
+    const tr=document.createElement('tr');
+    for(const value of [i===0?'reading / scope 10':'peak / scope 20',work.builds,work.nodes,work.paints,work.visits,work.total_builds]){const td=document.createElement('td');td.textContent=value;tr.append(td);}return tr;
+  }));
+  showComparison();
+}
+function showComparison(){
+  $('other-frame').hidden=true;
+  if(!other){$('comparison').textContent='Run a second replay to compare the same action and final frame.';return;}
+  const row=current.records[selected],match=other.records.find(item=>item.ordinal===row?.ordinal);
+  const sameFinal=JSON.stringify(current.summary.final)===JSON.stringify(other.summary.final);
+  const frameEqual=match&&row.svg===match.svg;
+  $('comparison').textContent=`${other.mode} replay: final state ${sameFinal?'matches':'DIFFERS'}. Selected frame ${match?(frameEqual?'matches':'DIFFERS'):'unavailable'}. Builds including mount: localized [${current.summary.builds.join(', ')}] vs ${other.mode} [${other.summary.builds.join(', ')}].`;
+  if(match){$('other-frame').hidden=false;$('other-frame').innerHTML=match.svg;const a=row.work.map(w=>w.builds).join(', '),b=match.work.map(w=>w.builds).join(', ');$('comparison').textContent+=` Action ${row.ordinal} subtree builds: [${a}] vs [${b}].`;}
+}
+function render(){
+  $('viewer').hidden=false;
+  $('status').textContent=`Opened I15 episode · ${current.summary.emitted} replayed actions · ${current.records.length} retained trace records.`;
+  $('gaps').textContent=`Source eviction: ${current.source_dropped} I15 samples unavailable. Missing retained ticks: ${current.missing_ticks.length?current.missing_ticks.join(', '):'none'}. Async result: ${current.missing_result?'MISSING; cannot replay peak':`recorded peak ${current.episode.result.peak}`}. Trace drops: ${current.summary.dropped} of ${current.summary.emitted} action records (${current.summary.dropped?'oldest frames unavailable':'all replay actions retained'}).`;
+  $('trace').textContent=`Logical order; trace cap ${current.capacity}. Source history before tick 12 is unavailable.`;
+  $('actions').replaceChildren(...current.records.map((row,i)=>{const button=document.createElement('button');button.type='button';button.textContent=`#${row.ordinal} ${row.action} → ${row.target} · ${row.tick<0?'time ?':`t${row.tick}`} · ${row.value}`;button.onclick=()=>select(i);return button;}));
+  const ns=current.summary;
+  $('timing').textContent=`Single run: dispatch ${(ns.dispatch_ns/1e6).toFixed(3)} ms; capture/SVG/trace ${(ns.capture_ns/1e6).toFixed(3)} ms; trace-disabled control dispatch ${(current.control_dispatch_ns/1e6).toFixed(3)} ms. No stable overhead or latency claim.`;
+  select(0);
+}
+async function open(episode){
+  const next=await request(episode,Mode.LOCALIZED);current=next;other=null;render();
+}
+async function operation(fn){if(loading)return;busy(true);$('error').hidden=true;try{await fn();}catch(error){fail(error);}finally{busy(false);}}
+$('open').onclick=()=>operation(async()=>open(await (await fetch('/fixture')).json()));
+$('file').onchange=()=>operation(async()=>{const file=$('file').files[0];if(!file)return;if(file.size>8192)throw Error('Episode exceeds I15’s 8192-byte limit.');await open(JSON.parse(await file.text()));});
+$('capacity').onchange=()=>{if(current)operation(()=>open(current.episode));};
+$('compare').onclick=()=>operation(async()=>{other=await request(current.episode,Mode.BROAD);showComparison();});
+$('repeat').onclick=()=>operation(async()=>{other=await request(current.episode,Mode.LOCALIZED);showComparison();});
+</script>
+</html>
