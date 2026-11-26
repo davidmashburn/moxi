@@ -249,11 +249,22 @@
     {
       "id": "P09",
       "scope": "[Linux GPU H4](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md): choose an adapter through a scene/packet probe, retain GTK host and software oracle, then implement the declared text/image/clip/resource subset with parity and hardware measurements.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "39d56d6",
+        "cbfc3ff",
+        "7d8c2f6"
+      ],
+      "verification": [
+        "GTK 4.14.5 presented the existing workbench through GSK NGL on llvmpipe. Across five interaction states 99.52% or more of window pixels matched Cairo within eight RGB levels. The chart stroke overlapped the independent software oracle with intersection over union 0.9443.",
+        "Review reproduced collection editing, Unicode text, modal focus, resize, 2\u00d7 scaling, startup fallback and gallery navigation. Parent rebuilt the integrated Linux host and resource tests and passed three lifecycle cycles on each renderer path."
+      ],
+      "remaining_gates": [
+        "Physical GPU and compositor presentation measurements, mid-frame device loss, fast cross-editor typing and broader Scene coverage remain open. The recorded workbench binary was hash-verified for the independent replay."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/linux-gsk/index.html"
+      ]
     },
     {
       "id": "P10",

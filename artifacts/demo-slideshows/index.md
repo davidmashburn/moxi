@@ -5,6 +5,7 @@
 | F01 | Portable text laboratory | [Capture manifest](text-laboratory/manifest.json); [local self-contained slideshow](text-laboratory/index.html) |
 | P01 | Mojo/Moxi browser FDG | [Sequence, manifest, and reproduction](browser-fdg/README.md); [local self-contained slideshow](browser-fdg/index.html) |
 | P08 | Linked 4D slice edits and watershed recovery | [Slideshow](sws4d-native/index.html) · [Native checks](sws4d-native/README.md) |
+| P09 | Linux workbench on GTK render nodes | [Eight captured states](linux-gsk/index.html) · [Parity measurements](../../experiments/linux-gsk/README.md) |
 | P11 | GTK workbench on nested headless Wayland | [Offline slideshow](p11-wayland/index.html) · [Replay instructions](../../experiments/wayland-host/README.md) |
 | D01 | Native symbolic backend comparison | [Capture recipe and limitations](d01-math-backends/REPRODUCE.md); [local self-contained slideshow](d01-math-backends/index.html) |
 | N01 | Unfinished-feature pattern | [Capture guide](../../docs/not-implemented-pattern.md); [local self-contained slideshow](not-implemented/index.html) |
