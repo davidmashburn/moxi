@@ -2,7 +2,7 @@
   "version": 1,
   "demo_id": "e03-tricontour",
   "title": "E03 tricontour",
-  "scenario": "Explicit validated triangle mesh and strictly increasing levels; marching triangles with half-open vertex ownership. All three vertex keys retained. Pinned upstream has no tricontour module/API: reference gate is missing. Same 640\u00d7480 source fixture. Upstream margins normalized to native Scene (48/32/28/36), legend disabled, DejaVu Sans pinned. Fixed upstream palettes cannot be overridden by these APIs; Moxi retains its palette. Moxi Canvas text/legend absent; semantic/source table is the fallback. Python export margins differ. Circular geometry is stretched by independent native x/y scales; upstream uses the smaller plot dimension. Barbs use data-space lengths in Moxi versus pixel staff length upstream. These are recorded visual/metric differences, not pixel parity. No native-window, VoiceOver, human usability or physical performance gate is claimed.",
+  "scenario": "Explicit validated triangle mesh and strictly increasing levels; marching triangles with half-open vertex ownership. All three vertex keys retained. Pinned upstream has no tricontour module/API: reference gate is missing. Same 640×480 source fixture. Upstream margins normalized to native Scene (48/32/28/36), legend disabled, DejaVu Sans pinned. Fixed upstream palettes cannot be overridden by these APIs; Moxi retains its palette. Moxi Canvas text/legend absent; semantic/source table is the fallback. Python export margins differ. Circular geometry is stretched by independent native x/y scales; upstream uses the smaller plot dimension. Barbs use data-space lengths in Moxi versus pixel staff length upstream. These are recorded visual/metric differences, not pixel parity. No native-window, VoiceOver, human usability or physical performance gate is claimed.\n\nGallery repair (2026-11-26): the second frame is a NEW original-pin inventory-status capture, not the withheld historical image. Five other frames and the top-level batch metadata remain historical. The new frame has independent source hashes, timestamp and browser provenance; see README.md and historical_audit. This absence applies only to upstream 3fd5a7e, not the separate later-pin contour follow-up.",
   "revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
   "source_dirty": true,
   "source_state": {
@@ -59,7 +59,7 @@
   "backend": "Mojo Scene/Canvas offscreen; pinned dataviz; local headless Chrome evidence replay",
   "scale": 1,
   "fixture": "tests/fixtures/wave_c/cases.json#tricontour",
-  "reproduce": "See ../plot-wave-b-c-review/REPRODUCE.md for this integrated-source batch and checks.",
+  "reproduce": "See README.md for the new original-pin status capture and clean relative deck; see ../plot-wave-b-c-review/REPRODUCE.md for the retained historical integrated-source batch and checks.",
   "slides": [
     {
       "phase": "initial",
@@ -87,15 +87,16 @@
     {
       "phase": "initial",
       "capture_kind": "browser",
-      "image": "02-reference.png",
+      "image": "02-reference-status-2026-11-26.png",
       "dimensions": [
         1280,
         800
       ],
-      "caption": "Missing pinned reference",
-      "action": "Open reference.html",
-      "expected": "Missing gate is explicit",
-      "sha256": "d4a281aa5be0d516ffc96e028d5b459a12aecdd969637a6a38288a46e28931d1",
+      "caption": "NEW original-pin reference-status capture · 2026-11-26",
+      "action": "Inspect clean upstream 3fd5a7e and open reference-status.html",
+      "expected": "56 tracked Mojo files; zero tricontour matches; original-pin missing gate explicit; no substitute plot",
+      "sha256": "093598d6957e633715178ad80ec68dde0709a29743ebee8c432c4bbb96dabcc5",
+      "captured_at": "2026-11-26T05:30:44.255562+00:00",
       "browser_metrics": {
         "innerWidth": 1280,
         "innerHeight": 800,
@@ -105,7 +106,18 @@
         "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
         "images": []
       },
-      "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
+      "capture_scale_note": "New local headless Chrome capture in CSS pixels at DPR 1. This record does not reuse the withheld original capture or its provenance.",
+      "capture_provenance": "reference-status-capture.json",
+      "source_provenance": {
+        "path": "reference-status-provenance.json",
+        "sha256": "b6ee71fc7fc9d3d7f8753c293a77eab3632a58badb81685d9e351d5501d18878",
+        "upstream_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+        "inventory_sha256": "17a217418739552a0de0683cc16d63f650d12b127905fab0f8f604e30f084183",
+        "producer_base_revision": "1f67c39f30e967200769a5175841246137a825d3",
+        "producer_worktree_modified": true,
+        "source_page": "reference-status.html",
+        "source_page_sha256": "d8a170f500c17fd68d39c1fc5355f65f1a6c46865bc24bca5ebee8c60ce8f4ba"
+      }
     },
     {
       "phase": "result",
@@ -194,5 +206,39 @@
       "sha256": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85"
     }
   ],
-  "runtime_source_sha256": "8c80cebc674849c46dd1b3684071a3d2e086077d0595bf34ff00c7c0233f5b60"
+  "runtime_source_sha256": "8c80cebc674849c46dd1b3684071a3d2e086077d0595bf34ff00c7c0233f5b60",
+  "historical_audit": {
+    "base_revision": "1f67c39f30e967200769a5175841246137a825d3",
+    "original_manifest_sha256": "166d046066fcf87de978bddb79dcfbbd2f6f89265679980f2a05fbebe6ab360d",
+    "original_scenario": "Explicit validated triangle mesh and strictly increasing levels; marching triangles with half-open vertex ownership. All three vertex keys retained. Pinned upstream has no tricontour module/API: reference gate is missing. Same 640×480 source fixture. Upstream margins normalized to native Scene (48/32/28/36), legend disabled, DejaVu Sans pinned. Fixed upstream palettes cannot be overridden by these APIs; Moxi retains its palette. Moxi Canvas text/legend absent; semantic/source table is the fallback. Python export margins differ. Circular geometry is stretched by independent native x/y scales; upstream uses the smaller plot dimension. Barbs use data-space lengths in Moxi versus pixel staff length upstream. These are recorded visual/metric differences, not pixel parity. No native-window, VoiceOver, human usability or physical performance gate is claimed.",
+    "original_reproduce": "See ../plot-wave-b-c-review/REPRODUCE.md for this integrated-source batch and checks.",
+    "missing_reference_capture": {
+      "status": "withheld-original",
+      "reason": "The original screenshot contains a private filesystem path. It is intentionally absent from this public gallery. Its bytes and historical embedded deck were not used to make the new status capture.",
+      "original_record": {
+        "phase": "initial",
+        "capture_kind": "browser",
+        "image": "02-reference.png",
+        "dimensions": [
+          1280,
+          800
+        ],
+        "caption": "Missing pinned reference",
+        "action": "Open reference.html",
+        "expected": "Missing gate is explicit",
+        "sha256": "d4a281aa5be0d516ffc96e028d5b459a12aecdd969637a6a38288a46e28931d1",
+        "browser_metrics": {
+          "innerWidth": 1280,
+          "innerHeight": 800,
+          "devicePixelRatio": 1,
+          "scrollWidth": 1280,
+          "scrollHeight": 800,
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+          "images": []
+        },
+        "capture_scale_note": "Local headless Chrome screenshot in CSS pixels at DPR 1; see batch capture metrics. Viewport enlarged when needed to include the complete page."
+      }
+    },
+    "preserved_metadata": "Top-level revision, source_dirty, source_state, host, backend, scale, fixture and runtime_source_sha256 describe the historical batch. The other five slide records and PNG files are unchanged."
+  }
 }

@@ -7,6 +7,7 @@ artifacts/demo-slideshows at --base-url. This never renders a substitute chart.
 import argparse
 from datetime import datetime, timezone
 import hashlib
+from importlib.metadata import version
 import json
 from pathlib import Path
 import platform
@@ -30,13 +31,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base-url', default='http://127.0.0.1:8796/')
     parser.add_argument('--browser', help='Chrome/Chromium executable; otherwise locate local Chrome')
+    parser.add_argument('--plan', type=Path, default=REVIEW/'capture-plan.json', help='Capture only this plan (default: historical batch plan)')
+    parser.add_argument('--record', type=Path, default=REVIEW/'captures.json', help='Capture-provenance destination')
     args = parser.parse_args()
     assert urlparse(args.base_url).hostname in ('127.0.0.1', 'localhost'), 'Local evidence only'
     executable = args.browser or shutil.which('google-chrome') or shutil.which('chromium')
     mac_chrome = Path('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
     if not executable and mac_chrome.exists():
         executable = str(mac_chrome)
-    plan = json.loads((REVIEW/'capture-plan.json').read_text())
+    plan = json.loads(args.plan.read_text())
     records = []
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True, executable_path=executable)
@@ -72,13 +75,13 @@ def main():
             page.screenshot(path=str(target), full_page=False, scale='css', animations='disabled')
             records.append(dict(target=entry['target'], page_path=entry['page'],
                 captured_at=datetime.now(timezone.utc).isoformat(),
-                capture_tool='Playwright Python 1.65.2 / local headless Chrome',
+                capture_tool=f'Playwright Python {version("playwright")} / local headless Chrome',
                 browser_version=browser.version, platform=platform.platform(),
                 requested_viewport=dict(width=entry['width'], height=entry['height']),
                 page=dict(value=metrics), console_errors=unexpected, ignored_browser_errors=ignored, failed_requests=list(requests),
                 sha256=hashlib.sha256(target.read_bytes()).hexdigest()))
         browser.close()
-    (REVIEW/'captures.json').write_text(json.dumps(records, indent=2)+'\n')
+    args.record.write_text(json.dumps(records, indent=2)+'\n')
     print(f'Captured {len(records)} browser frames; no page errors or failed requests.')
 
 

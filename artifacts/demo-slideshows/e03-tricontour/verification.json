@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "verified_at": "2026-11-26T05:34:58.275299+00:00",
+  "verification_material": "Clean export from the staged Git index; no ignored or unstaged gallery files supplied.",
+  "base_revision": "1f67c39f30e967200769a5175841246137a825d3",
+  "browser": "local headless Chrome 158.0.8127.37",
+  "device_pixel_ratio": 1,
+  "scenarios": [
+    {
+      "name": "clean HTTP deck 1280x900",
+      "steps": "Load and decode all images; traverse six slides with Next; wrap with Next/Previous; use left/right arrows, frame-2 thumbnail and Enter on focused Next; reload.",
+      "expected": "Six relative frame resources load; one visible slide and correct counter after each action; new frame marked; no horizontal overflow or browser errors.",
+      "observed": "All assertions passed, including all six frame resources and the new status caption.",
+      "outcome": "pass"
+    },
+    {
+      "name": "clean HTTP deck 980x800",
+      "steps": "Load and decode all images; traverse six slides with Next; wrap with Next/Previous; use left/right arrows, frame-2 thumbnail and Enter on focused Next; reload.",
+      "expected": "Six relative frame resources load; one visible slide and correct counter after each action; new frame marked; no horizontal overflow or browser errors.",
+      "observed": "All assertions passed, including all six frame resources and the new status caption.",
+      "outcome": "pass"
+    },
+    {
+      "name": "new original-pin status and provenance links",
+      "steps": "Load status page; verify inventory count and zero matches; request every relative link; open provenance and later-pin results links.",
+      "expected": "All three links resolve; later-pin results remain separate from original-pin status.",
+      "observed": "Status and all three linked documents returned HTTP 200; provenance and later-pin results opened.",
+      "outcome": "pass"
+    },
+    {
+      "name": "offline file deck",
+      "steps": "Open the clean exported index.html by file URL and click through all six slides.",
+      "expected": "Deck works without a local server or remote image resources.",
+      "observed": "All six local frame resources decoded and all Next actions passed.",
+      "outcome": "pass"
+    }
+  ],
+  "console_errors": [],
+  "failed_requests": [],
+  "strict_validation": {
+    "outcome": "pass",
+    "checks": [
+      "existing strict manifest schema",
+      "all six PNG structures and recorded hashes",
+      "relative resource existence and deck-to-frame binding"
+    ]
+  },
+  "historical_preservation": {
+    "outcome": "pass",
+    "retained_frames": [
+      {
+        "image": "01-source.png",
+        "sha256": "d32d9aad7b4af244491cb67fc0eac3467742a44425edfee83f366a467c8c140b"
+      },
+      {
+        "image": "03-comparison.png",
+        "sha256": "0d1824986388b79d30670e8279fe39ea239597537f66614cf2475b075b839c35"
+      },
+      {
+        "image": "04-selection.png",
+        "sha256": "618a01e69a33ef9e8a9dfff752c5b7a42183d8237ce152a909825ac7a531b5ed"
+      },
+      {
+        "image": "05-update.png",
+        "sha256": "652aa09e51114c5debd3f8aff9f747673b769cd65bc941951b2a6e470241d682"
+      },
+      {
+        "image": "06-recovery.png",
+        "sha256": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85"
+      }
+    ],
+    "original_reference_sha256": "d4a281aa5be0d516ffc96e028d5b459a12aecdd969637a6a38288a46e28931d1",
+    "original_reference_record_preserved": true,
+    "original_batch_metadata_preserved": true
+  },
+  "source_sha256": {
+    "artifacts/demo-slideshows/e03-tricontour/01-source.png": "d32d9aad7b4af244491cb67fc0eac3467742a44425edfee83f366a467c8c140b",
+    "artifacts/demo-slideshows/e03-tricontour/02-reference-status-2026-11-26.png": "093598d6957e633715178ad80ec68dde0709a29743ebee8c432c4bbb96dabcc5",
+    "artifacts/demo-slideshows/e03-tricontour/03-comparison.png": "0d1824986388b79d30670e8279fe39ea239597537f66614cf2475b075b839c35",
+    "artifacts/demo-slideshows/e03-tricontour/04-selection.png": "618a01e69a33ef9e8a9dfff752c5b7a42183d8237ce152a909825ac7a531b5ed",
+    "artifacts/demo-slideshows/e03-tricontour/05-update.png": "652aa09e51114c5debd3f8aff9f747673b769cd65bc941951b2a6e470241d682",
+    "artifacts/demo-slideshows/e03-tricontour/06-recovery.png": "b7022d8739506da61e2b323557743090235088b453a12904b3940bb997198b85",
+    "artifacts/demo-slideshows/e03-tricontour/README.md": "e29a9be8498d9e775e9a6d747ea5192303fcfe2292f4a8befa1b914eeb59ab94",
+    "artifacts/demo-slideshows/e03-tricontour/index.html": "138b937013f24bc9aebf96e63baa4fa44041f03b0f2d43a280af80dcd02554c1",
+    "artifacts/demo-slideshows/e03-tricontour/manifest.json": "85211f57c3b2124669053081de37f72b454cfe582e14670abbfe09fa5e6ad7f4",
+    "artifacts/demo-slideshows/e03-tricontour/reference-status-capture-plan.json": "6cbcc69de9583055ca2dd3f294690d617cf8add7320a8f74338e94a70d394b18",
+    "artifacts/demo-slideshows/e03-tricontour/reference-status-capture.json": "a5c221cb0392d59806d7ab4b82cc3d29437cc59fe666186b8e6227527fed959d",
+    "artifacts/demo-slideshows/e03-tricontour/reference-status-provenance.json": "b6ee71fc7fc9d3d7f8753c293a77eab3632a58badb81685d9e351d5501d18878",
+    "artifacts/demo-slideshows/e03-tricontour/reference-status.html": "d8a170f500c17fd68d39c1fc5355f65f1a6c46865bc24bca5ebee8c60ce8f4ba",
+    "scripts/capture_plot_gallery_evidence.py": "14de349240253bcc3696aa355198b70c8acb58573966d850e19060b60e09b35d",
+    "scripts/demo_gallery.py": "0df45ab0c0c6ff4d1dd734507c3a475092ec1face3dc2f7ab07476e5ac9ef545",
+    "scripts/demo_slideshows.py": "b266d13b5ad0db9b785dc00f008cc7e0ae9a00e4301048824895bd84dd63c1f4",
+    "scripts/wave_c/upstream.py": "2b33d3c6f486fdf30277736446746e6de478e8d46d8767316e089bd2e491ddc7"
+  },
+  "focused_tests": {
+    "producer_tests": 6,
+    "gallery_validator_tests": 21,
+    "outcome": "pass"
+  },
+  "appearance_review": "Fresh status PNG inspected: all text fits at 1280x800; no private filesystem paths. Relative-deck state captured at 1280x900 and 980x800.",
+  "skipped": [
+    "Historical five rendering/event-replay scenarios were not rerun.",
+    "No Mojo compilation or upstream plot/parity result.",
+    "No physical keyboard/mouse, VoiceOver, or exhaustive browser/OS/viewport checks.",
+    "Withheld original screenshot and historical embedded deck were not inspected or used."
+  ],
+  "initial_browser_attempt": {
+    "outcome": "transient-failure-not-reproduced",
+    "observed": "The first HTTP harness invocation raised an Image.decode EncodingError before slide navigation. No cause was established.",
+    "follow_up": "A separate fresh Chrome invocation decoded all 12 image elements successfully. The complete unchanged HTTP, linked-document and offline navigation harness then passed with no page errors or failed requests."
+  }
+}

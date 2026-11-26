@@ -1,0 +1,40 @@
+[
+  {
+    "target": "artifacts/demo-slideshows/e03-tricontour/02-reference-status-2026-11-26.png",
+    "page_path": "e03-tricontour/reference-status.html",
+    "captured_at": "2026-11-26T05:30:44.255562+00:00",
+    "capture_tool": "Playwright Python 1.65.2 / local headless Chrome",
+    "browser_version": "158.0.8127.37",
+    "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+    "requested_viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "page": {
+      "value": {
+        "innerWidth": 1280,
+        "innerHeight": 800,
+        "devicePixelRatio": 1,
+        "scrollWidth": 1280,
+        "scrollHeight": 800,
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+        "images": []
+      }
+    },
+    "console_errors": [],
+    "ignored_browser_errors": [
+      {
+        "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+        "location": {
+          "url": "http://127.0.0.1:8799/favicon.ico",
+          "line": 0,
+          "column": 0,
+          "lineNumber": 0,
+          "columnNumber": 0
+        }
+      }
+    ],
+    "failed_requests": [],
+    "sha256": "093598d6957e633715178ad80ec68dde0709a29743ebee8c432c4bbb96dabcc5"
+  }
+]
