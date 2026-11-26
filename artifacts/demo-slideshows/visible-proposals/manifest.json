@@ -3,7 +3,7 @@
   "demo_id": "visible-proposals",
   "title": "Visible fit proposals",
   "scenario": "I11 \u2022 Inspect a deterministic two-parameter fit in the live workspace.",
-  "revision": "23f899f00b26038c6fdabed438a097d4c8bc60cf",
+  "revision": "0208803822bc8e6529624ab2d614c11416ef0cfa",
   "host": "macOS 27.2.1",
   "backend": "Moxi AppKit content-view capture",
   "scale": 2.0,

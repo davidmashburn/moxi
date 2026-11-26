@@ -715,11 +715,20 @@
     {
       "id": "I11",
       "scope": "Deterministic fake-worker proposal for two allowed values \u2192 inspect/reject/apply \u2192 stale rejection.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "23f899f",
+        "0208803"
+      ],
+      "verification": [
+        "Native AppKit control replay exercised preview, rejection, concurrent gain edit, stale refusal and fresh atomic application. A stale apply preserved gain 2, offset 0 and revision 1. The fresh apply produced gain 3 and offset 4 at revision 2."
+      ],
+      "remaining_gates": [
+        "Physical keyboard and pointer use and independent user comprehension have not been assessed. VoiceOver remains paused."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/visible-proposals/index.html"
+      ]
     },
     {
       "id": "I13",
