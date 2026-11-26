@@ -1,0 +1,217 @@
+{
+  "engine": "webkit",
+  "capturedAt": "2026-11-26T05:01:39.139Z",
+  "origin": "http://127.0.0.1:18765/experiments/browser-moxi/",
+  "harness": {
+    "node": "v26.10.0",
+    "platform": "darwin",
+    "architecture": "arm64"
+  },
+  "expectedComparisons": 6515,
+  "sourceRevision": "d582d177011dafd4e2a30a07116b586c0ba218a9",
+  "sourceRevisionOrigin": "git HEAD",
+  "sourceChanges": "?? experiments/browser-moxi/engine-check.mjs",
+  "sourceHashes": {
+    "browser.mojo": "12a41d4d8739f2ad7024f961965b72df1e27486a7e56fc1289d0bc0551e32950",
+    "runtime.mjs": "efed7ce705867a4e15e439b31cd64e1edade1dbe279f399af6a4dd5725e65d5e",
+    "demo.mjs": "b451608d3f51b64a6681ebff7b1235474b227b27f4a26b328b35888a8b1f9028",
+    "index.html": "ac22e24c4d74cd4bd566d98869d31020525d2c7b06500ae5953435cd9a0cf3a7",
+    "retarget.py": "c924f30593ada53700f913ae5f6c5bc1fb9a30cdb27991a19cd1c86b79bc578b",
+    "build.sh": "96166b8b0418de66ca740d604826452ad3b84af8992e15f69d050e303f747b10",
+    "native.mojo": "a756c433d9c0bee7cadad2da231ea683a143454213fab346a1a647f6f73f8ed5",
+    "verify.mjs": "6b60ded2c7e40020c8f9ee4439efde54555212f47b62c3f408649ecb9e32c2c8",
+    "check.mjs": "f946247ef02b1f8d71f2b1b53081a6cefb719e591b36d9114fd5ec5bd7c410bf",
+    "runtime-check.mjs": "4f2b02c33dcb463b8cc064fdee76f8effe76f9d65d8ccb77ab360614135d3459",
+    "test_retarget.py": "8db049b26748adf5bad23e99bfbde0154819af6c65a6534263f9e90752cff4b9",
+    "target.mojo": "59ceabe46eb4f17bf0f7e96238b178aeb0b61907a985860f5e5349cc2edc3f1b",
+    "serve.py": "d373283b59d87fd9112afdb82e019f65f1f24af399cce60d61fb62a228be3949",
+    "../shared/memory64.mjs": "96571e8f4b6a284edacff09e74da980f1a7b7038922e344e4a268f5f1f018939",
+    "../../native/hosts/moxi_web_host.mjs": "6c4bd5a99d4b43961a913e75dacd5e30d3de008fa4a02839a21f70b82c317dfc",
+    "engine-check.mjs": "d61591681b4504e7b780d586ec77c4b92553bd5357dc648b87683ccb4697e3f6"
+  },
+  "wasmSha256": "7788db5f2bb10786b3c72732e639387cbb974b1ac32320eb5d48bed46995c694",
+  "viewport": {
+    "width": 1440,
+    "height": 1100,
+    "deviceScaleFactor": 1
+  },
+  "launch": {
+    "headless": true,
+    "customFlags": false,
+    "customPreferences": false
+  },
+  "scenarios": [
+    {
+      "name": "source-identity",
+      "steps": "Hash loopback Wasm and runtime/host modules",
+      "expected": "Served bytes match this checkout",
+      "observed": "All six hashes match",
+      "outcome": "pass"
+    },
+    {
+      "name": "initial",
+      "steps": "Load normal URL",
+      "expected": "Two paused 36-node Wasm FDG apps with SVG",
+      "observed": "Two apps rendered",
+      "outcome": "pass"
+    },
+    {
+      "name": "selection",
+      "steps": "Click node-0, focus A, ArrowRight",
+      "expected": "Selection changes from 0 to 1",
+      "observed": "Mojo selected=1",
+      "outcome": "pass"
+    },
+    {
+      "name": "drag-release",
+      "steps": "Drag node-0 by 80x45 CSS pixels, then release",
+      "expected": "Position changes; pinned while held, unpinned after release",
+      "observed": "Mojo position changed, pin 1 then 0",
+      "outcome": "pass"
+    },
+    {
+      "name": "pan-zoom-resize",
+      "steps": "Drag empty canvas -90/-40; wheel -160; Resize A",
+      "expected": "Pan/zoom change and SVG height=720",
+      "observed": "Mojo pan/zoom changed and SVG resized",
+      "outcome": "pass"
+    },
+    {
+      "name": "resume-pause-reheat",
+      "steps": "Resume, wait 3 frames, Pause; Reheat, wait 3 frames, Pause",
+      "expected": "Default animation loop advances app for both Resume and Reheat, then pauses",
+      "observed": "At least 3 draws for each, Mojo paused=1",
+      "outcome": "pass"
+    },
+    {
+      "name": "text-search-isolation",
+      "steps": "Click Moxi search; type node-12, Enter",
+      "expected": "Select node-12 with semantic query; all B positions/selection unchanged",
+      "observed": "Mojo selected=12; query=node-12; B unchanged",
+      "outcome": "pass"
+    },
+    {
+      "name": "dispose-recreate",
+      "steps": "Dispose A, Recreate A; invoke destroy on old handle",
+      "expected": "Overlay/graph removed; B live; new handle/state; stale destroy=-1",
+      "observed": "All lifecycle assertions passed",
+      "outcome": "pass"
+    },
+    {
+      "name": "native-parity-lifecycle",
+      "steps": "Click Verify in normal app",
+      "expected": "6515 comparisons matching the fresh native/Node check, exact SVG structure/text, 100 disposal cycles, no live allocations",
+      "observed": {
+        "comparisons": 6515,
+        "liveAllocations": 0,
+        "maxAbsoluteError": 0.00020000000017716957
+      },
+      "outcome": "pass"
+    },
+    {
+      "name": "reload",
+      "steps": "Reload after interactions/verification",
+      "expected": "Two fresh paused apps; no persisted selection or failure",
+      "observed": "Two apps selected=-1, failure=null",
+      "outcome": "pass"
+    },
+    {
+      "name": "forced-unavailable",
+      "steps": "Load ?unsupported",
+      "expected": "Explicit memory64 diagnostic, Runtime unavailable, no graph/semantics/fallback",
+      "observed": "Error: Unsupported runtime: WebAssembly memory64 is required; no JavaScript graph fallback (forced feature-gate scenario)",
+      "outcome": "pass"
+    }
+  ],
+  "captures": [
+    {
+      "file": "webkit-initial.png",
+      "sha256": "e8683591c7122507844a6ba33bf84f1fb47db61273c1e1ffb66f80191f96ba52",
+      "capturedAt": "2026-11-26T05:01:42.096Z"
+    },
+    {
+      "file": "webkit-dragging.png",
+      "sha256": "2cfdeb1bb1b7f50854754e7508cc343b5f16d2e249fce694526b6b498cde5a94",
+      "capturedAt": "2026-11-26T05:01:42.353Z"
+    },
+    {
+      "file": "webkit-disposed.png",
+      "sha256": "4e4eea07b6eb41d80aa83d79697c415161f74bf9c004b88ccc764f25560571be",
+      "capturedAt": "2026-11-26T05:01:43.323Z"
+    },
+    {
+      "file": "webkit-forced-unavailable.png",
+      "sha256": "253990031691d75c9a2ed087798f231e5961aeef9224ad2bdac74a37d163dffa",
+      "capturedAt": "2026-11-26T05:01:44.185Z"
+    }
+  ],
+  "pageErrors": [],
+  "failedRequests": [],
+  "browserVersion": "27.2",
+  "initialStatus": "Two live Mojo/Moxi instances",
+  "runtimeDiagnostic": "",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+  "memory64": true,
+  "verification": {
+    "comparisons": 6515,
+    "maxAbsoluteError": 0.00020000000017716957,
+    "capacitySvgBytes": 264392,
+    "layoutAndDispatch": {
+      "samples": 100,
+      "medianMs": 0,
+      "p95Ms": 1
+    },
+    "sceneAndSerialization": {
+      "samples": 100,
+      "medianMs": 1,
+      "p95Ms": 2
+    },
+    "transfer": {
+      "samples": 100,
+      "medianMs": 0,
+      "p95Ms": 1
+    },
+    "frameBytes": 30893,
+    "state": "ready",
+    "failure": null,
+    "allocations": 46853,
+    "liveAllocations": 0,
+    "liveBytes": 0,
+    "heapTop": 80528,
+    "heapHighWater": 6136272,
+    "memoryBytes": 6160384,
+    "instances": 0,
+    "wasmBytes": 567765,
+    "startupMs": 2,
+    "imports": [
+      "moxi_text_size",
+      "moxi_text_byte",
+      "KGEN_CompilerRT_AlignedAlloc",
+      "KGEN_CompilerRT_AlignedFree",
+      "moxi_can_create",
+      "moxi_graph_size",
+      "moxi_graph_edge",
+      "moxi_graph_group",
+      "moxi_register",
+      "moxi_resolve",
+      "moxi_forget",
+      "moxi_svg",
+      "moxi_semantic",
+      "KGEN_CompilerRT_GetStackTrace",
+      "write",
+      "dup",
+      "fdopen",
+      "fflush",
+      "fclose",
+      "KGEN_CompilerRT_fprintf",
+      "__multi3",
+      "sin",
+      "cos"
+    ]
+  },
+  "normalOutcome": "pass",
+  "forcedOutcome": "pass",
+  "completedAt": "2026-11-26T05:01:44.221Z",
+  "outcome": "pass",
+  "captureSelection": "Four representative full-page PNGs retained; all scenario assertions remain below. Other captures stay private."
+}

@@ -68,21 +68,24 @@
       "scope": "[Browser execution](docs/design/browser-execution.md): preserve the FDG probe, establish safe handles/capacity/runtime/toolchain boundaries, then connect actual Moxi events, scene output, rendering, semantics, and lifecycle. Define a supported subset before calling it a web target.",
       "state": "implemented",
       "commits": [
-        "5921b47"
+        "5921b47",
+        "23c67e8"
       ],
       "verification": [
         "Parent rebuilt the integrated branch with the pinned Mojo/Clang/LLD toolchain; 6371 native/Wasm comparisons passed, maximum absolute SVG error 0.000200000000177 within the declared tolerance.",
         "Runtime intrinsic/ABI checks, bounded input/capacity checks, stale handles, isolated instances, exhaustion and 100 teardown cycles passed; zero tracked live allocations after normal teardown.",
         "Parent reran actual browser mouse/keyboard/wheel/resize/disposal/recreation/unsupported-runtime scenarios; eight fresh captures and offline slideshow assertions passed.",
-        "Shared gallery validated both F01 and P01 manifests; parent visually inspected all eight P01 captures."
+        "Shared gallery validated both F01 and P01 manifests; parent visually inspected all eight P01 captures.",
+        "Firefox 159 on Linux arm64 and Playwright WebKit 27.2 on macOS arm64 each passed 11 scenarios, including independent graph instances, keyboard selection, dragging, resize, disposal and reload. Both completed 6,515 native/Wasm comparisons and 100 disposal cycles with zero live tracked allocations. The integration checkout repeated the WebKit scenarios and Node comparison."
       ],
       "remaining_gates": [
         "Experimental host LLVM retargeting only: direct Mojo Wasm compilation fails, and general ABI/compiler portability is not established.",
-        "Safari/Firefox, human IME/screen-reader acceptance, physical display latency and notebook integration are not verified.",
+        "Safari, macOS Firefox, mobile, human IME and screen-reader use, physical display latency and notebook integration on these engine/OS pairs remain open. Both tested engines support memory64 by default. The unavailable diagnostic was exercised by forcing that path.",
         "Full repository/release CI was not rerun for this isolated experiment."
       ],
       "slideshows": [
-        "artifacts/demo-slideshows/browser-fdg/index.html"
+        "artifacts/demo-slideshows/browser-fdg/index.html",
+        "experiments/browser-moxi/evidence/alternate-engines-2026-11-26/README.md"
       ]
     },
     {
@@ -931,7 +934,8 @@
       "verification": [
         "Flat and folded selection matched. The browser exercised 76 tilt samples, numeric rejection, undo and narrow layout. Measurement and undo preserve numeric drafts and slider previews. Picking the adjacent folded face succeeds at 10 mm pitch and 75 degrees.",
         "Direct pitch editing in both views and folded tilt editing matched numeric entry at 1180 and 390 pixels. Dragging back to the grab point restored each starting value and left undo history empty.",
-        "At 1180 and 390 pixels, a fresh Chrome process reopened exported geometry, panel selection and the attached measurement. Ten document scenarios covered 60 invalid inputs, retention of drafts on failure and a single undo after successful import."
+        "At 1180 and 390 pixels, a fresh Chrome process reopened exported geometry, panel selection and the attached measurement. Ten document scenarios covered 60 invalid inputs, retention of drafts on failure and a single undo after successful import.",
+        "Independent review of 3504790 passed the three committed checks and seven additional Chrome scenarios, including fresh-process import, rejected document preservation, one-step undo and returning a drag to its starting point. Layout checks passed at desktop, 390 px and 320 px."
       ],
       "remaining_gates": [
         "A measured paper sample and maker trial are needed for physical geometry and usability. Arbitrary joint editing and native file-picker interaction remain open."

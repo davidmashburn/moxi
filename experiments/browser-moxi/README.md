@@ -77,6 +77,47 @@ implementation evidence is labeled explicitly rather than assigned a fake
 commit. See the [capture notes](../../artifacts/demo-slideshows/browser-fdg/README.md)
 for the collaborative-preview fallback and each scenario.
 
+### Firefox and WebKit replay
+
+`engine-check.mjs` checks the **normal interactive FDG app**, separately from
+the earlier solver probe and Chrome's `browser-check.mjs`. It never writes to
+the original Chrome gallery and does not require Chrome CDP paint tracing.
+Install Playwright outside this repository and install its matching browser:
+
+```sh
+npm install --prefix /tmp/moxi-p01-engines playwright@1.65.2 --ignore-scripts
+node /tmp/moxi-p01-engines/node_modules/playwright/cli.js install firefox webkit
+# Build first, then start serve.py as above. Run once for each engine:
+MOXI_PLAYWRIGHT_MODULE=/tmp/moxi-p01-engines/node_modules/playwright/index.mjs \
+MOXI_BROWSER_ENGINE=webkit \
+node experiments/browser-moxi/engine-check.mjs
+```
+
+Repeat with `MOXI_BROWSER_ENGINE=firefox`. Use `install --with-deps firefox`
+when Linux system dependencies are missing. `MOXI_BROWSER_EXECUTABLE` optionally
+selects a matching cached engine; mismatched Playwright/browser revisions can
+fail before app navigation. Both engines use fresh headless contexts with no
+custom flags or preferences. No logged-in user profile is opened.
+
+`MOXI_DEMO_URL` must be a loopback normal URL, without `?unsupported`.
+`MOXI_ENGINE_OUTPUT` overrides the default ignored `dist/engines/<engine>`
+directory. Results include source/Wasm hashes, served-source identity checks,
+engine version, viewport, scenario assertions and full-page PNGs. Keep raw
+results private until reviewed: launch exceptions can contain local paths.
+For a read-only container export without Git metadata, `MOXI_SOURCE_REVISION`
+may name the full source SHA explicitly; results label this as asserted
+provenance. Compare every recorded source hash and the Wasm hash with the host
+checkout before relying on that run.
+
+The replay checks pointer/keyboard selection, drag/release, pan/wheel zoom,
+resize, real Resume/Pause/Reheat frames, typed Moxi search, independent state,
+dispose/recreate/stale handles, native parity/lifecycle and reload. It always
+checks the documented `?unsupported` path separately. A natural lack of
+memory64 is reported as `unavailable`, with no interaction success claimed;
+an unexpected app failure or harness launch failure exits nonzero. WebKit
+automation does **not** establish Safari coverage. See the
+[dated P01 alternate-engine evidence](evidence/alternate-engines-2026-11-26/README.md).
+
 ## Files and integration
 
 - `browser.mojo`: bounded exported application ABI, input validation, lifecycle,
