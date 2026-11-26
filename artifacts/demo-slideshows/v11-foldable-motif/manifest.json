@@ -3,12 +3,12 @@
   "demo_id": "v11-foldable-motif",
   "title": "Accordion study",
   "scenario": "Linked crease pattern, folded preview, exact edit, rejection, undo and measurement.",
-  "revision": "d6c6dd5d0d1be575b177e2e952bda6efa0f946b9",
+  "revision": "8040f9e11aa9a435a3a6902eeb566fe7fc209106",
   "host": "macOS 27.2.1 arm64",
   "backend": "Offline headless Google Chrome 158.0.8127.37, Moxi orthographic projection and SVG",
   "scale": 1,
   "fixture": "Six synthetic rigid panels, 20 mm pitch, 40 mm depth, initial 30° tilt",
-  "captured_at": "2026-11-26T02:21:46Z",
+  "captured_at": "2026-11-26T02:57:14+00:00",
   "reproduce": "From repository root: examples/foldable-motif/build.sh /tmp/accordion.html\nnode examples/foldable-motif/check.cjs /tmp/accordion.html /tmp/accordion-frames\nRequires locally installed C++20, Python 3, Node, Playwright and Chrome.",
   "slides": [
     {

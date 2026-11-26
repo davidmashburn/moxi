@@ -261,11 +261,20 @@
     {
       "id": "P11",
       "scope": "[Host follow-through](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md): Wayland validation of the existing Linux host. Windows receives a bounded feasibility/design gate because only a portable descriptor exists; a full Windows host is not yet specified.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "290185b",
+        "b764fe3"
+      ],
+      "verification": [
+        "Two private Sway runs exercised the GTK workbench with Xwayland disabled. Seven captures covered focus, modal dismissal, resize and restoration. Both Windows DLL targets exported the counter and the Linux control executed three transitions."
+      ],
+      "remaining_gates": [
+        "Windows DLL loading, a runtime-dependent Windows workload, Wayland IME, clipboard, accessibility, desktop integration and GPU presentation remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/p11-wayland/index.html"
+      ]
     },
     {
       "id": "D01",
@@ -688,11 +697,22 @@
     {
       "id": "V06",
       "scope": "Cross-media composition: motion path and sound envelope sharing editable timing.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "705707d",
+        "c4fa6d5",
+        "31687d0",
+        "4c486de"
+      ],
+      "verification": [
+        "One timing edit moves the motion apex and audio peak together. Both input routes and checkpoint restoration passed at two widths. Forty phrases rendered twice at each sample rate had at most half a sample of peak error."
+      ],
+      "remaining_gates": [
+        "Recording user gestures, an artist comparison with manual synchronization and physical display/speaker timing remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/motion-envelope/index.html"
+      ]
     },
     {
       "id": "V07",
@@ -747,20 +767,39 @@
     {
       "id": "V10",
       "scope": "Negotiate futures: fictional allocation, three separately owned preferences, finite alternatives and retained disagreement.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "38fed34",
+        "22854fc"
+      ],
+      "verification": [
+        "Three owners edited preferences and compared three allocations. The native replay froze the reason and dissent at promotion, preserved subsequent branch edits on undo, and reproduced all seven captures. Six static table rows and 18 owner outcomes matched."
+      ],
+      "remaining_gates": [
+        "The comparison with the static table requires actual participants to assess negotiation. Physical input, resized layouts and assistive technology remain unassessed."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/allocation/index.html"
+      ]
     },
     {
       "id": "V11",
       "scope": "Pattern to structure: known foldable motif with linked flat/folded parameters.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "eb3bb38",
+        "52ef8c3",
+        "8040f9e"
+      ],
+      "verification": [
+        "Flat and folded selection matched. The browser exercised 76 tilt samples, numeric rejection, undo and narrow layout. Measurement and undo preserve numeric drafts and slider previews. Picking the adjacent folded face succeeds at 10 mm pitch and 75 degrees."
+      ],
+      "remaining_gates": [
+        "A measured paper sample and maker trial are needed for physical geometry and usability. Direct joint editing and document round trips remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/v11-foldable-motif/index.html"
+      ]
     },
     {
       "id": "V12",
