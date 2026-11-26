@@ -71,7 +71,9 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         page = Path(__file__).with_name("instrument.html").read_text()
-        self.reply(200, "text/html; charset=utf-8", page.replace("<!--chart-->", chart(INITIAL)).encode())
+        basis = Path(__file__).with_name("triangle.json").read_text()
+        page = page.replace("<!--chart-->", chart(INITIAL)).replace("/*basis*/", basis)
+        self.reply(200, "text/html; charset=utf-8", page.encode())
 
     def do_POST(self):
         if self.path != "/preview":

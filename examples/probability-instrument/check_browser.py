@@ -1,4 +1,6 @@
 """Exercise the running example with Chrome. Run with PYTHONPATH=python."""
+import argparse
+from pathlib import Path
 from threading import Thread
 from http.server import ThreadingHTTPServer
 from playwright.sync_api import expect, sync_playwright
@@ -36,7 +38,7 @@ def exercise(page):
     page.mouse.up()
     expect(apply).to_be_enabled()
     tail = float(target.input_value())
-    assert abs(tail - 0.4) < .012
+    assert abs(tail - 0.4) < .012, (tail, bar, page.viewport_size)
     expect(saved).to_have_text(initial)
     pointer_result = draft.all_text_contents()
     page.keyboard.press("Escape")
@@ -59,7 +61,86 @@ def exercise(page):
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
 
 
+def attachment_check(page, capture):
+    page.reload()
+    select = page.locator("#attachment")
+    outcome = page.locator("#outcome")
+    target = page.get_by_label("Requested P(x)")
+    pin = page.get_by_label("Fix the committed mean")
+    apply = page.get_by_role("button", name="Apply preview")
+    probe = page.locator("#probe")
+    pin.check()
+    outcome.select_option("1")
+    target.fill(".2")
+    expect(apply).to_be_enabled()
+    reading = "P(1) = 0.2 probability · committed reference 0.5 · change -0.3"
+    expect(probe).to_have_text(reading)
+    capture("plot")
+    select.select_option("geometry")
+    expect(probe).to_have_text(reading)
+    expect(pin).to_be_checked()
+    expect(outcome).to_have_value("1")
+    expect(target).to_have_value(".2")
+    expect(page.locator("#draft td")).to_have_text(["0.4", "0.2", "0.4", "1"])
+    dot = page.locator("#triangle circle")
+    expect(dot).to_have_attribute("cx", "266")
+    expect(dot).to_have_attribute("cy", "121")
+    capture("triangle")
+    target.press("Enter")
+    expect(probe).to_contain_text("committed reference 0.2 · change 0")
+    outcome.select_option("2")
+
+    # Halfway to the top vertex from the opposite edge gives P(2) = 0.5.
+    triangle = page.locator("#triangle")
+    pt = triangle.evaluate("""svg => {
+        const p = new DOMPoint(300,105).matrixTransform(svg.getScreenCTM());
+        return [p.x,p.y];
+    }""")
+    page.mouse.move(*pt)
+    page.mouse.down()
+    expect(page.locator("#draft td")).to_have_text(["0.5", "0", "0.5", "1"])
+    page.keyboard.press("Escape")
+    page.mouse.move(pt[0], pt[1] - 5)
+    page.mouse.up()
+    expect(apply).to_be_disabled()
+    expect(page.locator("#draft td")).to_have_text(["—"] * 4)
+    page.mouse.click(*pt)
+    expect(apply).to_be_enabled()
+    target.press("Enter")
+    expect(page.locator("#saved td")).to_have_text(["0.5", "0", "0.5", "1"])
+    target.fill(".8")
+    expect(page.get_by_role("status")).to_contain_text("possible mean is 1.6 to 1.8")
+    expect(apply).to_be_disabled()
+    expect(probe).to_contain_text("P(2) = 0.5")
+    capture("rejected")
+    select.select_option("plot")
+    expect(target).to_have_value(".8")
+    expect(apply).to_be_disabled()
+    expect(probe).to_contain_text("committed reference 0.5")
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    page.reload()
+    expect(page.locator("#saved td")).to_have_text(["0.25", "0.5", "0.25", "1"])
+    expect(select).to_have_value("plot")
+
+    # Unit triangle coordinates (P1=.3, P2=.2) map to (266,153).
+    # A single pointer position measures three distinct basis coefficients.
+    select.select_option("geometry")
+    for k, expected in enumerate((.5, .3, .2)):
+        outcome.select_option(str(k))
+        xy = triangle.evaluate("""svg => {
+            const p = new DOMPoint(266,153).matrixTransform(svg.getScreenCTM());
+            return [p.x,p.y];
+        }""")
+        page.mouse.click(*xy)
+        expect(apply).to_be_enabled()
+        assert abs(float(target.input_value()) - expected) < .01
+        expect(page.locator("#saved td")).to_have_text(["0.25", "0.5", "0.25", "1"])
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--capture", type=Path)
+    args = parser.parse_args()
     with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server, sync_playwright() as pw:
         Thread(target=server.serve_forever, daemon=True).start()
         browser = pw.chromium.launch(channel="chrome")
@@ -67,7 +148,16 @@ if __name__ == "__main__":
             for width, height in ((1280, 800), (390, 844)):
                 page = browser.new_page(viewport={"width": width, "height": height})
                 page.goto(f"http://127.0.0.1:{server.server_port}/")
+                errors = []
+                page.on("pageerror", lambda error: errors.append(str(error)))
+                def capture(state):
+                    if args.capture:
+                        args.capture.mkdir(parents=True, exist_ok=True)
+                        page.screenshot(path=args.capture / f"{width}-{state}.png", full_page=True)
+                    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
                 exercise(page)
+                attachment_check(page, capture)
+                assert not errors, errors
                 print(f"PASS Chrome {browser.version}, {width} × {height}")
                 page.close()
         finally:

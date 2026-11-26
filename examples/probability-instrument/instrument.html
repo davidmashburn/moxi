@@ -5,7 +5,7 @@
 *{box-sizing:border-box}body{margin:0;background:#edf2ef;color:#18382f;font:16px/1.45 "Avenir Next",system-ui,sans-serif}
 main{max-width:740px;margin:4vh auto;padding:clamp(14px,4vw,38px);background:white;border-top:5px solid #186c54}
 h1{font:normal clamp(32px,6vw,48px)/1.1 Georgia,serif;margin:0}p{margin:.65em 0}
-#chart{touch-action:none;user-select:none}svg{display:block;width:100%;height:auto}
+#views{touch-action:none;user-select:none}svg{display:block;width:100%;height:auto}
 rect[data-mark]{cursor:ns-resize;fill:#dfebe4}rect[data-mark]:nth-of-type(odd){fill:#247b63}
 table{width:100%;border-collapse:collapse;text-align:right;font-variant-numeric:tabular-nums}
 td,th{padding:5px;border-bottom:1px solid #d8e3dc}th:first-child{text-align:left}
@@ -14,10 +14,22 @@ button,select,input{font:inherit}select,input[type=number],button{padding:.4em .
 input[type=number]{width:8em}label span{display:block;font-size:.85em}
 button{background:#135d49;color:white;border:0;border-radius:4px}button:disabled{background:#dbe2dd;color:#56645d}
 #status{min-height:2.8em}#status.error{color:#902c17}
+[hidden]{display:none!important}
+rect[data-mark].selected:nth-of-type(odd){fill:#164b3d}
+#triangle text{font:17px system-ui;fill:#18382f}
+#triangle polygon{fill:#e5f0ea;stroke:#247b63;stroke-width:2;cursor:crosshair}
+#triangle line,#triangle circle{pointer-events:none}
 </style>
 <main><h1>Probability instrument</h1>
-<p>Model a single draw with outcomes 0, 1 and 2. Each green bar shows P(X = x) on a scale from 0 to 1. Probabilities sum to 1.</p>
+<p>Model a single draw with outcomes 0, 1 and 2. Probabilities sum to 1.</p>
+<label>Attach probability probe to <select id="attachment"><option value="plot">Distribution plot</option><option value="geometry">Probability triangle</option></select></label>
+<p id="guide"></p>
+<div id="views">
 <div id="chart" aria-label="Probability bars, ordered by outcome"><!--chart--></div>
+<svg hidden id="triangle" viewBox="0 0 600 220" aria-label="Probability triangle with model point and equal-probability line">
+<polygon/><line stroke="#247b63" stroke-width="3"/><circle r="7" fill="#a23d1c"/>
+</svg></div>
+<p id="probe"></p>
 <table><thead><tr><th>Outcome x</th><th>0</th><th>1</th><th>2</th><th>Mean ΣxP(x)</th></tr></thead>
 <tbody><tr id="saved"><th>Committed</th></tr><tr id="draft"><th>Preview</th></tr></tbody></table>
 <form><label><span>Outcome</span><select id="outcome"><option>0</option><option>1</option><option selected>2</option></select></label>
@@ -25,7 +37,7 @@ button{background:#135d49;color:white;border:0;border-radius:4px}button:disabled
 <button id="apply" disabled>Apply preview</button><button type="button" id="cancel" disabled>Discard</button></form>
 <label><input type="checkbox" id="pin"> Fix the committed mean</label>
 <p id="status" role="status"></p>
-<small>Drag within a bar or type a probability. Free edits preserve the ratio of the other masses, splitting equally if both were zero. Pinning the mean determines both remaining masses. Values are computed from the model and rounded for display. No samples were observed.</small></main>
+<small> Free edits preserve the ratio of the other masses, splitting equally if both were zero. Pinning the mean determines both remaining masses. The requested probability is an edit to a synthetic model. The other probabilities and mean are inferred from its constraints. No draws were observed.</small></main>
 <script>
 const byId = id => document.getElementById(id);
 const chart = byId('chart'), target = byId('target'), outcome = byId('outcome'), pin = byId('pin');
@@ -33,26 +45,63 @@ const apply = byId('apply'), cancel = byId('cancel'), statusLine = byId('status'
 let mass = [.25,.5,.25], savedSVG = chart.innerHTML, candidate = null, revision = 0;
 let drag = null;
 const fmt = n => Number(n.toPrecision(7)).toString();
+const attachment = byId('attachment'), triangle = byId('triangle'), views = byId('views');
+const Attachment = Object.freeze({plot: 'plot', geometry: 'geometry'});
+const basis = /*basis*/;
+const forward = new DOMMatrix(basis.forward), inverse = new DOMMatrix(basis.inverse);
+const vertices = [[0,0], [1,0], [0,1]].map(([x,y]) => forward.transformPoint({x,y}));
+triangle.querySelector('polygon').setAttribute('points', vertices.map(p => [p.x,p.y]).join(' '));
+for (const [i, vertex] of vertices.entries()) {
+  const label = document.createElementNS(triangle.namespaceURI, 'text');
+  label.setAttribute('x', vertex.x);
+  label.setAttribute('y', vertex.y + (i === 2 ? -8 : 22));
+  label.setAttribute('text-anchor', 'middle');
+  label.textContent = 'x = ' + i;
+  triangle.append(label);
+}
+function showProbe() {
+  const values = candidate?.mass ?? mass, k = Number(outcome.value);
+  const p = values[k], geometry = attachment.value === Attachment.geometry;
+  chart.hidden = geometry;
+  triangle.toggleAttribute('hidden', !geometry);
+  byId('guide').textContent = geometry
+    ? 'The dot shows the distribution. Each corner puts all mass on one outcome. Click inside to edit the selected weight. The line joins points with that weight.'
+    : 'Each bar runs from 0 to 1. Drag a bar to select and edit its probability.';
+  byId('probe').textContent = 'P(' + k + ') = ' + fmt(p) + ' probability · committed reference ' +
+    fmt(mass[k]) + ' · change ' + fmt(p-mass[k]);
+  chart.querySelectorAll('rect[data-mark]').forEach((bar,i) => bar.classList.toggle('selected', Math.floor(i/2) === k));
+  const point = forward.transformPoint({x:values[1], y:values[2]});
+  const dot = triangle.querySelector('circle'), line = triangle.querySelector('line');
+  dot.setAttribute('cx', point.x); dot.setAttribute('cy', point.y);
+  vertices.filter((_,i) => i !== k).forEach((v,i) => {
+    for (const axis of ['x','y']) line.setAttribute(axis + (i+1), p*vertices[k][axis] + (1-p)*v[axis]);
+  });
+}
+attachment.onchange = () => { endDrag(); showProbe(); };
 function row(id, values) {
   const tr = byId(id);
   while (tr.cells.length > 1) tr.deleteCell(1);
   const fields = values ? [...values, values[1] + 2 * values[2]].map(fmt) : Array(4).fill('—');
   fields.forEach(value => tr.insertCell().textContent = value);
 }
-function reset(message) {
+function endDrag() {
   if (drag) {
     const {id} = drag;
     drag = null;
-    if (chart.hasPointerCapture(id)) chart.releasePointerCapture(id);
+    if (views.hasPointerCapture(id)) views.releasePointerCapture(id);
   }
+}
+function reset(message) {
+  endDrag();
   revision++; candidate = null; chart.innerHTML = savedSVG;
   target.value = mass[Number(outcome.value)];
   row('saved',mass); row('draft',null); apply.disabled = cancel.disabled = true;
-  statusLine.className = ''; statusLine.textContent = message;
+  showProbe(); statusLine.className = ''; statusLine.textContent = message;
 }
 async function preview() {
   const serial = ++revision;
   apply.disabled = true; cancel.disabled = false; candidate = null;
+  chart.innerHTML = savedSVG; showProbe();
   row('draft',null); statusLine.className = '';
   try {
     if (!target.validity.valid) throw Error('Enter a probability between 0 and 1.');
@@ -63,11 +112,11 @@ async function preview() {
     const data = await response.json();
     if (revision !== serial) return;
     if (!response.ok) throw Error(data.error);
-    candidate = data; chart.innerHTML = data.svg; row('draft',data.mass);
+    candidate = data; chart.innerHTML = data.svg; row('draft',data.mass); showProbe();
     apply.disabled = false; statusLine.textContent = 'Preview shown. Apply to commit this distribution.';
   } catch (error) {
     if (revision !== serial) return;
-    chart.innerHTML = savedSVG; statusLine.className = 'error';
+    chart.innerHTML = savedSVG; showProbe(); statusLine.className = 'error';
     statusLine.textContent = error.message + ' Committed distribution retained.';
   }
 }
@@ -81,22 +130,36 @@ cancel.onclick = () => reset('Preview discarded.');
 document.onkeydown = e => { if (e.key === 'Escape') reset('Preview discarded.'); };
 function move(e) {
   if (!drag || drag.id !== e.pointerId) return;
-  target.value = Math.min(1, Math.max(0, (drag.bottom-e.clientY)/drag.height)).toFixed(3);
+  let value;
+  if (attachment.value === Attachment.geometry) {
+    const local = new DOMPoint(e.clientX,e.clientY).matrixTransform(triangle.getScreenCTM().inverse());
+    const {x,y} = inverse.transformPoint(local);
+    value = [1-x-y,x,y][Number(outcome.value)];
+  } else {
+    value = (drag.bottom-e.clientY)/drag.height;
+  }
+  target.value = Math.min(1, Math.max(0, value)).toFixed(3);
   preview();
 }
-chart.onpointerdown = e => {
+views.onpointerdown = e => {
+  if (e.button !== 0 || drag) return;
+  if (attachment.value === Attachment.geometry) {
+    if (e.target !== triangle.querySelector('polygon')) return;
+    drag = {id:e.pointerId};
+    views.setPointerCapture(e.pointerId); move(e); return;
+  }
   const bars = [...chart.querySelectorAll('rect[data-mark]')];
   const index = bars.indexOf(e.target);
-  if (index < 0 || e.button !== 0 || drag) return;
+  if (index < 0) return;
   const group = Math.floor(index/2);
   const bottom = bars[group*2].getBoundingClientRect().bottom;
   const top = bars[group*2+1].getBoundingClientRect().top;
   drag = {id:e.pointerId,bottom,height:bottom-top}; outcome.value = String(group);
-  chart.setPointerCapture(e.pointerId); move(e);
+  views.setPointerCapture(e.pointerId); move(e);
 };
-chart.onpointermove = move;
-chart.onpointerup = e => { if (drag?.id === e.pointerId) { move(e); drag = null; } };
-chart.onpointercancel = chart.onlostpointercapture = e => {
+views.onpointermove = move;
+views.onpointerup = e => { if (drag?.id === e.pointerId) { move(e); drag = null; } };
+views.onpointercancel = views.onlostpointercapture = e => {
   if (drag?.id === e.pointerId) reset('Gesture cancelled.');
 };
 reset('Drag a bar or enter a probability to preview.');
