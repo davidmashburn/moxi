@@ -1,0 +1,96 @@
+{
+  "source_sha256": "b6505e6d13a3581f6b9be4f94ebeb08c77fb07f5d8a8ca6ea31b816103c78763",
+  "hidden_chooser": {
+    "steps": [
+      "Launch the normal GTK viewer and press Export through linux.run.",
+      "After typing the destination, move the real chooser to X=1400 on the 1280-wide private Xvfb display.",
+      "Require its X11 title to remain mapped; demonstrate that two equal root frames pass the old rule.",
+      "Call the unchanged repaired capture with the original chooser text regions."
+    ],
+    "expected": "Timeout, no accepted chooser capture, no exports",
+    "outcome": "pass",
+    "actual": {
+      "mapped_title": true,
+      "chooser_geometry": [
+        1400,
+        0,
+        815,
+        360
+      ],
+      "legacy_stability_would_accept": true,
+      "exports_before": []
+    },
+    "capture": {
+      "captured_utc": "2026-11-26T03:11:09.380290+00:00",
+      "regions": {
+        "filename": {
+          "bounds": [
+            0,
+            0,
+            815,
+            40
+          ],
+          "contains": [
+            "current.svg"
+          ]
+        },
+        "actions": {
+          "bounds": [
+            0,
+            310,
+            815,
+            360
+          ],
+          "contains": [
+            "Cancel",
+            "Save"
+          ]
+        }
+      },
+      "observed": {
+        "filename": "FORCE / Moxi graph explorer",
+        "actions": "@cy"
+      },
+      "verified": false,
+      "screenshot_sha256": "4e77916038f92da55f4726fff4b9c4aa84c9a70f1ae3077eb53f43d39d9d30e6"
+    },
+    "screenshot": "unpainted-chooser.png"
+  },
+  "wrong_cancellation": {
+    "steps": [
+      "Copy the reviewed ELF into a disposable tree.",
+      "Replace the sole Export cancelled literal with equal-length Export incorrect.",
+      "Run the unchanged linux.py through its normal Export/GTK chooser route."
+    ],
+    "binary_sha256": "d3956cbfb7f2d310c022829b9dab5180f28bbfa1ba658d8dba9c2780c956e4fe",
+    "expected": "Nonzero exit at visible cancellation status; correct original destination bytes",
+    "outcome": "pass",
+    "exit_code": 1,
+    "capture": {
+      "captured_utc": "2026-11-26T03:11:36.545556+00:00",
+      "regions": {
+        "status": {
+          "bounds": [
+            16,
+            136,
+            1084,
+            174
+          ],
+          "contains": [
+            "Export cancelled"
+          ]
+        }
+      },
+      "observed": {
+        "status": "4 nodes - 3 links - Export incorrect"
+      },
+      "verified": false,
+      "screenshot_sha256": "a72b9d3f241b697a30ee2515c61631fd812a350a8739b565b8b310fa852ff50f"
+    },
+    "destination_contents": {
+      "current.svg": "59ea58fefa6b5f4823a52b867ede731c9c13573b3e1ab2fcfa1d154c0ad7cab0"
+    },
+    "matches_successful_original_svg": true,
+    "screenshot": "wrong-cancellation.png"
+  }
+}

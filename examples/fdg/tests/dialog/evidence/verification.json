@@ -1,0 +1,159 @@
+{
+  "captured_utc": "2026-11-26T03:12:07.896951+00:00",
+  "recorded_utc": "2026-11-26T03:15:07.211339+00:00",
+  "base": "cf68880c3b051611a48c93d857252cb7ee2836fb",
+  "binary_build_revision": "b95bfbac3ed7c3d5ca870c51ff98052c29233534",
+  "binary_sha256": "77d188e4e11e4ecb67d3a8fb14d4c03245b5c8d96b0fdae391221f57d27068ad",
+  "fixture_sha256": "45178e433f71927b7f7795aee7c472df23f843b57fb37d12835b640e35905f42",
+  "product_source": {
+    "unchanged_from_base": true,
+    "files_compared_to_retained_build_source": 269,
+    "directories": [
+      "src",
+      "native",
+      "examples/fdg/src",
+      "examples/fdg/native"
+    ],
+    "source_manifest_sha256": "241084ee4d14eaff02d25b921ecade03fc26c41cbe6d81829fc200d9e74485da"
+  },
+  "replay_source_sha256": {
+    "examples/fdg/tests/dialog/linux.py": "b6505e6d13a3581f6b9be4f94ebeb08c77fb07f5d8a8ca6ea31b816103c78763",
+    "examples/fdg/tests/dialog/test_capture.py": "f3989bb5f0efaf7f5d2e7eab8510ed1a4eb87a4f235b1c1bcc0c53b354949250"
+  },
+  "environment": {
+    "host": "macOS 27.2.1 ARM64",
+    "runtime": "Docker Linux amd64 emulation",
+    "display": "private Xvfb 1280x1024x24, X11; 1100x800 viewer at display origin, no window manager",
+    "renderer": "GTK Cairo software renderer",
+    "locale": "C.UTF-8",
+    "role": "local viewer, synthetic four-node export.json, no external account",
+    "isolation": "new HOME, XDG runtime/config/data directories and session bus for each replay",
+    "versions": {
+      "gtk": "4.14.5",
+      "tesseract": "tesseract 5.3.4",
+      "librsvg": "rsvg-convert version 2.58.0",
+      "Pillow": "13.0.0",
+      "pypdfium2": "5.15.2",
+      "xvfb": "2:21.1.12-1ubuntu1.9",
+      "os": "Ubuntu 24.04.5 LTS"
+    }
+  },
+  "normal_route": {
+    "command": "python3 examples/fdg/tests/dialog/linux.py",
+    "exit_code": 0,
+    "setup": [
+      "Launch compiled viewer with positional export.json fixture.",
+      "Pause, search A, select the result and enable Neighbors."
+    ],
+    "scenarios": [
+      {
+        "name": "Save SVG",
+        "steps": [
+          "Press Export, type current.svg in the real GTK chooser, verify painted filename and Save/Cancel controls, press Return, verify the saved status."
+        ],
+        "expected": "Typed destination saved; SVG reopens with Unicode neighborhood, weighted edges and loop.",
+        "observed": "pass",
+        "artifacts": [
+          "current.svg-chooser.png",
+          "current.svg-result.png",
+          "current.svg"
+        ]
+      },
+      {
+        "name": "Cancel",
+        "steps": [
+          "Press Export, type cancelled.svg, verify painted chooser, press Escape, wait for dismissal, assert rendered Export cancelled and compare all destination filenames and bytes."
+        ],
+        "expected": "Visible cancellation status and byte-identical directory contents.",
+        "observed": "pass",
+        "artifacts": [
+          "cancelled.svg-chooser.png",
+          "cancelled.svg-result.png",
+          "result.json"
+        ]
+      },
+      {
+        "name": "Save PNG",
+        "steps": [
+          "Press Export, type current.png, verify painted chooser, press Return and verify saved status; decode the output with Pillow."
+        ],
+        "expected": "1068x560 PNG; three node centers match independent PDF raster.",
+        "observed": "pass",
+        "artifacts": [
+          "current.png-chooser.png",
+          "current.png-result.png",
+          "current.png"
+        ]
+      },
+      {
+        "name": "Save PDF",
+        "steps": [
+          "Press Export, type current.pdf, verify painted chooser, press Return and verify saved status; reopen with PDFium, extract text and rasterize."
+        ],
+        "expected": "One page with expected Unicode text; exported/native graph labels and node centers agree.",
+        "observed": "pass",
+        "artifacts": [
+          "current.pdf-chooser.png",
+          "current.pdf-result.png",
+          "current.pdf",
+          "reopened-pdf.png"
+        ]
+      },
+      {
+        "name": "Save again",
+        "steps": [
+          "Press Export, type recovered.svg, verify painted chooser, press Return and verify saved status; compare first and final SVG bytes."
+        ],
+        "expected": "Byte-identical recovery after cancellation.",
+        "observed": "pass",
+        "artifacts": [
+          "recovered.svg-chooser.png",
+          "recovered.svg-result.png",
+          "result.json"
+        ]
+      }
+    ],
+    "artifact_verifier": "examples/fdg/tests/verify_artifacts.py; exit 0; assertions in result.json"
+  },
+  "negative_controls": "negative/controls.json",
+  "pixel_regression_tests": {
+    "command": "python3 -m unittest discover -s examples/fdg/tests/dialog -p test_capture.py -v",
+    "exit_code": 0,
+    "passed": 4,
+    "scenarios": [
+      "Stable prior graph rejected",
+      "Stability begins only after expected chooser text paints",
+      "Disappearing expected paint resets stability",
+      "Incorrect cancellation text rejected"
+    ],
+    "input": "retained real GTK/X11 positive and negative captures; ImageGrab is substituted, real Tesseract is used"
+  },
+  "privacy": {
+    "scope": "all retained PNG metadata, PDF metadata and extracted text, SVG and JSON text, changed source/docs and filenames; visual inspection of every refreshed chooser/result and both controls",
+    "observed": "Synthetic graph labels and disposable container paths only; no private source context or credentials found.",
+    "pdf_author": "",
+    "pdf_creator": "",
+    "pngs_checked": 15,
+    "shared_writes": "none",
+    "push": "none",
+    "ledger": "none",
+    "delegation": "none"
+  },
+  "skipped": [
+    "Fresh compiler rebuild on either platform",
+    "Mac Save/reopen through NSSavePanel (open; earlier consent-free OK attempt timed out, no practical new method established)",
+    "AppKit cancellation rerun (earlier image retained)",
+    "Physical input and physical Linux hardware",
+    "Wayland",
+    "VoiceOver and other screen readers",
+    "Exporter failure/converter recovery suite rerun",
+    "Full repository suite",
+    "Fresh distribution installation",
+    "Remote CI"
+  ],
+  "assessment": {
+    "confidence": "high for the observed GTK/X11 route and two rejection controls",
+    "would_change_conclusion": "Failed supported-host rerun, source/binary identity mismatch, or reopened-export discrepancy.",
+    "mac_save": "unverified"
+  }
+}
