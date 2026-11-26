@@ -950,7 +950,7 @@ class Figure:
         yield radius, color
 
     def _uses_cartesian_axes(self) -> bool:
-        from .specialized import LayoutVersion
+        from .specialized import CatalogMark, LayoutVersion
         from .specialized_c import WaveCMark
         from .wave_b import RADIAL
 
@@ -958,7 +958,7 @@ class Figure:
             return True
         layer = self.spec.layers[0]
         return layer.layout_version != LayoutVersion.SPECIALIZED or (
-            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST)
+            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, CatalogMark.FUNNEL)
         )
 
     def to_svg(self) -> bytes:

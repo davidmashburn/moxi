@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Funnel geometry comparison</title>
+<style>
+  :root { font: 17px/1.5 system-ui,sans-serif; color: #152031; background: #fafafa }
+  body { margin: 0 }
+  main { max-width: 70rem; margin: auto; padding: 0 1rem }
+  section { min-height: 95vh; align-content: center; padding-block: 1rem }
+  figure { margin: 0; flex: 1 1 18rem }
+  img { width: 100%; max-height: 65vh; object-fit: contain; object-position: left }
+  .pair { display: flex; gap: 1rem; flex-wrap: wrap }
+  figcaption { font-weight: 600 }
+</style>
+<main>
+<section>
+<h1>From source order to stage order</h1>
+<p>A = 3, B = 9, C = 6. The pinned dataviz_mojo reference sorts the stages B, C, A. Each band ends at the width of the stage below it. The last band keeps its width.</p>
+<img src="../../../tests/fixtures/plot_catalog/funnel.svg" alt="Reference chart with B, C and A in descending order">
+<a href="#geometry">Compare Moxi exports ↓</a>
+</section>
+<section id="geometry">
+<h2>Three centered bands in both Moxi exports</h2>
+<div class="pair">
+<figure><img src="native.svg" alt="Native Moxi Scene"><figcaption>Native SVG</figcaption></figure>
+<figure><img src="funnel.svg" alt="Python Moxi figure"><figcaption>Python SVG</figcaption></figure>
+</div>
+<p>Across 12 vertices, the largest coordinate difference from the reference was 0.001905 of the plot span. The reference rounds stage boundaries to integer pixels. Margins, palette and legend treatment differ.</p>
+<a href="#selection">Inspect a selection ↓</a>
+</section>
+<section id="selection">
+<h2>Picking B selects the second source row</h2>
+<img src="inspector.png" alt="GUI showing B selected in a table ordered A, B, C">
+<p>The top, middle and bottom bands returned native keys 11, 12 and 10. The <a href="source.csv">exported source table</a> keeps the input order.</p>
+<a href="#update">See the update ↓</a>
+</section>
+<section id="update">
+<h2>Changing A from 3 to 12 moves it to the top</h2>
+<div class="pair">
+<figure><img src="selected.svg" alt="Selected bottom stage A"><figcaption>Before the update, A selected</figcaption></figure>
+<figure><img src="updated.svg" alt="Updated funnel, now with selection in the middle band"><figcaption>After the update, B selected by keyboard</figcaption></figure>
+</div>
+<p>The inspector exports the displayed data as <a href="funnel.svg">SVG</a>, <a href="funnel.png">PNG</a> and <a href="funnel.pdf">vector PDF</a>.</p>
+<a href="#geometry">Return to the geometry comparison ↑</a>
+</section>
+</main>
+</html>

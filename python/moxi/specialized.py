@@ -17,6 +17,10 @@ class LayoutVersion(IntEnum):
     SPECIALIZED = 1
 
 
+class CatalogMark(str, Enum):
+    FUNNEL = "funnel"
+
+
 class WaveAMark(str, Enum):
     LOLLIPOP = "lollipop"
     WATERFALL = "waterfall"
@@ -81,7 +85,9 @@ def validate_layout(layer: Any) -> None:
     if layer.mark in WaveBMark._value2member_map_:
         validate_b(layer)
         return
-    mark = WaveAMark(layer.mark)
+    mark = CatalogMark.FUNNEL if layer.mark == CatalogMark.FUNNEL else WaveAMark(layer.mark)
+    if mark is CatalogMark.FUNNEL and (layer.y2 or layer.stat_low_field or layer.stat_high_field):
+        raise ValueError("funnel layout takes one stage and one value field")
     if not isinstance(layer.horizontal, bool) or not isinstance(layer.percent, bool):
         raise ValueError("horizontal and percent must be boolean")
     if layer.series_fields and mark not in (WaveAMark.GROUPED, WaveAMark.STACKED):
@@ -119,7 +125,7 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
     from .specialized_c import WaveCMark, layout as wave_c_layout
     if layer.mark in WaveCMark._value2member_map_:
         return wave_c_layout(layer, data)
-    mark = WaveAMark(layer.mark)
+    mark = CatalogMark.FUNNEL if layer.mark == CatalogMark.FUNNEL else WaveAMark(layer.mark)
     categories = list(data.column(layer.x))
     n = len(categories)
     if not n or any(c is None for c in categories):
@@ -132,6 +138,24 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
         return [float(v) for v in values]
 
     values = column(layer.y)
+    if mark is CatalogMark.FUNNEL:
+        largest = max(values)
+        if min(values) < 0 or largest <= 0:
+            raise ValueError("funnel needs nonnegative values and at least one positive stage")
+        order = sorted(range(n), key=values.__getitem__, reverse=True)
+        bands = []
+        rows = [{"row_index": i, "category": categories[i], "value": values[i],
+                 "mark": mark.value} for i in range(n)]
+        for rank, row in enumerate(order):
+            upper = values[row] / largest
+            lower = values[order[min(rank + 1, n - 1)]] / largest
+            top, bottom = n - rank, n - rank - 1
+            vertices = ((-upper, top), (upper, top), (lower, bottom), (-lower, bottom))
+            bands.append(Glyph(GlyphKind.POLYGON, row, "stage", (-upper, bottom, upper, top),
+                               PALETTE[rank % len(PALETTE)], upper > 0, vertices,
+                               (row,), label=str(categories[row])))
+            rows[row]["rank"] = rank + 1
+        return Layout(bands, (-1., 1.), (0., float(n)), rows)
     second = column(layer.y2) if layer.y2 else []
     series = [column(f) for f in layer.series_fields]
     ranges = [column(f) for f in layer.range_fields]
