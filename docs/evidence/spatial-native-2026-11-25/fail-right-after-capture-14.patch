@@ -1,0 +1,25 @@
+--- a/examples/spatial-assembly/main.mojo
++++ b/examples/spatial-assembly/main.mojo
+@@ -432,6 +432,7 @@
+         raise Error("Recreation duplicated retained geometry")
+     app.message = "Right view recreated with its own target and the surviving shared GPU geometry buffer."
+     capture(app,directory,"14-recovered")
++    external_call["review_fail_right", NoneType]()
+     # Both camera targets render each iteration, but shared geometry and UI controls are retained.
+     var builds = app.left.metric(SpatialMetric.FRAME_BUILDS)
+     var controls = external_call["sa_controls_count", Int32]()
+--- a/native/spatial/renderer.m
++++ b/native/spatial/renderer.m
+@@ -108,9 +108,12 @@
+       rendererIDs[i] = 0;
+     }
+ }
++static int reviewFailRight = 0;
++void review_fail_right(void) { reviewFailRight = 1; }
+ int ms_renderer_frame(uint64_t handle, const void *vertices, size_t count,
+                       uint64_t geometrySerial, const float *matrix, int width, int height,
+                       int slot, float x, float y, float w, float h) {
++  if (reviewFailRight && slot == 1) return 0;
+   MSRenderer *r = lookup(handle);
+   if (!r || count > 100000 || width < 1 || height < 1 || width > 2048 ||
+       height > 2048 || !matrix)

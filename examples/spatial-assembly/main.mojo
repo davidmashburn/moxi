@@ -53,7 +53,7 @@ def number(value: Float64) -> String:
     return String(Float64(Int(value*1000))/1000)
 
 
-def draw_view(view: SpatialViewport, slot: Int32, x: Float32, tool: SpatialTool):
+def draw_view(view: SpatialViewport, slot: Int32, x: Float32, tool: SpatialTool) -> Bool:
     external_call["sa_unclip", NoneType]()
     var ok = view.render(slot)
     label(20+slot,"" if ok else "View disposed / unavailable\nRecreate to recover",x+45,285,350,90,21)
@@ -64,6 +64,7 @@ def draw_view(view: SpatialViewport, slot: Int32, x: Float32, tool: SpatialTool)
             external_call["sa_line", NoneType](Float32(line.x1),Float32(line.y1),Float32(line.x2),Float32(line.y2),Float32(line.color.x),Float32(line.color.y),Float32(line.color.z),Int32(line.handle))
 
     external_call["sa_unclip", NoneType]()
+    return ok
 
 
 struct Assembly:
@@ -247,10 +248,10 @@ struct Assembly:
                 _ = self.right.navigate(dolly=Float64(event.scroll_delta.y)*0.04)
             self.dirty = True
 
-    def draw(mut self):
+    def draw(mut self) -> Tuple[Bool, Bool]:
         self.dirty = self.left.poll() or self.dirty
         if not self.dirty:
-            return
+            return (False, False)
         var selected = self.left.metric(SpatialMetric.SELECTED)
         self.controls_dirty = self.controls_dirty or selected != self.selected
         if self.controls_dirty:
@@ -260,8 +261,8 @@ struct Assembly:
             self.controls_dirty = False
         self.selected = selected
         external_call["sa_paint", NoneType]()
-        draw_view(self.left,0,252,self.tool)
-        draw_view(self.right,1,728,self.tool)
+        var left_rendered = draw_view(self.left,0,252,self.tool)
+        var right_rendered = draw_view(self.right,1,728,self.tool)
         label(10,String("Selected ",selected,"  /  parent ",self.left.parent(selected),"  /  local X ",number(self.left.transform(selected,SpatialComponent.X)),"  /  world X ",number(self.left.world_transform(selected,SpatialComponent.X)),"  /  world Y ",number(self.left.world_transform(selected,SpatialComponent.Y))),252,84,920,20,11)
         label(11,String("PROBE  ",number(self.left.measurement())," world units\nTwo local surface anchors / shared across views"),252,597,455,44,14)
         var clip = self.left.clip()
@@ -272,6 +273,7 @@ struct Assembly:
         label(16,String("camera ",self.right.metric(SpatialMetric.CAMERA),"  •  doc ",self.right.metric(SpatialMetric.DOCUMENT)),728,532,440,20,11)
         external_call["sa_finish", NoneType]()
         self.dirty = False
+        return (left_rendered, right_rendered)
 
 
 def drain(mut window: MacOSWindowInstance, mut app: Assembly) raises:
@@ -281,8 +283,8 @@ def drain(mut window: MacOSWindowInstance, mut app: Assembly) raises:
         if event.kind == NONE_KIND:
             break
         app.dispatch(event)
-        app.draw()
-    app.draw()
+        _ = app.draw()
+    _ = app.draw()
 
 
 def inject(mut window: MacOSWindowInstance, mut app: Assembly, kind: Int, x: Float32 = 0, y: Float32 = 0, key: Int = 0, modifiers: Int = 0) raises:
@@ -293,7 +295,7 @@ def inject(mut window: MacOSWindowInstance, mut app: Assembly, kind: Int, x: Flo
 
 def capture(mut app: Assembly, directory: String, name: String):
     app.dirty = True
-    app.draw()
+    _ = app.draw()
     var path = directory+"/"+name+".png"
     external_call["sa_capture", NoneType](path.as_c_string_span().ptr())
 
@@ -425,7 +427,7 @@ def replay(mut window: MacOSWindowInstance, mut app: Assembly, directory: String
     var geometry_id = app.left.metric(SpatialMetric.GEOMETRY_ID)
     var uploads = app.left.metric(SpatialMetric.UPLOADS)
     app.action(Control.DISPOSE)
-    app.draw()
+    _ = app.draw()
     if app.right.metric(SpatialMetric.GEOMETRY_ID) != geometry_id or app.left.metric(SpatialMetric.UPLOADS) != uploads:
         raise Error("Recreation duplicated retained geometry")
     app.message = "Right view recreated with its own target and the surviving shared GPU geometry buffer."
@@ -433,11 +435,17 @@ def replay(mut window: MacOSWindowInstance, mut app: Assembly, directory: String
     # Both camera targets render each iteration, but shared geometry and UI controls are retained.
     var builds = app.left.metric(SpatialMetric.FRAME_BUILDS)
     var controls = external_call["sa_controls_count", Int32]()
-    for _ in range(60):
+    for step in range(60):
+        var left_before = app.left.metric(SpatialMetric.SUBMISSIONS)
+        var right_before = app.right.metric(SpatialMetric.SUBMISSIONS)
         _ = app.left.navigate(yaw=0.004)
         _ = app.right.navigate(pan_x=0.002)
         app.dirty = True
-        app.draw()
+        var rendered = app.draw()
+        if not rendered[0] or app.left.metric(SpatialMetric.SUBMISSIONS) != left_before+1:
+            raise Error(String("Left view camera step ",step+1," did not render and submit exactly one frame"))
+        if not rendered[1] or app.right.metric(SpatialMetric.SUBMISSIONS) != right_before+1:
+            raise Error(String("Right view camera step ",step+1," did not render and submit exactly one frame"))
         for view in range(2):
             if view == 0:
                 print("TIMING",view,app.left.timing(SpatialTiming.CPU),app.left.timing(SpatialTiming.ENCODE),app.left.timing(SpatialTiming.WAIT),app.left.timing(SpatialTiming.GPU),app.left.timing(SpatialTiming.READBACK),app.left.timing(SpatialTiming.PUBLICATION),app.left.timing(SpatialTiming.TOTAL))
@@ -448,10 +456,10 @@ def replay(mut window: MacOSWindowInstance, mut app: Assembly, directory: String
     var left_frames = app.left.metric(SpatialMetric.SUBMISSIONS)
     var right_frames = app.right.metric(SpatialMetric.SUBMISSIONS)
     sleep(0.3)
-    app.draw()
+    _ = app.draw()
     if app.left.metric(SpatialMetric.SUBMISSIONS) != left_frames or app.right.metric(SpatialMetric.SUBMISSIONS) != right_frames:
         raise Error("Idle submitted a frame")
-    print("PASS assembly native public replay: 14 captures; two views / one geometry; camera uploads=0 derived=0 controls=0; idle submissions=0")
+    print("PASS assembly native public replay: 14 captures; two views / one geometry; camera submissions=60/view uploads=0 derived=0 controls=0; idle submissions=0")
 
 
 def main() raises:

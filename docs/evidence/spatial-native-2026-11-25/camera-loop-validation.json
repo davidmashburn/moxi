@@ -1,0 +1,395 @@
+{
+  "base_revision": "ee64e0350af5ca172da173f8903cdc2c6af689cb",
+  "source_state": {
+    "changed_executable_inputs": [
+      "examples/spatial-assembly/main.mojo"
+    ],
+    "sha256": {
+      "examples/spatial-assembly/main.mojo": "fa72e91756d553af8a9dc39f653d5aa9d30599b98cdc39521806f870e22a9fde",
+      "scripts/spatial_native_sanitizers.sh": "49a1f2f380587eb53168748b17404a72c013e6886133a1cc86fd27cecbc759cc",
+      "native/spatial/renderer.m": "dd234996d4898efb33156815690be1e866ccf886f9b5788b2c4d67c88391cddf",
+      "tests/spatial/resize_close.m": "601c378c9d5187549da3357f20c4efe81acfb8de98b35d61c16ff2b11d4bb8ab"
+    }
+  },
+  "capture_started_at": "2026-11-26T02:59:48.872933+00:00",
+  "capture_finished_at": "2026-11-26T03:02:16.104560+00:00",
+  "artifact_directory": "/tmp/moxi-camera-loop-fix.hFV8wn/final-run",
+  "environment": {
+    "host": "arm64 macOS 27.2.1",
+    "clang": "Apple Clang 21.0.0 (clang-2100.3.34.2)",
+    "sdk": "27.0",
+    "mojo": "1.1.0 (8189361e)",
+    "stack": "Native AppKit windows, public Mojo spatial API, real Metal renderer; no browser",
+    "window_points": {
+      "explorer": [
+        1100,
+        760
+      ],
+      "assembly": [
+        1200,
+        790
+      ]
+    },
+    "backing_scale": 2,
+    "fixture": "Synthetic native event queue; D07 four objects, three hierarchy levels, two linked views",
+    "mojo_environment": "Pinned environment bin on PATH and MODULAR_HOME=<pinned-prefix>/share/max"
+  },
+  "sanitizer_environment": {
+    "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "DYLD_INSERT_LIBRARIES": "$(clang -print-resource-dir)/lib/darwin/libclang_rt.asan_osx_dynamic.dylib"
+  },
+  "positive_runner": {
+    "command": "bash scripts/spatial_native_sanitizers.sh",
+    "exit_code": 0,
+    "outcome": "pass",
+    "evidence": {
+      "path": "logs/positive-runner.log",
+      "sha256": "cefdbb7decec06e727e6225f2632e1bca7cdb70d0a33d568d89bdfeff54b0dac"
+    },
+    "steps": "Compile instrumented native sources and both complete apps; run three replays each, then resize/close lifecycle test",
+    "expected": "All replays and lifecycle cases exit zero, with no ASan/UBSan diagnostics",
+    "observed": "All six replays and both lifecycle cases passed; no sanitizer diagnostics"
+  },
+  "positive_replays": [
+    {
+      "app": "explorer",
+      "round": 1,
+      "outcome": "pass",
+      "observed_pass": "PASS native public Mojo replay: 17 captures; camera uploads=0 derived mesh rebuilds=0 unrelated controls=0; idle submissions=0 / 0.3 seconds",
+      "evidence": {
+        "path": "logs/explorer-1.log",
+        "sha256": "aa4a9db70bfcd81514c3e3882f9c49fe5df9d64b1cf105ff8af2a23a37e63fca"
+      }
+    },
+    {
+      "app": "explorer",
+      "round": 2,
+      "outcome": "pass",
+      "observed_pass": "PASS native public Mojo replay: 17 captures; camera uploads=0 derived mesh rebuilds=0 unrelated controls=0; idle submissions=0 / 0.3 seconds",
+      "evidence": {
+        "path": "logs/explorer-2.log",
+        "sha256": "3e7b45afe7eca98a4cb89beeb9cd747a377c4abf83ce53db250025529b6a4bf6"
+      }
+    },
+    {
+      "app": "explorer",
+      "round": 3,
+      "outcome": "pass",
+      "observed_pass": "PASS native public Mojo replay: 17 captures; camera uploads=0 derived mesh rebuilds=0 unrelated controls=0; idle submissions=0 / 0.3 seconds",
+      "evidence": {
+        "path": "logs/explorer-3.log",
+        "sha256": "344e5092f3b8e837a2f12c52a2f2ad4f592e5f3be10bde66949e9258401685da"
+      }
+    },
+    {
+      "app": "assembly",
+      "round": 1,
+      "outcome": "pass",
+      "observed_pass": "PASS assembly native public replay: 14 captures; two views / one geometry; camera submissions=60/view uploads=0 derived=0 controls=0; idle submissions=0",
+      "evidence": {
+        "path": "logs/assembly-1.log",
+        "sha256": "82a36d86e6ba0afd134d412fbd35fc8c71c98e70b5431b3fc9ddf860d7131349"
+      },
+      "expected_camera_steps_per_view": 60,
+      "checked_render_successes_per_view": 60,
+      "checked_submission_increments_per_view": 60,
+      "timing_records_per_view": {
+        "0": 60,
+        "1": 60
+      },
+      "expected": "Both render results true and both submission counters increase by exactly one on every camera step; reuse and idle assertions also pass"
+    },
+    {
+      "app": "assembly",
+      "round": 2,
+      "outcome": "pass",
+      "observed_pass": "PASS assembly native public replay: 14 captures; two views / one geometry; camera submissions=60/view uploads=0 derived=0 controls=0; idle submissions=0",
+      "evidence": {
+        "path": "logs/assembly-2.log",
+        "sha256": "f316d17639a7bc3f06c21ae1166ea5c4ed55dd8d98a0966521ce5246006ecde8"
+      },
+      "expected_camera_steps_per_view": 60,
+      "checked_render_successes_per_view": 60,
+      "checked_submission_increments_per_view": 60,
+      "timing_records_per_view": {
+        "0": 60,
+        "1": 60
+      },
+      "expected": "Both render results true and both submission counters increase by exactly one on every camera step; reuse and idle assertions also pass"
+    },
+    {
+      "app": "assembly",
+      "round": 3,
+      "outcome": "pass",
+      "observed_pass": "PASS assembly native public replay: 14 captures; two views / one geometry; camera submissions=60/view uploads=0 derived=0 controls=0; idle submissions=0",
+      "evidence": {
+        "path": "logs/assembly-3.log",
+        "sha256": "7d2496c922d3ee626d28765fb83a6c8e26cf521d1001e7a7f16086cb40f056db"
+      },
+      "expected_camera_steps_per_view": 60,
+      "checked_render_successes_per_view": 60,
+      "checked_submission_increments_per_view": 60,
+      "timing_records_per_view": {
+        "0": 60,
+        "1": 60
+      },
+      "expected": "Both render results true and both submission counters increase by exactly one on every camera step; reuse and idle assertions also pass"
+    }
+  ],
+  "lifecycle": {
+    "outcome": "pass",
+    "single_cycles": 20,
+    "linked_cycles": 20,
+    "camera_and_viewport_updates_per_view_per_cycle": 6,
+    "single_checked_submission_increments": 120,
+    "linked_checked_submission_increments": 240,
+    "expected": "Every render succeeds and each view submission counter advances exactly once per update; owners close",
+    "observed": [
+      "PASS single: 20 open/close cycles, 6 camera + viewport resizes per view per cycle",
+      "PASS linked: 20 open/close cycles, 6 camera + viewport resizes per view per cycle"
+    ],
+    "evidence": {
+      "path": "logs/resize-close.log",
+      "sha256": "b1e78ad6372de4c4015654d785f9603609db9552a0e9ace28374407b6109f911"
+    }
+  },
+  "negative_controls": [
+    {
+      "name": "right renderer fails after capture 14: runner",
+      "outcome": "pass",
+      "steps": "Apply fault only in a temporary source copy after capture 14; run the unmodified sanitizer runner or the resulting binary",
+      "expected_exit_code": 1,
+      "observed_exit_code": 1,
+      "observed_error": "Right view camera step 1 did not render and submit exactly one frame",
+      "captures_before_failure": 14,
+      "assembly_pass_printed": false,
+      "evidence": {
+        "path": "logs/negative-1.log",
+        "sha256": "4a4adf4d0ca4765d26ad273a7a3d8c0669ca06f8ba6f7d5ca7f0583bfe668632"
+      },
+      "command": "bash scripts/spatial_native_sanitizers.sh",
+      "replay_evidence": {
+        "path": "logs/negative-runner-assembly-1.log",
+        "sha256": "e7bcb45d239e75ff681cba72a70b66748444ad95a8466537edd5c137f71fd0f7"
+      },
+      "later_rounds_or_lifecycle_executed": false,
+      "cwd": "/private/tmp/moxi-camera-loop-fix.hFV8wn/final-run/negative-source"
+    },
+    {
+      "name": "right renderer fails after capture 14: direct binary",
+      "outcome": "pass",
+      "steps": "Apply fault only in a temporary source copy after capture 14; run the unmodified sanitizer runner or the resulting binary",
+      "expected_exit_code": 1,
+      "observed_exit_code": 1,
+      "observed_error": "Right view camera step 1 did not render and submit exactly one frame",
+      "captures_before_failure": 14,
+      "assembly_pass_printed": false,
+      "evidence": {
+        "path": "logs/negative-2.log",
+        "sha256": "e7bcb45d239e75ff681cba72a70b66748444ad95a8466537edd5c137f71fd0f7"
+      },
+      "command": [
+        "/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/moxi-spatial-sanitizers.ZNxf2d/assembly",
+        "--replay",
+        "/private/tmp/moxi-camera-loop-fix.hFV8wn/final-run/negative-direct-frames"
+      ]
+    },
+    {
+      "name": "right renderer returns success without a submission after capture 14",
+      "outcome": "pass",
+      "steps": "Apply fault only in a temporary source copy after capture 14; run the unmodified sanitizer runner or the resulting binary",
+      "expected_exit_code": 1,
+      "observed_exit_code": 1,
+      "observed_error": "Right view camera step 1 did not render and submit exactly one frame",
+      "captures_before_failure": 14,
+      "assembly_pass_printed": false,
+      "evidence": {
+        "path": "logs/negative-3.log",
+        "sha256": "e7bcb45d239e75ff681cba72a70b66748444ad95a8466537edd5c137f71fd0f7"
+      },
+      "command": [
+        "/private/tmp/moxi-camera-loop-fix.hFV8wn/final-run/assembly-no-submit",
+        "--replay",
+        "/private/tmp/moxi-camera-loop-fix.hFV8wn/final-run/no-submit-frames"
+      ],
+      "injection": "Same fault patch, but the slot-1 early return is 1 instead of 0; submission counter is unchanged",
+      "renderer_source_sha256": "59aafd557656394896c21dd86b70d0e6eb975e0f1216451ec45e3a5059515dd1"
+    }
+  ],
+  "frames": {
+    "assembly": {
+      "directory": "captures/assembly",
+      "count": 14,
+      "dimensions": [
+        2400,
+        1580
+      ],
+      "manifest": "artifacts/demo-slideshows/spatial-assembly/manifest.json",
+      "manifest_sha256": "ff0911f5514230102923354bfc610d6ba7825f955e848d55ecaa815ea4a58a51",
+      "matches": [
+        {
+          "image": "01-initial.png",
+          "sha256": "5dca0cdc4cea3a880ba43ad558f50f482c02f924d9023fb913a45c0abf16e915",
+          "matches_manifest": true
+        },
+        {
+          "image": "02-linked-views.png",
+          "sha256": "453e02b5a04965d591fa8fcc19ac75fd991d1fe1abd941970e86fb860c42a0a4",
+          "matches_manifest": true
+        },
+        {
+          "image": "03-hierarchy-preview.png",
+          "sha256": "d3f98fb49118285d93686d7657c4fabccb189c29fc661193b51a0840e5347e25",
+          "matches_manifest": true
+        },
+        {
+          "image": "04-transform-commit.png",
+          "sha256": "f19a2e38df4cb406d28f5a94bca35e9cdb717a05609a429ad02a030b655b37c0",
+          "matches_manifest": true
+        },
+        {
+          "image": "05-measurement.png",
+          "sha256": "1eb1c096b6e5ef29c803a84d6c5452a241d0dfb657e28f0a08f08bb4b888d8ff",
+          "matches_manifest": true
+        },
+        {
+          "image": "06-clipping.png",
+          "sha256": "4e8b47b5c86036a7563ceb8ec1d02677be84731522603d90c4252ec4e3310534",
+          "matches_manifest": true
+        },
+        {
+          "image": "07-plane-moved.png",
+          "sha256": "fcc5503e658a75e936c15b8ba657f447616da286e2e87d0af84bf9bab4e22b5d",
+          "matches_manifest": true
+        },
+        {
+          "image": "08-clip-undo.png",
+          "sha256": "73025ea6d02342796f7496a11a11ee56d7a79b8538b54b431a4189a592323008",
+          "matches_manifest": true
+        },
+        {
+          "image": "09-cancel-preview.png",
+          "sha256": "e028b815e7dd29eae3c1f4f768d707f271aff2022f9614998b208cbe50912fb2",
+          "matches_manifest": true
+        },
+        {
+          "image": "10-cancelled.png",
+          "sha256": "85aee12ccba83b9020e2d8f476601b253d1c83dfde8690ecb5a0f7b9a097f119",
+          "matches_manifest": true
+        },
+        {
+          "image": "11-numeric.png",
+          "sha256": "976e0ab6a470e9aacf1bfa0d99847749a27309f8773ea1a28bb28b306edf9124",
+          "matches_manifest": true
+        },
+        {
+          "image": "12-stale-rejected.png",
+          "sha256": "c2edf503f01a9eecc072df4bf425bc116260738a29be35988a9d7785192f586d",
+          "matches_manifest": true
+        },
+        {
+          "image": "13-right-disposed.png",
+          "sha256": "40fbd3b278f0e1760d337d1fd5a2201d24869a1d7a9e845a2c8178af5629ad15",
+          "matches_manifest": true
+        },
+        {
+          "image": "14-recovered.png",
+          "sha256": "22f6237f913efd310429fc4246e812f9395332bdd82e511797778cf19c404057",
+          "matches_manifest": true
+        }
+      ],
+      "original_provenance_revision": "49ebcddb48ae490a657f160220532b908e6a9d8d",
+      "original_provenance_differing_source_inputs": 18,
+      "retained_artifact_files_matched": 14
+    },
+    "explorer": {
+      "directory": "captures/explorer",
+      "count": 17,
+      "dimensions": [
+        2200,
+        1520
+      ],
+      "recovery_image": "17-recreated.png",
+      "recovery_sha256": "188a013c47d76396f18bdef67a2b1cea6ab3751adfc7be729d4e7c1f20d13240",
+      "matches_retained_recovery_image": true,
+      "older_manifest_mismatches": 17
+    }
+  },
+  "focused_cpp_checks": [
+    {
+      "name": "contract",
+      "assertions": 1832,
+      "outcome": "pass",
+      "command": "clang++ -std=c++20 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer native/spatial/core.cpp tests/spatial/contract.cpp -o <artifact-directory>/contract-test; <artifact-directory>/contract-test",
+      "observed": "PASS projection/unprojection, Metal matrix, rays, near-parallel, stable ties, adversarial mesh\nPASS gesture previews, constraints, snap, one commit, numeric/key operations, cancel, history, routing, annotations\nPASS deterministic constraint replay, pointer rotation/scale, handle precedence, frozen frame, cancellation on viewport/geometry/disposal\nPASS far-plane projection/pick agreement and nonfinite routing\nPASS bounded work, stale generation/revision, shared parameter undo, disposal/recreation\nPASS spatial-contract + spatial-interaction: 1832 assertions",
+      "evidence": {
+        "path": "logs/contract-test.log",
+        "sha256": "bbf3ff519a3bb37f7137113d7275797786ea2079c8e54fca07f0f948c381d3a8"
+      }
+    },
+    {
+      "name": "assembly",
+      "assertions": 2522,
+      "outcome": "pass",
+      "command": "clang++ -std=c++20 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer native/spatial/core.cpp tests/spatial/assembly.cpp -o <artifact-directory>/assembly-test; <artifact-directory>/assembly-test",
+      "observed": "PASS assembly hierarchy/shared views/probes/clipping/lifecycle: 2522 assertions",
+      "evidence": {
+        "path": "logs/assembly-test.log",
+        "sha256": "a6b71e5ac6430ecb6b3ea79121d8726a24c03024d708a225be59634e925bd01a"
+      }
+    }
+  ],
+  "diagnostics": {
+    "sanitizer_findings": 0,
+    "new_unused_result_warnings": 0,
+    "linker_warning": "Mojo archive deployment version 27.2 is newer than link target 27.0; execution host 27.2.1",
+    "initial_setup_attempt": "Mojo binary alone could not find std; resolved by setting pinned MODULAR_HOME before app verification",
+    "binary_linkage": {
+      "explorer": {
+        "asan_runtime_linked": true,
+        "asan_handlers_imported": true,
+        "ubsan_handlers_imported": true
+      },
+      "assembly": {
+        "asan_runtime_linked": true,
+        "asan_handlers_imported": true,
+        "ubsan_handlers_imported": true
+      }
+    }
+  },
+  "remaining_gates": {
+    "leaks": "OPEN: detect_leaks=0; historical restricted leaks results and unsupported detect_leaks=1 do not establish acceptance"
+  },
+  "not_verified": [
+    "Mojo-generated code instrumentation",
+    "Metal shaders and GPU memory safety",
+    "System framework instrumentation",
+    "Sustained leaks",
+    "D06 per-camera-step render and submission success",
+    "Physical input",
+    "Compositor presentation",
+    "Accessibility",
+    "Other platforms",
+    "Controlled performance",
+    "Full repository suite",
+    "Remote CI"
+  ],
+  "confidence": {
+    "level": "high for recorded synthetic native paths on this host",
+    "would_change_with": "A sanitizer finding, replay assertion failure, source mismatch or capture hash mismatch"
+  },
+  "negative_fault_patch": {
+    "path": "fail-right-after-capture-14.patch",
+    "sha256": "8fe6965c29d6f5767cea28e2b5d95ea32b61e30a8d689e3c96da5963e1177e1d",
+    "applied_to_tracked_application_sources": false
+  },
+  "visual_review": {
+    "outcome": "pass",
+    "capture": "captures/assembly/14-recovered.png",
+    "steps": "Inspect the final-source positive replay capture after disposing and recreating the right viewport, before the camera loop",
+    "expected": "Both viewports render the four-object assembly with the right target restored",
+    "observed": "Both perspective and orthographic viewports contain four surfaces, Arm 72 is selected, clipping is disabled, and the recovery caption and Dispose right control are visible",
+    "scope": "Direct inspection of AppKit cacheDisplay output; camera-step behavior is established by assertions and counters, not this image"
+  }
+}
