@@ -127,6 +127,10 @@ def main() raises:
         raise Error("Wrapped draft must grow its editor without committing semantic text")
     if overlaps(map.app.component.document.world_bounds(4), map.app.component.document.world_bounds(6)):
         raise Error("Growing the native editor must reflow its neighbor")
+    var grown = map.app.component.state.camera.rect(map.app.component.document.world_bounds(4))
+    var lower_edge = Point(grown.x + grown.width / 2, grown.y + grown.height - 2)
+    if map.app.component.publication.hit_object(lower_edge) != 4:
+        raise Error("Draft growth must republish hittable geometry after local text delivery")
     map.finish_edit(True)
     if encode(map.doc) != edit_before:
         raise Error("Cancelling a grown editor changed semantic content")
@@ -224,4 +228,24 @@ def main() raises:
     map = MindMapApp(large_map(1000))
     if map.app.component.state.camera.zoom != 1 or map.app.paint().count() >= 1000:
         raise Error("Large maps must open at readable topic scale with viewport culling")
+    if map.app.component.edge_scene().count() > 40:
+        raise Error("Culled tree must paint one shared trunk and only visible child stubs")
+    map.app.component.state.selected_edge = 500
+    var selected_scene = map.app.component.edge_scene()
+    if selected_scene.count() > 46 or selected_scene.commands[selected_scene.count() - 2].id != 500:
+        raise Error("Selecting a dense edge must paint its complete route above the trunk")
     print("mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS")
+
+    var dense = MindMapApp(large_map(9))
+    dense.select(9)
+    dense.begin_move()
+    dense.close_search()
+    dense.propose(2, 0)
+    if not dense.app.component.has_destination or dense.doc.topics[dense.doc.at(9)].parent != dense.doc.root:
+        raise Error("Reparent preview across the route threshold lost its destination")
+    dense.finish_move()
+    if dense.doc.topics[dense.doc.at(9)].parent != 2:
+        raise Error("Dense move did not commit")
+    dense.execute(MapCommand.UNDO)
+    if dense.doc.topics[dense.doc.at(9)].parent != dense.doc.root:
+        raise Error("Dense move did not undo")

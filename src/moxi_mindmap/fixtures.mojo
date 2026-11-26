@@ -14,6 +14,15 @@ def useful_map() raises -> MindMapDocument:
     doc.validate()
     return doc^
 
+def uneven_dense_map() raises -> MindMapDocument:
+    var doc = MindMapDocument("Both sides")
+    for i in range(16):
+        var id = doc.create(doc.root, i, String("Child ", i))
+        doc.topics[doc.at(id)].side = Side.LEFT if i < 8 else Side.RIGHT
+        doc.topics[doc.at(id)].spacing = 40 if i % 2 == 0 else 0
+    doc.validate()
+    return doc^
+
 def large_map(count: Int, folded: Bool = False, deep: Bool = False) raises -> MindMapDocument:
     var doc = MindMapDocument("Large synthetic fixture")
     var parent = doc.root

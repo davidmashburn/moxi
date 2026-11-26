@@ -1,0 +1,4 @@
+viewport_ordinary_commands 37 clipped_edge_commands 4851
+native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples
+main_thread_cpu p50_ms 39.868875 p95_ms 50.503125 p99_max_ms 58.089125
+elapsed p50_ms 44.766 p95_ms 92.942 p99_max_ms 169.373

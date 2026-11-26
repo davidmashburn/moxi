@@ -112,6 +112,8 @@ struct CanvasView[Child: Component & Deinitable](Component):
     var editor: Int
     var content_before: List[MountedComponent[Self.Child]]
     var content_document_before: CanvasDocument
+    var dispatching_editor_text: Bool
+    var retain_child_history: Bool
     var content_dirty: Bool
     var control_pointer: Int
     var control_owner: Int
@@ -142,6 +144,8 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.editor = -1
         self.content_before = List[MountedComponent[Self.Child]]()
         self.content_document_before = document
+        self.dispatching_editor_text = False
+        self.retain_child_history = True
         self.content_dirty = False
         self.control_pointer = -1
         self.control_owner = -1
@@ -172,6 +176,8 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.editor = copy.editor
         self.content_before = copy.content_before.copy()
         self.content_document_before = copy.content_document_before
+        self.dispatching_editor_text = False
+        self.retain_child_history = copy.retain_child_history
         self.content_dirty = copy.content_dirty
         self.control_pointer = copy.control_pointer
         self.control_owner = copy.control_owner
@@ -218,6 +224,11 @@ struct CanvasView[Child: Component & Deinitable](Component):
     def localized_view(mut self, bounds: Rect) -> ColumnView:
         self.parent_builds += 1
         self.state.camera.viewport = Rect(bounds.x + 20, bounds.y + 100 - self.parent_scroll, max(Float32(100), bounds.width - 40), max(Float32(100), bounds.height - 130))
+        # Only the active child receives the text event. Its update increments
+        # document.revision if it expands an object. Later camera, draft layout
+        # or pointer operations always go through the ordinary publication path.
+        if self.dispatching_editor_text and self.state.session == SessionKind.IDLE and self.publication.revision == self.document.revision:
+            return self.build_document(bounds, self.document)
         var preview = self.presentation_document()
         for i in range(len(self.mounts)):
             var rect = preview.world_bounds(self.mounts[i].id)
@@ -226,9 +237,14 @@ struct CanvasView[Child: Component & Deinitable](Component):
                 self.last_child_nodes += len(self.mounts[i].nodes)
         self.geometry_cache.prune(preview)
         self.publication = CanvasSnapshot(preview, self.state.camera, self.editor, self.geometry_cache)
-        return self.build(bounds)
+        return self.build_document(bounds, preview)
 
     def build(self, bounds: Rect) -> ColumnView:
+        if self.state.session == SessionKind.IDLE:
+            return self.build_document(bounds, self.document)
+        return self.build_document(bounds, self.presentation_document())
+
+    def build_document(self, bounds: Rect, preview: CanvasDocument) -> ColumnView:
         var root = ColumnView(bounds, 0, 0)
         root.published_geometry = True
         root.clip_to_bounds = True
@@ -256,8 +272,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         surface.style.border_width = 0
         surface.semantics.label = self.surface_hint
         root.add(surface)
-        var preview = self.presentation_document()
-        var snapshot = self.snapshot()
+        ref snapshot = self.publication
         for object in preview.objects:
             if object.id not in snapshot.visible:
                 continue
@@ -492,13 +507,13 @@ struct CanvasView[Child: Component & Deinitable](Component):
             if index >= 0:
                 var routed = event
                 routed.target = (target - CONTROL_BASE) % ID_STRIDE
-                if not self.content_dirty:
+                if self.retain_child_history and not self.content_dirty:
                     self.content_before = self.mounts.copy()
                     self.content_document_before = self.document
                 var local = self.child_view(owner, view)
                 var changed = self.mounts[index].child.update(routed, local)
                 if changed:
-                    self.content_dirty = True
+                    self.content_dirty = self.retain_child_history
                     self.mounts[index].refresh(self.document.world_bounds(owner))
                     # Publish content extent and fractional port anchors atomically.
                     var required: Float32 = 0
@@ -578,27 +593,62 @@ struct CanvasView[Child: Component & Deinitable](Component):
 
     def edge_scene(self) -> Scene:
         var scene = Scene()
-        var snapshot = self.snapshot()
-        scene.push_clip(1, self.interaction_clip())
-        for edge in snapshot.edges:
-            var color = Color(0.3, 0.77, 0.9, 1) if edge.id != self.state.selected_edge else Color(1, 0.8, 0.3, 1)
-            for i in range(1, len(edge.points)):
+        ref snapshot = self.publication
+        var clip = self.interaction_clip()
+        scene.push_clip(1, clip)
+        # Each orthogonal route retains its complete hit geometry. Paint the
+        # common opaque stem and vertical span once per aligned branch group.
+        var trunks = Dict[Tuple[Float32, Float32, Float32], Int]()
+        var selected = -1
+        for i in range(len(snapshot.edges)):
+            ref edge = snapshot.edges[i]
+            if edge.id == self.state.selected_edge:
+                selected = i
+                continue
+            self.paint_edge(scene, edge, clip, trunks, False)
+        if selected >= 0:
+            self.paint_edge(scene, snapshot.edges[selected], clip, trunks, True)
+        scene.pop_clip()
+        return scene^
+
+    def paint_edge(self, mut scene: Scene, edge: EdgeGeometry, clip: Rect, mut trunks: Dict[Tuple[Float32, Float32, Float32], Int], selected: Bool):
+        var color = Color(1, 0.8, 0.3, 1) if selected else Color(0.3, 0.77, 0.9, 1)
+        var first = 1
+        if edge.path == PathKind.ORTHOGONAL and len(edge.points) == 4 and not selected:
+            var a = edge.points[0]
+            var turn = edge.points[1]
+            var key = (a.x, a.y, turn.x)
+            var slot = trunks.get(key, -1)
+            var low = min(turn.y, edge.points[2].y)
+            var high = max(turn.y, edge.points[2].y)
+            if slot < 0:
+                scene.append_line(edge.id, a, turn, color, 2)
+                trunks[key] = scene.count()
+                scene.append_line(edge.id, Point(turn.x, low), Point(turn.x, high), color, 2)
+            else:
+                ref trunk = scene.commands[slot]
+                trunk.point_start.y = min(trunk.point_start.y, low)
+                trunk.point_end.y = max(trunk.point_end.y, high)
+            first = 3
+        var end = edge.points[len(edge.points) - 1]
+        # The final orthogonal segment is horizontal. The arrow extends by at
+        # most 12 points. A labeled route still needs its independent label.
+        var outside = end.y < clip.y - 12 or end.y > clip.y + clip.height + 12
+        if first != 3 or not outside:
+            for i in range(first, len(edge.points)):
                 scene.append_line(edge.id, edge.points[i - 1], edge.points[i], color, 2)
-            var end = edge.points[len(edge.points) - 1]
             var prev = edge.points[len(edge.points) - 2]
             var length = max(Float32(0.001), distance(prev, end))
             var dx = (end.x - prev.x) / length
             var dy = (end.y - prev.y) / length
             scene.append_line(edge.id, end, Point(end.x - dx * 10 + dy * 5, end.y - dy * 10 - dx * 5), color, 2)
             scene.append_line(edge.id, end, Point(end.x - dx * 10 - dy * 5, end.y - dy * 10 + dx * 5), color, 2)
-            if edge.text != "":
-                scene.append_text_styled(edge.id, edge.text, edge.label, color, SceneTextStyle("system-ui", 11))
-        scene.pop_clip()
-        return scene^
+        if edge.text != "":
+            scene.append_text_styled(edge.id, edge.text, edge.label, color, SceneTextStyle("system-ui", 11))
 
     def overlay_scene(self) -> Scene:
         var scene = Scene()
-        var snapshot = self.snapshot()
+        ref snapshot = self.publication
         var camera = self.state.camera
         scene.push_clip(1, self.interaction_clip())
         for id in snapshot.ports.keys():
@@ -652,7 +702,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
     def minimap(self) -> Camera:
         var viewport = self.state.camera.viewport
         var map = Camera(Rect(viewport.x + viewport.width - 180, viewport.y + viewport.height - 125, 170, 115))
-        var snapshot = self.snapshot()
+        ref snapshot = self.publication
         var extent = snapshot.extent
         map.zoom = min(Float64(150) / Float64(max(Float32(1), extent.width)), Float64(95) / Float64(max(Float32(1), extent.height)))
         map.x = Float64(extent.x) - 10 / map.zoom
@@ -729,13 +779,13 @@ struct CanvasView[Child: Component & Deinitable](Component):
         var index = self.mount_index(owner)
         if index < 0:
             return ""
-        if not self.content_dirty:
+        if self.retain_child_history and not self.content_dirty:
             self.content_before = self.mounts.copy()
             self.content_document_before = self.document
         var child_view = self.child_view(owner, view)
         var text = self.mounts[index].child.clipboard_cut((target - CONTROL_BASE) % ID_STRIDE, child_view)
         if text != "":
-            self.content_dirty = True
+            self.content_dirty = self.retain_child_history
             self.mounts[index].refresh(self.document.world_bounds(owner))
         return text
 
@@ -744,13 +794,13 @@ struct CanvasView[Child: Component & Deinitable](Component):
         var index = self.mount_index(owner)
         if index < 0:
             return False
-        if not self.content_dirty:
+        if self.retain_child_history and not self.content_dirty:
             self.content_before = self.mounts.copy()
             self.content_document_before = self.document
         var child_view = self.child_view(owner, view)
         var changed = self.mounts[index].child.clipboard_paste((target - CONTROL_BASE) % ID_STRIDE, text, child_view)
         if changed:
-            self.content_dirty = True
+            self.content_dirty = self.retain_child_history
             self.mounts[index].refresh(self.document.world_bounds(owner))
         return changed
 
@@ -879,7 +929,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         for i in range(len(proposal.edges)):
             var a = proposal.edges[i]
             var b = self.document.edges[i]
-            if a.id != b.id or a.label != b.label or a.path != b.path or (not semantic_graph and (a.source != b.source or a.target != b.target)):
+            if a.id != b.id or a.label != b.label or (not semantic_graph and (a.path != b.path or a.hit_policy != b.hit_policy or a.source != b.source or a.target != b.target)):
                 return False
         var changed = False
         for i in range(len(proposal.objects)):
@@ -903,7 +953,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
             for i in range(len(proposal.ports)):
                 changed = changed or proposal.ports[i].x != self.document.ports[i].x or proposal.ports[i].y != self.document.ports[i].y
             for i in range(len(proposal.edges)):
-                changed = changed or proposal.edges[i].source != self.document.edges[i].source or proposal.edges[i].target != self.document.edges[i].target
+                changed = changed or proposal.edges[i].path != self.document.edges[i].path or proposal.edges[i].hit_policy != self.document.edges[i].hit_policy or proposal.edges[i].source != self.document.edges[i].source or proposal.edges[i].target != self.document.edges[i].target
         if not changed:
             return False
         self.destination = proposal

@@ -1,0 +1,6 @@
+native dense terminal zoom 1.0 expected 7 selected 7 downs 1 ups 1
+native dense terminal zoom 1.0 expected 15 selected 15 downs 1 ups 1
+native dense terminal zoom 0.5 expected 7 selected 7 downs 1 ups 1
+native dense terminal zoom 0.5 expected 15 selected 15 downs 1 ups 1
+PASS native dense terminal selection on both sides at zoom 1/0.5
+PASS native AppKit F2 queue + public input replay, semantic cancel/undo, disk recovery and bounded import

@@ -1,0 +1,5 @@
+native dense terminal zoom 1.0 expected 7 selected 8 downs 1 ups 1
+native dense terminal zoom 1.0 expected 15 selected 16 downs 1 ups 1
+native dense terminal zoom 0.5 expected 7 selected 8 downs 1 ups 1
+native dense terminal zoom 0.5 expected 15 selected 16 downs 1 ups 1
+Unhandled exception caught during execution: Native dense terminal selection failures: 4
