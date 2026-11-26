@@ -630,7 +630,8 @@
         "Integrated and rebuilt after E02/E03. All compiled source hashes match the integrated source.",
         "46 native tests and 315 facade tests pass in an isolated installed-wheel consumer; independent dependency and exact runtime-notice inspection passes.",
         "Facade wheel and source distribution retain the exact pinned MIT notice; missing installed runtime notices fail the native build.",
-        "A clean CPython 3.11 build on macOS arm64 passed 48 native and 372 facade tests. Independent controls checked wheel notices, runtime origin, signatures and rejection by the wrong interpreter."
+        "A clean CPython 3.11 build on macOS arm64 passed 48 native and 372 facade tests. Independent controls checked wheel notices, runtime origin, signatures and rejection by the wrong interpreter.",
+        "On November 26, isolated CPython 3.13 and 3.14 consumers on macOS arm64 each passed 48 native and 448 facade tests, including PNG and rasterized PDF annotation checks. The harness at ccecd8d stages the example used by the facade tests."
       ],
       "remaining_gates": [
         "Redistribution rights, sanitizer coverage, CPython 3.11 on macOS 15 and other hosts remain open."

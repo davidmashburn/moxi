@@ -9,7 +9,7 @@ lack complete publishable inputs.
 Provenance has two strengths:
 
 - **320 originals match recorded historical checksums:** 311 in their gallery
-  manifests and nine in the [linked-notebook evidence sidecar](../artifacts/demo-slideshows/linked-notebook/evidence.json).
+  manifests and nine in the [server-backed views capture record](../artifacts/demo-slideshows/server-backed-views/capture-provenance.json).
 - **59 originals have retained-deck corroboration:** their exact bytes appeared
   in retained recorded decks and matched the selected manifests' paths and
   dimensions, but no independent historical PNG checksum was recorded. A hash
