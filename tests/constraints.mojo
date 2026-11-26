@@ -13,7 +13,76 @@ from moxi import (
 )
 
 
+def linear_validation(view: ColumnView) -> Bool:
+    """Independent pre-index validation oracle for malformed-tree equivalence."""
+    var count = view.child_count()
+    for index in range(count):
+        var node = view.children[index]
+        if node.id < 0:
+            return False
+        for previous in range(index):
+            if view.children[previous].id == node.id:
+                return False
+        if node.parent_id == node.id:
+            return False
+        var parent_id = node.parent_id
+        var hops = 0
+        while parent_id != -1:
+            if parent_id == node.id:
+                return False
+            var found = False
+            var next_parent = -1
+            for parent_index in range(count):
+                var parent = view.children[parent_index]
+                if parent.id == parent_id:
+                    if parent.kind != CONTAINER_KIND:
+                        return False
+                    found = True
+                    next_parent = parent.parent_id
+                    break
+            if not found:
+                return False
+            parent_id = next_parent
+            hops += 1
+            if hops > count:
+                return False
+    return True
+
+
+def check_validation_equivalence():
+    # Exhaust every parent assignment and container/leaf combination for four
+    # sparse IDs. Includes forward links, missing parents and disjoint cycles.
+    for parents in range(1296):  # Six parent choices to the fourth power.
+        for kinds in range(16):
+            var view = ColumnView(Rect(0, 0, 100, 100), 0, 0)
+            var choices = parents
+            for index in range(4):
+                var kind = CONTAINER_KIND if (kinds & (1 << index)) != 0 else LABEL_KIND
+                var node = ViewNode(kind, (index + 1) * 10, "", 20)
+                var choice = choices % 6
+                choices //= 6
+                node.parent_id = choice - 2 if choice < 2 else (choice - 1) * 10
+                view.add(node)
+            test_check(view.is_valid() == linear_validation(view))
+
+    var deep = ColumnView(Rect(0, 0, 100, 100), 0, 0)
+    for index in range(96):
+        var node = ViewNode(CONTAINER_KIND, (index + 1) * 1000000, "", 20)
+        node.parent_id = (index + 2) * 1000000 if index < 95 else -1
+        deep.add(node)
+    test_check(deep.is_valid() and linear_validation(deep))
+    # The first node reaches a cycle among ancestors that excludes itself.
+    deep.children[95].parent_id = 64000000
+    test_check(not deep.is_valid() and not linear_validation(deep))
+    var empty = ColumnView(Rect(0, 0, 100, 100), 0, 0)
+    test_check(empty.is_valid() and linear_validation(empty))
+    var negative = ColumnView(Rect(0, 0, 100, 100), 0, 0)
+    negative.add_label(-1, "invalid identity", 20)
+    test_check(not negative.is_valid() and not linear_validation(negative))
+
+
 def main():
+    check_validation_equivalence()
     var column = ColumnView(Rect(0.0, 0.0, 240.0, 160.0), 10.0, 4.0)
     column.add_label(1, "Constrained", 20.0)
     column.set_min_height(1, 32.0)

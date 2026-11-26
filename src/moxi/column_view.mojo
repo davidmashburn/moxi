@@ -1641,36 +1641,31 @@ struct ColumnView:
     def is_valid(self) -> Bool:
         """Validate ids and parent links before layout or reconciliation."""
         var count = self.child_count()
+        # Parent declarations may follow their children. Index the complete
+        # publication once rather than repeatedly scanning it for every link.
+        var indices = Dict[Int, Int]()
         for index in range(count):
-            var node = self.children[index]
-            if node.id < 0:
+            ref node = self.children[index]
+            if node.id < 0 or node.id in indices:
                 return False
-            for previous_index in range(index):
-                if self.children[previous_index].id == node.id:
-                    return False
+            indices[node.id] = index
             if node.parent_id == node.id:
                 return False
-            if node.parent_id == -1:
-                continue
 
+        for index in range(count):
+            ref node = self.children[index]
             var parent_id = node.parent_id
             var hops = 0
             while parent_id != -1:
                 if parent_id == node.id:
                     return False
-                var found_parent = False
-                var next_parent = -1
-                for parent_index in range(count):
-                    var parent = self.children[parent_index]
-                    if parent.id == parent_id:
-                        if parent.kind != CONTAINER_KIND:
-                            return False
-                        found_parent = True
-                        next_parent = parent.parent_id
-                        break
-                if not found_parent:
+                var parent_index = indices.get(parent_id, -1)
+                if parent_index == -1:
                     return False
-                parent_id = next_parent
+                ref parent = self.children[parent_index]
+                if parent.kind != CONTAINER_KIND:
+                    return False
+                parent_id = parent.parent_id
                 hops += 1
                 if hops > count:
                     return False
