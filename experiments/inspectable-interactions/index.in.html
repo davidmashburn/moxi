@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Signal cursor · Moxi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f3eb;color:#172f30;font:16px/1.5 "Source Sans 3",system-ui,sans-serif}main{max-width:930px;margin:4vh auto;padding:20px}
+h1,h2,p{margin:0 0 .55em}h1{font:normal clamp(36px,5vw,60px)/1.15 Georgia,serif}h2{font-size:19px}
+section{margin:20px 0;padding:20px;background:white;border:1px solid #c7d2ca;border-radius:8px}
+header,.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}header{justify-content:space-between}
+#plot{width:100%;transition:none}#plot.compact{width:67%}svg{width:100%;height:auto;display:block;touch-action:none}
+circle{cursor:grab}input,button{font:inherit;border:1px solid #8ba09a;border-radius:4px;padding:6px 12px;background:white;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid #b35416;outline-offset:2px}button:disabled{opacity:.45;cursor:default}
+#commit{background:#194f49;color:white}output{font-variant-numeric:tabular-nums}
+pre{overflow:auto;background:#eaf2ed;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+#status{min-height:1.5em;font-weight:600}
+</style><main>
+<h1>Signal cursor</h1><p>Drag the orange cursor along the trace or enter a sample. Enter commits the preview. Escape cancels it.</p>
+<section><header><h2 id="board">Source trace</h2><output id="stats"></output></header>
+<div id="plot"><!-- FIGURE --></div>
+<p>Horizontal samples 0–100 · whole steps · vertical position follows the trace</p>
+<div class="actions"><label>Sample <input id="entry" type="number" min="0" max="100" step="1"></label>
+<button id="commit">Commit move</button><button id="cancel">Cancel preview</button><button id="undo">Undo move</button></div></section>
+<section><h2>Interaction inspector</h2><output id="inspect"></output><p id="status" role="status"></p>
+<h2>Recorded command</h2><pre id="record"></pre>
+<div class="actions"><button id="switchBoard">Open compact copy</button><button id="replay">Replay command</button></div>
+</section></main><script type="module" src="app.mjs"></script></html>
