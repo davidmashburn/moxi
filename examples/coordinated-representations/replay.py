@@ -37,7 +37,7 @@ def run(output):
     with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server, sync_playwright() as pw:
         Thread(target=server.serve_forever, daemon=True).start()
         browser = pw.chromium.launch()
-        page = browser.new_page(viewport={"width": 1280, "height": 800})
+        page = browser.new_page(viewport={"width": 1280, "height": 800}, device_scale_factor=2)
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         origin = f"http://127.0.0.1:{server.server_port}/"

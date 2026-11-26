@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "demo_id": "i18-coordinated-representations",
+  "title": "Source atlas",
+  "scenario": "I18 · coordinated source selections across a table, plot and canvas",
+  "host": "macOS · collaborative preview · Chromium 152 · 1280 × 800 CSS pixels",
+  "backend": "Moxi Python reference scatter renderer + browser DOM",
+  "revision": "b5fe1f4dfd871db74d6b15a167a7398ef363ea62",
+  "fixture": "Four synthetic specimen readings and four route-owned transit stops",
+  "scale": 2,
+  "reproduce": "From the repo root, follow the example README for the isolated runtime. Run PYTHONPATH=python .pixi/i18/bin/python examples/coordinated-representations/replay.py --output dist/i18-replay to replay the interactions. Run python3 artifacts/demo-slideshows/i18-coordinated-representations/build.py to build the gallery from the recorded originals.",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "browser",
+      "caption": "Open the specimen collection",
+      "action": "Open the specimen collection",
+      "expected": "Four readings appear in each view.",
+      "image": "step-01.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Tab to the first source",
+      "action": "Tab to the first source",
+      "expected": "S-14 has keyboard focus in the source table.",
+      "image": "step-02.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Press Enter on S-14",
+      "action": "Press Enter on S-14",
+      "expected": "S-14 is selected in the table, scatter plot and slide canvas.",
+      "image": "step-03.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Filter to intensity ≥ 50",
+      "action": "Filter to intensity ≥ 50",
+      "expected": "S-14 is retained as filtered while its three marks disappear.",
+      "image": "step-04.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Show all values",
+      "action": "Show all values",
+      "expected": "S-14 reappears selected in all three views.",
+      "image": "step-05.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Switch to group means",
+      "action": "Switch to group means",
+      "expected": "Two mean marks represent four readings; the first includes S-14.",
+      "image": "step-06.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Select the first mean mark",
+      "action": "Select the first mean mark",
+      "expected": "Both contributing sources, S-14 and S-38, are selected.",
+      "image": "step-07.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Try deleting the aggregate selection",
+      "action": "Try deleting the aggregate selection",
+      "expected": "The view explains that deletion requires one visible source.",
+      "image": "step-08.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Select S-38 on the slide canvas",
+      "action": "Select S-38 on the slide canvas",
+      "expected": "Only S-38 is selected; its group mean is highlighted.",
+      "image": "step-09.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Delete S-38",
+      "action": "Delete S-38",
+      "expected": "The S-38 reference reads deleted. Slide A now contains S-14 alone.",
+      "image": "step-10.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Reload the snapshot URL",
+      "action": "Reload the snapshot URL",
+      "expected": "The deletion and its source reference survive reload.",
+      "image": "step-11.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Open transit stops",
+      "action": "Open transit stops",
+      "expected": "The second collection maps boardings and route membership to stations.",
+      "image": "step-12.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Select the T-19 boarding mark",
+      "action": "Select the T-19 boarding mark",
+      "expected": "The Coastal station is selected in the table and schematic.",
+      "image": "step-13.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Group transit stops by route",
+      "action": "Group transit stops by route",
+      "expected": "The Coastal mean links T-02 and T-19.",
+      "image": "step-14.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    },
+    {
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Select the Coastal mean",
+      "action": "Select the Coastal mean",
+      "expected": "Both Coastal stations are selected across views.",
+      "image": "step-15.png",
+      "dimensions": [
+        2560,
+        1600
+      ]
+    }
+  ]
+}
