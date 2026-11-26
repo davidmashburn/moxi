@@ -1013,6 +1013,22 @@ static void add_custom(Custom item) {
     if (custom->len >= CUSTOM_CAPACITY) { ++overflow; g_free(item.text); return; }
     g_array_append_val(custom,item);
 }
+int moxi_window_add_custom_bitmap(
+    const uint8_t *pixels, size_t byte_count, int pixel_width, int pixel_height,
+    float x, float y, float width, float height, float opacity
+) {
+    /* GTK has no retained bitmap command. Reject the submission at the host ABI. */
+    (void)pixels;
+    (void)byte_count;
+    (void)pixel_width;
+    (void)pixel_height;
+    (void)x;
+    (void)y;
+    (void)width;
+    (void)height;
+    (void)opacity;
+    return 0;
+}
 void moxi_window_add_custom_rect(BOX_ARGS, COLOR_ARGS(fill), COLOR_ARGS(stroke), float stroke_width) {
     add_custom((Custom){.box=BOX,.fill=COLOR(fill),.stroke=COLOR(stroke),.stroke_width=stroke_width});
 }

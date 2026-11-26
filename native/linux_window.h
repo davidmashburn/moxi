@@ -1,6 +1,7 @@
 /* Native Linux workbench host. Shared C ABI with the AppKit transport. */
 #ifndef MOXI_LINUX_WINDOW_H
 #define MOXI_LINUX_WINDOW_H
+#include <stddef.h>
 #include <stdint.h>
 #ifdef MOXI_LINUX_TEST
 #include <cairo.h>
@@ -35,6 +36,11 @@ void moxi_window_set_custom_clip(
     float y,
     float width,
     float height
+);
+
+int moxi_window_add_custom_bitmap(
+    const uint8_t *pixels, size_t byte_count, int pixel_width, int pixel_height,
+    float x, float y, float width, float height, float opacity
 );
 
 void moxi_window_add_custom_rect(

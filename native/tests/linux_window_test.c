@@ -229,6 +229,9 @@ static void check_command_capacity(void) {
 
 int main(void) {
     assert(moxi_window_is_open() == 0);
+    const uint8_t rgba[] = {255, 0, 0, 255};
+    assert(moxi_window_add_custom_bitmap(rgba, sizeof(rgba), 1, 1,
+                                         0, 0, 8, 8, 1) == 0);
     check_ordered_clipped_paint();
     check_button_states();
     check_badge_label_alignment();
