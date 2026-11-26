@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Probability instrument</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf2ef;color:#18382f;font:16px/1.45 "Avenir Next",system-ui,sans-serif}
+main{max-width:740px;margin:4vh auto;padding:clamp(14px,4vw,38px);background:white;border-top:5px solid #186c54}
+h1{font:normal clamp(32px,6vw,48px)/1.1 Georgia,serif;margin:0}p{margin:.65em 0}
+#chart{touch-action:none;user-select:none}svg{display:block;width:100%;height:auto}
+rect[data-mark]{cursor:ns-resize;fill:#dfebe4}rect[data-mark]:nth-of-type(odd){fill:#247b63}
+table{width:100%;border-collapse:collapse;text-align:right;font-variant-numeric:tabular-nums}
+td,th{padding:5px;border-bottom:1px solid #d8e3dc}th:first-child{text-align:left}
+form{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:20px 0 10px}
+button,select,input{font:inherit}select,input[type=number],button{padding:.4em .65em}
+input[type=number]{width:8em}label span{display:block;font-size:.85em}
+button{background:#135d49;color:white;border:0;border-radius:4px}button:disabled{background:#dbe2dd;color:#56645d}
+#status{min-height:2.8em}#status.error{color:#902c17}
+</style>
+<main><h1>Probability instrument</h1>
+<p>Model a single draw with outcomes 0, 1 and 2. Each green bar shows P(X = x) on a scale from 0 to 1. Probabilities sum to 1.</p>
+<div id="chart" aria-label="Probability bars, ordered by outcome"><!--chart--></div>
+<table><thead><tr><th>Outcome x</th><th>0</th><th>1</th><th>2</th><th>Mean ΣxP(x)</th></tr></thead>
+<tbody><tr id="saved"><th>Committed</th></tr><tr id="draft"><th>Preview</th></tr></tbody></table>
+<form><label><span>Outcome</span><select id="outcome"><option>0</option><option>1</option><option selected>2</option></select></label>
+<label><span>Requested P(x)</span><input id="target" type="number" step="any" min="0" max="1" value="0.25" required></label>
+<button id="apply" disabled>Apply preview</button><button type="button" id="cancel" disabled>Discard</button></form>
+<label><input type="checkbox" id="pin"> Fix the committed mean</label>
+<p id="status" role="status"></p>
+<small>Drag within a bar or type a probability. Free edits preserve the ratio of the other masses, splitting equally if both were zero. Pinning the mean determines both remaining masses. Values are computed from the model and rounded for display. No samples were observed.</small></main>
+<script>
+const byId = id => document.getElementById(id);
+const chart = byId('chart'), target = byId('target'), outcome = byId('outcome'), pin = byId('pin');
+const apply = byId('apply'), cancel = byId('cancel'), statusLine = byId('status');
+let mass = [.25,.5,.25], savedSVG = chart.innerHTML, candidate = null, revision = 0;
+const fmt = n => Number(n.toPrecision(7)).toString();
+function row(id, values) {
+  const tr = byId(id);
+  while (tr.cells.length > 1) tr.deleteCell(1);
+  const fields = values ? [...values, values[1] + 2 * values[2]].map(fmt) : Array(4).fill('—');
+  fields.forEach(value => tr.insertCell().textContent = value);
+}
+function reset(message) {
+  revision++; candidate = null; chart.innerHTML = savedSVG;
+  target.value = mass[Number(outcome.value)];
+  row('saved',mass); row('draft',null); apply.disabled = cancel.disabled = true;
+  statusLine.className = ''; statusLine.textContent = message;
+}
+async function preview() {
+  const serial = ++revision;
+  apply.disabled = true; cancel.disabled = false; candidate = null;
+  row('draft',null); statusLine.className = '';
+  try {
+    if (!target.validity.valid) throw Error('Enter a probability between 0 and 1.');
+    statusLine.textContent = 'Computing preview…';
+    const response = await fetch('/preview',{method:'POST',body:JSON.stringify({
+      mass, outcome:Number(outcome.value), target:target.valueAsNumber, pinned:pin.checked
+    })});
+    const data = await response.json();
+    if (revision !== serial) return;
+    if (!response.ok) throw Error(data.error);
+    candidate = data; chart.innerHTML = data.svg; row('draft',data.mass);
+    apply.disabled = false; statusLine.textContent = 'Preview shown. Apply to commit this distribution.';
+  } catch (error) {
+    if (revision !== serial) return;
+    chart.innerHTML = savedSVG; statusLine.className = 'error';
+    statusLine.textContent = error.message + ' Committed distribution retained.';
+  }
+}
+document.querySelector('form').onsubmit = event => {
+  event.preventDefault();
+  if (candidate) { mass = candidate.mass; savedSVG = candidate.svg; reset('Distribution committed.'); }
+};
+target.oninput = preview; outcome.onchange = () => reset('Outcome selected.');
+pin.onchange = () => reset(pin.checked ? 'Current mean pinned.' : 'Mean released.');
+cancel.onclick = () => reset('Preview discarded.');
+document.onkeydown = e => { if (e.key === 'Escape') reset('Preview discarded.'); };
+let drag;
+function move(e) {
+  if (!drag || drag.id !== e.pointerId) return;
+  target.value = Math.min(1, Math.max(0, (drag.bottom-e.clientY)/drag.height)).toFixed(3);
+  preview();
+}
+chart.onpointerdown = e => {
+  const bars = [...chart.querySelectorAll('rect[data-mark]')];
+  const index = bars.indexOf(e.target);
+  if (index < 0 || e.button !== 0 || drag) return;
+  const group = Math.floor(index/2);
+  const bottom = bars[group*2].getBoundingClientRect().bottom;
+  const top = bars[group*2+1].getBoundingClientRect().top;
+  drag = {id:e.pointerId,bottom,height:bottom-top}; outcome.value = String(group);
+  chart.setPointerCapture(e.pointerId); move(e);
+};
+chart.onpointermove = move;
+chart.onpointerup = e => { if (drag?.id === e.pointerId) { move(e); drag = null; } };
+chart.onpointercancel = () => { drag = null; reset('Gesture cancelled.'); };
+reset('Drag a bar or enter a probability to preview.');
+</script></html>
