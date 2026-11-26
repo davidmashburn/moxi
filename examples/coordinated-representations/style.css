@@ -1,0 +1,23 @@
+*{box-sizing:border-box}
+body{margin:0;background:#f2f2ed;color:#173932;font:16px Inter,system-ui,sans-serif}
+main{max-width:1440px;margin:auto;padding:4vw}
+header,nav{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+header{justify-content:space-between;border-bottom:1px solid #a8b9b0;padding-bottom:1rem;font-weight:600}
+h1{font:normal clamp(2.6rem,6vw,5rem) Georgia,serif;margin:.45em 0}
+h2{font:normal 1.6rem Georgia,serif;margin:0 0 1rem}
+.button{display:inline-block;color:inherit;background:white;text-decoration:none;padding:.45rem .7rem;border:1px solid #9eb6ad;border-radius:.35rem}
+.button:hover{background:#dcebe3}
+.button.picked,.status{background:#18483f;color:white}
+:focus-visible{outline:3px solid #c25c00;outline-offset:2px}
+.status,[role=alert]{padding:1rem;border-radius:.3rem}
+[role=alert]{background:#ffe4c4}
+.panels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+section{background:white;border:1px solid #c3cfc5;border-radius:.5rem;padding:1.1rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:.45rem .15rem;border-bottom:1px solid #dce3df}
+svg{width:100%;height:auto}
+circle.picked{fill:#f4bd57;stroke:#18483f;stroke-width:3}
+.canvas{height:220px;position:relative;background-color:#e5efea;background-image:radial-gradient(#9ab6ab 1px,transparent 1px);background-size:12px 12px}
+.canvas a{position:absolute;transform:translate(-50%,-50%)}
+footer,section p{font-size:.9rem;color:#476456;margin:1.25rem 0}
+@media(max-width:950px){.panels{grid-template-columns:1fr}}

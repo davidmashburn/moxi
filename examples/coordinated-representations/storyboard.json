@@ -1,0 +1,17 @@
+[
+  ["initial", "open", "", "Open the specimen collection", "Four readings appear in each view."],
+  ["interaction", "tab", "tbody a", "Tab to the first source", "S-14 has keyboard focus in the source table."],
+  ["result", "enter", "", "Press Enter on S-14", "S-14 is selected in the table, scatter plot and slide canvas."],
+  ["result", "click", "nav a:first-child", "Filter to intensity ≥ 50", "S-14 is retained as filtered while its three marks disappear."],
+  ["recovery", "click", "nav a:first-child", "Show all values", "S-14 reappears selected in all three views."],
+  ["interaction", "click", "nav a:nth-child(2)", "Switch to group means", "Two mean marks represent four readings; the first includes S-14."],
+  ["result", "click", "#plot a:first-of-type circle", "Select the first mean mark", "Both contributing sources, S-14 and S-38, are selected."],
+  ["recovery", "click", "nav a:nth-child(3)", "Try deleting the aggregate selection", "The view explains that deletion requires one visible source."],
+  ["interaction", "click", ".canvas a:nth-child(2)", "Select S-38 on the slide canvas", "Only S-38 is selected; its group mean is highlighted."],
+  ["result", "click", "nav a:nth-child(3)", "Delete S-38", "The S-38 reference reads deleted. Slide A now contains S-14 alone."],
+  ["result", "reload", "", "Reload the snapshot URL", "The deletion and its source reference survive reload."],
+  ["interaction", "click", "header a", "Open transit stops", "The second collection maps boardings and route membership to stations."],
+  ["result", "click", "#plot a:nth-of-type(2) circle", "Select the T-19 boarding mark", "The Coastal station is selected in the table and schematic."],
+  ["result", "click", "nav a:nth-child(2)", "Group transit stops by route", "The Coastal mean links T-02 and T-19."],
+  ["result", "click", "#plot a:first-of-type circle", "Select the Coastal mean", "Both Coastal stations are selected across views."]
+]
