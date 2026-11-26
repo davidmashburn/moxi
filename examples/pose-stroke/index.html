@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'none'">
+<title>Pose stroke study</title>
+<style>
+*{box-sizing:border-box}body{margin:0 auto;max-width:980px;background:#f6f3eb;color:#222d30;font:17px/1.5 system-ui;padding:clamp(14px,4vw,48px)}
+h1{font:normal clamp(38px,6vw,68px)/1.1 Georgia,serif;margin:0}h2{font:normal 26px Georgia,serif;margin:0}
+section{margin:18px 0;padding:20px;background:#fffdf8;border:1px solid #c7c7bb;border-radius:10px}
+button{font:inherit;padding:8px 16px;background:white;border:1px solid #7a8882;border-radius:6px;margin:0 6px 6px 0}
+button[aria-pressed=true]{background:#286962;color:white}button:focus-visible{outline:3px solid #167277}svg{width:100%;height:74px}output{font:600 20px system-ui}
+.head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}#status{font-weight:bold}small{color:#435450}
+</style></head><body>
+<h1>Pose stroke study</h1><p>Step through one synthetic hand motion. Both brushes receive the same curl, spread, confidence and clutch signal.</p>
+<div role="group" aria-label="Replay controls"><button id="next">Next sample</button><button id="hold" aria-pressed="false">Hold clutch open</button><button id="reset">Restart replay</button></div>
+<div aria-live="polite"><p id="status"></p><small id="features"></small></div>
+<main id="brushes"></main>
+<small>Calibration at zero spread maps curl from 4 to 28 px. At full spread, the interpolated brush maps curl from 16 to 12 px. Confidence below 0.70 holds the width.</small>
+<template id="brush"><section><div class="head"><h2></h2><output></output></div><svg viewBox="0 0 600 75" aria-hidden="true"><path d="M20 51 Q92 8 165 38 T310 37 T455 36 T580 30" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></section></template>
+<script src="model.js"></script><script src="replay.js"></script></body></html>
