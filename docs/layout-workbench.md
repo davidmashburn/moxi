@@ -133,7 +133,7 @@ trace and app log are saved under `dist/linux-native-artifacts`. The optional
 that lane is separate from the real VM desktop observation.
 
 For a fresh isolated Openbox session, launch it with
-`openbox --config-file scripts/linux_ui_openbox.xml`. The zero-delay click/type
+`openbox --config-file "$PWD/scripts/linux_ui_openbox.xml"`. The zero-delay click/type
 checks require ordered input: default Openbox client mouse bindings can delay
 clicks behind keyboard events through synchronous pointer grabs. This test
 configuration also retains Alt+F4 for the clean-close check. It belongs only to
