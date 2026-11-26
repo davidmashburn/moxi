@@ -543,15 +543,23 @@
       "scope": "Full-catalog reconciliation gate: current capability inventory additionally names parallel, funnel, bump, effect_scatter and arc_diagram outside A\u2013C prose. Audit reference layouts and define remaining parity deltas before implementing any missing ones.",
       "state": "partial",
       "commits": [
-        "4098a41"
+        "4098a41",
+        "53fab67",
+        "102293c",
+        "367a7b3"
       ],
       "verification": [
-        "Five real v0.8.0 APIs exported reference SVGs. All five Moxi static catalog fixtures exported SVG/PNG, with 40 source-row hits and matching tables. See dataviz-migration.md#e06-catalog-reconciliation."
+        "Five real v0.8.0 APIs exported reference SVGs. All five Moxi static catalog fixtures exported SVG/PNG, with 40 source-row hits and matching tables. See dataviz-migration.md#e06-catalog-reconciliation.",
+        "A three-stage specialized funnel matches the pinned upstream geometry within 0.001905 of the plot span in both native and Python SVG exports. Replay checked source identity after value changes, selection and export. All five legacy fixtures passed.",
+        "Mojo and Python rank adjacent Int64 counts above the binary64 exact-integer boundary. The Python table retains the source counts. The native replay and 372 Python and specialized tests passed."
       ],
       "remaining_gates": [
-        "Specialized layouts, native interaction, family-specific visual comparisons and benchmarks remain open."
+        "Parallel coordinates, bump rankings and arc diagrams still need specialized layouts. Funnel palette, margins and legend treatment differ from the reference. Native cross-host interaction, family benchmarks and independent visual acceptance remain open.",
+        "The native software renderer fills polygon bounds. Canvas and SVG preserve the funnel taper."
       ],
-      "slideshows": []
+      "slideshows": [
+        "examples/funnel/evidence/comparison.html"
+      ]
     },
     {
       "id": "N01",
@@ -748,11 +756,22 @@
     {
       "id": "I15",
       "scope": "Synthetic stream and async result capture \u2192 reopen episode \u2192 missing-result limitation.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "b6f0f3b",
+        "de871bf",
+        "bb25e02"
+      ],
+      "verification": [
+        "Captured 24 synthetic ticks in a rolling window of 12. A saved episode reopened after a browser reload with peak 84. The incomplete episode reported 12 evicted ticks, one missing retained tick and an unavailable asynchronous result.",
+        "On Python 3.9.6 the local HTTP capture and open endpoints returned identical episodes and plot output after reload from saved JSON."
+      ],
+      "remaining_gates": [
+        "Replay covers recorded readings and the recorded result. Physical sensors, scheduler timing, assistive technology and other hosts were not exercised."
+      ],
+      "slideshows": [
+        "examples/flight-recorder/evidence/flight-recorder/index.html"
+      ]
     },
     {
       "id": "I18",
@@ -775,11 +794,20 @@
     {
       "id": "I20",
       "scope": "Button/keyboard/script produce same cohort operation \u2192 caller-policy rejection.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "f1a6b76",
+        "a727c2b"
+      ],
+      "verification": [
+        "The native button, replacement button, F2 and headless script all selected cohort [104,318]. The read-only caller was rejected without changing membership or write count."
+      ],
+      "remaining_gates": [
+        "Physical input, assistive technology and independent usability remain untested. Reuse by downstream consumers is tracked separately."
+      ],
+      "slideshows": [
+        "examples/application-operations/i20-application-operations/index.html"
+      ]
     }
   ]
 }
