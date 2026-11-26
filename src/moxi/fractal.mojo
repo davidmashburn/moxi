@@ -1387,7 +1387,7 @@ struct FractalState(Component):
             if preview.step(self.local_segments, self.geometry.baseline_start, self.geometry.baseline_end):
                 self.rendered_segments.append(preview.leaf)
         self.cursor = FractalCursor(self.depth, self.geometry.baseline_start, self.geometry.baseline_end)
-        self.raster = RasterImage(Int(FRACTAL_CANVAS_WIDTH), Int(FRACTAL_CANVAS_HEIGHT))
+        self.raster.reset(Int(FRACTAL_CANVAS_WIDTH), Int(FRACTAL_CANVAS_HEIGHT))
         self.coordinate_overflow = False
 
     def advance_render(mut self, budget: Int = FRACTAL_RENDER_BATCH) -> Bool:

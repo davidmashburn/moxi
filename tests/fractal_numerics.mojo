@@ -230,4 +230,13 @@ def main():
     var copy = image
     copy.pixels[0] = 255
     test_check(image.pixels[0] == checksum)
+    var storage = Int(image.pixels.unsafe_ptr())
+    image.reset(64, 16)
+    test_check(storage == Int(image.pixels.unsafe_ptr()))
+    test_check(image.width == 64 and image.height == 16)
+    for byte in image.pixels:
+        test_check(byte == 0)
+    test_check(copy.pixels[0] == 255)
+    image.reset(-1, 3)
+    test_check(image.is_empty() and len(image.pixels) == 0)
     print("Moxi fractal numeric and raster contracts passed")

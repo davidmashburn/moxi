@@ -17,14 +17,22 @@ struct RasterImage(ImplicitlyCopyable):
     def __init__(out self, width: Int = 0, height: Int = 0):
         self.width = max(width, 0)
         self.height = max(height, 0)
-        self.pixels = List[UInt8](capacity=self.width * self.height * 4)
-        for _ in range(self.width * self.height * 4):
-            self.pixels.append(0)
+        self.pixels = List[UInt8](length=self.width * self.height * 4, fill=0)
 
     def __init__(out self, *, copy: Self):
         self.width = copy.width
         self.height = copy.height
         self.pixels = copy.pixels.copy()
+
+    def reset(mut self, width: Int, height: Int):
+        """Clear every RGBA byte, reusing storage when the byte count matches."""
+        self.width = max(width, 0)
+        self.height = max(height, 0)
+        var byte_count = self.width * self.height * 4
+        if len(self.pixels) != byte_count:
+            self.pixels = List[UInt8](length=byte_count, fill=0)
+        else:
+            self.pixels[:].fill(0)
 
     def is_empty(self) -> Bool:
         return self.width == 0 or self.height == 0
