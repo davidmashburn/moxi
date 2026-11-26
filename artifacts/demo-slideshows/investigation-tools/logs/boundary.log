@@ -1,0 +1,32 @@
+version: rejected / Unhandled exception caught during execution: Unsupported panel version
+fixture: rejected / Unhandled exception caught during execution: Unknown fixture; refusing to retarget observations
+target: rejected / Unhandled exception caught during execution: Unknown panel target
+fixture-state: rejected / Unhandled exception caught during execution: Unsupported fixture state
+mode: rejected / Unhandled exception caught during execution: Unsupported membership mode
+rule: rejected / Unhandled exception caught during execution: Unsupported cohort rule
+model: rejected / Unhandled exception caught during execution: Unsupported model kind
+controls: rejected / Unhandled exception caught during execution: Unsupported panel controls
+empty-members: rejected / Unhandled exception caught during execution: Create a cohort and fit a model before saving a panel
+duplicate-members: rejected / Unhandled exception caught during execution: Duplicate observation ID
+unknown-members: rejected / Unhandled exception caught during execution: Unknown observation ID
+insufficient-members: rejected / Unhandled exception caught during execution: Not enough cohort observations for this model
+fractional-id: rejected / Unhandled exception caught during execution: String is not convertible to integer with base 10: '530.5'
+empty-name: rejected / Unhandled exception caught during execution: Give the cohort a name of 1 to 64 characters
+long-name: rejected / Unhandled exception caught during execution: Give the cohort a name of 1 to 64 characters
+long-hypothesis: rejected / Unhandled exception caught during execution: Hypothesis exceeds 140 characters
+control-text: rejected / Unhandled exception caught during execution: Panel text cannot contain control characters
+coefficient-count: rejected / Unhandled exception caught during execution: Invalid panel value type
+coefficient-range: rejected / Unhandled exception caught during execution: Coefficients must be finite and within +/- 1000000
+coefficient-type: rejected / Unhandled exception caught during execution: Expected a panel number
+linear-c2: rejected / Unhandled exception caught during execution: Only a quadratic model supports c2
+mean-c1: rejected / Unhandled exception caught during execution: A mean model supports only c0
+live-mismatch: rejected / Unhandled exception caught during execution: Live membership disagrees with the saved rule
+unknown-field: rejected / Unhandled exception caught during execution: Unsupported panel field
+missing-field: rejected / Unhandled exception caught during execution: Panel is missing required fields
+duplicate-field: rejected / Unhandled exception caught during execution: Duplicate panel field
+truncated: rejected / Unhandled exception caught during execution: Invalid panel JSON or file exceeds 8 KiB
+trailing-data: rejected / Unhandled exception caught during execution: Invalid panel JSON or file exceeds 8 KiB
+oversized: rejected / Unhandled exception caught during execution: Invalid panel JSON or file exceeds 8 KiB
+nonfinite: rejected / Unhandled exception caught during execution: Coefficients must be finite and within +/- 1000000
+unpaired-surrogate: rejected / Unhandled exception caught during execution: Invalid panel value type
+reordered fields, escaped Unicode, live mode: accepted and round-tripped
