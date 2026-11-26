@@ -1,27 +1,9 @@
 {
-  "base_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
-  "review_checkout_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
-  "verified_at": "2026-11-23T07:46:02.141167+00:00",
-  "worktree": ".",
-  "scope": "Planning item 1: repaired D04 edit/preview/large-map frames plus the newly observed reflow-start overlap; focused native replay and source/PNG verification. D07 retains its independent capture.",
-  "result": "All 20 current D04 frames pass their bounded scenarios after repair of the reflow-start overlap. Native red/green regression, six-part contracts, source/PNG hashes and focused schema checks pass. Broader acceptance gates remain open.",
-  "confidence": {
-    "level": "high for the recorded source provenance, replay assertions and bounded pixel observations",
-    "would_change_conclusion": [
-      "Any source, manifest, PNG or executable hash mismatch",
-      "New captures or implementation changes",
-      "Contradictory physical-input, accessibility or independent-human evidence"
-    ]
-  },
+  "implementation_revision": "07a53792b442519255018e7854116e0b3f2158a3",
+  "baseline_revision": "0da6f295b6d20cdf663aaf66a039a43e8fb66dd0",
+  "verified_utc": "2026-11-26T02:51:45.170563+00:00",
   "environment": {
-    "observed_at": "2026-11-23T07:46:02.141167+00:00",
-    "macos": "27.2.1",
-    "architecture": "arm64",
-    "mojo": "Mojo 1.1.0 (8189361e)",
-    "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
-    "sdk": "27.0",
-    "host": "native AppKit local process",
-    "browser": "not used; direct native PNG inspection",
+    "host": "27.2.1 arm64 Apple M4",
     "viewport_points": [
       1180,
       820
@@ -30,89 +12,44 @@
       2360,
       1640
     ],
-    "backing_scale": 2,
+    "backend": "AppKit contentView cacheDisplay; shared moxi_canvas native presenter",
     "fixture": "Original synthetic six-topic, import-loss and 1,000-topic fixtures",
-    "capture_window_utc": [
-      "2026-11-23T07:43:16.946145+00:00",
-      "2026-11-23T07:43:30.606526+00:00"
+    "source_state": "clean committed implementation",
+    "mojo": "1.1.0 (8189361e)",
+    "content_view_scale": 2,
+    "slideshow_browser": "Google Chrome 158.0.8127.37"
+  },
+  "manifest_sha256": "0b8b4b489475310dc92236bb14b2d39a6d8edf82ec45384c0471555204c047dd",
+  "executable_sha256": "cc32f45e9a4f7726aed03b553314da342a52ceca630a07c48c2fafc4b37ec9e5",
+  "source_hashes_verified": 186,
+  "offline_slideshow": "20 native PNGs decoded offline, Next/Previous wrap, both arrow keys and thumbnail jump PASS",
+  "native_input": {
+    "before": [
+      "viewport_ordinary_commands 37 clipped_edge_commands 4851",
+      "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+      "main_thread_cpu p50_ms 27.365167 p95_ms 29.094833 p99_max_ms 29.629541",
+      "elapsed p50_ms 27.404 p95_ms 29.096 p99_max_ms 29.66"
+    ],
+    "after": [
+      "viewport_ordinary_commands 37 clipped_edge_commands 17",
+      "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+      "main_thread_cpu p50_ms 6.330084 p95_ms 6.915625 p99_max_ms 6.96775",
+      "elapsed p50_ms 6.332 p95_ms 6.965 p99_max_ms 6.969"
     ]
   },
-  "source_state": {
-    "recorded_state": "clean committed implementation",
-    "scoped_dirty_source": []
-  },
-  "source_verification": {
-    "capture_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
-    "resolved_frames": 20,
-    "images": [
-      "01-initial.png",
-      "02-mixed-edit.png",
-      "03-fold-search.png",
-      "04-reparent-preview.png",
-      "05-cancel.png",
-      "06a-reflow-start.png",
-      "06b-reflow-middle.png",
-      "06-reparent-result.png",
-      "07-undo.png",
-      "07b-reduced-motion.png",
-      "08a-pointer-preview.png",
-      "08a-pointer-cancel.png",
-      "08b-pointer-result.png",
-      "08c-pointer-undo.png",
-      "08-side-spacing.png",
-      "09-crosslink-outline.png",
-      "10-save-recovery.png",
-      "11-import-loss.png",
-      "12-large-folded.png",
-      "13-large-expanded.png"
-    ],
-    "unreferenced_pngs": [],
-    "recorded_source_files": 184,
-    "supplemental_source_sha256": {},
-    "sources_equal_reviewed_git_blobs": 184,
-    "executable_sha256": "71f5085c8bab9b6fa3114ee730ddaee992354b4294dcf7b6bfc143c671e67b6b",
-    "recorded_source_aggregate_sha256": "cb39065febf34a39a3f8ce82b60782dee61e46b360970c83ee5ea7627ba19f1d"
-  },
-  "manifest_sha256": "b84081feaf981e5b075febf2497d70b8b6cfec644cd06f6d8e2c872c28985379",
-  "previous_review": {
-    "base_revision": "d7fa3ed563948860f4baf18bcc9f3eb279197135",
-    "verified_at": "2026-11-20T22:16:23.321274+00:00",
-    "partial_frames": [
-      "02-mixed-edit.png",
-      "04-reparent-preview.png",
-      "08a-pointer-preview.png",
-      "13-large-expanded.png"
-    ],
-    "resolution": "The listed visual defects were repaired and these current native captures were reviewed anew."
-  },
-  "commands": [
-    {
-      "command": "pixi run d04-mindmap-contract",
-      "cwd": ".",
-      "exit_code": 0,
-      "scope": "All six contracts and 70-command inventory after the final reflow repair; same tested source bytes committed at the capture revision"
-    },
-    {
-      "command": "pixi run d04-mindmap-replay",
-      "cwd": ".",
-      "exit_code": 0
-    },
-    {
-      "command": "python3 artifacts/demo-slideshows/check_d04_d07.py --revision 9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
-      "cwd": ".",
-      "exit_code": 0
-    },
-    {
-      "command": "review_root=$(mktemp -d /tmp/moxi-gallery-check.XXXXXX)\nfor demo in mindmap spatial-assembly sws-native; do\n  ln -s \"$PWD/artifacts/demo-slideshows/$demo\" \"$review_root/$demo\"\ndone\npython3 scripts/demo_slideshows.py \"$review_root\" --check",
-      "cwd": ".",
-      "exit_code": 0,
-      "result": "Validated three focused manifests; SWS is restored historical evidence, without a new replay"
-    }
+  "unverified": [
+    "Physical pointer/keyboard, IME, chooser, VoiceOver and independent usability",
+    "Compositor/scanout latency, GPU work, allocation counts, retained memory, sustained energy and thermals",
+    "Fully visible 1,000-topic and expanded 10,000-topic native submission, all-interaction 8 ms acceptance",
+    "Live Freeplane parity, other hosts and viewports, full repository suite and remote CI"
   ],
+  "save_recovery_bytes": {
+    "saved_sha256": "1dbc11757a6ecd2fcd279e0fcf44a800fc6fa6a5b53d916fb19322a24476fe66",
+    "recovery_sha256": "a2351ee7fb4ece111e44c2ff14b4ea02ecf0ef813ebc15b2b0405aa2dfc461b3",
+    "suffix_only_in_recovery": true
+  },
   "visual_review": {
-    "reviewer": "Codex; no independent human acceptance",
-    "method": "All 20 current frames inspected in five ordered, labeled contact sheets. The two changed frames are byte-identical to the green replay PNGs also inspected at original resolution. The other 18 PNGs are unchanged from the prior reviewed capture. Each tracked PNG is the primary visual artifact.",
-    "partial_frames": [],
+    "method": "AppKit content-view cacheDisplay, queued F2, remaining events through public APIs. Each frame compared to the November 23 raster and inspected in sequence.",
     "frames": [
       {
         "image": "01-initial.png",
@@ -121,7 +58,8 @@
         "expected": "Two root sides, ordinary editable topic controls and an independent crosslink.",
         "observed": "Six ordinary topic controls, both root sides, tree edges, crosslink and minimap are visible.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Image establishes this synthetic initial layout only."
+        "limits_or_assertion_evidence": "Image establishes this synthetic initial layout only.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "02-mixed-edit.png",
@@ -130,7 +68,8 @@
         "expected": "The wrapped draft is legible inside its temporary editor layout. This is not physical IME evidence.",
         "observed": "The full Draft/café/combining-accent, Korean, Hebrew and emoji draft is visible across two editor rows, with the footer and Share card clear of the editor.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Native inset and wide-glyph space are reserved in a temporary layout; semantic text is still uncommitted. This uses queued F2 plus public text events, not a physical IME. The wider editor leaves part of child #5 beyond the right viewport."
+        "limits_or_assertion_evidence": "Native inset and wide-glyph space are reserved in a temporary layout; semantic text is still uncommitted. This uses queued F2 plus public text events, not a physical IME. The wider editor leaves part of child #5 beyond the right viewport.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "03-fold-search.png",
@@ -139,7 +78,8 @@
         "expected": "A hidden topic remains discoverable without changing stored folds.",
         "observed": "Arabic query and Field notes breadcrumb match appear above the folded map; replay reports five visible topics.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Overlay obscures part of the graph; fold/search semantics beyond the displayed path rely on the replay."
+        "limits_or_assertion_evidence": "Overlay obscures part of the graph; fold/search semantics beyond the displayed path rely on the replay.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "04-reparent-preview.png",
@@ -148,7 +88,8 @@
         "expected": "The branch appears in the target lane, clear of stationary neighbors and revealed in the viewport; committed tree unchanged.",
         "observed": "Test an idea is revealed on the Research lane below Field notes, with a rerouted edge and no stationary sibling overlap. Draft still shows its committed child count.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "The preview separates moving cards from stationary neighbors; final vertical placement becomes authoritative at commit. Field notes remains partly outside the left viewport."
+        "limits_or_assertion_evidence": "The preview separates moving cards from stationary neighbors; final vertical placement becomes authoritative at commit. Field notes remains partly outside the left viewport.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "05-cancel.png",
@@ -157,7 +98,8 @@
         "expected": "Document encoding equals its pre-preview encoding; no history entry.",
         "observed": "Cancelled status and the prior Draft-to-Test-an-idea relationship return.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Replay explicitly compares document encodings before/after cancellation; leftmost node remains partly cropped."
+        "limits_or_assertion_evidence": "Replay explicitly compares document encodings before/after cancellation; leftmost node remains partly cropped.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "06a-reflow-start.png",
@@ -166,7 +108,8 @@
         "expected": "Moved branch is at its destination; conflicting neighbors start past it along their paths, while safe neighbors retain prior bounds.",
         "observed": "The committed #5 card is fixed at its final Research-side position. Field notes starts higher along its existing path, with its footer clear of #5; no card overlap is visible.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Native replay asserts no visible other topic overlaps the committed #5 bounds at start and midpoint. The focused trajectory contract covers initial and later path collisions against two moved descendants, plus ordinary-neighbor interpolation. Left-edge cropping persists. These are deterministic geometry checks, without presentation-timed smoothness evidence."
+        "limits_or_assertion_evidence": "Native replay asserts no visible other topic overlaps the committed #5 bounds at start and midpoint. The focused trajectory contract covers initial and later path collisions against two moved descendants, plus ordinary-neighbor interpolation. Left-edge cropping persists. These are deterministic geometry checks, without presentation-timed smoothness evidence.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "06b-reflow-middle.png",
@@ -175,7 +118,8 @@
         "expected": "Shared canvas geometry interpolates without obscuring the committed branch; semantic content and history are unchanged.",
         "observed": "Field notes is farther along its upward path, clear of #5; #5 stays at its committed destination.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Native replay asserts non-overlap. The 90 ms interval is an injected public frame tick; semantic/history stability and ordinary-neighbor interpolation are checked by contracts, without wall-clock smoothness or latency claims."
+        "limits_or_assertion_evidence": "Native replay asserts non-overlap. The 90 ms interval is an injected public frame tick; semantic/history stability and ordinary-neighbor interpolation are checked by contracts, without wall-clock smoothness or latency claims.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "06-reparent-result.png",
@@ -184,7 +128,8 @@
         "expected": "Neighbor bounds reach the exact destination; one semantic commit changes parent and sibling order.",
         "observed": "Final Research layout contains Field notes and Test an idea; Draft has zero children.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Replay checks animation has settled after the second 90 ms tick. Leftmost content is partly outside the viewport."
+        "limits_or_assertion_evidence": "Replay checks animation has settled after the second 90 ms tick. Leftmost content is partly outside the viewport.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "07-undo.png",
@@ -193,7 +138,8 @@
         "expected": "Stable topic IDs, prior parent/order and links restored.",
         "observed": "Undo status appears and Test an idea returns under Draft.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Visual hierarchy restoration is visible; stable IDs/history internals are not proved by pixels alone."
+        "limits_or_assertion_evidence": "Visual hierarchy restoration is visible; stable IDs/history internals are not proved by pixels alone.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "07b-reduced-motion.png",
@@ -202,7 +148,8 @@
         "expected": "The same final layout appears immediately, without animation.",
         "observed": "Reduced-motion capture shows the same final Research branch layout immediately.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Replay explicitly checks reflow is inactive; this uses an explicit policy rather than changing the OS preference."
+        "limits_or_assertion_evidence": "Replay explicitly checks reflow is inactive; this uses an explicit policy rather than changing the OS preference.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "08a-pointer-preview.png",
@@ -211,7 +158,8 @@
         "expected": "The proposed branch and parent remain separately legible; shared capture and destination hit testing use committed geometry.",
         "observed": "Share findings and Test an idea appear as separate controls with a connecting edge; the moving branch no longer covers the destination title or body.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Pointer hit regions remain the committed layout. The target header truncates its trailing emoji; its body label and the branch are legible. Field notes is cropped at the left viewport."
+        "limits_or_assertion_evidence": "Pointer hit regions remain the committed layout. The target header truncates its trailing emoji; its body label and the branch are legible. Field notes is cropped at the left viewport.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "08a-pointer-cancel.png",
@@ -220,7 +168,8 @@
         "expected": "Original document encoding is retained without a history commit.",
         "observed": "Cancelled status and the original hierarchy return after pointer-cancel.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Replay explicitly compares encoded content after public pointer-cancel; this is not physical AppKit capture-loss evidence."
+        "limits_or_assertion_evidence": "Replay explicitly compares encoded content after public pointer-cancel; this is not physical AppKit capture-loss evidence.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "08b-pointer-result.png",
@@ -229,7 +178,8 @@
         "expected": "The target becomes the parent in one history step.",
         "observed": "Test an idea is attached to Share findings; Draft has zero children and Share findings has one.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Replay asserts parent ID 6 and advances a deterministic completion tick; leftmost content is cropped."
+        "limits_or_assertion_evidence": "Replay asserts parent ID 6 and advances a deterministic completion tick; leftmost content is cropped.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "08c-pointer-undo.png",
@@ -238,7 +188,8 @@
         "expected": "The prior hierarchy returns.",
         "observed": "Undo restores Test an idea under Draft and Share findings to zero children.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "This is the actual command replay, not a physical undo shortcut exercise."
+        "limits_or_assertion_evidence": "This is the actual command replay, not a physical undo shortcut exercise.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "08-side-spacing.png",
@@ -247,7 +198,8 @@
         "expected": "Deterministic layout reflows with stable identities.",
         "observed": "Draft/Test an idea move to the left root side; after Fit all six controls are inside the viewport with changed spacing.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Only this fixed fixture and camera are reviewed."
+        "limits_or_assertion_evidence": "Only this fixed fixture and camera are reviewed.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "09-crosslink-outline.png",
@@ -256,7 +208,8 @@
         "expected": "Outline and graph share one document; links do not change ancestry.",
         "observed": "Outline lists six topic breadcrumbs; underlying badges show the additional Research/Share findings link.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "The overlay hides graph geometry. Crosslink ancestry invariance is not independently established by this image."
+        "limits_or_assertion_evidence": "The overlay hides graph geometry. Crosslink ancestry invariance is not independently established by this image.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "10-save-recovery.png",
@@ -265,7 +218,8 @@
         "expected": "Recovered content appears; original saved file is retained.",
         "observed": "Recovered-draft text appears on Draft and status says recovered in memory; the ordinary saved fixture lacks that suffix while its recovery envelope contains it.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Saved and recovery bytes were inspected separately; no power-loss or restart-resilience claim."
+        "limits_or_assertion_evidence": "Saved and recovery bytes were inspected separately; no power-loss or restart-resilience claim.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "11-import-loss.png",
@@ -274,211 +228,107 @@
         "expected": "Unsupported data is visible; XML source remains untouched and inert.",
         "observed": "Report visibly lists four imported topics, zero connectors, dangling/self connector omission, inert omitted elements and unsafe/local hyperlink omission.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Only the displayed report page and synthetic loss.mm fixture were exercised; source hashes stayed unchanged."
+        "limits_or_assertion_evidence": "Only the displayed report page and synthetic loss.mm fixture were exercised; source hashes stayed unchanged.",
+        "pixel_delta_bounds_from_nov23": null
       },
       {
         "image": "12-large-folded.png",
-        "sha256": "957c7a5c876a89b91deab24c740d4f628ee01b0c9e60f57e33d20031d8454176",
+        "sha256": "01286ad3326f0d4c02f7c08261cedcbdec86899c968b453c24ce0b4f7d7b2fb9",
         "steps": "Open the large fixture with its root folded.",
         "expected": "One visible topic; this does not establish expanded native capacity.",
-        "observed": "One large folded root displays 999 children, with explicit expanded-capacity-not-accepted text.",
+        "observed": "One large folded root displays 999 children, with explicit expanded-capacity-not-accepted text. The dense root now has an output port on each side for stable edge identities while folding.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "Replay reports one visible topic. This is not 1,000 expanded native controls."
+        "limits_or_assertion_evidence": "Replay reports one visible topic. This is not 1,000 expanded native controls.",
+        "pixel_delta_bounds_from_nov23": [
+          253,
+          880,
+          274,
+          900
+        ]
       },
       {
         "image": "13-large-expanded.png",
-        "sha256": "fd5844f9a2873515aebc833439ec430c5716302c25b843448756a24ff68015cd",
+        "sha256": "2d9cc7c741333911bc1d5f2e6f30918766eecc4cc95ec34d809955321c98ad81",
         "steps": "Open the expanded 1,000-topic fixture with the public canvas camera.",
-        "expected": "The initial viewport uses readable topic scale with ordinary-control culling; dense incident edges and native capacity/performance acceptance remain separate concerns.",
-        "observed": "The initial viewport shows the root and readable Topic 498–502 controls at zoom 1 rather than a tiny fit-all strip. Replay reports 1,000 logical visible topics and 37 ordinary commands.",
+        "expected": "A shared vertical trunk joins the visible sibling stubs at readable scale. The expanded fixture keeps all topic controls and edges in the model.",
+        "observed": "A single narrow cyan vertical trunk runs between the root and the child column. Separate horizontal stubs terminate at the five visible children. The minimap overlaps part of the lowest card.",
         "outcome": "pass",
-        "limits_or_assertion_evidence": "A dense bundle of incident edges remains beside the root; long headers truncate and the minimap covers part of the bottom card. This is a readable initial viewport, not 10,000-topic/native capacity/performance acceptance."
-      }
-    ],
-    "contact_sheets": [
-      {
-        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-1.png",
-        "sha256": "3ca7cc2c3651430fcc5979b2ecee1a241cb8154672dcfe75160d7dd20f6d4708"
-      },
-      {
-        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-2.png",
-        "sha256": "43e5036cf0a4f9c7117075163e481ddb3076cf181b8ebdfd47435aedbcfdd173"
-      },
-      {
-        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-3.png",
-        "sha256": "c2980a0e3011a6d0a6420ea4fa84c4e7214d659173924150d0fb87bbca134dc8"
-      },
-      {
-        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-4.png",
-        "sha256": "c89724583361399f4564ec4abf6261877678a1a195d374d40f0b3df33db56b89"
-      },
-      {
-        "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/mindmap-5.png",
-        "sha256": "287ddd3592a72028385ce9f35d5572bcd8edcafae4b3fa87bb60ad4f2434f472"
+        "limits_or_assertion_evidence": "The layout contract checks individual child-stub hits and crosslink routing. This viewport culls ordinary controls.",
+        "pixel_delta_bounds_from_nov23": [
+          940,
+          201,
+          1583,
+          1579
+        ]
       }
     ]
   },
-  "local_attachments": [
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-red-contract.log",
-      "sha256": "2ddc79a74598b5c7b8a6a7db05218b34fca8962e5903da899a7d1c61cdb2e3ed"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-red-build.log",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-red-replay.log",
-      "sha256": "9965d4242109e035dd98ff99b06965d0ecbe58e0ac443190e882c2ee2327e4dd"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-green-suite.log",
-      "sha256": "7c0485f60ca10e3710adb68e683121dbdf9cfd99f8fc21dc5860ef69e8bfd7c8"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-green-build.log",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-green-replay.log",
-      "sha256": "0ba8770664b64f4c30199cd00f45be6758ef2ef534abf321564c68b68ee82771"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-final-capture.log",
-      "sha256": "a4a3968be52c66be91d7a5a46f1853d9e64a1a1372a37986948286eee60d80ae"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-gallery-reflow-final-check.json",
-      "sha256": "3290ef01e7bfc0948af8c07b412ac241c558e2b5b08523b7b9155018a568a6af"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-native-build.log",
-      "sha256": "c0a76d426a0116731826910ee9a1bd9b249c655e1584579dc08d4c08283aa849"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-native-clang.log",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-text-clang.log",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-native-replay.log",
-      "sha256": "18251daed6d705b0e148042e4b41101a7d4f652a2a907ed6c02fd574c65d6bf6"
-    },
-    {
-      "path": "/tmp/moxi-d04-reflow-9d1f4e3-evidence/moxi-d04-manifest.log",
-      "sha256": "c15c9caa26450b9ca47145843f05fb8a220fd64ec2ad43a28ccf15aa61fb0ab6"
-    }
-  ],
-  "build_diagnostics": {
-    "result": "Native build and replay exited 0 with warnings.",
-    "warnings": [
-      "Deprecated as_c_string_slice",
-      "Object code built for macOS 27.2 linked against target 27.0",
-      "Unused changed assignment in shared canvas code"
+  "dense_edge_scanline": {
+    "frame": "13-large-expanded.png",
+    "x_inclusive": [
+      900,
+      1589
+    ],
+    "y": 245,
+    "cyan_rgb_filter": "red < 140, green > 125, blue > 160",
+    "before_pixels": 83,
+    "after_pixels": 4
+  },
+  "native_input_reverse_order": {
+    "after": [
+      "viewport_ordinary_commands 37 clipped_edge_commands 17",
+      "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+      "main_thread_cpu p50_ms 6.664875 p95_ms 7.568209 p99_max_ms 9.922042",
+      "elapsed p50_ms 6.666 p95_ms 7.569 p99_max_ms 9.965"
+    ],
+    "before": [
+      "viewport_ordinary_commands 37 clipped_edge_commands 4851",
+      "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+      "main_thread_cpu p50_ms 27.559042 p95_ms 30.421042 p99_max_ms 30.981792",
+      "elapsed p50_ms 27.56 p95_ms 30.474 p99_max_ms 31.168"
     ]
   },
-  "unverified": [
-    "Physical keyboard/pointer, capture-loss and native chooser paths; only D04 F2 crosses AppKit NSEvent dispatch",
-    "Physical IME, RTL caret/selection correctness, VoiceOver and independent human usability",
-    "Other viewports/hosts, fresh-machine packaging, broad repository tests, packaged-consumer suites, sanitizers and GitHub CI",
-    "Compositor/scanout, latency, GPU residency, sustained performance, energy or thermal behavior",
-    "Browser slideshow navigation; HTML remains generated from the checked manifest"
-  ],
-  "save_recovery_bytes": {
-    "saved_fixture": "/tmp/moxi-d04-replay-34244588077000.moxi",
-    "saved_sha256": "1dbc11757a6ecd2fcd279e0fcf44a800fc6fa6a5b53d916fb19322a24476fe66",
-    "saved_contains_recovered_suffix": false,
-    "recovery_fixture": "/tmp/moxi-d04-replay-34244588077000.moxi.recovery",
-    "recovery_sha256": "a2351ee7fb4ece111e44c2ff14b4ea02ecf0ef813ebc15b2b0405aa2dfc461b3",
-    "recovery_contains_recovered_suffix": true
+  "headless_application": {
+    "before": [
+      "capacity_probe_ordinary_commands 4013 native_submission SKIPPED_OVER_1024",
+      "1000-topic_application_edit samples 21 p95_ms 115.79 p99_max_ms 124.882",
+      "1000-topic_application_move_preview_commit samples 21 p95_ms 317.652 p99_max_ms 322.022"
+    ],
+    "after": [
+      "capacity_probe_ordinary_commands 4013 native_submission SKIPPED_OVER_1024",
+      "1000-topic_application_edit samples 21 p95_ms 89.474 p99_max_ms 97.244",
+      "1000-topic_application_move_preview_commit samples 21 p95_ms 277.819 p99_max_ms 334.306"
+    ]
   },
-  "remaining_gates": [
-    "Dense large-map incident edges, viewport cropping and truncated long headers are recorded limits.",
-    "Deterministic reflow snapshots and contracts do not establish compositor/scanout timing or physically smooth animation.",
-    "1,024-command boundary, expanded 10,000-topic native capacity, performance and live reference parity remain unaccepted."
-  ],
-  "checker_negative_cases": {
-    "outcome": "pass",
-    "cases": [
-      {
-        "case": "missing frame",
-        "outcome": "pass",
-        "rejected_for": "No such file"
-      },
-      {
-        "case": "wrong PNG hash",
-        "outcome": "pass",
-        "rejected_for": "PNG SHA-256 mismatch"
-      },
-      {
-        "case": "wrong source hash",
-        "outcome": "pass",
-        "rejected_for": "source inventory/hash mismatch"
-      },
-      {
-        "case": "untracked authored source capture",
-        "outcome": "pass",
-        "rejected_for": "dirty capture source"
-      },
-      {
-        "case": "abbreviated capture revision",
-        "outcome": "pass",
-        "rejected_for": "immutable Git commit"
-      }
-    ],
-    "local_result": "/tmp/moxi-d04-d07-158c67a-evidence/checker-negative-cases.json",
-    "scope": "Temporary copies of both galleries; repository images and source were not mutated.",
-    "reuse_note": "Checker implementation unchanged; the five isolated negative cases from the previous review were reused. Positive source/blob/PNG checks were run again for this capture."
+  "previous_review": {
+    "revision": "0da6f295b6d20cdf663aaf66a039a43e8fb66dd0",
+    "path": "artifacts/demo-slideshows/mindmap/validation.json",
+    "unchanged_rasters": 18,
+    "recaptured_rasters": 20
   },
-  "artifact_retention": "All referenced native PNGs are retained with this change using this demo directory’s scoped .gitignore exception. HTML and binaries remain generated/ignored; temporary logs and contact sheets are disposable.",
-  "catalog_audit": "../CATALOG-AUDIT.md",
-  "reflow_regression": {
-    "previous_capture_revision": "158c67a36c376bbc0f88eaf363669a0485473343",
-    "previous_partial_image": "06a-reflow-start.png",
-    "previous_partial_png_sha256": "9edf86268df83df13868e986dc88cb67c3f4c14aab6051673174ba0159490b3d",
-    "source_files": [
-      "src/moxi_mindmap/reflow.mojo",
-      "tests/mindmap/reflow.mojo",
-      "examples/mindmap_native_app.mojo",
-      "scripts/mindmap/manifest.py"
+  "checks": {
+    "dense_application_contract": "mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS",
+    "canvas_geometry_contract": "geometry contract PASS: offscreen crossings, zoom hit tolerance, hysteresis, incremental cache/index, bounded autopan, pointer ownership, stale deletion, semantic destinations",
+    "mindmap_contract": [
+      "mindmap model: round trip, ordered normalized moves, undo, clipboard, cycle and incident links PASS",
+      "Dense two-sided sibling stubs preserve edge hits and crosslink routing PASS",
+      "mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS",
+      "PASS malformed codec/version/escape/duplicate, no-op, cycle/root, stale generation, folds and depth bounds",
+      "mindmap neighbor reflow, collision-free trajectories, history, cancellation and reduced-motion contracts pass",
+      "PASS exact final reflow bounds across large-coordinate cancellation",
+      "PASS 70 command inventory entries, pinned primary provenance, Cmd+D and Cmd+Space reservations; live reference parity NOT VERIFIED"
     ],
-    "behavior": "The moved branch remains at committed bounds. For each neighbor, calculate the last interval of overlap with any committed moved descendant along its existing linear path. Start after that interval with a one-point margin, or snap if no safe remainder exists. Neighbors with clear paths retain their exact prior origin; easing and exact final bounds are retained.",
-    "red": {
-      "source": "New contract/native assertions applied over the prior reflow implementation; not a clean-certification capture",
-      "focused_contract": {
-        "command": "pixi run mojo run -I src tests/mindmap/reflow.mojo",
-        "cwd": ".",
-        "exit_code": 1,
-        "expected_failure": "Reflow neighbor overlaps the committed moved branch"
-      },
-      "native_build": {
-        "command": "pixi run bash scripts/mindmap/check.sh build",
-        "cwd": ".",
-        "exit_code": 0
-      },
-      "native_replay": {
-        "command": "./dist/moxi-mindmap --capture /tmp/moxi-gallery-reflow-red",
-        "cwd": ".",
-        "exit_code": 1,
-        "expected_failure": "Native replay reflow neighbor obscures the committed moved branch",
-        "completed_frames_before_failure": 5
-      }
-    },
-    "green": {
-      "source_revision": "9d1f4e3a2bc32fd642cbb95fbc4e81230d8f695f",
-      "six_part_contract_and_70_command_inventory": "pass",
-      "native_build_and_20_frame_replay": "pass",
-      "native_start_and_midpoint_non_overlap": "pass",
-      "trajectory_contract": "Initial/later collisions against two moved descendants, ordinary-neighbor interpolation, exact settling, semantic/history stability, undo/cancel/reduced motion pass"
-    },
-    "changed_pngs": [
-      "06a-reflow-start.png",
-      "06b-reflow-middle.png"
+    "shared_canvas_contract": [
+      "rich canvas contract PASS",
+      "graph contract PASS",
+      "keyboard contract PASS: application profile precedence, native Primary, text/session scopes, source/target/edge selection, object search",
+      "geometry contract PASS: offscreen crossings, zoom hit tolerance, hysteresis, incremental cache/index, bounded autopan, pointer ownership, stale deletion, semantic destinations"
     ],
-    "unchanged_reviewed_pngs": 18,
-    "confidence": "High for these deterministic paths and recorded native frames; contradictory source/hash results or physical presentation evidence would change the conclusion."
+    "appkit_layers": "D03 native layer pixels, per-slice clipping, window isolation and capacity: PASS",
+    "native_replay": "Real AppKit F2 queue, public input, semantic cancel/undo, disk recovery and bounded import passed"
+  },
+  "confidence": {
+    "level": "High for the paired fixture, routed geometry and recorded GUI states on this checkout.",
+    "would_change_conclusion": "A repeat run with the same binary and a p95 across the budget, a failed commit/undo or hit test, or different replay pixels would change the corresponding conclusion."
   }
 }
