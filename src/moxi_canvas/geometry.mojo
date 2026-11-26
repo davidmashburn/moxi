@@ -2,7 +2,7 @@
 from std.collections import List, Dict
 from std.math import isfinite, sqrt
 from moxi.geometry import Point, Rect
-from .model import CanvasDocument, GraphEdge, PathKind
+from .model import CanvasDocument, GraphEdge, PathKind, EdgeHitPolicy
 from .index import SpatialIndex
 
 
@@ -114,6 +114,8 @@ def segment_distance(p: Point, a: Point, b: Point) -> Float32:
 
 
 struct EdgeGeometry(ImplicitlyCopyable):
+    var path: PathKind
+    var hit_policy: EdgeHitPolicy
     var id: Int
     var points: List[Point]
     var bounds: Rect
@@ -121,6 +123,8 @@ struct EdgeGeometry(ImplicitlyCopyable):
     var text: String
 
     def __init__(out self, *, copy: Self):
+        self.path = copy.path
+        self.hit_policy = copy.hit_policy
         self.id = copy.id
         self.points = copy.points.copy()
         self.bounds = copy.bounds
@@ -129,6 +133,8 @@ struct EdgeGeometry(ImplicitlyCopyable):
 
 
     def __init__(out self, edge: GraphEdge, a: Point, b: Point):
+        self.path = edge.path
+        self.hit_policy = edge.hit_policy
         self.id = edge.id
         self.text = edge.label
         self.points = List[Point]()
@@ -136,6 +142,11 @@ struct EdgeGeometry(ImplicitlyCopyable):
         if edge.path == PathKind.CUBIC:
             var bend = max(Float32(40), abs(b.x - a.x) / 2)
             flatten_cubic(self.points, a, Point(a.x + bend, a.y), Point(b.x - bend, b.y), b, 0)
+        elif edge.path == PathKind.ORTHOGONAL and a.y != b.y:
+            var middle = (a.x + b.x) / 2
+            self.points.append(Point(middle, a.y))
+            self.points.append(Point(middle, b.y))
+            self.points.append(b)
         else:
             self.points.append(b)
         self.bounds = Rect(a.x, a.y, 0, 0)
@@ -268,9 +279,23 @@ struct CanvasSnapshot(ImplicitlyCopyable):
 
     def hit_edge(self, point: Point) -> Int:
         var best = -1
+        var terminal = -1
+        var nearest: Float32 = 7
         for i in self.edge_hits.query(point):
-            if self.edges[i].hit(point):
+            ref edge = self.edges[i]
+            if edge.hit(point):
                 best = max(best, i)
+                if edge.hit_policy == EdgeHitPolicy.NEAREST_TERMINAL:
+                    var last = len(edge.points) - 1
+                    var delta = segment_distance(point, edge.points[last - 1], edge.points[last])
+                    if delta < nearest or (delta == nearest and i > terminal):
+                        terminal = i
+                        nearest = delta
+        # Only opted-in dense routes compete by their terminal distance. An
+        # ordinary topmost edge (e.g. a crosslink) keeps its existing precedence.
+        # Shared trunks and exact terminal ties retain deterministic snapshot order.
+        if best >= 0 and self.edges[best].hit_policy == EdgeHitPolicy.NEAREST_TERMINAL and terminal >= 0:
+            best = terminal
         return self.edges[best].id if best >= 0 else -1
 
 
@@ -316,7 +341,7 @@ struct GeometryCache(ImplicitlyCopyable):
         if edge.id in self.edges:
             try:
                 var prior = self.edges[edge.id]
-                if prior.source.x == a.x and prior.source.y == a.y and prior.target.x == b.x and prior.target.y == b.y and prior.kind == edge.path and prior.geometry.text == edge.label:
+                if prior.source.x == a.x and prior.source.y == a.y and prior.target.x == b.x and prior.target.y == b.y and prior.kind == edge.path and prior.geometry.text == edge.label and prior.geometry.hit_policy == edge.hit_policy:
                     self.hits += 1
                     return prior.geometry
             except:

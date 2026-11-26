@@ -1,12 +1,13 @@
 """Real AppKit input loop and deterministic replay through the same public controller."""
 from std.ffi import external_call
+from std.collections import List
 from std.sys import argv
 from std.time import perf_counter_ns
 from moxi import Event, WindowConfig, Point, Rect
 from moxi.event import *
 from moxi.macos import MacOSRenderer, MacOSCanvasSceneRenderer, MacOSClipboard
 from moxi.native_instance import MacOSWindowInstance
-from moxi_canvas.native import render_canvas
+from moxi_canvas.native import render_canvas, clip_scene
 from moxi_canvas.geometry import overlaps
 from moxi_mindmap.application import MindMapApp, MapMode
 from moxi_mindmap.reflow import MotionPolicy
@@ -15,7 +16,7 @@ from moxi_mindmap.model import MindMapDocument
 from moxi_mindmap.history import MapHistory
 from moxi_mindmap.codec import encode
 from moxi_mindmap.storage import LocalFile, LocalSession, import_mm, choose_file, destination_file
-from moxi_mindmap.fixtures import useful_map, large_map
+from moxi_mindmap.fixtures import useful_map, large_map, uneven_dense_map
 
 
 def key(mut map: MindMapApp, code: Int, modifiers: Int = 0):
@@ -60,6 +61,56 @@ def assert_reflow_clear(map: MindMapApp) raises:
     for item in map.app.component.document.objects:
         if item.id != 5 and not item.hidden and overlaps(branch, item.bounds):
             raise Error("Native replay reflow neighbor obscures the committed moved branch")
+
+def terminal_midpoint(map: MindMapApp, id: Int) raises -> Point:
+    for edge in map.app.component.publication.edges:
+        if edge.id == id:
+            var last = len(edge.points) - 1
+            return Point((edge.points[last - 1].x + edge.points[last].x) / 2, edge.points[last].y)
+    raise Error("Dense terminal is missing from publication")
+
+def replay_dense_hits(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer, path: String) raises:
+    var failures = 0
+    var slide = 14
+    for zoom in List[Float64]([1.0, 0.5]):
+        for id in List[Int]([7, 15]):
+            map = MindMapApp(uneven_dense_map())
+            map.app.component.state.camera.zoom = zoom
+            map.app.rebuild_localized()
+            var point = terminal_midpoint(map, id)
+            var clip = map.app.component.interaction_clip()
+            map.app.component.state.camera.pan(clip.x + clip.width / 2 - point.x, clip.y + clip.height / 2 - point.y)
+            map.app.rebuild_localized()
+            point = terminal_midpoint(map, id)
+            var snapshot = map.app.component.publication
+            if snapshot.hit_port(point) >= 0 or snapshot.hit_object(point) >= 0:
+                raise Error("Native terminal midpoint must remain outside higher-priority ports/objects")
+            window.activate()
+            render_canvas(map.app, paint, graph)
+            window.pump()
+            # Construct AppKit mouse events, traverse the native view handlers and
+            # drain the same native event queue used by the ordinary main loop.
+            if external_call["moxi_mm_native_click", Int32](Float64(point.x), Float64(point.y)) != 1:
+                raise Error("Native mouse event delivery failed")
+            var event = window.poll_event()
+            var downs = 0
+            var ups = 0
+            while event.kind != NONE_KIND:
+                downs += Int(event.kind == POINTER_DOWN_KIND)
+                ups += Int(event.kind == POINTER_UP_KIND)
+                _ = map.dispatch(event)
+                event = window.poll_event()
+            var selected = map.app.component.state.selected_edge
+            print("native dense terminal zoom", zoom, "expected", id, "selected", selected, "downs", downs, "ups", ups)
+            if downs != 1 or ups != 1 or selected != id:
+                failures += 1
+            var suffix = "-dense-left-" if id == 7 else "-dense-right-"
+            var scale = "1x" if zoom == 1 else "half"
+            capture(map, window, paint, graph, String(path, "/", slide, suffix, scale, ".png"))
+            slide += 1
+    if failures:
+        raise Error(String("Native dense terminal selection failures: ", failures))
+    print("PASS native dense terminal selection on both sides at zoom 1/0.5")
 
 def replay(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer, path: String) raises:
     capture(map, window, paint, graph, path + "/01-initial.png")
@@ -184,7 +235,53 @@ def replay(mut map: MindMapApp, mut window: MacOSWindowInstance, mut paint: MacO
     capture(map, window, paint, graph, path + "/12-large-folded.png")
     map = MindMapApp(large_map(1000))
     capture(map, window, paint, graph, path + "/13-large-expanded.png")
+    replay_dense_hits(map, window, paint, graph, path)
     print("PASS native AppKit F2 queue + public input replay, semantic cancel/undo, disk recovery and bounded import")
+
+def benchmark_input(mut window: MacOSWindowInstance, mut paint: MacOSRenderer, mut graph: MacOSCanvasSceneRenderer) raises:
+    var doc = large_map(1000)
+    for id in range(2, 1000, 40):
+        doc.connect(id, id + 1, "Related")
+    var map = MindMapApp(doc)
+    map.select(501)
+    var edges = clip_scene(map.app.component.edge_scene(), map.app.root_bounds)
+    print("viewport_ordinary_commands", map.app.paint().count(), "clipped_edge_commands", edges.count())
+    var samples = List[Float64]()
+    var cpu_samples = List[Float64]()
+    for trial in range(25):
+        key(map, KEY_F2)
+        var before = map.editor_text(map.app.component.mount_index(501))
+        render_canvas(map.app, paint, graph)
+        window.pump()
+        var start = perf_counter_ns()
+        var cpu_start = external_call["moxi_mm_thread_cpu_ns", UInt64]()
+        text(map, "語")
+        render_canvas(map.app, paint, graph)
+        var cpu_elapsed = external_call["moxi_mm_thread_cpu_ns", UInt64]() - cpu_start
+        var elapsed = Float64(perf_counter_ns() - start) / 1e6
+        if trial >= 4:
+            samples.append(elapsed)
+            cpu_samples.append(Float64(cpu_elapsed) / 1e6)
+        key(map, KEY_ENTER)
+        if map.doc.topics[map.doc.at(501)].text != before + "語":
+            raise Error("Benchmark input did not commit to the selected topic")
+        map.execute(MapCommand.UNDO)
+        if map.doc.topics[map.doc.at(501)].text != before:
+            raise Error("Benchmark undo did not restore text")
+        map.select(501)
+    print("native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples")
+    report_samples("main_thread_cpu", cpu_samples)
+    report_samples("elapsed", samples)
+
+def report_samples(label: String, mut samples: List[Float64]):
+    for i in range(1, len(samples)):
+        var value = samples[i]
+        var j = i
+        while j > 0 and value < samples[j - 1]:
+            samples[j] = samples[j - 1]
+            j -= 1
+        samples[j] = value
+    print(label, "p50_ms", samples[10], "p95_ms", samples[19], "p99_max_ms", samples[20])
 
 def main() raises:
     var map = MindMapApp(useful_map())
@@ -193,6 +290,10 @@ def main() raises:
     var paint = MacOSRenderer()
     var graph = MacOSCanvasSceneRenderer()
     var args = argv()
+    if len(args) == 2 and args[1] == "--benchmark-input":
+        benchmark_input(window, paint, graph)
+        window.close()
+        return
     if len(args) == 3 and args[1] == "--capture":
         replay(map, window, paint, graph, args[2])
         window.close()

@@ -1,0 +1,5 @@
+terminal centerline eligibility: zoom 1.0 edge 7 geometry wins 101 outside ports/objects 76 of 101
+terminal centerline eligibility: zoom 1.0 edge 15 geometry wins 101 outside ports/objects 76 of 101
+terminal centerline eligibility: zoom 0.5 edge 7 geometry wins 101 outside ports/objects 52 of 101
+terminal centerline eligibility: zoom 0.5 edge 15 geometry wins 101 outside ports/objects 52 of 101
+dense terminal hits PASS: public pointer down/up, both root sides, unequal spacing, zoom 1/0.5, selected overlay

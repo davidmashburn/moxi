@@ -1,0 +1,2 @@
+edge hits PASS: opt-in nearest terminal, ordinary precedence, ties, shared trunks, tolerance, copy/cache and preview/undo
+geometry contract PASS: offscreen crossings, zoom hit tolerance, hysteresis, incremental cache/index, bounded autopan, pointer ownership, stale deletion, semantic destinations
