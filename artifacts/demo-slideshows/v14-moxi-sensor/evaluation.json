@@ -1,0 +1,71 @@
+{
+  "coefficient": 0.06768771396185563,
+  "radii": {
+    "without": 0.0847842816584361,
+    "withProxy": 0.027086760113700592
+  },
+  "splits": {
+    "training": [
+      "T1",
+      "T2",
+      "T3"
+    ],
+    "calibration": [
+      "A1",
+      "A2"
+    ],
+    "heldOut": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "B",
+      "regime": "coupled",
+      "count": 21,
+      "unavailable": 0,
+      "without": 0.046926061811657996,
+      "withProxy": 0.013076793605151914,
+      "persistence": 0.2161198280397265,
+      "delta": -0.03384926820650608,
+      "coveredWithout": 20,
+      "coveredWith": 18
+    },
+    {
+      "id": "C",
+      "regime": "coupled",
+      "count": 21,
+      "unavailable": 0,
+      "without": 0.04943706615932492,
+      "withProxy": 0.012674896866438058,
+      "persistence": 0.12434469058028104,
+      "delta": -0.036762169292886865,
+      "coveredWithout": 19,
+      "coveredWith": 19
+    },
+    {
+      "id": "D",
+      "regime": "reversed",
+      "count": 21,
+      "unavailable": 0,
+      "without": 0.044754418620623,
+      "withProxy": 0.08599886387557579,
+      "persistence": 0.20197019746741654,
+      "delta": 0.041244445254952786,
+      "coveredWithout": 18,
+      "coveredWith": 4
+    }
+  ],
+  "aggregate": {
+    "count": 63,
+    "unavailable": 0,
+    "without": 0.047039182197201976,
+    "withProxy": 0.03725018478238859,
+    "persistence": 0.18081157202914136,
+    "delta": -0.009788997414813386,
+    "coveredWithout": 57,
+    "coveredWith": 41
+  }
+}

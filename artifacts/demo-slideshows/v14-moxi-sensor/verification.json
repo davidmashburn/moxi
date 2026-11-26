@@ -1,0 +1,113 @@
+{
+  "capturedAt": "2026-11-26T03:33:49.660Z",
+  "url": "file://…/dist/temperature-replay/index.html",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+  "viewport": [
+    1100,
+    1360
+  ],
+  "build": {
+    "format": 1,
+    "revision": "688bef15c09c51d205fc65068296b5f475588586",
+    "sourceHashes": {
+      "examples/temperature-replay/model.js": "388073161699d4afc56c5f44f1e1de01e53ccbd57af7762b658500b05d46627b",
+      "examples/temperature-replay/sensor.js": "a49a865bc8655f2127fb23bcc49463317fcba3727b2a8eb1b08f42e8a46c9eb8",
+      "examples/temperature-replay/replay_app.mojo": "6feae45be3bd4c585a2125fce5321a08086ea90cdc501f30274ca43807602635",
+      "examples/temperature-replay/build.cjs": "fbbcafe4097c820eea5ce59a41f223331a45665bded644b9ab7879a6945067e1",
+      "examples/temperature-replay/consumer.html": "f6ea93a43ff242595dcaa62d892a29853bb576c4a63e79e485f19945b8f395b9",
+      "examples/temperature-replay/consumer.js": "b94276f3632c6cc1f28665799eb6f1d908200cfb36c0fe86ccc0276dc30fc464"
+    },
+    "moxiSourceHash": "667a8aee7f295b3ad37550c7101436cca1a6909a3bfdc608fe3fd43393e3278b",
+    "compiler": "Mojo 1.1.0 (8189361e)",
+    "consumer": "App[ReplayApp] -> reconciled Canvas bounds -> PlotSpec/Plot -> Scene -> SvgSceneRenderer",
+    "frameCount": 84
+  },
+  "checks": [
+    {
+      "scenario": "original initial",
+      "steps": "Select original temperature B",
+      "expected": "Moxi frame at 10 s and original metrics",
+      "observed": "Mean absolute error over 21 origins: trend 0.28 °C · persistence 0.47 °C. Band contains 17/21 outcomes.",
+      "outcome": "pass"
+    },
+    {
+      "scenario": "original reversal",
+      "steps": "Inspect reversal",
+      "expected": "Outcome 150 s outside calibration band",
+      "observed": "Synthetic outcome at 150 s: 21.80 °C · Outside the band",
+      "outcome": "pass"
+    },
+    {
+      "scenario": "playback lifecycle",
+      "steps": "Play, Pause, wait; play from 200 s, then from end",
+      "expected": "Pause stable; automatic stop at 210 s; restart from end",
+      "observed": "All playback states observed",
+      "outcome": "pass"
+    },
+    {
+      "scenario": "held-out B",
+      "steps": "Select session and inspect 120 s",
+      "expected": "Matching Moxi frame and both ablation scores; D shows harm",
+      "observed": "Held-out B: without proxy MAE 0.047 °C · with proxy MAE 0.013 °C · Δ -0.034 °C (lower error with proxy). Persistence MAE 0.216 °C.",
+      "outcome": "pass"
+    },
+    {
+      "scenario": "held-out C",
+      "steps": "Select session and inspect 120 s",
+      "expected": "Matching Moxi frame and both ablation scores; D shows harm",
+      "observed": "Held-out C: without proxy MAE 0.049 °C · with proxy MAE 0.013 °C · Δ -0.037 °C (lower error with proxy). Persistence MAE 0.124 °C.",
+      "outcome": "pass"
+    },
+    {
+      "scenario": "held-out D",
+      "steps": "Select session and inspect 120 s",
+      "expected": "Matching Moxi frame and both ablation scores; D shows harm",
+      "observed": "Held-out D: without proxy MAE 0.045 °C · with proxy MAE 0.086 °C · Δ 0.041 °C (higher error with proxy). Persistence MAE 0.202 °C.",
+      "outcome": "pass"
+    },
+    {
+      "scenario": "missing-frame recovery",
+      "steps": "Remove one in-memory export, redraw, restore, redraw",
+      "expected": "Explicit error, stale plot removed, original frame restored",
+      "observed": "Error and recovery observed",
+      "outcome": "pass"
+    },
+    {
+      "scenario": "keyboard and narrow reload",
+      "steps": "ArrowRight on slider; resize, reload, select D",
+      "expected": "Frame follows keyboard; default restored on reload; no horizontal overflow; D harm still visible",
+      "observed": "temperature:20; temperature:10 after reload; D:120 at 390 × 844; no overflow",
+      "outcome": "pass"
+    },
+    {
+      "scenario": "evidence deck",
+      "steps": "Open generated deck offline; ArrowRight; jump to final slide",
+      "expected": "Seven captures load; keyboard and direct navigation work",
+      "observed": "2 / 7 then 7 / 7; every image loaded; no browser errors or remote requests",
+      "outcome": "pass"
+    }
+  ],
+  "skipped": [
+    "VoiceOver and screen readers",
+    "native-window interaction",
+    "real instruments and field/device/robot trials"
+  ],
+  "transport": "Offline fresh Chrome context; local file URL; no remote requests",
+  "browser": "Chrome 158.0.8127.37",
+  "errors": [],
+  "remoteRequests": [],
+  "failedRequests": [],
+  "sourceHashes": {
+    "examples/temperature-replay/model.js": "388073161699d4afc56c5f44f1e1de01e53ccbd57af7762b658500b05d46627b",
+    "examples/temperature-replay/sensor.js": "a49a865bc8655f2127fb23bcc49463317fcba3727b2a8eb1b08f42e8a46c9eb8",
+    "examples/temperature-replay/replay_app.mojo": "6feae45be3bd4c585a2125fce5321a08086ea90cdc501f30274ca43807602635",
+    "examples/temperature-replay/build.cjs": "fbbcafe4097c820eea5ce59a41f223331a45665bded644b9ab7879a6945067e1",
+    "examples/temperature-replay/consumer.html": "f6ea93a43ff242595dcaa62d892a29853bb576c4a63e79e485f19945b8f395b9",
+    "examples/temperature-replay/consumer.js": "b94276f3632c6cc1f28665799eb6f1d908200cfb36c0fe86ccc0276dc30fc464",
+    "examples/temperature-replay/browser-check.js": "a15ae6c791a7eb2770f4afe7a5aa2b137487a4e9fea909f48a4bf58fc841d8bc",
+    "examples/temperature-replay/native-check.cjs": "0cb4f8338d009913fb344b962f762a8be692282b5656412631980e8be450ce5d",
+    "examples/temperature-replay/sensor-check.cjs": "8ec0f79800fce3ff94fb1901b453b5a6a9839dfd9bed1281f780272c6185952a",
+    "examples/temperature-replay/capture-moxi.cjs": "25382ecbc7285ef62d3228087068dfd8003ef20b587ab8c324c57f68b6c7d134"
+  },
+  "framesSha256": "481fb051fbcd5baa4ef6092239f7c9470636bdd55a3a08145116e32ff900be08"
+}
