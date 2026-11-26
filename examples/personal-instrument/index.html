@@ -225,7 +225,14 @@ $('next').onclick = advance;
 $('save').onclick = () => build(clone(editor),true,'Mapping saved.');
 $('build').onclick = () => build(clone(editor),false,'Draft response built. Saved mapping unchanged.');
 $('restore').onclick = () => build(clone(defaults),true,'Default mapping restored.');
-$('export').onclick = () => { $('configuration').value = JSON.stringify(mapping,null,2); };
+$('export').onclick = () => {
+  try {
+    const saved = localStorage.getItem(mappingKey);
+    $('configuration').value = saved ?? JSON.stringify(defaults,null,2);
+  } catch {
+    $('status').textContent = 'Saved configuration could not be read. Editor contents retained.';
+  }
+};
 $('import').onclick = () => {
   try {
     const imported = decodeMapping(JSON.parse($('configuration').value));

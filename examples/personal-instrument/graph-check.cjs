@@ -208,6 +208,10 @@ async function check() {
         await status('Saved mapping unreadable');
         assert.match(await el('target').innerText(),/Accent 50%/);
         assert.deepEqual(await saved(),{...graphFixture,mapping:raw});
+        await page.getByText('Versioned configuration',{exact:true}).click();
+        await el('export').click();
+        assert.equal(await el('configuration').inputValue(),raw);
+        await page.getByText('Versioned configuration',{exact:true}).click();
       }
       await capture('stored-recovery');
       await el('restore').click(); await status('Default mapping restored.');
@@ -217,7 +221,14 @@ async function check() {
       await page.route('**/build',route => route.fulfill({status:500,contentType:'application/json',body:'{"error":"Synthetic rebuild failure."}'}));
       await page.reload(); await ready(); await status('Saved response could not be built');
       assert.deepEqual(await saved(),graphFixture);
-      await page.unroute('**/build'); await page.reload(); await ready();
+      await page.unroute('**/build');
+      await page.getByText('Versioned configuration',{exact:true}).click();
+      await el('export').click();
+      assert.deepEqual(JSON.parse(await el('configuration').inputValue()),good);
+      await el('import').click(); await status('Configuration loaded to draft.');
+      await el('save').click(); await status('Mapping saved.');
+      await page.reload(); await ready();
+      assert.deepEqual(await saved(),graphFixture);
       assert.equal(await el('mode-length').isVisible(),true);
       // A read-denial hook is restricted to this temporary page and flag.
       await page.addInitScript(() => {
@@ -225,6 +236,10 @@ async function check() {
       });
       await page.evaluate(() => sessionStorage.setItem('deny-reads','1'));
       await page.reload(); await ready(); await status('Saved score unreadable');
+      await page.getByText('Versioned configuration',{exact:true}).click();
+      await el('configuration').fill('retained draft');
+      await el('export').click(); await status('could not be read');
+      assert.equal(await el('configuration').inputValue(),'retained draft');
       await page.evaluate(() => sessionStorage.removeItem('deny-reads'));
       await page.reload(); await ready(); assert.deepEqual(await saved(),graphFixture);
       return {invalidRecords:badRecords.length,readDenial:true,failedRebuild:true,capture:'stored-recovery.png'};
@@ -236,6 +251,10 @@ async function check() {
         assert.equal(await el('status').innerText(),'');
         assert.match(await el('target').innerText(),new RegExp('Step 1 → '+(operation === Operation.ACCENT ? 'Accent' : 'Length')+' '+midpoint+'%'));
         assert.deepEqual(await saved(),{...graphFixture,mapping:raw});
+        await page.getByText('Versioned configuration',{exact:true}).click();
+        await el('export').click();
+        assert.equal(await el('configuration').inputValue(),raw);
+        await page.getByText('Versioned configuration',{exact:true}).click();
         await notes.last().click(); await el('pad').focus(); await page.keyboard.press('ArrowRight');
         assert.equal(await notes.first().getAttribute('aria-pressed'),'true');
       }
