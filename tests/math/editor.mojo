@@ -1,7 +1,234 @@
+from std.collections import List
 from moxi_math import MathEditorState, MathPosition, MathCommand, MathKind, MathKeymap
 from std.testing import assert_equal, assert_true
 
+def check_template_anchors() raises:
+    # A reverse selection inside a matrix cell stays in that cell. Undo also
+    # restores the original directed selection, ready for another template.
+    var cell = MathEditorState("matrix(row(abcdef, y))")
+    var id = cell.caret.id
+    cell.set_caret(MathPosition(id, 4))
+    cell.set_caret(MathPosition(id, 2), True)
+    cell.command(MathCommand.FRACTION)
+    cell.insert("q")
+    assert_equal(cell.document.text(), "matrix(row(row(ab, frac(cd, q), ef), y))")
+    cell.command(MathCommand.UNDO)
+    cell.command(MathCommand.UNDO)
+    assert_equal(cell.copy_text(), "cd")
+    assert_equal(cell.caret.offset, 2)
+    cell.command(MathCommand.MATRIX)
+    assert_equal(cell.document.text(), "matrix(row(row(ab, matrix(row(cd)), ef), y))")
+
+    var word = MathEditorState('"left+βeta suffix"')
+    word.set_caret(MathPosition(word.caret.id, 8))
+    word.command(MathCommand.SUPER)
+    word.insert("n")
+    word.command(MathCommand.SUB)
+    word.insert("i")
+    assert_equal(word.document.text(), 'row(left+, scripts(βet, ?, scripts(n, i, ?, ?, ?), ?, ?), "a suffix")')
+
+    var marked = MathEditorState("abc")
+    marked.select(marked.document.root)
+    marked.horizontal(-1, True)
+    assert_equal(marked.copy_text(), "ab")
+    marked.horizontal(1, True)
+    assert_equal(marked.copy_text(), "abc")
+
+    var unwrap = MathEditorState("scripts(x, ?, empty(), ?, ?)")
+    unwrap.select(unwrap.document.root)
+    unwrap.command(MathCommand.UNWRAP)
+    assert_equal(unwrap.document.text(), "row(x, empty())")
+
+    var start = MathEditorState("abc")
+    start.command(MathCommand.FRACTION)
+    assert_equal(start.document.text(), "row(frac(?, ?), abc)")
+    var sibling = MathEditorState("row(abc, def)")
+    sibling.focus(sibling.document.nodes[sibling.document.root].children[1])
+    sibling.command(MathCommand.ROOT)
+    assert_equal(sibling.document.text(), "row(root(?, abc), def)")
+    var spaces = MathEditorState('"ab cd  "')
+    spaces.focus(spaces.document.root, True)
+    spaces.command(MathCommand.GROUP)
+    assert_equal(spaces.document.text(), 'row("ab ", group("(", ")", cd), "  ")')
+
+    var tree = MathEditorState("frac(x, y)")
+    tree.select(tree.document.root)
+    tree.command(MathCommand.FUNCTION)
+    assert_equal(tree.document.text(), 'fn("sin", frac(x, y))')
+    tree.select(tree.document.root)
+    tree.command(MathCommand.GROUP)
+    assert_equal(tree.document.text(), 'group("(", ")", fn("sin", frac(x, y)))')
+    tree.select(tree.document.root)
+    tree.command(MathCommand.SUM)
+    tree.insert("j")
+    tree.command(MathCommand.OVER)
+    tree.insert("k")
+    assert_equal(tree.document.text(), 'sum(scripts(j, ?, ?, ?, k), ?, ?, group("(", ")", fn("sin", frac(x, y))))')
+    tree.select(tree.document.root)
+    tree.command(MathCommand.INTEGRAL)
+    tree.insert("x")
+    tree.command(MathCommand.UNDER)
+    tree.insert("r")
+    assert_true(tree.document.text().startswith("integral(scripts(x, ?, ?, r, ?), ?, ?, sum("))
+
+    var grid = MathEditorState("matrix(row(a, b), row(c, d))")
+    grid.select(grid.document.nodes[grid.document.root].children[0])
+    grid.command(MathCommand.FRACTION)
+    assert_equal(grid.document.text(), "matrix(row(frac(row(a, b), ?), ?), row(c, d))")
+
+    grid.command(MathCommand.UNDO)
+    grid.focus(grid.document.root)
+    grid.command(MathCommand.EXIT)
+    grid.command(MathCommand.FRACTION)
+    assert_equal(grid.document.text(), "matrix(row(frac(row(a, b), ?), ?), row(c, d))")
+
+    grid.command(MathCommand.UNDO)
+    var first_row = grid.document.nodes[grid.document.root].children[0]
+    grid.set_caret(MathPosition(grid.document.nodes[first_row].id, 0))
+    grid.command(MathCommand.FRACTION)
+    assert_equal(grid.document.text(), "matrix(row(row(frac(?, ?), a), b), row(c, d))")
+
+    var templates = [MathCommand.FRACTION, MathCommand.ROOT, MathCommand.SUB,
+                     MathCommand.SUPER, MathCommand.UNDER, MathCommand.OVER,
+                     MathCommand.GROUP, MathCommand.FUNCTION, MathCommand.MATRIX,
+                     MathCommand.SUM, MathCommand.INTEGRAL]
+    for inner in templates:
+        for outer in templates:
+            var nested = MathEditorState("x")
+            nested.select(nested.document.root)
+            nested.command(inner)
+            var inner_id = nested.document.nodes[nested.document.root].id
+            var inner_notation = nested.document.text()
+            nested.select(nested.document.root)
+            nested.command(outer)
+            var at = nested.document.find_id(inner_id)
+            assert_true(at >= 0 and at != nested.document.root)
+            assert_equal(nested.document.print_node(at), inner_notation)
+
+def check_canvas_contract() raises:
+    var outer = MathEditorState("frac(frac(a, b), c)")
+    var original = outer.document.text()
+    var first = outer.edge_position()
+    var last = outer.edge_position(True)
+    assert_equal(first.id, last.id)
+    assert_equal(first.offset, 0)
+    assert_equal(last.offset, 1)
+    outer.set_caret(first)
+    var stops = List[MathPosition]()
+    var rev = outer.document.revision
+    while outer.caret.id != last.id or outer.caret.offset != last.offset:
+        stops.append(outer.caret)
+        outer.horizontal(1, True)
+        assert_true(len(stops) < 30)
+    assert_true(len(stops) >= 9)
+    assert_equal(outer.copy_text(), original)
+    assert_equal(outer.selected, first.id)
+    while len(stops) > 0:
+        var expected = stops.pop()
+        outer.horizontal(-1, True)
+        assert_equal(outer.caret.id, expected.id)
+        assert_equal(outer.caret.offset, expected.offset)
+    assert_true(not outer.has_range_selection() and outer.selected < 0)
+    assert_equal(outer.document.revision, rev)
+    outer.delete()
+    assert_equal(outer.document.revision, rev)
+    outer.insert("p")
+    assert_equal(outer.document.text(), "row(p, frac(frac(a, b), c))")
+    outer.command(MathCommand.UNDO)
+    outer.set_caret(last)
+    outer.insert("q")
+    assert_equal(outer.document.text(), "row(frac(frac(a, b), c), q)")
+    outer.command(MathCommand.UNDO)
+    outer.delete(True)
+    assert_equal(len(outer.redo_stack), 1)
+    outer.delete()
+    assert_equal(outer.document.text(), original)
+    assert_equal(outer.selected, last.id)
+    outer.delete()
+    assert_equal(outer.document.text(), "?")
+    outer.command(MathCommand.UNDO)
+    assert_equal(outer.selected, last.id)
+
+    var script = MathEditorState("x")
+    script.focus(script.document.root, True)
+    script.command(MathCommand.SUPER)
+    var notation = "scripts(x, ?, empty(), ?, ?)"
+    assert_equal(script.document.text(), notation)
+    var exp = script.caret.id
+    script.command(MathCommand.COMPLEMENT)
+    assert_equal(script.caret.id, exp)
+    script.insert("n")
+    script.delete()
+    assert_equal(script.document.text(), notation)
+    script.command(MathCommand.EXIT)
+    script.command(MathCommand.NEXT_HOLE)
+    assert_equal(script.caret.id, exp)
+    script.load_text(script.save_text())
+    script.command(MathCommand.NEXT_HOLE)
+    assert_true(script.document.nodes[script.index()].authored_empty)
+    script.delete()
+    assert_equal(script.selected, script.caret.id)
+    script.delete()
+    assert_equal(script.document.text(), "scripts(x, ?, ?, ?, ?)")
+    script.command(MathCommand.UNDO)
+    assert_equal(script.document.text(), notation)
+
+    var fraction = MathEditorState("frac(ab, cd)")
+    var numerator = fraction.caret.id
+    var den = fraction.document.nodes[fraction.document.nodes[fraction.document.root].children[1]].id
+    fraction.set_caret(MathPosition(den, 1))
+    fraction.set_caret(MathPosition(numerator, 1), True)
+    fraction.delete()
+    assert_equal(fraction.document.text(), "frac(a, d)")
+    fraction.command(MathCommand.UNDO)
+    assert_equal(fraction.selection_anchor.id, den)
+    assert_equal(fraction.caret.id, numerator)
+    fraction.insert("Z")
+    assert_equal(fraction.document.text(), "frac(aZ, d)")
+    fraction.command(MathCommand.UNDO)
+    fraction.set_caret(MathPosition(den, 0))
+    fraction.delete()
+    assert_equal(fraction.document.text(), "frac(ab, cd)")
+    assert_equal(fraction.selected, fraction.document.nodes[fraction.document.root].id)
+    var grid = MathEditorState("matrix(row(a, b), row(c, d))")
+    grid.delete()
+    assert_true(grid.selected < 0)
+    assert_equal(grid.document.revision, 0)
+    grid.select(grid.document.nodes[grid.document.root].children[0])
+    grid.delete()
+    assert_equal(grid.document.text(), "matrix(row(?, ?), row(c, d))")
+    grid.delete()
+    assert_equal(grid.document.revision, 1)
+    grid.command(MathCommand.UNDO)
+    grid.set_caret(grid.edge_position(True))
+    grid.command(MathCommand.ADD_COLUMN)
+    assert_equal(grid.document.text(), "matrix(row(a, b, ?), row(c, d, ?))")
+    grid.command(MathCommand.UNDO)
+    var grid_row = grid.document.nodes[grid.document.root].children[1]
+    grid.set_caret(MathPosition(grid.document.nodes[grid_row].id, 0))
+    grid.insert("q")
+    assert_equal(grid.document.text(), "matrix(row(a, b), row(row(q, c), d))")
+
+    var square = MathEditorState("root(?, x)")
+    square.command(MathCommand.COMPLEMENT)
+    assert_equal(square.document.nodes[square.index()].text, "x")
+    square.command(MathCommand.ADD_COMPLEMENT)
+    assert_equal(square.document.text(), "root(empty(), x)")
+    square.command(MathCommand.COMPLEMENT)
+    assert_equal(square.document.nodes[square.index()].text, "x")
+    square.command(MathCommand.COMPLEMENT)
+    assert_true(square.document.nodes[square.index()].authored_empty)
+
+    var op = MathEditorState("row(x, +, y)")
+    op.focus(op.document.nodes[op.document.root].children[2])
+    op.delete()
+    assert_equal(op.document.text(), "row(x, y)")
+    assert_equal(op.document.nodes[op.index()].text, "x")
+    assert_equal(op.caret.offset, 1)
+
 def main() raises:
+    check_canvas_contract()
+    check_template_anchors()
     var editor = MathEditorState()
     editor.insert("x")
     editor.command(MathCommand.FRACTION)
@@ -11,11 +238,11 @@ def main() raises:
     editor.command(MathCommand.SUPER)
     editor.insert("2")
     assert_equal(editor.document.text(), "scripts(frac(x, y), ?, 2, ?, ?)")
-    editor.command(MathCommand.SUB)
+    editor.command(MathCommand.ADD_COMPLEMENT)
     editor.insert("i")
     assert_equal(editor.document.text(), "scripts(frac(x, y), i, 2, ?, ?)")
     editor.command(MathCommand.UNDO)
-    assert_equal(editor.document.text(), "scripts(frac(x, y), ?, 2, ?, ?)")
+    assert_equal(editor.document.text(), "scripts(frac(x, y), empty(), 2, ?, ?)")
     editor.command(MathCommand.REDO)
     assert_equal(editor.document.text(), "scripts(frac(x, y), i, 2, ?, ?)")
     editor.command(MathCommand.TEXT)
@@ -164,14 +391,14 @@ def main() raises:
     replacement.command(MathCommand.REDO)
     assert_equal(replacement.document.text(),"abef")
     assert_true(not replacement.has_text_selection())
-    # Dragging across slots selects their common structure; returning contracts.
+    # Directed selection across slots preserves its endpoints.
     var range=MathEditorState("frac(alpha, beta)")
     var numerator=range.document.nodes[range.document.root].children[0]
     var denominator=range.document.nodes[range.document.root].children[1]
     var numerator_id=range.document.nodes[numerator].id
     var denominator_id=range.document.nodes[denominator].id
     range.set_caret(MathPosition(denominator_id,2),True)
-    assert_equal(range.selected,range.document.nodes[range.document.root].id)
+    assert_true(range.selected < 0 and range.has_range_selection())
     range.set_caret(MathPosition(numerator_id,2),True)
     assert_true(range.selected<0)
     assert_equal(range.copy_text(),"al")
@@ -215,16 +442,16 @@ def main() raises:
     assert_equal(pasted.copy_text(),"XY")
     var first=range.edge_position()
     var last=range.edge_position(True)
-    assert_equal(first.id,numerator_id)
+    assert_equal(first.id,range.document.nodes[range.document.root].id)
     assert_equal(first.offset,0)
-    assert_equal(last.id,denominator_id)
-    assert_equal(last.offset,4)
+    assert_equal(last.id,first.id)
+    assert_equal(last.offset,1)
     var slots=MathEditorState("row(ab, cd)")
     var first_slot=slots.document.nodes[slots.document.root].children[0]
     var last_slot=slots.document.nodes[slots.document.root].children[1]
     slots.focus(first_slot,True)
     slots.horizontal(1,True)
-    assert_equal(slots.selected,slots.document.nodes[slots.document.root].id)
+    assert_true(slots.selected < 0)
     slots.horizontal(-1,True)
     assert_true(not slots.has_text_selection())
     assert_true(slots.selected<0)
@@ -298,13 +525,13 @@ def main() raises:
     full_range.command(MathCommand.TEXT)
     assert_true(full_range.has_text_selection())
     assert_equal(full_range.copy_text(),"word")
-    # A source range across nodes selects their subtree; a collapsed gap stays a caret.
+    # A source range across nodes maps both endpoints; a collapsed gap stays a caret.
     var source_span=MathEditorState("row(alpha, beta)")
     source_span.command(MathCommand.TEXT)
     source_span.source.anchor=6
     source_span.source.cursor=13
     source_span.command(MathCommand.TEXT)
-    assert_equal(source_span.selected,source_span.document.nodes[source_span.document.root].id)
+    assert_true(source_span.has_range_selection() and source_span.selected < 0)
     source_span.command(MathCommand.TEXT)
     source_span.source.anchor = -1
     source_span.source.cursor=10

@@ -17,7 +17,7 @@ def _source(module: PythonObject, builtins: PythonObject, doc: MathDocument, ind
     var children=builtins.list()
     for child in n.children:
         children.append(_source(module,builtins,doc,child))
-    return module.source(n.kind.value,n.text,n.extra,children,n.id)
+    return module.source(n.kind.value,n.text,n.extra,children,n.id,n.authored_empty)
 
 struct MathComputation:
     var module: PythonObject
@@ -41,7 +41,8 @@ struct MathComputation:
             ancestors.append(state.document.nodes[parent].kind.value)
             parent=state.document.parent(parent)
         var replacement_doc=parse_math(replacement)
-        var accepted=Bool(self.session.submit(_source(self.module,self.builtins,state.document,index),ancestors,operation.value,state.document.revision,_source(self.module,self.builtins,replacement_doc,replacement_doc.root)))
+        var partial_range = state.selected < 0 and state.has_range_selection()
+        var accepted=Bool(self.session.submit(_source(self.module,self.builtins,state.document,index),ancestors,operation.value,state.document.revision,_source(self.module,self.builtins,replacement_doc,replacement_doc.root),partial_range))
         if accepted:
             self.target=state.document.nodes[index].id
             self.revision=state.document.revision

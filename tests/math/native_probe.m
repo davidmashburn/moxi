@@ -5,14 +5,30 @@ static NSView<NSTextInputClient> *math_view(void) {
             if([view isKindOfClass:NSClassFromString(@"MoxiMathLayer")]) return (id)view;
     return nil;
 }
-int32_t moxi_math_probe_key(const char *text,int32_t modifiers,int32_t source) {
+int32_t moxi_math_probe_key_repeat(const char *text,int32_t modifiers,int32_t source,int32_t repeat) {
     NSView *view=math_view();
     NSResponder *expected=source?[view.window fieldEditor:NO forObject:nil]:view;
     if(!expected || view.window.firstResponder!=expected) return 0;
     NSEventModifierFlags flags=((modifiers&1)?NSEventModifierFlagShift:0)|((modifiers&2)?NSEventModifierFlagCommand:0)|((modifiers&4)?NSEventModifierFlagControl:0)|((modifiers&8)?NSEventModifierFlagOption:0);
     NSString *s=[NSString stringWithUTF8String:text];
-    NSEvent *event=[NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:flags timestamp:NSProcessInfo.processInfo.systemUptime windowNumber:view.window.windowNumber context:nil characters:s charactersIgnoringModifiers:s isARepeat:NO keyCode:0];
+    unichar character=s.length?[s characterAtIndex:0]:0;
+    unsigned short code=character==NSDeleteCharacter?51:character==NSDeleteFunctionKey?117:
+        character==NSLeftArrowFunctionKey?123:character==NSRightArrowFunctionKey?124:
+        character==NSDownArrowFunctionKey?125:character==NSUpArrowFunctionKey?126:0;
+    NSEvent *event=[NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:flags timestamp:NSProcessInfo.processInfo.systemUptime windowNumber:view.window.windowNumber context:nil characters:s charactersIgnoringModifiers:s isARepeat:repeat!=0 keyCode:code];
     [view.window sendEvent:event]; return 1;
+}
+int32_t moxi_math_probe_key(const char *text,int32_t modifiers,int32_t source) {
+    return moxi_math_probe_key_repeat(text,modifiers,source,0);
+}
+extern int32_t moxi_math_capture(const char *path);
+int32_t moxi_math_probe_capture(const char *name) {
+    const char *directory=getenv("MOXI_MATH_NATIVE_EVIDENCE_DIR");
+    if (!directory || !*directory) return 1;
+    NSString *root=[NSString stringWithUTF8String:directory];
+    if (![NSFileManager.defaultManager createDirectoryAtPath:root withIntermediateDirectories:YES attributes:nil error:NULL]) return 0;
+    NSString *path=[root stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.png",name]];
+    return moxi_math_capture(path.UTF8String);
 }
 // Exercise the native canvas callbacks even when the test window is in the background.
 static NSView *drag_view;
@@ -47,12 +63,20 @@ int32_t moxi_math_probe_selected_range(int32_t start,int32_t length) {
     NSRange selected=[math_view() selectedRange];
     return NSEqualRanges(selected,NSMakeRange(start,length));
 }
+int32_t moxi_math_probe_clear_first_character(void) {
+    NSView<NSTextInputClient> *view=math_view();
+    if (!view) return 0;
+    [view insertText:@"" replacementRange:NSMakeRange(0,1)];
+    return 1;
+}
 int32_t moxi_math_probe_marked(const char *text,int32_t commit) {
     NSView<NSTextInputClient> *view=math_view(); if(!view) return 0;
-    NSString *s=[NSString stringWithUTF8String:text];
+    NSMutableString *s=[[NSString stringWithUTF8String:text] mutableCopy];
     if(commit) [view insertText:s replacementRange:NSMakeRange(NSNotFound,0)];
     else [view setMarkedText:s selectedRange:NSMakeRange(s.length,0) replacementRange:NSMakeRange(NSNotFound,0)];
-    return 1;
+    // Mimic the input service recycling its buffer before the editor polls.
+    [s setString:@""];
+    return commit || view.hasMarkedText;
 }
 int32_t moxi_math_probe_semantics(void) {
     NSView<NSTextInputClient> *view=math_view();

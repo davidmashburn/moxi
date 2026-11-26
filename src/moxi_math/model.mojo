@@ -35,6 +35,7 @@ struct MathNode(ImplicitlyCopyable):
     var id: Int
     var start: Int
     var end: Int
+    var authored_empty: Bool
     def __init__(out self, *, copy: Self):
         self.kind = copy.kind
         self.text = copy.text
@@ -43,6 +44,7 @@ struct MathNode(ImplicitlyCopyable):
         self.id = copy.id
         self.start = copy.start
         self.end = copy.end
+        self.authored_empty = copy.authored_empty
     def __init__(out self, kind: MathKind, text: String = "", id: Int = 0):
         self.kind = kind
         self.text = text
@@ -51,6 +53,7 @@ struct MathNode(ImplicitlyCopyable):
         self.id = id
         self.start = 0
         self.end = 0
+        self.authored_empty = False
 
 def quoted(text: String) -> String:
     var result = String('"')
@@ -96,6 +99,31 @@ struct MathDocument(ImplicitlyCopyable):
     def token(mut self, text: String) -> Int:
         return self.add(MathKind.TOKEN, text)
 
+    def is_optional_slot(self, parent: Int, slot: Int) -> Bool:
+        if parent < 0 or parent >= len(self.nodes):
+            return False
+        ref node = self.nodes[parent]
+        if slot < 0 or slot >= len(node.children):
+            return False
+        return (node.kind == MathKind.ROOT and slot == 0) or (node.kind == MathKind.SCRIPTS and slot > 0)
+
+    def slot_exists(self, parent: Int, slot: Int) -> Bool:
+        """Legacy optional '?' is absent; an authored empty() remains a slot."""
+        if parent < 0 or parent >= len(self.nodes) or slot < 0 or slot >= len(self.nodes[parent].children):
+            return False
+        ref child = self.nodes[self.nodes[parent].children[slot]]
+        return not self.is_optional_slot(parent, slot) or child.kind != MathKind.HOLE or child.authored_empty
+
+    def create_optional_slot(mut self, parent: Int, slot: Int) raises -> Int:
+        """Make an absent optional hole persistent without replacing its ID."""
+        if not self.is_optional_slot(parent, slot):
+            raise Error("Expected optional math slot")
+        var child = self.nodes[parent].children[slot]
+        if self.nodes[child].kind != MathKind.HOLE:
+            raise Error("Optional math slot already contains an expression")
+        self.nodes[child].authored_empty = True
+        return child
+
     def parent(self, child: Int) -> Int:
         for i in range(len(self.nodes)):
             for c in self.nodes[i].children:
@@ -112,7 +140,7 @@ struct MathDocument(ImplicitlyCopyable):
     def print_node(self, i: Int) -> String:
         var n = self.nodes[i]
         if n.kind == MathKind.HOLE:
-            return "?"
+            return "empty()" if n.authored_empty else "?"
         if n.kind == MathKind.TOKEN:
             var plain = n.text.count_codepoints() > 0
             for c in n.text.codepoints():
@@ -170,6 +198,8 @@ struct MathDocument(ImplicitlyCopyable):
         ids[n.id]=True
         if n.kind == MathKind.TOKEN and n.text.byte_length()>MAX_TOKEN_BYTES:
             raise Error("Math token byte limit")
+        if n.authored_empty and n.kind != MathKind.HOLE:
+            raise Error("Authored empty state requires a math hole")
         var count = len(n.children)
         if ((n.kind == MathKind.TOKEN or n.kind == MathKind.HOLE or n.kind == MathKind.ERROR) and count != 0) or (n.kind == MathKind.FRACTION and count != 2) or (n.kind == MathKind.ROOT and count != 2) or (n.kind == MathKind.SCRIPTS and count != 5) or (n.kind == MathKind.GROUP and count != 1) or (n.kind == MathKind.FUNCTION and count != 1) or ((n.kind == MathKind.SUM or n.kind == MathKind.INTEGRAL) and count != 4):
             raise Error("Invalid math child roles")
@@ -204,6 +234,7 @@ struct MathDocument(ImplicitlyCopyable):
         var n = other.nodes[index]
         var target = self.add(n.kind, n.text)
         self.nodes[target].extra = n.extra
+        self.nodes[target].authored_empty = n.authored_empty
         for child in n.children:
             var copied = self.clone_from(other, child)
             self.nodes[target].children.append(copied)
@@ -374,9 +405,12 @@ struct _Parser:
                     kind = MathKind.INTEGRAL
                 elif word == "error":
                     kind = MathKind.ERROR
+                elif word == "empty":
+                    kind = MathKind.HOLE
                 else:
                     raise Error("Unknown notation constructor")
                 index = self.doc.add(kind)
+                self.doc.nodes[index].authored_empty = kind == MathKind.HOLE
                 if kind == MathKind.ERROR or kind == MathKind.FUNCTION or kind == MathKind.GROUP:
                     var text = self.string()
                     self.doc.nodes[index].text = text

@@ -117,10 +117,12 @@ struct KeyEvent(ImplicitlyCopyable):
 
     var key: Int
     var modifiers: Int
+    var key_repeat: Bool
 
-    def __init__(out self, key: Int, modifiers: Int = 0):
+    def __init__(out self, key: Int, modifiers: Int = 0, key_repeat: Bool = False):
         self.key = key
         self.modifiers = modifiers
+        self.key_repeat = key_repeat
 
 
 struct TextInputEvent(ImplicitlyCopyable):
@@ -297,6 +299,7 @@ struct Event(ImplicitlyCopyable):
     var position: Point
     var key: Int
     var modifiers: Int
+    var key_repeat: Bool
     var text: String
     var selection_start: Int
     var selection_end: Int
@@ -323,6 +326,7 @@ struct Event(ImplicitlyCopyable):
         self.position = Point(0.0, 0.0)
         self.key = 0
         self.modifiers = 0
+        self.key_repeat = False
         self.text = ""
         self.selection_start = 0
         self.selection_end = 0
@@ -365,6 +369,7 @@ struct Event(ImplicitlyCopyable):
         self.kind = KEY_DOWN_KIND
         self.key = event.key
         self.modifiers = event.modifiers
+        self.key_repeat = event.key_repeat
 
     def __init__(out self, event: TextInputEvent):
         self = Event()

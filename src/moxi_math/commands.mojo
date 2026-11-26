@@ -28,6 +28,7 @@ struct MathCommand(ImplicitlyCopyable):
     comptime TEXT = Self(22)
     comptime NEXT_HOLE = Self(23)
     comptime PREVIOUS_HOLE = Self(24)
+    comptime ADD_COMPLEMENT = Self(25)
     def __init__(out self, value: Int):
         self.value = value
     def __eq__(self, other: Self) -> Bool:

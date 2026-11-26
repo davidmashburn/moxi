@@ -68,6 +68,7 @@ struct MathSnapshot(ImplicitlyCopyable):
     var rules: List[Rect]
     var regions: List[MathRegion]
     var carets: List[MathCaret]
+    var parents: Dict[Int, Int]
     var width: Float32
     var height: Float32
     var baseline: Float32
@@ -78,6 +79,7 @@ struct MathSnapshot(ImplicitlyCopyable):
         self.rules = List[Rect]()
         self.regions = List[MathRegion]()
         self.carets = List[MathCaret]()
+        self.parents = Dict[Int, Int]()
         self.width = 0
         self.height = 0
         self.baseline = 0
@@ -88,6 +90,7 @@ struct MathSnapshot(ImplicitlyCopyable):
         self.rules = copy.rules.copy()
         self.regions = copy.regions.copy()
         self.carets = copy.carets.copy()
+        self.parents = copy.parents.copy()
         self.width = copy.width
         self.height = copy.height
         self.baseline = copy.baseline
@@ -122,7 +125,15 @@ struct MathSnapshot(ImplicitlyCopyable):
         var best = position
         var score: Float32 = 1e30
         var cy = from_rect.y+from_rect.height/2
+        var ancestors=Dict[Int, Bool]()
+        var ancestor=position.id
+        while ancestor in self.parents:
+            ancestor=self.parents.get(ancestor,-1)
+            ancestors[ancestor]=True
         for stop in self.carets:
+            # An enclosing expression's outside caret is not a neighboring line.
+            if stop.position.id in ancestors:
+                continue
             var dy = stop.bounds.y+stop.bounds.height/2-cy
             if dy*Float32(direction) > 2:
                 var distance = abs(stop.bounds.x-x)*2 + abs(dy)
@@ -138,8 +149,6 @@ struct MathLayout(ImplicitlyCopyable):
     var last_text: String
     var last_ids: String
     var last_size: Float32
-    var focused_hole: Int
-    var focused_path: Dict[Int, Bool]
     var measured: Int
     def __init__(out self):
         self.cache = Dict[String, _Measure]()
@@ -148,8 +157,6 @@ struct MathLayout(ImplicitlyCopyable):
         self.last_text = ""
         self.last_ids = ""
         self.last_size = 0
-        self.focused_hole = -1
-        self.focused_path = Dict[Int, Bool]()
         self.measured = 0
     def __init__(out self, *, copy: Self):
         self.cache = copy.cache.copy()
@@ -158,14 +165,9 @@ struct MathLayout(ImplicitlyCopyable):
         self.last_text = copy.last_text
         self.last_ids = copy.last_ids
         self.last_size = copy.last_size
-        self.focused_hole = copy.focused_hole
-        self.focused_path = copy.focused_path.copy()
         self.measured = copy.measured
     def _key(self, doc: MathDocument, i: Int, size: Float32) -> String:
-        var key = doc.print_node(i) + "|" + String(size)
-        if doc.nodes[i].id in self.focused_path:
-            key += "|focus:" + String(self.focused_hole)
-        return key
+        return doc.print_node(i) + "|" + String(size)
     def _text(self, text: String, size: Float32) -> _Measure:
         var b = _Measure()
         b.glyphs = self.font.shape(text, size)
@@ -219,9 +221,7 @@ struct MathLayout(ImplicitlyCopyable):
                 elif (n.kind == MathKind.SUM or n.kind == MathKind.INTEGRAL) and j < 3:
                     child_size = small
                 b.sizes.append(child_size)
-                var optional = (n.kind == MathKind.SCRIPTS and j > 0) or (n.kind == MathKind.ROOT and j == 0)
-                var child = doc.nodes[n.children[j]]
-                var visible = not optional or child.kind != MathKind.HOLE or child.id == self.focused_hole
+                var visible = doc.slot_exists(i, j)
                 b.visible.append(visible)
                 if visible:
                     children.append(self._measure(doc,n.children[j],child_size))
@@ -332,9 +332,10 @@ struct MathLayout(ImplicitlyCopyable):
                     for col in range(cols):
                         var c=self._measure(doc,doc.nodes[row].children[col],size)
                         b.columns[col]=max(b.columns[col],c.width)
-                var total: Float32=gap*2
+                var total: Float32=gap*2+max(Float32(2),size*.08)*2
                 for w in b.columns:
-                    total+=w+gap*2
+                    total+=w
+                total+=Float32(cols-1)*gap*2
                 var y=gap
                 for j in range(len(n.children)):
                     var c=children[j]
@@ -411,12 +412,29 @@ struct MathLayout(ImplicitlyCopyable):
                 b.rules[j].x-=min_x; b.rules[j].y-=min_y
             b.baseline-=min_y
         b.width=max_x-min_x; b.height=max_y-min_y
+        if n.kind != MathKind.TOKEN and n.kind != MathKind.ERROR and n.kind != MathKind.HOLE:
+            # Reserve distinct hit targets for the expression's outside edges.
+            var inset=max(Float32(2),size*.08)
+            for j in range(len(b.glyphs)):
+                b.glyphs[j].x+=inset
+            for j in range(len(b.positions)):
+                b.positions[j].x+=inset
+            for j in range(len(b.rules)):
+                b.rules[j].x+=inset
+            b.width+=inset*2
         self.cache[key]=b
         return b^
 
-    def _emit(mut self, doc: MathDocument, i: Int, size: Float32, x: Float32, y: Float32) raises:
+    def _emit_boundaries(mut self, id: Int, x: Float32, y: Float32, width: Float32, height: Float32, baseline: Float32, size: Float32):
+        var caret_height=min(height,size)
+        var caret_y=y+max(Float32(0),min(height-caret_height,baseline-size*.8))
+        self.snapshot.carets.append(MathCaret(MathPosition(id,0),Rect(x,caret_y,1.5,caret_height)))
+        self.snapshot.carets.append(MathCaret(MathPosition(id,1),Rect(x+width,caret_y,1.5,caret_height)))
+
+    def _emit(mut self, doc: MathDocument, i: Int, size: Float32, x: Float32, y: Float32, parent_id: Int = -1) raises:
         var n=doc.nodes[i]
         var b=self.cache[self._key(doc,i,size)]
+        self.snapshot.parents[n.id]=parent_id
         self.snapshot.regions.append(MathRegion(n.id,Rect(x,y,b.width,b.height),y+b.baseline,role_label(n.kind),n.text,b.missing))
         for g in b.glyphs:
             var placed=g
@@ -424,7 +442,11 @@ struct MathLayout(ImplicitlyCopyable):
             self.snapshot.glyphs.append(placed)
         for rule in b.rules:
             self.snapshot.rules.append(Rect(x+rule.x,y+rule.y,rule.width,rule.height))
-        if len(n.children)==0:
+        if n.kind==MathKind.HOLE:
+            self.snapshot.carets.append(MathCaret(MathPosition(n.id,-1),Rect(x,y,1.5,b.height)))
+            self.snapshot.carets.append(MathCaret(MathPosition(n.id,0),Rect(x+b.width/2,y,1.5,b.height)))
+            self.snapshot.carets.append(MathCaret(MathPosition(n.id,-2),Rect(x+b.width,y,1.5,b.height)))
+        elif n.kind==MathKind.TOKEN or n.kind==MathKind.ERROR:
             var offset=0
             while True:
                 var caret_x: Float32=0
@@ -438,46 +460,39 @@ struct MathLayout(ImplicitlyCopyable):
                 if offset>=n.text.count_codepoints() or (n.kind==MathKind.ERROR and offset>=160):
                     break
                 offset=next_text_boundary(n.text,offset)
-        elif n.kind==MathKind.MATRIX:
+        else:
+            self._emit_boundaries(n.id,x,y,b.width,b.height,b.baseline,size)
+        if n.kind==MathKind.MATRIX:
             for row_index in range(len(n.children)):
                 var row=n.children[row_index]
                 var row_box=self.cache[self._key(doc,row,size)]
                 var row_y=y+b.positions[row_index].y
-                var col_x=x+b.positions[row_index].x
-                self.snapshot.regions.append(MathRegion(doc.nodes[row].id,Rect(col_x,row_y,b.width-2*b.positions[row_index].x,row_box.height),row_y+row_box.baseline,"matrix row",""))
+                var row_x=x+b.positions[row_index].x
+                var inset=max(Float32(2),size*.08)
+                var row_width=inset*2+Float32(len(b.columns)-1)*size*.36
+                for width in b.columns:
+                    row_width+=width
+                self.snapshot.regions.append(MathRegion(doc.nodes[row].id,Rect(row_x,row_y,row_width,row_box.height),row_y+row_box.baseline,"matrix row",""))
+                self.snapshot.parents[doc.nodes[row].id]=n.id
+                self._emit_boundaries(doc.nodes[row].id,row_x,row_y,row_width,row_box.height,row_box.baseline,size)
+                var col_x=row_x+inset
                 for col in range(len(b.columns)):
                     var cell=doc.nodes[row].children[col]
                     var cell_box=self.cache[self._key(doc,cell,size)]
-                    self._emit(doc,cell,size,col_x+(b.columns[col]-cell_box.width)/2,row_y+row_box.baseline-cell_box.baseline)
+                    self._emit(doc,cell,size,col_x+(b.columns[col]-cell_box.width)/2,row_y+row_box.baseline-cell_box.baseline,doc.nodes[row].id)
                     col_x+=b.columns[col]+size*.36
-        else:
+        elif n.kind!=MathKind.TOKEN and n.kind!=MathKind.ERROR and n.kind!=MathKind.HOLE:
             for j in range(len(n.children)):
                 if b.visible[j]:
-                    self._emit(doc,n.children[j],b.sizes[j],x+b.positions[j].x,y+b.positions[j].y)
+                    self._emit(doc,n.children[j],b.sizes[j],x+b.positions[j].x,y+b.positions[j].y,n.id)
     def publish(mut self, doc: MathDocument, size: Float32 = 32, focused_id: Int = -1) raises:
         var text=doc.text()
         var ids=String("")
         for node in doc.nodes:
             ids+=String(node.id)+","
-        var focused_hole = -1
-        var focused_index = doc.find_id(focused_id)
-        if focused_index >= 0 and doc.nodes[focused_index].kind == MathKind.HOLE:
-            var parent = doc.parent(focused_index)
-            if parent >= 0:
-                var node = doc.nodes[parent]
-                for j in range(len(node.children)):
-                    if node.children[j] == focused_index and ((node.kind == MathKind.SCRIPTS and j > 0) or (node.kind == MathKind.ROOT and j == 0)):
-                        focused_hole = focused_id
-        if text==self.last_text and ids==self.last_ids and size==self.last_size and focused_hole==self.focused_hole:
+        if text==self.last_text and ids==self.last_ids and size==self.last_size:
             self.snapshot.measured_nodes=0
             return
-        self.focused_hole = focused_hole
-        self.focused_path.clear()
-        if focused_hole >= 0:
-            var ancestor = focused_index
-            while ancestor >= 0:
-                self.focused_path[doc.nodes[ancestor].id] = True
-                ancestor = doc.parent(ancestor)
         if len(self.cache)>40000:
             self.cache.clear()
         self.measured=0

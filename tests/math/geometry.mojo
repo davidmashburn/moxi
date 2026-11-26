@@ -1,4 +1,4 @@
-from moxi_math import parse_math, MathLayout, MathFont, MathEditorState, MathCommand, open_math_font, close_math_font
+from moxi_math import parse_math, MathLayout, MathFont, MathPosition, MathKind, open_math_font, close_math_font
 from moxi.geometry import Point
 from std.testing import assert_true, assert_equal
 
@@ -52,59 +52,113 @@ def main() raises:
     var empty_scripts=parse_math("scripts(x, ?, ?, ?, ?)")
     layout.publish(empty_scripts)
     assert_equal(len(layout.snapshot.regions),2)
-    assert_equal(layout.snapshot.width,plain_width)
+    assert_equal(layout.snapshot.width,plain_width+32*.16)
     assert_equal(layout.snapshot.height,plain_height)
     assert_equal(layout.snapshot.baseline,plain_baseline)
-    var script=MathEditorState("scripts(x, ?, 2, ?, ?)")
-    layout.publish(script.document,32,script.caret.id)
+    var script=parse_math("scripts(x, ?, 2, ?, ?)")
+    var absent=script.nodes[script.root].children[1]
+    layout.publish(script,32,script.nodes[absent].id)
     assert_equal(len(layout.snapshot.regions),3)
     var compact_height=layout.snapshot.height
-    # The model still visits every hole, revealing just the current optional slot.
-    var script_slots: List[Int]=[1,3,4]
-    for slot in script_slots:
-        script.command(MathCommand.NEXT_HOLE)
-        assert_equal(script.caret.id,script.document.nodes[script.document.nodes[script.document.root].children[slot]].id)
-        var generation=layout.snapshot.generation
-        layout.publish(script.document,32,script.caret.id)
-        assert_equal(layout.snapshot.generation,generation+1)
-        assert_equal(len(layout.snapshot.regions),4)
-        var focused=layout.snapshot.caret(script.caret)
-        assert_true(focused.width>0 and focused.height>9)
-        var hit=layout.snapshot.hit(Point(focused.x,focused.y+focused.height/2))
-        assert_equal(hit.id,script.caret.id)
-        layout.publish(script.document,32,script.caret.id)
-        assert_equal(layout.snapshot.measured_nodes,0)
-    script.focus(script.document.nodes[script.document.root].children[0])
-    layout.publish(script.document,32,script.caret.id)
+    var focus_generation=layout.snapshot.generation
+    layout.publish(script,32,script.nodes[script.root].id)
+    assert_equal(layout.snapshot.generation,focus_generation)
     assert_equal(len(layout.snapshot.regions),3)
     assert_equal(layout.snapshot.height,compact_height)
     assert_equal(layout.snapshot.measured_nodes,0)
-    # Identical notation shares cached measurements until only one subtree is focused.
-    var repeated=MathEditorState("row(scripts(x, ?, ?, ?, ?), scripts(x, ?, ?, ?, ?))")
-    layout.publish(repeated.document,32,repeated.caret.id)
-    assert_equal(len(layout.snapshot.regions),5)
-    var repeated_children=repeated.document.nodes[repeated.document.root].children.copy()
-    for child in repeated_children:
-        repeated.focus(repeated.document.nodes[child].children[1])
-        layout.publish(repeated.document,32,repeated.caret.id)
-        assert_equal(len(layout.snapshot.regions),6)
-        var holes=0
-        for region in layout.snapshot.regions:
-            if region.label=="empty slot":
-                holes+=1
-                assert_equal(region.id,repeated.caret.id)
-        assert_equal(holes,1)
-    var radical=MathEditorState("root(?, x)")
-    radical.focus(radical.document.nodes[radical.document.root].children[1])
-    layout.publish(radical.document,32,radical.caret.id)
+    for stop in layout.snapshot.carets:
+        assert_true(stop.position.id!=script.nodes[absent].id)
+    _=script.create_optional_slot(script.root,1)
+    layout.publish(script)
+    assert_equal(len(layout.snapshot.regions),4)
+    assert_true(layout.snapshot.height>compact_height)
+    var authored_bounds=layout.snapshot.bounds(script.nodes[absent].id)
+    layout.publish(script,32,script.nodes[script.nodes[script.root].children[0]].id)
+    assert_equal(layout.snapshot.measured_nodes,0)
+    assert_equal(layout.snapshot.bounds(script.nodes[absent].id).height,authored_bounds.height)
+    var restored=parse_math(script.text())
+    layout.publish(restored)
+    assert_equal(len(layout.snapshot.regions),4)
+    # Repeated notation shares measurements while presence remains per subtree.
+    var repeated=parse_math("row(scripts(x, ?, ?, ?, ?), scripts(x, ?, ?, ?, ?))")
+    var repeated_children=repeated.nodes[repeated.root].children.copy()
+    _=repeated.create_optional_slot(repeated_children[1],1)
+    layout.publish(repeated)
+    assert_equal(len(layout.snapshot.regions),6)
+    var radical=parse_math("root(?, x)")
+    var index=radical.nodes[radical.root].children[0]
+    layout.publish(radical,32,radical.nodes[index].id)
     assert_equal(len(layout.snapshot.regions),2)
     var radical_width=layout.snapshot.width
-    radical.command(MathCommand.NEXT_HOLE)
-    layout.publish(radical.document,32,radical.caret.id)
+    _=radical.create_optional_slot(radical.root,0)
+    layout.publish(radical)
     assert_equal(len(layout.snapshot.regions),3)
     assert_true(layout.snapshot.width>radical_width)
-    var index_caret=layout.snapshot.caret(radical.caret)
+    var index_position=MathPosition(radical.nodes[index].id,0)
+    var index_caret=layout.snapshot.caret(index_position)
     assert_true(index_caret.height>9)
-    assert_equal(layout.snapshot.hit(Point(index_caret.x,index_caret.y+index_caret.height/2)).id,radical.caret.id)
+    assert_equal(layout.snapshot.hit(Point(index_caret.x,index_caret.y+index_caret.height/2)).id,index_position.id)
+    # A hole has one inside stop and separate before/after positions.
+    var hole=parse_math("?")
+    layout.publish(hole)
+    assert_equal(len(layout.snapshot.carets),3)
+    var hole_id=hole.nodes[hole.root].id
+    var hole_offsets: List[Int]=[-1,0,-2]
+    var previous_x: Float32=-1
+    for offset in hole_offsets:
+        var position=MathPosition(hole_id,offset)
+        var bounds=layout.snapshot.caret(position)
+        assert_true(bounds.x>previous_x)
+        previous_x=bounds.x
+        var hit=layout.snapshot.hit(Point(bounds.x,bounds.y+bounds.height/2))
+        assert_equal(hit.id,position.id)
+        assert_equal(hit.offset,position.offset)
+    # Every structural node, including the document root and matrix rows, has edges.
+    var structural: List[String]=["row()", "frac(row(a), row(b))", "root(?, x)", "scripts(x, ?, 2, ?, ?)", 'group("(", ")", x)', 'fn("sin", x)', "matrix(row(a, b), row(c, d))", "sum(i, 0, n, x)", "integral(x, 0, 1, x)"]
+    for source in structural:
+        var expression=parse_math(source)
+        layout.publish(expression)
+        for region in layout.snapshot.regions:
+            var node=expression.nodes[expression.find_id(region.id)]
+            if node.kind==MathKind.TOKEN or node.kind==MathKind.ERROR or node.kind==MathKind.HOLE:
+                continue
+            var before=layout.snapshot.caret(MathPosition(region.id,0))
+            var after=layout.snapshot.caret(MathPosition(region.id,1))
+            assert_equal(before.x,region.bounds.x)
+            assert_equal(after.x,region.bounds.x+region.bounds.width)
+            assert_true(after.x>before.x)
+            for offset in range(2):
+                var edge=layout.snapshot.caret(MathPosition(region.id,offset))
+                var hit=layout.snapshot.hit(Point(edge.x,edge.y+edge.height/2))
+                assert_equal(hit.id,region.id)
+                assert_equal(hit.offset,offset)
+    var matrix=parse_math("matrix(row(a, b), row(c, d))")
+    layout.publish(matrix)
+    var first_row=matrix.nodes[matrix.nodes[matrix.root].children[0]].id
+    var second_row=matrix.nodes[matrix.nodes[matrix.root].children[1]].id
+    for offset in range(2):
+        var down=layout.snapshot.vertical(MathPosition(first_row,offset),1)
+        assert_equal(down.id,second_row)
+        assert_equal(down.offset,offset)
+        var up=layout.snapshot.vertical(MathPosition(second_row,offset),-1)
+        assert_equal(up.id,first_row)
+        assert_equal(up.offset,offset)
+    var fraction=parse_math("frac(row(a), row(b))")
+    layout.publish(fraction)
+    var numerator=fraction.nodes[fraction.nodes[fraction.root].children[0]].id
+    var denominator=fraction.nodes[fraction.nodes[fraction.root].children[1]].id
+    for offset in range(2):
+        var down=layout.snapshot.vertical(MathPosition(numerator,offset),1)
+        assert_equal(down.id,denominator)
+        assert_equal(down.offset,offset)
+        var up=layout.snapshot.vertical(MathPosition(denominator,offset),-1)
+        assert_equal(up.id,numerator)
+        assert_equal(up.offset,offset)
+    var graphemes=parse_math('"é👩‍🔬"')
+    layout.publish(graphemes)
+    assert_equal(len(layout.snapshot.carets),3)
+    assert_equal(layout.snapshot.carets[0].position.offset,0)
+    assert_equal(layout.snapshot.carets[1].position.offset,2)
+    assert_equal(layout.snapshot.carets[2].position.offset,5)
     close_math_font()
     print("PASS native MATH geometry, caret hits, bounds, cache, font sizes")

@@ -5,11 +5,12 @@ from moxi.component import Component
 from moxi.geometry import Point
 from moxi.event import Event, DRAG_BEGIN_KIND, DRAG_UPDATE_KIND, DROP_KIND, POINTER_CANCEL_KIND, KEY_DOWN_KIND, TEXT_INPUT_KIND, POINTER_DOWN_KIND, POINTER_MOVE_KIND, POINTER_UP_KIND, SCROLL_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_HOME, KEY_END, KEY_BACKSPACE, KEY_DELETE, KEY_ESCAPE, MOD_COMMAND, MOD_SHIFT, MOD_OPTION
 from moxi.style import default_surface_style, default_label_style, default_text_input_style
-from .editor import MathEditorState, MathCommand, symbol_for
+from .editor import MathEditorState, MathPosition, MathCommand, symbol_for
 from .commands import MathKeymap
 from moxi.controls_text import TextInputState
 from .layout import MathLayout, MathSnapshot
 from .model import MathKind
+from .input import MathDeleteHold
 
 comptime MATH_CANVAS = 500
 comptime MATH_SOURCE = 501
@@ -41,6 +42,7 @@ struct MathEditor(Component):
     var scroll_x: Float32
     var preferred_x: Float32
     var pointer_down: Bool
+    var delete_hold: MathDeleteHold
     var backend_status: String
     var pending_action: Int
     var workbench_controls: Bool
@@ -58,6 +60,7 @@ struct MathEditor(Component):
         self.scroll_x=0
         self.preferred_x = -1
         self.pointer_down=False
+        self.delete_hold=MathDeleteHold()
         self.backend_status="Computation is optional · editing remains available without it"
         self.pending_action = -1
         self.workbench_controls=False
@@ -76,6 +79,7 @@ struct MathEditor(Component):
         self.scroll_x=copy.scroll_x
         self.preferred_x=copy.preferred_x
         self.pointer_down=copy.pointer_down
+        self.delete_hold=copy.delete_hold
         self.backend_status=copy.backend_status
         self.pending_action=copy.pending_action
         self.workbench_controls=copy.workbench_controls
@@ -106,8 +110,8 @@ struct MathEditor(Component):
         for i in range(len(commands)):
             view.add_button_to(second,MATH_COMMAND_BASE+commands[i].value,labels[i]+" "+self.keymap.hint(commands[i]),34)
         var third=view.add_row(4,0,34,4,0)
-        var commands2: List[MathCommand]=[MathCommand.COMPLEMENT,MathCommand.OVER,MathCommand.UNDER,MathCommand.ADD_ROW,MathCommand.ADD_COLUMN,MathCommand.REMOVE_ROW,MathCommand.REMOVE_COLUMN,MathCommand.UNWRAP,MathCommand.EXIT]
-        var labels2: List[String]=["Pair","Over","Under","+ Row","+ Col","− Row","− Col","Unwrap","Leave"]
+        var commands2: List[MathCommand]=[MathCommand.COMPLEMENT,MathCommand.ADD_COMPLEMENT,MathCommand.OVER,MathCommand.UNDER,MathCommand.ADD_ROW,MathCommand.ADD_COLUMN,MathCommand.REMOVE_ROW,MathCommand.REMOVE_COLUMN,MathCommand.UNWRAP,MathCommand.EXIT]
+        var labels2: List[String]=["Pair","+ Pair","Over","Under","+ Row","+ Col","− Row","− Col","Unwrap","Leave"]
         for i in range(len(commands2)):
             view.add_button_to(third,MATH_COMMAND_BASE+commands2[i].value,labels2[i]+" "+self.keymap.hint(commands2[i]),34)
         view.add_label_styled(5,"Click a slot · Tab visits holes · ⌘. selects enclosing · Escape starts symbols · Option-drag moves to a hole · Search symbols below",26,small_label)
@@ -152,7 +156,7 @@ struct MathEditor(Component):
                     self.state.focused=True
                     self.state.insert(symbol_for(names[event.target-MATH_SYMBOL_BASE]))
                     return True
-                if event.target>=MATH_COMMAND_BASE+1 and event.target<=MATH_COMMAND_BASE+24:
+                if event.target>=MATH_COMMAND_BASE+1 and event.target<=MATH_COMMAND_BASE+MathCommand.ADD_COMPLEMENT.value:
                     self.sync_source_selection()
                     self.state.focused=True
                     self.state.command(MathCommand(event.target-MATH_COMMAND_BASE))
@@ -221,6 +225,8 @@ struct MathEditor(Component):
                 self.state.source.cursor=end
 
     def _route(mut self, event: Event) raises -> Bool:
+        if event.kind==POINTER_DOWN_KIND or event.kind==TEXT_INPUT_KIND or event.kind==COMPOSITION_UPDATE_KIND or (event.kind==KEY_DOWN_KIND and event.key!=KEY_BACKSPACE and event.key!=KEY_DELETE):
+            self.delete_hold.stop()
         if event.kind==POINTER_DOWN_KIND:
             self.sync_source_selection()
         if event.kind==POINTER_DOWN_KIND and self.viewport.contains(event.position):
@@ -269,15 +275,18 @@ struct MathEditor(Component):
             return True
         if event.kind==TEXT_INPUT_KIND and not self.state.text_mode:
             self.state.composition=""
-            if event.replacement_start>=0 and self.state.selected<0 and not self.state.symbol_entry and self.state.document.nodes[self.state.index()].kind==MathKind.TOKEN:
-                self.state.begin()
+            if event.replacement_start>=0 and self.state.selected<0 and not self.state.symbol_entry and self.state.document.nodes[self.state.index()].kind==MathKind.TOKEN and (not self.state.has_range_selection() or self.state.has_text_selection()):
                 var i=self.state.index()
                 var text=TextInputState(self.state.document.nodes[i].text)
-                _ = text.replace_text_range(event.text,event.replacement_start,event.replacement_end)
-                self.state.document.nodes[i].text=text.text
-                self.state.clear_selection()
-                self.state.caret.offset=text.cursor
-                self.state.commit()
+                if text.replace_text_range(event.text,event.replacement_start,event.replacement_end):
+                    self.state.begin()
+                    if text.text == "":
+                        self.state._erase_text(i, 0, self.state.document.nodes[i].text.count_codepoints())
+                    else:
+                        self.state.document.nodes[i].text=text.text
+                        self.state.clear_selection()
+                        self.state.caret.offset=text.cursor
+                    self.state.commit()
             else:
                 self.state.insert(event.text)
             self.preferred_x = -1
@@ -304,7 +313,7 @@ struct MathEditor(Component):
                 var fragment_ptr=fragment.as_c_string_span()
                 external_call["moxi_math_clipboard", NoneType](ptr.ptr(),fragment_ptr.ptr())
                 if event.key==120:
-                    if not self.state.has_text_selection():
+                    if not self.state.has_range_selection():
                         self.state.select(self.state.target())
                     self.state.delete()
                 return True
@@ -318,7 +327,7 @@ struct MathEditor(Component):
                 self.state.paste(text)
                 return True
         if event.key==KEY_BACKSPACE or event.key==KEY_DELETE:
-            self.state.delete(event.key==KEY_DELETE)
+            self.delete_hold.delete(self.state,event.key,event.key_repeat)
             return True
         if event.key==KEY_LEFT or event.key==KEY_RIGHT:
             self.state.horizontal(-1 if event.key==KEY_LEFT else 1,(event.modifiers & MOD_SHIFT)!=0)
@@ -363,10 +372,15 @@ def draw_math(snapshot: MathSnapshot, state: MathEditorState, viewport: Rect, zo
     if state.selected>=0:
         var bounds=snapshot.bounds(state.selected)
         _item(1,0,bounds.x,bounds.y,bounds.width,bounds.height,1)
-    elif state.has_text_selection():
-        var anchor=snapshot.caret(state.selection_anchor)
-        var end=snapshot.caret(state.caret)
-        _item(1,0,min(anchor.x,end.x),end.y,abs(end.x-anchor.x),end.height,1)
+    elif state.has_range_selection():
+        for span in state.range_spans():
+            if span.whole:
+                var bounds=snapshot.bounds(span.id)
+                _item(1,0,bounds.x,bounds.y,bounds.width,bounds.height,1)
+            else:
+                var anchor=snapshot.caret(MathPosition(span.id,span.start))
+                var end=snapshot.caret(MathPosition(span.id,span.end))
+                _item(1,0,min(anchor.x,end.x),end.y,abs(end.x-anchor.x),end.height,1)
     for region in snapshot.regions:
         if region.label=="empty slot" or region.diagnostic:
             _item(2,0,region.bounds.x,region.bounds.y,region.bounds.width,region.bounds.height,2 if region.diagnostic else 3)
@@ -383,7 +397,7 @@ def draw_math(snapshot: MathSnapshot, state: MathEditorState, viewport: Rect, zo
         _item(0,glyph.id,glyph.x,glyph.y,0,glyph.size,2 if glyph.id==0 else 0)
     for rule in snapshot.rules:
         _item(1,0,rule.x,rule.y,rule.width,rule.height)
-    if state.focused and not state.text_mode and state.selected<0 and not state.has_text_selection():
+    if state.focused and not state.text_mode and (state.selected < 0 or state.has_range_selection()):
         var caret=snapshot.caret(state.caret)
         _item(1,0,caret.x,caret.y,1.5,caret.height,3)
     if state.drag_target>=0:
@@ -393,8 +407,10 @@ def draw_math(snapshot: MathSnapshot, state: MathEditorState, viewport: Rect, zo
     var ptr=text.as_c_string_span()
     var caret=snapshot.caret(state.caret)
     external_call["moxi_math_composition",NoneType](ptr.ptr(),caret.x,caret.y)
-    var leaf=state.document.nodes[state.index()].text
+    var node=state.document.nodes[state.index()]
+    var token=node.kind==MathKind.TOKEN or node.kind==MathKind.ERROR
+    var leaf=node.text if token else String("")
     var leaf_ptr=leaf.as_c_string_span()
-    external_call["moxi_math_input_state",NoneType](leaf_ptr.ptr(),Int32(state.selection_start()),Int32(state.selection_end()),Int32(state.focused and not state.text_mode),caret.x,caret.y,caret.width,caret.height)
+    external_call["moxi_math_input_state",NoneType](leaf_ptr.ptr(),Int32(state.selection_start() if token else 0),Int32(state.selection_end() if token else 0),Int32(state.focused and not state.text_mode),caret.x,caret.y,caret.width,caret.height)
     external_call["moxi_math_scene_end",NoneType]()
     external_call["moxi_math_track_source_selection",NoneType](Int32(state.focused and state.text_mode))

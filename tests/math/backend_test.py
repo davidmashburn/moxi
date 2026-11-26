@@ -58,6 +58,20 @@ class BackendTests(unittest.TestCase):
             self.assertIsNone(self.c.controller.process)
         for selected in (node(N.HOLE),node(N.ERROR,text='frac(x,'),node(N.ROW,token('x'),token('y')),node(N.SCRIPTS,token('x'),token('i'),token('2'),node(N.HOLE),node(N.HOLE))):
             self.assertFalse(self.c.submit(selected,[],Operation.EXPAND,1))
+    def test_authored_empty_optional_slot_is_incomplete(self):
+        absent = node(N.HOLE)
+        empty = Source(N.HOLE, '', '', (), 2, authored_empty=True)
+        for selected in (node(N.ROOT, empty, token('x')),
+                         node(N.SCRIPTS, token('x'), absent, empty, absent, absent)):
+            with self.assertRaises(BoundaryError):
+                project(selected)
+        self.assertEqual(project(node(N.SCRIPTS, token('x'), absent, absent, absent, absent)).kind, Kind.SYMBOL)
+
+    def test_partial_range_never_targets_its_endpoint(self):
+        self.assertFalse(self.c.submit(token('x'), [], Operation.EVALUATE, 1, partial_range=True))
+        self.assertEqual(self.c.state, State.UNSUPPORTED)
+        self.assertFalse(self.c.eligible(1))
+
     def test_cancel_restart(self):
         self.assertTrue(self.c.submit(polynomial(),[],Operation.EXPAND,1))
         self.c.cancel()

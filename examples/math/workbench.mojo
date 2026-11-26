@@ -40,7 +40,7 @@ def replay_step(mut editor: MathEditor, mut engine: MathComputation, step: Int, 
         key(editor,32,MOD_COMMAND)
         key(editor,54,MOD_COMMAND)
         type_text(editor,"2")
-        key(editor,45,MOD_COMMAND)
+        editor.state.command(MathCommand.ADD_COMPLEMENT)
         type_text(editor,"i")
         if editor.state.document.text()!="root(?, scripts(frac(x, y), i, 2, ?, ?))":
             raise Error("Typing nested scripts failed: "+editor.state.document.text())

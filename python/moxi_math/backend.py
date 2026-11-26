@@ -29,9 +29,10 @@ class Source:
     extra: str
     children: tuple
     identity: int
+    authored_empty: bool = False
 
-def source(kind, text, extra, children, identity):
-    return Source(Notation(kind), str(text), str(extra), tuple(children), int(identity))
+def source(kind, text, extra, children, identity, authored_empty=False):
+    return Source(Notation(kind), str(text), str(extra), tuple(children), int(identity), bool(authored_empty))
 
 def project(n):
     k=n.kind; c=n.children; identity=str(n.identity)
@@ -48,6 +49,8 @@ def project(n):
         raise BoundaryError('Incomplete or malformed selected notation', identity)
     if k in (Notation.SUM, Notation.INTEGRAL):
         raise BoundaryError('Binder scope is not supported by the initial adapter', identity, Status.UNSUPPORTED)
+    if any(child.authored_empty for child in c):
+        raise BoundaryError('Incomplete selected notation', identity)
     if k == Notation.FRACTION:
         return node(Kind.MUL, project(c[0]), node(Kind.POW,project(c[1]),integer(-1)),id=identity)
     if k == Notation.ROOT:
@@ -130,10 +133,12 @@ class Computation:
         self.state=State.IDLE; self.message='Optional persistent SymPy · explicit selected subtree only'
         self.result=''; self.revision=-1; self.target=-1; self.generation=0; self.closed=False
         self.new_result=False
-    def submit(self, selected, ancestors, operation, revision, replacement=None):
+    def submit(self, selected, ancestors, operation, revision, replacement=None, partial_range=False):
         if self.closed: return False
         self.result=''
         try:
+            if partial_range:
+                raise BoundaryError('Select one whole expression to compute', str(selected.identity), Status.UNSUPPORTED)
             if any(Notation(k) in (Notation.SUM,Notation.INTEGRAL) for k in ancestors):
                 raise BoundaryError('Selection is inside an unsupported ancestor binder',str(selected.identity),Status.UNSUPPORTED)
             operation=Operation(operation)

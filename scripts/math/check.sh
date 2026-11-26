@@ -5,7 +5,7 @@ work="${MOXI_D02_BUILD_DIR:-/tmp/moxi-d02}"
 hb="${MOXI_HARFBUZZ_PREFIX:-/opt/homebrew/opt/harfbuzz}"
 cd "$repo"
 bash scripts/math/build.sh
-for name in model editor; do
+for name in model editor ranges; do
   pixi run --frozen mojo run -I src "tests/math/$name.mojo" > "$work/$name-test.log" 2>&1
 done
 clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c tests/math/native_probe.m -o "$work/probe.o" > "$work/probe-build.log" 2>&1

@@ -61,7 +61,8 @@ spelling; parsing does not simplify or normalize mathematics.
 | Text | Visual slots, in order |
 | --- | --- |
 | `x`, `12`, `α`, `"a b"` | Literal token; quote whitespace or punctuation |
-| `?` | Editable empty slot |
+| `?` | Editable placeholder in a required slot, or an unused optional slot |
+| `empty()` | Explicit empty block, including an editable script annotation or radical index |
 | `row(x, +, y)` | Ordered adjacent items; explicit operator tokens |
 | `frac(a, b)` | Numerator, denominator |
 | `root(?, x)` or `root(3, x)` | Index, radicand; empty index is a square root |
@@ -96,32 +97,32 @@ persisted. Unknown envelope versions are rejected.
 Runtime IDs are not serialized. Text edits reconcile unchanged prefixes/suffixes
 and corresponding changed slots; unchanged siblings retain identity across a
 local insertion/deletion. Switching between Text and 2D preserves carets and
-character ranges within a token. A source selection spanning several slots
-selects their enclosing node. Copy offers plain text and a typed math fragment.
-A copied substring pastes literally at the caret. Pasting a subtree replaces
-the target and assigns fresh IDs. Every content mutation, text-view toggle, paste, move,
+character ranges within a token. A selection spanning several slots retains its two endpoints. Copy offers plain text and a typed math fragment.
+A copied substring pastes literally at the caret. Pasting a subtree inserts it at the caret or replaces the selection,
+assigning fresh IDs. Every content mutation, text-view toggle, paste, move,
 reopen and result application participates in shared undo/redo. Revision numbers
 remain monotonic across undo/reopen, preventing old worker results from matching
 restored content accidentally.
 
 ## Editing and navigation
 
-Click the nearest published caret stop; arrows traverse grapheme boundaries and
-slots. Up/down use published geometry and preserve horizontal intent. Home/End
-go to the document's first/last leaf. Tab/Shift+Tab visit holes, wrapping inside
-the expression. Leave exits one structural level and eventually releases math
-focus. Click the canvas to re-enter. Palette buttons use the same command IDs
-as keyboard bindings. Their hints come from the same remappable `MathKeymap`.
+Click the white canvas to place the caret. Left and Right traverse text by
+grapheme and visit the existing slots in notation order. Each structure has a
+caret stop on either side, including the outermost expression. Home and End go
+to the document edges. At the left edge of a fraction, typing adds text before
+the fraction. At its right edge, typing adds text after it. Up and Down follow
+the published geometry. Tab and Shift+Tab cycle through existing empty blocks.
+Leave exits one structural level and eventually releases math focus.
 
 | macOS default | Action |
 | --- | --- |
-| Cmd+/ | Wrap current token/subtree in fraction; enter denominator |
-| Cmd+6 or Cmd+^ | Enter superscript |
-| Cmd+- or Cmd+_ | Enter subscript |
+| Cmd+/ | Wrap in a fraction and enter the denominator |
+| Cmd+6 or Cmd+^ | Add a superscript |
+| Cmd+- or Cmd+_ | Add a subscript |
 | Cmd+2 or Cmd+@ | Wrap in square root; enter radicand |
-| Cmd+5 or Cmd+% | Switch paired script, root or limit slots |
-| Cmd+7 or Cmd+& | Enter overscript / upper limit |
-| Cmd+Shift+, | Enter underscript / lower limit |
+| Cmd+5 or Cmd+% | Visit the paired slot if it exists |
+| Cmd+7 or Cmd+& | Add an overscript |
+| Cmd+Shift+, | Add an underscript |
 | Cmd+Space | Leave one expression level |
 | Cmd+. | Select current node, then enclosing nodes |
 | Cmd+Enter / Cmd+, | Add matrix row / column |
@@ -136,15 +137,27 @@ A host can bind an alternate key using
 Physical layout-specific conflict resolution remains an acceptance gate; the
 synthetic native replay does not prove OS hotkey delivery.
 
-Drag, Shift-click, or use Shift with the arrow keys to select text inside a token.
-Typing replaces the highlight. Extending into another slot selects the smallest
-subtree containing both endpoints. Dragging back into the original token returns
-to a character range. Cmd+. selects the current node, then its parent.
-Empty script slots and radical indices appear when focused. Tab visits them.
-Template insertion wraps the current token or selected subtree.
-Backspace/Delete remove a grapheme within a token; structural-boundary deletion
-unwraps its container, while deleting a selected node leaves a hole. Unwrap is
-also a named palette operation. All these operations are reversible.
+Drag, Shift-click, or hold Shift while moving the caret to select a range.
+Shift+Left and Shift+Right move the active end one stop and keep the original
+anchor. Reversing direction shrinks the range to the anchor, then grows it on
+the other side. A selection can cover part of the numerator and part of the
+denominator. Typing, cutting, and deleting act on the highlighted contents.
+Cmd+. explicitly selects a whole node, then its parent.
+
+A template wraps the selected characters or structure. With a collapsed caret,
+it uses the word or expression immediately to the left when available. In
+`alpha + beta`, adding a fraction after `beta` uses `beta` as the numerator.
+Adding a subscript while editing the exponent nests it inside the exponent.
+Use **Pair** to visit an existing complementary slot. Use **+ Pair** to add a
+missing mate, such as a subscript while editing a superscript, or an index
+while editing a square root. Only authored slots appear on the canvas.
+
+Clearing the last character of an exponent leaves an editable empty exponent.
+It stays visible when you leave it and survives saving and reopening. In an
+empty optional slot, one delete key selects the block. A fresh press deletes
+it. At a fraction boundary, one press selects the fraction and a fresh press
+can remove it. Deleting a matrix row selection clears its cells and keeps the
+grid dimensions. Use **Unwrap** to remove a wrapper while retaining children.
 
 Matrix creation wraps the selected row (or a single item). Growth inserts after
 the active row/column and focuses the new slot; removal preserves at least one

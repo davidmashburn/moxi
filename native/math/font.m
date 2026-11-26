@@ -28,6 +28,7 @@ static NSRange leaf_selection, marked_selection;
 static NSRect caret_rect;
 static BOOL math_focused;
 static int input_modifiers;
+static BOOL input_repeat;
 static NSMutableSet<NSString *> *bound_keys;
 static int modifiers(NSEventModifierFlags flags) {
     return ((flags & NSEventModifierFlagShift)?1:0) |
@@ -58,7 +59,9 @@ static int shortcut_key(NSString *characters) {
 }
 static void input_push(int kind,int key,NSString *text,NSRange replacement) {
     if (!input_events) input_events=[NSMutableArray array];
-    [input_events addObject:@{@"kind":@(kind),@"key":@(key),@"modifiers":@(input_modifiers),@"text":text?:@"",@"start":@(replacement.location==NSNotFound?-1:codepoints_to(leaf_text,replacement.location)),@"end":@(replacement.location==NSNotFound?-1:codepoints_to(leaf_text,NSMaxRange(replacement)))}];
+    // AppKit can reuse its text buffer as soon as the input callback returns.
+    NSString *snapshot=[text copy] ?: @"";
+    [input_events addObject:@{@"kind":@(kind),@"key":@(key),@"modifiers":@(input_modifiers),@"repeat":@(input_repeat),@"text":snapshot,@"start":@(replacement.location==NSNotFound?-1:codepoints_to(leaf_text,replacement.location)),@"end":@(replacement.location==NSNotFound?-1:codepoints_to(leaf_text,NSMaxRange(replacement)))}];
 }
 @interface MoxiMathLayer : NSView <NSTextInputClient>
 @property(nonatomic, weak) NSTextView *sourceEditor;
@@ -79,6 +82,7 @@ static MoxiMathLayer *layer;
 - (BOOL)acceptsFirstResponder { return YES; }
 - (void)keyDown:(NSEvent *)event {
     input_modifiers=modifiers(event.modifierFlags);
+    input_repeat=event.isARepeat;
     NSString *chars=event.charactersIgnoringModifiers;
     int key=shortcut_key(chars);
     NSString *chord=[NSString stringWithFormat:@"%d:%d",key,input_modifiers];
@@ -90,6 +94,7 @@ static MoxiMathLayer *layer;
         [self interpretKeyEvents:@[event]];
     }
     input_modifiers=0;
+    input_repeat=NO;
 }
 - (BOOL)performKeyEquivalent:(NSEvent *)event {
     if (!math_focused || self.window.firstResponder!=self) return NO;
@@ -113,7 +118,8 @@ static MoxiMathLayer *layer;
 }
 - (void)setMarkedText:(id)string selectedRange:(NSRange)selection replacementRange:(NSRange)range {
     (void)range;
-    marked_text=[string isKindOfClass:NSAttributedString.class]?[string string]:string;
+    NSString *text=[string isKindOfClass:NSAttributedString.class]?[string string]:string;
+    marked_text=[text copy];
     marked_selection=selection;
     input_push(8,0,marked_text,NSMakeRange(NSNotFound,0));
 }
@@ -451,7 +457,7 @@ int32_t moxi_math_input_poll(void) {
     return [current_event[@"kind"] intValue];
 }
 int32_t moxi_math_input_field(int32_t field) {
-    return [current_event[field==0?@"key":field==1?@"modifiers":field==2?@"start":@"end"] intValue];
+    return [current_event[field==0?@"key":field==1?@"modifiers":field==2?@"start":field==3?@"end":@"repeat"] intValue];
 }
 int32_t moxi_math_input_length(void) { return codepoints_to(current_event[@"text"],[current_event[@"text"] length]); }
 int32_t moxi_math_input_codepoint(int32_t index) {
