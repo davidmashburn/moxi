@@ -207,18 +207,20 @@
       "scope": "[SeedWaterSegmenter](docs/design/sws-port.md): reproducible reference fixtures, native stack/label viewer, generation-safe watershed, seed/polygon editing, undo/redo, persistence, cancellation and recovery. Preserve scientific algorithms first.",
       "state": "partial",
       "commits": [
-        "dbd145e"
+        "dbd145e",
+        "e9fd68f"
       ],
       "verification": [
         "Moxi sampling hooks integrated; separate moxi-sws repository checkpoint 440abc2 and fixes 3ac37ef are committed locally.",
-        "33 app tests pass, including startup recovery/new-destination saves and accepted labels across both history stacks. Native build and 18 pinned-original partition/stable-ID scientific comparisons pass."
+        "33 app tests pass, including startup recovery/new-destination saves and accepted labels across both history stacks. Native build and 18 pinned-original partition/stable-ID scientific comparisons pass.",
+        "The packaged consumer passed 33 application contracts, all 18 reference partitions and stable-label comparisons, and 168 sampled pixels. The 13-frame native replay exercised editing, history, failed requests, save/reopen and corrupt-file recovery."
       ],
       "remaining_gates": [
-        "Native app smoke/replay after recovery fix, physical editing, human scientific acceptance, IME, VoiceOver, external stacks, other hosts, power-loss durability and sustained performance remain open.",
+        "Physical editing, independent scientific acceptance, IME, screen readers, external stacks, other hosts, power-loss durability and sustained performance remain open. VoiceOver remains paused.",
         "Pinned scientific reference is 45bd4bf22184f3daae3add27f7b2d2136c1573de; no upstream code vendored. Separate app publication is not part of Moxi branch publication."
       ],
       "slideshows": [
-        "sws-native manifest/reproduction notes integrated; original captures retained in worker worktree"
+        "artifacts/demo-slideshows/sws-native/README.md"
       ]
     },
     {
@@ -403,18 +405,19 @@
       "scope": "[Spatial S3](docs/design/3d-interaction.md): second application with hierarchy, linked perspective/orthographic views, shared selection, measurement/clipping and resource/work reuse evidence.",
       "state": "partial",
       "commits": [
-        "d08538e"
+        "d08538e",
+        "eed5663"
       ],
       "verification": [
         "Parent: 1,832 D06 and 2,522 D07 portable assertions, 143 D06 and 140 D07 native assertions, clean packaged consumers and both complete source-free application replays passed.",
-        "D07 portable AddressSanitizer/UndefinedBehaviorSanitizer passed; shared geometry and camera-only reuse assertions passed."
+        "D07 portable AddressSanitizer/UndefinedBehaviorSanitizer passed; shared geometry and camera-only reuse assertions passed.",
+        "The clean-source AppKit capture produced 14 reviewed frames with recorded source and image hashes and timings. The offline Chrome gallery replay passed."
       ],
       "remaining_gates": [
-        "Fresh committed-source 14-frame slideshow capture, timing/provenance evidence and visual review.",
         "D05 production renderer gate, native sanitizer coverage, physical input, human/assistive technology and controlled performance acceptance remain open."
       ],
       "slideshows": [
-        "spatial-assembly (worker capture only; fresh parent capture pending)"
+        "artifacts/demo-slideshows/spatial-assembly/README.md"
       ]
     },
     {
