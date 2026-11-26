@@ -1,0 +1,32 @@
+{
+  "base": "033596ddb576b09b48234733b45a283b4c3fecae",
+  "capturedAt": "2026-11-26T03:49:02.351Z",
+  "browser": "158.0.8127.37",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "baselineConsumer": "examples/foldable-motif/editor.html, built with its public build.sh",
+  "model": {
+    "expected": "bounded equation model exports parse",
+    "observed": "undefined, expected function; missing bounded equation text/layout model",
+    "exitCode": 1,
+    "outcome": "expected failure"
+  },
+  "browserCheck": {
+    "expected": "one editable equation source",
+    "observed": "0 !== 1; Missing editable equation source on baseline",
+    "exitCode": 1,
+    "outcome": "expected failure",
+    "screenshot": "00-public-baseline.png"
+  },
+  "supportingRegression": {
+    "expected": "equal x/y geometry scales",
+    "observed": "first draft differed by 90.57771972656252 SVG pixels; corrected before final capture",
+    "outcome": "failed before repair, passed after repair"
+  },
+  "limits": [
+    "The public baseline lacks this feature; this is not a regression in V11.",
+    "Raw test logs remain local in a temporary directory."
+  ]
+}
