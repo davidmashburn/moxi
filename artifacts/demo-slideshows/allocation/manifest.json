@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "demo_id": "allocation",
+  "title": "Orchard Commons allocation",
+  "scenario": "V10 and I04 \u2022 Compare allocations with three owned minimums and retain the decision through later edits.",
+  "revision": "38fed340de3b457d13ab7be8bb2e5bbaca8c7eac",
+  "captured_at": "2026-11-26T02:41:05.631476+00:00",
+  "host": "macOS 27.2.1",
+  "backend": "Moxi AppKit content-view capture",
+  "scale": 2.0,
+  "fixture": "12 plots; minimum gardens/grove/play 6/5/4; three fixed branch seeds.",
+  "reproduce": "pixi run --offline --locked python examples/allocation/gallery.py",
+  "slides": [
+    {
+      "image": "01-baseline.png",
+      "phase": "initial",
+      "dimensions": [
+        1520,
+        1380
+      ],
+      "capture_kind": "native-window",
+      "caption": "Open a fresh session",
+      "action": "Open a fresh session",
+      "expected": "Compare three 12-plot branches against the three owners' minimums."
+    },
+    {
+      "image": "02-preference.png",
+      "phase": "interaction",
+      "dimensions": [
+        1520,
+        1380
+      ],
+      "capture_kind": "native-window",
+      "caption": "Relax Fern's minimum to five",
+      "action": "Relax Fern's minimum to five",
+      "expected": "Plot counts stay fixed. Fern's shortfall in Commons falls to one."
+    },
+    {
+      "image": "03-shared.png",
+      "phase": "result",
+      "dimensions": [
+        1520,
+        1380
+      ],
+      "capture_kind": "native-window",
+      "caption": "Raise shared supply to 13",
+      "action": "Raise shared supply to 13",
+      "expected": "Every branch gains one garden. Commons meets Fern and Pip's requests."
+    },
+    {
+      "image": "04-override.png",
+      "phase": "interaction",
+      "dimensions": [
+        1520,
+        1380
+      ],
+      "capture_kind": "native-window",
+      "caption": "Transfer a Commons play plot to grove",
+      "action": "Transfer a Commons play plot to grove",
+      "expected": "Only Commons changes. Ash gains a grove plot and Pip loses a play plot."
+    },
+    {
+      "image": "05-promoted.png",
+      "phase": "result",
+      "dimensions": [
+        1520,
+        1380
+      ],
+      "capture_kind": "native-window",
+      "caption": "Select Commons, enter a reason and promote",
+      "action": "Select Commons, enter a reason and promote",
+      "expected": "The decision records five gardens, five grove and three play plots. Pip remains one short."
+    },
+    {
+      "image": "06-retained.png",
+      "phase": "result",
+      "dimensions": [
+        1520,
+        1380
+      ],
+      "capture_kind": "native-window",
+      "caption": "Restore the Commons play plot",
+      "action": "Restore the Commons play plot",
+      "expected": "Pip's current request is met. The promoted allocation retains the earlier shortfall and reason."
+    },
+    {
+      "image": "07-undo.png",
+      "phase": "recovery",
+      "dimensions": [
+        1520,
+        1380
+      ],
+      "capture_kind": "native-window",
+      "caption": "Undo promotion",
+      "action": "Undo promotion",
+      "expected": "The decision clears while the edited working branches and owned minimums remain."
+    }
+  ]
+}
