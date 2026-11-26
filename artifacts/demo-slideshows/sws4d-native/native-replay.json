@@ -1,0 +1,478 @@
+{
+  "demo": "P08 SWS4D",
+  "fixture": "double-basin-v1",
+  "shape_tzyx": [
+    3,
+    5,
+    11,
+    19
+  ],
+  "dtype": "uint8",
+  "source_revision": "c19f78fccb5776eaa2c979918c3e12d6a57cf67c",
+  "source_sha256": {
+    "panes.py": "48e56dbaf370d6fea434069c307c170ccbfb853c6c0ebc51284e98ff9ad31df2",
+    "check_gallery.py": "6b58081fb82608b972ac3612d1874d798ae9ebd93f801238264ba2d4d6720cfd",
+    "render.mojo": "ebad31204988c1eb4f44ecc0068a6806d544c932ca4a884419075dedd9002eb0",
+    "native_regression.py": "8d397179226a2824d802bbf7c4f16e5457bc497d311882cddd25961e4013ce9e",
+    "volume.py": "d61041f2f330c1209bd963e401f7e1cf5bda15cbdac559910b12cb94a8f861b6",
+    "gallery.html": "b4827b772335907c73bc2489c158ed65541b453f1b6b8df592d1870c4e583d3d",
+    "build.sh": "b892b7ef21ec0ed214d1dd5f94230bf6337778c660fd502fe7fba7c3e98c29d4",
+    "replay.py": "b2bb11a85aeeee2e13a7b6d6cff0988e9e068d4e60b81566d551ac6fdc9d8dd0",
+    "capture.m": "6ffbebca68308e51ea9ff2aead534bfbc7e6811e189f25716814f215971d83e7",
+    "test_studio.py": "f3b3fccabe82cc185c764ed7401158fbaf7c25a3ec99bfa6ccea9bae84e731ed",
+    "app.py": "58cabd53d2d2858520a062715187defb239a0079ae664b5e890429a6765db84a",
+    "reference.py": "3845b0adc6c9b08edfbd0e405aae1452238e9f5603355a0ae186a8067a3811c5"
+  },
+  "moxi_revision": "6a2255391355398aa13d8680c80002327a375742",
+  "compiler": "Mojo 1.1.0 (8189361e)",
+  "hardware": "Apple M4",
+  "system": "macOS-27.2.1-arm64-arm-64bit",
+  "backend": "Moxi RasterImage + Tk/Aqua, AppKit cacheDisplay offscreen",
+  "captured": "2026-11-26T03:01:22.122491+00:00",
+  "reproduce": ".venv/bin/python replay.py",
+  "metrics": {
+    "median_ms_25_runs": {
+      "xy_slice_view": 0.0008,
+      "xy_render_and_tk_upload": 0.6748,
+      "time_scrub_all_panes": 27.1455,
+      "watershed_one_frame": 0.5229
+    },
+    "process_peak_rss_bytes_macos": 320700416
+  },
+  "slides": [
+    {
+      "id": "landmark",
+      "action": "Open the synthetic volume.",
+      "expected": "All crosshairs meet seed 17 at XYZ (4,3,2), T0.",
+      "observed": "T 0   XYZ (4, 3, 2)   \u00b5m (4, 6, 6)   intensity 9   seed 17   mask 0   label uncomputed",
+      "status": "Ready",
+      "center_rgb": {
+        "XY": [
+          48,
+          176,
+          187
+        ],
+        "XZ": [
+          48,
+          176,
+          187
+        ],
+        "YZ": [
+          48,
+          176,
+          187
+        ]
+      },
+      "file": "01-landmark.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "a49ebfd2388142ec695abfcc79e4de9c3ba8ebf9b88a933a88ed302f27224743"
+    },
+    {
+      "id": "linked-time",
+      "action": "Select T1 and click its shifted left seed in XY.",
+      "expected": "All planes identify seed 17 at XYZ (5,3,2).",
+      "observed": "T 1   XYZ (5, 3, 2)   \u00b5m (5, 6, 6)   intensity 9   seed 17   mask 0   label uncomputed",
+      "status": "Ready",
+      "center_rgb": {
+        "XY": [
+          48,
+          176,
+          187
+        ],
+        "XZ": [
+          48,
+          176,
+          187
+        ],
+        "YZ": [
+          48,
+          176,
+          187
+        ]
+      },
+      "file": "02-linked-time.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "0b28984f1a2afe27f493cfc0ce2a293c5c4f56338342846af39339528ee8c041"
+    },
+    {
+      "id": "transformed",
+      "action": "Increase zoom and contrast, then shift-drag XZ.",
+      "expected": "The physical voxel and ID agree in all panes after the transform.",
+      "observed": "T 1   XYZ (5, 3, 2)   \u00b5m (5, 6, 6)   intensity 9   seed 17   mask 0   label uncomputed",
+      "status": "Ready",
+      "center_rgb": {
+        "XY": [
+          48,
+          176,
+          187
+        ],
+        "XZ": [
+          48,
+          176,
+          187
+        ],
+        "YZ": [
+          48,
+          176,
+          187
+        ]
+      },
+      "file": "03-transformed.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "cae761c64f38cdf3d06f92b82721d7ddbba2d8f566d569f2bb589cedfa3b3415"
+    },
+    {
+      "id": "xy-seed",
+      "action": "Place seed 71 in XY.",
+      "expected": "XYZ (8,4,2) carries ID 71.",
+      "observed": "T 1   XYZ (8, 4, 2)   \u00b5m (8, 8, 6)   intensity 49   seed 71   mask 0   label uncomputed",
+      "status": "Ready",
+      "center_rgb": {
+        "XY": [
+          189,
+          114,
+          224
+        ],
+        "XZ": [
+          189,
+          114,
+          224
+        ],
+        "YZ": [
+          189,
+          114,
+          224
+        ]
+      },
+      "file": "04-xy-seed.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "2c0b0e9c18507e2ed43acbb44901c722f474bf84fd1a4f66fc5b315649f4270d"
+    },
+    {
+      "id": "xz-seed",
+      "action": "Place another marker in XZ.",
+      "expected": "Y stays 4, while X and Z move to 9 and 3.",
+      "observed": "T 1   XYZ (9, 4, 3)   \u00b5m (9, 8, 9)   intensity 89   seed 71   mask 0   label uncomputed",
+      "status": "Ready",
+      "center_rgb": {
+        "XY": [
+          189,
+          114,
+          224
+        ],
+        "XZ": [
+          189,
+          114,
+          224
+        ],
+        "YZ": [
+          189,
+          114,
+          224
+        ]
+      },
+      "file": "05-xz-seed.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "a57b27793e40380ab4f7edfcb5adac2a368c27f15522804e563488097d5f3840"
+    },
+    {
+      "id": "yz-mask",
+      "action": "Exclude a voxel in YZ.",
+      "expected": "X stays 9, the voxel is masked in each pane.",
+      "observed": "T 1   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 101   seed 0   mask 1   label uncomputed",
+      "status": "Ready",
+      "center_rgb": {
+        "XY": [
+          184,
+          72,
+          98
+        ],
+        "XZ": [
+          184,
+          72,
+          98
+        ],
+        "YZ": [
+          184,
+          72,
+          98
+        ]
+      },
+      "file": "06-yz-mask.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "8b576cd75fb169e337a9fa0fb03fa5036d3fc0ffe302da8c85a9e8457521b250"
+    },
+    {
+      "id": "undo",
+      "action": "Undo the mask.",
+      "expected": "The voxel is included again.",
+      "observed": "T 1   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 101   seed 0   mask 0   label uncomputed",
+      "status": "Ready",
+      "center_rgb": {
+        "XY": [
+          116,
+          116,
+          116
+        ],
+        "XZ": [
+          116,
+          116,
+          116
+        ],
+        "YZ": [
+          116,
+          116,
+          116
+        ]
+      },
+      "file": "07-undo.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "417d232e251ae78459c91baa1e976b3e93c61690e23ddf3e67c3a525b2a1119c"
+    },
+    {
+      "id": "labels",
+      "action": "Redo the mask and run 3D watershed.",
+      "expected": "Overlay shows the three stable IDs. The excluded voxel is background.",
+      "observed": "T 1   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 101   seed 0   mask 1   label 0",
+      "status": "Watershed complete",
+      "center_rgb": {
+        "XY": [
+          184,
+          72,
+          98
+        ],
+        "XZ": [
+          184,
+          72,
+          98
+        ],
+        "YZ": [
+          184,
+          72,
+          98
+        ]
+      },
+      "file": "08-labels.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "61bc36aba09dd752cf8b8c2d73f48b2b939717ba1029242e2d4e5d76a21fa010"
+    },
+    {
+      "id": "reopened",
+      "action": "Save, leave T1 and reopen.",
+      "expected": "The saved frame, cursor, mask, and labels return.",
+      "observed": "T 1   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 101   seed 0   mask 1   label 0",
+      "status": "Session reopened",
+      "center_rgb": {
+        "XY": [
+          184,
+          72,
+          98
+        ],
+        "XZ": [
+          184,
+          72,
+          98
+        ],
+        "YZ": [
+          184,
+          72,
+          98
+        ]
+      },
+      "file": "09-reopened.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "cecd2d00ff4a33b68d66bbbccd06eb0dbed82fe71a5f71f3797d4b9e7291e884"
+    },
+    {
+      "id": "pending",
+      "action": "Hold one worker at a replay barrier.",
+      "expected": "The compute button is disabled while the job is outstanding.",
+      "observed": "T 1   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 101   seed 0   mask 1   label 0",
+      "status": "Computing watershed\u2026",
+      "center_rgb": {
+        "XY": [
+          184,
+          72,
+          98
+        ],
+        "XZ": [
+          184,
+          72,
+          98
+        ],
+        "YZ": [
+          184,
+          72,
+          98
+        ]
+      },
+      "file": "10-pending.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "3f0db97d323be635b81c8a5ae98bb1bfb0d149865e60ba46d170632d8c8ba80a"
+    },
+    {
+      "id": "stale",
+      "action": "Change to T2 before releasing the worker.",
+      "expected": "The obsolete result is discarded.",
+      "observed": "T 2   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 73   seed 0   mask 0   label uncomputed",
+      "status": "Discarded stale result",
+      "center_rgb": {
+        "XY": [
+          83,
+          83,
+          83
+        ],
+        "XZ": [
+          83,
+          83,
+          83
+        ],
+        "YZ": [
+          83,
+          83,
+          83
+        ]
+      },
+      "file": "11-stale.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "db0d9ed900671270f45d098084659f546dff77eb381a6145b498df1eb71cfcda"
+    },
+    {
+      "id": "failed",
+      "action": "Inject a worker exception.",
+      "expected": "The app reports failure and permits retry.",
+      "observed": "T 2   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 73   seed 0   mask 0   label uncomputed",
+      "status": "Watershed failed \u00b7 injected worker error. Retry available.",
+      "center_rgb": {
+        "XY": [
+          83,
+          83,
+          83
+        ],
+        "XZ": [
+          83,
+          83,
+          83
+        ],
+        "YZ": [
+          83,
+          83,
+          83
+        ]
+      },
+      "file": "12-failed.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "33b9da412876ce877089f2b972a8e12eacdec816c2232054d7022d086f5741f6"
+    },
+    {
+      "id": "retained",
+      "action": "Retry watershed, then reopen a truncated session.",
+      "expected": "Retry produces labels. Reopen reports failure and retains T2.",
+      "observed": "T 2   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 73   seed 0   mask 0   label 17",
+      "status": "Reopen failed \u00b7 session unreadable or inconsistent. Current study retained.",
+      "center_rgb": {
+        "XY": [
+          61,
+          143,
+          151
+        ],
+        "XZ": [
+          61,
+          143,
+          151
+        ],
+        "YZ": [
+          61,
+          143,
+          151
+        ]
+      },
+      "file": "13-retained.png",
+      "pixels": [
+        2080,
+        1100
+      ],
+      "scale": 2.0,
+      "sha256": "4899cc4db576b60a9fe978017c3ede098b6b087f1310c02eb64bce88414fc0a5"
+    },
+    {
+      "id": "recovered",
+      "action": "Restore the saved session and reopen at a narrower size.",
+      "expected": "All panes return to the saved T1 state.",
+      "observed": "T 1   XYZ (9, 5, 3)   \u00b5m (9, 10, 9)   intensity 101   seed 0   mask 1   label 0",
+      "status": "Session reopened",
+      "center_rgb": {
+        "XY": [
+          184,
+          72,
+          98
+        ],
+        "XZ": [
+          184,
+          72,
+          98
+        ],
+        "YZ": [
+          184,
+          72,
+          98
+        ]
+      },
+      "file": "14-recovered.png",
+      "pixels": [
+        1720,
+        1060
+      ],
+      "scale": 2.0,
+      "sha256": "76eaaa7893d01ba8e2748064702741ef7bf27a2f07bf9904b145ef48f6bb551f"
+    }
+  ]
+}
