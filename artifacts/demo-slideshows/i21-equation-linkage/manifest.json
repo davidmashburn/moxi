@@ -1,0 +1,236 @@
+{
+  "capturedAt": "2026-11-26T03:54:23.351Z",
+  "revision": "cf696cbf77f50b939c1c76b6f7032af8f9557aea",
+  "base": "033596ddb576b09b48234733b45a283b4c3fecae",
+  "sourceState": "",
+  "sourceHashes": {
+    "model.mjs": "146925d39e42bdc48eaf683bf94344ca528f945d0f314ea808c0a6d50a3c45d9",
+    "app.mjs": "ea2eb059d82cb2f3f5a331a1d34be1016579e249876fb8bf68df6f89abc39d56",
+    "editor.html": "13ae6c9cad7a1fc35ecbc33b3425b048997e8120c8724c191970b7654bfebf78",
+    "build.py": "32711c57c0a16e82ac35211dd7c63b0473ff888cd1d8ad9164a252839ad169db",
+    "check.cjs": "2859da3021deb54f28ea8839caa1bd7246704e2daa84a71f81b9d9348ad9990d",
+    "model.test.mjs": "18cb39727d81a2ed86aae6b14ae36c7270fcd386ec5fcb563d3655ca3c93b7f9"
+  },
+  "htmlHash": "58f973ece88042b2781ed586e80c752f9f2897e8bf3466045a4c09b02b5c316c",
+  "url": "file:///tmp/moxi-i21-linkage/linkage.html",
+  "browser": "158.0.8127.37",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "role": "synthetic local fixture; no account",
+  "offline": true,
+  "scenarios": [
+    {
+      "name": "equation surface exists",
+      "steps": "Open the generated consumer.",
+      "expected": "Text and structured numeric leaves are present; initial pose is 30°.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "Four equations, two editable leaves and linked arm loaded.",
+      "outcome": "pass",
+      "screenshots": [
+        "01-start.png"
+      ],
+      "screenshot": "01-start.png"
+    },
+    {
+      "name": "lossless text to layout to text",
+      "steps": "Choose Equation text; enter exact whitespace, comments and padded decimals; apply; switch layout/text twice.",
+      "expected": "Source bytes and numeric spelling are unchanged; geometry uses L=100.5, θ=30.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": {
+        "exactSource": "\tL  =  00100.5000 mm # length\nθ = +030.000 deg\nx = L · cos(θ)\ny = L * sin(θ)\n",
+        "coordinates": "L 100.5 mm · θ 30° · x 87.036 mm · y 50.250 mm"
+      },
+      "outcome": "pass",
+      "screenshots": [
+        "02-exact-text.png"
+      ],
+      "screenshot": "02-exact-text.png"
+    },
+    {
+      "name": "two structured edits and cancel",
+      "steps": "Switch to layout; edit length, then angle without applying between them; press Escape.",
+      "expected": "Both leaf edits coexist; cancel restores the exact source and endpoint.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "Sibling length edit retained while editing angle; Escape restored source and geometry.",
+      "outcome": "pass"
+    },
+    {
+      "name": "structured commit and shared history",
+      "steps": "Edit both layout leaves; apply once; Undo then Redo.",
+      "expected": "One undo restores both precise numbers and geometry; redo restores the joint change.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": {
+        "exactSource": "\tL  =  00120.2500 mm # length\nθ = +045.000 deg\nx = L · cos(θ)\ny = L * sin(θ)\n",
+        "coordinates": "L 120.25 mm · θ 45° · x 85.030 mm · y 85.030 mm"
+      },
+      "outcome": "pass",
+      "screenshots": [
+        "03-structured-edit.png"
+      ],
+      "screenshot": "03-structured-edit.png"
+    },
+    {
+      "name": "incomplete structured leaf recovery",
+      "steps": "Clear length; type an incomplete value; repair it in the same leaf; edit its sibling; cancel.",
+      "expected": "Incomplete text remains editable, cannot apply, and leaves committed geometry intact. Repair retains both edits.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "Hole and malformed number retained; repair and sibling edit succeeded; cancel restored the applied state.",
+      "outcome": "pass"
+    },
+    {
+      "name": "malformed source and layout fallback",
+      "steps": "Enter an unsupported relation with literal HTML; switch layout/text; try to apply; cancel.",
+      "expected": "Exact unsupported text survives; it is inert, apply is disabled and the endpoint stays at the applied state.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "screenshots": [
+        "04-invalid-layout.png"
+      ],
+      "observed": "Unsupported draft retained as inert text in both representations; cancel restored exact equations.",
+      "outcome": "pass"
+    },
+    {
+      "name": "domain rejection",
+      "steps": "Enter 39.999 mm, 140.001 mm and 91° in text; cancel each draft.",
+      "expected": "Each violates a named bound; cannot apply or move the arm.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "All three bounds rejected; source retained until explicit cancel.",
+      "outcome": "pass"
+    },
+    {
+      "name": "keyboard geometry preview and cancellation",
+      "steps": "Focus the arm; press Up three times; inspect text/layout; press Escape.",
+      "expected": "Only theta becomes +048.000; Escape restores +045.000 and all other text exactly.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "Three keys created one cancellable angle preview; exact non-angle source retained.",
+      "outcome": "pass"
+    },
+    {
+      "name": "slider keyboard commit and undo",
+      "steps": "Focus range; End to 90°; apply; Undo.",
+      "expected": "Whole-degree endpoint at 90°; exact padded angle updates; undo restores both equations and geometry.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "screenshots": [
+        "05-angle-preview.png"
+      ],
+      "observed": "90° preview applied as one history entry; undo restored the exact prior document.",
+      "outcome": "pass"
+    },
+    {
+      "name": "pointer drag, commit and shared undo",
+      "steps": "Drag the endpoint normally to 60°; release; apply; inspect source; undo.",
+      "expected": "Preview updates only theta; a single undo restores exact text and endpoint.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "screenshots": [
+        "06-pointer-preview.png"
+      ],
+      "observed": "Normal mouse drag previewed 60°, applied once, and undid to exact text/geometry.",
+      "outcome": "pass"
+    },
+    {
+      "name": "pointer interruption, focus loss and no-op",
+      "steps": "Preview a pose; deliver pointercancel and window blur separately; click the unchanged endpoint.",
+      "expected": "Both interruption routes restore exact equations; a no-op cannot add a history entry.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "Synthetic interruption events cancelled; normal no-op click retained source spelling.",
+      "outcome": "pass"
+    },
+    {
+      "name": "Moxi trace projection agreement",
+      "steps": "Compare all 91 displayed Moxi samples with analytic quarter-circle projection.",
+      "expected": "Each point agrees within 0.02 SVG pixels.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": {
+        "samples": 91,
+        "maxPixelError": 0.0007146188409392347
+      },
+      "outcome": "pass"
+    },
+    {
+      "name": "fractional endpoint no-op",
+      "steps": "Apply a precise fractional angle; click its unchanged endpoint; Undo.",
+      "expected": "A no-op click preserves the fractional token exactly; Undo restores the preceding document.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "Precise fractional angle unchanged by an endpoint click; undo restored the preceding text.",
+      "outcome": "pass"
+    },
+    {
+      "name": "narrow layout and edit/undo",
+      "steps": "Resize to 390×844; enter and apply a text length edit; undo; inspect layout.",
+      "expected": "No document overflow; both representations remain operable, with exact undo.",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "observed": "390px layout fits and text edit/undo restores the precise layout leaf.",
+      "outcome": "pass",
+      "screenshots": [
+        "07-narrow.png"
+      ],
+      "screenshot": "07-narrow.png"
+    },
+    {
+      "name": "session-only reload and browser errors",
+      "steps": "Reload the offline consumer.",
+      "expected": "Starter returns; no uncaught browser errors or failed requests.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "observed": {
+        "errors": [],
+        "failedRequests": [],
+        "reloadedSource": "L = 100.00 mm\nθ = 30.0 deg\nx = L * cos(θ)\ny = L * sin(θ)\n"
+      },
+      "outcome": "pass"
+    }
+  ],
+  "limits": [
+    "VoiceOver paused; no screen-reader trial",
+    "No native host, physical device, material or independent usability trial",
+    "No persistence; reload intentionally restores the starter"
+  ],
+  "finishedAt": "2026-11-26T03:54:27.201Z",
+  "errors": [],
+  "failedRequests": []
+}
