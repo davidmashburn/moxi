@@ -242,10 +242,16 @@
     {
       "id": "P10",
       "scope": "[Additional host H5](CROSS-PLATFORM-HOST-ARCHITECTURE-PLAN.md): separate iOS and Android compiler/runtime feasibility gates; promote each existing shell only when real shared Mojo application state executes.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
+      "state": "partial",
+      "commits": [
+        "92bc25d"
+      ],
+      "verification": [
+        "A C executable called the existing Mojo Counter operation on macOS. The locked compiler also exported the same function to iOS device, iOS simulator and Android ARM64 objects. Both Apple target platforms were checked in Mach-O load commands."
+      ],
+      "remaining_gates": [
+        "Link, package and run real state transitions from each mobile shell. An outstanding Xcode license agreement blocked simulator commands, and the Android SDK platform and NDK were absent at the configured paths."
+      ],
       "slideshows": []
     },
     {
