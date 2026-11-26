@@ -43,7 +43,7 @@ authoring-counter-build = { cmd = "mkdir -p dist && mojo build -I src -Xlinker n
 authoring-workspace-build = { cmd = "mkdir -p dist && mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/authoring/workspace_window.mojo -o dist/moxi-authoring-workspace", depends-on = ["native-object"] }
 native-accessibility-abi = { cmd = "mkdir -p dist && clang -Wall -Wextra -Werror -fobjc-arc -fmodules -c tests/native_accessibility_probe.m -o dist/native_accessibility_probe.o && mojo build -I src -Xlinker dist/native_accessibility_probe.o -Xlinker -framework -Xlinker Cocoa tests/native_accessibility_abi.mojo -o dist/moxi-native-accessibility-abi && ./dist/moxi-native-accessibility-abi" }
 build = "mkdir -p dist && mojo precompile src/moxi -o dist/moxi.mojoc && mojo precompile -I src src/moxi_plot -o dist/moxi_plot.mojoc && mojo precompile -I src src/moxi_demo -o dist/moxi_demo.mojoc"
-native-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o"
+native-object = { cmd = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_window.m -o native/macos_window.o", inputs = ["native/macos_window.m", "native/*.h", "native/*.inc"], outputs = ["native/macos_window.o"] }
 bitmap-test = { cmd = "mkdir -p dist && clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c tests/native_bitmap_probe.m -o dist/native_bitmap_probe.o && bash scripts/build_native_demo.sh -I src -Xlinker dist/native_bitmap_probe.o -Xlinker native/macos_metal.o -Xlinker -framework -Xlinker Cocoa -Xlinker -framework -Xlinker Metal -Xlinker -framework -Xlinker QuartzCore -Xlinker -framework -Xlinker Foundation tests/bitmap.mojo -o dist/moxi-bitmap-test && ./dist/moxi-bitmap-test", depends-on = ["metal-object"] }
 metal-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_metal.m -o native/macos_metal.o"
 text-object = "clang -O3 -Wall -Wextra -Werror -fobjc-arc -fmodules -c native/macos_text.m -o native/macos_text.o"
@@ -53,7 +53,7 @@ native-scene-parity-build = { cmd = "mojo build -I src -Xlinker native/macos_met
 native-scene-parity = { cmd = "./dist/moxi-native-scene-parity", depends-on = ["native-scene-parity-build"] }
 native-screenshot-check = { cmd = "bash scripts/native_screenshot_check.sh", depends-on = ["native-scene-parity-build"] }
 formula-editor-demo = "bash scripts/math/run.sh"
-demo-build = { cmd = "bash scripts/build_native_demo.sh -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo", depends-on = ["native-object"] }
+demo-build = { cmd = "mkdir -p dist && bash scripts/build_native_demo.sh -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo", depends-on = ["native-object"], inputs = ["src/**/*.mojo", "examples/demo_browser.mojo", "scripts/build_native_demo.sh", "native/macos_window.o"], outputs = ["dist/moxi-demo"] }
 demo = { cmd = "./dist/moxi-demo", depends-on = ["demo-build"] }
 live-script-demo-build = { cmd = "mojo build -I src -I examples -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa examples/live_script_demo.mojo -o dist/moxi-live-script-demo", depends-on = ["native-object"] }
 live-script-demo = { cmd = "./dist/moxi-live-script-demo", depends-on = ["live-script-demo-build"] }
@@ -82,7 +82,7 @@ composed-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o 
 composed-demo = { cmd = "./dist/moxi-composed-demo", depends-on = ["composed-demo-build"] }
 interaction-showcase-demo-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/interaction_showcase.mojo -o dist/moxi-interaction-showcase-demo", depends-on = ["native-object"] }
 interaction-showcase-demo = { cmd = "./dist/moxi-interaction-showcase-demo", depends-on = ["interaction-showcase-demo-build"] }
-demo-browser-build = { cmd = "mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo-browser", depends-on = ["native-object"] }
+demo-browser-build = { cmd = "mkdir -p dist && mojo build -I src -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_browser.mojo -o dist/moxi-demo-browser", depends-on = ["native-object"], inputs = ["src/**/*.mojo", "examples/demo_browser.mojo", "native/macos_window.o"], outputs = ["dist/moxi-demo-browser"] }
 demo-browser = { cmd = "./dist/moxi-demo-browser", depends-on = ["demo-browser-build"] }
 demo-walkthrough-build = { cmd = "mojo build -I src -I examples -Xlinker native/macos_window.o -Xlinker -framework -Xlinker Cocoa -Xlinker -export_dynamic examples/demo_walkthrough.mojo -o dist/moxi-demo-walkthrough", depends-on = ["native-object"] }
 demo-walkthrough = { cmd = "bash scripts/launch_demo_app.sh", depends-on = ["demo-walkthrough-build"] }

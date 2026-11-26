@@ -5,6 +5,15 @@ wxPython-inspired browser for the checked-in Moxi examples. It is a small
 learning workbench: the catalog stays visible while the selected example gets
 its own overview, source, and live/demo surface.
 
+The manual `demo` and `demo-browser` build tasks reuse their executable when
+their Mojo sources, native object, build command, and Pixi environment are
+unchanged. Native compilation also tracks the host source, headers, and include
+files. Changed inputs or missing outputs trigger a rebuild; the launch task
+still runs every time. The first build after an edit can therefore take longer
+than reopening an unchanged demo. After changing Xcode or the system SDK, remove
+`native/macos_window.o`, `dist/moxi-demo`, and `dist/moxi-demo-browser` to force
+fresh builds with the new system toolchain.
+
 `pixi run demo-walkthrough` runs the exact same `examples/demo_browser.mojo`
 host with a deterministic CapabilityBus event source. On macOS it launches the
 walkthrough executable through a stable `Moxi Playground.app` bundle, so the
