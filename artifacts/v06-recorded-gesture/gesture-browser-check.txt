@@ -1,0 +1,1 @@
+PASS recorded gesture: desktop + narrow, stopped edit, repeat live/PCM, cancellation, checkpoint, audio failure; evidence /tmp/moxi-v06-gesture-evidence-final

@@ -1,6 +1,6 @@
 # Motion phrase
 
-A two-second flight shares its apex with a 220 Hz voice. The model has three knots. Between knots, horizontal position and height interpolate linearly. Height runs from zero to one and maps to oscillator gain as `0.25 × height`. Moving the apex later lengthens the climb and attack together while keeping the landing fixed at two seconds.
+A two-second flight shares a height curve with a 220 Hz voice. Height runs from zero to one and maps to oscillator gain as `0.25 × height`. The original flight has three knots: moving its apex later lengthens the climb and attack together while keeping the landing fixed at two seconds. Authors can also record their own height curve on this same timeline.
 
 From the repository root, build a portable page and open it in Chrome.
 
@@ -9,9 +9,30 @@ PYTHONPATH=python python3 examples/motion-envelope/build.py /tmp/motion-phrase.h
 open /tmp/motion-phrase.html
 ```
 
-The build uses the checkout’s public Moxi `PlotSpec.add_line` and `Figure.to_svg` for both plots. The editor reads the plotted knots in SVG coordinates. A single Web Audio schedule sets the gain ramps and oscillator lifetime. Animation samples the audio context’s clock on every frame. The stopped inspection slider samples the same trajectory at a chosen score time.
+The build uses the checkout’s public Moxi `PlotSpec.add_line` and `Figure.to_svg` for both plots. The editor reads the plot geometry in SVG coordinates. One score supplies both polylines, Web Audio gain ramps, and stopped inspection. Animation samples the audio context’s clock on every frame.
 
 Drag **Time to apex** or focus it and use the arrow keys in 10 ms steps. **Play phrase** auditions the draft, **Commit edit** writes one revision, and Escape discards the draft. **Set checkpoint** saves the authored apex and inspection time for the current page session. **Restore checkpoint** reinstates both. Reload starts a fresh session.
+
+## Record your own gesture
+
+1. Set **Height** to a starting value, then choose **Record gesture**. Move Height with the pointer or arrow keys while the two-second phrase plays. Releasing the slider holds its current height; capture ends automatically.
+2. Seek with **Inspect phrase at**, choose a height, and use **Set height at inspection time** for a stopped point edit. The original apex control is disabled for recorded curves. **Use flight curve** previews a return to the original three-knot flight.
+3. **Play phrase** replays the draft from zero. **Commit edit** keeps the entire curve as one revision. **Discard preview** recovers the authored curve. Checkpoints now retain the complete authored curve and stopped inspection time.
+
+During capture, **Cancel recording**, Escape, pointer cancellation, window blur, or hiding the page stops the voice and restores the curve and inspection time from before recording. Cancelling a replacement preserves the previous take, including uncommitted edits. Input from an Escape-cancelled drag is ignored until a new pointer or keyboard gesture. **Stop playback** or Escape during replay restores its starting inspection position. Cancelling pending audio startup also prevents its eventual result from starting a stale voice. Audio failure retains the prior draft.
+
+A recording contains 201 height samples on a 10 ms grid over exactly two score seconds. Values are bounded to 0–1; the first and last samples are pinned to zero. Each live input replaces future height samples with a 20 ms scheduling lead rounded up to the grid. Linear ramps join the samples. The same scheduled curve supplies live motion and gain, then subsequent replay; this lead is part of the software schedule, not a measurement of physical input/output latency. A recorded flight advances horizontally with score time. Takes and checkpoints are session-local; reload intentionally resets them.
+
+Run the focused model checks and author-control browser regression with Node and Python/Playwright plus installed Chrome:
+
+```sh
+node --test examples/motion-envelope/test_gesture.mjs
+PYTHONPATH=python python3 examples/motion-envelope/check_gesture_browser.py --out /tmp/v06-recorded-gesture
+```
+
+The browser regression creates each take through ordinary pointer and keyboard controls at 1280 × 800 and 390 × 844. It checks stopped editing, live marker agreement, repeated PCM at 44.1/48 kHz, cancellation and retry, full-curve checkpoint recovery, startup failure, and fresh-session reload. Pointer cancellation, window blur, page hiding, and audio startup failures are injected boundary events; they do not establish real touch-device or physical timing behavior. Evidence includes screenshots, source hashes, environment, recorded curves and measured errors, without writing the shared gallery.
+
+See the [recorded-gesture verification record](../../artifacts/v06-recorded-gesture/README.md) for the checked scenarios, captures, measured limits and commands.
 
 ## Reproduce the individual checks
 
@@ -31,7 +52,7 @@ PYTHONPATH=python python3 examples/motion-envelope/check_browser.py --out /tmp/v
 | I17 equivalent input | Drag to the upper bound, cancel, step one increment with Right Arrow, then press End. Keyboard and pointer previews produce identical marker coordinates. Both widths expose a named range control with milliseconds as its accessible value. |
 | Browser and gallery | At 1280 × 800 and 390 × 844, the page fits horizontally and the interaction completes without a page error. With the browser context offline, the gallery accepts arrow keys, previous and thumbnail navigation, and decodes the narrow PNG. |
 
-The five-action explanation has a separate uninterrupted control. Place the apex at 1370 ms, commit it, seek to 500 ms, seek to the apex, then seek to 1750 ms. In the second run, checkpoint immediately after action three, explore a committed 200 ms apex at 1900 ms, and restore before continuing. The recorded coordinates of both markers match the control exactly at all three inspection times. This covers stopped curve editing and replay. Recording a freehand coefficient gesture remains open for I14.
+The five-action explanation has a separate uninterrupted control. Place the apex at 1370 ms, commit it, seek to 500 ms, seek to the apex, then seek to 1750 ms. In the second run, checkpoint immediately after action three, explore a committed 200 ms apex at 1900 ms, and restore before continuing. The recorded coordinates of both markers match the control exactly at all three inspection times. The new author-control regression above additionally covers recorded coefficient gestures and stopped point editing for I14.
 
 The checkout’s Python facade suite passed all 253 tests with `PYTHONPATH=python python3 -m pytest -q tests/python`. The native Mojo suite was skipped because this experiment uses the Python SVG exporter and browser audio adapter.
 
