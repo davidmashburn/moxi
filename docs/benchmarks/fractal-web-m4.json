@@ -1,0 +1,2323 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-11-26T00:38:46.700Z",
+  "config": {
+    "warmups": 2,
+    "trials": 7,
+    "presentationWarmups": 5,
+    "presentationTrials": 31
+  },
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "hardwareConcurrency": 10,
+    "devicePixelRatio": 1,
+    "crossOriginIsolated": false
+  },
+  "endpoints": {
+    "native": "CPU fractal traversal plus colored raster; setup/reset excluded; native timings captured during preparation.",
+    "original": "Pinned JS traversal plus Canvas2D strokes; submit and full RGBA readback endpoints.",
+    "wasm": "advance(1_000_000) loop through complete(); setup/reset excluded; raster view access and Canvas2D presentation measured separately.",
+    "presentation": "Cached ImageData.data.set+putImageData vs MoxiRasterPresenter; same source bytes, fresh typed views, alternating path order, 1px synchronization on both paths.",
+    "visibility": "Canvas submission and synchronous readback only; screen display, compositing and input latency are not measured."
+  },
+  "provenance": {
+    "preparedAt": "2026-11-26T00:38:45.909045+00:00",
+    "originalRevision": "5f78b3fb3e167365d86dc21b79788bec454c16ec",
+    "originalSha256": {
+      "constants.js": "089421552638432d1f5cf46851dfc648cc7eb5e15f4ca4da7638648cd5b547ff",
+      "drawFractal.js": "b0efa44d9a5cb507e7b1d1e0fe19948cf595c7242f1e9fd69cb41539ff9471c0",
+      "generator.js": "24e45083c678cef1f648c4b1da03ae9bd2080ba8f5d95e7603426351253b026f",
+      "helpers.js": "ffcaf5aa6f18c0732d4f228ce329ce6c1e3ec28edd9179ac49513cf0caaa50f3"
+    },
+    "nativeSourceRevision": "abc0286f6b28a9e5ac656b1352c8210d0fe352b0",
+    "nativeWorkingTree": [],
+    "nativeInputSha256": {
+      "benchmarks/fractal_throughput.mojo": "fe51fc5d78b124271c558ff0cd66f06bc2f6db27493043afd6cbf241efd10164",
+      "scripts/build_native_demo.sh": "8a005b33aa7784987a297a0b77b09fa5642ce1aad4d9d11b454f7b8c4f8b8e06",
+      "src/moxi/__init__.mojo": "84fbf2913a897a274de2e168b7435e2216df9e9586f3679b4b18a487fb4e55d4",
+      "src/moxi/accessibility.mojo": "d29e1e34e9d095cbe76dddf4966b29f6ad939262a790cadad4acef6c5ece81a4",
+      "src/moxi/alignment.mojo": "5931badead771e2fa75a64d740270ca7fda2ea000ce6b7a0d89b670fd6596ee0",
+      "src/moxi/animation.mojo": "ea33f3dd8adee133ac8f275fc0190fccada373bc87f2d95f2b4d7c5976393f16",
+      "src/moxi/app.mojo": "fb435d4a1d2086335828449a1b7b21708ad4cd8d287594291303ea3064a6cf94",
+      "src/moxi/app_runtime.mojo": "a7fcca461584e678597e30a8ab3174c0efae1e47111c039a594adac9f4f79716",
+      "src/moxi/authoring/__init__.mojo": "abbb1eddf41d137618a0652f68b5419a79d2eebb856ac71ec67045b64212f647",
+      "src/moxi/authoring/actions.mojo": "5cbede1f5f32ab53ff94a046b33953e9e79d5b8c998f125832f9d2f477671dcd",
+      "src/moxi/authoring/composition.mojo": "2a0865b5cc7a1bd3d73d7529b2b0be212f6e9ec1688325f090bd31a10146ccd8",
+      "src/moxi/authoring/delivery.mojo": "aaed0d115a5c2a6927c572989d31abb26456c047a83edf50b39a3788f85a58c9",
+      "src/moxi/authoring/identity.mojo": "f660a1ca4a43b6ba0e14162c7b89b1e8793d25cd1b8a3aa4ec215a19f99b1ad4",
+      "src/moxi/authoring/runtime.mojo": "a5da99d23bdfbff8de1d93babc8b67cb303c73cb3a4b9913d7325f49d1f58795",
+      "src/moxi/backend.mojo": "5e5a6274e6ef045277c707037c5a035570d3169de5e97b8d95f6d4ee22cc48e1",
+      "src/moxi/box_layout.mojo": "463462f5c6ce4e2492cae5c70b52bbe3742b7039645aec84e49618fad3d792ff",
+      "src/moxi/canvas_renderer.mojo": "e42b672661c85db651f89d2b80d8dbd0537071b8297b46aa53701493e0a2a04d",
+      "src/moxi/capability_bus.mojo": "0d5fa801264905e71fb409ed9067fc5aada36d36eb3cce4c702501ecc6a1d828",
+      "src/moxi/capability_types.mojo": "09bac64889c7cb98c8926b14135768b8762e076a31b8bf82b6a2f02083aa8553",
+      "src/moxi/capability_walkthrough.mojo": "1847dd6a9b047146fab13ab69c6dec031e3c9aedbcd6d4c3d41688fa73d863c2",
+      "src/moxi/clipboard.mojo": "02a43b14fb863eeed539cd7ba84719f902a767fae015f5d70efb3bf3244ef2f9",
+      "src/moxi/collection_layout.mojo": "69d609055750c0251c5142ac534c0ff9b7a39154d781c467b428b027f021c0c3",
+      "src/moxi/collection_state.mojo": "494f09c4a2aaa0cdabb191f6ea117ce30fcd3af78d7872f705b2ba621bbbdbdd",
+      "src/moxi/column_runtime.mojo": "bad8a2de58c8e5e59f75191e5f5cf38148cede1ce1f33463ecacd8301adffe8e",
+      "src/moxi/column_view.mojo": "a3883e6966c08191cf1a57dcefe78a895039eefc0de4c07f181a14dc985ee073",
+      "src/moxi/component.mojo": "cdc6a9106f8c4ef261f51cd4d4d1f82984f3908a58c293b23a7e63f7c967e34d",
+      "src/moxi/composed.mojo": "4756ad2546d119e31c99e064eec7ebedb8ed6caca2130a1b5c3512d53177cd1d",
+      "src/moxi/constraint_layout.mojo": "9ea65b40a11f94bda9a2d4407d49047dd83f7e8b1e9aedd44730e26ab18c1b30",
+      "src/moxi/content_layout.mojo": "ffcd4cc2a8429659862b9f44179e2f2666edeaf3716cb51ec0d6c12a5ce28255",
+      "src/moxi/control_state.mojo": "6b5eefeaab66479a3eba93a80e2311d987b4ade9c72f09609f55a71328f40627",
+      "src/moxi/controls_basic.mojo": "586e4bb509839d9e3dc059828807329f56f28f060d5f9d37d6c4541026471dba",
+      "src/moxi/controls_collection.mojo": "4c6efa43ec922257cc3886816d303d4ec70f651b59a91de298a91de0154ea5ef",
+      "src/moxi/controls_state.mojo": "c510d88923eddb9c53b6bd5d1ea0748f916120c521a1b619b74da9f4c4db1269",
+      "src/moxi/controls_text.mojo": "94e3f04f600eb43d5d44b17eb2cd663b3dbf824e3bc9489815d97beb9731dd73",
+      "src/moxi/conversation.mojo": "bb4cd611cd4c41a1598e04a0ccad955620b541d0b0dc3ef6f2d6d4222af12df5",
+      "src/moxi/coretext.mojo": "f8866e767a710b8fdd1cc73d3f7abcc1247b81fc0dca1196db5ee0b1de42fb77",
+      "src/moxi/counter_view.mojo": "d81fec1dc82d52e10b006522bc0b09c514828254064a66f2c57741590c63c3ec",
+      "src/moxi/event.mojo": "2f302c4f019092f75c56935f8cb6076e00e6c04b5e4af1463a2ce54e0bb274db",
+      "src/moxi/event_replay.mojo": "4cbe87438b6366967b088e8ab7466dda7d34a90813d8d198fafd1b3c8228bfd6",
+      "src/moxi/execution.mojo": "5f9196f4f24f7295d23a4fd89a9eef5a31dab1b44362f11f7fc5f713eacb5a95",
+      "src/moxi/experimental_api.mojo": "28e07a142ae5ae84d90d998bce297974964655c96a2d067543d56ce9eda0d8d1",
+      "src/moxi/font_collection.mojo": "c75964b5b2bfeb5e0a593442155a8ae0ce8fb28d2036b82d62ff554f05a5a712",
+      "src/moxi/form.mojo": "2bb062b685ed697a7e7b0f6469edf28b504372aeadb0327ada4999996e729e17",
+      "src/moxi/fractal.mojo": "445b9612323f8d3fa30b7290e528caaa9254c6631b12896a3b50d7050179e043",
+      "src/moxi/frame.mojo": "6bd19bd7c66bb552efa5d57a54c4cb68ff370884a871b2aab13aa6f0c5a4d89e",
+      "src/moxi/geometry.mojo": "2687739f1fb85e27b1ec56c959cac28b01a665f045f469fb67d816bd390e9b0f",
+      "src/moxi/harfbuzz.mojo": "dfaf392747ff0dd88e00a9102108a676e2b82d9204163577bbcc253efdc1d0d5",
+      "src/moxi/host_api.mojo": "3c8bf7fdde5694dc962f3d93edbf0246246ce3ea5af2b604cb21a21a78640334",
+      "src/moxi/host_contract.mojo": "c4b3f4c10e68a75ecf6d156d28ecf57fc286a29d6877cb6309620f96b48fec8a",
+      "src/moxi/interaction_showcase.mojo": "6f06b3d19a40045b9df60a886a8cd3536b131b5032ba89bef74c318509ee3e76",
+      "src/moxi/invalidation.mojo": "fedb2fe4ff93a15d1708669ae88c76a9a1ea9b02bee526ae353f5ce1fdbdb970",
+      "src/moxi/json.mojo": "3afc7b5e1d018d2747423c5d2f17608db3e705753f228ce8663e8a8d9fb3da61",
+      "src/moxi/layout.mojo": "2e16b040c48bd899a3c27139a07c71433b3f8356bcb86c0bb57ca607517e050a",
+      "src/moxi/layout_primitives.mojo": "4458a815df8167b9108d255437a9c24170bef1f5c5319d3699629c3662f3b598",
+      "src/moxi/layout_workbench.mojo": "fe0ce5df3a7250069af93b4584beb0e5d4b4991f4f19b58f09db84dcec4037e1",
+      "src/moxi/layout_workbench_replay.mojo": "9ffa3db7cd02d18e02d56695b72e583b6eb91e69b6940e0d048e120ca4dfcdfb",
+      "src/moxi/legacy_runtime.mojo": "f7dd8a07fffa97d50e62abe0c7e8223d6d56873f7e794353ec771c8bfbcd5635",
+      "src/moxi/lifecycle_workbench.mojo": "8506933395f9ee7123c823527d2e20c10714f2a038bba542a2064613f49000f7",
+      "src/moxi/linux.mojo": "5cf2eab96d1c0e4f772e7a15e71fac3c324905932ad8dabaf2bf680abed4a000",
+      "src/moxi/live_script.mojo": "1f16449ce9b93496a75d20a171ce6f6140e8e92678f1a8e001d65a7a0caa9691",
+      "src/moxi/macos.mojo": "4ffad27fb607368ae3a456516ac08ef04a8ea665555a43510dce519d5a0704bd",
+      "src/moxi/measure.mojo": "929c182664bcb735048fe30f33f2141f26d8bd64a1209e4bb593b78204ca4796",
+      "src/moxi/metal.mojo": "51e9624bb1face0bfd637af1484e619bd461ffb9c5bd1ec774d4a9a80fadeae8",
+      "src/moxi/native_clipboard.mojo": "93e34963eb64ca3e919f99ce89e6e1c1e31190b98f13ac17c68708f82a07dfca",
+      "src/moxi/native_frame.mojo": "7889a52f5a5abd98746e5a484219515efbfc6511939dad73c658b907e75f441e",
+      "src/moxi/native_instance.mojo": "b1982643457a8ed062071f8f2da8722246a0993da1f912a248565a81a72675be",
+      "src/moxi/native_paragraph.mojo": "2ae752e5ca69d6334e02708caa720774a5078221834c0b28447b0a90cbb43bb9",
+      "src/moxi/native_widgets.mojo": "fba58857891568cc7ed0743588eae27ef9aaee96d2db822e58ac0d78e18c21b4",
+      "src/moxi/native_window.mojo": "f87ba01d29c05906f91f348369f71ace6f10619e0ffd2143d2302690fdda0b47",
+      "src/moxi/natural.mojo": "7cf7cba24683a13449787e9d2865345b87c2da4d67f776d3f24c8ded6c787833",
+      "src/moxi/nested.mojo": "0878f9224758826adc3dfcd69b1927826b459dad8371e0ffdd5a8a7cf6975387",
+      "src/moxi/not_implemented.mojo": "92631ed278ff0ea4bfbb4d17a0eafbdaa9d0861d8bb772c5dcef1275db331fb5",
+      "src/moxi/overlay_layout.mojo": "5f1f8c60f0d5b11164e0cf0059f3117dbc0bc383fde93f74529ff73c94d422a5",
+      "src/moxi/paint.mojo": "224e53d94b90bdcb9676e5b36ed07633ee21138a0b51ea5b6c2f95c8ca26a81b",
+      "src/moxi/palette.mojo": "8aa1fbc3fc05e49f8ce1bddc26ea3776c7b9c51e7ab9fc489d932c1a5b80810b",
+      "src/moxi/performance.mojo": "45a68093995c3904bdaa5f3465d91956fe45497bbd96ef12fe1becbb89b83461",
+      "src/moxi/platform.mojo": "dd42aa869c3bed155876ac0e3cc8e832398c3299aa39acb2c198e0640460ac04",
+      "src/moxi/platform_adapters.mojo": "06c6126450a10ba46d2aba66b2a31248a55227688948c89b9b593bf02f2250c7",
+      "src/moxi/plot_render.mojo": "90695fc61fdeb167233793307f4d520a3033c80debb5a9f4ebef256c0960f3ac",
+      "src/moxi/plot_selection.mojo": "74cf545579729c07673bfd55a3867354f5df8c53d2cc66d944a4861e80de8952",
+      "src/moxi/popup.mojo": "092ea7a01496dc70997ffb2e357ea957ddfb0a6491c8054ef5ef63401e0d80bf",
+      "src/moxi/raster.mojo": "5bd668b5bde4ea981953f827b6b38f4a59eb4bf5b6f277113e8feafba9a932c5",
+      "src/moxi/reactivity.mojo": "58c199692f507b678d74960230401d2970c8c51f85e2c344a5f99ac27435a926",
+      "src/moxi/recipes.mojo": "551c67c0effa255c95cac85ff6be28d7657dc2568c9afc3c5b94e6ed7bf15eac",
+      "src/moxi/reorder.mojo": "318527154d57fc012980008637436d9e8c45c6ab7e25d04f275dfccf99949dcd",
+      "src/moxi/resources.mojo": "804a878f32e78bc32f5db0f0b3ae7c7b7ddf3be4821ae75ab53892f06cee8047",
+      "src/moxi/retained_engine.mojo": "b1d408d2bca3402b221717414796d47b9846b9bcb81cd46d151c599e7563cd90",
+      "src/moxi/retained_layout.mojo": "ba1004f6eb3c12bb2dfb63539c68beead4c29babe619c24dadb0741b37f38e2e",
+      "src/moxi/retained_leaf.mojo": "e7a993ee0171ecfe1e6486b9b9db43a04db2d2aff534e89a093d223cf4c75fea",
+      "src/moxi/row.mojo": "de5d0b1bab1918a6f6e8de69a7857fe48eb96ac853595994cf88861201138f74",
+      "src/moxi/scenarios.mojo": "6d55f73a504eb73c9420cd1f7581b7827c6da3eecaaf3e8d0a0ff642cd6abef8",
+      "src/moxi/scene.mojo": "e9e9db3bd553e5efcc3fbd0bd7c21ddbc1a0b2da1834cc44feefbbcb026e1e53",
+      "src/moxi/scene_path.mojo": "2a546e53b3e1f38dc06e98ac24a0c735ad3399fb7cfe83ace7f7da2f88d792eb",
+      "src/moxi/scene_text.mojo": "b83fe59cd1c6afa8777426ba77173650a8edab90cc7954f60a6ab103e2730055",
+      "src/moxi/scrollbar.mojo": "aafdb947004b6859198ee30891db959c6fb207b50799a110272e4ae43b9f3621",
+      "src/moxi/software.mojo": "9651333f00080da46a691d5afa3befcb09903edd7adcf2ed252294fe6e69c75c",
+      "src/moxi/style.mojo": "70d7587ab8424172aa949525a58c9a354d110daaaadeb2c1ac4fcb4b1679600b",
+      "src/moxi/svg.mojo": "363dfe99eabdbab6aec7acb60d78c6acdfd462cd0d00c899b5d2a137b0002611",
+      "src/moxi/targets.mojo": "1917e2d85aaebfbd79294da564e363d26ae576dcd18ee44c77c92e784a4716d9",
+      "src/moxi/tasks.mojo": "2875db5280fe6f8668da1eb0c7ebd724bb8dfb1c564c4b4bce29897179646b55",
+      "src/moxi/testing.mojo": "3d672fcb2c183c748f23c28314c3c2a49af2819067b8500cb05f9e30fc4f9bad",
+      "src/moxi/text_boundary.mojo": "c1b83f9ad8113a7fe53a8bca0d4fe76acef4b5d3d687d3e8a0f24eb19146aa0e",
+      "src/moxi/text_layout.mojo": "0fe75f6844119eb16f9c45d17172520b5100937fde8f5f4347a871763efac28c",
+      "src/moxi/text_shaping.mojo": "7d4f3ef6418a81f1722acbea6279799abb005d28d11977e8f4d18fc0a29d1d3e",
+      "src/moxi/theme_showcase.mojo": "a6f4d44b4a52acc0be848e837274122ace886cfc7fdb6bd8bec6d1358fb3b1be",
+      "src/moxi/tokens.mojo": "1a4a0087ebd6b901fdf8610f494d0199b87a22c7c0fc1e0737c4b7dcfac02f6f",
+      "src/moxi/view_leaf.mojo": "c67c8788762bae97336eafcee0afd9fc923801549e3e59b141b8a0bb5e104551",
+      "src/moxi/view_node.mojo": "2836b2073de6793570192d565c4d1e660a4934431f18a8308c92c1ace0a2ee6f",
+      "src/moxi/virtual_view.mojo": "9c2e95483e31789d6cf4062192d0ff27932847285b9d7783cfb22e5d3b5c2ef2",
+      "src/moxi/widget.mojo": "21ec416f327acc331ddb045745889cc5d73a42bf4c32e7555aff2d2d0630ff58",
+      "src/moxi/window.mojo": "c807095aa8bd861eb574eaf304afdc5a84d85ffeacb40d07993c78873f574a2a",
+      "src/moxi/windowing.mojo": "553bb95c77328a5a24db52164cb1f34cfe25d6fa1edcec361568d6471ea6c0c2",
+      "src/moxi/wrapped.mojo": "08fe3e6b65ec072061633b382137e127a4304c0ae9bf2f99471003d70eea3ea4",
+      "src/moxi/wxstyle.mojo": "e994a236e37233ad2650a7baad5f112794fd7c8c70a6757b409db3c9ebad2505",
+      "benchmarks/fractal_fixtures.mojo": "d0628cc47858a319fccf06aab3dd29600cb587ee921384dd19de15586c0d0a4f"
+    },
+    "nativeStdoutSha256": "2174de51b9da91b7c771c8235f7280bfaceeb67d679f5e5cad7699284aa3bd4b",
+    "nativeBuildCommand": [
+      "bash",
+      "scripts/build_native_demo.sh",
+      "-I",
+      "src",
+      "benchmarks/fractal_throughput.mojo",
+      "-o",
+      "<output>/native-fractal-throughput"
+    ],
+    "nativeStdoutReused": false,
+    "nativeMachine": {
+      "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+      "machine": "arm64",
+      "processor": "arm"
+    },
+    "toolchain": {
+      "mojo": "Mojo 1.1.0 (8189361e)",
+      "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)"
+    },
+    "python": "3.14.7"
+  },
+  "instantiateMs": 1.2000000178813934,
+  "curves": [
+    {
+      "name": "Koch",
+      "expectedLeaves": 4096,
+      "depth": 6,
+      "native": {
+        "warmups": 2,
+        "trials": [
+          {
+            "leaves": 4096,
+            "ms": 0.34
+          },
+          {
+            "leaves": 4096,
+            "ms": 0.337
+          },
+          {
+            "leaves": 4096,
+            "ms": 0.328
+          },
+          {
+            "leaves": 4096,
+            "ms": 0.303
+          },
+          {
+            "leaves": 4096,
+            "ms": 0.304
+          },
+          {
+            "leaves": 4096,
+            "ms": 0.302
+          },
+          {
+            "leaves": 4096,
+            "ms": 0.301
+          }
+        ]
+      },
+      "js": [
+        {
+          "leaves": 4096,
+          "submitMs": 4.600000023841858,
+          "syncReadbackMs": 11.699999988079071,
+          "throughReadbackMs": 16.30000001192093
+        },
+        {
+          "leaves": 4096,
+          "submitMs": 4.0999999940395355,
+          "syncReadbackMs": 7.699999988079071,
+          "throughReadbackMs": 11.799999982118607
+        },
+        {
+          "leaves": 4096,
+          "submitMs": 3.5999999940395355,
+          "syncReadbackMs": 3.5,
+          "throughReadbackMs": 7.0999999940395355
+        },
+        {
+          "leaves": 4096,
+          "submitMs": 3.800000011920929,
+          "syncReadbackMs": 10.599999994039536,
+          "throughReadbackMs": 14.400000005960464
+        },
+        {
+          "leaves": 4096,
+          "submitMs": 3.800000011920929,
+          "syncReadbackMs": 3.300000011920929,
+          "throughReadbackMs": 7.100000023841858
+        },
+        {
+          "leaves": 4096,
+          "submitMs": 4,
+          "syncReadbackMs": 3.0999999940395355,
+          "throughReadbackMs": 7.0999999940395355
+        },
+        {
+          "leaves": 4096,
+          "submitMs": 4,
+          "syncReadbackMs": 4.699999988079071,
+          "throughReadbackMs": 8.699999988079071
+        }
+      ],
+      "wasm": [
+        {
+          "computeMs": 0.29999998211860657,
+          "chunkCount": 1,
+          "leaves": "4096",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 1.5999999940395355,
+          "computeAndPresentationSubmitMs": 0.3999999761581421,
+          "computeThroughReadbackMs": 1.9999999701976776
+        },
+        {
+          "computeMs": 0.29999998211860657,
+          "chunkCount": 1,
+          "leaves": "4096",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.20000001788139343,
+          "syncReadbackMs": 1.2999999821186066,
+          "computeAndPresentationSubmitMs": 0.5,
+          "computeThroughReadbackMs": 1.7999999821186066
+        },
+        {
+          "computeMs": 0.5,
+          "chunkCount": 1,
+          "leaves": "4096",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 7.699999988079071,
+          "computeAndPresentationSubmitMs": 0.5999999940395355,
+          "computeThroughReadbackMs": 8.299999982118607
+        },
+        {
+          "computeMs": 0.5,
+          "chunkCount": 1,
+          "leaves": "4096",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 1.4000000059604645,
+          "computeAndPresentationSubmitMs": 0.5999999940395355,
+          "computeThroughReadbackMs": 2
+        },
+        {
+          "computeMs": 0.5,
+          "chunkCount": 1,
+          "leaves": "4096",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 8.300000011920929,
+          "computeAndPresentationSubmitMs": 0.5999999940395355,
+          "computeThroughReadbackMs": 8.900000005960464
+        },
+        {
+          "computeMs": 0.5,
+          "chunkCount": 1,
+          "leaves": "4096",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 1.4000000059604645,
+          "computeAndPresentationSubmitMs": 0.5999999940395355,
+          "computeThroughReadbackMs": 2
+        },
+        {
+          "computeMs": 0.4000000059604645,
+          "chunkCount": 1,
+          "leaves": "4096",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0,
+          "syncReadbackMs": 1.5,
+          "computeAndPresentationSubmitMs": 0.4000000059604645,
+          "computeThroughReadbackMs": 1.9000000059604645
+        }
+      ],
+      "summary": {
+        "nativeCompute": {
+          "count": 7,
+          "medianMs": 0.304,
+          "p95Ms": 0.3391,
+          "p99Ms": 0.33982,
+          "minMs": 0.301,
+          "maxMs": 0.34
+        },
+        "jsSubmit": {
+          "count": 7,
+          "medianMs": 4,
+          "p95Ms": 4.4500000149011605,
+          "p99Ms": 4.570000022053718,
+          "minMs": 3.5999999940395355,
+          "maxMs": 4.600000023841858
+        },
+        "jsThroughReadback": {
+          "count": 7,
+          "medianMs": 8.699999988079071,
+          "p95Ms": 15.730000010132787,
+          "p99Ms": 16.1860000115633,
+          "minMs": 7.0999999940395355,
+          "maxMs": 16.30000001192093
+        },
+        "wasmCompute": {
+          "count": 7,
+          "medianMs": 0.5,
+          "p95Ms": 0.5,
+          "p99Ms": 0.5,
+          "minMs": 0.29999998211860657,
+          "maxMs": 0.5
+        },
+        "wasmPresentationSubmit": {
+          "count": 7,
+          "medianMs": 0.09999999403953552,
+          "p95Ms": 0.17000001072883597,
+          "p99Ms": 0.1940000164508819,
+          "minMs": 0,
+          "maxMs": 0.20000001788139343
+        },
+        "wasmComputeAndPresentationSubmit": {
+          "count": 7,
+          "medianMs": 0.5999999940395355,
+          "p95Ms": 0.5999999940395355,
+          "p99Ms": 0.5999999940395355,
+          "minMs": 0.3999999761581421,
+          "maxMs": 0.5999999940395355
+        },
+        "wasmComputeThroughReadback": {
+          "count": 7,
+          "medianMs": 2,
+          "p95Ms": 8.719999998807907,
+          "p99Ms": 8.864000004529952,
+          "minMs": 1.7999999821186066,
+          "maxMs": 8.900000005960464
+        }
+      }
+    },
+    {
+      "name": "SampleFractal",
+      "expectedLeaves": 65536,
+      "depth": 16,
+      "native": {
+        "warmups": 2,
+        "trials": [
+          {
+            "leaves": 65536,
+            "ms": 4.617
+          },
+          {
+            "leaves": 65536,
+            "ms": 4.41
+          },
+          {
+            "leaves": 65536,
+            "ms": 4.231
+          },
+          {
+            "leaves": 65536,
+            "ms": 4.121
+          },
+          {
+            "leaves": 65536,
+            "ms": 4.01
+          },
+          {
+            "leaves": 65536,
+            "ms": 3.876
+          },
+          {
+            "leaves": 65536,
+            "ms": 3.817
+          }
+        ]
+      },
+      "js": [
+        {
+          "leaves": 65536,
+          "submitMs": 72.09999999403954,
+          "syncReadbackMs": 24.69999998807907,
+          "throughReadbackMs": 96.7999999821186
+        },
+        {
+          "leaves": 65536,
+          "submitMs": 73.60000002384186,
+          "syncReadbackMs": 19.899999976158142,
+          "throughReadbackMs": 93.5
+        },
+        {
+          "leaves": 65536,
+          "submitMs": 71.59999999403954,
+          "syncReadbackMs": 19.19999998807907,
+          "throughReadbackMs": 90.7999999821186
+        },
+        {
+          "leaves": 65536,
+          "submitMs": 73.5,
+          "syncReadbackMs": 22.599999994039536,
+          "throughReadbackMs": 96.09999999403954
+        },
+        {
+          "leaves": 65536,
+          "submitMs": 70.30000001192093,
+          "syncReadbackMs": 30.5,
+          "throughReadbackMs": 100.80000001192093
+        },
+        {
+          "leaves": 65536,
+          "submitMs": 70.7999999821186,
+          "syncReadbackMs": 17,
+          "throughReadbackMs": 87.7999999821186
+        },
+        {
+          "leaves": 65536,
+          "submitMs": 70.7000000178814,
+          "syncReadbackMs": 18.099999994039536,
+          "throughReadbackMs": 88.80000001192093
+        }
+      ],
+      "wasm": [
+        {
+          "computeMs": 7,
+          "chunkCount": 1,
+          "leaves": "65536",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.19999998807907104,
+          "syncReadbackMs": 1.4000000059604645,
+          "computeAndPresentationSubmitMs": 7.199999988079071,
+          "computeThroughReadbackMs": 8.599999994039536
+        },
+        {
+          "computeMs": 6.800000011920929,
+          "chunkCount": 1,
+          "leaves": "65536",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 1.2999999821186066,
+          "computeAndPresentationSubmitMs": 6.9000000059604645,
+          "computeThroughReadbackMs": 8.199999988079071
+        },
+        {
+          "computeMs": 6.699999988079071,
+          "chunkCount": 1,
+          "leaves": "65536",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 1.5999999940395355,
+          "computeAndPresentationSubmitMs": 6.799999982118607,
+          "computeThroughReadbackMs": 8.399999976158142
+        },
+        {
+          "computeMs": 6.699999988079071,
+          "chunkCount": 1,
+          "leaves": "65536",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0,
+          "syncReadbackMs": 1.2000000178813934,
+          "computeAndPresentationSubmitMs": 6.699999988079071,
+          "computeThroughReadbackMs": 7.9000000059604645
+        },
+        {
+          "computeMs": 6.5999999940395355,
+          "chunkCount": 1,
+          "leaves": "65536",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.10000002384185791,
+          "syncReadbackMs": 1.5,
+          "computeAndPresentationSubmitMs": 6.700000017881393,
+          "computeThroughReadbackMs": 8.200000017881393
+        },
+        {
+          "computeMs": 6.5999999940395355,
+          "chunkCount": 1,
+          "leaves": "65536",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 1.100000023841858,
+          "computeAndPresentationSubmitMs": 6.699999988079071,
+          "computeThroughReadbackMs": 7.800000011920929
+        },
+        {
+          "computeMs": 6.700000017881393,
+          "chunkCount": 1,
+          "leaves": "65536",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 1.5,
+          "computeAndPresentationSubmitMs": 6.800000011920929,
+          "computeThroughReadbackMs": 8.300000011920929
+        }
+      ],
+      "summary": {
+        "nativeCompute": {
+          "count": 7,
+          "medianMs": 4.121,
+          "p95Ms": 4.5549,
+          "p99Ms": 4.60458,
+          "minMs": 3.817,
+          "maxMs": 4.617
+        },
+        "jsSubmit": {
+          "count": 7,
+          "medianMs": 71.59999999403954,
+          "p95Ms": 73.5700000166893,
+          "p99Ms": 73.59400002241135,
+          "minMs": 70.30000001192093,
+          "maxMs": 73.60000002384186
+        },
+        "jsThroughReadback": {
+          "count": 7,
+          "medianMs": 93.5,
+          "p95Ms": 99.60000000298022,
+          "p99Ms": 100.56000001013278,
+          "minMs": 87.7999999821186,
+          "maxMs": 100.80000001192093
+        },
+        "wasmCompute": {
+          "count": 7,
+          "medianMs": 6.699999988079071,
+          "p95Ms": 6.940000003576278,
+          "p99Ms": 6.988000000715256,
+          "minMs": 6.5999999940395355,
+          "maxMs": 7
+        },
+        "wasmPresentationSubmit": {
+          "count": 7,
+          "medianMs": 0.09999999403953552,
+          "p95Ms": 0.16999999880790703,
+          "p99Ms": 0.19399999022483821,
+          "minMs": 0,
+          "maxMs": 0.19999998807907104
+        },
+        "wasmComputeAndPresentationSubmit": {
+          "count": 7,
+          "medianMs": 6.799999982118607,
+          "p95Ms": 7.1099999934434885,
+          "p99Ms": 7.181999989151954,
+          "minMs": 6.699999988079071,
+          "maxMs": 7.199999988079071
+        },
+        "wasmComputeThroughReadback": {
+          "count": 7,
+          "medianMs": 8.200000017881393,
+          "p95Ms": 8.539999988675117,
+          "p99Ms": 8.587999992966651,
+          "minMs": 7.800000011920929,
+          "maxMs": 8.599999994039536
+        }
+      }
+    },
+    {
+      "name": "Peano Serpent",
+      "expectedLeaves": 1000000,
+      "depth": 6,
+      "native": {
+        "warmups": 2,
+        "trials": [
+          {
+            "leaves": 1000000,
+            "ms": 68.811
+          },
+          {
+            "leaves": 1000000,
+            "ms": 69.854
+          },
+          {
+            "leaves": 1000000,
+            "ms": 68.321
+          },
+          {
+            "leaves": 1000000,
+            "ms": 68.387
+          },
+          {
+            "leaves": 1000000,
+            "ms": 68.252
+          },
+          {
+            "leaves": 1000000,
+            "ms": 68.216
+          },
+          {
+            "leaves": 1000000,
+            "ms": 68.249
+          }
+        ]
+      },
+      "js": [
+        {
+          "leaves": 1000000,
+          "submitMs": 989.3000000119209,
+          "syncReadbackMs": 59.80000001192093,
+          "throughReadbackMs": 1049.1000000238419
+        },
+        {
+          "leaves": 1000000,
+          "submitMs": 978.4000000059605,
+          "syncReadbackMs": 53.099999994039536,
+          "throughReadbackMs": 1031.5
+        },
+        {
+          "leaves": 1000000,
+          "submitMs": 994.7000000178814,
+          "syncReadbackMs": 53.29999998211861,
+          "throughReadbackMs": 1048
+        },
+        {
+          "leaves": 1000000,
+          "submitMs": 999.9000000059605,
+          "syncReadbackMs": 23.599999994039536,
+          "throughReadbackMs": 1023.5
+        },
+        {
+          "leaves": 1000000,
+          "submitMs": 1015.5999999940395,
+          "syncReadbackMs": 31,
+          "throughReadbackMs": 1046.5999999940395
+        },
+        {
+          "leaves": 1000000,
+          "submitMs": 1016.0999999940395,
+          "syncReadbackMs": 23.400000005960464,
+          "throughReadbackMs": 1039.5
+        },
+        {
+          "leaves": 1000000,
+          "submitMs": 1032.8999999761581,
+          "syncReadbackMs": 20.80000001192093,
+          "throughReadbackMs": 1053.699999988079
+        }
+      ],
+      "wasm": [
+        {
+          "computeMs": 138.30000001192093,
+          "chunkCount": 3,
+          "leaves": "1000000",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.19999998807907104,
+          "syncReadbackMs": 7.0999999940395355,
+          "computeAndPresentationSubmitMs": 138.5,
+          "computeThroughReadbackMs": 145.59999999403954
+        },
+        {
+          "computeMs": 149.7999999821186,
+          "chunkCount": 3,
+          "leaves": "1000000",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.20000001788139343,
+          "syncReadbackMs": 1.699999988079071,
+          "computeAndPresentationSubmitMs": 150,
+          "computeThroughReadbackMs": 151.69999998807907
+        },
+        {
+          "computeMs": 135.19999998807907,
+          "chunkCount": 3,
+          "leaves": "1000000",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.20000001788139343,
+          "syncReadbackMs": 1.5,
+          "computeAndPresentationSubmitMs": 135.40000000596046,
+          "computeThroughReadbackMs": 136.90000000596046
+        },
+        {
+          "computeMs": 134.80000001192093,
+          "chunkCount": 3,
+          "leaves": "1000000",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 2.5999999940395355,
+          "computeAndPresentationSubmitMs": 134.90000000596046,
+          "computeThroughReadbackMs": 137.5
+        },
+        {
+          "computeMs": 139.2000000178814,
+          "chunkCount": 3,
+          "leaves": "1000000",
+          "rasterAccessMs": 0.09999999403953552,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 2.800000011920929,
+          "computeAndPresentationSubmitMs": 139.40000000596046,
+          "computeThroughReadbackMs": 142.2000000178814
+        },
+        {
+          "computeMs": 140.30000001192093,
+          "chunkCount": 3,
+          "leaves": "1000000",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 4,
+          "computeAndPresentationSubmitMs": 140.40000000596046,
+          "computeThroughReadbackMs": 144.40000000596046
+        },
+        {
+          "computeMs": 135.40000000596046,
+          "chunkCount": 3,
+          "leaves": "1000000",
+          "rasterAccessMs": 0,
+          "presentationSubmitMs": 0.09999999403953552,
+          "syncReadbackMs": 1.600000023841858,
+          "computeAndPresentationSubmitMs": 135.5,
+          "computeThroughReadbackMs": 137.10000002384186
+        }
+      ],
+      "summary": {
+        "nativeCompute": {
+          "count": 7,
+          "medianMs": 68.321,
+          "p95Ms": 69.5411,
+          "p99Ms": 69.79142,
+          "minMs": 68.216,
+          "maxMs": 69.854
+        },
+        "jsSubmit": {
+          "count": 7,
+          "medianMs": 999.9000000059605,
+          "p95Ms": 1027.8599999815226,
+          "p99Ms": 1031.891999977231,
+          "minMs": 978.4000000059605,
+          "maxMs": 1032.8999999761581
+        },
+        "jsThroughReadback": {
+          "count": 7,
+          "medianMs": 1046.5999999940395,
+          "p95Ms": 1052.3199999988078,
+          "p99Ms": 1053.4239999902247,
+          "minMs": 1023.5,
+          "maxMs": 1053.699999988079
+        },
+        "wasmCompute": {
+          "count": 7,
+          "medianMs": 138.30000001192093,
+          "p95Ms": 146.9499999910593,
+          "p99Ms": 149.22999998390674,
+          "minMs": 134.80000001192093,
+          "maxMs": 149.7999999821186
+        },
+        "wasmPresentationSubmit": {
+          "count": 7,
+          "medianMs": 0.09999999403953552,
+          "p95Ms": 0.20000001788139343,
+          "p99Ms": 0.20000001788139343,
+          "minMs": 0.09999999403953552,
+          "maxMs": 0.20000001788139343
+        },
+        "wasmComputeAndPresentationSubmit": {
+          "count": 7,
+          "medianMs": 138.5,
+          "p95Ms": 147.12000000178813,
+          "p99Ms": 149.42400000035764,
+          "minMs": 134.90000000596046,
+          "maxMs": 150
+        },
+        "wasmComputeThroughReadback": {
+          "count": 7,
+          "medianMs": 142.2000000178814,
+          "p95Ms": 149.8699999898672,
+          "p99Ms": 151.3339999884367,
+          "minMs": 136.90000000596046,
+          "maxMs": 151.69999998807907
+        }
+      }
+    }
+  ],
+  "chunks": {
+    "curve": "Peano Serpent",
+    "expectedLeaves": 1000000,
+    "warmups": 2,
+    "budgets": [
+      64,
+      2048
+    ],
+    "trials": [
+      {
+        "trial": 0,
+        "budget": 64,
+        "computeMs": 140.80000001192093,
+        "chunkCount": 32987
+      },
+      {
+        "trial": 0,
+        "budget": 2048,
+        "computeMs": 135.19999998807907,
+        "chunkCount": 1031
+      },
+      {
+        "trial": 1,
+        "budget": 2048,
+        "computeMs": 135.2000000178814,
+        "chunkCount": 1031
+      },
+      {
+        "trial": 1,
+        "budget": 64,
+        "computeMs": 140.90000000596046,
+        "chunkCount": 32987
+      },
+      {
+        "trial": 2,
+        "budget": 64,
+        "computeMs": 140.7999999821186,
+        "chunkCount": 32987
+      },
+      {
+        "trial": 2,
+        "budget": 2048,
+        "computeMs": 135.19999998807907,
+        "chunkCount": 1031
+      },
+      {
+        "trial": 3,
+        "budget": 2048,
+        "computeMs": 135.7000000178814,
+        "chunkCount": 1031
+      },
+      {
+        "trial": 3,
+        "budget": 64,
+        "computeMs": 143.19999998807907,
+        "chunkCount": 32987
+      },
+      {
+        "trial": 4,
+        "budget": 64,
+        "computeMs": 141.2000000178814,
+        "chunkCount": 32987
+      },
+      {
+        "trial": 4,
+        "budget": 2048,
+        "computeMs": 139,
+        "chunkCount": 1031
+      },
+      {
+        "trial": 5,
+        "budget": 2048,
+        "computeMs": 139.19999998807907,
+        "chunkCount": 1031
+      },
+      {
+        "trial": 5,
+        "budget": 64,
+        "computeMs": 145.80000001192093,
+        "chunkCount": 32987
+      },
+      {
+        "trial": 6,
+        "budget": 64,
+        "computeMs": 154.59999999403954,
+        "chunkCount": 32987
+      },
+      {
+        "trial": 6,
+        "budget": 2048,
+        "computeMs": 138.5,
+        "chunkCount": 1031
+      }
+    ],
+    "summary": {
+      "64": {
+        "compute": {
+          "count": 7,
+          "medianMs": 141.2000000178814,
+          "p95Ms": 151.95999999940395,
+          "p99Ms": 154.0719999951124,
+          "minMs": 140.7999999821186,
+          "maxMs": 154.59999999403954
+        },
+        "maximumChunkMs": 0.19999998807907104,
+        "chunkProfile": {
+          "count": 32987,
+          "medianMs": 0,
+          "p95Ms": 0,
+          "p99Ms": 0.09999999403953552,
+          "minMs": 0,
+          "maxMs": 0.19999998807907104
+        },
+        "note": "Per-call advance timing includes JS/Wasm boundary and two clock reads; excludes event scheduling and input dispatch."
+      },
+      "2048": {
+        "compute": {
+          "count": 7,
+          "medianMs": 135.7000000178814,
+          "p95Ms": 139.13999999165534,
+          "p99Ms": 139.18799998879433,
+          "minMs": 135.19999998807907,
+          "maxMs": 139.19999998807907
+        },
+        "maximumChunkMs": 0.30000001192092896,
+        "chunkProfile": {
+          "count": 1031,
+          "medianMs": 0.10000002384185791,
+          "p95Ms": 0.20000001788139343,
+          "p99Ms": 0.27000001370907284,
+          "minMs": 0,
+          "maxMs": 0.30000001192092896
+        },
+        "note": "Per-call advance timing includes JS/Wasm boundary and two clock reads; excludes event scheduling and input dispatch."
+      }
+    }
+  },
+  "presentation": [
+    {
+      "bufferMode": "same-buffer-mutated",
+      "width": 920,
+      "height": 620,
+      "warmups": 5,
+      "trials": [
+        {
+          "trial": 0,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 7,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 8,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.20000001788139343,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.20000001788139343
+            }
+          }
+        },
+        {
+          "trial": 9,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 10,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 11,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            }
+          }
+        },
+        {
+          "trial": 12,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 13,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 14,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.20000001788139343,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.20000001788139343
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 15,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 16,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 17,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.20000001788139343,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.20000001788139343
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 18,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            }
+          }
+        },
+        {
+          "trial": 19,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 20,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 21,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 22,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.20000001788139343,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.20000001788139343
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 23,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 24,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 25,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.20000001788139343,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.20000001788139343
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 26,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 27,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            }
+          }
+        },
+        {
+          "trial": 28,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 29,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 30,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.20000001788139343,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.20000001788139343
+            }
+          }
+        }
+      ],
+      "summary": {
+        "cached-image-data-copy": {
+          "submit": {
+            "count": 31,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.20000001788139343,
+            "p99Ms": 0.20000001788139343,
+            "minMs": 0,
+            "maxMs": 0.20000001788139343
+          },
+          "syncReadback": {
+            "count": 31,
+            "medianMs": 0,
+            "p95Ms": 0,
+            "p99Ms": 0,
+            "minMs": 0,
+            "maxMs": 0
+          },
+          "throughSync": {
+            "count": 31,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.20000001788139343,
+            "p99Ms": 0.20000001788139343,
+            "minMs": 0,
+            "maxMs": 0.20000001788139343
+          }
+        },
+        "moxi-direct-view": {
+          "submit": {
+            "count": 31,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.15000002086162567,
+            "p99Ms": 0.20000001788139343,
+            "minMs": 0,
+            "maxMs": 0.20000001788139343
+          },
+          "syncReadback": {
+            "count": 31,
+            "medianMs": 0,
+            "p95Ms": 0,
+            "p99Ms": 0,
+            "minMs": 0,
+            "maxMs": 0
+          },
+          "throughSync": {
+            "count": 31,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.15000002086162567,
+            "p99Ms": 0.20000001788139343,
+            "minMs": 0,
+            "maxMs": 0.20000001788139343
+          }
+        }
+      }
+    },
+    {
+      "bufferMode": "alternating-buffers",
+      "width": 920,
+      "height": 620,
+      "warmups": 5,
+      "trials": [
+        {
+          "trial": 0,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0,
+              "syncReadbackMs": 0.09999999403953552,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 7,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 8,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 9,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 10,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 11,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 12,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            }
+          }
+        },
+        {
+          "trial": 13,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            }
+          }
+        },
+        {
+          "trial": 14,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            }
+          }
+        },
+        {
+          "trial": 15,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 16,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 17,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 18,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            }
+          }
+        },
+        {
+          "trial": 19,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 20,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 21,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.20000001788139343,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.20000001788139343
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 22,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            }
+          }
+        },
+        {
+          "trial": 23,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 24,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 25,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 26,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            }
+          }
+        },
+        {
+          "trial": 27,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.19999998807907104,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.19999998807907104
+            }
+          }
+        },
+        {
+          "trial": 28,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 29,
+          "order": [
+            "cached-image-data-copy",
+            "moxi-direct-view"
+          ],
+          "samples": {
+            "cached-image-data-copy": {
+              "submitMs": 0.10000002384185791,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.10000002384185791
+            },
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        },
+        {
+          "trial": 30,
+          "order": [
+            "moxi-direct-view",
+            "cached-image-data-copy"
+          ],
+          "samples": {
+            "moxi-direct-view": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            },
+            "cached-image-data-copy": {
+              "submitMs": 0.09999999403953552,
+              "syncReadbackMs": 0,
+              "throughSyncMs": 0.09999999403953552
+            }
+          }
+        }
+      ],
+      "summary": {
+        "cached-image-data-copy": {
+          "submit": {
+            "count": 31,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.19999998807907104,
+            "p99Ms": 0.20000000894069672,
+            "minMs": 0,
+            "maxMs": 0.20000001788139343
+          },
+          "syncReadback": {
+            "count": 31,
+            "medianMs": 0,
+            "p95Ms": 0,
+            "p99Ms": 0.0699999958276748,
+            "minMs": 0,
+            "maxMs": 0.09999999403953552
+          },
+          "throughSync": {
+            "count": 31,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.19999998807907104,
+            "p99Ms": 0.20000000894069672,
+            "minMs": 0,
+            "maxMs": 0.20000001788139343
+          }
+        },
+        "moxi-direct-view": {
+          "submit": {
+            "count": 31,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.19999998807907104,
+            "p99Ms": 0.19999998807907104,
+            "minMs": 0,
+            "maxMs": 0.19999998807907104
+          },
+          "syncReadback": {
+            "count": 31,
+            "medianMs": 0,
+            "p95Ms": 0,
+            "p99Ms": 0,
+            "minMs": 0,
+            "maxMs": 0
+          },
+          "throughSync": {
+            "count": 31,
+            "medianMs": 0.09999999403953552,
+            "p95Ms": 0.19999998807907104,
+            "p99Ms": 0.19999998807907104,
+            "minMs": 0,
+            "maxMs": 0.19999998807907104
+          }
+        }
+      }
+    }
+  ],
+  "scalarMath": {
+    "hostMathMs": [
+      769.3000000119209,
+      776.4000000059605,
+      766,
+      767.3000000119209,
+      782.6000000238419,
+      779.5,
+      772.5999999940395
+    ],
+    "wasmMathMs": [
+      135.69999998807907,
+      135.09999999403954,
+      135.40000000596046,
+      137.40000000596046,
+      137,
+      136.5,
+      135.30000001192093
+    ],
+    "host": {
+      "count": 7,
+      "medianMs": 772.5999999940395,
+      "p95Ms": 781.6700000166893,
+      "p99Ms": 782.4140000224113,
+      "minMs": 766,
+      "maxMs": 782.6000000238419
+    },
+    "wasm": {
+      "count": 7,
+      "medianMs": 135.69999998807907,
+      "p95Ms": 137.28000000417234,
+      "p99Ms": 137.37600000560283,
+      "minMs": 135.09999999403954,
+      "maxMs": 137.40000000596046
+    }
+  },
+  "automation": {
+    "command": "node experiments/fractal-web/benchmark-run.mjs",
+    "url": "http://127.0.0.1:53398/experiments/fractal-web/benchmark.html",
+    "browserVersion": "158.0.8127.37",
+    "headless": true,
+    "viewport": {
+      "width": 1200,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "os": {
+      "platform": "darwin",
+      "release": "27.2.0",
+      "arch": "arm64",
+      "cpus": "Apple M4"
+    },
+    "sourceRevision": "abc0286f6b28a9e5ac656b1352c8210d0fe352b0",
+    "sourceStatus": [],
+    "sourceSha256": {
+      "benchmark.mjs": "a273e75ef6b23f172aab4b393de6a5125474a2490a8820ad188edcfbfa729666",
+      "benchmark.html": "e353c8cead04ce9a7f57493c785835a3bcf6d3438f04ce0df3e97945c4b45153",
+      "benchmark-prepare.py": "c7b3af503c8f588c977b7c4e9aecfa377d0ae79da89561d1fba710ba47fa237b",
+      "benchmark-run.mjs": "cbd278d1a44030ff8ce90c0710e8536d3729d73509a7e5046412fa8541fd46ff",
+      "runtime.mjs": "61390c50cae14c2a8cd966337485dc18a39dabdfe8f788faba42dcf72564913b",
+      "browser.mojo": "ea86d292ae1ae4078716ae2c2985802ccadc9c08cd2ea2ef04d211c5a9a29a1f",
+      "../../benchmarks/fractal_fixtures.mojo": "d0628cc47858a319fccf06aab3dd29600cb587ee921384dd19de15586c0d0a4f",
+      "dist/fractal.wasm": "e65689df421f36ccf63364a7d63caf0425443b4c051e2b197df996800e8e5f8f",
+      "dist/fractal.host-math.wasm": "448a09b2707f3b17c7e44886ec6728a39a21a407c86dd998dc483639f50e499a",
+      "../shared/memory64.mjs": "96571e8f4b6a284edacff09e74da980f1a7b7038922e344e4a268f5f1f018939",
+      "../browser-moxi/retarget.py": "c924f30593ada53700f913ae5f6c5bc1fb9a30cdb27991a19cd1c86b79bc578b",
+      "../../native/hosts/moxi_web_host.mjs": "6c4bd5a99d4b43961a913e75dacd5e30d3de008fa4a02839a21f70b82c317dfc"
+    },
+    "errors": []
+  }
+}

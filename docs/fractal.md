@@ -1,7 +1,9 @@
 # Streaming fractal demo
 
 Run `pixi run demo` and select Line fractal, or run
-`pixi run interactive-fractal-demo` for the standalone Metal canvas.
+`pixi run interactive-fractal-demo` for the standalone Metal canvas. For the interactive Wasm version, run
+`pixi run web-fractal-demo` and open the [local browser demo](http://127.0.0.1:8776/experiments/fractal-web/).
+The [browser benchmarks](#browser-throughput) use the same Mojo renderer.
 
 Depth accepts nonnegative decimal integers of arbitrary length. The plus and
 minus controls operate on the full value. Each branch draws its current segment
@@ -113,3 +115,105 @@ pixi run python scripts/fractal_throughput.py ../canvas-line-fractal
 ```
 
 For host encoding and Metal presentation timings, run `pixi run fractal-benchmark`.
+
+## Browser throughput
+
+On an Apple M4 in Chrome 158, the interactive demo's renderer submitted one
+million colored Peano lines in **138.5 ms**. The original JavaScript renderer
+took **999.9 ms**, or **7.2× as long**. The Wasm render ranged from 134.9 to
+150.0 ms across seven trials. On the small Koch curve both implementations
+finished submission in 4 ms or less.
+
+| Colored curve | Lines | Native CPU | Wasm CPU | Wasm through Canvas submission | Original JS through Canvas submission | JS time / Wasm time |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Koch | 4,096 | 0.30 ms | 0.5 ms | 0.6 ms | 4.0 ms | 6.7× |
+| SampleFractal | 65,536 | 4.12 ms | 6.7 ms | 6.8 ms | 71.6 ms | 10.5× |
+| Peano Serpent | 1,000,000 | 68.32 ms | 138.3 ms | 138.5 ms | 999.9 ms | 7.2× |
+
+The original iterator makes a Canvas stroke call for each line. Moxi traverses
+the generator and blends each terminal line straight into a 920×620 RGBA
+buffer. JavaScript presents a typed view of that buffer with a single
+`putImageData` call for each update. Going from four thousand lines to a
+million increases raster work while keeping the number of Canvas calls per
+update constant. The editable generator and the bounded coarse preview stay
+available during drawing. Finished line geometry can be discarded immediately.
+
+### What changed during measurement
+
+- **Web backend math.** Scalar min/max in the raster loop previously called
+  JavaScript from Wasm. Lowering those operations to Wasm instructions, with
+  explicit handling for NaNs and signed zero, cut paired Peano compute time
+  from **772.6 to 135.7 ms**. Every pair produced identical pixels.
+- **Work per call.** Increasing the batch from 64 to 2,048 transforms cut
+  median Peano compute time from **141.2 to 135.7 ms**, reducing JS/Wasm calls
+  from 32,987 to 1,031. The longest 2,048-transform call in a separate Peano
+  profile took 0.3 ms. The UI checks its four-millisecond allowance between
+  calls, presents progress during a drag, and stops requesting frames when done.
+- **Reset and presentation.** Editing clears and reuses the core raster.
+  The web host also reuses its `ImageData` wrapper until the buffer, offset,
+  or dimensions change. A fresh copy would move 2,281,600 bytes per upload.
+  Direct and copied uploads both measured **0.1 ms median** over 31 pairs at
+  this browser's timer resolution. The experiment establishes the eliminated
+  copy and matching canvas pixels. It does not resolve a timing advantage for
+  this change alone.
+
+### Measurement and reproduction
+
+Measured November 25, 2026 on macOS 27.2.1, Apple M4, headless Chrome
+158.0.8127.37, Mojo 1.1.0 and Moxi revision
+[`abc0286`](https://github.com/davidmashburn/moxi/commit/abc0286).
+Each throughput cell is the median of seven full renders after two warmups.
+Browser trials alternate execution order. Native uses its default
+floating-point contraction. A separate native image check disables contraction
+to match scalar Wasm rounding and compares every byte on all three curves.
+[Raw trials, compiler details and source hashes](benchmarks/fractal-web-m4.json).
+
+The timed browser runs start after fixture setup and render straight through.
+The submission endpoint includes traversal, coloring, rasterization or Canvas
+drawing calls, and submission to Canvas. For Peano, reading back the entire
+canvas brought Wasm to **142.2 ms** and the original JS to **1,046.6 ms**.
+Frame scheduling, monitor presentation and interaction latency are outside
+these measurements. The original uses different antialiasing, colors and
+sub-pixel tests. All three implementations emitted the indicated line counts.
+An optimized JS typed-array rasterizer, other browsers and mobile hardware
+would need separate measurements.
+
+The demo uses the experimental memory64 toolchain shared with the graph demo.
+Building currently requires Apple Silicon, Mojo 1.1.0 (`8189361e`), Apple Clang
+21.0.0 (`clang-2100.3.34.2`) and LLD 24.0.0. The browser needs WebAssembly
+memory64. Run the UI from the repository root.
+
+```sh
+pixi run web-fractal-demo
+```
+
+Open [Line fractal](http://127.0.0.1:8776/experiments/fractal-web/). To reproduce
+the tables, build both variants and prepare the pinned original JS and native
+samples. The preparation command reads the original files directly from Git
+revision `5f78b3fb3e167365d86dc21b79788bec454c16ec`.
+
+```sh
+git clone https://github.com/davidmashburn/canvas-line-fractal.git ../canvas-line-fractal
+bash experiments/fractal-web/build.sh --host-math
+bash experiments/fractal-web/build.sh
+pixi run python experiments/fractal-web/benchmark-prepare.py ../canvas-line-fractal
+```
+
+With the demo server running, open the [benchmark page](http://127.0.0.1:8776/experiments/fractal-web/benchmark.html)
+to see the samples. For a headless run, install Playwright outside the repo and
+point it at Chrome. The runner serves the benchmark on its own loopback port and
+writes `experiments/fractal-web/dist/benchmark/browser-result.json`.
+
+```sh
+npm install --prefix /tmp/moxi-browser-tools playwright@1.56.1 --ignore-scripts
+export MOXI_PLAYWRIGHT_MODULE=/tmp/moxi-browser-tools/node_modules/playwright/index.mjs
+export MOXI_CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+node experiments/fractal-web/benchmark-run.mjs
+```
+
+To verify the native/Wasm pixel oracle and runtime lifecycle, run
+`bash experiments/fractal-web/check.sh` after building. With the demo server
+running and the same Playwright environment, run
+`node experiments/fractal-web/browser-check.mjs` to exercise controls, rendering
+while a drag is held, resets, very large depths, missing-module feedback and
+mobile layout.

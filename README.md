@@ -190,7 +190,7 @@ above; `pixi run plot-demo` renders the plotting library through the software
 scene backend; `pixi run capability-bus-demo` opens a ten-step walkthrough
 whose controls all go through a typed `CapabilityBus` handler; and
 `pixi run interactive-fractal-demo` is a Metal-accelerated port of Xilem's
-paint example. See the [fractal throughput comparison with JavaScript Canvas 2D](docs/fractal.md#when-does-native-rendering-pay-off) for timings and reproduction steps. For the complete demo, benchmark, and packaging task list, see
+paint example. Run `pixi run web-fractal-demo` to serve the [browser version and its benchmarks](docs/fractal.md#browser-throughput). See the [native throughput comparison with JavaScript Canvas 2D](docs/fractal.md#when-does-native-rendering-pay-off) for timings and reproduction steps. For the complete demo, benchmark, and packaging task list, see
 [docs/demo-browser.md](docs/demo-browser.md) and
 [docs/features.md](docs/features.md#demos).
 
