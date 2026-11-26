@@ -11,6 +11,7 @@
 | P09 | Linux workbench on GTK render nodes | [Eight captured states](linux-gsk/index.html) · [Parity measurements](../../experiments/linux-gsk/README.md) |
 | P11 | GTK workbench on nested headless Wayland | [Offline slideshow](p11-wayland/index.html) · [Replay instructions](../../experiments/wayland-host/README.md) |
 | D01 | Native symbolic backend comparison | [Capture recipe and limitations](d01-math-backends/REPRODUCE.md); [local self-contained slideshow](d01-math-backends/index.html) |
+| D04 | Dense mind-map branches and terminal selection | [24-frame slideshow](mindmap/index.html) · [Replay and measured limits](mindmap/REPRODUCE.md) |
 | D08 | Native field editing on a projected panel | [Six-frame slideshow](spatial-world-panel/index.html) · [Range and clipping checks](spatial-world-panel/REVIEW.md) |
 | N01 | Unfinished-feature pattern | [Capture guide](../../docs/not-implemented-pattern.md); [local self-contained slideshow](not-implemented/index.html) |
 | E01 | Category labels and series legends in nine chart families | [Reference, Canvas and Python comparison](e01-category-labels/comparison.png) · [Replay instructions](../../docs/plot-specialized-wave-a.md) |
@@ -39,4 +40,4 @@
 | V14 | Replay a temperature forecast and inspect a failed proxy | [Temperature](v14-room-temperature/index.html) · [Moxi sensor comparison](v14-moxi-sensor/index.html) · [Run instructions](../../examples/temperature-replay/README.md) |
 | V15 | Calibrate direct and interpolated pose controls | [Slideshow](v15-pose-stroke/index.html) · [Run instructions](../../examples/pose-stroke/README.md) |
 
-The P08, P09, P11, E05, E06, I11, I13, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13, V14 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The D04, P08, P09, P11, E05, E06, I11, I13, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13, V14 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.

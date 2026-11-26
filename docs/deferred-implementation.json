@@ -376,19 +376,26 @@
       "state": "partial",
       "commits": [
         "bd3cccd",
-        "3c288b9"
+        "3c288b9",
+        "07a5379",
+        "58609ab",
+        "37c0985",
+        "7776a7e"
       ],
       "verification": [
         "Parent: model/layout/failure/application contracts, 69-entry shortcut inventory, native storage/import, clean precompiled consumer, shared canvas/native layers and F02 lifecycle passed.",
         "Parent: neighbor reflow, reduced motion, exact final bounds tests and native executable build passed; CPU benchmark samples recorded in docs/mindmap.md.",
-        "Review fix: transactional Save/Save As and independent draft recovery pass native-storage regressions for first-save failure, cancellation, replacement, stale revisions and alternate-destination escape; 70-command inventory and native app build pass."
+        "Review fix: transactional Save/Save As and independent draft recovery pass native-storage regressions for first-save failure, cancellation, replacement, stale revisions and alternate-destination escape; 70-command inventory and native app build pass.",
+        "Dense siblings share a trunk. Native pointer events at 1\u00d7 and 0.5\u00d7 selected the intended terminal on each side of the root. The 24-frame replay retains four dense-picking states. The original twenty frames remained byte-identical across the picking repair.",
+        "In a culled viewport with 1,000 total topics, clipping reduced the edge commands from 4,851 to 17. Independent runs measured 6.22 ms and 9.07 ms p95 main-thread text-input CPU.",
+        "Both benchmark executables built from the same pinned driver. The parent replay measured 26.31 and 7.73 ms p95 CPU for baseline and updated code on a contended host."
       ],
       "remaining_gates": [
-        "Fresh post-integration native replay and 20-frame slideshow capture; native/manual, live Freeplane, IME, VoiceOver and independent usability acceptance.",
-        "8 ms interaction budget unmet; full visible native capacity and GPU/display/allocation evidence remain open."
+        "Repeatable 8 ms interaction budget, all-visible capacity, GPU/display timing and allocation costs remain open.",
+        "Physical input, live Freeplane comparison, IME, VoiceOver and independent usability remain unverified. Coincident terminals and shared trunks can still map to multiple edges."
       ],
       "slideshows": [
-        "mindmap (worker capture only; fresh parent capture pending)"
+        "artifacts/demo-slideshows/mindmap/index.html"
       ]
     },
     {
