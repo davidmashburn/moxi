@@ -6,10 +6,11 @@ are independently implemented here. All layout work is native Mojo.
 """
 from std.collections import List
 from std.math import sin, cos, sqrt, isfinite
+from moxi.geometry import Point
 from moxi.style import Color
 from .plot_data import PlotDataTable, COLUMN_STRING, COLUMN_CATEGORY, COLUMN_BOOL
 from .plot_point import PlotPoint, PlotGlyphKind
-from .plot_series import PlotSeries
+from .plot_series import PlotSeries, PlotLayoutLabel
 from .plot_spec_types import PlotLayer
 from .plot_spec_json import _string_array, _read_number
 from .plot_scalar import scalar_color, scalar_level_label
@@ -127,12 +128,17 @@ def _c_find(values: List[String], value: String) -> Int:
     return -1
 
 
-def _c_g(mut s: PlotSeries, data: PlotDataTable, row: Int, kind: PlotGlyphKind, part: String, x: Float32, y: Float32, x2: Float32, y2: Float32, color: Color, interactive: Bool = True, x3: Float32 = 0, y3: Float32 = 0, sources: List[Int] = List[Int](), size: Float32 = 6, stroke_width: Float32 = 0, label: String = ""):
+def _chord_point(radius: Float32, angle: Float32) -> Point:
+    return Point(0.5+radius*cos(angle),0.5-radius*sin(angle))
+
+
+def _c_g(mut s: PlotSeries, data: PlotDataTable, row: Int, kind: PlotGlyphKind, part: String, x: Float32, y: Float32, x2: Float32, y2: Float32, color: Color, interactive: Bool = True, x3: Float32 = 0, y3: Float32 = 0, sources: List[Int] = List[Int](), size: Float32 = 6, stroke_width: Float32 = 0, label: String = "", vertices: List[Point] = List[Point]()):
     var p = PlotPoint(x,y,data.key_at(row))
     p.set_extent(x2,y2)
     p.x3 = x3
     p.y3 = y3
     p.source_keys = sources.copy() if len(sources) > 0 else [data.key_at(row)]
+    p.vertices = vertices.copy()
     p.glyph = kind
     p.part = part
     p.text = label if label != "" else part
@@ -389,26 +395,30 @@ def _c_layout(layer: PlotLayer,data: PlotDataTable,id: Int) raises -> PlotSeries
                 var c = y[dst[i]]
                 var d = c+pi*values[i]/total
                 y[dst[i]] = d
-                var ax = 0.5+0.414*cos(a)
-                var ay = 0.5-0.414*sin(a)
-                var bx = 0.5+0.414*cos(b)
-                var by = 0.5-0.414*sin(b)
-                var cx = 0.5+0.414*cos(c)
-                var cy = 0.5-0.414*sin(c)
-                var dx = 0.5+0.414*cos(d)
-                var dy = 0.5-0.414*sin(d)
-                for j in range(24):
-                    var t = Float32(j)/24
-                    var u = Float32(j+1)/24
-                    _c_quad(result,data,i,"ribbon",(1-t)**2*ax+t*t*dx+t*(1-t),(1-t)**2*ay+t*t*dy+t*(1-t),(1-t)**2*bx+t*t*cx+t*(1-t),(1-t)**2*by+t*t*cy+t*(1-t),(1-u)**2*bx+u*u*cx+u*(1-u),(1-u)**2*by+u*u*cy+u*(1-u),(1-u)**2*ax+u*u*dx+u*(1-u),(1-u)**2*ay+u*u*dy+u*(1-u),_c_palette(src[i]))
+                if values[i] == 0: continue
+                var vertices = List[Point]()
                 for side in range(2):
                     var start = a if side == 0 else c
                     var end = b if side == 0 else d
-                    for j in range(16):
-                        var u = start+(end-start)*Float32(j)/16
-                        var v = start+(end-start)*Float32(j+1)/16
-                        _c_g(result,data,i,PlotGlyphKind.TRIANGLE,"rim",0.5+0.414*cos(start),0.5-0.414*sin(start),0.5+0.414*cos(u),0.5-0.414*sin(u),_c_palette(src[i]),x3=0.5+0.414*cos(v),y3=0.5-0.414*sin(v))
-            for j in range(count): _c_sector(result,data,representative[j],String("node:",nodes[j]),0.414,0.45,x[j],x[j]+pi*totals[j]/total,_c_palette(j),False,incidents[j])
+                    var target = c if side == 0 else a
+                    for k in range(33):
+                        vertices.append(_chord_point(0.414,start+(end-start)*Float32(k)/32))
+                    var p = _chord_point(0.414,end)
+                    var q = _chord_point(0.414,target)
+                    for k in range(1,24):
+                        var t = Float32(k)/24
+                        vertices.append(Point((1-t)**2*p.x+t*t*q.x+t*(1-t), (1-t)**2*p.y+t*t*q.y+t*(1-t)))
+                _c_g(result,data,i,PlotGlyphKind.POLYGON,"ribbon",vertices[0].x,vertices[0].y,vertices[32].x,vertices[32].y,_c_palette(src[i]),vertices=vertices)
+            for j in range(count):
+                var sweep = pi*totals[j]/total
+                if sweep == 0: continue
+                var steps = max(1,Int(sweep*64/pi)+1)
+                var vertices = List[Point]()
+                for k in range(steps+1):
+                    vertices.append(_chord_point(0.45,x[j]+sweep*Float32(k)/Float32(steps)))
+                for k in range(steps+1):
+                    vertices.append(_chord_point(0.414,x[j]+sweep*Float32(steps-k)/Float32(steps)))
+                _c_g(result,data,representative[j],PlotGlyphKind.POLYGON,String("node:",nodes[j]),vertices[0].x,vertices[0].y,vertices[steps].x,vertices[steps].y,_c_palette(j),False,sources=incidents[j],vertices=vertices)
         else:
             var degree = _c_zeros(count)
             var columns = _c_zeros(count)
@@ -485,7 +495,9 @@ def _c_layout(layer: PlotLayer,data: PlotDataTable,id: Int) raises -> PlotSeries
                 _c_quad(result,data,i,"flow",xs[a]+0.04,1-out[a],xs[a]+0.04,1-out[a]-ah,xs[b],1-inc[b]-bh,xs[b],1-inc[b],_c_palette(src[i]))
                 out[a] += ah
                 inc[b] += bh
-            for j in range(count): _c_g(result,data,representative[j],PlotGlyphKind.RECT,String("node:",nodes[j]),xs[j],1-high[j],xs[j]+0.04,1-low[j],_c_palette(j),False,sources=incidents[j])
+            for j in range(count):
+                result.layout_labels.append(PlotLayoutLabel(nodes[j],xs[j]+0.04,1-(low[j]+high[j])/2,4,4,False))
+                _c_g(result,data,representative[j],PlotGlyphKind.RECT,String("node:",nodes[j]),xs[j],1-high[j],xs[j]+0.04,1-low[j],_c_palette(j),False,sources=incidents[j])
     elif m == PLOT_CORRPLOT or m == PLOT_MARIMEKKO:
         _ = _c_column(data,layer.x_field,False)
         var labels = List[String]()
@@ -583,6 +595,14 @@ def _c_layout(layer: PlotLayer,data: PlotDataTable,id: Int) raises -> PlotSeries
                 year=yy
                 var prev=yy-1
                 offset=(prev+prev//4-prev//100+prev//400+1)%7
+                var weekdays: List[String] = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+                for row in range(7):
+                    result.layout_labels.append(PlotLayoutLabel(weekdays[row],0,6.5-Float32(row),-9,4,True))
+                var months: List[String] = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+                var ordinal = offset
+                for index in range(12):
+                    result.layout_labels.append(PlotLayoutLabel(months[index],Float32(ordinal//7),7,0,-4,False))
+                    ordinal += lengths[index]
                 weeks=((366 if leap else 365)-1+offset)//7+1
             elif year!=yy: raise Error("calendar spans years")
             var ordinal=day-1+offset

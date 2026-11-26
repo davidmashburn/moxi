@@ -371,6 +371,16 @@ class Figure:
                 longest = max(len(str(v)) for v in self.data.column(layer.x))
                 left = max(left, min(self.width / 3, longest * 7 + 8))
             return left, 18., max(1., self.width - left - 18.), max(1., self.height - 70.), 0., 1., 0., 1.
+        from .specialized_c import WaveCMark
+        if len(self.spec.layers) == 1 and self.spec.layers[0].layout_version == LayoutVersion.SPECIALIZED:
+            mark = self.spec.layers[0].mark
+            width, height = max(1., self.width-80.), max(1., self.height-80.)
+            if mark == WaveCMark.CHORD:
+                side = min(width,height)
+                return 48+(width-side)/2, 28+(height-side)/2, side, side, 0., 1., 0., 1.
+            if mark in (WaveCMark.CALENDAR, WaveCMark.SANKEY):
+                reserve = min(16.,height-1) if mark == WaveCMark.CALENDAR else 0.
+                return 48., 28.+reserve, width, height-reserve, 0., 1., 0., 1.
         if any(layer.layout_version == LayoutVersion.SPECIALIZED and layer.mark in WaveBMark._value2member_map_ for layer in self.spec.layers):
             return 48., 28., max(1., self.width-80.), max(1., self.height-64.), 0., 1., 0., 1.
         return 54.0, 18.0, max(1.0, self.width - 72.0), max(1.0, self.height - 48.0), 0.0, 1.0, 0.0, 1.0
@@ -1017,7 +1027,7 @@ class Figure:
             return True
         layer = self.spec.layers[0]
         return layer.layout_version != LayoutVersion.SPECIALIZED or (
-            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, CatalogMark.FUNNEL)
+            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, WaveCMark.CALENDAR, WaveCMark.SANKEY, CatalogMark.FUNNEL)
         )
 
     def to_svg(self) -> bytes:
@@ -1095,6 +1105,10 @@ class Figure:
             if swatch:
                 parts.append(f'<rect x="{x-13}" y="{y}" width="9" height="9" fill="{_svg_color(swatch)}"/>')
             parts.append(f'<text x="{x}" y="{y+9}" font-family="monospace" font-size="11" fill="#24324a">{escape(text)}</text>')
+        if len(self.spec.layers) == 1:
+            from .specialized_c import flow_calendar_labels
+            for text, x, y, align in flow_calendar_labels(self.spec.layers[0], self.data, left, top, plot_width, plot_height):
+                parts.append(f'<text x="{x:g}" y="{y:g}" font-size="12" font-family="DejaVu Sans" text-anchor="{align}">{escape(text)}</text>')
         if self.spec.title:
             parts.append(f'<text x="{self.width/2:g}" y="18" text-anchor="middle" fill="#101828">{escape(self.spec.title)}</text>')
         parts.append("</g></svg>")

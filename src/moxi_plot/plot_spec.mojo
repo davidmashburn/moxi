@@ -1640,6 +1640,8 @@ def plot_from_spec(
                 transform.limit,
             )
     var plot = Plot(bounds)
+    if spec.layer_count() == 1 and spec.layer(0).layout_version.value == PlotLayoutVersion.SPECIALIZED.value:
+        plot.update_plot_area(spec.layer(0).mark)
     plot.set_title(spec.title)
     plot.set_composition(spec.composition)
     if spec.facet_row.count_codepoints() > 0:

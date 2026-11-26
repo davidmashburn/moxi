@@ -10,12 +10,12 @@ overlays.
 from moxi.scene_path import ScenePath
 from .plot_point import PlotGlyphKind
 from moxi.label_font import LABEL_FONT
-from moxi.scene_text import SceneTextStyle
 from std.collections import List
 from std.math import ceil, sqrt
 
 
 from moxi.geometry import Point, Rect
+from moxi.scene_text import SceneTextStyle, TEXT_ALIGN_END, TEXT_ALIGN_START
 from moxi.scene import Scene
 from moxi.scene_path import ScenePath, ScenePathStorage
 from moxi.style import Color
@@ -226,12 +226,12 @@ struct Plot:
     def _touch(mut self):
         self.revision += 1
 
-    def update_plot_area(mut self):
-        var left: Float32 = 48.0
+    def update_plot_area(mut self, initial_kind: Int = -1):
+        var left_margin: Float32 = 48.0
         if len(self.series) == 1 and self.series[0].categories_on_y:
             for label in self.series[0].category_labels:
-                left = max(left, min(self.bounds.width / 3, Float32(label.count_codepoints() * 7 + 8)))
-        var width = self.bounds.width - left - 32.0
+                left_margin = max(left_margin, min(self.bounds.width / 3, Float32(label.count_codepoints() * 7 + 8)))
+        var width = self.bounds.width - left_margin - 32.0
         # Below the data area, ticks and their labels take 22 points. Leave a
         # separate row for the legend, with six points between the text rows.
         var height = self.bounds.height - 28.0 - 52.0
@@ -239,9 +239,22 @@ struct Plot:
             width = 0.0
         if height < 0.0:
             height = 0.0
+        var kind = self.series[0].kind if len(self.series) == 1 and self.series[0].has_layout_domain else initial_kind
+        var left = self.bounds.x + left_margin
+        var top = self.bounds.y + 28.0
+        if kind == PLOT_CHORD:
+            var side = min(width,height)
+            left += (width-side)/2
+            top += (height-side)/2
+            width = side
+            height = side
+        elif kind == PLOT_CALENDAR_HEATMAP:
+            var reserve = min(Float32(16),height)
+            top += reserve
+            height -= reserve
         self.plot_area = Rect(
-            self.bounds.x + left,
-            self.bounds.y + 28.0,
+            left,
+            top,
             width,
             height,
         )
@@ -1412,6 +1425,8 @@ struct Plot:
             or kind == PLOT_POLAR_BAR
             or kind == PLOT_RADIALBAR
             or kind == PLOT_NIGHTINGALE
+            or kind == PLOT_CALENDAR_HEATMAP
+            or kind == PLOT_SANKEY
             or kind == PLOT_CHORD
             or kind == PLOT_SUNBURST
         )
@@ -2169,6 +2184,15 @@ struct Plot:
                             line_command.set_opacity(point_opacity)
                             scene.commands[len(scene.commands) - 1] = line_command
         scene.pop_clip()
+
+        if len(self.series) == 1 and self.series[0].visible:
+            for i in range(len(self.series[0].layout_labels)):
+                var label = self.series[0].layout_labels[i]
+                var anchor = self._screen_point(PlotPoint(label.x,label.y))
+                scene.append_text_styled(
+                    710000+i, label.text, Rect(anchor.x+label.dx,anchor.y+label.dy-12,0,12),
+                    self.axis_color, SceneTextStyle("DejaVu Sans",12,align=TEXT_ALIGN_END if label.align_end else TEXT_ALIGN_START),
+                )
 
         for annotation_index in range(len(self.annotation_ids)):
             var annotation_position = Point(

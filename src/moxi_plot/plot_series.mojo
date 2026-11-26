@@ -9,6 +9,16 @@ from .plot_marks import PLOT_LINE
 from .plot_point import PlotPoint
 
 
+@fieldwise_init
+struct PlotLayoutLabel(ImplicitlyCopyable):
+    var text: String
+    var x: Float32
+    var y: Float32
+    var dx: Float32
+    var dy: Float32
+    var align_end: Bool
+
+
 struct PlotSeries:
     """Stable identity, style, and points for one plotted series."""
 
@@ -24,6 +34,7 @@ struct PlotSeries:
     var categories_on_y: Bool
     var legend_labels: List[String]
     var legend_colors: List[Color]
+    var layout_labels: List[PlotLayoutLabel]
     var visible: Bool
     var has_layout_domain: Bool
     var layout_x_min: Float32
@@ -50,6 +61,7 @@ struct PlotSeries:
         self.categories_on_y = False
         self.legend_labels = List[String]()
         self.legend_colors = List[Color]()
+        self.layout_labels = List[PlotLayoutLabel]()
         self.visible = True
         self.has_layout_domain = False
         self.layout_x_min = 0.0

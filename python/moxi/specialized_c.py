@@ -190,17 +190,26 @@ def layout(layer, data):
             for i,v in enumerate(values):
                 a=cursors[src[i]];b=a+2*pi*v/grand;cursors[src[i]]=b
                 c=cursors[dst[i]];d=c+2*pi*v/grand;cursors[dst[i]]=d
-                # Quadratic boundaries share the circle center as control point.
-                def curve(p,q,t):return ((1-t)**2*p[0]+t*t*q[0]+t*(1-t),(1-t)**2*p[1]+t*t*q[1]+t*(1-t))
-                pa,pb,pc,pd=[polar(.414,t) for t in (a,b,c,d)]
-                for j in range(24):
-                    t=j/24;u=(j+1)/24
-                    quad(i,'ribbon',curve(pa,pd,t),curve(pb,pc,t),curve(pb,pc,u),curve(pa,pd,u),color=PALETTE[src[i]%4])
-                # Rim arcs fill the small circular caps omitted by the quadratic strip.
-                for start,end in ((a,b),(c,d)):
-                    for j in range(16):
-                        tri(i,'rim',polar(.414,start),polar(.414,start+(end-start)*j/16),polar(.414,start+(end-start)*(j+1)/16),color=PALETTE[src[i]%4])
-            for j,a in enumerate(angles):sector(incident[j][0],'node:'+nodes[j],.414,.45,a,a+2*pi*totals[j]/grand,sources=incident[j],interactive=False,color=PALETTE[j%4])
+                if v == 0:
+                    continue
+                vertices = []
+                for start, end, target in ((a, b, c), (c, d, a)):
+                    vertices.extend(polar(.414, start + (end-start)*j/32) for j in range(33))
+                    p, q = polar(.414, end), polar(.414, target)
+                    for j in range(1, 24):
+                        t = j/24
+                        vertices.append(tuple((1-t)**2*x + t*t*y + t*(1-t) for x,y in zip(p,q)))
+                emit(GlyphKind.POLYGON, i, 'ribbon', (*vertices[0], *vertices[32]),
+                     vertices=vertices, color=PALETTE[src[i]%4])
+            for j, start in enumerate(angles):
+                sweep = 2*pi*totals[j]/grand
+                if sweep == 0:
+                    continue
+                steps = max(1, int(sweep*64/pi)+1)
+                arc = [start + sweep*k/steps for k in range(steps+1)]
+                vertices = [polar(.45,t) for t in arc] + [polar(.414,t) for t in reversed(arc)]
+                emit(GlyphKind.POLYGON, incident[j][0], 'node:'+nodes[j], (*vertices[0], *vertices[steps]),
+                     vertices=vertices, sources=incident[j], interactive=False, color=PALETTE[j%4])
         else:
             if any(src[i]==dst[i] for i in range(n)):raise ValueError("Sankey self cycle")
             active=[i for i in range(n) if src[i]!=dst[i]]
@@ -306,3 +315,24 @@ def layout(layer, data):
                         f=(level-z[a])/(z[b]-z[a]);crossings.append((x[a]+f*(x[b]-x[a]),y[a]+f*(y[b]-y[a])))
                 if len(crossings)==2 and crossings[0]!=crossings[1]:seg(t[0],f'triangle:{ti}:level:{level:g}',*crossings,sources=t,color=scalar_color(level,min(z),max(z)),label=scalar_level_label(layer.series_fields[0],level))
     return Layout(glyphs,xd,yd,rows)
+
+
+def flow_calendar_labels(layer, data, left, top, width, height):
+    """Project calendar headers and real flow-node names into the SVG margin."""
+    if not layer.layout_version:
+        return
+    if layer.mark == WaveCMark.CALENDAR:
+        year = date.fromisoformat(data.column(layer.x)[0]).year
+        jan = date(year, 1, 1)
+        offset = (jan.weekday()+1)%7
+        weeks = ((date(year,12,31)-jan).days+offset)//7+1
+        for row, name in enumerate(("Sun","Mon","Tue","Wed","Thu","Fri","Sat")):
+            yield name, left-9, top+(row+.5)*height/7+4, "end"
+        for month, name in enumerate(("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"),1):
+            week = ((date(year,month,1)-jan).days+offset)//7
+            yield name, left+width*week/weeks, top-4, "start"
+    elif layer.mark == WaveCMark.SANKEY:
+        for glyph in layout(layer,data).glyphs:
+            if glyph.part.startswith("node:"):
+                _, low, right, high = glyph.bounds
+                yield glyph.part[5:], left+right*width+4, top+(1-(low+high)/2)*height+4, "start"
