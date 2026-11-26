@@ -30,7 +30,7 @@ links from capture recipes and evidence when local outputs are unavailable. See
 | I13 | Compare subtree executions and inspect frozen frames | [Slideshow](../../examples/execution-debugger/evidence/execution-debugger/index.html) · [Run instructions](../../examples/execution-debugger/README.md) |
 | I15 | Synthetic experiment flight recorder | [Slideshow](../../examples/flight-recorder/evidence/flight-recorder/index.html) · [Run instructions](../../examples/flight-recorder/README.md) |
 | I18 | Linked table, plot and spatial selection | [Slideshow](i18-coordinated-representations/index.html) · [Run instructions](../../examples/coordinated-representations/README.md) |
-| I19 | Inspectable signal cursor and command replay | [Slideshow](i19-inspectable-interactions/index.html) · [Run instructions](../../experiments/inspectable-interactions/README.md) |
+| I19 | Inspectable signal cursor, canvas and spatial command replay | [Signal cursor](i19-inspectable-interactions/index.html) · [Native canvas and spatial walkthrough](../../examples/inspectable-transforms/evidence/i19-transforms/index.html) · [Run instructions](../../examples/inspectable-transforms/README.md) |
 | I20 | Reusable cohort operation | [Slideshow](../../examples/application-operations/i20-application-operations/index.html) · [Run instructions](../../examples/application-operations/README.md) |
 | I21 | Edit an equation and manipulate its linked arm | [Equation and geometry walkthrough](i21-equation-linkage/index.html) · [Run the editor](../../examples/equation-linkage/README.md) |
 | V01 | Edit executable motion and a desired trajectory | [Native slideshow](motion-model/index.html) · [Run instructions](../../examples/motion-model/README.md) |

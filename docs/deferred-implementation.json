@@ -1104,17 +1104,24 @@
       "commits": [
         "f8772df",
         "7838b55",
-        "4f27f70"
+        "4f27f70",
+        "e466090",
+        "0eb2dbe",
+        "16a97e1",
+        "da93a98",
+        "ba2ae22"
       ],
       "verification": [
         "Numeric entry and dragging previewed the same sample in Chrome. Escape canceled a held drag. Commit created one undo entry. The compact copy replayed a recorded move and rejected its second application.",
-        "After a second commit, reload restored the pre-move cursor and history. Replay on the compact copy succeeded once and two undos restored the initial position. Legacy and malformed stored commands were exercised."
+        "After a second commit, reload restored the pre-move cursor and history. Replay on the compact copy succeeded once and two undos restored the initial position. Legacy and malformed stored commands were exercised.",
+        "Two native Moxi consumers share the move command contract. Canvas and projected spatial X edits passed numeric and pointer preview, held Escape, commit and single undo. Replay after resizing or reprojection succeeded once and rejected stale commands. Each native replay captured 16 states and checked 17 mixed-input steps, including re-grabbing a displayed draft and continuing a drag after a keyboard adjustment."
       ],
       "remaining_gates": [
-        "Native canvas integration, participant assessment, assistive technology and additional browser engines remain open."
+        "Physical input, assistive technology, participant assessment, additional hosts and cross-session persistence in the native consumers remain open."
       ],
       "slideshows": [
-        "artifacts/demo-slideshows/i19-inspectable-interactions/index.html"
+        "artifacts/demo-slideshows/i19-inspectable-interactions/index.html",
+        "examples/inspectable-transforms/evidence/i19-transforms/index.html"
       ]
     },
     {

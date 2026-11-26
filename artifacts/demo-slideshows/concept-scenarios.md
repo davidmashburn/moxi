@@ -59,7 +59,7 @@ criterion would change the latter assessment.
 | I16 | Recorded sequence | Explicit insertion and standalone static essay. |
 | I17 | Recorded sequence | Pointer/keyboard equivalence and accessible structure, bounded to software checks. |
 | I18 | Recorded sequence | Linked IDs and exceptional mappings in two domains. |
-| I19 | Partial | Plot cursor sequence exists; named canvas/spatial consumers remain open. |
+| I19 | Bounded experiment complete | Plot cursor, native canvas and projected spatial consumers replay edits after layout changes. |
 | I20 | Partial | The notebook and I10 investigation share the registered collection operation. V13 has separate trusted adapters. |
 | I21 | Recorded sequence | Edit the equation or move the linkage, cancel a draft and undo across both representations. |
 
@@ -469,7 +469,7 @@ selection limitation; unrelated plot selection tests do not expand this claim.
 
 ## I19 — Inspectable interactions
 
-**Status: partial at P and R: recorded plot-cursor sequence, missing named hosts.**
+**The plot cursor, native canvas and spatial examples exercise the bounded transaction contract.**
 Build `python3 experiments/inspectable-interactions/build.py /tmp/signal-cursor`
 and serve it with
 `python3 -m http.server 0 --bind 127.0.0.1 --directory /tmp/signal-cursor`.
@@ -485,11 +485,8 @@ Evidence: [controls and further checks](../../experiments/inspectable-interactio
 [stale capture](i19-inspectable-interactions/09-stale.png),
 [gallery](i19-inspectable-interactions/index.html),
 [manifest](i19-inspectable-interactions/manifest.json).
-Remaining: exercise the same semantic transaction contract on the specified
-native canvas and spatial consumers. The current consumer-local SVG/plot
-session does not establish those adapters. Later held-pointer cancellation,
-reload/history and narrow-layout repairs are described in its README, beyond
-the original ten-frame capture.
+
+In either native example, preview an edit, cancel it with Escape, then commit a second edit and undo once. Resize or change the projection and replay the recorded command. A second replay shows the stale rejection and preserves the model. [Native commands](../../examples/inspectable-transforms/README.md) · [32 captured states](../../examples/inspectable-transforms/evidence/i19-transforms/index.html)
 
 ## I20 — Reusable application operations
 
