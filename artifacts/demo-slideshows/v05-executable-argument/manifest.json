@@ -7,8 +7,8 @@
   "backend": "Chrome 158.0.8127.37 / Moxi Python SVG",
   "scale": 1,
   "fixture": "Synthetic T1 in build.py",
-  "captured_at": "2026-11-26T02:28:54.123525+00:00",
-  "revision": "ec147c516332cd6498d3ffdaf35f90f18c22b445",
+  "captured_at": "2026-11-26T02:50:07.929529+00:00",
+  "revision": "4c0e52f1ee2b7ebe708663d6e640c093d6e7c96a",
   "reproduce": "From examples/executable-argument: PYTHONPATH=../../python python capture.py OUTPUT/v05-executable-argument",
   "slides": [
     {

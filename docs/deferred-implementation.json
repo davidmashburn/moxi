@@ -668,11 +668,22 @@
     {
       "id": "V05",
       "scope": "Executable argument: two assumptions, one quantitative model, explicit limitation and reversal condition.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "ec147c5",
+        "1dc669b",
+        "4c0e52f"
+      ],
+      "verification": [
+        "All 183 demand and dispatch combinations agreed with the fitted synthetic rates. At $120 dispatch the two proposals tie at 30 riders and reverse rank at 29 riders.",
+        "After withdrawing and restoring a premise, the downloaded static essay retained the inserted result and its source on reload. A Chrome regression reproduced horizontal overflow before repair, then verified the chart fits a 390-pixel viewport."
+      ],
+      "remaining_gates": [
+        "Independent reader comprehension, empirical transit validity and assistive technology remain open. Interactive alternatives last for the page session."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/v05-executable-argument/index.html"
+      ]
     },
     {
       "id": "V06",
