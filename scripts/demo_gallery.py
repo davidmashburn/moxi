@@ -9,9 +9,9 @@ import json
 import os
 from pathlib import Path
 import re
-from urllib.parse import unquote, urlsplit
+from urllib.parse import quote, unquote, urlsplit
 
-from demo_slideshows import capture_path, load_manifest, page, read_png, render
+from demo_slideshows import SLIDESHOW_SCRIPT, capture_path, load_manifest, page, read_png, render
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,6 +24,7 @@ class GalleryFormat(str, Enum):
     GEOMETRY = "geometry-comparison"
     SWS4D = "sws4d-native"
     IMAGES = "image-comparison"
+    COMPARISONS = "comparison-sequence"
     EVIDENCE = "evidence-bundle"
     UNKNOWN = "unsupported"
 
@@ -97,7 +98,7 @@ def discover(root):
     custom = [
         ("e01-category-labels", GalleryFormat.IMAGES, "comparison.png", "E01 category labels and legends",
          "docs/plot-specialized-wave-a.md", None, ("comparison.png",)),
-        ("e03-flow-calendar-followup", GalleryFormat.IMAGES, "results.json", "E03 chord, calendar and Sankey labels",
+        ("e03-flow-calendar-followup", GalleryFormat.COMPARISONS, "results.json", "E03 chord, calendar and Sankey labels",
          "artifacts/demo-slideshows/e03-flow-calendar-followup/README.md", None,
          ("chord.png", "calendar_heatmap.png", "sankey.png")),
         ("sws4d-native", GalleryFormat.SWS4D, "native-replay.json", "P08 linked 4D native replay",
@@ -160,6 +161,14 @@ def evidence(entry):
     elif entry.format is GalleryFormat.SWS4D:
         frames = [dict(image=slide["file"], dimensions=slide["pixels"], sha256=slide["sha256"])
                   for slide in data["slides"]]
+    elif entry.format is GalleryFormat.COMPARISONS:
+        frames = []
+        for name in entry.images:
+            family = Path(name).stem
+            if not isinstance(data.get(family), dict):
+                raise ValueError(f"comparison requires recorded {family} measurements")
+            frames.append(dict(image=name, caption=f"{family.replace('_', ' ')} comparison",
+                               measurements=data[family]))
     else:
         frames = [dict(image=name) for name in entry.images]
     if not isinstance(frames, list) or (not frames and entry.format is not GalleryFormat.EVIDENCE):
@@ -228,7 +237,35 @@ def relative_link(root, path, label):
     return f"<a href='{html.escape(url, quote=True)}'>{html.escape(label)}</a>"
 
 
-def build_catalog(root, check_only=False, index_only=False):
+def render_comparisons(entry, data, frames, relative_images=False):
+    """Navigate recorded comparison images without inventing lifecycle phases."""
+    figures, thumbs = [], []
+    for index, frame in enumerate(frames):
+        source = (quote(frame["image"], safe="/") if relative_images else
+                  "data:image/png;base64," + base64.b64encode(
+                      capture_path(entry.directory, frame["image"]).read_bytes()).decode())
+        source, caption = html.escape(source), html.escape(frame["caption"])
+        figures.append(
+            f"<figure data-slide='{index}'{' hidden' if index else ''}>"
+            f"<img class='shot' src='{source}' alt='{caption}'><figcaption>{caption}</figcaption>"
+            "<details><summary>Recorded measurements</summary>"
+            f"<pre>{html.escape(json.dumps(frame['measurements'], indent=2))}</pre></details></figure>")
+        thumbs.append(f"<button data-jump='{index}' aria-label='Comparison {index + 1}: {caption}'>"
+                      f"<img src='{source}' alt=''><br>{caption}</button>")
+    body = (f"<h1>{html.escape(entry.title)}</h1>"
+            "<p>Recorded comparison images; measurements describe the capture, not current behavior.</p>"
+            "<nav aria-label='Comparison slideshow'><button id='prev'>Previous</button>"
+            "<span id='counter' aria-live='polite'></span><button id='next'>Next</button></nav>"
+            + "".join(figures) + "<details open><summary>Comparisons</summary><div class='contact'>"
+            + "".join(thumbs) + "</div></details>"
+            f"<p class='meta'>Captured: {html.escape(str(data.get('captured', 'not recorded')))} · "
+            f"Reference revision: {html.escape(str(data.get('reference_revision', 'not recorded')))}</p>"
+            f"<p>{relative_link(entry.directory, entry.evidence, 'Recorded results')} · "
+            f"{relative_link(entry.directory, entry.documentation, 'Reproduction and limits')}</p>")
+    return page(entry.title, body, SLIDESHOW_SCRIPT)
+
+
+def build_catalog(root, check_only=False, index_only=False, relative_images=False):
     from audit_demo_manifests import COMMITTED_PATHS, audit
 
     root = root.resolve()
@@ -260,7 +297,9 @@ def build_catalog(root, check_only=False, index_only=False):
                     if index_only and root == ROOT / "artifacts/demo-slideshows" and str(deck.relative_to(ROOT)) not in COMMITTED_PATHS:
                         raise ValueError("deck is generated locally; use capture evidence and reproduction")
                     if entry.format is GalleryFormat.STANDARD and not deck.exists() and not index_only:
-                        deck.write_text(render(load_manifest(entry.evidence)))
+                        deck.write_text(render(load_manifest(entry.evidence), relative_images))
+                    elif entry.format is GalleryFormat.COMPARISONS and not deck.exists() and not index_only:
+                        deck.write_text(render_comparisons(entry, data, frames, relative_images))
                     validate_deck(entry, frames)
                     if entry.evidence == deck:
                         links.remove(relative_link(root, deck, "Capture evidence"))

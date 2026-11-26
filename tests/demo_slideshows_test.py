@@ -73,6 +73,68 @@ class SlideshowTest(unittest.TestCase):
         self.assertIn("ArrowRight", output)
         self.assertIn("unit-fixture/index.html", (self.root / "index.html").read_text())
 
+    def test_relative_image_cli_uses_original_files_and_preserves_existing_deck(self):
+        name = "capture ' & #?.png"
+        (self.demo / name).write_bytes(PNG)
+        for slide in self.manifest["slides"]:
+            slide["image"] = name
+        self.load()
+        result = subprocess.run(
+            [sys.executable, str(Path(__file__).parents[1] / "scripts/demo_slideshows.py"),
+             str(self.root), "--relative-images"], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        deck = self.demo / "index.html"
+        output = deck.read_text()
+        self.assertIn("src='capture%20%27%20%26%20%23%3F.png'", output)
+        self.assertNotIn("data:image", output)
+        self.assertIn("ArrowRight", output)
+        entry = catalog.discover(self.root)[0]
+        catalog.validate_deck(entry, self.manifest["slides"])
+        self.assertEqual(slideshows.build(self.root, check_only=True), 1)
+        slideshows.build(self.root)  # The default remains embedded for new decks.
+        self.assertEqual(deck.read_text(), output)
+
+    def test_comparison_sequence_uses_recorded_families_and_keeps_evidence_only_cases(self):
+        root = self.root / "artifacts/demo-slideshows"
+        demo = root / "e03-flow-calendar-followup"
+        demo.mkdir(parents=True)
+        data = {family: {"labels": index + 1} for index, family in
+                enumerate(("chord", "calendar_heatmap", "sankey"))}
+        (demo / "results.json").write_text(json.dumps(data))
+        (demo / "README.md").write_text("Synthetic comparison reproduction")
+        for family in data:
+            (demo / f"{family}.png").write_bytes(PNG)
+        single = root / "e01-category-labels"
+        single.mkdir()
+        (single / "comparison.png").write_bytes(PNG)
+        review = root / "plot-wave-b-c-review"
+        review.mkdir()
+        (review / "review.json").write_text("{}")
+        with patch.object(catalog, "ROOT", self.root.resolve()):
+            entries = catalog.discover(root)
+            entry = next(e for e in entries if e.demo_id == demo.name)
+            self.assertIs(entry.format, catalog.GalleryFormat.COMPARISONS)
+            _, frames = catalog.validate(entry)
+            portable = catalog.render_comparisons(entry, data, frames)
+            self.assertIn("data:image/png;base64,", portable)
+            self.assertEqual(slideshows.build(root, relative_images=True), 3)
+            deck = (demo / "index.html").read_text()
+            self.assertEqual(deck.count("<figure data-slide="), 3)
+            self.assertIn("calendar heatmap comparison", deck)
+            self.assertIn("Recorded measurements", deck)
+            self.assertNotIn("data:image", deck)
+            catalog.validate_deck(entry, frames)
+            self.assertFalse((single / "index.html").exists())
+            self.assertFalse((review / "index.html").exists())
+            self.assertEqual(slideshows.build(root, check_only=True), 3)
+            del data["chord"]
+            (demo / "results.json").write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError, "recorded chord measurements"):
+                catalog.validate(entry)
+            slideshows.build(root, relative_images=True)
+            self.assertNotIn("e03-flow-calendar-followup/index.html", (root / "index.html").read_text())
+            self.assertEqual((demo / "index.html").read_text(), deck)
+
     def test_missing_recovery_cannot_be_called_complete(self):
         self.manifest["slides"].pop()
         with self.assertRaisesRegex(ValueError, "recovery"):

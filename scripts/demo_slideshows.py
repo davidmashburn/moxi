@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Validate real capture manifests and make portable, offline demo slideshows."""
+"""Validate captures and make offline demo slideshows, preserving existing decks.
+
+New decks embed images by default. Use --relative-images to link the original
+image files instead; retain those files beside the HTML when copying a deck.
+"""
 
 import argparse
 import base64
@@ -10,6 +14,7 @@ import json
 from pathlib import Path
 import re
 import struct
+from urllib.parse import quote
 import zlib
 
 
@@ -52,6 +57,18 @@ nav{display:flex;gap:12px;align-items:center;flex-wrap:wrap}figure{margin:20px 0
 flex-wrap:wrap}.contact button{width:150px}.contact img{width:100%;height:85px;object-fit:contain}
 details{margin:20px 0}li{margin:14px 0}[hidden]{display:none!important}
 pre{white-space:pre-wrap;overflow-wrap:anywhere}input{font:inherit;max-width:100%;box-sizing:border-box}
+"""
+SLIDESHOW_SCRIPT = """
+const slides=[...document.querySelectorAll('[data-slide]')];let current=0;
+function show(index){current=(index+slides.length)%slides.length;
+slides.forEach((slide,i)=>slide.hidden=i!==current);
+document.getElementById('counter').textContent=`${current+1} / ${slides.length}`;}
+document.getElementById('prev').onclick=()=>show(current-1);
+document.getElementById('next').onclick=()=>show(current+1);
+document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>show(Number(b.dataset.jump)));
+document.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey)return;
+if(event.key==='ArrowLeft'){event.preventDefault();show(current-1);}
+if(event.key==='ArrowRight'){event.preventDefault();show(current+1);}});show(0);
 """
 
 
@@ -178,20 +195,21 @@ def page(title, body, script=""):
             f"<script>{script}</script></body></html>")
 
 
-def render(manifest):
+def render(manifest, relative_images=False):
     esc = html.escape
     figures, thumbs = [], []
     for index, slide in enumerate(manifest["slides"]):
         caption = esc(slide["caption"])
+        source = esc(quote(slide["image"], safe="/")) if relative_images else slide["data_url"]
         figures.append(
             f"<figure data-slide='{index}'{' hidden' if index else ''}>"
-            f"<img class='shot' src='{slide['data_url']}' alt='{caption}'>"
+            f"<img class='shot' src='{source}' alt='{caption}'>"
             f"<figcaption><strong>{caption}</strong><br>Action: {esc(slide['action'])}"
             f"<br>Expected: {esc(slide['expected'])}</figcaption>"
             f"<p class='meta'>{slide['phase'].value} · {slide['capture_kind'].value} · "
             f"{slide['dimensions'][0]} × {slide['dimensions'][1]} pixels</p></figure>")
         thumbs.append(f"<button data-jump='{index}' aria-label='Slide {index + 1}: {caption}'>"
-                      f"<img src='{slide['data_url']}' alt=''><br>{index + 1}. {caption}</button>")
+                      f"<img src='{source}' alt=''><br>{index + 1}. {caption}</button>")
     metadata = " · ".join(esc(str(manifest[key])) for key in
                           ("demo_id", "revision", "host", "backend", "fixture"))
     body = (f"<h1>{esc(manifest['title'])}</h1><p class='meta'>{metadata}</p>"
@@ -203,24 +221,12 @@ def render(manifest):
             f"<p>{esc(manifest['scenario'])}</p></details>"
             "<p class='meta'>Screenshots show recorded states. They do not establish latency, "
             "scientific accuracy, physical IME, screen-reader behavior, or human usability.</p>")
-    script = """
-const slides=[...document.querySelectorAll('[data-slide]')];let current=0;
-function show(index){current=(index+slides.length)%slides.length;
-slides.forEach((slide,i)=>slide.hidden=i!==current);
-document.getElementById('counter').textContent=`${current+1} / ${slides.length}`;}
-document.getElementById('prev').onclick=()=>show(current-1);
-document.getElementById('next').onclick=()=>show(current+1);
-document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>show(Number(b.dataset.jump)));
-document.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey)return;
-if(event.key==='ArrowLeft'){event.preventDefault();show(current-1);}
-if(event.key==='ArrowRight'){event.preventDefault();show(current+1);}});show(0);
-"""
-    return page(manifest["title"], body, script)
+    return page(manifest["title"], body, SLIDESHOW_SCRIPT)
 
 
-def build(root, check_only=False, index_only=False):
+def build(root, check_only=False, index_only=False, relative_images=False):
     from demo_gallery import build_catalog
-    return build_catalog(root, check_only, index_only)
+    return build_catalog(root, check_only, index_only, relative_images)
 
 
 if __name__ == "__main__":
@@ -228,5 +234,6 @@ if __name__ == "__main__":
     parser.add_argument("root", type=Path, nargs="?", default=Path("artifacts/demo-slideshows"))
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--index-only", action="store_true", help="Refresh the master using delivered decks only; never write individual decks")
+    parser.add_argument("--relative-images", action="store_true", help="Use original image files in newly generated decks instead of embedding them")
     args = parser.parse_args()
-    print(f"Cataloged {build(args.root, args.check, args.index_only)} demo galleries")
+    print(f"Cataloged {build(args.root, args.check, args.index_only, args.relative_images)} demo galleries")
