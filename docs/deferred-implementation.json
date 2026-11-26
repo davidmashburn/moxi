@@ -869,17 +869,21 @@
       "state": "partial",
       "commits": [
         "03360a1",
-        "5768f2b"
+        "5768f2b",
+        "900cd4f",
+        "f40e76f"
       ],
       "verification": [
         "Chrome exercised pointer and keyboard performance, curve previews, separate score and mapping saves, reload and recovery from unsupported configurations. A failed write preserved the active mapping and score.",
-        "Independent probes verified 42 input equivalence pairs, all 303 tested curve readings and recovery from eight malformed mapping and ten malformed score fixtures."
+        "Independent probes verified 42 input equivalence pairs, all 303 tested curve readings and recovery from eight malformed mapping and ten malformed score fixtures.",
+        "Chrome exercised user-edited mode transitions and equivalent pointer and keyboard performances. After a failed startup rebuild, copying the saved configuration, loading it, saving and reloading restored the two-mode graph and preserved the score. A denied read preserved the editor draft. All 10 graph scenarios and the original performance replay passed."
       ],
       "remaining_gates": [
-        "Editable mode transitions, extraction of a supported control, failed calculation rebuild retention, independent authorship and repeat use, physical accessibility and audible playback quality remain open."
+        "Independent authorship and repeat use, physical input comfort, assistive technology, audibility and other devices remain open. Extracted controls and replaceable calculations cover the two operations in this consumer."
       ],
       "slideshows": [
-        "examples/personal-instrument/evidence/personal-instrument/index.html"
+        "examples/personal-instrument/evidence/personal-instrument/index.html",
+        "examples/personal-instrument/evidence/mode-graph/verification.md"
       ]
     },
     {

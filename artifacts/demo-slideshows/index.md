@@ -26,8 +26,8 @@
 | V09 | Timed exhibition sightlines and lighting | [Slideshow](lived-spaces/index.html) · [Recorded performance](../lived-spaces/i07/README.md) · [Run instructions](../../examples/lived-spaces/README.md) |
 | V10 | Compare three fictional allocations | [Slideshow](allocation/index.html) · [Run instructions](../../examples/allocation/README.md) |
 | V11 | Inspect a flat and folded accordion | [Slideshow](v11-foldable-motif/index.html) · [Run instructions](../../examples/foldable-motif/README.md) |
-| V12 | Configure a musical phrase instrument | [Slideshow](../../examples/personal-instrument/evidence/personal-instrument/index.html) · [Run instructions](../../examples/personal-instrument/README.md) |
+| V12 | Configure a musical phrase instrument | [Slideshow](../../examples/personal-instrument/evidence/personal-instrument/index.html) · [Mode graph and recovery](../../examples/personal-instrument/evidence/mode-graph/verification.md) · [Run instructions](../../examples/personal-instrument/README.md) |
 | V13 | Patch, inspect and record a signal | [Slideshow](../../examples/visual-instrument/evidence/v13-visual-instrument/index.html) · [Run instructions](../../examples/visual-instrument/README.md) |
 | V15 | Calibrate direct and interpolated pose controls | [Slideshow](v15-pose-stroke/index.html) · [Run instructions](../../examples/pose-stroke/README.md) |
 
-The P08, P11, E05, E06, I11, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The P08, P09, P11, E05, E06, I11, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
