@@ -1,0 +1,19 @@
+PASS 1180 flat-pitch pointer / numeric parity
+PASS 1180 folded-pitch pointer / numeric parity
+PASS 1180 folded-tilt pointer / numeric parity
+PASS 1180 flat / folded pitch at a steep fold
+PASS 1180 keyboard access, steps and limits
+PASS 1180 in-flight cancel and pointer bounds
+PASS 1180 invalid drafts and direct-entry rejection
+PASS 1180 per-view centroid picking at bounds
+PASS 1180 measurement drafts and interleaved undo
+PASS 390 flat-pitch pointer / numeric parity
+PASS 390 folded-pitch pointer / numeric parity
+PASS 390 folded-tilt pointer / numeric parity
+PASS 390 flat / folded pitch at a steep fold
+PASS 390 keyboard access, steps and limits
+PASS 390 in-flight cancel and pointer bounds
+PASS 390 invalid drafts and direct-entry rejection
+PASS 390 per-view centroid picking at bounds
+PASS 390 measurement drafts and interleaved undo
+PASS original offline deck; 20 scenarios, no page errors.

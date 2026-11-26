@@ -1,0 +1,378 @@
+{
+  "captured_at": "2026-11-26T04:32:34.105Z",
+  "browser": "158.0.8127.37",
+  "host": {
+    "platform": "darwin",
+    "release": "27.2.0",
+    "arch": "arm64"
+  },
+  "source_revision": "f8e9aa5e8c1264de28cdbe89180c9f8300808192",
+  "source_sha256": {
+    "examples/foldable-motif/editor.html": "ee18dd44fe859273c07cef6b2029315815bedcd07ba0c9b0941bf825d50fcb80",
+    "examples/foldable-motif/project.cpp": "1b07d515e82f301091ce72538c9dfff5b66e526c27e2f15617d3aad3338da810",
+    "examples/foldable-motif/build.sh": "7e1ab636d7988f76e9c64ce3d988879da7735d218e0df9256f49b385d7a2095a",
+    "examples/foldable-motif/check.cjs": "cb4ce39f20befebe45a074882b79ee5db5f756dd30c8ae841348ebda2589d8fc",
+    "examples/foldable-motif/editing-check.cjs": "95d4eb97a75d8a838f74f41835ddb60de8b7473a148ca5fcfed6541092a7a46a",
+    "native/spatial/core.cpp": "c16a269dedf3488ea773487774a7073f48d9410177f198fb8fab22434498af87",
+    "native/spatial/core.hpp": "0bf93e5407a07fdf20e9d0d02cf6128308f3037402d270369b836f5aa17b7053"
+  },
+  "built_html_sha256": "b47eb1e0ac74519125666d63ae25683e0a9c75ae5ca6f815e729964e3c0cb6a9",
+  "original_evidence_sha256": {
+    "01-start.png": "3a3d2dcf49ed5c81c1b52f6d7a74fb63d3dcad71bd3e0834930274d662163a9a",
+    "02-preview.png": "1b8f471cbf3716359ed4e440fdb4ce99ae7502512af1729486988c00b1e6c0e8",
+    "03-edit.png": "6f93b0f1a29aef9b62556dc7e1c4a3890df2614d106126d7f607519b9b5b8518",
+    "04-rejection.png": "c7996b2aa3115eb22f1a52be95be5acc6d180ec66cb819b30e7bd13aed27c79a",
+    "05-undo.png": "dab4daa1f326f07df11ade7e19bec67657e206af47b03e9791e8ee55a3d66179",
+    "06-measure.png": "9c8b28de61ecfbc578ea314493168c69db72ce0519fbf6103cbb9efe8f65031f",
+    "index.html": "c3eb08dc9d61dee3e177d7545aa2c29eaa4e73463ed85610ee21a31a863ac702",
+    "manifest.json": "a282f3bed3f813b51bfc2fa4de1403c36b86b7fe6dda080dcedd7fd132801b2b"
+  },
+  "backend": "Offline Chrome, Moxi orthographic samples, SVG",
+  "scale": 1,
+  "fixture": "Six rigid panels; 20 mm pitch, 40 mm depth, 30 degree tilt",
+  "scenarios": [
+    {
+      "name": "flat-pitch pointer / numeric parity",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Drag the visible circle to 24.5 mm / 30 degrees; apply; undo; enter the same numbers; undo.",
+      "expected": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "observed": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "result": "pass"
+    },
+    {
+      "name": "folded-pitch pointer / numeric parity",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Drag the visible circle to 24.5 mm / 30 degrees; apply; undo; enter the same numbers; undo.",
+      "expected": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "observed": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "result": "pass"
+    },
+    {
+      "name": "folded-tilt pointer / numeric parity",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Drag the visible circle to 20 mm / 60 degrees; apply; undo; enter the same numbers; undo.",
+      "expected": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "observed": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "result": "pass"
+    },
+    {
+      "name": "flat / folded pitch at a steep fold",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Set 10 mm / 75 degrees. Drag flat pitch to 24.5 mm, apply and undo; repeat from the folded pitch circle.",
+      "expected": "The same pitch edit produces exactly the same linked patch in both representations, even at the tightest fold and while narrow readouts wrap.",
+      "observed": "The same pitch edit produces exactly the same linked patch in both representations, even at the tightest fold and while narrow readouts wrap.",
+      "result": "pass"
+    },
+    {
+      "name": "keyboard access, steps and limits",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Tab from the page through all three circles. Use arrows, Home/End and Enter; undo or Escape.",
+      "expected": "All circles are reachable; pitch steps 0.1 mm and tilt steps 1 degree; endpoints match numeric entry; focus survives redraw.",
+      "observed": "All circles are reachable; pitch steps 0.1 mm and tilt steps 1 degree; endpoints match numeric entry; focus survives redraw.",
+      "result": "pass"
+    },
+    {
+      "name": "in-flight cancel and pointer bounds",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Drag each circle, press Escape before releasing, move again and release; repeat with Cancel edit. Drag far beyond both limits.",
+      "expected": "Cancellation restores all linked values without history and later pointer movement cannot revive the draft; pointer bounds match Home/End.",
+      "observed": "Cancellation restores all linked values without history and later pointer movement cannot revive the draft; pointer bounds match Home/End.",
+      "result": "pass"
+    },
+    {
+      "name": "invalid drafts and direct-entry rejection",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Submit blank, out-of-range and fractional values. Try a geometry drag and handle arrow with an invalid other parameter, then Escape.",
+      "expected": "Rejections preserve the last valid geometry, draft inputs and undo history; Escape restores the committed inputs.",
+      "observed": "Rejections preserve the last valid geometry, draft inputs and undo history; Escape restores the committed inputs.",
+      "result": "pass"
+    },
+    {
+      "name": "per-view centroid picking at bounds",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "For 10/30 mm and 0/75 degrees, click the actual centroid of every panel in each view; traverse the panel control with arrows.",
+      "expected": "All 48 face clicks select the intended shared panel; handles and selected outlines do not steal a neighbor.",
+      "observed": "All 48 face clicks select the intended shared panel; handles and selected outlines do not steal a neighbor.",
+      "result": "pass"
+    },
+    {
+      "name": "measurement drafts and interleaved undo",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Attach/undo the measurement during numeric and both direct previews; cancel. Interleave a measurement with two view edits and undo in order.",
+      "expected": "Measurement attachment preserves drafts; geometry edits share one history and leave selection and measurement state intact.",
+      "observed": "Measurement attachment preserves drafts; geometry edits share one history and leave selection and measurement state intact.",
+      "result": "pass"
+    },
+    {
+      "name": "flat-pitch pointer / numeric parity",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Drag the visible circle to 24.5 mm / 30 degrees; apply; undo; enter the same numbers; undo.",
+      "expected": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "observed": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "result": "pass"
+    },
+    {
+      "name": "folded-pitch pointer / numeric parity",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Drag the visible circle to 24.5 mm / 30 degrees; apply; undo; enter the same numbers; undo.",
+      "expected": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "observed": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "result": "pass"
+    },
+    {
+      "name": "folded-tilt pointer / numeric parity",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Drag the visible circle to 20 mm / 60 degrees; apply; undo; enter the same numbers; undo.",
+      "expected": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "observed": "Preview updates both views and controls; applied geometry equals numeric geometry; each edit undoes once.",
+      "result": "pass"
+    },
+    {
+      "name": "flat / folded pitch at a steep fold",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Set 10 mm / 75 degrees. Drag flat pitch to 24.5 mm, apply and undo; repeat from the folded pitch circle.",
+      "expected": "The same pitch edit produces exactly the same linked patch in both representations, even at the tightest fold and while narrow readouts wrap.",
+      "observed": "The same pitch edit produces exactly the same linked patch in both representations, even at the tightest fold and while narrow readouts wrap.",
+      "result": "pass"
+    },
+    {
+      "name": "keyboard access, steps and limits",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Tab from the page through all three circles. Use arrows, Home/End and Enter; undo or Escape.",
+      "expected": "All circles are reachable; pitch steps 0.1 mm and tilt steps 1 degree; endpoints match numeric entry; focus survives redraw.",
+      "observed": "All circles are reachable; pitch steps 0.1 mm and tilt steps 1 degree; endpoints match numeric entry; focus survives redraw.",
+      "result": "pass"
+    },
+    {
+      "name": "in-flight cancel and pointer bounds",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Drag each circle, press Escape before releasing, move again and release; repeat with Cancel edit. Drag far beyond both limits.",
+      "expected": "Cancellation restores all linked values without history and later pointer movement cannot revive the draft; pointer bounds match Home/End.",
+      "observed": "Cancellation restores all linked values without history and later pointer movement cannot revive the draft; pointer bounds match Home/End.",
+      "result": "pass"
+    },
+    {
+      "name": "invalid drafts and direct-entry rejection",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Submit blank, out-of-range and fractional values. Try a geometry drag and handle arrow with an invalid other parameter, then Escape.",
+      "expected": "Rejections preserve the last valid geometry, draft inputs and undo history; Escape restores the committed inputs.",
+      "observed": "Rejections preserve the last valid geometry, draft inputs and undo history; Escape restores the committed inputs.",
+      "result": "pass"
+    },
+    {
+      "name": "per-view centroid picking at bounds",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "For 10/30 mm and 0/75 degrees, click the actual centroid of every panel in each view; traverse the panel control with arrows.",
+      "expected": "All 48 face clicks select the intended shared panel; handles and selected outlines do not steal a neighbor.",
+      "observed": "All 48 face clicks select the intended shared panel; handles and selected outlines do not steal a neighbor.",
+      "result": "pass"
+    },
+    {
+      "name": "measurement drafts and interleaved undo",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Attach/undo the measurement during numeric and both direct previews; cancel. Interleave a measurement with two view edits and undo in order.",
+      "expected": "Measurement attachment preserves drafts; geometry edits share one history and leave selection and measurement state intact.",
+      "observed": "Measurement attachment preserves drafts; geometry edits share one history and leave selection and measurement state intact.",
+      "result": "pass"
+    },
+    {
+      "name": "original offline deck",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Decode all embedded images; Next, ArrowRight, Previous and thumbnail jump.",
+      "expected": "Six original slides decode and navigation updates the visible slide.",
+      "observed": "Six original slides decode and navigation updates the visible slide.",
+      "result": "pass"
+    },
+    {
+      "name": "original offline deck",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Decode all embedded images; Next, ArrowRight, Previous and thumbnail jump.",
+      "expected": "Six original slides decode and navigation updates the visible slide.",
+      "observed": "Six original slides decode and navigation updates the visible slide.",
+      "result": "pass"
+    }
+  ],
+  "screenshots": [
+    {
+      "image": "1180-flat-pitch-preview.png",
+      "action": "Drag flat-pitch to 24.5 mm / 30 degrees.",
+      "expected": "Both views preview the shared parameters; the focused circle remains usable.",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "1180-folded-pitch-preview.png",
+      "action": "Drag folded-pitch to 24.5 mm / 30 degrees.",
+      "expected": "Both views preview the shared parameters; the focused circle remains usable.",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "1180-folded-tilt-preview.png",
+      "action": "Drag folded-tilt to 20 mm / 60 degrees.",
+      "expected": "Both views preview the shared parameters; the focused circle remains usable.",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "1180-cancelled.png",
+      "action": "Cancel a geometry drag, then move the released pointer.",
+      "expected": "Starting geometry and numeric values restored; no Undo entry.",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "1180-invalid.png",
+      "action": "Try direct tilt with an invalid pitch draft.",
+      "expected": "Invalid input remains visible; last valid 24.5 mm / 60 degree geometry remains.",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "1180-picking.png",
+      "action": "Click every face centroid at the pitch and tilt limits; select panel 5 with ArrowUp.",
+      "expected": "Panel 5 is selected in both views at 30 mm / 75 degrees.",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "1180-linked-measurement.png",
+      "action": "Measure crease 3, drag flat pitch to 24.5 mm, then folded tilt to 60 degrees; apply each.",
+      "expected": "Both views, 147 mm sheet, 73.5 mm span, 21.2 mm rise and the trace follow the shared patch.",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "390-folded-tilt-preview.png",
+      "action": "Drag folded-tilt to 20 mm / 60 degrees.",
+      "expected": "Both views preview the shared parameters; the focused circle remains usable.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "390-cancelled.png",
+      "action": "Cancel a geometry drag, then move the released pointer.",
+      "expected": "Starting geometry and numeric values restored; no Undo entry.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "390-invalid.png",
+      "action": "Try direct tilt with an invalid pitch draft.",
+      "expected": "Invalid input remains visible; last valid 24.5 mm / 60 degree geometry remains.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "390-picking.png",
+      "action": "Click every face centroid at the pitch and tilt limits; select panel 5 with ArrowUp.",
+      "expected": "Panel 5 is selected in both views at 30 mm / 75 degrees.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "capture_kind": "offline headless browser"
+    },
+    {
+      "image": "390-linked-measurement.png",
+      "action": "Measure crease 3, drag flat pitch to 24.5 mm, then folded tilt to 60 degrees; apply each.",
+      "expected": "Both views, 147 mm sheet, 73.5 mm span, 21.2 mm rise and the trace follow the shared patch.",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "capture_kind": "offline headless browser"
+    }
+  ],
+  "errors": []
+}
