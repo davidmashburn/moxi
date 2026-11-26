@@ -69,6 +69,9 @@ def run(output):
         page.locator(".canvas a").last.click()
         expect(page.locator(".status")).to_contain_text("T-68 (visible)")
         assert page.goto(origin + "?domain=transit&selected=S-14").status == 400
+        for suffix in ("filtered=1", "selected=", "grouped=2"):
+            response = page.goto(origin + "?selected=S-14&filtered=1&delete=1&" + suffix)
+            assert response.status == 400
         assert not errors, errors
         browser.close()
         server.shutdown()

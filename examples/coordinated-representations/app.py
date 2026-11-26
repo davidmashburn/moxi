@@ -84,7 +84,12 @@ def render(view, message=""):
 
 
 def snapshot(query):
-    params = parse_qs(query)
+    params = parse_qs(query, keep_blank_values=True)
+    for field in ("filtered", "grouped", "delete"):
+        if field in params and params[field] not in (["0"], ["1"]):
+            raise ValueError(f"Invalid {field} flag.")
+    if len(params.get("domain", [])) > 1:
+        raise ValueError("Choose one collection.")
     view = View(Domain(params.get("domain", [Domain.SPECIMEN.value])[0]),
                 tuple(params.get("selected", [])), tuple(params.get("deleted", [])),
                 params.get("filtered") == ["1"], params.get("grouped") == ["1"])
@@ -105,7 +110,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             status, body = snapshot(parts.query)
         except ValueError:
-            self.send_error(400, "Unknown collection or invalid source reference")
+            self.send_error(400, "Invalid collection snapshot")
             return
         self.send_response(status)
         if status == 303:

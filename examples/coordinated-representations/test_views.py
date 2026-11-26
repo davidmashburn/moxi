@@ -39,6 +39,16 @@ class CoordinationTests(unittest.TestCase):
         self.assertEqual(view.delete().selected, view.selected)
         self.assertEqual(view.delete().visible()[0], second)
 
+    def test_malformed_snapshot_cannot_delete_a_hidden_row(self):
+        query = "selected=S-14&filtered=1&delete=1"
+        status, page = snapshot(query)
+        self.assertEqual(status, 200)
+        self.assertIn("Choose one visible source to delete.", page)
+        for field in ("filtered=1", "grouped=2", "selected=", "deleted=",
+                      "domain=specimen&domain=specimen", "delete=1", "grouped="):
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                snapshot(query + "&" + field)
+
     def test_fixture_aggregation_and_domain_boundary(self):
         transit = View(Domain.TRANSIT, grouped=True)
         mean_stop = transit.marks()[0]
