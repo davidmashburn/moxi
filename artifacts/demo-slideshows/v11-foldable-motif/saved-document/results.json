@@ -1,0 +1,1197 @@
+{
+  "captured_at": "2026-11-26T04:52:12.432Z",
+  "base_revision": "ae1663fe323b6955a6a5d96aae8cad00420b68d2",
+  "source_revision": "b1cd61f26a532891753a29b5b3451eda89f8ea53",
+  "source_status": "",
+  "source_sha256": {
+    "examples/foldable-motif/editor.html": "55c990664593f101afa519f6703ad41a27f82960ae8f8b28ade744af24d2541a",
+    "examples/foldable-motif/build.sh": "7e1ab636d7988f76e9c64ce3d988879da7735d218e0df9256f49b385d7a2095a",
+    "examples/foldable-motif/project.cpp": "1b07d515e82f301091ce72538c9dfff5b66e526c27e2f15617d3aad3338da810",
+    "examples/foldable-motif/document-check.cjs": "ec630c98e0b1c3f87e481961cb0050d81abeeb2bbdbec9ed44d71ce8f5d96821",
+    "examples/foldable-motif/check.cjs": "5cf408d9394cce81b82c7ff4b13e48b6b1a01f233b88c06b1e04b4153958a2c6",
+    "examples/foldable-motif/editing-check.cjs": "68a5c5fe805fe1f314ce715df2e240a206f1bd1f9fe21def9d10f20d6d5024e6",
+    "native/spatial/core.cpp": "c16a269dedf3488ea773487774a7073f48d9410177f198fb8fab22434498af87",
+    "native/spatial/core.hpp": "0bf93e5407a07fdf20e9d0d02cf6128308f3037402d270369b836f5aa17b7053"
+  },
+  "built_html_sha256": "2ac85ab14ba311474ff854ed6a5d6fec185dfdee0980754c943c2c031cb9f1ed",
+  "historical_evidence_files": 29,
+  "historical_evidence_tree_sha256": "8e40608773bb88ee88fdf2dfdbd911c97df56705a9289cc4ceee3976ef4e0fd0",
+  "host": {
+    "platform": "darwin",
+    "release": "27.2.0",
+    "arch": "arm64"
+  },
+  "backend": "Offline file URL, headless Google Chrome, SVG",
+  "fixture": "Six rigid panels, fixed 40 mm depth; synthetic data only",
+  "device_scale_factor": 1,
+  "fresh_browser_method": "Close the exporting Chrome process before launching importing Chrome; no shared context or storage",
+  "read_failure_method": "Test-only Blob.text fault for unreadable.json; all imports use the visible button and file chooser",
+  "scenarios": [
+    {
+      "name": "committed-only export with pending preview",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Apply 24.5 mm / 60 degrees, select panel 5, measure crease 3; draft 27.1 / 22 and preview one tilt step; export via Enter.",
+      "expected": "Downloaded v1 JSON contains committed 24.5 / 60, panel 5 and measurement; pending preview and undo history are untouched.",
+      "result": "pass",
+      "observed": "Downloaded v1 JSON contains committed 24.5 / 60, panel 5 and measurement; pending preview and undo history are untouched."
+    },
+    {
+      "name": "fresh browser import and reload/reimport",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Close exporting Chrome; launch new offline Chrome. Import the actual download through the button/file chooser; edit pitch from flat and tilt from folded using handle keys, then undo; undo import; reload/reimport.",
+      "expected": "Both views, selection, exact values, comparison, measurement and trace match export. Imported work remains editable with shared undo; import is one undo step and works after reload.",
+      "result": "pass",
+      "observed": "Both views, selection, exact values, comparison, measurement and trace match export. Imported work remains editable with shared undo; import is one undo step and works after reload."
+    },
+    {
+      "name": "atomic import, draft clearing and linked undo",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Reload; commit 18.2 / 12, select panel 2; preview 21.3 / 10; import saved document; undo import, then undo earlier edit.",
+      "expected": "Import clears the preview. Undo restores previous committed geometry, panel 2 and detached measurement; next undo reaches baseline, with no phantom draft step.",
+      "result": "pass",
+      "observed": "Import clears the preview. Undo restores previous committed geometry, panel 2 and detached measurement; next undo reaches baseline, with no phantom draft step."
+    },
+    {
+      "name": "invalid documents, picker cancellation, read failure and recovery",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Commit 18.2 / 12, select panel 2, measure; retain an invalid numeric draft while trying malformed, foreign, incomplete, oversized and out-of-range documents plus a synthetic read failure. Repeat under a preview, correct the same file and import it.",
+      "expected": "All rejected imports preserve both views, controls, measurement, selection, pending edits and history. Cancellation is inert; same-file retry succeeds; undo order remains intact.",
+      "result": "pass",
+      "invalid_cases": [
+        {
+          "name": "malformed",
+          "status": "Import rejected. Invalid JSON. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "empty",
+          "status": "Import rejected. Invalid JSON. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "null",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "array",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "primitive",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "missing field",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "extra field",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "foreign format",
+          "status": "Import rejected. Expected a moxi-accordion document, version 1. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "future version",
+          "status": "Import rejected. Expected a moxi-accordion document, version 1. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string version",
+          "status": "Import rejected. Expected a moxi-accordion document, version 1. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "low pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "high pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "pitch precision",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "null pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "boolean pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "infinite pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "low tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "high tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "fraction tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "null tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "low panel",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "high panel",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "fraction panel",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string panel",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string measurement",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "numeric measurement",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "null measurement",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "oversized",
+          "status": "Import rejected. Document exceeds the 16 KiB limit. Your work is unchanged.",
+          "result": "pass"
+        }
+      ],
+      "observed": "All rejected imports preserve both views, controls, measurement, selection, pending edits and history. Cancellation is inert; same-file retry succeeds; undo order remains intact."
+    },
+    {
+      "name": "boundary documents and measurement false",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Import and re-export pitch/tilt endpoints, both measurement states and panels 1/6 using version 1 JSON.",
+      "expected": "Supported bounds and tenths round-trip without coercion; measured and unmeasured documents update linked views and undo cleanly.",
+      "result": "pass",
+      "observed": "Supported bounds and tenths round-trip without coercion; measured and unmeasured documents update linked views and undo cleanly."
+    },
+    {
+      "name": "committed-only export with pending preview",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Apply 24.5 mm / 60 degrees, select panel 5, measure crease 3; draft 27.1 / 22 and preview one tilt step; export via Enter.",
+      "expected": "Downloaded v1 JSON contains committed 24.5 / 60, panel 5 and measurement; pending preview and undo history are untouched.",
+      "result": "pass",
+      "observed": "Downloaded v1 JSON contains committed 24.5 / 60, panel 5 and measurement; pending preview and undo history are untouched."
+    },
+    {
+      "name": "fresh browser import and reload/reimport",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Close exporting Chrome; launch new offline Chrome. Import the actual download through the button/file chooser; edit pitch from flat and tilt from folded using handle keys, then undo; undo import; reload/reimport.",
+      "expected": "Both views, selection, exact values, comparison, measurement and trace match export. Imported work remains editable with shared undo; import is one undo step and works after reload.",
+      "result": "pass",
+      "observed": "Both views, selection, exact values, comparison, measurement and trace match export. Imported work remains editable with shared undo; import is one undo step and works after reload."
+    },
+    {
+      "name": "atomic import, draft clearing and linked undo",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Reload; commit 18.2 / 12, select panel 2; preview 21.3 / 10; import saved document; undo import, then undo earlier edit.",
+      "expected": "Import clears the preview. Undo restores previous committed geometry, panel 2 and detached measurement; next undo reaches baseline, with no phantom draft step.",
+      "result": "pass",
+      "observed": "Import clears the preview. Undo restores previous committed geometry, panel 2 and detached measurement; next undo reaches baseline, with no phantom draft step."
+    },
+    {
+      "name": "invalid documents, picker cancellation, read failure and recovery",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Commit 18.2 / 12, select panel 2, measure; retain an invalid numeric draft while trying malformed, foreign, incomplete, oversized and out-of-range documents plus a synthetic read failure. Repeat under a preview, correct the same file and import it.",
+      "expected": "All rejected imports preserve both views, controls, measurement, selection, pending edits and history. Cancellation is inert; same-file retry succeeds; undo order remains intact.",
+      "result": "pass",
+      "invalid_cases": [
+        {
+          "name": "malformed",
+          "status": "Import rejected. Invalid JSON. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "empty",
+          "status": "Import rejected. Invalid JSON. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "null",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "array",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "primitive",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "missing field",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "extra field",
+          "status": "Import rejected. Expected a complete accordion document with no extra fields. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "foreign format",
+          "status": "Import rejected. Expected a moxi-accordion document, version 1. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "future version",
+          "status": "Import rejected. Expected a moxi-accordion document, version 1. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string version",
+          "status": "Import rejected. Expected a moxi-accordion document, version 1. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "low pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "high pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "pitch precision",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "null pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "boolean pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "infinite pitch",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "low tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "high tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "fraction tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "null tilt",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "low panel",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "high panel",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "fraction panel",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string panel",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "string measurement",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "numeric measurement",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "null measurement",
+          "status": "Import rejected. Use pitch 10–30 mm in tenths, whole tilt 0–75°, panel 1–6 and a boolean measurement. Your work is unchanged.",
+          "result": "pass"
+        },
+        {
+          "name": "oversized",
+          "status": "Import rejected. Document exceeds the 16 KiB limit. Your work is unchanged.",
+          "result": "pass"
+        }
+      ],
+      "observed": "All rejected imports preserve both views, controls, measurement, selection, pending edits and history. Cancellation is inert; same-file retry succeeds; undo order remains intact."
+    },
+    {
+      "name": "boundary documents and measurement false",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Import and re-export pitch/tilt endpoints, both measurement states and panels 1/6 using version 1 JSON.",
+      "expected": "Supported bounds and tenths round-trip without coercion; measured and unmeasured documents update linked views and undo cleanly.",
+      "result": "pass",
+      "observed": "Supported bounds and tenths round-trip without coercion; measured and unmeasured documents update linked views and undo cleanly."
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "1180-export-preview.png",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Export while a 27.1 mm / 23 degree preview is pending.",
+      "expected": "Preview remains; downloaded file holds the committed 24.5 mm / 60 degree configuration.",
+      "observed": {
+        "faces": [
+          [
+            {
+              "panel": 6,
+              "points": "385.5,50 453.25,50 453.25,150 385.5,150",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "317.75,50 385.5,50 385.5,150 317.75,150",
+              "active": true
+            },
+            {
+              "panel": 4,
+              "points": "250,50 317.75,50 317.75,150 250,150",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "182.25,50 250,50 250,150 182.25,150",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "114.5,50 182.25,50 182.25,150 114.5,150",
+              "active": false
+            },
+            {
+              "panel": 1,
+              "points": "46.75,50 114.5,50 114.5,150 46.75,150",
+              "active": false
+            }
+          ],
+          [
+            {
+              "panel": 6,
+              "points": "353.963742897505,33.226836753834995 410.287954399893,40.6465911123516 427.65731461389305,109.6769355542516 371.333103111505,102.257181195735",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "297.639531395388,57.2054155568415 353.963742897505,33.226836753834995 371.333103111505,102.257181195735 315.008891609388,126.2357599987415",
+              "active": true
+            },
+            {
+              "panel": 4,
+              "points": "241.315319893,49.785661198352 297.639531395388,57.2054155568415 315.008891609388,126.2357599987415 258.684680107,118.816005640252",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "184.991108390612,73.7642400013585 241.315319893,49.785661198352 258.684680107,118.816005640252 202.360468604612,142.7945844432585",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "128.666896888495,66.34448564284732 184.991108390612,73.7642400013585 202.360468604612,142.7945844432585 146.03625710249503,135.37483008474732",
+              "active": false
+            },
+            {
+              "panel": 1,
+              "points": "72.34268538610701,90.3230644458484 128.666896888495,66.34448564284732 146.03625710249503,135.37483008474732 89.71204560010702,159.3534088877484",
+              "active": false
+            }
+          ]
+        ],
+        "selected": "5",
+        "inputs": [
+          "27.1",
+          "23",
+          "23"
+        ],
+        "comparison": "Starting patch\t20 mm\t30°\t103.9 mm\t10.0 mm\nPreview\t27.1 mm\t23°\t149.7 mm\t10.6 mm",
+        "sheet": "Sheet 162.6 × 40 mm · M mountain / V valley",
+        "adjacency": "Panel 5 · adjacent to 4 and 6 · hinge opening 134°",
+        "note": "Crease 3 · 10.6 mm high",
+        "trace": "258.684680107,134.515172221 258.684680107,133.81395285065406 258.684680107,133.11294707852173 258.684680107,132.41236843774948 258.684680107,131.7124303313821 258.684680107,131.0133459673363 258.684680107,130.3153282935178 258.684680107,129.6185899328139 258.684680107,128.9233431185223 258.684680107,128.2297996295279 258.684680107,127.5381707259403 258.684680107,126.8486670845687 258.684680107,126.1614987349659 258.684680107,125.4768749952013 258.684680107,124.7950044083385 258.684680107,124.1160946787503 258.684680107,123.4403526088944 258.684680107,122.7679840364143 258.684680107,122.0991937712402 258.684680107,121.4341855333674 258.684680107,120.7731618907702 258.684680107,120.11632419764099 258.684680107,119.4638725330901 258.684680107,118.816005640252 258.684680107,118.1729208656085 258.684680107,117.5348140990706 258.684680107,116.9018797140875 258.684680107,116.27431050862279 258.684680107,115.6522976463475 258.684680107,115.0360305984021 258.684680107,114.4256970857007 258.684680107,113.8214830217229 258.684680107,113.223572455929 258.684680107,112.6321475176901 258.684680107,112.04738836076021 258.684680107,111.4694731084529 258.684680107,110.898577799333 258.684680107,110.3348763336669 258.684680107,109.7785404203608 258.684680107,109.2297395247119 258.684680107,108.6886408168371 258.684680107,108.1554091205895 258.684680107,107.6302068635589 258.684680107,107.113194027533 258.684680107,106.604528099338 258.684680107,106.104364023793 258.684680107,105.612854155472 258.684680107,105.130148213474 258.684680107,104.656393234269 258.684680107,104.191733528338 258.684680107,103.736310635729 258.684680107,103.290263282697 258.684680107,102.853727339157 258.684680107,102.42683577857599 258.684680107,102.009718635968 258.684680107,101.602502969412 258.684680107,101.205312820757 258.684680107,100.818269178224 258.684680107,100.44148993846599 258.684680107,100.075089872422 258.684680107,99.719180589274 258.684680107,99.37387050203 258.684680107,99.03926479608799 258.684680107,98.71546539481899 258.684680107,98.402570931112 258.684680107,98.10067671566699 258.684680107,97.80987470854 258.684680107,97.530253490146 258.684680107,97.261898236598 258.684680107,97.004890691252 258.684680107,96.75930914085899 258.684680107,96.525228391988 258.684680107,96.30271974826199 258.684680107,96.091850987594 258.684680107,95.892686342946 258.684680107,95.705286481462",
+        "measureDisabled": true,
+        "undoDisabled": false
+      }
+    },
+    {
+      "file": "1180-fresh-import.png",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Import the downloaded file in a new offline Chrome process.",
+      "expected": "Panel 5, 24.5 mm / 60 degrees, 73.5 mm span, 21.2 mm rise and crease trace restored in both views.",
+      "observed": {
+        "faces": [
+          [
+            {
+              "panel": 6,
+              "points": "372.5,50 433.75,50 433.75,150 372.5,150",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "311.25,50 372.5,50 372.5,150 311.25,150",
+              "active": true
+            },
+            {
+              "panel": 4,
+              "points": "250,50 311.25,50 311.25,150 250,150",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "188.75,50 250,50 250,150 188.75,150",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "127.5,50 188.75,50 188.75,150 127.5,150",
+              "active": false
+            },
+            {
+              "panel": 1,
+              "points": "66.25,50 127.5,50 127.5,150 66.25,150",
+              "active": false
+            }
+          ],
+          [
+            {
+              "panel": 6,
+              "points": "296.633238556665,25.895705382500005 324.29219788837503,53.2875904007775 341.661558102375,122.3179348426775 314.00259877066503,94.9260498244",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "268.97427922471,61.419081986334 296.633238556665,25.895705382500005 314.00259877066503,94.9260498244 286.34363943871,130.449426428234",
+              "active": true
+            },
+            {
+              "panel": 4,
+              "points": "241.315319893,34.02719696813 268.97427922471,61.419081986334 286.34363943871,130.449426428234 258.684680107,103.05754141003",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "213.65636056129,69.550573571866 241.315319893,34.02719696813 258.684680107,103.05754141003 231.02572077529,138.580918013766",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "185.99740122933503,42.158688553662 213.65636056129,69.550573571866 231.02572077529,138.580918013766 203.366761443335,111.189032995562",
+              "active": false
+            },
+            {
+              "panel": 1,
+              "points": "158.338441897625,77.6820651574225 185.99740122933503,42.158688553662 203.366761443335,111.189032995562 175.70780211162503,146.7124095993225",
+              "active": false
+            }
+          ]
+        ],
+        "selected": "5",
+        "inputs": [
+          "24.5",
+          "60",
+          "60"
+        ],
+        "comparison": "Starting patch\t20 mm\t30°\t103.9 mm\t10.0 mm\nCurrent\t24.5 mm\t60°\t73.5 mm\t21.2 mm",
+        "sheet": "Sheet 147.0 × 40 mm · M mountain / V valley",
+        "adjacency": "Panel 5 · adjacent to 4 and 6 · hinge opening 60°",
+        "note": "Crease 3 · 21.2 mm high",
+        "trace": "258.684680107,134.515172221 258.684680107,133.88122850980164 258.684680107,133.24747790399934 258.684680107,132.61411345016464 258.684680107,131.9813280772495 258.684680107,131.3493145377985 258.684680107,130.718265349291 258.684680107,130.0883727353705 258.684680107,129.4598285674685 258.684680107,128.8328243062005 258.684680107,128.2075509431785 258.684680107,127.5841989426765 258.684680107,126.9629581838105 258.684680107,126.3440179024735 258.684680107,125.7275666339075 258.684680107,125.1137921551285 258.684680107,124.502881427768 258.684680107,123.8950205412085 258.684680107,123.290394655719 258.684680107,122.689187946203 258.684680107,122.091583546069 258.684680107,121.497763491395 258.684680107,120.9079086655095 258.684680107,120.32219874394 258.684680107,119.7408121395575 258.684680107,119.163925948407 258.684680107,118.5917158955625 258.684680107,118.024356281766 258.684680107,117.4620199302625 258.684680107,116.9048781341495 258.684680107,116.35310060421651 258.684680107,115.8068554172255 258.684680107,115.266308964755 258.684680107,114.7316259025095 258.684680107,114.20296910011899 258.684680107,113.6804995915755 258.684680107,113.164376526135 258.684680107,112.6547571199055 258.684680107,112.15179660787601 258.684680107,111.6556481966805 258.684680107,111.16646301797451 258.684680107,110.68439008225249 258.684680107,110.20957623364549 258.684680107,109.742166105135 258.684680107,109.28230207410999 258.684680107,108.830124219835 258.684680107,108.38577027984 258.684680107,107.94937560903 258.684680107,107.521073137055 258.684680107,107.10099332911 258.684680107,106.689264145755 258.684680107,106.286011003715 258.684680107,105.89135673741501 258.684680107,105.50542156272 258.684680107,105.12832303895999 258.684680107,104.76017603414 258.684680107,104.40109268941501 258.684680107,104.05118238528 258.684680107,103.71055170727 258.684680107,103.37930441509 258.684680107,103.05754141003 258.684680107,102.74536070385 258.684680107,102.44285739036 258.684680107,102.150123614305 258.684680107,101.86724854564 258.684680107,101.594318350865 258.684680107,101.3314161673 258.684680107,101.07862207687 258.684680107,100.83601308381 258.684680107,100.60366308894001 258.684680107,100.38164286810499 258.684680107,100.17002005086 258.684680107,99.96885909989 258.684680107,99.77822129043 258.684680107,99.59816469287 258.684680107,99.42874415389",
+        "measureDisabled": true,
+        "undoDisabled": false
+      }
+    },
+    {
+      "file": "1180-undo-import.png",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Undo an import that replaced a pending preview.",
+      "expected": "The prior committed 18.2 mm / 12 degree patch, panel 2 and detached measurement return; discarded draft is not resurrected.",
+      "observed": {
+        "faces": [
+          [
+            {
+              "panel": 6,
+              "points": "341,50 386.5,50 386.5,150 341,150",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "295.5,50 341,50 341,150 295.5,150",
+              "active": false
+            },
+            {
+              "panel": 4,
+              "points": "250,50 295.5,50 295.5,150 250,150",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "204.5,50 250,50 250,150 204.5,150",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "159,50 204.5,50 204.5,150 159,150",
+              "active": true
+            },
+            {
+              "panel": 1,
+              "points": "113.5,50 159,50 159,150 113.5,150",
+              "active": false
+            }
+          ],
+          [
+            {
+              "panel": 6,
+              "points": "321.70596702889003,48.057538859787 361.901290596926,47.7592186129988 379.270650810926,116.78956305489879 339.07532724289,117.087883301687",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "281.510643461036,59.576291390399604 321.70596702889003,48.057538859787 339.07532724289,117.087883301687 298.880003675036,128.6066358322996",
+              "active": false
+            },
+            {
+              "panel": 4,
+              "points": "241.315319893,59.874611637187805 281.510643461036,59.576291390399604 298.880003675036,128.6066358322996 258.684680107,128.9049560790878",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "201.119996324964,71.3933641678004 241.315319893,59.874611637187805 258.684680107,128.9049560790878 218.48935653896402,140.4237086097004",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "160.92467275711,71.6916844145704 201.119996324964,71.3933641678004 218.48935653896402,140.4237086097004 178.29403297111003,140.7220288564704",
+              "active": true
+            },
+            {
+              "panel": 1,
+              "points": "120.72934918907401,83.2104369452012 160.92467275711,71.6916844145704 178.29403297111003,140.7220288564704 138.09870940307403,152.2407813871012",
+              "active": false
+            }
+          ]
+        ],
+        "selected": "2",
+        "inputs": [
+          "18.2",
+          "12",
+          "12"
+        ],
+        "comparison": "Starting patch\t20 mm\t30°\t103.9 mm\t10.0 mm\nCurrent\t18.2 mm\t12°\t106.8 mm\t3.8 mm",
+        "sheet": "Sheet 109.2 × 40 mm · M mountain / V valley",
+        "adjacency": "Panel 2 · adjacent to 1 and 3 · hinge opening 156°",
+        "note": "Crease 3 · how high?",
+        "trace": null,
+        "measureDisabled": false,
+        "undoDisabled": false
+      }
+    },
+    {
+      "file": "1180-rejected-import.png",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "steps": "Reject an oversized document with a 9 mm numeric draft pending, after the malformed/schema/type/range cases.",
+      "expected": "Last valid measured geometry, panel 2, invalid draft and history remain intact; the size-limit error is reported.",
+      "observed": {
+        "faces": [
+          [
+            {
+              "panel": 6,
+              "points": "341,50 386.5,50 386.5,150 341,150",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "295.5,50 341,50 341,150 295.5,150",
+              "active": false
+            },
+            {
+              "panel": 4,
+              "points": "250,50 295.5,50 295.5,150 250,150",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "204.5,50 250,50 250,150 204.5,150",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "159,50 204.5,50 204.5,150 159,150",
+              "active": true
+            },
+            {
+              "panel": 1,
+              "points": "113.5,50 159,50 159,150 113.5,150",
+              "active": false
+            }
+          ],
+          [
+            {
+              "panel": 6,
+              "points": "321.70596702889003,48.057538859787 361.901290596926,47.7592186129988 379.270650810926,116.78956305489879 339.07532724289,117.087883301687",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "281.510643461036,59.576291390399604 321.70596702889003,48.057538859787 339.07532724289,117.087883301687 298.880003675036,128.6066358322996",
+              "active": false
+            },
+            {
+              "panel": 4,
+              "points": "241.315319893,59.874611637187805 281.510643461036,59.576291390399604 298.880003675036,128.6066358322996 258.684680107,128.9049560790878",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "201.119996324964,71.3933641678004 241.315319893,59.874611637187805 258.684680107,128.9049560790878 218.48935653896402,140.4237086097004",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "160.92467275711,71.6916844145704 201.119996324964,71.3933641678004 218.48935653896402,140.4237086097004 178.29403297111003,140.7220288564704",
+              "active": true
+            },
+            {
+              "panel": 1,
+              "points": "120.72934918907401,83.2104369452012 160.92467275711,71.6916844145704 178.29403297111003,140.7220288564704 138.09870940307403,152.2407813871012",
+              "active": false
+            }
+          ]
+        ],
+        "selected": "2",
+        "inputs": [
+          "9",
+          "12",
+          "12"
+        ],
+        "comparison": "Starting patch\t20 mm\t30°\t103.9 mm\t10.0 mm\nCurrent\t18.2 mm\t12°\t106.8 mm\t3.8 mm",
+        "sheet": "Sheet 109.2 × 40 mm · M mountain / V valley",
+        "adjacency": "Panel 2 · adjacent to 1 and 3 · hinge opening 156°",
+        "note": "Crease 3 · 3.8 mm high",
+        "trace": "258.684680107,134.515172221 258.684680107,134.04424260696695 258.684680107,133.57345644265666 258.684680107,133.10295713409374 258.684680107,132.6328879999282 258.684680107,132.1633922277646 258.684680107,131.6946128305876 258.684680107,131.2266926031038 258.684680107,130.7597740783766 258.684680107,130.2939994842918 258.684680107,129.8295107003326 258.684680107,129.3664492142454 258.684680107,128.9049560790878 258.684680107,128.4451718700946 258.684680107,127.987236642017 258.684680107,127.5312898863526 258.684680107,127.0774704888848 258.684680107,126.6259166874406 258.684680107,126.1767660296484 258.684680107,125.7301553311508 258.684680107,125.2862206339084 258.684680107,124.845097164722 258.684680107,124.4069192940642 258.684680107,123.971820495184 258.684680107,123.539933303357 258.684680107,123.1113892756452 258.684680107,122.686318950675 258.684680107,122.2648518089976 258.684680107,121.847116233595 258.684680107,121.4332394707682 258.684680107,121.0233475913894 258.684680107,120.6175654524818 258.684680107,120.216016659218 258.684680107,119.8188235272642 258.684680107,119.42610704548841 258.684680107,119.03798683914181 258.684680107,118.654581133386 258.684680107,118.2760067173298 258.684680107,117.9023789083936 258.684680107,117.5338115172198 258.684680107,117.1704168130382 258.684680107,116.812305489359 258.684680107,116.4595866303938 258.684680107,116.112367677786 258.684680107,115.770754397596 258.684680107,115.43485084870599 258.684680107,115.104759350424 258.684680107,114.780580452108 258.684680107,114.462412901498 258.684680107,114.150353615596 258.684680107,113.844497650818 258.684680107,113.544938173874 258.684680107,113.251766433194 258.684680107,112.965071731992 258.684680107,112.684941400056 258.684680107,112.411460767904 258.684680107,112.144713140394 258.684680107,111.88477977160801 258.684680107,111.631739839372 258.684680107,111.385670422324 258.684680107,111.146646475708 258.684680107,110.91474080826 258.684680107,110.69002406109601 258.684680107,110.472564684598 258.684680107,110.262428919304 258.684680107,110.05968077461401 258.684680107,109.86438200968 258.684680107,109.676592113932 258.684680107,109.496368290516 258.684680107,109.323765437184 258.684680107,109.15883613027799 258.684680107,109.001630608896 258.684680107,108.852196759604 258.684680107,108.710580101148 258.684680107,108.576823771532 258.684680107,108.450968514004",
+        "measureDisabled": true,
+        "undoDisabled": false
+      }
+    },
+    {
+      "file": "390-export-preview.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Export while a 27.1 mm / 23 degree preview is pending.",
+      "expected": "Preview remains; downloaded file holds the committed 24.5 mm / 60 degree configuration.",
+      "observed": {
+        "faces": [
+          [
+            {
+              "panel": 6,
+              "points": "385.5,50 453.25,50 453.25,150 385.5,150",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "317.75,50 385.5,50 385.5,150 317.75,150",
+              "active": true
+            },
+            {
+              "panel": 4,
+              "points": "250,50 317.75,50 317.75,150 250,150",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "182.25,50 250,50 250,150 182.25,150",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "114.5,50 182.25,50 182.25,150 114.5,150",
+              "active": false
+            },
+            {
+              "panel": 1,
+              "points": "46.75,50 114.5,50 114.5,150 46.75,150",
+              "active": false
+            }
+          ],
+          [
+            {
+              "panel": 6,
+              "points": "353.963742897505,33.226836753834995 410.287954399893,40.6465911123516 427.65731461389305,109.6769355542516 371.333103111505,102.257181195735",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "297.639531395388,57.2054155568415 353.963742897505,33.226836753834995 371.333103111505,102.257181195735 315.008891609388,126.2357599987415",
+              "active": true
+            },
+            {
+              "panel": 4,
+              "points": "241.315319893,49.785661198352 297.639531395388,57.2054155568415 315.008891609388,126.2357599987415 258.684680107,118.816005640252",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "184.991108390612,73.7642400013585 241.315319893,49.785661198352 258.684680107,118.816005640252 202.360468604612,142.7945844432585",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "128.666896888495,66.34448564284732 184.991108390612,73.7642400013585 202.360468604612,142.7945844432585 146.03625710249503,135.37483008474732",
+              "active": false
+            },
+            {
+              "panel": 1,
+              "points": "72.34268538610701,90.3230644458484 128.666896888495,66.34448564284732 146.03625710249503,135.37483008474732 89.71204560010702,159.3534088877484",
+              "active": false
+            }
+          ]
+        ],
+        "selected": "5",
+        "inputs": [
+          "27.1",
+          "23",
+          "23"
+        ],
+        "comparison": "Starting patch\t20 mm\t30°\t103.9 mm\t10.0 mm\nPreview\t27.1 mm\t23°\t149.7 mm\t10.6 mm",
+        "sheet": "Sheet 162.6 × 40 mm · M mountain / V valley",
+        "adjacency": "Panel 5 · adjacent to 4 and 6 · hinge opening 134°",
+        "note": "Crease 3 · 10.6 mm high",
+        "trace": "258.684680107,134.515172221 258.684680107,133.81395285065406 258.684680107,133.11294707852173 258.684680107,132.41236843774948 258.684680107,131.7124303313821 258.684680107,131.0133459673363 258.684680107,130.3153282935178 258.684680107,129.6185899328139 258.684680107,128.9233431185223 258.684680107,128.2297996295279 258.684680107,127.5381707259403 258.684680107,126.8486670845687 258.684680107,126.1614987349659 258.684680107,125.4768749952013 258.684680107,124.7950044083385 258.684680107,124.1160946787503 258.684680107,123.4403526088944 258.684680107,122.7679840364143 258.684680107,122.0991937712402 258.684680107,121.4341855333674 258.684680107,120.7731618907702 258.684680107,120.11632419764099 258.684680107,119.4638725330901 258.684680107,118.816005640252 258.684680107,118.1729208656085 258.684680107,117.5348140990706 258.684680107,116.9018797140875 258.684680107,116.27431050862279 258.684680107,115.6522976463475 258.684680107,115.0360305984021 258.684680107,114.4256970857007 258.684680107,113.8214830217229 258.684680107,113.223572455929 258.684680107,112.6321475176901 258.684680107,112.04738836076021 258.684680107,111.4694731084529 258.684680107,110.898577799333 258.684680107,110.3348763336669 258.684680107,109.7785404203608 258.684680107,109.2297395247119 258.684680107,108.6886408168371 258.684680107,108.1554091205895 258.684680107,107.6302068635589 258.684680107,107.113194027533 258.684680107,106.604528099338 258.684680107,106.104364023793 258.684680107,105.612854155472 258.684680107,105.130148213474 258.684680107,104.656393234269 258.684680107,104.191733528338 258.684680107,103.736310635729 258.684680107,103.290263282697 258.684680107,102.853727339157 258.684680107,102.42683577857599 258.684680107,102.009718635968 258.684680107,101.602502969412 258.684680107,101.205312820757 258.684680107,100.818269178224 258.684680107,100.44148993846599 258.684680107,100.075089872422 258.684680107,99.719180589274 258.684680107,99.37387050203 258.684680107,99.03926479608799 258.684680107,98.71546539481899 258.684680107,98.402570931112 258.684680107,98.10067671566699 258.684680107,97.80987470854 258.684680107,97.530253490146 258.684680107,97.261898236598 258.684680107,97.004890691252 258.684680107,96.75930914085899 258.684680107,96.525228391988 258.684680107,96.30271974826199 258.684680107,96.091850987594 258.684680107,95.892686342946 258.684680107,95.705286481462",
+        "measureDisabled": true,
+        "undoDisabled": false
+      }
+    },
+    {
+      "file": "390-fresh-import.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Import the downloaded file in a new offline Chrome process.",
+      "expected": "Panel 5, 24.5 mm / 60 degrees, 73.5 mm span, 21.2 mm rise and crease trace restored in both views.",
+      "observed": {
+        "faces": [
+          [
+            {
+              "panel": 6,
+              "points": "372.5,50 433.75,50 433.75,150 372.5,150",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "311.25,50 372.5,50 372.5,150 311.25,150",
+              "active": true
+            },
+            {
+              "panel": 4,
+              "points": "250,50 311.25,50 311.25,150 250,150",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "188.75,50 250,50 250,150 188.75,150",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "127.5,50 188.75,50 188.75,150 127.5,150",
+              "active": false
+            },
+            {
+              "panel": 1,
+              "points": "66.25,50 127.5,50 127.5,150 66.25,150",
+              "active": false
+            }
+          ],
+          [
+            {
+              "panel": 6,
+              "points": "296.633238556665,25.895705382500005 324.29219788837503,53.2875904007775 341.661558102375,122.3179348426775 314.00259877066503,94.9260498244",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "268.97427922471,61.419081986334 296.633238556665,25.895705382500005 314.00259877066503,94.9260498244 286.34363943871,130.449426428234",
+              "active": true
+            },
+            {
+              "panel": 4,
+              "points": "241.315319893,34.02719696813 268.97427922471,61.419081986334 286.34363943871,130.449426428234 258.684680107,103.05754141003",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "213.65636056129,69.550573571866 241.315319893,34.02719696813 258.684680107,103.05754141003 231.02572077529,138.580918013766",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "185.99740122933503,42.158688553662 213.65636056129,69.550573571866 231.02572077529,138.580918013766 203.366761443335,111.189032995562",
+              "active": false
+            },
+            {
+              "panel": 1,
+              "points": "158.338441897625,77.6820651574225 185.99740122933503,42.158688553662 203.366761443335,111.189032995562 175.70780211162503,146.7124095993225",
+              "active": false
+            }
+          ]
+        ],
+        "selected": "5",
+        "inputs": [
+          "24.5",
+          "60",
+          "60"
+        ],
+        "comparison": "Starting patch\t20 mm\t30°\t103.9 mm\t10.0 mm\nCurrent\t24.5 mm\t60°\t73.5 mm\t21.2 mm",
+        "sheet": "Sheet 147.0 × 40 mm · M mountain / V valley",
+        "adjacency": "Panel 5 · adjacent to 4 and 6 · hinge opening 60°",
+        "note": "Crease 3 · 21.2 mm high",
+        "trace": "258.684680107,134.515172221 258.684680107,133.88122850980164 258.684680107,133.24747790399934 258.684680107,132.61411345016464 258.684680107,131.9813280772495 258.684680107,131.3493145377985 258.684680107,130.718265349291 258.684680107,130.0883727353705 258.684680107,129.4598285674685 258.684680107,128.8328243062005 258.684680107,128.2075509431785 258.684680107,127.5841989426765 258.684680107,126.9629581838105 258.684680107,126.3440179024735 258.684680107,125.7275666339075 258.684680107,125.1137921551285 258.684680107,124.502881427768 258.684680107,123.8950205412085 258.684680107,123.290394655719 258.684680107,122.689187946203 258.684680107,122.091583546069 258.684680107,121.497763491395 258.684680107,120.9079086655095 258.684680107,120.32219874394 258.684680107,119.7408121395575 258.684680107,119.163925948407 258.684680107,118.5917158955625 258.684680107,118.024356281766 258.684680107,117.4620199302625 258.684680107,116.9048781341495 258.684680107,116.35310060421651 258.684680107,115.8068554172255 258.684680107,115.266308964755 258.684680107,114.7316259025095 258.684680107,114.20296910011899 258.684680107,113.6804995915755 258.684680107,113.164376526135 258.684680107,112.6547571199055 258.684680107,112.15179660787601 258.684680107,111.6556481966805 258.684680107,111.16646301797451 258.684680107,110.68439008225249 258.684680107,110.20957623364549 258.684680107,109.742166105135 258.684680107,109.28230207410999 258.684680107,108.830124219835 258.684680107,108.38577027984 258.684680107,107.94937560903 258.684680107,107.521073137055 258.684680107,107.10099332911 258.684680107,106.689264145755 258.684680107,106.286011003715 258.684680107,105.89135673741501 258.684680107,105.50542156272 258.684680107,105.12832303895999 258.684680107,104.76017603414 258.684680107,104.40109268941501 258.684680107,104.05118238528 258.684680107,103.71055170727 258.684680107,103.37930441509 258.684680107,103.05754141003 258.684680107,102.74536070385 258.684680107,102.44285739036 258.684680107,102.150123614305 258.684680107,101.86724854564 258.684680107,101.594318350865 258.684680107,101.3314161673 258.684680107,101.07862207687 258.684680107,100.83601308381 258.684680107,100.60366308894001 258.684680107,100.38164286810499 258.684680107,100.17002005086 258.684680107,99.96885909989 258.684680107,99.77822129043 258.684680107,99.59816469287 258.684680107,99.42874415389",
+        "measureDisabled": true,
+        "undoDisabled": false
+      }
+    },
+    {
+      "file": "390-undo-import.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Undo an import that replaced a pending preview.",
+      "expected": "The prior committed 18.2 mm / 12 degree patch, panel 2 and detached measurement return; discarded draft is not resurrected.",
+      "observed": {
+        "faces": [
+          [
+            {
+              "panel": 6,
+              "points": "341,50 386.5,50 386.5,150 341,150",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "295.5,50 341,50 341,150 295.5,150",
+              "active": false
+            },
+            {
+              "panel": 4,
+              "points": "250,50 295.5,50 295.5,150 250,150",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "204.5,50 250,50 250,150 204.5,150",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "159,50 204.5,50 204.5,150 159,150",
+              "active": true
+            },
+            {
+              "panel": 1,
+              "points": "113.5,50 159,50 159,150 113.5,150",
+              "active": false
+            }
+          ],
+          [
+            {
+              "panel": 6,
+              "points": "321.70596702889003,48.057538859787 361.901290596926,47.7592186129988 379.270650810926,116.78956305489879 339.07532724289,117.087883301687",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "281.510643461036,59.576291390399604 321.70596702889003,48.057538859787 339.07532724289,117.087883301687 298.880003675036,128.6066358322996",
+              "active": false
+            },
+            {
+              "panel": 4,
+              "points": "241.315319893,59.874611637187805 281.510643461036,59.576291390399604 298.880003675036,128.6066358322996 258.684680107,128.9049560790878",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "201.119996324964,71.3933641678004 241.315319893,59.874611637187805 258.684680107,128.9049560790878 218.48935653896402,140.4237086097004",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "160.92467275711,71.6916844145704 201.119996324964,71.3933641678004 218.48935653896402,140.4237086097004 178.29403297111003,140.7220288564704",
+              "active": true
+            },
+            {
+              "panel": 1,
+              "points": "120.72934918907401,83.2104369452012 160.92467275711,71.6916844145704 178.29403297111003,140.7220288564704 138.09870940307403,152.2407813871012",
+              "active": false
+            }
+          ]
+        ],
+        "selected": "2",
+        "inputs": [
+          "18.2",
+          "12",
+          "12"
+        ],
+        "comparison": "Starting patch\t20 mm\t30°\t103.9 mm\t10.0 mm\nCurrent\t18.2 mm\t12°\t106.8 mm\t3.8 mm",
+        "sheet": "Sheet 109.2 × 40 mm · M mountain / V valley",
+        "adjacency": "Panel 2 · adjacent to 1 and 3 · hinge opening 156°",
+        "note": "Crease 3 · how high?",
+        "trace": null,
+        "measureDisabled": false,
+        "undoDisabled": false
+      }
+    },
+    {
+      "file": "390-rejected-import.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "steps": "Reject an oversized document with a 9 mm numeric draft pending, after the malformed/schema/type/range cases.",
+      "expected": "Last valid measured geometry, panel 2, invalid draft and history remain intact; the size-limit error is reported.",
+      "observed": {
+        "faces": [
+          [
+            {
+              "panel": 6,
+              "points": "341,50 386.5,50 386.5,150 341,150",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "295.5,50 341,50 341,150 295.5,150",
+              "active": false
+            },
+            {
+              "panel": 4,
+              "points": "250,50 295.5,50 295.5,150 250,150",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "204.5,50 250,50 250,150 204.5,150",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "159,50 204.5,50 204.5,150 159,150",
+              "active": true
+            },
+            {
+              "panel": 1,
+              "points": "113.5,50 159,50 159,150 113.5,150",
+              "active": false
+            }
+          ],
+          [
+            {
+              "panel": 6,
+              "points": "321.70596702889003,48.057538859787 361.901290596926,47.7592186129988 379.270650810926,116.78956305489879 339.07532724289,117.087883301687",
+              "active": false
+            },
+            {
+              "panel": 5,
+              "points": "281.510643461036,59.576291390399604 321.70596702889003,48.057538859787 339.07532724289,117.087883301687 298.880003675036,128.6066358322996",
+              "active": false
+            },
+            {
+              "panel": 4,
+              "points": "241.315319893,59.874611637187805 281.510643461036,59.576291390399604 298.880003675036,128.6066358322996 258.684680107,128.9049560790878",
+              "active": false
+            },
+            {
+              "panel": 3,
+              "points": "201.119996324964,71.3933641678004 241.315319893,59.874611637187805 258.684680107,128.9049560790878 218.48935653896402,140.4237086097004",
+              "active": false
+            },
+            {
+              "panel": 2,
+              "points": "160.92467275711,71.6916844145704 201.119996324964,71.3933641678004 218.48935653896402,140.4237086097004 178.29403297111003,140.7220288564704",
+              "active": true
+            },
+            {
+              "panel": 1,
+              "points": "120.72934918907401,83.2104369452012 160.92467275711,71.6916844145704 178.29403297111003,140.7220288564704 138.09870940307403,152.2407813871012",
+              "active": false
+            }
+          ]
+        ],
+        "selected": "2",
+        "inputs": [
+          "9",
+          "12",
+          "12"
+        ],
+        "comparison": "Starting patch\t20 mm\t30°\t103.9 mm\t10.0 mm\nCurrent\t18.2 mm\t12°\t106.8 mm\t3.8 mm",
+        "sheet": "Sheet 109.2 × 40 mm · M mountain / V valley",
+        "adjacency": "Panel 2 · adjacent to 1 and 3 · hinge opening 156°",
+        "note": "Crease 3 · 3.8 mm high",
+        "trace": "258.684680107,134.515172221 258.684680107,134.04424260696695 258.684680107,133.57345644265666 258.684680107,133.10295713409374 258.684680107,132.6328879999282 258.684680107,132.1633922277646 258.684680107,131.6946128305876 258.684680107,131.2266926031038 258.684680107,130.7597740783766 258.684680107,130.2939994842918 258.684680107,129.8295107003326 258.684680107,129.3664492142454 258.684680107,128.9049560790878 258.684680107,128.4451718700946 258.684680107,127.987236642017 258.684680107,127.5312898863526 258.684680107,127.0774704888848 258.684680107,126.6259166874406 258.684680107,126.1767660296484 258.684680107,125.7301553311508 258.684680107,125.2862206339084 258.684680107,124.845097164722 258.684680107,124.4069192940642 258.684680107,123.971820495184 258.684680107,123.539933303357 258.684680107,123.1113892756452 258.684680107,122.686318950675 258.684680107,122.2648518089976 258.684680107,121.847116233595 258.684680107,121.4332394707682 258.684680107,121.0233475913894 258.684680107,120.6175654524818 258.684680107,120.216016659218 258.684680107,119.8188235272642 258.684680107,119.42610704548841 258.684680107,119.03798683914181 258.684680107,118.654581133386 258.684680107,118.2760067173298 258.684680107,117.9023789083936 258.684680107,117.5338115172198 258.684680107,117.1704168130382 258.684680107,116.812305489359 258.684680107,116.4595866303938 258.684680107,116.112367677786 258.684680107,115.770754397596 258.684680107,115.43485084870599 258.684680107,115.104759350424 258.684680107,114.780580452108 258.684680107,114.462412901498 258.684680107,114.150353615596 258.684680107,113.844497650818 258.684680107,113.544938173874 258.684680107,113.251766433194 258.684680107,112.965071731992 258.684680107,112.684941400056 258.684680107,112.411460767904 258.684680107,112.144713140394 258.684680107,111.88477977160801 258.684680107,111.631739839372 258.684680107,111.385670422324 258.684680107,111.146646475708 258.684680107,110.91474080826 258.684680107,110.69002406109601 258.684680107,110.472564684598 258.684680107,110.262428919304 258.684680107,110.05968077461401 258.684680107,109.86438200968 258.684680107,109.676592113932 258.684680107,109.496368290516 258.684680107,109.323765437184 258.684680107,109.15883613027799 258.684680107,109.001630608896 258.684680107,108.852196759604 258.684680107,108.710580101148 258.684680107,108.576823771532 258.684680107,108.450968514004",
+        "measureDisabled": true,
+        "undoDisabled": false
+      }
+    }
+  ],
+  "documents": [
+    {
+      "file": "1180-document.json",
+      "sha256": "50c039125d1524cc30313321d6ee7a3d7f76d137fca848f15e94a17ca35f15eb",
+      "contents": {
+        "format": "moxi-accordion",
+        "version": 1,
+        "pitch": 24.5,
+        "tilt": 60,
+        "selectedPanel": 5,
+        "measuring": true
+      }
+    },
+    {
+      "file": "390-document.json",
+      "sha256": "50c039125d1524cc30313321d6ee7a3d7f76d137fca848f15e94a17ca35f15eb",
+      "contents": {
+        "format": "moxi-accordion",
+        "version": 1,
+        "pitch": 24.5,
+        "tilt": 60,
+        "selectedPanel": 5,
+        "measuring": true
+      }
+    }
+  ],
+  "errors": [],
+  "network_requests": [],
+  "browser": "158.0.8127.37",
+  "finished_at": "2026-11-26T04:52:34.534Z"
+}

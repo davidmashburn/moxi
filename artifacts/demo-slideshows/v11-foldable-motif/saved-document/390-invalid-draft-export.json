@@ -1,0 +1,8 @@
+{
+  "format": "moxi-accordion",
+  "version": 1,
+  "pitch": 20,
+  "tilt": 30,
+  "selectedPanel": 5,
+  "measuring": false
+}

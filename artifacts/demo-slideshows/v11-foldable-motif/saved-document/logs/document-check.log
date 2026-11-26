@@ -1,0 +1,11 @@
+PASS 1180 committed-only export with pending preview
+PASS 1180 fresh browser import and reload/reimport
+PASS 1180 atomic import, draft clearing and linked undo
+PASS 1180 invalid documents, picker cancellation, read failure and recovery
+PASS 1180 boundary documents and measurement false
+PASS 390 committed-only export with pending preview
+PASS 390 fresh browser import and reload/reimport
+PASS 390 atomic import, draft clearing and linked undo
+PASS 390 invalid documents, picker cancellation, read failure and recovery
+PASS 390 boundary documents and measurement false
+PASS 10 scenarios; 60 invalid-document cases; no page/console errors or HTTP(S) requests.
