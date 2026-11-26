@@ -31,6 +31,10 @@ PYTHONPATH=python python3 examples/motion-envelope/check_browser.py --out /tmp/v
 | I17 equivalent input | Drag to the upper bound, cancel, step one increment with Right Arrow, then press End. Keyboard and pointer previews produce identical marker coordinates. Both widths expose a named range control with milliseconds as its accessible value. |
 | Browser and gallery | At 1280 × 800 and 390 × 844, the page fits horizontally and the interaction completes without a page error. With the browser context offline, the gallery accepts arrow keys, previous and thumbnail navigation, and decodes the narrow PNG. |
 
+The five-action explanation has a separate uninterrupted control. Place the apex at 1370 ms, commit it, seek to 500 ms, seek to the apex, then seek to 1750 ms. In the second run, checkpoint immediately after action three, explore a committed 200 ms apex at 1900 ms, and restore before continuing. The recorded coordinates of both markers match the control exactly at all three inspection times. This covers stopped curve editing and replay. Recording a freehand coefficient gesture remains open for I14.
+
+The checkout’s Python facade suite passed all 253 tests with `PYTHONPATH=python python3 -m pytest -q tests/python`. The native Mojo suite was skipped because this experiment uses the Python SVG exporter and browser audio adapter.
+
 ## Timing evidence
 
 The reproducible audio probe uses the editor’s scheduler with a constant unit signal. This makes the gain envelope directly observable in the rendered audio samples. At each rate it schedules 40 phrases 2.125 seconds apart with five alternating apex times, then renders the full sequence a second time. The check finds the maximum sample in each phrase, compares its index with the score, and checks peak amplitude and silence at landing.

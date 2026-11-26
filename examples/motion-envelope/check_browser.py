@@ -144,6 +144,46 @@ def replay(browser, url, out, width, height):
     return slides, live
 
 
+def checkpoint_lesson(browser, url):
+    """Replay the same five semantic actions with and without an interruption."""
+    outcomes = []
+    for interrupt in (False, True):
+        page = browser.new_page()
+        page.goto(url)
+        apex = page.get_by_role("slider", name="Time to apex")
+        seek = page.get_by_role("slider", name="Inspect phrase")
+        def pose():
+            return page.locator("circle").evaluate_all(
+                "nodes => nodes.map(n => [n.cx.baseVal.value, n.cy.baseVal.value])")
+
+        # 1. Place the peak. 2. Author it. 3. Seek to its rising slope.
+        apex.fill("1370")
+        page.get_by_role("button", name="Commit edit").click()
+        seek.fill("500")
+        saved = pose()
+        page.get_by_role("button", name="Set checkpoint").click()
+        if interrupt:
+            apex.fill("200")
+            page.get_by_role("button", name="Commit edit").click()
+            seek.fill("1900")
+            assert pose() != saved
+            page.get_by_role("button", name="Restore checkpoint").click()
+            expect(apex).to_have_value("1370")
+            expect(seek).to_have_value("500")
+            assert pose() == saved
+        # 4. Seek to the peak. 5. Follow the descent. Record the parameter curve.
+        curve = [saved]
+        for ms in (1370, 1750):
+            seek.fill(str(ms))
+            curve.append(pose())
+        assert curve[1][0][1] < min(curve[0][0][1], curve[2][0][1])
+        outcomes.append(curve)
+        page.close()
+    assert outcomes[0] == outcomes[1]
+    return dict(apex_ms=1370, sample_times_ms=[500, 1370, 1750],
+                uninterrupted=outcomes[0], restored=outcomes[1])
+
+
 def main(out):
     out.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory() as directory, sync_playwright() as pw:
@@ -156,6 +196,7 @@ def main(out):
             captures, traces = replay(browser, target.as_uri(), out, width, height)
             slides.extend(captures)
             live.extend(traces)
+        lesson = checkpoint_lesson(browser, target.as_uri())
         probe = browser.new_page()
         probe.goto(target.as_uri() + "#measure")
         results = {}
@@ -179,7 +220,7 @@ def main(out):
                         slides=slides)
         write_json(out / "manifest.json", manifest)
         write_json(out / "timing.json", dict(measured_at=datetime.now(timezone.utc).isoformat(),
-                                             host=manifest["host"], revision=revision, live=live, runs=results))
+                                             host=manifest["host"], revision=revision, live=live, checkpoint_lesson=lesson, runs=results))
         (out / "index.html").write_text(render(load_manifest(out / "manifest.json")))
         probe.context.set_offline(True)
         probe.goto((out / "index.html").resolve().as_uri())
