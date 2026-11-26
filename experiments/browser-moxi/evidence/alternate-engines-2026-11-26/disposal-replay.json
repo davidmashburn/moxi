@@ -1,0 +1,94 @@
+[
+  {
+    "engine": "firefox",
+    "browserVersion": "159.0",
+    "host": "linux",
+    "architecture": "arm64",
+    "playwright": "1.65.1",
+    "capturedAt": "2026-11-26T05:35:40.697Z",
+    "matchingSourceRevision": "218a33a2560d583c07d871573374b5c9cb89b2a1",
+    "verifiedSourceFiles": 16,
+    "wasmSha256": "7788db5f2bb10786b3c72732e639387cbb974b1ac32320eb5d48bed46995c694",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "scenariosPassed": 12,
+    "observations": [
+      {
+        "name": "disposed-pane-isolation",
+        "steps": "Dispose A, attempt Find, click and navigate B",
+        "expected": "Only Recreate A is available for A; B accepts input",
+        "observed": "B selected node-0 and then node-1",
+        "outcome": "pass"
+      },
+      {
+        "name": "dispose-recreate",
+        "steps": "Dispose A, Recreate A; invoke destroy on old handle",
+        "expected": "Overlay/graph removed; B live; new handle/state; stale destroy=-1",
+        "observed": "All lifecycle assertions passed",
+        "outcome": "pass"
+      },
+      {
+        "name": "native-parity-lifecycle",
+        "steps": "Click Verify in normal app",
+        "expected": "6515 comparisons matching the fresh native/Node check, exact SVG structure/text, 100 disposal cycles, no live allocations",
+        "observed": {
+          "comparisons": 6515,
+          "liveAllocations": 0,
+          "maxAbsoluteError": 0.00020000000017716957
+        },
+        "outcome": "pass"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": []
+  },
+  {
+    "engine": "webkit",
+    "browserVersion": "27.2",
+    "host": "darwin",
+    "architecture": "arm64",
+    "playwright": "1.65.1",
+    "capturedAt": "2026-11-26T05:36:14.577Z",
+    "matchingSourceRevision": "d2aa07532837e88f5b7ab9f9cca358c1f8f76374",
+    "verifiedSourceFiles": 16,
+    "wasmSha256": "7788db5f2bb10786b3c72732e639387cbb974b1ac32320eb5d48bed46995c694",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "scenariosPassed": 12,
+    "observations": [
+      {
+        "name": "disposed-pane-isolation",
+        "steps": "Dispose A, attempt Find, click and navigate B",
+        "expected": "Only Recreate A is available for A; B accepts input",
+        "observed": "B selected node-0 and then node-1",
+        "outcome": "pass"
+      },
+      {
+        "name": "dispose-recreate",
+        "steps": "Dispose A, Recreate A; invoke destroy on old handle",
+        "expected": "Overlay/graph removed; B live; new handle/state; stale destroy=-1",
+        "observed": "All lifecycle assertions passed",
+        "outcome": "pass"
+      },
+      {
+        "name": "native-parity-lifecycle",
+        "steps": "Click Verify in normal app",
+        "expected": "6515 comparisons matching the fresh native/Node check, exact SVG structure/text, 100 disposal cycles, no live allocations",
+        "observed": {
+          "comparisons": 6515,
+          "liveAllocations": 0,
+          "maxAbsoluteError": 0.00020000000017716957
+        },
+        "outcome": "pass"
+      }
+    ],
+    "pageErrors": [],
+    "failedRequests": []
+  }
+]

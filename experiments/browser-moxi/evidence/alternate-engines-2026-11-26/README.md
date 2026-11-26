@@ -12,6 +12,15 @@ changed. The only executable addition is [engine-check.mjs](../../engine-check.m
 The original Chrome replay and entire `artifacts/demo-slideshows/browser-fdg`
 directory remain byte-for-byte unchanged. Chrome was not rerun here.
 
+## Disposal follow-up
+
+After disposing pane A, its Find control is disabled. Clicking node 0 in pane B
+and pressing Right selected node 1. Recreating A produced a fresh handle. All
+12 scenarios passed in Firefox 159.0 and WebKit 27.2 with Playwright 1.65.1.
+Each engine passed 6,515 native comparisons and 100 disposal cycles with zero
+tracked live allocations. The original 11-scenario runs are recorded below.
+[Post-repair observations and tested revisions](disposal-replay.json)
+
 ## Environment and provenance
 
 | Run | Engine / automation | Host and service | Capture interval (UTC) | Result |
