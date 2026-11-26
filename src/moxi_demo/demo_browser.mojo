@@ -1,7 +1,7 @@
 """WxPython-inspired browser for Moxi's runnable examples.
 
 The browser is deliberately a component rather than a second application
-runtime.  Every catalog entry mounts a real component in-process.  Scene
+runtime.  Catalog entries mount a component or launch its native workbench.  Scene
 examples additionally expose a renderer-neutral scene for the host canvas;
 the standalone command remains available as a companion entrypoint, not as a
 replacement for composition.
@@ -940,7 +940,7 @@ struct DemoBrowserState(Component):
         if entry.in_process:
             metadata += " · LIVE"
         else:
-            metadata += " · SCRIPT"
+            metadata += " · NATIVE"
         _add_styled_label(
             root,
             header,
@@ -956,7 +956,7 @@ struct DemoBrowserState(Component):
         self.add_tab_button(root, tabs, DEMO_TAB_DEMO, "Demo", DEMO_TAB_DEMO_ID)
 
         var toolbar = root.add_row_to(main, DEMO_TOOLBAR_ID, 0.0, 40.0, 0.0, 8.0)
-        var run_text = "Run script"
+        var run_text = "Open workbench"
         if entry.in_process:
             run_text = "Run live page"
         var run_enabled = not self.task_running or entry.in_process
@@ -998,7 +998,7 @@ struct DemoBrowserState(Component):
             "Restore and run the original source" if self.has_live_script() else "Reset the selected in-browser component",
         )
         root.add_flexible_spacer_to(toolbar, DEMO_TOOLBAR_SPACER_ID)
-        var run_info = "COMPANION SCRIPT · run separately from the browser"
+        var run_info = "Opens in a separate window"
         if entry.in_process:
             run_info = "LIVE COMPONENT · stays in this window"
         if self.has_live_script():
@@ -1152,8 +1152,8 @@ struct DemoBrowserState(Component):
         entry: DemoEntry,
         width: Float32,
     ):
-        var mode = "COMPANION SCRIPT"
-        var usage = "The checked-in task remains available as a standalone companion command."
+        var mode = "NATIVE WORKBENCH"
+        var usage = "Choose Open workbench to launch the editor in its own window."
         if entry.in_process:
             mode = "LIVE COMPONENT"
             usage = "Run live page mounts the typed component in this browser."
@@ -1225,7 +1225,7 @@ struct DemoBrowserState(Component):
             root,
             parent_id,
             DEMO_CONTRACT_BODY_ID,
-            "Every item is backed by checked-in source. Pages exercise Moxi's value-based App, focus, event, component-slot, and canvas contracts in this window; the standalone task remains available when you want the exact command-line entrypoint.",
+            "Every item is backed by checked-in source. Pages exercise Moxi's value-based App, focus, event, component-slot, and canvas contracts in this window; the standalone task remains available when you want the exact command-line entrypoint." if entry.in_process else "Type x, press Command+/ and type y to build a fraction. Switch to Text to inspect its notation.",
             width,
             _body_style(),
         )
@@ -1280,7 +1280,7 @@ struct DemoBrowserState(Component):
             root,
             parent_id,
             DEMO_SOURCE_HINT_ID,
-            "This is the implementation excerpt from the checked-in example. The command above runs the complete source, and the Demo tab mounts the same model in-process.",
+            "This is the implementation excerpt from the checked-in example. The command above runs the complete source.",
             width,
             _body_style(),
         )
@@ -1304,6 +1304,9 @@ struct DemoBrowserState(Component):
         width: Float32,
         height: Float32,
     ):
+        if not entry.in_process:
+            self.build_overview(root, parent_id, entry, width)
+            return
         # Caller already removes the content portal's horizontal padding.
         var page_width = width
         if page_width < 240.0:

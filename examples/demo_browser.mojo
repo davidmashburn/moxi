@@ -16,6 +16,7 @@ from moxi_demo.live_editor_host import live_surface_clip, sync_live_editor
 from moxi.macos import (
     MacOSCanvasSceneRenderer,
     MacOSClipboard,
+    MacOSDemoRunner,
     MacOSLiveEditor,
     MacOSLiveScript,
     MacOSRenderer,
@@ -72,6 +73,7 @@ def run_demo(
     var scene_renderer = MacOSCanvasSceneRenderer()
     var live_editor = MacOSLiveEditor()
     var live_script = MacOSLiveScript()
+    var runner = MacOSDemoRunner()
     var walkthrough = DemoWalkthroughDriver()
     if automated:
         walkthrough.start(catalog_sweep)
@@ -90,6 +92,16 @@ def run_demo(
             changed = app.dispatch_with_clipboard(event, clipboard) or changed
             event = window.poll_event()
         if app.component.finish_input_batch():
+            app.rebuild()
+            changed = True
+        var task = app.component.take_pending_task()
+        if task != "":
+            app.component.set_task_result(task, runner.launch(task))
+            app.rebuild()
+            changed = True
+        elif app.component.task_running and not runner.is_running():
+            var finished = app.component.active_task
+            app.component.set_task_completion(finished, runner.exit_status())
             app.rebuild()
             changed = True
         # Expand the geometry produced by this input batch, before presenting.

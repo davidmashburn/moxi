@@ -70,6 +70,7 @@ from moxi_demo import (
     DEMO_THEME_SHOWCASE_SLOT_ID,
     DEMO_PAGE_QUICKSTART_ID,
     DEMO_PLOT_ID,
+    DEMO_FORMULA_EDITOR_ID,
     DEMO_PLOT_GALLERY_ID,
     DEMO_PLOT_SVG_ID,
     DEMO_NAV_PORTAL_ID,
@@ -107,7 +108,7 @@ def action(target: Int) -> Event:
 
 def main() raises:
     var catalog = DemoCatalog()
-    test_check(catalog.count() == 27)
+    test_check(catalog.count() == 28)
     test_check(catalog.visible_count("plot", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("PLOT", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("", DEMO_CATEGORY_PLOTTING) == 4)
@@ -292,6 +293,13 @@ def main() raises:
     test_check(app.dispatch(action(DEMO_RUN_BUTTON_ID)))
     test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(app.component.take_pending_task().count_codepoints() == 0)
+
+    var formula_app = App[DemoBrowserState](DemoBrowserState(), Rect(0, 0, 1180, 760))
+    test_check(formula_app.dispatch(Event(TextInputEvent("formula"))))
+    test_check(formula_app.component.selected_id == DEMO_FORMULA_EDITOR_ID)
+    test_check(formula_app.dispatch(action(DEMO_RUN_BUTTON_ID)))
+    test_check(formula_app.component.take_pending_task() == "formula-editor-demo")
+    test_check(formula_app.component.take_pending_task() == "")
 
     # The walkthrough itself uses typed handlers behind the capability bus.
     var walkthrough_app = App[CapabilityWalkthroughState](

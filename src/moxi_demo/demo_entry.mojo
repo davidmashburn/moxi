@@ -29,6 +29,7 @@ from .catalog_types import (
     DEMO_CORETEXT_ID,
     DEMO_COUNTER_ID,
     DEMO_FORM_ID,
+    DEMO_FORMULA_EDITOR_ID,
     DEMO_FRACTAL_ID,
     DEMO_HARFBUZZ_ID,
     DEMO_HELLO_COMPONENT_ID,
@@ -48,6 +49,7 @@ from .catalog_types import (
     DEMO_PAGE_LIVE_SCRIPT,
     DEMO_PAGE_NESTED,
     DEMO_PAGE_ROW,
+    DEMO_PAGE_STATIC,
     DEMO_PAGE_SHOWCASE,
     DEMO_PAGE_THEME_SHOWCASE,
     DEMO_PAGE_WRAPPED,
@@ -108,7 +110,7 @@ struct DemoCatalog(ImplicitlyCopyable):
     var entries: List[DemoEntry]
 
     def __init__(out self):
-        self.entries = List[DemoEntry](capacity=27)
+        self.entries = List[DemoEntry](capacity=28)
         self.entries.append(DemoEntry(
             DEMO_HELLO_WINDOW_ID,
             "Hello Window",
@@ -405,6 +407,18 @@ struct DemoCatalog(ImplicitlyCopyable):
             DEMO_PAGE_SHOWCASE,
             True,
             "var shaper = HarfBuzzTextShaper()\nvar result = shaper.shape(\"office • مرحبا • नमस्ते\", style, 0.0, 0)",
+        ))
+
+        self.entries.append(DemoEntry(
+            DEMO_FORMULA_EDITOR_ID,
+            "Formula Editor",
+            DEMO_CATEGORY_TEXT,
+            "Edit fractions, radicals, and matrices in 2D or text. Expand a selection with optional SymPy.",
+            "examples/math/workbench.mojo",
+            "formula-editor-demo",
+            DEMO_PAGE_STATIC,
+            False,
+            "var app = App(MathEditor(), Rect(0, 0, 1180, 820))\napp.component.workbench_controls = True\napp.rebuild()",
         ))
 
     def __init__(out self, *, copy: Self):

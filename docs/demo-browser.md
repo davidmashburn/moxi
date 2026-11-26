@@ -77,8 +77,10 @@ The window is organized like this:
 - `Capability Bus Walkthrough` is a ten-step live component whose navigation,
   typed handler execution, agent request, and trusted approval all cross the
   same in-process `CapabilityBus` boundary;
-- standalone Pixi tasks remain available as companion commands, but the
-  browser does not replace a page with a fake preview or a sibling window.
+- **Formula Editor** (under **Text**) opens a separate native window with
+  **Open workbench**. The direct command is `pixi run formula-editor-demo`.
+  It uses HarfBuzz and the bundled math font. See the [math editor guide](math-editor.md)
+  for prerequisites and the optional SymPy setup.
 
 ## Interaction model & responsive layout
 

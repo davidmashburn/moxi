@@ -59,6 +59,7 @@ from .catalog_types import (
     DEMO_HELLO_COMPONENT_ID,
     DEMO_COUNTER_ID,
     DEMO_FORM_ID,
+    DEMO_FORMULA_EDITOR_ID,
     DEMO_NESTED_ID,
     DEMO_COMPOSED_ID,
     DEMO_WX_STYLE_ID,

@@ -61,6 +61,7 @@ Generated from `src/moxi_demo/__init__.mojo`, `docs/demo-api-lanes.tsv`, and the
 | `DEMO_HELLO_COMPONENT_ID` | `moxi_demo.catalog_types` | demo/support | examples, recipes, or validation support |
 | `DEMO_COUNTER_ID` | `moxi_demo.catalog_types` | demo/support | examples, recipes, or validation support |
 | `DEMO_FORM_ID` | `moxi_demo.catalog_types` | demo/support | examples, recipes, or validation support |
+| `DEMO_FORMULA_EDITOR_ID` | `moxi_demo.catalog_types` | demo/support | examples, recipes, or validation support |
 | `DEMO_NESTED_ID` | `moxi_demo.catalog_types` | demo/support | examples, recipes, or validation support |
 | `DEMO_COMPOSED_ID` | `moxi_demo.catalog_types` | demo/support | examples, recipes, or validation support |
 | `DEMO_WX_STYLE_ID` | `moxi_demo.catalog_types` | demo/support | examples, recipes, or validation support |
