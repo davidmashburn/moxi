@@ -127,6 +127,10 @@ def main() raises:
         raise Error("Wrapped draft must grow its editor without committing semantic text")
     if overlaps(map.app.component.document.world_bounds(4), map.app.component.document.world_bounds(6)):
         raise Error("Growing the native editor must reflow its neighbor")
+    var grown = map.app.component.state.camera.rect(map.app.component.document.world_bounds(4))
+    var lower_edge = Point(grown.x + grown.width / 2, grown.y + grown.height - 2)
+    if map.app.component.publication.hit_object(lower_edge) != 4:
+        raise Error("Draft growth must republish hittable geometry after local text delivery")
     map.finish_edit(True)
     if encode(map.doc) != edit_before:
         raise Error("Cancelling a grown editor changed semantic content")

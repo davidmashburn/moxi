@@ -112,6 +112,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
     var editor: Int
     var content_before: List[MountedComponent[Self.Child]]
     var content_document_before: CanvasDocument
+    var dispatching_editor_text: Bool
     var retain_child_history: Bool
     var content_dirty: Bool
     var control_pointer: Int
@@ -143,6 +144,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.editor = -1
         self.content_before = List[MountedComponent[Self.Child]]()
         self.content_document_before = document
+        self.dispatching_editor_text = False
         self.retain_child_history = True
         self.content_dirty = False
         self.control_pointer = -1
@@ -174,6 +176,7 @@ struct CanvasView[Child: Component & Deinitable](Component):
         self.editor = copy.editor
         self.content_before = copy.content_before.copy()
         self.content_document_before = copy.content_document_before
+        self.dispatching_editor_text = False
         self.retain_child_history = copy.retain_child_history
         self.content_dirty = copy.content_dirty
         self.control_pointer = copy.control_pointer
@@ -221,6 +224,11 @@ struct CanvasView[Child: Component & Deinitable](Component):
     def localized_view(mut self, bounds: Rect) -> ColumnView:
         self.parent_builds += 1
         self.state.camera.viewport = Rect(bounds.x + 20, bounds.y + 100 - self.parent_scroll, max(Float32(100), bounds.width - 40), max(Float32(100), bounds.height - 130))
+        # Only the active child receives the text event. Its update increments
+        # document.revision if it expands an object. Later camera, draft layout
+        # or pointer operations always go through the ordinary publication path.
+        if self.dispatching_editor_text and self.state.session == SessionKind.IDLE and self.publication.revision == self.document.revision:
+            return self.build_document(bounds, self.document)
         var preview = self.presentation_document()
         for i in range(len(self.mounts)):
             var rect = preview.world_bounds(self.mounts[i].id)
@@ -229,9 +237,14 @@ struct CanvasView[Child: Component & Deinitable](Component):
                 self.last_child_nodes += len(self.mounts[i].nodes)
         self.geometry_cache.prune(preview)
         self.publication = CanvasSnapshot(preview, self.state.camera, self.editor, self.geometry_cache)
-        return self.build(bounds)
+        return self.build_document(bounds, preview)
 
     def build(self, bounds: Rect) -> ColumnView:
+        if self.state.session == SessionKind.IDLE:
+            return self.build_document(bounds, self.document)
+        return self.build_document(bounds, self.presentation_document())
+
+    def build_document(self, bounds: Rect, preview: CanvasDocument) -> ColumnView:
         var root = ColumnView(bounds, 0, 0)
         root.published_geometry = True
         root.clip_to_bounds = True
@@ -259,7 +272,6 @@ struct CanvasView[Child: Component & Deinitable](Component):
         surface.style.border_width = 0
         surface.semantics.label = self.surface_hint
         root.add(surface)
-        var preview = self.presentation_document()
         ref snapshot = self.publication
         for object in preview.objects:
             if object.id not in snapshot.visible:

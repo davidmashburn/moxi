@@ -873,7 +873,9 @@ struct MindMapApp:
             if event.kind == POINTER_DOWN_KIND and self.app.component.control_at(event.position, self.app.view) < 0:
                 self.finish_edit()
             else:
+                self.app.component.dispatching_editor_text = event.kind == TEXT_INPUT_KIND
                 var editor_changed = dispatch_canvas(self.app, event)
+                self.app.component.dispatching_editor_text = False
                 self.refresh_editor()
                 return editor_changed
         if self.app.component.searching:
