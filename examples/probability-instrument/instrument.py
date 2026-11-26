@@ -3,6 +3,7 @@ import argparse
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 from moxi import Figure, PlotSpec
 
@@ -47,7 +48,14 @@ def chart(mass):
     layer = spec.add_stacked_bar(y_field="mass")
     spec.specialize(layer, series_fields=["mass", "room"])
     data = {"x": [0, 1, 2], "mass": mass, "room": [1 - p for p in mass]}
-    return Figure(data, spec, width=600, height=220).to_svg().decode()
+    svg = Figure(data, spec, width=600, height=220).to_svg().decode()
+    # Place outcome labels under the rendered marks, independent of margins.
+    bars = ET.fromstring(svg).findall(".//{*}rect[@data-mark]")
+    labels = []
+    for outcome, bar in enumerate(bars[::2]):
+        center = float(bar.get("x")) + float(bar.get("width")) / 2
+        labels.append(f'<text x="{center:g}" y="213" text-anchor="middle">{outcome}</text>')
+    return svg.replace("</svg>", "".join(labels) + "</svg>")
 
 
 class Handler(BaseHTTPRequestHandler):
