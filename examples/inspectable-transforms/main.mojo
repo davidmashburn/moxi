@@ -497,6 +497,10 @@ def replay(mut window: MacOSWindowInstance, mut app: Demo, directory: String) ra
     click(window,app,460)
     require(app.source.value() == target and app.source.revision() == revision+1 and app.source.depth() == 1 and not app.source.draft,"Commit did not produce exactly one native undo unit")
     var record = app.record
+    # Literal boundary fixtures pin wire compatibility independently of the
+    # consumer's operation/target methods and the encoder/decoder round trip.
+    var expected = '{"version":1,"operation":"canvas.move-x","target":"canvas/card-1","revision":1,"from":80,"to":230}' if app.source.kind == Consumer.CANVAS else '{"version":1,"operation":"spatial.position-x","target":"spatial/object-101/x","revision":2,"from":0,"to":700}'
+    require(record == expected,"Recorded command changed the public wire fixture")
     var parsed = decode(record,app.source.kind)
     require(parsed.revision == revision and parsed.before == initial and parsed.after == target,"Wrong semantic recording")
     var path = directory+"/command.json"
@@ -528,6 +532,10 @@ def replay(mut window: MacOSWindowInstance, mut app: Demo, directory: String) ra
     require(not app.apply(wrong_target) and app.copy.draft and app.copy.value(True) == draft_target,"Wrong identity mutated native preview")
     var malformed: List[String] = ["null","[]","{}",'{"version":true}',
         '{"version":1,"operation":"cursor.move","target":"signal/cursor","revision":0,"from":25,"to":70}']
+    malformed.append(String('{"version":1,"operation":"unknown","target":"',app.copy.kind.target(),
+        '","revision":',copy_revision+2,',"from":',initial,',"to":',draft_target,'}'))
+    malformed.append(String('{"version":1,"operation":"',app.copy.kind.operation(),'","target":"unknown",',
+        '"revision":',copy_revision+2,',"from":',initial,',"to":',draft_target,'}'))
     for version in ["true","2","\"1\"","1.5"]:
         malformed.append(boundary_record(app.copy.kind,version,String(copy_revision+2),String(initial),String(draft_target)))
     for rev in ["-1","true","1.5","9007199254740992"]:
