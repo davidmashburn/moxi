@@ -1,0 +1,36 @@
+{
+  "captured_utc": "2026-11-26T02:52:02.784320+00:00",
+  "hashes": {
+    "moxi-fdg": "77d188e4e11e4ecb67d3a8fb14d4c03245b5c8d96b0fdae391221f57d27068ad",
+    "export.json": "45178e433f71927b7f7795aee7c472df23f843b57fb37d12835b640e35905f42",
+    "current.pdf": "6957d6f7be16dd98a19bffe616be4a2fc2147842211493da793c53359ce3eae0",
+    "current.png": "9b00b371d298f5de4d5d4581e9e38298ff4c0a68ca54ca783998370f82d1856d",
+    "current.svg": "59ea58fefa6b5f4823a52b867ede731c9c13573b3e1ab2fcfa1d154c0ad7cab0",
+    "export-check.json": "5e054bde597ab48fb937634db5554e266c9bcd3d86d32b62edac0fb30b910148",
+    "phase-2.png": "ef60b7856629f2259b41df2a952442b0e18314f3f1275dd0863212fb50d75e2e",
+    "recovered.svg": "59ea58fefa6b5f4823a52b867ede731c9c13573b3e1ab2fcfa1d154c0ad7cab0",
+    "reopened-pdf.png": "35da8311296ddfee4d6c1b987f306c56a96f2e1807abfac19208324851d32cfa"
+  },
+  "checks": {
+    "dimensions": [
+      1068,
+      560
+    ],
+    "labels": [
+      "A & <\u03b1>",
+      "B \u03b2",
+      "C \u03b3"
+    ],
+    "pdf_text": "A & <\u03b1>\r\nB \u03b2\r\nC \u03b3",
+    "node_centers_compared": 3,
+    "png_pdf_mean_absolute_error": 0.0630094078830034,
+    "native_label_ink_pixels": [
+      70,
+      35,
+      28
+    ],
+    "native_node_centers_match": true,
+    "pdf_rasterizer": "PDFium via pypdfium2",
+    "native_pixel_parity": "not asserted"
+  }
+}
