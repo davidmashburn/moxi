@@ -172,3 +172,22 @@ IME interaction, VoiceOver (explicitly excluded), compositor/GPU presentation,
 other platforms, allocation-failure injection, a full repository test sweep and
 remote CI were not checked. ASan covers the focused growth regression; these
 measurements do not attribute total process RSS or all AppKit allocations.
+
+## Cost of validating the published view tree
+
+At `47380f0`, tree validation indexes each view ID once and looks up parents by ID. The regression compares 20,736 candidate trees with the previous validator and exercises forward parents, deep trees, invalid IDs and cycles.
+
+On the 1,000-visible-node fixture, three alternating CPU process pairs collected 120 samples per version. Dispatch and publication fell from 157.331 to 58.574 ms p95. Paint and scene construction measured 6.868 and 6.437 ms p95, respectively. Reproduce the CPU benchmark with:
+
+```sh
+pixi run --locked mojo run -I src -I tests -I examples tests/canvas_dispatch_benchmark.mojo
+```
+
+A separate AppKit process pair exercised 40 scrolls per version. Each percentile below uses the elapsed phases for the same event.
+
+| Native p95 | Before | After |
+| --- | ---: | ---: |
+| Dispatch through submission, including semantics | 190.206 ms | 121.880 ms |
+| Dispatch through AppKit drawing | 291.830 ms | 223.576 ms |
+
+Both runs painted all 1,000 buttons with zero overflow. Four captured states matched byte for byte. The 8 ms submission budget remains open. The measurements cover a single Mac under uncontrolled scheduling and exclude compositor presentation.

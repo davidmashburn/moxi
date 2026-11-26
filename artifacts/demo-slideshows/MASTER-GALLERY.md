@@ -51,6 +51,12 @@ The [historical finding](spatial-world-panel/HISTORICAL-GALLERY-AUDIT.md) and
 the normal audit for the present inventory; these tools do not recapture demos,
 change their acceptance status, or update the ledger or planning branch.
 
+## Current gallery inventory
+
+The clean inventory at `8218159` contains 99 entries, 97 playable decks and 818 verified frame references. Two entries present comparison or review evidence directly. The repository-wide strict check passes. Offline Chrome decoded all 1,584 slide and thumbnail images at each of two sizes, 1280 × 800 and 390 × 844. Previous, next and thumbnail navigation worked in all 57 relative-image decks.
+
+The [tricontour deck](e03-tricontour/index.html) pairs five historical frames with a new upstream-status capture. Its [provenance record](e03-tricontour/README.md) identifies the source of each frame and retains the checksum of the withheld original.
+
 ## Inventory after capture recovery
 
 A clean checkout of `a4ce338` contains 96 playable decks across 99 catalog

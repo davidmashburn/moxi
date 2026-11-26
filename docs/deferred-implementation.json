@@ -15,7 +15,8 @@
     "November 6, 2026: main b2361c2d4131cb6bbc25ebf5e4816e2fe347250b was published. Push run 42307044304 had five successful jobs and a package-consumer failure for missing native/macos_window_state.h: https://github.com/davidmashburn/moxi/actions/runs/42307044304.",
     "November 20, 2026: push run 44825872712, attempt 1, completed successfully on exact published main d7fa3ed563948860f4baf18bcc9f3eb279197135; all six workflow jobs, including package-consumer, succeeded: https://github.com/davidmashburn/moxi/actions/runs/44825872712. See deferred-pause-handoff.md#published-main-verification--november-20-2026 for job evidence and coverage limits.",
     "Hosted aggregate success does not close manual, gallery, broader-host, scientific or redistribution gates. VoiceOver remains paused; the separate moxi-sws app is outside this Moxi push and CI run.",
-    "November 26, 2026: gallery recovery restored 379 original PNGs and delivered 56 relative-image decks. The clean checkout at a4ce338 has 96 playable decks across 99 catalog entries. One tricontour frame was withheld in publication review. See docs/demo-gallery-originals.md for the historical provenance."
+    "November 26, 2026: gallery recovery restored 379 original PNGs and delivered 56 relative-image decks. The clean checkout at a4ce338 has 96 playable decks across 99 catalog entries. One tricontour frame was withheld in publication review. See docs/demo-gallery-originals.md for the historical provenance.",
+    "The clean gallery inventory at 8218159 has 99 entries, 97 playable decks and 818 frame references. The strict catalog check passed. The tricontour deck carries fresh provenance for its replacement status image. The historical withheld original remains excluded."
   ],
   "plans": [
     {
@@ -70,14 +71,16 @@
       "state": "implemented",
       "commits": [
         "5921b47",
-        "23c67e8"
+        "23c67e8",
+        "218a33a"
       ],
       "verification": [
         "Parent rebuilt the integrated branch with the pinned Mojo/Clang/LLD toolchain; 6371 native/Wasm comparisons passed, maximum absolute SVG error 0.000200000000177 within the declared tolerance.",
         "Runtime intrinsic/ABI checks, bounded input/capacity checks, stale handles, isolated instances, exhaustion and 100 teardown cycles passed; zero tracked live allocations after normal teardown.",
         "Parent reran actual browser mouse/keyboard/wheel/resize/disposal/recreation/unsupported-runtime scenarios; eight fresh captures and offline slideshow assertions passed.",
         "Shared gallery validated both F01 and P01 manifests; parent visually inspected all eight P01 captures.",
-        "Firefox 159 on Linux arm64 and Playwright WebKit 27.2 on macOS arm64 each passed 11 scenarios, including independent graph instances, keyboard selection, dragging, resize, disposal and reload. Both completed 6,515 native/Wasm comparisons and 100 disposal cycles with zero live tracked allocations. The integration checkout repeated the WebKit scenarios and Node comparison."
+        "Firefox 159 on Linux arm64 and Playwright WebKit 27.2 on macOS arm64 each passed 11 scenarios, including independent graph instances, keyboard selection, dragging, resize, disposal and reload. Both completed 6,515 native/Wasm comparisons and 100 disposal cycles with zero live tracked allocations. The integration checkout repeated the WebKit scenarios and Node comparison.",
+        "A stale search for disposed pane A previously interrupted B. The repaired replay passed 12 scenarios on Firefox 159/Linux arm64 and WebKit 27.2/macOS arm64, including click and arrow selection in B after disposing A. Each passed 6,515 comparisons and 100 disposal cycles with zero tracked live allocations."
       ],
       "remaining_gates": [
         "Experimental host LLVM retargeting only: direct Mojo Wasm compilation fails, and general ABI/compiler portability is not established.",
@@ -301,10 +304,12 @@
       "state": "partial",
       "commits": [
         "290185b",
-        "b764fe3"
+        "b764fe3",
+        "8eed133"
       ],
       "verification": [
-        "Two private Sway runs exercised the GTK workbench with Xwayland disabled. Seven captures covered focus, modal dismissal, resize and restoration. Both Windows DLL targets exported the counter and the Linux control executed three transitions."
+        "Two private Sway runs exercised the GTK workbench with Xwayland disabled. Seven captures covered focus, modal dismissal, resize and restoration. Both Windows DLL targets exported the counter and the Linux control executed three transitions.",
+        "The experimental workflow builds one scalar DLL and its import library for each Windows architecture. Local Ubuntu checks verified both PE targets. Actual calls require execution on the matching Windows AMD64 and ARM64 runners."
       ],
       "remaining_gates": [
         "Windows DLL loading, a runtime-dependent Windows workload, Wayland IME, clipboard, accessibility, desktop integration and GPU presentation remain open."
@@ -364,7 +369,8 @@
       "commits": [
         "5db9a01",
         "3c288b9",
-        "9d5ee8d"
+        "9d5ee8d",
+        "47380f0"
       ],
       "verification": [
         "Parent reviewed and corrected native edge/control/overlay layering, per-slice clips and owner restoration; negative edge IDs and no-op ungroup are rejected.",
@@ -374,7 +380,8 @@
         "Review fix: canvas Create allocates beyond retained mount identities; create/delete/create and delete/undo/redo/create regressions pass with retained content/history.",
         "Public AppKit presenter renders all 1,000 visible nodes in the 3,015-view fixture. Selection, moving geometry, native input, ordered and semantic overflow refusal, independent window ownership and the installed native package consumer passed.",
         "AppKit starts at 1,024 native slots and grows on demand to 4,096. Allocator totals for window state plus backing were 22,396,928 bytes before growth and 27,049,984 after. See docs/canvas-table-storage-evidence.md.",
-        "Integrated replay of 40 scrolls through publication, submission, semantics and AppKit drawRect measured 323.798 ms p95. This excludes compositor presentation. The 8 ms budget remains open."
+        "Integrated replay of 40 scrolls through publication, submission, semantics and AppKit drawRect measured 323.798 ms p95. This excludes compositor presentation. The 8 ms budget remains open.",
+        "Indexing view IDs reduced dispatch-through-submission p95 from 190.206 to 121.880 ms in a paired AppKit run of 40 scrolls per revision with 1,000 visible nodes. Through drawRect the corresponding values were 291.830 and 223.576 ms. The four capture pairs matched byte for byte. The 8 ms budget remains open."
       ],
       "remaining_gates": [
         "The 8 ms large-graph budget remains unmet. GPU, input-to-presentation latency, whole-process allocation and other native host capacity need measurements.",
@@ -518,7 +525,8 @@
         "4706b42",
         "95d6615",
         "3f1f3e1",
-        "43306e3"
+        "43306e3",
+        "4ea6d1e"
       ],
       "verification": [
         "Parent: 85 Python tests, five focused Mojo regressions, nine layout/event/export parity replays, PlotSpec contract and API inventory passed.",
@@ -526,7 +534,8 @@
         "All 54 PNGs decoded and hashed; updates change output and recovery is pixel-exact. All nine slideshow pages loaded 12 images and passed navigation. Comparison, selection and update views visually inspected.",
         "Review fix: facade wheel and source distribution retain the exact pinned dataviz_mojo MIT notice; artifact inspection and clean installed consumer pass.",
         "All nine Wave A fixtures display category labels. Grouped/stacked bar and population pyramid legends identify the series. Independent checks covered 36 scenarios across AppKit, Metal, software and Canvas.",
-        "At 180 by 150, the native population pyramid wraps the fixture title and separates the minimum, zero and maximum tick labels. The 320 by 240 and 640 by 480 fixtures match the previous AppKit, Canvas, software and SVG output byte for byte."
+        "At 180 by 150, the native population pyramid wraps the fixture title and separates the minimum, zero and maximum tick labels. The 320 by 240 and 640 by 480 fixtures match the previous AppKit, Canvas, software and SVG output byte for byte.",
+        "The standard test command now exercises all nine Wave A fixtures, including the compact population pyramid. The old renderer failed the newly wired check and the repaired renderer passed."
       ],
       "remaining_gates": [
         "Palette, margins, domain fitting and some primitive differences remain.",
@@ -593,14 +602,16 @@
         "99e04a4",
         "4915156",
         "780c662",
-        "596eb38"
+        "596eb38",
+        "8218159"
       ],
       "verification": [
         "Integrated with Wave B; typed provenance preserves C primary selection and B contributor selection.",
         "315 combined Python tests; 12 native family contracts, 91 negative and 10 positive boundaries passed. Legacy spec/view/runtime/selection, API and scenario checks pass.",
         "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour.",
         "All nine chord shapes exceeded 0.995 sampled overlap against the pinned SVG and preserved source-row picking. The 19 calendar and four real Sankey node labels matched the reference text within 0.48 px of their anchors.",
-        "Python PNG and vector PDF carry the fitted weekday, month and real flow-node names. All 19 calendar and four Sankey Python SVG anchors retain their pinned alignment within 0.48 pixels."
+        "Python PNG and vector PDF carry the fitted weekday, month and real flow-node names. All 19 calendar and four Sankey Python SVG anchors retain their pinned alignment within 0.48 pixels.",
+        "The six-frame tricontour deck opens from a clean checkout. Its new status image records that the original pinned upstream tree had 56 tracked Mojo files and zero tricontour matches. Five historical capture records and image files were preserved."
       ],
       "remaining_gates": [
         "Long adjacent labels can be omitted. Native raster annotation parity, mixed-layer framing, native-window input, independent scientific assessment and large-data performance remain open.",
@@ -624,14 +635,16 @@
         "6a8b784",
         "95d6615",
         "0605f79",
-        "3e71975"
+        "3e71975",
+        "ccecd8d"
       ],
       "verification": [
         "Integrated and rebuilt after E02/E03. All compiled source hashes match the integrated source.",
         "46 native tests and 315 facade tests pass in an isolated installed-wheel consumer; independent dependency and exact runtime-notice inspection passes.",
         "Facade wheel and source distribution retain the exact pinned MIT notice; missing installed runtime notices fail the native build.",
         "A clean CPython 3.11 build on macOS arm64 passed 48 native and 372 facade tests. Independent controls checked wheel notices, runtime origin, signatures and rejection by the wrong interpreter.",
-        "On November 26, isolated CPython 3.13 and 3.14 consumers on macOS arm64 each passed 48 native and 448 facade tests, including PNG and rasterized PDF annotation checks. The harness at ccecd8d stages the example used by the facade tests."
+        "On November 26, isolated CPython 3.13 and 3.14 consumers on macOS arm64 each passed 48 native and 448 facade tests, including PNG and rasterized PDF annotation checks. The harness at ccecd8d stages the example used by the facade tests.",
+        "Hosted macOS 15 arm64 wheel jobs passed for CPython 3.13 and 3.14 at d7d617d. The isolated local consumer also passed 48 native and 448 facade tests per interpreter. https://github.com/davidmashburn/moxi/actions/runs/45761626675"
       ],
       "remaining_gates": [
         "Redistribution rights, sanitizer coverage, CPython 3.11 on macOS 15 and other hosts remain open."

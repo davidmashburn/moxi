@@ -3,8 +3,7 @@
 This recovery restores 379 original PNGs referenced by 52 existing gallery
 manifests at revision `e378c63`. The image bytes are unchanged: these are historical
 captures, not new screenshots or evidence that the current applications pass.
-Publication review excluded an additional original; some catalog entries still
-lack complete publishable inputs.
+Publication review excluded one additional original. A later [tricontour status capture](../artifacts/demo-slideshows/e03-tricontour/README.md) completes the six-frame deck with its own provenance.
 
 Provenance has two strengths:
 
