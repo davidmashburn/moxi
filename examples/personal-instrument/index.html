@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phrase desk</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f1e7;color:#202f30;font:16px/1.45 "Gill Sans",system-ui,sans-serif}
+main{max-width:980px;margin:auto;padding:clamp(16px,4vw,44px)}h1,h2{font-family:Georgia,serif;font-weight:500;margin:0 0 .4em}h1{font-size:clamp(40px,6vw,64px);letter-spacing:-.05em}
+header{display:flex;justify-content:space-between;align-items:center}section{background:#fffdf7;padding:20px;border:1px solid #cecbbd;border-radius:10px;margin:12px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid section{margin:0;min-width:0}svg{max-width:100%;height:auto;display:block}
+button,select,input{font:inherit}button,select{border:1px solid #92998e;border-radius:5px;padding:7px 10px;background:#fffdf7;color:inherit}button{cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #b65721;outline-offset:2px}
+#notes{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}.note{padding:8px 2px}.note span{display:block;font-size:13px}.note[aria-pressed=true],#stamp{background:#205a55;color:white}
+label{display:block;margin:10px 0}input[type=range]{width:100%;accent-color:#205a55}.row{display:flex;gap:8px;flex-wrap:wrap}p{margin:8px 0}small{display:block;color:#515b53}#status{min-height:1.5em}
+@media(max-width:640px){.grid{grid-template-columns:1fr}#notes{grid-template-columns:repeat(4,1fr)}}
+</style>
+<main><header><h1>Phrase desk</h1><button id="listen">Play phrase</button></header>
+<section><h2>Phrase</h2><div id="notes" aria-label="Phrase steps"></div><small>Each step shows pitch, accent and note length. Select a step to edit it.</small></section>
+<div class="grid"><section><h2>Performance</h2>
+<label>Input <output id="amount"></output><input id="input" type="range" min="0" max="100" value="50"></label>
+<p id="target"></p><div class="row"><button id="stamp">Apply to step</button><button id="next">Next step</button></div>
+<p><button id="pad">Keyboard pad</button></p><small>Focus the pad. ↑ / ↓ adjust input, Space applies, and → advances. Advancing past the last step returns to the first.</small>
+</section><section><h2>Mapping editor</h2><label>Apply operation <select id="operation"></select></label>
+<label>Output at half input <select id="midpoint"></select></label><div id="plot" role="img" aria-label="Draft response from zero to full output"></div>
+<p id="preview"></p><div class="row"><button id="save">Save mapping</button><button id="restore">Restore defaults</button></div>
+</section></div><p role="status" id="status"></p></main>
+<script>
+'use strict';
+const fixture = __INSTRUMENT__;
+const $ = id => document.getElementById(id);
+const Operation = Object.freeze({ACCENT:'accent', LENGTH:'length'});
+const label = {[Operation.ACCENT]:'Accent', [Operation.LENGTH]:'Length'};
+const mappingKey = 'moxi.phrase.v1.mapping', scoreKey = 'moxi.phrase.v1.score';
+const defaults = {version:1, operation:Operation.ACCENT, midpoint:50};
+const initialScore = fixture.pitches.map(() => ({accent:70, length:80}));
+const percent = n => Number.isInteger(n) && n >= 0 && n <= 100;
+function read(key, fallback, valid, issues) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    const value = JSON.parse(raw);
+    if (valid(value)) return value;
+  } catch {}
+  issues.push(key === mappingKey ? 'Saved mapping unreadable. Defaults active.' : 'Saved score unreadable. Seed phrase active.');
+  return fallback;
+}
+const issues = [];
+let mapping = read(mappingKey, defaults, m => m.version === 1 && Object.values(Operation).includes(m.operation)
+  && Number.isInteger(m.midpoint) && Object.hasOwn(fixture.curves,m.midpoint), issues);
+let score = read(scoreKey, initialScore, s => Array.isArray(s) && s.length === initialScore.length
+  && s.every(note => percent(note.accent) && percent(note.length)), issues);
+let step = 0;
+const operation = $('operation'), midpoint = $('midpoint'), input = $('input');
+for (const [value,name] of Object.entries(label)) operation.add(new Option(name,value));
+for (const value of Object.keys(fixture.curves)) midpoint.add(new Option(value+'%',value));
+function syncEditor() { operation.value = mapping.operation; midpoint.value = mapping.midpoint; }
+function draft() { return {version:1,operation:operation.value,midpoint:Number(midpoint.value)}; }
+function output(m) { return fixture.curves[m.midpoint].values[Number(input.value)]; }
+function description(m) { return label[m.operation]+' '+output(m)+'%'; }
+const buttons = fixture.pitches.map((pitch,i) => {
+  const b = document.createElement('button');
+  b.className = 'note';
+  b.onclick = () => { step = i; render(); };
+  $('notes').append(b);
+  return b;
+});
+function render() {
+  buttons.forEach((b,i) => {
+    const pitch = fixture.pitches[i], n = score[i];
+    b.innerHTML = '<strong>'+['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'][pitch%12]+(Math.floor(pitch/12)-1)+'</strong><span>'+n.accent+' · '+n.length+'</span>';
+    b.setAttribute('aria-label', 'Step '+(i+1)+', MIDI '+pitch+', accent '+n.accent+'%, length '+n.length+'%');
+    b.setAttribute('aria-pressed',i === step);
+  });
+  $('amount').value = input.value+'%';
+  $('target').textContent = 'Step '+(step+1)+' → '+description(mapping);
+  $('preview').textContent = 'Draft at '+input.value+'% input → '+description(draft());
+  $('plot').innerHTML = fixture.curves[midpoint.value].svg;
+}
+function persist(key,value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch { $('status').textContent = 'Storage unavailable. Change could not be saved.'; return false; }
+}
+function apply() {
+  const updated = score.slice();
+  updated[step] = {...score[step],[mapping.operation]:output(mapping)};
+  if (!persist(scoreKey,updated)) return;
+  score = updated;
+  $('status').textContent = 'Applied '+description(mapping)+' to step '+(step+1)+'.';
+  render();
+}
+function advance() { step = (step+1)%score.length; render(); }
+function install(value,message) {
+  if (!persist(mappingKey,value)) return;
+  mapping = value; syncEditor(); render(); $('status').textContent = message;
+}
+$('stamp').onclick = apply;
+$('next').onclick = advance;
+$('save').onclick = () => install(draft(),'Mapping saved.');
+$('restore').onclick = () => install(defaults,'Default mapping restored.');
+for (const el of [input,operation,midpoint]) el.oninput = render;
+$('pad').onclick = apply;
+$('pad').onkeydown = e => {
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  if (e.key === 'ArrowRight') advance();
+  else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    input.value = Number(input.value)+(e.key === 'ArrowUp'?1:-1); render();
+  } else return; // Space uses native button activation.
+  e.preventDefault();
+};
+let context;
+$('listen').onclick = async () => {
+  const play = $('listen');
+  play.disabled = true;
+  try {
+    context ??= new AudioContext();
+    await context.resume();
+    const start = context.currentTime + 0.02;
+    score.forEach((n,i) => {
+      if (!n.length || !n.accent) return;
+      const oscillator = context.createOscillator(), gain = context.createGain();
+      const t = start+i*0.25, end = t+n.length*0.0025;
+      oscillator.frequency.value = 440*2**((fixture.pitches[i]-69)/12);
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(n.accent*0.0015,Math.min(end,t+0.006));
+      gain.gain.linearRampToValueAtTime(0,end);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(t); oscillator.stop(end);
+    });
+    await new Promise(done => setTimeout(done,score.length*250+30));
+  } catch { $('status').textContent = 'Audio playback unavailable.'; }
+  finally { play.disabled = false; }
+};
+syncEditor(); render(); $('status').textContent = issues.join(' ');
+</script></html>
