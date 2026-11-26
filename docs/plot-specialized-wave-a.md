@@ -196,3 +196,10 @@ inspected. All nine slideshow pages loaded their 12 embedded images and passed
 next/previous navigation. Confidence is high in the tested geometry and identity
 contracts, moderate in presentation quality; real human/native acceptance could
 change that assessment. The visual differences described above remain open.
+
+The [November 25 comparison](../artifacts/demo-slideshows/e01-category-labels/comparison.png)
+shows the pinned reference, Moxi Canvas and Python output for each of the nine
+fixtures at 640 × 480. The capture used the Wave A changes now recorded in
+`3f1f3e1`. Grouped and stacked bars identify their three series, and the
+population pyramid identifies both sides. At 180 × 150 the pyramid title and
+numeric ticks can still crowd one another.

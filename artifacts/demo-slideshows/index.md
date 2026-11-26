@@ -9,6 +9,9 @@
 | P11 | GTK workbench on nested headless Wayland | [Offline slideshow](p11-wayland/index.html) · [Replay instructions](../../experiments/wayland-host/README.md) |
 | D01 | Native symbolic backend comparison | [Capture recipe and limitations](d01-math-backends/REPRODUCE.md); [local self-contained slideshow](d01-math-backends/index.html) |
 | N01 | Unfinished-feature pattern | [Capture guide](../../docs/not-implemented-pattern.md); [local self-contained slideshow](not-implemented/index.html) |
+| E01 | Category labels and series legends in nine chart families | [Reference, Canvas and Python comparison](e01-category-labels/comparison.png) · [Replay instructions](../../docs/plot-specialized-wave-a.md) |
+| E02 | Contour saddle connectivity | [Visual comparison and reproduction](../plot-contour-connectivity/README.md) |
+| E03 | Chord geometry, calendar and Sankey labels | [Comparisons and source picking](e03-flow-calendar-followup/README.md) |
 | E05 | Cairo Scene export | [Render comparison](cairo-scene/index.html) · [Decision and replay](../../experiments/cairo-scene/README.md) |
 | E06 | Funnel stage order and source selection | [Slideshow](../../examples/funnel/evidence/comparison.html) · [Run instructions](../../examples/funnel/README.md) |
 | I11 | Inspectable fit proposals | [Slideshow](visible-proposals/index.html) · [Run instructions](../../examples/visible-proposals/README.md) |

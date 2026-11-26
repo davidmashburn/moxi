@@ -489,28 +489,31 @@
       "state": "partial",
       "commits": [
         "4706b42",
-        "95d6615"
+        "95d6615",
+        "3f1f3e1"
       ],
       "verification": [
         "Parent: 85 Python tests, five focused Mojo regressions, nine layout/event/export parity replays, PlotSpec contract and API inventory passed.",
         "Pinned dataviz v0.8.0 reference output hashes verified; nine six-frame galleries generated from clean source 4706b42 and scoped source hash 6031303e65b3f7feb8191c377487468bf8a30c73c04e8aaaba72b46ab4e5c895.",
         "All 54 PNGs decoded and hashed; updates change output and recovery is pixel-exact. All nine slideshow pages loaded 12 images and passed navigation. Comparison, selection and update views visually inspected.",
-        "Review fix: facade wheel and source distribution retain the exact pinned dataviz_mojo MIT notice; artifact inspection and clean installed consumer pass."
+        "Review fix: facade wheel and source distribution retain the exact pinned dataviz_mojo MIT notice; artifact inspection and clean installed consumer pass.",
+        "All nine Wave A fixtures display category labels. Grouped/stacked bar and population pyramid legends identify the series. Independent checks covered 36 scenarios across AppKit, Metal, software and Canvas."
       ],
       "remaining_gates": [
-        "Canvas text labels and series legends absent; theme, margins, palette, domain fitting and some primitive/order differences remain. No pixel or full upstream parity claim.",
+        "The 180\u00d7150 population pyramid still crowds its title and numeric ticks. Palette, margins, domain fitting and some primitive differences remain.",
         "Human usability/native input, large-data performance, physical frame latency, full upstream suite, other platforms/toolchains and remote CI not checked. VoiceOver remains paused."
       ],
       "slideshows": [
-        "artifacts/demo-slideshows/e01-lollipop/index.html",
-        "artifacts/demo-slideshows/e01-waterfall/index.html",
-        "artifacts/demo-slideshows/e01-candlestick/index.html",
-        "artifacts/demo-slideshows/e01-bullet/index.html",
-        "artifacts/demo-slideshows/e01-grouped-bar/index.html",
-        "artifacts/demo-slideshows/e01-stacked-bar/index.html",
-        "artifacts/demo-slideshows/e01-gantt/index.html",
-        "artifacts/demo-slideshows/e01-span-chart/index.html",
-        "artifacts/demo-slideshows/e01-population-pyramid/index.html"
+        "artifacts/demo-slideshows/e01-lollipop/manifest.json",
+        "artifacts/demo-slideshows/e01-waterfall/manifest.json",
+        "artifacts/demo-slideshows/e01-candlestick/manifest.json",
+        "artifacts/demo-slideshows/e01-bullet/manifest.json",
+        "artifacts/demo-slideshows/e01-grouped-bar/manifest.json",
+        "artifacts/demo-slideshows/e01-stacked-bar/manifest.json",
+        "artifacts/demo-slideshows/e01-gantt/manifest.json",
+        "artifacts/demo-slideshows/e01-span-chart/manifest.json",
+        "artifacts/demo-slideshows/e01-population-pyramid/manifest.json",
+        "artifacts/demo-slideshows/e01-category-labels/comparison.png"
       ]
     },
     {
@@ -522,21 +525,25 @@
         "9664137",
         "6a8b784",
         "52c6a5e",
-        "6004afb"
+        "6004afb",
+        "93a18d5",
+        "ad50f0d"
       ],
       "verification": [
         "Integrated with Wave C using typed contributor keys and distinct glyph identities; Wave A compatibility preserved.",
         "315 combined Python tests; 14 native Wave B family contracts and 89 boundary cases passed. Stable-key resize regression passes with viewport/visibility preservation.",
-        "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour."
+        "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour.",
+        "The pinned reference and native replay agreed on all 42 saddle segments and 50,601 filled-cell probes. The four-corner mean resolves the ambiguous diagonal. Constant threshold cells retain the documented upper-band policy."
       ],
       "remaining_gates": [
-        "Contour connectivity, outstanding radial differences, independent scientific/native acceptance, full parity and controlled performance remain open.",
+        "Broader contour grids, native fill seams, radial labels and padding, independent scientific input and controlled performance remain open.",
         "Fresh integrated-source review of every historical family sequence remains open. The supplemental gallery covers the contour cases."
       ],
       "slideshows": [
         "14 historical e02-* manifests with a tracked comparison frame per family",
         "artifacts/demo-slideshows/plot-wave-b-c-review",
-        "artifacts/demo-slideshows/plot-contour-followup"
+        "artifacts/demo-slideshows/plot-contour-followup",
+        "artifacts/plot-contour-connectivity/README.md"
       ]
     },
     {
@@ -547,22 +554,26 @@
         "9664137",
         "6a8b784",
         "52c6a5e",
-        "6004afb"
+        "6004afb",
+        "99e04a4",
+        "4915156"
       ],
       "verification": [
         "Integrated with Wave B; typed provenance preserves C primary selection and B contributor selection.",
         "315 combined Python tests; 12 native family contracts, 91 negative and 10 positive boundaries passed. Legacy spec/view/runtime/selection, API and scenario checks pass.",
-        "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour."
+        "All 26 historical Wave B/C comparison frames are committed. The supplemental gallery uses genuine dataviz 0.15.0 output for contour, filled contour and tricontour.",
+        "All nine chord shapes exceeded 0.995 sampled overlap against the pinned SVG and preserved source-row picking. The 19 calendar and four real Sankey node labels matched the reference text within 0.48 px of their anchors."
       ],
       "remaining_gates": [
-        "Chord aspect and seams, calendar and flow annotations, independent scientific/user acceptance and large-data performance remain open. VoiceOver remains paused.",
+        "Annotation parity across raster/PDF exports, mixed-layer framing, native-window input, independent scientific assessment and large-data performance remain open.",
         "Fresh integrated-source review of every historical family sequence remains open. The supplemental gallery covers the contour cases.",
         "E6 acceptance remains open."
       ],
       "slideshows": [
         "12 historical e03-* manifests with a tracked comparison frame per family",
         "artifacts/demo-slideshows/plot-wave-b-c-review",
-        "artifacts/demo-slideshows/plot-contour-followup"
+        "artifacts/demo-slideshows/plot-contour-followup",
+        "artifacts/demo-slideshows/e03-flow-calendar-followup/README.md"
       ]
     },
     {
