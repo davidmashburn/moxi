@@ -737,11 +737,20 @@
     {
       "id": "V07",
       "scope": "Learn by changing a system: oscillator prediction, manipulation, comparison, unfamiliar case.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "7059391",
+        "ba914e1"
+      ],
+      "verification": [
+        "Fourteen tests passed including normal Chrome workflows. The 4 kg and 1 kg periods were 3.142 and 1.571 seconds. Restoring the checkpoint restored answer disclosure, draft text and progression. A five-step example resumed after step three, backward selections retained their active end, and the static report distinguished control, checkpoint and exploration."
+      ],
+      "remaining_gates": [
+        "Learner prediction, explanation and transfer require participants. The performed example has five fixed actions. Physical input, screen-reader behavior and other engines remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/oscillator/index.html"
+      ]
     },
     {
       "id": "V08",

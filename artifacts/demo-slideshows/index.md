@@ -20,6 +20,7 @@
 | V04 | Tune a linkage against a force curve | [Slideshow](v04-spring-linkage/index.html) · [Run instructions](../../examples/spring-linkage/README.md) |
 | V05 | Test a transit cost argument | [Article](v05-executable-argument/argument.html) · [Slideshow](v05-executable-argument/index.html) |
 | V06 | Compose motion and sound on one clock | [Slideshow](motion-envelope/index.html) · [Run instructions](../../examples/motion-envelope/README.md) |
+| V07 | Predict and compare oscillator periods | [Lesson slideshow](oscillator/index.html) · [Recovered comparison](oscillator/recovery/spring-report.html) · [Run instructions](../../examples/oscillator/README.md) |
 | V08 | Constrained probability edits | [Slideshow](../../examples/probability-instrument/evidence/v08-probability/index.html) · [Run instructions](../../examples/probability-instrument/README.md) |
 | V09 | Timed exhibition sightlines and lighting | [Slideshow](lived-spaces/index.html) · [Recorded performance](../lived-spaces/i07/README.md) · [Run instructions](../../examples/lived-spaces/README.md) |
 | V10 | Compare three fictional allocations | [Slideshow](allocation/index.html) · [Run instructions](../../examples/allocation/README.md) |
@@ -27,4 +28,4 @@
 | V12 | Configure a musical phrase instrument | [Slideshow](../../examples/personal-instrument/evidence/personal-instrument/index.html) · [Run instructions](../../examples/personal-instrument/README.md) |
 | V13 | Patch, inspect and record a signal | [Slideshow](../../examples/visual-instrument/evidence/v13-visual-instrument/index.html) · [Run instructions](../../examples/visual-instrument/README.md) |
 
-The P08, P11, E05, E06, I11, I15, I18, I19, I20, V02, V03, V04, V05, V06, V08, V09, V10, V11, V12 and V13 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The P08, P11, E05, E06, I11, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12 and V13 galleries open from a clean checkout. Earlier entries may require running their capture recipes.

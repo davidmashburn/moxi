@@ -1,0 +1,64 @@
+{
+  "captured": "2026-11-26T03:03:49.108941+00:00",
+  "url": "http://127.0.0.1:49348/",
+  "chrome": "158.0.8127.37",
+  "python": "3.12.12",
+  "platform": "macOS-27.2.1-arm64-arm-64bit",
+  "viewport": [
+    1000,
+    850
+  ],
+  "sources": {
+    "index.html": "de8100affca53bbc9af2a83d0edd91769701e7cf8ce568c3f6f90a1ef2f0a109",
+    "lesson.js": "8fd039da5a59983158cc73878a739ac1002ea4dca476625c233aaeb5d439441f",
+    "lesson.py": "d9cc2e14e8355a7fa1acec5763e4f62e87b1753e1d1bf458bd8c035369b47eb9",
+    "serve.py": "ed75f02125bf0f509c5c59acc1ba9b666c884e54614e6dca87984a7e88815491",
+    "capture.py": "ee85fa75dd19a87fe9591d86a7d0077901b7ade61f44701d25dab14ee17ecc6e",
+    "test_browser.py": "98edf9b8cea9d5fb509609d82ee11847a3099c0223945c6f863bca889e1d97a8",
+    "style.css": "c9e4b4ff9a3043a1ebb1fa5e3736af7b37c2bce248daf7cb65d9dbe684189bbc",
+    "test_lesson.py": "b43b1462c05db6c5e42b1446f6bf36eef11bc44cea8dfb25a4fe5bc0ab218d33"
+  },
+  "scenarios": [
+    {
+      "test": "test_browser.BrowserTest.test_checkpoint_restores_progress_text_and_unrevealed_status",
+      "passed": true,
+      "pageErrors": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_checkpoint_retains_partial_and_revealed_answers",
+      "passed": true,
+      "pageErrors": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_failed_requests_remain_retryable",
+      "passed": true,
+      "pageErrors": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_formula_return_retains_active_selection_end",
+      "passed": true,
+      "pageErrors": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_recorded_five_steps_pause_explore_restore_and_resume",
+      "passed": true,
+      "pageErrors": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_report_distinguishes_control_checkpoint_and_exploration_offline",
+      "passed": true,
+      "pageErrors": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_restore_discards_inflight_compare_and_reveal",
+      "passed": true,
+      "pageErrors": []
+    },
+    {
+      "test": "test_browser.BrowserTest.test_restore_uses_saved_result_when_network_is_unavailable",
+      "passed": true,
+      "pageErrors": []
+    }
+  ],
+  "source_revision": "ba914e1038074f3539b60baa17cddf9ba5761f5f"
+}
