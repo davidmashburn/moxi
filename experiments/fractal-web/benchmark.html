@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Moxi fractal browser benchmark</title>
+<style>body{font:16px system-ui;max-width:72rem;margin:2rem auto;padding:0 1rem}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style>
+<h1>Moxi fractal browser benchmark</h1>
+<p>Runs the pinned original JavaScript renderer, actual Mojo Wasm raster, chunk profiles and a paired Canvas2D upload comparison. Timings exclude screen display and input latency.</p>
+<p id="status">Starting…</p>
+<pre id="results"></pre>
+<script type="module">
+import {runBenchmark} from './benchmark.mjs';
+const query = new URLSearchParams(location.search);
+const options = {};
+for (const name of ['warmups', 'trials', 'presentationWarmups', 'presentationTrials']) {
+  if (query.has(name)) options[name] = Number(query.get(name));
+}
+window.moxiBenchmark = {done: false, result: null, error: null};
+try {
+  const result = await runBenchmark(options, message => document.getElementById('status').textContent = message);
+  window.moxiBenchmark.result = result;
+  document.getElementById('results').textContent = JSON.stringify(result, null, 2);
+} catch (error) {
+  window.moxiBenchmark.error = String(error.stack || error);
+  document.getElementById('status').textContent = 'Failed';
+  document.getElementById('results').textContent = window.moxiBenchmark.error;
+} finally {
+  window.moxiBenchmark.done = true;
+}
+</script>
+</html>

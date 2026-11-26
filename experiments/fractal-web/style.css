@@ -1,0 +1,20 @@
+:root {color-scheme:light; font:16px/1.45 "DM Sans", system-ui, sans-serif; color:#173836; background:#f0f2eb}
+* {box-sizing:border-box}
+body {margin:0}
+main {max-width:980px; margin:0 auto; padding:clamp(16px,3vw,32px)}
+h1 {font-size:clamp(2rem,4vw,3rem); letter-spacing:-.05em; line-height:1.08; margin:.15em 0 .5em}
+form {display:flex; flex-wrap:wrap; align-items:end; gap:12px 20px; margin:0 0 16px}
+label {display:grid; gap:3px; font-size:.85rem; font-weight:600}
+select, #depth, button {font:inherit; color:inherit; background:#fafbf6; border:1px solid #a7b9ac; border-radius:5px; padding:7px 10px}
+#depth {width:8ch}
+#depth:user-invalid {border-color:#a52e37}
+button {font-size:.85rem; cursor:pointer}
+.check {display:flex; align-items:center; height:36px; gap:5px}
+input {accent-color:#24655b}
+#stage {position:relative; aspect-ratio:920/620; background:white; outline:1px solid #bbc9be; touch-action:none; user-select:none}
+canvas {position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+aside {display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding-bottom:8px; font-size:.85rem; color:#47615a}
+output {font-variant-numeric:tabular-nums}
+@media (max-width:520px) {form {gap:6px 12px} select {max-width:48vw}}
+.depth {display:flex; align-items:end; gap:2px}
+.depth button {height:36px; min-width:32px}
