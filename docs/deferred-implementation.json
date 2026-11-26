@@ -1019,10 +1019,10 @@
       "verification": [
         "In five native application processes the workbench collected a named cohort, compared three explicit fits and their residuals, and reopened the saved fixed panel. Editing the quadratic constant gave six residuals of -1. Refitting the frozen observations restored zero residuals.",
         "The normal-entry replay rejected 31 malformed configurations. A second run reproduced all 17 mounted-window captures byte-for-byte.",
-        "The 980 \u00d7 800 and 1140 \u00d7 860 native layouts preserved full coefficients, a 64-character name and a 140-character hypothesis across save and fresh-process reopen."
+        "The 980 \u00d7 800 and 1140 \u00d7 860 native layouts displayed the tested coefficients, a 64-character ASCII name and a 140-character ASCII hypothesis across save and fresh-process reopen."
       ],
       "remaining_gates": [
-        "Integration with the existing workbench, participant panel reuse, physical input and assistive technology remain open."
+        "At both window sizes, accepted names and hypotheses containing repeated emoji can clip the last character in frozen and live panels. Reopening preserves the full stored text. Integration with the existing workbench, participant panel reuse, physical input and assistive technology remain open."
       ],
       "slideshows": [
         "artifacts/demo-slideshows/investigation-tools/index.html"
