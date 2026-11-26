@@ -184,7 +184,14 @@ async function check() {
         'Cancellation restores all linked values without history and later pointer movement cannot revive the draft; pointer bounds match Home/End.',async () => {
           const initial = await state();
           for (const id of ['flat-pitch','folded-pitch','folded-tilt']) {
-            const {end} = await startDrag(id,id === 'folded-tilt' ? 20 : 26,id === 'folded-tilt' ? 65 : 30);
+            const target = id === 'folded-tilt' ? [20,65] : [26,30];
+            const {start} = await startDrag(id,...target);
+            await page.mouse.move(start.x,start.y);
+            await page.mouse.up();
+            await apply();
+            assert.deepEqual(await state(),initial,'Returning to the grab point must restore the starting geometry');
+            await cleanHistory();
+            const {end} = await startDrag(id,...target);
             await page.keyboard.press('Escape');
             await page.mouse.move(end.x+8,end.y+8);
             await page.mouse.up();

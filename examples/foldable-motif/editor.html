@@ -233,7 +233,7 @@ for (const handle of handles) {
     if (!drag || drag.node !== node || drag.pointerId !== event.pointerId) return;
     const {config,start,inverse} = drag, point = pointerPoint(event,inverse);
     const dx = point.x-start.x, dy = point.y-start.y;
-    if (dx === 0 && dy === 0) return;
+    if (dx === 0 && dy === 0) return previewEdit(config);
     let value;
     if (handle.parameter === Parameter.Pitch) {
       const basis = handle.view === View.Flat ? [count/2*2.5,0] :
