@@ -38,7 +38,7 @@ Captured November 25, 2026 on macOS arm64 with Mojo 1.1.0, Python 3.14 and Tk 8.
 | Moxi and difference | Both the [native Scene](evidence/native.svg) and [Python figure](evidence/funnel.svg) matched the centered widths and stage order. Maximum normalized vertex difference was 0.001905 for each export, within the 0.003 bound for reference pixel rounding. Moxi uses its own margins and palette. Upstream labels three swatches. The native view labels its single series, and the inspector identifies stages through its source table. |
 | Selection and table | Three GUI clicks selected source indices 1, 2 and 0. The native replay returned stable keys 11, 12 and 10. The [selected native scene](evidence/selected.svg) shows the last pick and the [CSV](evidence/source.csv) retains input order. The first native accessibility row identifies stage B. |
 | Update and keyboard | Changing A to 12 moved it to the top. Clicking it returned key 10. Escape reset focus, two Right presses reached B, and Enter selected key 11 in the [updated scene](evidence/updated.svg). The Tk replay checked the updated selected row, value and rank. |
-| Boundaries and compatibility | Equal values retained source order. A zero-width stage remained a source row and had no selectable area. Negative and all-zero datasets failed validation. The unchanged row-layout catalog fixture retained its eight row hits. |
+| Boundaries and compatibility | The native and Python checks ranked 9007199254740993 ahead of 9007199254740992. Equal values retained source order. A zero-width stage remained a source row and had no selectable area. Negative and all-zero datasets failed validation. The unchanged row-layout catalog fixture retained its eight row hits. |
 
 The Python GUI capture shows the app content after a dispatched click. Physical mouse, keyboard and screen-reader use and other operating systems were not exercised. Reference comparison covers normalized stage geometry. Colors, text, legend placement and whole-image perceptual differences have no parity score.
 
@@ -48,3 +48,5 @@ For a three-stage timing sample, the native replay times 100 PlotView constructi
 PYTHONPATH=python:examples/funnel pixi run python -m timeit -n 100 -r 5 \
   -s 'from inspector import figure' 'figure([3,9,6]).to_svg()'
 ```
+
+The native software renderer fills polygon bounds, which produces rectangular bands. Canvas and SVG preserve the taper.

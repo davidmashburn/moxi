@@ -22,6 +22,15 @@ def test_sorted_ties_and_zero_keep_source_identity():
     assert chart.hit_test(54, 100, tolerance=0) is None
 
 
+def test_adjacent_large_integers_keep_exact_ranks_and_table_values():
+    values = [2**53, 2**53 + 1, 2**53]
+    chart = funnel(values)
+    result = layout(chart.spec.layers[0], chart.data)
+    assert [g.row for g in result.glyphs] == [1, 0, 2]
+    assert [r["rank"] for r in chart.table()] == [2, 1, 3]
+    assert [r["value"] for r in chart.table()] == values
+
+
 def test_single_stage_and_legacy_default():
     chart = funnel([7])
     assert layout(chart.spec.layers[0], chart.data).glyphs[0].vertices == (

@@ -83,6 +83,18 @@ def specialized_valid(layer: PlotLayer) -> Bool:
     return True
 
 
+def _stage_order[dtype: DType](values: List[Scalar[dtype]]) -> List[Int]:
+    var order = List[Int](capacity=len(values))
+    for row in range(len(values)):
+        order.append(row)
+        var rank = row
+        while rank > 0 and values[order[rank - 1]] < values[row]:
+            order[rank] = order[rank - 1]
+            rank -= 1
+        order[rank] = row
+    return order^
+
+
 def _stage_value(data: PlotDataTable, field: String, row: Int) -> Float64:
     var index = data.column_index(field)
     if index >= 0:
@@ -218,17 +230,16 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
     var mark = layer.mark
     var n = data.row_count()
     if mark == PLOT_FUNNEL:
-        var order = List[Int]()
-        var values = List[Float64]()
+        var values = List[Float64](capacity=n)
         for row in range(n):
             values.append(_stage_value(data, layer.y_field, row))
-            order.append(row)
-            # Stable insertion order for short categorical pipelines.
-            var rank = row
-            while rank > 0 and values[order[rank - 1]] < values[row]:
-                order[rank] = order[rank - 1]
-                rank -= 1
-            order[rank] = row
+        var kind = data.field_kind(layer.y_field)
+        var order: List[Int]
+        if kind == COLUMN_INT64 or kind == COLUMN_TIMESTAMP or kind == COLUMN_DURATION:
+            var index = data.column_index(layer.y_field)
+            order = _stage_order(data.columns[index].int_values)
+        else:
+            order = _stage_order(values)
         var largest = values[order[0]]
         result.has_layout_domain = True
         result.layout_x_min = -1

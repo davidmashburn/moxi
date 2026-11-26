@@ -103,3 +103,11 @@ def main() raises:
     var sorted = PlotView(wide, data, Rect(0, 0, 640, 420))
     test_check(sorted.runtime.plot.series[0].points[0].row_key == 12)
     test_check(sorted.runtime.plot.series[0].points[1].row_key == 11)
+    _ = data.add_int_column("count")
+    for i in range(3):
+        _ = data.set_int_field("count", i, Int64(9007199254740992) + Int64(i == 1))
+    wide.layers[0].y_field = "count"
+    var counts = PlotView(wide, data, Rect(0, 0, 640, 420))
+    test_check(counts.runtime.plot.series[0].points[0].row_key == 11)
+    test_check(counts.runtime.plot.series[0].points[1].row_key == 10)
+    test_check(counts.runtime.plot.series[0].points[2].row_key == 12)

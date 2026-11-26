@@ -142,9 +142,10 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
         largest = max(values)
         if min(values) < 0 or largest <= 0:
             raise ValueError("funnel needs nonnegative values and at least one positive stage")
-        order = sorted(range(n), key=values.__getitem__, reverse=True)
+        measures = data.column(layer.y)
+        order = sorted(range(n), key=measures.__getitem__, reverse=True)
         bands = []
-        rows = [{"row_index": i, "category": categories[i], "value": values[i],
+        rows = [{"row_index": i, "category": categories[i], "value": measures[i],
                  "mark": mark.value} for i in range(n)]
         for rank, row in enumerate(order):
             upper = values[row] / largest
