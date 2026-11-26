@@ -1,0 +1,7 @@
+Mojo 1.1.0 (8189361e)
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin27.2.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+ld: warning: object file (/private/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/mojo_archive-1fbb7cd.a) was built for newer 'macOS' version (27.2) than being linked (27.0)
+ld: warning: object file (/private/var/folders/mz/0pzbh00n2hq12xwqpzcn9kgm0000gn/T/mojo_archive-492f9a0.a) was built for newer 'macOS' version (27.2) than being linked (27.0)
