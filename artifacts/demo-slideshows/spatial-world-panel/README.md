@@ -9,7 +9,7 @@ inspected. The third state now shows the repaired projected text range.
 binary checks, offline navigation, and limits. [review.json](review.json) binds
 those observations to image and log hashes. The separate
 [historical finding](HISTORICAL-GALLERY-AUDIT.md) covers the remaining catalogs
-and required master gallery; no shared index or ledger was changed.
+as observed at the capture revision. The [gallery index](../index.md) links this deck.
 
 Verify the retained local bundle from repository root:
 

@@ -8,6 +8,7 @@
 | P09 | Linux workbench on GTK render nodes | [Eight captured states](linux-gsk/index.html) · [Parity measurements](../../experiments/linux-gsk/README.md) |
 | P11 | GTK workbench on nested headless Wayland | [Offline slideshow](p11-wayland/index.html) · [Replay instructions](../../experiments/wayland-host/README.md) |
 | D01 | Native symbolic backend comparison | [Capture recipe and limitations](d01-math-backends/REPRODUCE.md); [local self-contained slideshow](d01-math-backends/index.html) |
+| D08 | Native field editing on a projected panel | [Six-frame slideshow](spatial-world-panel/index.html) · [Range and clipping checks](spatial-world-panel/REVIEW.md) |
 | N01 | Unfinished-feature pattern | [Capture guide](../../docs/not-implemented-pattern.md); [local self-contained slideshow](not-implemented/index.html) |
 | E01 | Category labels and series legends in nine chart families | [Reference, Canvas and Python comparison](e01-category-labels/comparison.png) · [Replay instructions](../../docs/plot-specialized-wave-a.md) |
 | E02 | Contour saddle connectivity | [Visual comparison and reproduction](../plot-contour-connectivity/README.md) |
