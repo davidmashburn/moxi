@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "demo_id": "cairo-scene",
+  "title": "Cairo Scene export",
+  "scenario": "Compare canonical scenes, inspect a vector PDF and replay a missing image resource.",
+  "revision": "519c2f8",
+  "scale": 1,
+  "host": "macOS arm64",
+  "backend": "Cairo 1.18.6 and MuPDF",
+  "fixture": "Four canonical scenes and five feature checks",
+  "reproduce": "bash experiments/cairo-scene/run.sh /tmp/moxi-cairo-replay",
+  "slides": [
+    {
+      "phase": "initial",
+      "capture_kind": "offscreen-render",
+      "image": "portable-primitives-cairo.png",
+      "dimensions": [
+        40,
+        30
+      ],
+      "caption": "Canonical primitive scene",
+      "action": "Replay the portable primitive fixture on Cairo.",
+      "expected": "Across the four canonical fixtures the original Canvas and software checksums match their pins."
+    },
+    {
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "image": "plot-gallery-cairo.png",
+      "dimensions": [
+        640,
+        420
+      ],
+      "caption": "Plot scene through the same adapter",
+      "action": "Switch to the plot gallery fixture and replay its 67 commands.",
+      "expected": "Mean RGB difference from the software rendering is 3.30 on the 0–255 channel scale."
+    },
+    {
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "image": "pdf-4x.png",
+      "dimensions": [
+        480,
+        96
+      ],
+      "caption": "Vector PDF at four pixels per point",
+      "action": "Export the feature cells to PDF, extract the path, text and image, then rasterize.",
+      "expected": "The PDF contains the three edges of the black triangle. All five feature checks pass."
+    },
+    {
+      "phase": "recovery",
+      "capture_kind": "offscreen-render",
+      "image": "comparison.png",
+      "dimensions": [
+        560,
+        520
+      ],
+      "caption": "Missing resource and renderer differences",
+      "action": "Replay the unresolved image handle alongside the owned two-color bitmap. Compare the rendered rows.",
+      "expected": "Cairo reports handle 17 and leaves the rightmost cell blank. The adjacent owned bitmap is visible in Cairo and PDF."
+    }
+  ]
+}

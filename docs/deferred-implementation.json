@@ -532,11 +532,21 @@
     {
       "id": "E05",
       "scope": "[Cairo scene/export evaluation](PROJECT-PLANNING.md#gate-4-supported-2d-plotting-package): canonical scene corpus adapter and maintenance/coverage/cost comparison; adopt only if evidence warrants it. Portable wgpu evaluation is owned by P09, not a duplicate worker.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "8c4ae33",
+        "519c2f8"
+      ],
+      "verification": [
+        "Four canonical scenes retained the pinned software and Canvas checksums. Cairo passed five feature checks in PNG and PDF. The PDF contains a filled vector triangle. Replacing that triangle with a native-resolution bitmap failed the path check.",
+        "Keep Cairo experimental. Mean RGB error against software ranged from 3.30 to 18.24 across the four scenes."
+      ],
+      "remaining_gates": [
+        "General resource resolution, shaped text, curves, offscreen composition, throughput and Linux packaging remain unverified. Reconsider adoption when a consumer needs general Scene PDF export."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/cairo-scene/index.html"
+      ]
     },
     {
       "id": "E06",
