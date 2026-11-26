@@ -32,7 +32,13 @@ fits and pauses. P01's default graph is 36/71, so this example supplies both
 benchmark graphs explicitly.
 
 Drag nodes; drag empty graph space to pan; wheel to zoom; click Resume/Pause or
-press Space over the output. Escape, lost pointer capture, browser blur and
+press Space over the output. At narrow widths, notebook buttons wrap and the graph
+keeps full-size Moxi controls in a horizontal scroll viewport. Tab from Dispose
+output to that viewport, then use Left/Right to scroll without leaving the output;
+Tab again enters the graph, where arrows select nodes. Horizontal wheel also
+scrolls; Shift+wheel passes through to native browser scrolling without zooming
+(physical Shift+wheel axis conversion remains unverified). Vertical wheel zooms
+the graph. Escape, lost pointer capture, browser blur and
 pointer cancellation release a drag. Arrow keys select through Moxi. The notebook
 controls and the Moxi Export SVG action download the current Moxi SVG. Unsupported
 browser compilation/runtime paths show a diagnostic and retain the static view.
@@ -167,13 +173,17 @@ serialization ends before semantics transfer. Paint is Chromium main-thread
 also **not** a paint/compositor measurement. A local roundtrip includes browser,
 Jupyter transport and Python handling; it does not isolate network-only latency.
 
-**Remote gate remains unverified.** No real remote target was available and no
-credentials were requested. To close it, run the optional Python/widget environment
-and prepared assets on a genuinely separate kernel host, connect a memory64 browser
-through that host's authenticated Jupyter frontend, and repeat all graph, delayed
-comm, disconnect/retry, restart, saved-fallback and isolation checks. Record both
-hosts, actual network topology/latency and a remote-session screenshot sequence.
-A local server and separate localhost kernel process do not satisfy this gate.
+**Physical remote-host acceptance remains unverified.** The optional
+[two-container network fixture](network/README.md) exercises the original notebook
+with Lab/Jupyter Server on one host namespace and Kernel Gateway/ipykernel on
+another, using real HTTP/WebSocket transport. It records namespace/process proof,
+network-interface removal and explicit Retry, kernel restart, narrow controls,
+metrics and saved fallback. Both containers share one local Docker Desktop VM:
+passing this experiment is evidence for the separate namespace topology, not
+physical remote hardware, WAN latency, TLS/tunneling or deployment authentication.
+To close that remaining gate, repeat the sequence on genuinely separate hardware
+and record its actual topology, transport configuration, latency and screenshots.
+A local server and separate localhost kernel process alone do not satisfy it.
 The compiler build is currently validated only on Apple Silicon; use that validated
 build's assets or establish new compiler evidence before claiming another build
 platform. Other browsers, frontends, remote resource budgets and network behavior

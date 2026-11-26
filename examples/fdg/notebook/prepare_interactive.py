@@ -31,6 +31,11 @@ def main():
         source = replace_once(source, old, new)
     (DIST / "browser.mojo").write_text(source)
     runtime = (P01 / "runtime.mjs").read_text()
+    # anywidget receives a synchronized ESM string, not a filesystem module.
+    # Bundle P01's shared allocator too; its relative import cannot resolve in
+    # either the widget's blob URL or this example's generated dist directory.
+    allocator = ROOT / "experiments/shared/memory64.mjs"
+    runtime = replace_once(runtime, "import {createMemory64Allocator, supportsMemory64} from '../shared/memory64.mjs';", allocator.read_text().replace("export ", ""))
     runtime = replace_once(runtime, '{heapLimit = Limits.memory, memory64 = supportsMemory64()}', '{heapLimit = Limits.memory, memory64 = supportsMemory64(), observe = () => {}}')
     runtime = replace_once(runtime, '  const env = {', '  const env = {\n    moxi_phase: observe,')
     (DIST / "runtime.mjs").write_text(runtime)
@@ -53,7 +58,7 @@ def main():
     run("clang", "-target", "wasm64-unknown-unknown", "-c", "-O2", DIST / "browser.portable.ll", "-o", DIST / "browser.o")
     exports = ["moxi_create", "moxi_destroy", "moxi_event", "moxi_resize", "moxi_render", "moxi_inspect", "__heap_base"]
     run(manifest.parent / ".pixi/envs/default/bin/lld", "-flavor", "wasm", "-mwasm64", "--no-entry", *[f"--export={x}" for x in exports], "--allow-undefined", "--max-memory=67108864", DIST / "browser.o", "-o", DIST / "browser.wasm")
-    sources = [*sorted((ROOT / "src").rglob("*.mojo")), *sorted((HERE.parent / "src").glob("*.mojo")), P01 / "browser.mojo", P01 / "runtime.mjs", P01 / "retarget.py", Path(__file__), HERE / "interactive.mjs"]
+    sources = [*sorted((ROOT / "src").rglob("*.mojo")), *sorted((HERE.parent / "src").glob("*.mojo")), P01 / "browser.mojo", P01 / "runtime.mjs", allocator, P01 / "retarget.py", Path(__file__), HERE / "interactive.mjs"]
     hashes = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}
     (DIST / "build.json").write_text(json.dumps(dict(versions=versions, source_hashes=hashes, wasm_sha256=hashlib.sha256((DIST / "browser.wasm").read_bytes()).hexdigest()), indent=2) + '\n')
     print("Built instrumented real Moxi widget", flush=True)

@@ -5,6 +5,9 @@ export const Kind = Object.freeze({hello:'hello', state:'state', ping:'ping', di
 export const Life = Object.freeze({starting:'starting', live:'live', failed:'failed', disposed:'disposed'});
 const Phase = Object.freeze({sceneStart:0, serializeStart:1, serializeEnd:2, eventStart:3, eventEnd:4});
 const MAX_SAMPLES = 120;
+// Six fixed-width Moxi controls plus gaps and root padding need 780 px.
+const MIN_SURFACE_WIDTH = 800;
+const VIEWPORT_SCROLL_KEYS = new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','PageUp','PageDown',' ']);
 function sample(array, value) { array.push(value); if(array.length > MAX_SAMPLES) array.shift(); }
 
 // One in-flight message and one latest-state slot. Release counts are cumulative
@@ -71,7 +74,7 @@ export default {render({model,el}) {
   let semantics=[];
   const measures={layoutMs:[],sceneMs:[],svgSerializeMs:[],wasmTransferMs:[],domSubmitMs:[],inputToDomMs:[],inputToNextRafMs:[]};
   const marks=new Map();
-  el.innerHTML=`<section class="moxi-inline" style="border:1px solid #9aabba;border-radius:8px;padding:12px;background:#f4f7fa;color:#182e43"><h3 style="margin:0 0 8px"></h3><div role="status" class="moxi-status"></div><div style="display:flex;gap:8px;margin:8px 0"><button class="moxi-retry">Retry backend</button><button class="moxi-export">Export current SVG</button><button class="moxi-close">Dispose output</button></div><div class="moxi-surface" tabindex="0" role="application" aria-label="Moxi force-directed graph" style="position:relative;width:100%;height:620px;touch-action:none;outline-offset:2px"><div class="moxi-svg" style="width:100%;height:100%"></div></div></section>`;
+  el.innerHTML=`<section class="moxi-inline" style="box-sizing:border-box;max-width:100%;min-width:0;border:1px solid #9aabba;border-radius:8px;padding:12px;background:#f4f7fa;color:#182e43"><h3 style="margin:0 0 8px;overflow-wrap:anywhere"></h3><div role="status" class="moxi-status" style="overflow-wrap:anywhere"></div><div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0"><button class="moxi-retry">Retry backend</button><button class="moxi-export">Export current SVG</button><button class="moxi-close">Dispose output</button></div><p style="margin:4px 0;font-size:12px">At narrow widths, scroll the graph horizontally to reach all controls.</p><div class="moxi-viewport" role="region" aria-label="Scrollable graph viewport" tabindex="0" style="max-width:100%;overflow-x:auto"><div class="moxi-surface" tabindex="0" role="application" aria-label="Moxi force-directed graph" style="position:relative;width:100%;min-width:${MIN_SURFACE_WIDTH}px;height:620px;touch-action:none;outline-offset:2px"><div class="moxi-svg" style="width:100%;height:100%"></div></div></div></section>`;
   const status=el.querySelector('.moxi-status'), surface=el.querySelector('.moxi-surface'), svg=el.querySelector('.moxi-svg');
   el.querySelector('h3').textContent=model.get('title');
   svg.innerHTML=model.get('fallback');
@@ -130,7 +133,7 @@ export default {render({model,el}) {
       }});
       if(current!==epoch || life===Life.disposed){next.dispose();return;}
       runtime=next;
-      const rect=surface.getBoundingClientRect();width=Math.max(640,Math.min(4096,rect.width));height=Math.max(320,Math.min(4096,rect.height));
+      const rect=surface.getBoundingClientRect();width=Math.max(MIN_SURFACE_WIDTH,Math.min(4096,rect.width));height=Math.max(320,Math.min(4096,rect.height));
       owner=runtime.create({width,height,graph:model.get('graph')});
       for(let i=0;i<100;i++)owner.event(EventKind.frame);
       owner.event(EventKind.action,{key:Control.fit,value:1});owner.event(EventKind.action,{key:Control.pause,value:1});
@@ -147,7 +150,10 @@ export default {render({model,el}) {
       surface.addEventListener('pointerup',guarded(event=>finish(event,EventKind.up)),options);
       surface.addEventListener('pointercancel',guarded(event=>finish(event,EventKind.cancel)),options);
       surface.addEventListener('lostpointercapture',guarded(event=>finish(event,EventKind.cancel)),options);
-      surface.addEventListener('wheel',guarded(event=>{event.preventDefault();gesture(()=>owner.event(EventKind.scroll,{...point(event),value:Math.max(-16,Math.min(16,-event.deltaY/40))}));}),{...options,passive:false});
+      surface.addEventListener('wheel',guarded(event=>{
+        // Let the outer viewport scroll horizontally; vertical wheel zoom stays local.
+        if(event.shiftKey || Math.abs(event.deltaX)>Math.abs(event.deltaY))return;
+        event.preventDefault();gesture(()=>owner.event(EventKind.scroll,{...point(event),value:Math.max(-16,Math.min(16,-event.deltaY/40))}));}),{...options,passive:false});
       surface.addEventListener('keydown',guarded(event=>{
         if(event.key==='Escape' && active!==null){finish({pointerId:active,clientX:0,clientY:0},EventKind.cancel);event.preventDefault();return;}
         const keys={ArrowLeft:1000,ArrowRight:1001,ArrowUp:1002,ArrowDown:1003};
@@ -156,7 +162,7 @@ export default {render({model,el}) {
       }),options);
       window.addEventListener('blur',guarded(()=>{if(active!==null)finish({pointerId:active,clientX:0,clientY:0},EventKind.cancel);}),options);
       observer=new ResizeObserver(guarded(()=>{
-        const r=surface.getBoundingClientRect();width=Math.max(640,Math.min(4096,r.width));height=Math.max(320,Math.min(4096,r.height));
+        const r=surface.getBoundingClientRect();width=Math.max(MIN_SURFACE_WIDTH,Math.min(4096,r.width));height=Math.max(320,Math.min(4096,r.height));
         owner.resize(width,height);draw();
       }));observer.observe(surface);
       draw();channel.queue(snapshot());raf=requestAnimationFrame(frame);
@@ -169,6 +175,11 @@ export default {render({model,el}) {
     if(channel.send(Kind.hello))timer=setInterval(()=>channel.tick(),50);
   }
   const toolbar=new AbortController();
+  // Keep notebook shortcuts from stealing focus. Do not prevent the viewport's
+  // native scrolling (or the surface's own graph-key handling); Tab still exits.
+  el.querySelector('.moxi-viewport').addEventListener('keydown',event=>{
+    if(VIEWPORT_SCROLL_KEYS.has(event.key))event.stopPropagation();
+  },{signal:toolbar.signal});
   el.querySelector('.moxi-retry').addEventListener('click',connect,{signal:toolbar.signal});
   el.querySelector('.moxi-close').addEventListener('click',()=>dispose(),{signal:toolbar.signal});
   function exportSVG(){
