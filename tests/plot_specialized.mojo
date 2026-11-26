@@ -1,15 +1,77 @@
 """Wave A fixture harness, called by scripts/wave_a/verify.py's generated driver."""
 from std.time import perf_counter
-from moxi import Rect, Point, Color, Event, CLICK_KIND, KEY_DOWN_KIND, KEY_RIGHT, KEY_ENTER, KEY_ESCAPE, SoftwareSceneRenderer, CanvasSceneRenderer, SvgSceneRenderer, test_check
-from moxi_plot.plot_spec import plot_spec_from_json, plot_from_spec
+from moxi import Rect, Point, Color, Event, CLICK_KIND, KEY_DOWN_KIND, KEY_RIGHT, KEY_ENTER, KEY_ESCAPE, SCENE_TEXT, SoftwareSceneRenderer, CanvasSceneRenderer, SvgSceneRenderer, test_check
+from moxi_plot.plot_spec import PlotSpec, plot_spec_from_json, plot_from_spec
 from moxi_plot.plot_point import PlotGlyphKind
 from moxi_plot.plot_data import PlotDataTable
 from moxi_plot.plot_runtime import PlotRuntime
 from moxi_plot.plot_view import PlotView
 from moxi_plot.plot_data import COLUMN_STRING, COLUMN_CATEGORY
 from moxi_plot.plot_spec_types import PlotLayoutVersion
-from moxi_plot.plot_marks import PLOT_LOLLIPOP, PLOT_GROUPED_BAR, PLOT_STACKED_BAR
+from moxi_plot.plot_marks import PLOT_LOLLIPOP, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_POPULATION_PYRAMID
 from moxi_plot.plot_spec_json import _string_array
+
+
+def check_pyramid_chrome(spec: PlotSpec, data: PlotDataTable) raises:
+    # Exercise the public resize path with the real fixture, including an offset
+    # canvas. Sampling is presentation only: source labels and row hits survive.
+    var wide = Rect(17, 23, 640, 480)
+    var view = PlotView(spec, data, wide)
+    var original = SvgSceneRenderer(680, 530)
+    original.render_scene(view.build_scene())
+    var csv = view.data_table_csv()
+    var widths: List[Float32] = [180, 120, 320, 640]
+    for width in widths:
+        var height = Float32(150 if width < 320 else (240 if width == 320 else 480))
+        var bounds = Rect(17, 23, width, height)
+        view.set_bounds(bounds)
+        var scene = view.runtime.plot.build_scene()
+        var ticks = 0
+        var categories = 0
+        var legends = 0
+        for index in range(scene.count()):
+            var command = scene.commands[index]
+            if command.kind != SCENE_TEXT:
+                continue
+            var box = command.bounds
+            if command.has_text_style:
+                test_check(Float32(command.text.count_codepoints() * 7) <= box.width)
+            test_check(box.x >= bounds.x and box.y >= bounds.y)
+            test_check(box.x + box.width <= bounds.x + bounds.width)
+            test_check(box.y + box.height <= bounds.y + bounds.height)
+            for previous in range(index):
+                var other = scene.commands[previous]
+                if other.kind == SCENE_TEXT:
+                    test_check(box.x + box.width <= other.bounds.x or other.bounds.x + other.bounds.width <= box.x or box.y + box.height <= other.bounds.y or other.bounds.y + other.bounds.height <= box.y)
+            if 700 <= command.id <= 705:
+                ticks += 1
+            if 900 <= command.id < 900 + data.row_count():
+                categories += 1
+            if 600 <= command.id <= 601:
+                legends += 1
+        test_check(ticks >= 1 and ticks <= 6)
+        test_check(ticks < 6 if width < 320 else True)
+        test_check(ticks == 6 if width == 640 else True)
+        test_check(categories > 0 and categories <= data.row_count() and legends == 2)
+        if data.row_count() == 4 or width == 640:
+            test_check(categories == data.row_count())
+        test_check(view.runtime.plot.title == spec.title)
+        test_check(view.runtime.plot.accessibility().node_for_id(1).label == spec.title)
+        test_check(view.data_table_csv() == csv)
+        for row in range(data.row_count()):
+            test_check(view.runtime.plot.series[0].category_labels[data.row_count()-1-row] == data.string_field_at("category", row))
+        for index in range(len(view.runtime.plot.series[0].points)):
+            var point = view.runtime.plot.series[0].points[index]
+            var label = data.string_field_at("category", point.row_key)
+            test_check(view.runtime.plot.accessibility().node_for_id(500000+index//2*2).value.find(label) >= 0)
+            point.x = (point.x + point.x2) * 0.5
+            point.y = (point.y + point.y2) * 0.5
+            var hit = view.runtime.hit_test(view.runtime.plot.screen_point(point), 0)
+            test_check(hit.found() and hit.row_key == point.row_key)
+    view.set_bounds(wide)
+    var restored = SvgSceneRenderer(680, 530)
+    restored.render_scene(view.build_scene())
+    test_check(original.markup() == restored.markup())
 
 
 def check_case(name: String, document: String, data: PlotDataTable, output: String) raises:
@@ -125,6 +187,38 @@ def check_case(name: String, document: String, data: PlotDataTable, output: Stri
     var invalid_data_spec = spec.clone()
     test_check(not invalid_data_spec.validate_data(malformed))
     var mark = spec.layers[0].mark
+    if mark == PLOT_POPULATION_PYRAMID:
+        check_pyramid_chrome(spec, data)
+        var small = plot_from_spec(spec, data, Rect(0, 0, 180, 150))
+        var title = ""
+        var zero = False
+        var ticks = 0
+        for command in small.build_scene().commands:
+            if command.id == 400 or command.id == 401:
+                title += (" " if title != "" else "") + command.text
+            if 700 <= command.id <= 705:
+                ticks += 1
+                zero = zero or command.text == "0.0"
+            if command.id == 601:
+                test_check(command.text == "Right")
+        test_check(title == spec.title and zero and ticks == 3)
+        var long_labels = data.clone()
+        _ = long_labels.set_string_field("category", 0, "Synthetic ages 0–19; complete source label")
+        var long_title = spec.clone()
+        long_title.title = "Synthetic population pyramid with a longer title"
+        check_pyramid_chrome(long_title, long_labels)
+        var dense = data.clone()
+        for row in range(4, 16):
+            _ = dense.append_with_key(row, 0, 0)
+            _ = dense.set_string_field("category", row, String("Synthetic ages ", row))
+            _ = dense.set_float_field("value", row, Float32(20 + row))
+            _ = dense.set_float_field("right", row, Float32(15 + row))
+        check_pyramid_chrome(spec, dense)
+        var magnitude = data.clone()
+        for row in range(data.row_count()):
+            _ = magnitude.set_float_field("value", row, Float32(450000000000))
+            _ = magnitude.set_float_field("right", row, Float32(350000000000))
+        check_pyramid_chrome(spec, magnitude)
     if mark == PLOT_LOLLIPOP or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR:
         var transposed = spec.clone()
         transposed.layers[0].horizontal = True
