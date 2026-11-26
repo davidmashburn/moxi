@@ -1,0 +1,32 @@
+{
+  "checked": "2026-11-26T03:57:01.929144+00:00",
+  "chrome": "158.0.8127.37",
+  "deckSha256": "8ec19619bbcfffa17643da23a5b2e19d2b88df03c582aebc20ac6b0cc319b034",
+  "manifestSha256": "5a272ebd7d500f935b088fa11ffe1d99173dcd17f9a7a6ee22f23a379091ccd7",
+  "integrity": "8 tested source files, Moxi renderer, 11 images and 10 passing browser scenarios match.",
+  "offline": true,
+  "checks": [
+    {
+      "viewport": [
+        1366,
+        900
+      ],
+      "steps": "Open offline; visit all 11 numbered slides; Previous; keyboard Left/Right; reload hash.",
+      "expected": "Every image loads; exactly one slide visible; navigation and hash restore work; no horizontal overflow.",
+      "observed": "All assertions passed.",
+      "outcome": "pass"
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "steps": "Open offline; visit all 11 numbered slides; Previous; keyboard Left/Right; reload hash.",
+      "expected": "Every image loads; exactly one slide visible; navigation and hash restore work; no horizontal overflow.",
+      "observed": "All assertions passed.",
+      "outcome": "pass"
+    }
+  ],
+  "pageErrors": [],
+  "externalRequests": []
+}

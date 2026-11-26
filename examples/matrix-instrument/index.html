@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matrix instrument · Moxi</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/instrument.js" defer></script>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">MOXI / TANGIBLE MATHEMATICS / I02</p>
+    <h1>A matrix you can move.</h1>
+    <p class="intro">Edit a number. Move a basis vector. Watch the same transformation take shape.</p>
+  </header>
+  <div class="workspace">
+    <section class="editor card" aria-labelledby="matrix-heading">
+      <div class="section-title"><span class="number">01</span><h2 id="matrix-heading">The matrix</h2></div>
+      <p>The columns of <i>A</i> are its basis vectors <b class="u">u</b> and <b class="v">v</b>.</p>
+      <form id="entries" novalidate>
+        <div class="matrix" aria-label="Two by two matrix A">
+          <fieldset data-column="u"><legend>u · column 1</legend>
+            <label for="a">x <input id="a" data-index="0" data-basis="u" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="u x, row 1 column 1" aria-describedby="entry-help" value="2"></label>
+            <label for="c">y <input id="c" data-index="2" data-basis="u" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="u y, row 2 column 1" aria-describedby="entry-help" value="0"></label>
+          </fieldset>
+          <fieldset data-column="v"><legend>v · column 2</legend>
+            <label for="b">x <input id="b" data-index="1" data-basis="v" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="v x, row 1 column 2" aria-describedby="entry-help" value="0"></label>
+            <label for="d">y <input id="d" data-index="3" data-basis="v" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="v y, row 2 column 2" aria-describedby="entry-help" value="2"></label>
+          </fieldset>
+        </div>
+        <p id="entry-help" class="hint">Each entry: −3 to 3, up to three decimal places. Apply all four together. Enter applies; Escape discards.</p>
+        <p id="draft" class="draft" aria-live="polite">Entries match the frame.</p>
+        <div class="actions"><button id="apply" class="primary" type="submit" disabled>Apply entries</button><button id="discard" type="button" disabled>Discard edits</button></div>
+      </form>
+      <p id="error" class="error" role="alert"></p>
+      <div class="history">
+        <h3>One history, both views</h3>
+        <div class="actions"><button id="undo" disabled>Undo</button><button id="redo" disabled>Redo</button><button id="identity">Identity</button></div>
+        <p id="history" class="hint" aria-live="polite">Start: A = 2I. No edits yet.</p>
+      </div>
+      <p class="session-note">Session only. Reload starts at 2I.</p>
+    </section>
+    <section class="geometry card" aria-labelledby="frame-heading">
+      <div class="section-title"><span class="number">02</span><h2 id="frame-heading">The coordinate frame</h2></div>
+      <div class="basis-controls" aria-label="Keyboard basis controls">
+        <button id="basis-u" class="basis u" data-basis="u" aria-pressed="true" aria-describedby="key-help"><b>u</b><span id="coords-u">(2, 0)</span><small>column 1</small></button>
+        <button id="basis-v" class="basis v" data-basis="v" aria-pressed="false" aria-describedby="key-help"><b>v</b><span id="coords-v">(0, 2)</span><small>column 2</small></button>
+      </div>
+      <p id="key-help" class="hint">Focus a vector button, then use ← → for x and ↑ ↓ for y. Step 0.1; Shift: 0.01. Click a vector in the plot to select it.</p>
+      <div class="plot-wrap"><div id="plot" hidden></div><div id="render-state" role="status">Drawing current matrix…</div></div>
+      <div id="retry-wrap" hidden><button id="retry">Retry drawing</button></div>
+      <p class="plot-caption">One grid spacing = one unit. The dashed shape is <i>A</i> applied to the unit square. The view stays fixed as you edit.</p>
+      <div id="metrics" hidden>
+        <div class="readouts"><div><span>det A</span><output id="determinant"></output></div><div><span>Area scale</span><output id="area"></output></div></div>
+        <p id="rank" role="status"></p>
+      </div>
+    </section>
+  </div>
+  <footer>Moxi PlotSpec → Python reference renderer → SVG · Bounded 2D experiment, unconstrained editing.</footer>
+</main>
+</body>
+</html>
