@@ -983,11 +983,21 @@
     {
       "id": "I13",
       "scope": "Action/subtree counters/frame preview \u2192 replay comparison \u2192 dropped-record indication.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "3885e3e",
+        "1f7ac82"
+      ],
+      "verification": [
+        "All 13 frozen SVG frames matched across repeated localized and broad replays. Measured subtree build totals were [13, 2] and [14, 14].",
+        "A fresh I15 file reopened in the browser. At trace capacity five, the debugger distinguished eight missing action records from the twelve source readings evicted before capture. Five backend tests and thirteen browser scenarios passed, including recovery at narrow width."
+      ],
+      "remaining_gates": [
+        "Native OS file chooser, assistive technology and other hosts remain unverified. These replay counts do not measure elapsed performance."
+      ],
+      "slideshows": [
+        "examples/execution-debugger/evidence/execution-debugger/index.html"
+      ]
     },
     {
       "id": "I15",

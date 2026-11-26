@@ -16,6 +16,7 @@
 | E05 | Cairo Scene export | [Render comparison](cairo-scene/index.html) · [Decision and replay](../../experiments/cairo-scene/README.md) |
 | E06 | Funnel stage order and source selection | [Slideshow](../../examples/funnel/evidence/comparison.html) · [Run instructions](../../examples/funnel/README.md) |
 | I11 | Inspectable fit proposals | [Slideshow](visible-proposals/index.html) · [Run instructions](../../examples/visible-proposals/README.md) |
+| I13 | Compare subtree executions and inspect frozen frames | [Slideshow](../../examples/execution-debugger/evidence/execution-debugger/index.html) · [Run instructions](../../examples/execution-debugger/README.md) |
 | I15 | Synthetic experiment flight recorder | [Slideshow](../../examples/flight-recorder/evidence/flight-recorder/index.html) · [Run instructions](../../examples/flight-recorder/README.md) |
 | I18 | Linked table, plot and spatial selection | [Slideshow](i18-coordinated-representations/index.html) · [Run instructions](../../examples/coordinated-representations/README.md) |
 | I19 | Inspectable signal cursor and command replay | [Slideshow](i19-inspectable-interactions/index.html) · [Run instructions](../../experiments/inspectable-interactions/README.md) |
@@ -34,4 +35,4 @@
 | V13 | Patch, inspect and record a signal | [Slideshow](../../examples/visual-instrument/evidence/v13-visual-instrument/index.html) · [Run instructions](../../examples/visual-instrument/README.md) |
 | V15 | Calibrate direct and interpolated pose controls | [Slideshow](v15-pose-stroke/index.html) · [Run instructions](../../examples/pose-stroke/README.md) |
 
-The P08, P09, P11, E05, E06, I11, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The P08, P09, P11, E05, E06, I11, I13, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
