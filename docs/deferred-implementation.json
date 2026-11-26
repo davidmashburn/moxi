@@ -751,11 +751,22 @@
     {
       "id": "V13",
       "scope": "Executable instrument: recorded source, bounded processing nodes, explicit stateful node, plot and recorder.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "9404fd7",
+        "40c5a03",
+        "6fea31e"
+      ],
+      "verification": [
+        "A keyboard-built patch read a recorded signal, filtered 32 blocks and produced a trace and downloadable recording. Preview cancellation, invalid wiring and rate rejection, fault recovery and undo after reload passed in Chrome.",
+        "An idle socket reproduced a freeze before repair. After repair, a second connection fetched the view, the browser completed the recording download and reload, and edits and snapshots remained serialized."
+      ],
+      "remaining_gates": [
+        "Independent construction and diagnosis, assistive technology, physical acquisition and real-time measurements remain open. Script and panel routes run in a trusted local process."
+      ],
+      "slideshows": [
+        "examples/visual-instrument/evidence/v13-visual-instrument/index.html"
+      ]
     },
     {
       "id": "V14",
