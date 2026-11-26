@@ -247,6 +247,10 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
     var n = data.row_count()
     if mark == PLOT_ARC_DIAGRAM:
         result.has_layout_domain = True
+        # Fit a full semicircle in both pixel dimensions. Keep the default
+        # full-width layout when height permits, otherwise center a shorter span.
+        var span = min(Float32(1), 2*height/width)
+        var offset = (1-span)*0.5
         var nodes = List[String]()
         var indices = Dict[String,Int]()
         for field in [layer.x_field, layer.x2_field]:
@@ -262,8 +266,8 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
             var src = indices.get(data.string_field_at(layer.x_field,row),-1)
             var dst = indices.get(data.string_field_at(layer.x2_field,row),-1)
             if src == dst: continue
-            var left = Float32(min(src,dst))/Float32(len(nodes)-1)
-            var right = Float32(max(src,dst))/Float32(len(nodes)-1)
+            var left = offset + span*Float32(min(src,dst))/Float32(len(nodes)-1)
+            var right = offset + span*Float32(max(src,dst))/Float32(len(nodes)-1)
             var radius = (right-left)*0.5
             _glyph(result,layer,data,row,PlotGlyphKind.POLYLINE,"edge",left,0,right,0,_palette(src))
             ref edge = result.points[len(result.points)-1]
@@ -274,7 +278,7 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
                 var angle = Float32(pi)*Float32(i)/48
                 edge.vertices.append(Point(left+radius*(1-cos(angle)),radius*width/height*sin(angle)))
         for i in range(len(nodes)):
-            var x = Float32(i)/Float32(len(nodes)-1) if len(nodes)>1 else Float32(0.5)
+            var x = offset + span*Float32(i)/Float32(len(nodes)-1) if len(nodes)>1 else Float32(0.5)
             _glyph(result,layer,data,0,PlotGlyphKind.POINT,"arc-node",x,0,x,0,_palette(i),False)
             result.points[len(result.points)-1].text = nodes[i]
             result.points[len(result.points)-1].size = 8

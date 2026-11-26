@@ -1,6 +1,13 @@
 from moxi import PlotSpec, plot
 from moxi.specialized import layout
 
+import math
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+import pytest
+
 
 def test_parallel_normalizes_each_dimension_and_keeps_constant_in_middle():
     spec = PlotSpec()
@@ -44,3 +51,66 @@ def test_parallel_emits_one_trace_per_record_with_finite_extreme_axes():
     assert paths == [((0,0),(.5,0),(1,.5)),((0,1),(.5,1),(1,.5))]
     assert chart.to_svg().count(b"<polyline") == 2
     assert chart.table()[1]["description"] == "second"
+
+
+def test_numpy_parallel_normalization_preserves_signed_range_and_adjacent_integers():
+    np = pytest.importorskip("numpy")
+    spec = PlotSpec()
+    spec.specialize(spec.add_catalog_mark("parallel", "Records", "name", "range"),
+                    series_fields=["adjacent", "constant"])
+    data = {"name": ["low", "middle", "high"],
+            "range": np.array([-2**63, 0, 2**63-1], dtype=np.int64),
+            "adjacent": np.array([2**53, 2**53+1, 2**53+2], dtype=np.int64),
+            "constant": np.array([7, 7, 7], dtype=np.int64)}
+    with np.errstate(over="raise"):
+        chart = plot(data, spec)
+        records = [g for g in layout(chart.spec.layers[0], chart.data).glyphs if g.interactive]
+    assert [g.vertices for g in records] == [
+        ((0, 0), (.5, 0), (1, .5)),
+        ((0, .5), (.5, .5), (1, .5)),
+        ((0, 1), (.5, 1), (1, .5)),
+    ]
+    assert chart.table()[1]["adjacent"] == 2**53+1
+    svg = ET.fromstring(chart.to_svg())
+    path = svg.findall(".//{*}polyline")[0].attrib["points"]
+    x, y = map(float, path.split()[0].split(","))
+    assert chart.hit_test(x, y)["row_index"] == 0
+
+
+def test_numpy_parallel_png_export_is_bounded():
+    pytest.importorskip("numpy")
+    # A subprocess bounds the raster loop even if normalization regresses to a
+    # finite but enormous out-of-viewport coordinate.
+    subprocess.run([sys.executable, "-c", """
+import numpy as np
+from moxi import PlotSpec, plot
+spec = PlotSpec()
+spec.specialize(spec.add_catalog_mark('parallel', 'Records', 'name', 'a'), series_fields=['b'])
+chart = plot({'name':['low','middle','high'], 'a':np.array([-2**63,0,2**63-1],dtype=np.int64),
+              'b':[0,1,2]}, spec, width=160, height=120)
+assert chart.to_png().startswith(b'\\x89PNG')
+"""], check=True, timeout=5)
+
+
+@pytest.mark.parametrize("size", [(640, 420), (960, 420), (420, 640), (1200, 240)])
+def test_arc_export_fits_complete_circles_and_keeps_source_hits(size):
+    spec = PlotSpec()
+    spec.specialize(spec.add_catalog_mark("arc_diagram", "Edges", "source", "weight", x2_field="target"))
+    chart = plot({"source": ["A", "B", "C"], "target": ["C", "A", "B"],
+                  "weight": [3, 9, 6]}, spec, width=size[0], height=size[1])
+    paths = ET.fromstring(chart.to_svg()).findall(".//{*}polyline")
+    assert len(paths) == 3
+    for row, path in enumerate(paths):
+        points = [tuple(map(float, point.split(","))) for point in path.attrib["points"].split()]
+        assert len(points) == 49
+        left, baseline = points[0]
+        right, end_baseline = points[-1]
+        cx, radius = (left + right)/2, (right - left)/2
+        assert baseline == pytest.approx(end_baseline, abs=.002)
+        for x, y in points:
+            assert 0 <= x <= size[0] and 0 <= y <= size[1]
+            assert math.hypot(x-cx, y-baseline) == pytest.approx(radius, abs=.002)
+        assert chart.hit_test(*points[24])["row_index"] == row
+    assert [r["source"] for r in chart.table()] == ["A", "B", "C"]
+    assert chart.to_png().startswith(b"\x89PNG")
+    assert chart.to_pdf().startswith(b"%PDF")

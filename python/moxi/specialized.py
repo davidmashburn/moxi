@@ -9,7 +9,8 @@ matrix order. Glyphs retain source category rows, including decorative pieces.
 from dataclasses import dataclass
 from enum import Enum, IntEnum
 from math import cos, isfinite, pi, sin
-from typing import Any, List, Tuple
+from numbers import Integral
+from typing import Any, List, Tuple, Union
 
 
 class LayoutVersion(IntEnum):
@@ -142,11 +143,13 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
     if not n or any(c is None for c in categories):
         raise ValueError("specialized layout requires nonempty, nonnull categories")
 
-    def column(name: str) -> List[float]:
+    def column(name: str) -> List[Union[int, float]]:
         values = list(data.column(name))
         if len(values) != n or any(isinstance(v, (str, bool)) or v is None or not isfinite(float(v)) for v in values):
             raise ValueError(f"{name}: expected {n} finite numeric values")
-        return [float(v) for v in values]
+        # Widen fixed-width integer scalars before subtraction, without rounding
+        # adjacent counts above 2**53 through a floating-point conversion.
+        return [int(v) if isinstance(v, Integral) else float(v) for v in values]
 
     def source_rows() -> List[dict]:
         return [{**{field: values[i] for field, values in data.columns.items()}, "row_index": i}
@@ -158,7 +161,11 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
         if min(weights) < 0 or any(not isinstance(v, str) for v in [*categories, *targets]):
             raise ValueError("arc_diagram requires named endpoints and nonnegative weights")
         nodes = dict.fromkeys([*categories, *targets])
-        positions = {name: i / (len(nodes)-1) if len(nodes)>1 else .5
+        # A semicircle needs half its horizontal span in vertical pixels. Fit
+        # that span in both dimensions and center it when height is limiting.
+        span = min(1., 2*height/width)
+        offset = (1-span)/2
+        positions = {name: offset + span*i / (len(nodes)-1) if len(nodes)>1 else .5
                      for i, name in enumerate(nodes)}
         colors = {name: PALETTE[i % len(PALETTE)] for i, name in enumerate(nodes)}
         largest = max(weights)
@@ -189,8 +196,7 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
                 glyphs.append(Glyph(GlyphKind.SEGMENT, 0, "rank", (0, level, 1, level),
                                     INK, False, label=str(rank + 1)))
         for index, field in enumerate(fields):
-            column(field)
-            values = data.column(field)
+            values = column(field)
             low, high = min(values), max(values)
             x = index / (len(fields) - 1) if len(fields) > 1 else .5
             ranks = {}
