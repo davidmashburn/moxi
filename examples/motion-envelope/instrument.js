@@ -1,150 +1,255 @@
+import {DURATION, ScoreKind, flight, gesture, knots, sample, recordHeight, editHeight, scheduleGain} from "./gesture.mjs";
+
 const $ = id => document.getElementById(id);
-const duration = 2;
-const peakGain = .25;
-const initial = 1000;
-let authored = initial, draft = initial, revision = 0, checkpoint = null;
-let audio, voice, generation = 0;
+const Activity = Object.freeze({STOPPED: "stopped", PLAYING: "playing", RECORDING: "recording",
+    STARTING_PLAYBACK: "starting-playback", STARTING_RECORDING: "starting-recording"});
+let authored = flight(), draft = flight(), revision = 0, checkpoint = null;
+let audio, voice, generation = 0, activity = Activity.STOPPED, session = null, coefficient = .5;
+const copy = score => structuredClone(score);
+const isRecording = () => activity === Activity.RECORDING || activity === Activity.STARTING_RECORDING;
+const isStopped = () => activity === Activity.STOPPED;
 
 function chart(id, color) {
     const svg = $(id).querySelector("svg");
     svg.setAttribute("role", "img");
     svg.setAttribute("aria-label", $(id).querySelector("h2").textContent);
     const line = svg.querySelector("polyline[data-mark=line]");
-    const knots = Array.from(line.points, p => ({x: p.x, y: p.y}));
+    const [a, b, c] = Array.from(line.points, p => ({x: p.x, y: p.y}));
     const marker = document.createElementNS(svg.namespaceURI, "circle");
     marker.setAttribute("r", 7);
     marker.setAttribute("fill", color);
     svg.append(marker);
-    return {line, knots, marker};
+    return {line, marker, a, b, c};
 }
 const path = chart("path", "#086b65");
 const gain = chart("gain", "#9d421a");
+function place(chart, x, height) {
+    return [chart.a.x + x * (chart.c.x - chart.a.x),
+        chart.a.y + height * (chart.b.y - chart.a.y)];
+}
+function curve() {
+    const points = knots(draft);
+    for (const chart of [path, gain]) {
+        chart.line.setAttribute("points", points.map(p =>
+            place(chart, chart === path ? p.x : p.time / DURATION, p.height).join(",")).join(" "));
+    }
+}
 function cursor(seconds) {
-    const apex = draft / 1000;
-    const segment = seconds <= apex ? 0 : 1;
-    const fraction = segment ? (seconds - apex) / (duration - apex) : seconds / apex;
-    for (const {knots, marker} of [path, gain]) {
-        const a = knots[segment], b = knots[segment + 1];
-        marker.setAttribute("cx", a.x + fraction * (b.x - a.x));
-        marker.setAttribute("cy", a.y + fraction * (b.y - a.y));
+    const pose = sample(draft, seconds);
+    for (const chart of [path, gain]) {
+        const [x, y] = place(chart, chart === path ? pose.x : seconds / DURATION, pose.height);
+        chart.marker.setAttribute("cx", x);
+        chart.marker.setAttribute("cy", y);
     }
 }
 function inspect() {
     const ms = Number($("seek").value);
     $("position").textContent = ms + " ms";
     cursor(ms / 1000);
+    $("set-height").disabled = !isStopped() || draft.kind !== ScoreKind.GESTURE || ms === 0 || ms === 2000;
 }
-$("seek").oninput = () => { stop(); inspect(); $("message").textContent = "Inspecting stopped phrase."; };
+function heightValue() {
+    const value = coefficient;
+    $("height").value = value;
+    $("height-value").textContent = value.toFixed(2);
+    $("height").setAttribute("aria-valuetext", value.toFixed(2) + " of full height");
+    return value;
+}
+function describe(score) {
+    return score.kind === ScoreKind.FLIGHT ? "apex " + score.apex + " ms" : "recorded gesture · 201 samples";
+}
 function render() {
-    const [a, b, c] = gain.knots;
-    b.x = a.x + draft / 1000 / duration * (c.x - a.x);
-    gain.line.points.getItem(1).x = b.x;
-    $("beat").value = draft;
-    $("beat").setAttribute("aria-valuetext", draft + " milliseconds");
-    $("value").textContent = draft + " ms";
-    $("score").textContent = "Revision " + revision + " · Authored apex " + authored + " ms"
-        + (checkpoint === null ? "" : " · Checkpoint " + checkpoint.apex + " ms");
-    $("commit").disabled = $("discard").disabled = authored === draft;
-    $("restore").disabled = checkpoint === null;
+    const recorded = draft.kind === ScoreKind.GESTURE;
+    if (!recorded) $("beat").value = draft.apex;
+    $("beat").disabled = !isStopped() || recorded;
+    $("beat").setAttribute("aria-valuetext", $("beat").value + " milliseconds");
+    $("value").textContent = recorded ? "recorded curve" : draft.apex + " ms";
+    $("score").textContent = "Revision " + revision + " · Authored " + describe(authored)
+        + (checkpoint === null ? "" : " · Checkpoint " + describe(checkpoint.score));
+    const unchanged = JSON.stringify(authored) === JSON.stringify(draft);
+    $("commit").disabled = $("discard").disabled = !isStopped() || unchanged;
+    $("restore").disabled = !isStopped() || checkpoint === null;
+    $("save").disabled = $("seek").disabled = $("play").disabled = $("record").disabled = !isStopped();
+    $("flight").disabled = !isStopped() || !recorded;
+    $("height").disabled = !isStopped() && !isRecording();
+    $("cancel").disabled = isStopped();
+    $("cancel").textContent = isRecording() ? "Cancel recording" : "Stop playback";
+    $("take").textContent = isRecording() ? "Recording draft · release the slider to hold a height; capture ends at 2 seconds."
+        : recorded ? "Recorded curve · seek, set a height, then commit. Endpoints stay at zero."
+        : "Record a height gesture, or edit the flight’s apex above.";
+    curve();
     inspect();
+    heightValue();
 }
 function stop() {
     generation++;
-    if (voice) { voice.stop(); voice.disconnect(); voice = null; }
+    if (voice) { voice.source.stop(); voice.source.disconnect(); voice.envelope.disconnect(); voice = null; }
+    activity = Activity.STOPPED;
 }
-function edit(value, message) {
+function cancel(message) {
+    const recording = isRecording();
+    cancelBeat();
+    cancelHeight();
     stop();
-    draft = value;
+    if (session) {
+        draft = session.score;
+        $("seek").value = session.position;
+        coefficient = session.height;
+        session = null;
+    }
+    render();
+    $("message").textContent = message ?? (recording ? "Recording cancelled · previous curve restored." : "Playback stopped · inspection restored.");
+}
+function edit(score, message) {
+    stop();
+    session = null;
+    draft = score;
     render();
     $("message").textContent = message;
 }
-const beat = $("beat");
-beat.oninput = () => edit(Number(beat.value), "Previewing the shared apex.");
-$("commit").onclick = () => {
-    authored = draft;
-    revision++;
-    edit(authored, "Timing committed.");
+$("seek").oninput = () => {
+    stop();
+    session = null;
+    inspect();
+    if (draft.kind === ScoreKind.GESTURE) coefficient = sample(draft, Number($("seek").value) / 1000).height;
+    render();
+    $("message").textContent = "Inspecting stopped phrase.";
 };
-function discard() { edit(authored, "Authored timing restored."); }
+const beat = $("beat");
+beat.oninput = () => edit(flight(Number(beat.value)), "Previewing the shared apex.");
+$("commit").onclick = () => {
+    authored = copy(draft);
+    revision++;
+    edit(copy(authored), "Phrase committed.");
+};
+function discard() { edit(copy(authored), "Authored phrase restored."); }
 $("discard").onclick = discard;
 $("save").onclick = () => {
-    stop();
-    checkpoint = {apex: authored, position: $("seek").value};
+    checkpoint = {score: copy(authored), position: $("seek").value};
     render();
     $("message").textContent = "Checkpoint set from the authored phrase.";
 };
 $("restore").onclick = () => {
-    if (authored !== checkpoint.apex) revision++;
-    authored = checkpoint.apex;
+    if (JSON.stringify(authored) !== JSON.stringify(checkpoint.score)) revision++;
+    authored = copy(checkpoint.score);
     $("seek").value = checkpoint.position;
-    edit(authored, "Checkpoint restored.");
+    edit(copy(authored), "Checkpoint restored.");
 };
-// Suppress subsequent native slider input from the same cancelled gesture.
-let held = false, cancelled = false;
-beat.addEventListener("pointerdown", () => { held = true; cancelled = false; });
-window.addEventListener("pointerup", () => { held = false; });
-beat.addEventListener("pointercancel", () => { held = false; discard(); });
-beat.addEventListener("input", event => {
-    if (cancelled) { beat.value = draft; event.stopImmediatePropagation(); }
-}, true);
-beat.addEventListener("keydown", () => { cancelled = false; });
-document.addEventListener("keydown", event => {
-    if (event.key === "Escape") { cancelled = held; discard(); }
-});
+$("flight").onclick = () => edit(flight(), "Flight curve preview · commit to replace the gesture.");
+$("set-height").onclick = () => {
+    editHeight(draft, Number($("seek").value), heightValue());
+    render();
+    $("message").textContent = "Stopped height edit · motion and gain share this sample.";
+};
 
-// The offline measurement uses this same automation and source lifetime.
-function schedule(ctx, source, start, apex) {
+// Suppress native input that arrives after Escape or a lost pointer capture.
+function cancellableSlider(slider, onCancel) {
+    let held = false, cancelled = false;
+    slider.addEventListener("pointerdown", () => { held = true; cancelled = false; });
+    window.addEventListener("pointerup", () => { held = false; });
+    slider.addEventListener("pointercancel", () => { cancelled = true; held = false; onCancel(); });
+    slider.addEventListener("input", event => {
+        if (cancelled) { render(); event.stopImmediatePropagation(); }
+    }, true);
+    slider.addEventListener("keydown", event => { if (event.key !== "Escape") cancelled = false; });
+    return () => { cancelled ||= held; };
+}
+const cancelBeat = cancellableSlider(beat, discard);
+const cancelHeight = cancellableSlider($("height"), () => { if (isRecording()) cancel(); });
+document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+    cancelBeat();
+    cancelHeight();
+    if (isStopped()) discard();
+    else cancel();
+});
+$("cancel").onclick = () => cancel();
+window.addEventListener("blur", () => { if (isRecording()) cancel("Recording cancelled · window lost focus."); });
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden && !isStopped()) cancel("Performance cancelled · page hidden.");
+});
+$("height").oninput = () => {
+    coefficient = Number($("height").value);
+    const value = heightValue();
+    if (activity !== Activity.RECORDING) return;
+    const index = recordHeight(draft, audio.currentTime - session.start, value);
+    if (index !== null) {
+        scheduleGain(voice.envelope.gain, draft, session.start, index);
+        curve();
+    }
+};
+
+function schedule(ctx, source, start, score) {
     const envelope = ctx.createGain();
-    envelope.gain.setValueAtTime(0, start);
-    envelope.gain.linearRampToValueAtTime(peakGain, start + apex);
-    envelope.gain.linearRampToValueAtTime(0, start + duration);
+    scheduleGain(envelope.gain, score, start);
     source.connect(envelope).connect(ctx.destination);
     source.onended = () => { source.disconnect(); envelope.disconnect(); };
     source.start(start);
-    source.stop(start + duration);
+    source.stop(start + DURATION);
+    return {source, envelope};
 }
-$("play").onclick = async () => {
+async function perform(recording) {
+    const before = {score: copy(draft), position: $("seek").value, height: coefficient};
     stop();
+    session = before;
     const token = generation;
+    activity = recording ? Activity.STARTING_RECORDING : Activity.STARTING_PLAYBACK;
+    render();
+    $("message").textContent = "Starting audio…";
     try {
         audio ??= new AudioContext();
         await audio.resume();
         if (token !== generation) return;
-        voice = audio.createOscillator();
-        voice.frequency.value = 220;
-        const start = audio.currentTime + .05;
-        schedule(audio, voice, start, draft / 1000);
-        $("message").textContent = "Playing · motion follows the audio clock.";
+        if (recording) draft = gesture(heightValue());
+        session.start = audio.currentTime + .05;
+        const source = audio.createOscillator();
+        source.frequency.value = 220;
+        voice = schedule(audio, source, session.start, draft);
+        activity = recording ? Activity.RECORDING : Activity.PLAYING;
+        render();
+        $("message").textContent = recording ? "Recording · move Height for two seconds." : "Playing · motion follows the audio clock.";
         const frame = () => {
             if (token !== generation) return;
-            const seconds = Math.max(0, audio.currentTime - start);
-            cursor(Math.min(seconds, duration));
-            $("seek").value = Math.round(Math.min(seconds, duration) * 1000);
-            $("position").textContent = Math.round(Math.min(seconds, duration) * 1000) + " ms";
-            if (seconds < duration) requestAnimationFrame(frame);
-            else { voice = null; $("message").textContent = "Playback complete."; }
+            const seconds = Math.max(0, audio.currentTime - session.start);
+            cursor(Math.min(seconds, DURATION));
+            $("seek").value = Math.round(Math.min(seconds, DURATION) * 1000);
+            $("position").textContent = Math.round(Math.min(seconds, DURATION) * 1000) + " ms";
+            if (seconds < DURATION) requestAnimationFrame(frame);
+            else {
+                stop();
+                session = null;
+                render();
+                $("message").textContent = recording ? "Gesture captured · inspect, edit or commit the draft." : "Playback complete.";
+            }
         };
         frame();
     } catch (error) {
-        if (token === generation) edit(authored, "Playback unavailable · " + error.message);
+        if (token === generation) cancel("Audio unavailable · " + error.message + " · previous curve restored.");
     }
-};
+}
+$("play").onclick = () => perform(false);
+$("record").onclick = () => perform(true);
 render();
 
 // A constant unit signal exposes the actual rendered gain samples to the probe.
 export async function measure(rate, apices) {
-    const lead = .125, stride = duration + .125;
+    const lead = .125, stride = DURATION + .125;
     const ctx = new OfflineAudioContext(1, Math.ceil((lead + apices.length * stride) * rate), rate);
-    apices.forEach((ms, i) => schedule(ctx, ctx.createConstantSource(), lead + i * stride, ms / 1000));
+    apices.forEach((ms, i) => schedule(ctx, ctx.createConstantSource(), lead + i * stride, flight(ms)));
     const samples = (await ctx.startRendering()).getChannelData(0);
     return apices.map((ms, i) => {
         const start = Math.round((lead + i * stride) * rate);
         const planned = (lead + i * stride + ms / 1000) * rate;
         let peak = start;
-        for (let j = start; j < start + duration * rate; j++)
+        for (let j = start; j < start + DURATION * rate; j++)
             if (samples[j] > samples[peak]) peak = j;
         return {ms, planned, peak, errorSamples: peak - planned, amplitude: samples[peak],
-            landing: samples[Math.round((lead + i * stride + duration) * rate)]};
+            landing: samples[Math.round((lead + i * stride + DURATION) * rate)]};
     });
 }
 if (location.hash === "#measure") window.measurePhrase = measure;
+if (location.hash === "#measure") window.measureGesture = async rate => {
+    const ctx = new OfflineAudioContext(1, Math.ceil((DURATION + .25) * rate), rate);
+    schedule(ctx, ctx.createConstantSource(), .125, copy(draft));
+    return Array.from((await ctx.startRendering()).getChannelData(0));
+};

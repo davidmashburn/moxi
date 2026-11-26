@@ -1,0 +1,13 @@
+✔ capture is bounded in time, count and height, with silent endpoints (3.327083ms)
+✔ a performed change affects future audio-clock samples, preserving the prefix (0.479041ms)
+✔ stopped editing changes one shared sample without moving or unpinning endpoints (0.214333ms)
+✔ the same captured curve produces identical gain automation at any absolute start (3.777167ms)
+✔ the original editable flight keeps its three knots and shared apex (0.211541ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 301.361875

@@ -17,8 +17,12 @@ def build(target):
     # The three score knots are departure, apex, and landing.
     path = line([0, .35, 1], [0, 1, 0], (.07, .42, .42, 1))
     gain = line([0, .5, 1], [0, 1, 0], (.65, .29, .12, 1))
+    instrument = (source / "instrument.js").read_text()
+    # Inline the model as well: the portable page needs no server or module fetch.
+    model_import, instrument = instrument.split("\n", 1)
+    assert model_import.startswith("import ") and model_import.endswith('from "./gesture.mjs";')
     target.write_text(page.replace("<!--path-->", path).replace("<!--gain-->", gain)
-                      .replace("/*instrument*/", (source / "instrument.js").read_text()))
+                      .replace("/*instrument*/", (source / "gesture.mjs").read_text() + "\n" + instrument))
 
 
 if __name__ == "__main__":

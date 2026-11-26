@@ -1,0 +1,1 @@
+PASS desktop, narrow, checkpoint, input equivalence, repeat playback, 6 offline slides; 2 × 40 peaks at each sample rate
