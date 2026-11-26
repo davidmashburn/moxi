@@ -208,3 +208,20 @@ proof's redistribution and production gates remain open.
 The Python facade ships the pinned dataviz_mojo MIT notice under
 `moxi/licenses/DATAVIZ-LICENSE.txt`. `scripts/python_package_consumer.sh` verifies
 its exact contents in both the wheel and source distribution.
+
+### Replay the minimum declared CPython ABI
+
+On macOS arm64, from a clean worktree with CPython 3.11 and the build
+prerequisites above, select the interpreter for both stages. A separate report
+directory preserves the November 23 gallery.
+
+```sh
+export MOXI_E04_PYTHON=python3.11  # or an absolute CPython 3.11 path
+export MOXI_E04_ARTIFACTS="$PWD/experiments/python-native/dist/cp311-proof"
+bash experiments/python-native/build.sh
+bash experiments/python-native/check.sh
+```
+
+The consumer checks the project MIT license against the repository's
+`LICENSE` and the dataviz MIT notice against its pinned fixture in each wheel.
+The native archive also carries the two compiler package notices.
