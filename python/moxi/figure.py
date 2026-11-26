@@ -465,6 +465,20 @@ class Figure:
             return
         left, top, width, height, *_ = self._layout()
         candidates = []
+        if layer.mark == CatalogMark.FUNNEL:
+            # Read the ranked glyphs, preserving exact source-value ordering.
+            # The existing bottom margin holds a fitted category legend without
+            # changing band geometry, layout, or interaction targets.
+            stages = [geometry for _, geometry in self._render_geometries()]
+            stride = max(1, math.ceil(len(stages) / max(1, int(width / 32))))
+            slot = width / math.ceil(len(stages) / stride)
+            for slot_index, index in enumerate(range(0, len(stages), stride)):
+                stage = stages[index]
+                text = _fit_label(stage.label, int((slot - 18) / 7))
+                if text and self.height - 24 >= top + height + 4:
+                    candidates.append(self._position_label(
+                        text, left + slot_index * slot + 13, self.height - 15,
+                        swatch=stage.colors[0]))
         if layer.mark in (CatalogMark.ARC, CatalogMark.PARALLEL, CatalogMark.BUMP):
             for _, geometry in self._render_geometries():
                 if geometry.part == "arc-node":
