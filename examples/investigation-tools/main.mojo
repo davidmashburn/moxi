@@ -6,6 +6,7 @@ from screen import InvestigationScreen
 from runtime import render, dispatch_pending
 from replay import replay, REOPEN_MODE
 from layout_replay import replay_layout
+from unicode_replay import replay_unicode
 
 
 def main() raises:
@@ -20,6 +21,9 @@ def main() raises:
     var clipboard = MacOSClipboard()
     render(app, renderer, plots)
     var mode = external_call["investigation_replay_mode", Int32]()
+    if external_call["investigation_unicode_check", Int32]():
+        replay_unicode(app, window, renderer, plots, mode == REOPEN_MODE, external_call["investigation_unicode_live", Int32]() != 0)
+        return
     if external_call["investigation_layout_check", Int32]():
         replay_layout(app, window, renderer, plots, mode == REOPEN_MODE)
         return

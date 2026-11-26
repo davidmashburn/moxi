@@ -151,6 +151,9 @@ struct InvestigationScreen(Component):
             var fitted = Fit(self.model.fit.kind, Float64(self.c0_input.text), Float64(self.c1_input.text), Float64(self.c2_input.text))
             fitted.validate()
             self.model.fit = fitted
+            # A committed value uses its round-trippable Float64 spelling;
+            # arbitrary accepted whitespace must not leave an apparently blank field.
+            self.sync_coefficients()
             self.status = "Edited coefficients applied. Residuals and error recomputed; panel is unsaved."
         elif id == COMPARE_ID:
             if not self.model.fitted:
@@ -164,6 +167,7 @@ struct InvestigationScreen(Component):
             if self.path_input.text.strip().count_codepoints() == 0:
                 raise Error("Enter a local panel path")
             save_panel(self.path_input.text, self.model)
+            self.sync_coefficients()
             self.panel_open = True
             self.status = "Saved fixed panel: named cohort, stable target, model, coefficients and two supported controls."
         elif id == REOPEN_ID:

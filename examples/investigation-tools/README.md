@@ -31,7 +31,11 @@ network service or external account is used.
    observed minus predicted. Edit c0, c1 and c2, then **Apply coefficients**.
    Linear requires c2=0; mean requires c1=c2=0.
    The equation and metrics round to three decimal places for reading; coefficient
-   fields and saved values retain full precision. Each coefficient has its own
+   fields and saved values retain full precision. Successful Apply and Save use
+   the round-trippable Float64 spelling, removing accepted whitespace padding.
+   Focused coefficient editors scroll horizontally to their selected text,
+   including numbers entered with long whitespace padding.
+   Each coefficient has its own
    labeled editor so its full Float64 value fits at the 980×800 minimum size.
 3. **Compare alternatives** lists parameter counts and training SSE for the same
    cohort. Selecting another fit replaces the active model. Editing coefficients
@@ -78,7 +82,9 @@ capture time, native environment, viewport sizes and the exact reproduction comm
 The published walkthrough includes the original seventeen PNGs, offline HTML, short replay logs and saved JSON configuration. A second build of the integrated consumer reproduced all seventeen PNGs byte for byte.
 
 Saved panels wrap the full accepted name and hypothesis, with membership mode
-on its own line. Their height follows the actual native font and column width.
+on its own line. Their height follows the native painter's line-fragment layout
+with the actual font and column width, including fallback fonts and Unicode line
+separators. Text taller than the column remains reachable with its native scrollbar.
 The workbench keeps its normal single-line native editors and end navigation.
 
 The scoped layout regression additionally exercises negative and scientific
@@ -95,6 +101,23 @@ python3 examples/investigation-tools/check_layout.py --dest /tmp/moxi-i10-layout
 It retains native PNGs, source and executable hashes, exact saved JSON and short
 assertion logs. The [layout verification](../../artifacts/demo-slideshows/investigation-tools/long-coefficients/REVIEW.md)
 records the original clipping and the repaired layout.
+
+The Unicode paint regression runs the same executable in four processes: create
+and fresh reopen for frozen and live membership, at both supported sizes. It
+compares the actual native label painter's complete raster with a tall reference,
+with a deliberately shortened frame as a negative control. The checks include
+63/139 `😀` followed by `Z`, maximum ASCII and CJK runs, Unicode line separators,
+combining marks, mixed RTL text and emoji sequences, and an empty hypothesis.
+They also check actual foreground pixels while editing a whitespace-padded
+coefficient, native End/delete/reinsert, Apply, scrolling, and exact saved JSON:
+
+```sh
+python3 examples/investigation-tools/check_unicode.py --dest /tmp/moxi-i10-unicode
+```
+
+The output directory retains native captures, assertion logs, source/executable
+hashes and each membership mode's saved panel. This is representative Unicode
+coverage, not an exhaustive test of every accepted sequence or font/scale.
 
 ## Scope and limits
 
