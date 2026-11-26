@@ -96,9 +96,9 @@ existing preview, wrong consumer identity, mismatched original X, malformed
 types/version/range/revision, invalid/fractional numeric entry, both range
 limits, returning from an out-of-range drag, Enter commit, a later matched
 revision, held-pointer focus/capture/resize cancellation, and the spatial
-history limit's fixture-boundary eviction. Every accepted
-edit checks native revision/history effects; no screenshot alone establishes
-the behavior.
+history limit's fixture-boundary eviction. Assertions check native
+revision/history effects in the transaction scenarios; no screenshot alone
+establishes the behavior.
 
 ## Evidence boundary
 
