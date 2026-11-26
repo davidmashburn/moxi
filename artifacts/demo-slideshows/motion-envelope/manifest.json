@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "demo_id": "motion-envelope",
+  "title": "Motion phrase",
+  "scenario": "V06 \u00b7 I07 \u00b7 I14 \u00b7 I17",
+  "revision": "c4fa6d56d774dfb9449e369d0976f1c0975d7973",
+  "host": "Darwin 27.2.0 \u00b7 Chrome 158.0.8127.37",
+  "backend": "Moxi Figure SVG / Web Audio",
+  "scale": 1,
+  "fixture": "Two-second three-knot flight",
+  "reproduce": "PYTHONPATH=python python3 examples/motion-envelope/check_browser.py",
+  "slides": [
+    {
+      "phase": "initial",
+      "caption": "The point climbs as the voice grows",
+      "action": "Open the fixture.",
+      "expected": "At 750 ms both markers are three quarters of the way to the apex.",
+      "capture_kind": "browser",
+      "image": "1280-1.png",
+      "dimensions": [
+        1280,
+        800
+      ]
+    },
+    {
+      "phase": "interaction",
+      "caption": "Stretch the climb",
+      "action": "Drag the apex to 1800 ms and hold.",
+      "expected": "Both markers move down at the same inspection time. Revision stays zero.",
+      "capture_kind": "browser",
+      "image": "1280-2.png",
+      "dimensions": [
+        1280,
+        800
+      ]
+    },
+    {
+      "phase": "result",
+      "caption": "One revision carries both edits",
+      "action": "Use End, commit, then set a checkpoint.",
+      "expected": "The keyboard produces the pointer geometry and records the 1800 ms apex.",
+      "capture_kind": "browser",
+      "image": "1280-3.png",
+      "dimensions": [
+        1280,
+        800
+      ]
+    },
+    {
+      "phase": "interaction",
+      "caption": "Audition the shared curve",
+      "action": "Play the committed phrase.",
+      "expected": "Both markers follow the rising portion of the 220 Hz voice envelope.",
+      "capture_kind": "browser",
+      "image": "1280-4.png",
+      "dimensions": [
+        1280,
+        800
+      ]
+    },
+    {
+      "phase": "recovery",
+      "caption": "Recover the stretched phrase",
+      "action": "Commit the 200 ms alternative, then restore the checkpoint.",
+      "expected": "Revision three restores the saved apex and both saved marker positions.",
+      "capture_kind": "browser",
+      "image": "1280-5.png",
+      "dimensions": [
+        1280,
+        800
+      ]
+    },
+    {
+      "phase": "recovery",
+      "caption": "Recover the stretched phrase",
+      "action": "Commit the 200 ms alternative, then restore the checkpoint.",
+      "expected": "Revision three restores the saved apex and both saved marker positions.",
+      "capture_kind": "browser",
+      "image": "390-1.png",
+      "dimensions": [
+        390,
+        1076
+      ]
+    }
+  ]
+}
