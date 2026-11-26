@@ -509,17 +509,19 @@
       "commits": [
         "4706b42",
         "95d6615",
-        "3f1f3e1"
+        "3f1f3e1",
+        "43306e3"
       ],
       "verification": [
         "Parent: 85 Python tests, five focused Mojo regressions, nine layout/event/export parity replays, PlotSpec contract and API inventory passed.",
         "Pinned dataviz v0.8.0 reference output hashes verified; nine six-frame galleries generated from clean source 4706b42 and scoped source hash 6031303e65b3f7feb8191c377487468bf8a30c73c04e8aaaba72b46ab4e5c895.",
         "All 54 PNGs decoded and hashed; updates change output and recovery is pixel-exact. All nine slideshow pages loaded 12 images and passed navigation. Comparison, selection and update views visually inspected.",
         "Review fix: facade wheel and source distribution retain the exact pinned dataviz_mojo MIT notice; artifact inspection and clean installed consumer pass.",
-        "All nine Wave A fixtures display category labels. Grouped/stacked bar and population pyramid legends identify the series. Independent checks covered 36 scenarios across AppKit, Metal, software and Canvas."
+        "All nine Wave A fixtures display category labels. Grouped/stacked bar and population pyramid legends identify the series. Independent checks covered 36 scenarios across AppKit, Metal, software and Canvas.",
+        "At 180 by 150, the native population pyramid wraps the fixture title and separates the minimum, zero and maximum tick labels. The 320 by 240 and 640 by 480 fixtures match the previous AppKit, Canvas, software and SVG output byte for byte."
       ],
       "remaining_gates": [
-        "The 180\u00d7150 population pyramid still crowds its title and numeric ticks. Palette, margins, domain fitting and some primitive differences remain.",
+        "Palette, margins, domain fitting and some primitive differences remain.",
         "Human usability/native input, large-data performance, physical frame latency, full upstream suite, other platforms/toolchains and remote CI not checked. VoiceOver remains paused."
       ],
       "slideshows": [
@@ -532,7 +534,9 @@
         "artifacts/demo-slideshows/e01-gantt/manifest.json",
         "artifacts/demo-slideshows/e01-span-chart/manifest.json",
         "artifacts/demo-slideshows/e01-population-pyramid/manifest.json",
-        "artifacts/demo-slideshows/e01-category-labels/comparison.png"
+        "artifacts/demo-slideshows/e01-category-labels/comparison.png",
+        "artifacts/demo-slideshows/e01-category-labels/compact-pyramid-before.png",
+        "artifacts/demo-slideshows/e01-category-labels/compact-pyramid-after.png"
       ]
     },
     {

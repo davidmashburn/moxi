@@ -1436,6 +1436,33 @@ struct Plot:
             or kind == PLOT_SUNBURST
         )
 
+    def _is_population_pyramid(self) -> Bool:
+        return len(self.series) == 1 and self.series[0].has_layout_domain and self.series[0].kind == PLOT_POPULATION_PYRAMID
+
+    def _append_compact_pyramid_ticks(self, mut scene: Scene):
+        # Keep the mirrored endpoints and zero when they fit. On very narrow
+        # canvases retain zero alone rather than overlap or truncate numbers.
+        var previous_right = self.bounds.x
+        var endpoints_fit = True
+        for index in range(3):
+            var width = Float32(String(self.x_scale.tick(index, 2)).count_codepoints() * 7)
+            var x = self.plot_area.x + self.plot_area.width * Float32(index) / 2
+            var left = max(self.bounds.x + 2, min(x - width / 2, self.bounds.x + self.bounds.width - width - 2))
+            endpoints_fit = endpoints_fit and width <= self.bounds.width - 4 and (index == 0 or left >= previous_right + 8)
+            previous_right = left + width
+        var y = self.plot_area.y + self.plot_area.height
+        for index in range(3):
+            if not endpoints_fit and index != 1:
+                continue
+            var x = self.plot_area.x + self.plot_area.width * Float32(index) / 2
+            var label = String(self.x_scale.tick(index, 2))
+            var width = Float32(label.count_codepoints() * 7)
+            if width > self.bounds.width - 4:
+                continue
+            var left = max(self.bounds.x + 2, min(x - width / 2, self.bounds.x + self.bounds.width - width - 2))
+            scene.append_line(160 + index, Point(x, y), Point(x, y + 5), self.axis_color, 1)
+            scene.append_text_styled(700 + index, label, Rect(left, y + 6, width, 9), self.axis_color, SceneTextStyle(LABEL_FONT, 11))
+
     def _append_cartesian_axes(self, mut scene: Scene):
         scene.append_line(
             150,
@@ -1449,11 +1476,15 @@ struct Plot:
         )
         var categorical = len(self.series) == 1 and len(self.series[0].category_labels) > 0
         var categories_on_y = categorical and self.series[0].categories_on_y
+        # Preserve the normal six-tick scene once its 48-point boxes fit.
+        var compact_pyramid = self._is_population_pyramid() and self.plot_area.width < 5 * 48
+        if compact_pyramid:
+            self._append_compact_pyramid_ticks(scene)
         for index in range(0, 6):
             var fraction = Float32(index) / 5.0
             var x = self.plot_area.x + self.plot_area.width * fraction
             var y = self.plot_area.y + self.plot_area.height
-            if not categorical or categories_on_y:
+            if (not categorical or categories_on_y) and not compact_pyramid:
                 scene.append_line(
                     160 + index,
                     Point(x, y),
@@ -2239,12 +2270,26 @@ struct Plot:
             )
 
         if self.title.count_codepoints() > 0:
-            scene.append_text(
-                400,
-                self.title,
-                Rect(self.bounds.x + 12.0, self.bounds.y + 4.0, self.bounds.width - 24.0, 20.0),
-                self.axis_color,
-            )
+            var title_width = self.bounds.width - 24
+            if self._is_population_pyramid() and Float32(self.title.count_codepoints() * 7) > title_width:
+                # Two portable text rows fit above the unchanged data area.
+                # Only the scene is abbreviated; title/semantics retain it all.
+                var capacity = max(0, Int(title_width / 7))
+                if capacity > 0:
+                    var split = capacity
+                    for index in range(1, capacity + 1):
+                        if self.title[codepoint=index] == " ":
+                            split = index
+                    var second = split + (1 if self.title[codepoint=split] == " " else 0)
+                    scene.append_text_styled(400, String(self.title[codepoint=0:split]), Rect(self.bounds.x + 12, self.bounds.y + 4, title_width, 9), self.axis_color, SceneTextStyle(LABEL_FONT, 11))
+                    scene.append_text_styled(401, _label_text(String(self.title[codepoint=second:]), title_width), Rect(self.bounds.x + 12, self.bounds.y + 16, title_width, 9), self.axis_color, SceneTextStyle(LABEL_FONT, 11))
+            else:
+                scene.append_text(
+                    400,
+                    self.title,
+                    Rect(self.bounds.x + 12.0, self.bounds.y + 4.0, title_width, 20.0),
+                    self.axis_color,
+                )
         if self.show_legend:
             var legend_x = self.bounds.x + 56.0
             var legend_y = self.bounds.y + self.bounds.height - 24.0
@@ -2253,13 +2298,18 @@ struct Plot:
                     continue
                 if len(self.series[series_index].category_labels) > 0:
                     var entries = len(self.series[series_index].legend_labels)
-                    var slot = self.plot_area.width / Float32(max(1, entries))
+                    var legend_left = self.plot_area.x
+                    var legend_width = self.plot_area.width
+                    if self._is_population_pyramid() and self.plot_area.width < 5 * 48:
+                        legend_left = self.bounds.x + 12
+                        legend_width = self.bounds.width - 24
+                    var slot = legend_width / Float32(max(1, entries))
                     if self.plot_area.width <= 0 or legend_y < self.plot_area.y + self.plot_area.height + 18:
                         continue
                     for i in range(entries):
                         var label = _label_text(self.series[series_index].legend_labels[i], slot - 18)
                         if label != "":
-                            var x = self.plot_area.x + Float32(i) * slot
+                            var x = legend_left + Float32(i) * slot
                             scene.append_rect(500 + i, Rect(x, legend_y, 9, 9), self.series[series_index].legend_colors[i])
                             scene.append_text_styled(600 + i, label, Rect(x + 13, legend_y, slot - 13, 9), self.axis_color, SceneTextStyle(LABEL_FONT, 11))
                     continue
