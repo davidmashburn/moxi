@@ -2,17 +2,17 @@
   "version": 1,
   "demo_id": "mindmap",
   "title": "Native mind map — public canvas consumer",
-  "revision": "07a53792b442519255018e7854116e0b3f2158a3",
+  "revision": "37c098525245805abb768e4e4e2f5ac4855eefea",
   "host": "macOS 27.2.1 arm64",
   "backend": "AppKit contentView cacheDisplay; shared moxi_canvas native presenter",
   "scale": 2,
-  "fixture": "Original synthetic six-topic, import-loss and 1,000-topic fixtures",
+  "fixture": "Original synthetic six-topic, import-loss, 1,000-topic and unequal-spacing fixtures",
   "reproduce": "pixi run d04-mindmap-replay",
-  "scenario": "Real executable and public input/command replay. Only F2 traverses AppKit NSEvent dispatch; remaining inputs are deterministic public Event/command calls. Content-view offscreen renders, not desktop/window captures, physical input or independent acceptance.",
+  "scenario": "Real executable and public input/command replay. F2 and four terminal clicks use constructed NSEvents delivered to AppKit view handlers, then the ordinary native queue. Other inputs are deterministic public Event/command calls. Content-view offscreen renders, not desktop/window captures, physical input or independent acceptance.",
   "source_state": "clean committed implementation",
   "scoped_dirty_source": [],
   "source_sha256": {
-    "examples/mindmap_native_app.mojo": "bd46fc401cfef3b9d34c4085bb58425260443290a967854613c449305474c2be",
+    "examples/mindmap_native_app.mojo": "9303cb08b277955c873335571ee29fe7cb117751f0471b60cb20d10a9f08e217",
     "native/button_state.h": "7cd1a0d58e305d235c4e0d8ad28101ee79d86342c76432a0d30f49ab8e645cd2",
     "native/harfbuzz_collection.h": "7434f7c79eb25d80fba97a7da5b586fed6c4014533e19bff99d973de9e3ab808",
     "native/harfbuzz_text.h": "af639fad782e6d9ba46fe8a18ade90c644100175bd9c3bec095b52254c77ab51",
@@ -35,7 +35,7 @@
     "native/macos_window.m": "bba2974f9ee48a90ab778d1c4a37293d21f8f2b1a82c82f18699e2904fa5f67d",
     "native/macos_window_state.h": "3f711187cba1e724239d9e7a9216611086cc19015af35e5556c847e79b3687cf",
     "native/math/font.m": "e7c64822f12935b8eb91c7d67d34e72f9aeee6b5e56cfc3edcaffa5ed3e1c0b5",
-    "native/mindmap/capture.m": "3fd620d237a44a0f911aea26f40723201c3441c94b0d4eaada62bc226aef3e74",
+    "native/mindmap/capture.m": "bd219a65932d009ea366e3f4536082e37e32f3d5ad44c533e609c6e8930aa31c",
     "native/mindmap/storage.h": "3d4583c2952c0857fb9187d4ddc60e91e814dc6882ea4079697fa65a94482b4e",
     "native/mindmap/storage.m": "f7812d79ad04925915e7c2eca3e60c62b42337f926a57a1c5a850ab258753e13",
     "native/retained_layout/include/moxi_layout.h": "7900c450942f7d7009f11b408ff6e8df57c85df57ecf0f4cb06109484d6c2763",
@@ -49,8 +49,8 @@
     "pixi.lock": "b17ce5daafc18cb10ca54e75c338fa4bf6ac9e2f3839dd9e4e65e818e32977f0",
     "pixi.toml": "e4f348c2aaa0d20840ae2b7bcbbedffe4093cca584603947b61817f355a385cf",
     "scripts/demo_slideshows.py": "d9bfa8ef8e7f23afdb3275fc492f6a930af4ea5cbd1bf7034b8c0f4826edc66d",
-    "scripts/mindmap/check.sh": "5e88fa28002f3ee00a42a8758bd6ff75ca8bd1a61ea44d0432e7bb7e262c8835",
-    "scripts/mindmap/manifest.py": "6310146ac16124664cd5d3cecf290b7f0176dc75829511a702f951820ceb0dd3",
+    "scripts/mindmap/check.sh": "72a1ec80ee59cf4c299e031b9c1e5834cfa8a1814546913c158a721340d0bd8a",
+    "scripts/mindmap/manifest.py": "8b474014e63cdfb91c860fac2da4288c6608a44f957911e9b2b0bd8ad61a4e5d",
     "src/moxi/__init__.mojo": "84fbf2913a897a274de2e168b7435e2216df9e9586f3679b4b18a487fb4e55d4",
     "src/moxi/accessibility.mojo": "d29e1e34e9d095cbe76dddf4966b29f6ad939262a790cadad4acef6c5ece81a4",
     "src/moxi/alignment.mojo": "5931badead771e2fa75a64d740270ca7fda2ea000ce6b7a0d89b670fd6596ee0",
@@ -163,22 +163,22 @@
     "src/moxi/windowing.mojo": "553bb95c77328a5a24db52164cb1f34cfe25d6fa1edcec361568d6471ea6c0c2",
     "src/moxi/wrapped.mojo": "08fe3e6b65ec072061633b382137e127a4304c0ae9bf2f99471003d70eea3ea4",
     "src/moxi/wxstyle.mojo": "e994a236e37233ad2650a7baad5f112794fd7c8c70a6757b409db3c9ebad2505",
-    "src/moxi_canvas/__init__.mojo": "c6b188338c110a38aea9cb7332b77fba10860cce4064a7190572b39a798321db",
+    "src/moxi_canvas/__init__.mojo": "2a7560c84d73104deb7423bcb6b6e28b042b061cf6cc962b2b83bf936ce49702",
     "src/moxi_canvas/commands.mojo": "f5170e0f9ebbb1acc4d86e6efc5383a05c0a45ee445154bdb67ae4e3a7d1709f",
-    "src/moxi_canvas/geometry.mojo": "3654f00da563c14f9f102d69e8af605c0993adfda1435fb35edd59f53826cf72",
+    "src/moxi_canvas/geometry.mojo": "88a869a177eeaf4ef2bfccd4018fd67ab0b304129d52f074182c9927872ba4e3",
     "src/moxi_canvas/index.mojo": "f74ab766dbfc14fb3a1420052606156dd874f95146c1b2b3893fd57b8f890671",
     "src/moxi_canvas/interaction.mojo": "e23ee474e31c2771ddf25ac9478134cf783cbd0661c36e82b5a26b29b7b09666",
-    "src/moxi_canvas/model.mojo": "a303d53915797a4b241dcc9cffd28733867d8ae0aceae8dd9052826b7b07cf58",
+    "src/moxi_canvas/model.mojo": "149b34b8083424868bba15f7b58012beafce7577ded493097b153c45554506c8",
     "src/moxi_canvas/native.mojo": "f6ce22d961be5940074bfd0f8295ab173f0243e295b7cf4b2e2a90c36114c819",
     "src/moxi_canvas/runtime.mojo": "e6c611c4e7ecbd5704fa16a1aefcc38bfeb1716c4f376509f5a7cc57dc1626b0",
-    "src/moxi_canvas/surface.mojo": "524c44d0688482dadacfffbc7b95ec5f5185e1b730a34da0108c8dc3bbfa6ff5",
+    "src/moxi_canvas/surface.mojo": "af5920381238d98ec27fd684ac83223994e872d8d357870815cf641c10fde165",
     "src/moxi_mindmap/__init__.mojo": "7c215edacf48c86def19780810df36c5c6123f6dbbd44204062f77fc3eb31814",
     "src/moxi_mindmap/application.mojo": "2d1465b27567cda5e490c79243ad5d83363dccaab26666f4f42894bc94c5630f",
     "src/moxi_mindmap/codec.mojo": "5434013ccfe773229e2e10381204d525dd1631ab2af9eebf815ef1f05ce1c696",
     "src/moxi_mindmap/commands.mojo": "abd961b484dbc7d37878c355b00960febb741e75b20418b9234fcb9c8f6151cd",
-    "src/moxi_mindmap/fixtures.mojo": "cf063df9ad4c80c48562d80265ded2dbbdd1652ad06ad2b3263ff70c3d8e0566",
+    "src/moxi_mindmap/fixtures.mojo": "0b96fe792232336ff34703b48a8f53838f58b11f07cfdaff7337f243f138626d",
     "src/moxi_mindmap/history.mojo": "92d8bd03bd45c0537a606b5000fddb2633b2b213b101d14aa739c1b5952d6fde",
-    "src/moxi_mindmap/layout.mojo": "d252c284f7a7bd434ee2ba121ede4437252acee5f3055293077875485d59e91b",
+    "src/moxi_mindmap/layout.mojo": "1620a6c4bc92b06a9aa13e49428d588e28043a49acdf69df215f3c993460ad8b",
     "src/moxi_mindmap/model.mojo": "feac7890ea1a86d7f731b9755befc05c8618041b4b9170d98f6686394450abca",
     "src/moxi_mindmap/reflow.mojo": "7c059b084175d23b8db8c8bbc6c8f24753eb9d0c9d330fe43e4d0772993e142b",
     "src/moxi_mindmap/storage.mojo": "c922d21174e10c48ba3c236afa33aeabc102548f25234be4b9883dcdfc0627ac",
@@ -187,6 +187,7 @@
     "tests/mindmap/application.mojo": "393f10ee8b1df42b2951c7a43907a34f9da2391ca075a9b6c7698d38757d21de",
     "tests/mindmap/benchmark.mojo": "61e2f2b2ef189689b708a06ff2d0bb5da14d3b85c4257d550b2bc35b2a31cbe7",
     "tests/mindmap/consumer.mojo": "68dffd746e778d32136151a77419f20a77c8ab4d6f40a41021e51c1c760ef3d7",
+    "tests/mindmap/dense_hits.mojo": "725e3852d67543708a69016d7edf37a067ae0f83ca3fbf68026969f72d556b3f",
     "tests/mindmap/failures.mojo": "8a13bc6731d06d60b2030a4c24ada6593bc8cc8ac6057703ed7c73f7763ea683",
     "tests/mindmap/fixtures/loss.mm": "5ee5c73ad68aef751fd055f767c0ea515c22edd7a7fa82816583bf9dfb1f3594",
     "tests/mindmap/fixtures/supported.mm": "678325aaa56e443551391409fab4a085c3b34565e4aef3e96eddd31cf7b1a497",
@@ -459,6 +460,58 @@
       "caption": "1,000 topics, culled viewport",
       "action": "Open the expanded 1,000-topic fixture with the public canvas camera.",
       "expected": "A shared vertical trunk joins the visible sibling stubs at readable scale. The expanded fixture keeps all topic controls and edges in the model."
+    },
+    {
+      "image": "14-dense-left-1x.png",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "dimensions": [
+        2360,
+        1640
+      ],
+      "sha256": "92737b1686b55890a4df8eb80c6d0ece4d46d07896340eed1aabfe87dc3b500c",
+      "caption": "Unequal spacing, left branch at 1×",
+      "action": "Pan to edge 7 terminal midpoint; construct AppKit mouse down/up and drain the ordinary native input queue.",
+      "expected": "Edge 7 is selected and its complete route overlays shared strokes; sibling edge 8 does not steal the click."
+    },
+    {
+      "image": "15-dense-right-1x.png",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "dimensions": [
+        2360,
+        1640
+      ],
+      "sha256": "546028d8fc85b7a66674c9c3445996d5826a4ac479cc79a7299921b4033cefa0",
+      "caption": "Unequal spacing, right branch at 1×",
+      "action": "Repeat native mouse handler/queue delivery at edge 15 terminal midpoint.",
+      "expected": "Edge 15 is selected rather than sibling edge 16."
+    },
+    {
+      "image": "16-dense-left-half.png",
+      "phase": "interaction",
+      "capture_kind": "offscreen-render",
+      "dimensions": [
+        2360,
+        1640
+      ],
+      "sha256": "ac4cf1cba098fb7d53a5d641e10987acd932f5e321b8c23f57b272422ce78dde",
+      "caption": "Unequal spacing, left branch at 0.5×",
+      "action": "Repeat edge 7 terminal midpoint delivery at half zoom, retaining port/object precedence.",
+      "expected": "The distinct terminal still selects edge 7."
+    },
+    {
+      "image": "17-dense-right-half.png",
+      "phase": "result",
+      "capture_kind": "offscreen-render",
+      "dimensions": [
+        2360,
+        1640
+      ],
+      "sha256": "d15c9d5136dfe46682d0f40b7db213b3aa6d75e1974ddb7a16bd8864beda7fab",
+      "caption": "Unequal spacing, right branch at 0.5×",
+      "action": "Repeat edge 15 terminal midpoint delivery at half zoom.",
+      "expected": "The distinct terminal still selects edge 15. These constructed AppKit events do not establish physical-pointer usability."
     }
   ]
 }

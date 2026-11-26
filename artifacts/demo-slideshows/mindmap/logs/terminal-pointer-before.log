@@ -1,0 +1,5 @@
+FAIL dense terminal pointer selection: zoom 1.0 expected 7 got 8
+FAIL dense terminal pointer selection: zoom 1.0 expected 15 got 16
+FAIL dense terminal pointer selection: zoom 0.5 expected 7 got 8
+FAIL dense terminal pointer selection: zoom 0.5 expected 15 got 16
+Unhandled exception caught during execution: Dense terminal pointer selection failures: 4

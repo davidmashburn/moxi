@@ -1,55 +1,286 @@
 {
-  "implementation_revision": "07a53792b442519255018e7854116e0b3f2158a3",
-  "baseline_revision": "0da6f295b6d20cdf663aaf66a039a43e8fb66dd0",
-  "verified_utc": "2026-11-26T02:51:45.170563+00:00",
+  "implementation_revision": "37c098525245805abb768e4e4e2f5ac4855eefea",
+  "baseline_revision": "58609ab6e2bd02ac6366db0b60ea25968552d4a4",
+  "verified_utc": "2026-11-26T03:37:20.460376+00:00",
   "environment": {
-    "host": "27.2.1 arm64 Apple M4",
+    "host": "macOS 27.2.1 arm64 Apple M4",
     "viewport_points": [
       1180,
       820
+    ],
+    "pointer_contract_viewport_points": [
+      1800,
+      2000
     ],
     "capture_pixels": [
       2360,
       1640
     ],
     "backend": "AppKit contentView cacheDisplay; shared moxi_canvas native presenter",
-    "fixture": "Original synthetic six-topic, import-loss and 1,000-topic fixtures",
+    "fixture": "Original synthetic six-topic, import-loss, 1,000-topic and unequal-spacing fixtures",
     "source_state": "clean committed implementation",
     "mojo": "1.1.0 (8189361e)",
     "content_view_scale": 2,
-    "slideshow_browser": "Google Chrome 158.0.8127.37"
+    "user_context": "Local synthetic fixtures; no external accounts or customer data."
   },
-  "manifest_sha256": "0b8b4b489475310dc92236bb14b2d39a6d8edf82ec45384c0471555204c047dd",
-  "executable_sha256": "cc32f45e9a4f7726aed03b553314da342a52ceca630a07c48c2fafc4b37ec9e5",
-  "source_hashes_verified": 186,
-  "offline_slideshow": "20 native PNGs decoded offline, Next/Previous wrap, both arrow keys and thumbnail jump PASS",
-  "native_input": {
-    "before": [
-      "viewport_ordinary_commands 37 clipped_edge_commands 4851",
-      "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
-      "main_thread_cpu p50_ms 27.365167 p95_ms 29.094833 p99_max_ms 29.629541",
-      "elapsed p50_ms 27.404 p95_ms 29.096 p99_max_ms 29.66"
-    ],
-    "after": [
-      "viewport_ordinary_commands 37 clipped_edge_commands 17",
-      "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
-      "main_thread_cpu p50_ms 6.330084 p95_ms 6.915625 p99_max_ms 6.96775",
-      "elapsed p50_ms 6.332 p95_ms 6.965 p99_max_ms 6.969"
+  "manifest_sha256": "76a54c14e0ea9af6d266bf3bdf54b7c8ced5cd0b5d245ea84fdbd53b144cfacd",
+  "executable_sha256": "eca4089a198e488c59af963f9674ec024da7781c5c41c27df520e53decb84faa",
+  "source_hashes_verified": 187,
+  "capture_utc": "2026-11-26T03:33:52.715603+00:00",
+  "offline_slideshow": "24 frames pass manifest, PNG dimensions/SHA-256 and source/Git-blob verification. Existing offline HTML regenerated exactly; browser navigation was not repeated.",
+  "native_terminal_selection": {
+    "method": "Constructed NSEvent mouse down/up delivered directly to AppKit contentView mouseDown/mouseUp, then the native event queue and normal MindMapApp dispatch. Not physical pointer input or NSApplication event dispatch.",
+    "fail_first": {
+      "geometry_revision": "58609ab6e2bd02ac6366db0b60ea25968552d4a4",
+      "instrumentation": "New synthetic fixture and replay helper compiled against unchanged pre-fix hit routing; this was not a clean uninstrumented baseline build.",
+      "public_pointer_exit_code": 1,
+      "native_replay_exit_code": 1,
+      "native_executable_sha256": "b193bc171c7ec6657ab431074e9d7fe047d0b3fd1c408f13c1371c587a4949d7",
+      "public_log": "logs/terminal-pointer-before.log",
+      "native_log": "logs/terminal-native-before.log",
+      "observed": "Edges 7/15 selected 8/16 on both sides at zoom 1/0.5 before the hit-routing repair."
+    },
+    "fixed": {
+      "native_replay_exit_code": 0,
+      "native_log": "logs/terminal-native-after.log",
+      "public_log": "logs/terminal-pointer-after.log",
+      "scenarios": [
+        {
+          "image": "14-dense-left-1x.png",
+          "sha256": "92737b1686b55890a4df8eb80c6d0ece4d46d07896340eed1aabfe87dc3b500c",
+          "zoom": 1.0,
+          "edge_id": 7,
+          "steps": "Load unequal-spacing fixture, pan terminal midpoint to interaction-clip center, send constructed AppKit mouse down/up to the native view, drain native queue through normal public dispatch, then render.",
+          "expected": "Edge 7 selected; selected route painted last.",
+          "before": {
+            "selected_edge": 8,
+            "pointer_down_events": 1,
+            "pointer_up_events": 1,
+            "outcome": "fail"
+          },
+          "observed": {
+            "selected_edge": 7,
+            "pointer_down_events": 1,
+            "pointer_up_events": 1,
+            "appearance": "Gold selected route reaches the expected child; neighboring routes remain cyan."
+          },
+          "outcome": "pass",
+          "limits": "Content-view offscreen render and deterministic native handlers/queue; no physical input. Some unrelated topics are clipped by the viewport."
+        },
+        {
+          "image": "15-dense-right-1x.png",
+          "sha256": "546028d8fc85b7a66674c9c3445996d5826a4ac479cc79a7299921b4033cefa0",
+          "zoom": 1.0,
+          "edge_id": 15,
+          "steps": "Load unequal-spacing fixture, pan terminal midpoint to interaction-clip center, send constructed AppKit mouse down/up to the native view, drain native queue through normal public dispatch, then render.",
+          "expected": "Edge 15 selected; selected route painted last.",
+          "before": {
+            "selected_edge": 16,
+            "pointer_down_events": 1,
+            "pointer_up_events": 1,
+            "outcome": "fail"
+          },
+          "observed": {
+            "selected_edge": 15,
+            "pointer_down_events": 1,
+            "pointer_up_events": 1,
+            "appearance": "Gold selected route reaches the expected child; neighboring routes remain cyan."
+          },
+          "outcome": "pass",
+          "limits": "Content-view offscreen render and deterministic native handlers/queue; no physical input. Some unrelated topics are clipped by the viewport."
+        },
+        {
+          "image": "16-dense-left-half.png",
+          "sha256": "ac4cf1cba098fb7d53a5d641e10987acd932f5e321b8c23f57b272422ce78dde",
+          "zoom": 0.5,
+          "edge_id": 7,
+          "steps": "Load unequal-spacing fixture, pan terminal midpoint to interaction-clip center, send constructed AppKit mouse down/up to the native view, drain native queue through normal public dispatch, then render.",
+          "expected": "Edge 7 selected; selected route painted last.",
+          "before": {
+            "selected_edge": 8,
+            "pointer_down_events": 1,
+            "pointer_up_events": 1,
+            "outcome": "fail"
+          },
+          "observed": {
+            "selected_edge": 7,
+            "pointer_down_events": 1,
+            "pointer_up_events": 1,
+            "appearance": "Gold selected route reaches the expected child; neighboring routes remain cyan."
+          },
+          "outcome": "pass",
+          "limits": "Content-view offscreen render and deterministic native handlers/queue; no physical input. Some unrelated topics are clipped by the viewport."
+        },
+        {
+          "image": "17-dense-right-half.png",
+          "sha256": "d15c9d5136dfe46682d0f40b7db213b3aa6d75e1974ddb7a16bd8864beda7fab",
+          "zoom": 0.5,
+          "edge_id": 15,
+          "steps": "Load unequal-spacing fixture, pan terminal midpoint to interaction-clip center, send constructed AppKit mouse down/up to the native view, drain native queue through normal public dispatch, then render.",
+          "expected": "Edge 15 selected; selected route painted last.",
+          "before": {
+            "selected_edge": 16,
+            "pointer_down_events": 1,
+            "pointer_up_events": 1,
+            "outcome": "fail"
+          },
+          "observed": {
+            "selected_edge": 15,
+            "pointer_down_events": 1,
+            "pointer_up_events": 1,
+            "appearance": "Gold selected route reaches the expected child; neighboring routes remain cyan."
+          },
+          "outcome": "pass",
+          "limits": "Content-view offscreen render and deterministic native handlers/queue; no physical input. Some unrelated topics are clipped by the viewport."
+        }
+      ]
+    },
+    "centerline_geometry_samples": {
+      "method": "101 snapshot hit_edge samples per terminal, not 101 delivered pointer events. Eligibility additionally excludes ports and objects.",
+      "edges": [
+        7,
+        15
+      ],
+      "zoom_1": {
+        "correct_geometry_hits_per_edge": 101,
+        "eligible_outside_ports_objects_per_edge": 76
+      },
+      "zoom_half": {
+        "correct_geometry_hits_per_edge": 101,
+        "eligible_outside_ports_objects_per_edge": 52
+      }
+    },
+    "precedence": "Native pointer route remains port, object, then edge. Ordinary straight/cubic/orthogonal edges and a topmost ordinary crosslink retain snapshot-order overlap behavior. Dense ancestry alone opts into nearest-terminal preference.",
+    "indistinguishable_areas": [
+      "Exactly coincident terminal segments and equal-distance terminal ties cannot encode a unique intended branch; highest snapshot index wins.",
+      "Shared trunks away from any eligible terminal do not identify a unique branch; highest snapshot index wins.",
+      "Port/object overlap areas belong to those higher-priority interactions and are not usable edge targets."
     ]
   },
-  "unverified": [
-    "Physical pointer/keyboard, IME, chooser, VoiceOver and independent usability",
-    "Compositor/scanout latency, GPU work, allocation counts, retained memory, sustained energy and thermals",
-    "Fully visible 1,000-topic and expanded 10,000-topic native submission, all-interaction 8 ms acceptance",
-    "Live Freeplane parity, other hosts and viewports, full repository suite and remote CI"
-  ],
-  "save_recovery_bytes": {
-    "saved_sha256": "1dbc11757a6ecd2fcd279e0fcf44a800fc6fa6a5b53d916fb19322a24476fe66",
-    "recovery_sha256": "a2351ee7fb4ece111e44c2ff14b4ea02ecf0ef813ebc15b2b0405aa2dfc461b3",
-    "suffix_only_in_recovery": true
+  "checks": {
+    "mindmap": "Seven model/layout/application/dense-hit/failure/reflow/exact-reflow contracts and 70-command inventory PASS. Live reference parity NOT VERIFIED.",
+    "shared_canvas": "canvas_geometry_contract, canvas_contract, canvas_graph_contract and canvas_keyboard_contract PASS.",
+    "shared_contract_log": "logs/terminal-shared-contracts.log",
+    "edge_policy": "PASS nearest terminal, ordinary route/overlap precedence, shared trunks, crossing sibling trunk, exact ties, inclusive 7-point tolerance, copy/cache invalidation, semantic preview/commit/undo, and ordinary-preview rejection.",
+    "native_replay": "PASS original replay plus four terminal selections through native handlers/queue; selected overlays visually inspected in all four added frames.",
+    "provenance": "24 unique PNGs at 2360x1640 match manifest hashes; all 187 authored source hashes match current files and captured Git blobs; source state clean.",
+    "original_frames": "All original 20 PNGs are byte-identical to 58609ab; their earlier visual observations below are reused."
+  },
+  "d03_shared_geometry_review": {
+    "d03_index_sha256": "ca6a107f5549be1c119a11461bab78a4731061e3cfa8eadbb7a18b7bca3f6b19",
+    "scope": "Scratch source overlay of only an earlier D03 spatial index candidate onto the terminal-hit implementation; no shared source writes or capacity/native combination test.",
+    "outcome": "pass",
+    "log": "logs/terminal-d03-index-overlay.log",
+    "review": "Only D03 index.mojo was copied into a scratch source overlay. Independently checked stable edge indices, bounds/query membership and order-independent ranking. Full geometry contract including new policy/copy/cache/preview tests passed.",
+    "boundary": "D03 checkout untouched; no changes to capacity/index/native presenter files in this branch. Combined native capacity integration was not tested.",
+    "candidate_status_at_final_inspection": "D03 withdrew the index optimization. Its current index is byte-identical to this branch, whose full geometry contract passed without an overlay.",
+    "current_d03_index_sha256": "f74ab766dbfc14fb3a1420052606156dd874f95146c1b2b3893fd57b8f890671",
+    "inspected_utc": "2026-11-26T03:38:22.282049+00:00"
+  },
+  "historical_drawing_evidence": {
+    "implementation_revision": "07a53792b442519255018e7854116e0b3f2158a3",
+    "baseline_revision": "0da6f295b6d20cdf663aaf66a039a43e8fb66dd0",
+    "verified_utc": "2026-11-26T02:51:45.170563+00:00",
+    "record_at_git": "58609ab:artifacts/demo-slideshows/mindmap/validation.json",
+    "executable_sha256": "cc32f45e9a4f7726aed03b553314da342a52ceca630a07c48c2fafc4b37ec9e5",
+    "scope": "Historical drawing/editor measurements, not fresh measurements of this terminal-selection commit. Culled 1000 total topics, not 1000 simultaneously visible.",
+    "native_input": {
+      "before": [
+        "viewport_ordinary_commands 37 clipped_edge_commands 4851",
+        "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+        "main_thread_cpu p50_ms 27.365167 p95_ms 29.094833 p99_max_ms 29.629541",
+        "elapsed p50_ms 27.404 p95_ms 29.096 p99_max_ms 29.66"
+      ],
+      "after": [
+        "viewport_ordinary_commands 37 clipped_edge_commands 17",
+        "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+        "main_thread_cpu p50_ms 6.330084 p95_ms 6.915625 p99_max_ms 6.96775",
+        "elapsed p50_ms 6.332 p95_ms 6.965 p99_max_ms 6.969"
+      ]
+    },
+    "native_input_reverse_order": {
+      "after": [
+        "viewport_ordinary_commands 37 clipped_edge_commands 17",
+        "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+        "main_thread_cpu p50_ms 6.664875 p95_ms 7.568209 p99_max_ms 9.922042",
+        "elapsed p50_ms 6.666 p95_ms 7.569 p99_max_ms 9.965"
+      ],
+      "before": [
+        "viewport_ordinary_commands 37 clipped_edge_commands 4851",
+        "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+        "main_thread_cpu p50_ms 27.559042 p95_ms 30.421042 p99_max_ms 30.981792",
+        "elapsed p50_ms 27.56 p95_ms 30.474 p99_max_ms 31.168"
+      ]
+    },
+    "headless_application": {
+      "before": [
+        "capacity_probe_ordinary_commands 4013 native_submission SKIPPED_OVER_1024",
+        "1000-topic_application_edit samples 21 p95_ms 115.79 p99_max_ms 124.882",
+        "1000-topic_application_move_preview_commit samples 21 p95_ms 317.652 p99_max_ms 322.022"
+      ],
+      "after": [
+        "capacity_probe_ordinary_commands 4013 native_submission SKIPPED_OVER_1024",
+        "1000-topic_application_edit samples 21 p95_ms 89.474 p99_max_ms 97.244",
+        "1000-topic_application_move_preview_commit samples 21 p95_ms 277.819 p99_max_ms 334.306"
+      ]
+    },
+    "offline_slideshow": "20 native PNGs decoded offline, Next/Previous wrap, both arrow keys and thumbnail jump PASS",
+    "appkit_layers": "D03 native layer pixels, per-slice clipping, window isolation and capacity: PASS",
+    "note": "Browser navigation, native layer/capacity test and performance benchmarks above were not rerun for this commit. The independent replicates below supersede any repeatable 8 ms budget implication."
+  },
+  "native_input_independent_review": {
+    "reviewed_head": "58609ab6e2bd02ac6366db0b60ea25968552d4a4",
+    "captured_implementation": "07a53792b442519255018e7854116e0b3f2158a3",
+    "baseline_revision": "0da6f295b6d20cdf663aaf66a039a43e8fb66dd0",
+    "review_report_sha256": "6d115657c2a9109d440c8fd4a1f0b6080878fe5705c11121cb4e8053db928aed",
+    "scope": "Retained implementation executable; same current benchmark driver built against baseline sources and common native objects. Culled 1000 expanded total topics, not 1000 simultaneously visible topics. Public text event through synchronous AppKit submission, not physical input or end-to-display.",
+    "host_activity": "Initial current run overlapped reviewer compilation. Final sequential baseline/current pair had no reviewer compiler or test running concurrently; other host activity was not isolated or measured.",
+    "runs": {
+      "current_first": {
+        "log": "logs/review-native-input-after.log",
+        "observed": [
+          "viewport_ordinary_commands 37 clipped_edge_commands 17",
+          "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+          "main_thread_cpu p50_ms 5.604791 p95_ms 6.220458 p99_max_ms 6.802",
+          "elapsed p50_ms 5.606 p95_ms 6.222 p99_max_ms 6.804"
+        ],
+        "executable_sha256": "cc32f45e9a4f7726aed03b553314da342a52ceca630a07c48c2fafc4b37ec9e5",
+        "log_sha256": "8504d0e865e31addfd5cfd2a86b1241bb3185696916e9e5bd65915114883443a"
+      },
+      "baseline_paired": {
+        "log": "logs/review-native-input-before-paired.log",
+        "observed": [
+          "viewport_ordinary_commands 37 clipped_edge_commands 4851",
+          "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+          "main_thread_cpu p50_ms 39.868875 p95_ms 50.503125 p99_max_ms 58.089125",
+          "elapsed p50_ms 44.766 p95_ms 92.942 p99_max_ms 169.373"
+        ],
+        "started_utc": "2026-11-26T03:11:23.370053+00:00",
+        "finished_utc": "2026-11-26T03:12:03.087221+00:00",
+        "exit_code": 0,
+        "executable_sha256": "f8a1a00843d24bfadd9f8dbf69934e2932b260d12d98aaa07fc4ae36ad6c0d2c",
+        "log_sha256": "8264958afcfa383c972426d504766cf1bfa28d8036b034bd4fdce651612b1ece"
+      },
+      "current_paired": {
+        "log": "logs/review-native-input-after-paired.log",
+        "observed": [
+          "viewport_ordinary_commands 37 clipped_edge_commands 17",
+          "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
+          "main_thread_cpu p50_ms 7.126334 p95_ms 9.069375 p99_max_ms 11.106958",
+          "elapsed p50_ms 7.128 p95_ms 9.095 p99_max_ms 11.123"
+        ],
+        "started_utc": "2026-11-26T03:12:03.088799+00:00",
+        "finished_utc": "2026-11-26T03:12:10.071682+00:00",
+        "exit_code": 0,
+        "executable_sha256": "cc32f45e9a4f7726aed03b553314da342a52ceca630a07c48c2fafc4b37ec9e5",
+        "log_sha256": "2593e844f73e47705ae31b81a6076ac7603994aa1c9ac8687e95eaac65c87238"
+      }
+    },
+    "assessment": "Command reduction and observed improvement reproduced. CPU p95 6.220458 and 9.069375 ms straddle 8 ms: no repeatable budget pass, and no full 1000-visible-topic plan acceptance.",
+    "confidence": "High for recorded command counts and observed improvement; moderate for absolute timing portability; insufficient for full performance acceptance."
   },
   "visual_review": {
-    "method": "AppKit content-view cacheDisplay, queued F2, remaining events through public APIs. Each frame compared to the November 23 raster and inspected in sequence.",
+    "method": "All four new terminal captures inspected directly. Original 20 rasters regenerated byte-identically to 58609ab, so the earlier observations below are retained as prior review rather than a fresh visual inspection of every old frame.",
     "frames": [
       {
         "image": "01-initial.png",
@@ -274,61 +505,28 @@
     "before_pixels": 83,
     "after_pixels": 4
   },
-  "native_input_reverse_order": {
-    "after": [
-      "viewport_ordinary_commands 37 clipped_edge_commands 17",
-      "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
-      "main_thread_cpu p50_ms 6.664875 p95_ms 7.568209 p99_max_ms 9.922042",
-      "elapsed p50_ms 6.666 p95_ms 7.569 p99_max_ms 9.965"
-    ],
-    "before": [
-      "viewport_ordinary_commands 37 clipped_edge_commands 4851",
-      "native text event through AppKit submission, 1000 expanded topics, 25 crosslinks, 4 warmups, 21 samples",
-      "main_thread_cpu p50_ms 27.559042 p95_ms 30.421042 p99_max_ms 30.981792",
-      "elapsed p50_ms 27.56 p95_ms 30.474 p99_max_ms 31.168"
-    ]
+  "logs": {
+    "method": "Filtered result excerpts omit compiler warnings/stack traces; full local logs retained in task scratch directory. Review timing files are original four-line metric excerpts.",
+    "sha256": {
+      "review-native-input-after-paired.log": "2593e844f73e47705ae31b81a6076ac7603994aa1c9ac8687e95eaac65c87238",
+      "review-native-input-after.log": "8504d0e865e31addfd5cfd2a86b1241bb3185696916e9e5bd65915114883443a",
+      "review-native-input-before-paired.log": "8264958afcfa383c972426d504766cf1bfa28d8036b034bd4fdce651612b1ece",
+      "terminal-d03-index-overlay.log": "2bb3ec9ab4da2a7a3b0b462ffd21efe83357cf6f7b4e1daba91c0304e257b304",
+      "terminal-native-after.log": "b236af5ddd26d9fa9e0725f3be1e9d433e5c04a2ecf5dbc2f91d7b8f12da0f69",
+      "terminal-native-before.log": "947b4a63af28276ba4e30c4f7f4f0c25e1335223e52b9f33b7ae673b0260c8ee",
+      "terminal-pointer-after.log": "a46411fd54096aa7ed88d3bf8c553e32dc620666e7bdaad84149f2a5a8bd8cdb",
+      "terminal-pointer-before.log": "5823ddc8ba4df741b15702c618d3254d1cb065b8b37b85b9c20c606aa810e302",
+      "terminal-shared-contracts.log": "6f75f9fbc8f6b2b8d7ce23eea52a7607ebaf84a09f661038ceccdc499ef7c563"
+    }
   },
-  "headless_application": {
-    "before": [
-      "capacity_probe_ordinary_commands 4013 native_submission SKIPPED_OVER_1024",
-      "1000-topic_application_edit samples 21 p95_ms 115.79 p99_max_ms 124.882",
-      "1000-topic_application_move_preview_commit samples 21 p95_ms 317.652 p99_max_ms 322.022"
-    ],
-    "after": [
-      "capacity_probe_ordinary_commands 4013 native_submission SKIPPED_OVER_1024",
-      "1000-topic_application_edit samples 21 p95_ms 89.474 p99_max_ms 97.244",
-      "1000-topic_application_move_preview_commit samples 21 p95_ms 277.819 p99_max_ms 334.306"
-    ]
-  },
-  "previous_review": {
-    "revision": "0da6f295b6d20cdf663aaf66a039a43e8fb66dd0",
-    "path": "artifacts/demo-slideshows/mindmap/validation.json",
-    "unchanged_rasters": 18,
-    "recaptured_rasters": 20
-  },
-  "checks": {
-    "dense_application_contract": "mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS",
-    "canvas_geometry_contract": "geometry contract PASS: offscreen crossings, zoom hit tolerance, hysteresis, incremental cache/index, bounded autopan, pointer ownership, stale deletion, semantic destinations",
-    "mindmap_contract": [
-      "mindmap model: round trip, ordered normalized moves, undo, clipboard, cycle and incident links PASS",
-      "Dense two-sided sibling stubs preserve edge hits and crosslink routing PASS",
-      "mindmap app: real canvas text event, keyboard create, semantic preview/cancel/commit/undo PASS",
-      "PASS malformed codec/version/escape/duplicate, no-op, cycle/root, stale generation, folds and depth bounds",
-      "mindmap neighbor reflow, collision-free trajectories, history, cancellation and reduced-motion contracts pass",
-      "PASS exact final reflow bounds across large-coordinate cancellation",
-      "PASS 70 command inventory entries, pinned primary provenance, Cmd+D and Cmd+Space reservations; live reference parity NOT VERIFIED"
-    ],
-    "shared_canvas_contract": [
-      "rich canvas contract PASS",
-      "graph contract PASS",
-      "keyboard contract PASS: application profile precedence, native Primary, text/session scopes, source/target/edge selection, object search",
-      "geometry contract PASS: offscreen crossings, zoom hit tolerance, hysteresis, incremental cache/index, bounded autopan, pointer ownership, stale deletion, semantic destinations"
-    ],
-    "appkit_layers": "D03 native layer pixels, per-slice clipping, window isolation and capacity: PASS",
-    "native_replay": "Real AppKit F2 queue, public input, semantic cancel/undo, disk recovery and bounded import passed"
-  },
+  "unverified": [
+    "Physical pointer/keyboard, NSApplication dispatch, IME, chooser, VoiceOver and independent usability. VoiceOver was not exercised.",
+    "Fresh performance timing of the terminal-selection commit; all-interaction 8 ms acceptance; fully visible 1000-topic and expanded 10000-topic native capacity; D03 combined capacity integration.",
+    "Browser navigation of the regenerated 24-frame slideshow, fresh AppKit layer/capacity test, clean packaged consumer, full repository suite and remote CI.",
+    "Compositor/scanout latency, GPU work, allocations, memory, sustained thermals, live Freeplane parity and other hosts/viewports."
+  ],
   "confidence": {
-    "level": "High for the paired fixture, routed geometry and recorded GUI states on this checkout.",
-    "would_change_conclusion": "A repeat run with the same binary and a p95 across the budget, a failed commit/undo or hit test, or different replay pixels would change the corresponding conclusion."
+    "level": "High for the reproduced/fixed synthetic terminal cases, preserved tested precedence and captured provenance. Moderate for portability of historical absolute timings; insufficient for full performance or independent usability acceptance.",
+    "would_change_conclusion": "A failure of the same native/public pointer cases, an ordinary consumer precedence regression, a D03 index contract failure, different replay pixels or controlled timing repeats would change the corresponding conclusion."
   }
 }

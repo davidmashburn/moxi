@@ -46,7 +46,7 @@ def check(revision):
     }
     result = {"revision": head, "demos": {}}
     for demo, source_now, count, executable in (
-        ("mindmap", mindmap.snapshot()["source_sha256"], 20, "dist/moxi-mindmap"),
+        ("mindmap", mindmap.snapshot()["source_sha256"], 24, "dist/moxi-mindmap"),
         ("spatial-assembly", assembly.source_snapshot()[1], 14,
          "dist/spatial-assembly/assembly"),
     ):
