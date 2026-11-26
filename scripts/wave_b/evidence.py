@@ -19,8 +19,8 @@ NOTES={
 'ridgeline':'Same KDE; first group at top, 1.3-unit peak height and overlapping filled baselines. Moxi clamps the top ridge to the plot boundary; upstream overflows into the margin. The silhouette check covers only the shared plot rectangle.',
 'nightingale':'Equal angles with radius proportional to value: the pinned default radius mode, not area mode.',
 'streamgraph':'Declared series order, source-order categories, centered total baseline and linear segment polygons (upstream smoothing=0). Each interval retains both rows.',
-'contour':'No contour API exists at the pinned upstream revision. Moxi uses real fixed-diagonal piecewise-linear grid isolines, seven interior levels; no upstream parity claim.',
-'contourf':'No contourf API exists at the pinned upstream revision. Moxi clips each scalar triangle into eight bands, with explicit boundary ownership; no upstream parity claim.'}
+'contour':'No contour API exists at the pinned upstream revision. Moxi uses marching squares with seven interior levels; no upstream parity claim.',
+'contourf':'No contourf API exists at the pinned upstream revision. Moxi clips marching-squares regions into eight bands, with explicit boundary ownership; no upstream parity claim.'}
 COMMON='Same 640×480 canvas, 48/32/28/52 margins and source values. Canvas lacks text/legend labels. Moxi retains Cartesian axes/grid even for radial marks; upstream uses its own radial/category presentation. Palette differences, arc tessellation and antialiasing remain. No physical input, native, VoiceOver or human-performance claim.'
 
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()

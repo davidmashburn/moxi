@@ -32,16 +32,16 @@ series retain declared field order. Duplicate series fields are rejected.
 | ridgeline | Same distribution schema/KDE | First group at top, 1.3-unit peak height, overlapping baseline polygons |
 | nightingale | x category, y nonnegative value | Equal angles; linear radius mode, matching upstream default. Does not silently substitute area mode |
 | streamgraph | x category, required wide `series_fields`; ≥2 source rows, nonnegative values | Centered total baseline and linear quadrilaterals per adjacent source pair, matching upstream `line_smoothing=0`; no stream reordering/wiggle baseline |
-| contour | x/y numeric grid coordinates, y2 scalar; complete unique rectangular ≥2×2 grid | Each cell split lower-left→upper-right; seven interior levels; linearly interpolated triangle-edge crossings; all three triangle keys retained |
-| contourf | Same grid schema | Eight scalar bands clipped against each triangle; zero-area polygons omitted; constant triangles on an interior boundary belong only to the upper band |
+| contour | x/y numeric grid coordinates, y2 scalar; complete unique rectangular ≥2×2 grid | Marching squares at seven interior levels. Each segment retains all four cell keys |
+| contourf | Same grid schema | Eight scalar bands bounded by the marching-squares segments. A cell constant at an interior threshold belongs to the upper band |
 
 A completely flat scalar grid emits no contour/band geometry; the table still
 exposes every source row. Constant KDE groups produce finite zero-area silhouettes,
 not invented sample dispersion. No smoothing, triangulation of scattered samples,
 histogram substitute, missing-cell interpolation or fabricated density is used.
-Contour interpolation is piecewise-linear over a fixed diagonal, **not bilinear
-marching squares**. This is an explicit Moxi scientific choice pending independent
-review; it is not upstream parity.
+Regular contours interpolate crossings on cell edges. For a diagonal saddle,
+the above-level corners connect when the four-corner mean exceeds the level.
+At equality they stay disconnected, following dataviz 0.15.0.
 
 ## Pinned reference and visual classification
 

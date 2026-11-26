@@ -2,7 +2,7 @@
 
 Adapted from dataviz_mojo 3fd5a7e7c622d6130c99a290b88c4fee039deab2 (MIT).
 See tests/fixtures/wave_a/DATAVIZ-LICENSE and docs/plot-specialized-wave-b.md.
-Contours use fixed-diagonal piecewise-linear triangles, not a pinned upstream API.
+Regular contours use marching squares with the dataviz 0.15.0 center rule.
 """
 from std.collections import List
 from std.math import cos, sin, pi, sqrt, exp, pow, isfinite, floor, ceil
@@ -425,18 +425,35 @@ def _interpolate(a: _ScalarVertex, b: _ScalarVertex, level: Float64) -> _ScalarV
     return _ScalarVertex(a.x+t*(b.x-a.x),a.y+t*(b.y-a.y),level)
 
 
-def _clip(vertices: List[_ScalarVertex], level: Float64, above: Bool) -> List[_ScalarVertex]:
-    var result = List[_ScalarVertex]()
+def _regions(vertices: List[_ScalarVertex], level: Float64, above: Bool, center: Float64) -> List[List[_ScalarVertex]]:
+    # Start outside so each retained boundary run has two crossing endpoints.
+    var runs = List[List[_ScalarVertex]]()
+    var start = -1
     for i in range(len(vertices)):
+        if (vertices[i].z > level) != above:
+            start = i
+            break
+    if start < 0:
+        runs.append(vertices.copy())
+        return runs^
+    for offset in range(len(vertices)):
+        var i = (start + offset) % len(vertices)
         var a = vertices[i]
-        var b = vertices[(i+1)%len(vertices)]
-        var ai = a.z >= level if above else a.z <= level
-        var bi = b.z >= level if above else b.z <= level
-        if ai:
-            result.append(a)
-        if ai != bi:
-            result.append(_interpolate(a,b,level))
-    return result^
+        var b = vertices[(i+1) % len(vertices)]
+        var inside = (b.z > level) == above
+        if ((a.z > level) == above) != inside:
+            if inside:
+                runs.append(List[_ScalarVertex]())
+            runs[len(runs)-1].append(_interpolate(a,b,level))
+        if inside:
+            runs[len(runs)-1].append(b)
+    if len(runs) > 1 and (center > level) == above:
+        var joined = List[_ScalarVertex]()
+        for run in runs:
+            joined.extend(run.copy())
+        runs.clear()
+        runs.append(joined^)
+    return runs^
 
 
 def _contour(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable):
@@ -462,37 +479,47 @@ def _contour(mut result: PlotSeries, layer: PlotLayer, data: PlotDataTable):
     for gy in range(len(ys)-1):
         for gx in range(len(xs)-1):
             var corners: List[Int] = [grid[gy*len(xs)+gx],grid[gy*len(xs)+gx+1],grid[(gy+1)*len(xs)+gx+1],grid[(gy+1)*len(xs)+gx]]
-            for t in range(2):
-                var ids: List[Int] = [corners[0],corners[t+1],corners[t+2]]
-                var vertices = List[_ScalarVertex]()
-                for i in ids:
-                    vertices.append(_ScalarVertex(Float64(data.float_field_at(layer.x_field,i)),Float64(data.float_field_at(layer.y_field,i)),Float64(data.float_field_at(layer.y2_field,i))))
-                if layer.mark == PLOT_CONTOUR:
-                    for k in range(1,_CONTOUR_BANDS):
-                        var level = lo+(hi-lo)*Float64(k)/Float64(_CONTOUR_BANDS)
-                        var hits = List[Point]()
-                        for j in range(3):
-                            var a = vertices[j]
-                            var b = vertices[(j+1)%3]
-                            if (a.z < level) != (b.z < level):
-                                var p = _interpolate(a,b,level)
-                                hits.append(Point(Float32(p.x),Float32(p.y)))
-                        if len(hits) == 2 and (hits[0].x != hits[1].x or hits[0].y != hits[1].y):
-                            _emit(result,layer,data,ids,PlotGlyphKind.SEGMENT,String("level:",k),hits,scalar_color(level,lo,hi),label=scalar_level_label(layer.y2_field,level))
-                else:
-                    for k in range(_CONTOUR_BANDS):
-                        var lower = lo+(hi-lo)*Float64(k)/Float64(_CONTOUR_BANDS)
-                        var upper = lo+(hi-lo)*Float64(k+1)/Float64(_CONTOUR_BANDS)
-                        if k < _CONTOUR_BANDS-1 and vertices[0].z == upper and vertices[1].z == upper and vertices[2].z == upper:
+            var vertices = List[_ScalarVertex]()
+            var cell_lo = hi
+            var cell_hi = lo
+            var center = Float64(0)
+            for i in corners:
+                var z = Float64(data.float_field_at(layer.y2_field,i))
+                vertices.append(_ScalarVertex(Float64(data.float_field_at(layer.x_field,i)),Float64(data.float_field_at(layer.y_field,i)),z))
+                cell_lo = min(cell_lo,z)
+                cell_hi = max(cell_hi,z)
+                center += z/4
+            if layer.mark == PLOT_CONTOUR:
+                for k in range(1,_CONTOUR_BANDS):
+                    var level = lo+(hi-lo)*Float64(k)/Float64(_CONTOUR_BANDS)
+                    if cell_lo <= level and level < cell_hi:
+                        for run in _regions(vertices,level,center <= level,center):
+                            var a = run[0]
+                            var b = run[len(run)-1]
+                            var points: List[Point] = [Point(Float32(a.x),Float32(a.y)),Point(Float32(b.x),Float32(b.y))]
+                            if points[0].x != points[1].x or points[0].y != points[1].y:
+                                _emit(result,layer,data,corners,PlotGlyphKind.SEGMENT,String("level:",k),points,scalar_color(level,lo,hi),label=scalar_level_label(layer.y2_field,level))
+            else:
+                for k in range(_CONTOUR_BANDS):
+                    var lower = lo+(hi-lo)*Float64(k)/Float64(_CONTOUR_BANDS)
+                    var upper = lo+(hi-lo)*Float64(k+1)/Float64(_CONTOUR_BANDS)
+                    var above = List[List[_ScalarVertex]]()
+                    if cell_lo == cell_hi:
+                        if cell_lo < lower or cell_lo > upper or (cell_lo == upper and k < _CONTOUR_BANDS-1):
                             continue
-                        var clipped = _clip(_clip(vertices,lower,True),upper,False)
-                        var points = List[Point]()
-                        for v in clipped:
-                            points.append(Point(Float32(v.x),Float32(v.y)))
-                        var area = Float64(0)
-                        for i in range(len(clipped)):
-                            var a = clipped[i]
-                            var b = clipped[(i+1)%len(clipped)]
-                            area += a.x*b.y-b.x*a.y
-                        if len(points) >= 3 and abs(area) > 0:
-                            _emit(result,layer,data,ids,PlotGlyphKind.POLYGON,String("band:",k),points,scalar_color((lower+upper)/2,lo,hi),label=scalar_band_label(layer.y2_field,lower,upper,k==_CONTOUR_BANDS-1))
+                        above.append(vertices.copy())
+                    elif k == 0:
+                        above.append(vertices.copy())
+                    else:
+                        above = _regions(vertices,lower,True,center)
+                    for region in above:
+                        for piece in _regions(region,upper,False,center):
+                            var points = List[Point]()
+                            var area = Float64(0)
+                            for i in range(len(piece)):
+                                var a = piece[i]
+                                var b = piece[(i+1)%len(piece)]
+                                area += a.x*b.y-b.x*a.y
+                                points.append(Point(Float32(a.x),Float32(a.y)))
+                            if abs(area) > 0:
+                                _emit(result,layer,data,corners,PlotGlyphKind.POLYGON,String("band:",k),points,scalar_color((lower+upper)/2,lo,hi),label=scalar_band_label(layer.y2_field,lower,upper,k==_CONTOUR_BANDS-1))
