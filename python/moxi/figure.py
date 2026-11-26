@@ -6,6 +6,7 @@ import math
 import struct
 import zlib
 from dataclasses import dataclass, field as dataclass_field
+from enum import Enum
 from html import escape
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
@@ -120,6 +121,12 @@ def _fit_label(text: str, capacity: int) -> str:
     if capacity < 1:
         return ""
     return text if len(text) <= capacity else text[:capacity - 1] + "…"
+
+
+class _LabelAnchor(str, Enum):
+    START = "start"
+    MIDDLE = "middle"
+    END = "end"
 
 
 class _Raster:
@@ -359,6 +366,115 @@ class Figure:
             label = _fit_label(name, int((slot - 18) / 7))
             if label and self.height - 24 > top + height + 18:
                 yield label, round(left + i * slot + 13), self.height - 24, PALETTE[i % len(PALETTE)]
+
+    def _position_label(self, text, x, baseline, anchor=_LabelAnchor.START, swatch=None):
+        """Fit an anchored label to the E01 seven-pixel text cell contract."""
+        space = self.width - x
+        if anchor is _LabelAnchor.END:
+            space = x
+        elif anchor is _LabelAnchor.MIDDLE:
+            space = 2 * min(x, self.width - x)
+        text = _fit_label(str(text), int(space / 7))
+        if not text:
+            return None
+        if anchor is _LabelAnchor.END:
+            x -= len(text) * 7
+        elif anchor is _LabelAnchor.MIDDLE:
+            x -= len(text) * 3.5
+        x, y = round(x), round(baseline - 9)
+        if 0 <= x <= self.width - len(text) * 7 and 0 <= y <= self.height - 9:
+            return text, x, y, swatch
+        return None
+
+    def _radial_labels(self, layer, left, top, width, height):
+        """Pinned Wave B category legends, radar indicators and gauge value.
+
+        The pin has no single-series polar tick labels or wedge percentages.
+        Legends use the existing bottom margin, leaving mark geometry untouched.
+        """
+        from .specialized import PALETTE
+        from .wave_b import WaveBMark
+        mark = WaveBMark(layer.mark)
+        categories = self.data.column(layer.x)
+        names = []
+        if mark in (WaveBMark.PIE, WaveBMark.DONUT, WaveBMark.POLAR_BAR,
+                    WaveBMark.NIGHTINGALE, WaveBMark.RADIALBAR):
+            names = categories
+        elif mark is WaveBMark.RADAR:
+            names = layer.series_fields or [layer.y]
+            radius = .45 * min(width, height) + 8
+            for index, name in enumerate(categories):
+                angle = math.pi / 2 - 2 * math.pi * index / len(categories)
+                cosine = math.cos(angle)
+                anchor = (_LabelAnchor.START if cosine > .3 else
+                          _LabelAnchor.END if cosine < -.3 else _LabelAnchor.MIDDLE)
+                yield self._position_label(name, left + width / 2 + radius * cosine,
+                                           top + height / 2 - radius * math.sin(angle) + 4, anchor)
+        elif mark is WaveBMark.GAUGE:
+            value = float(self.data.column(layer.y)[0])
+            # The pinned _format_fixed rounds halves away from zero, with a
+            # float-string fallback past the exactly representable integer range.
+            text = str(value)
+            if abs(value) * 10 <= 2**53:
+                scaled = math.floor(abs(value) * 10 + .5)
+                sign = "-" if value < 0 and scaled else ""
+                text = f"{sign}{scaled // 10}.{scaled % 10}"
+            yield self._position_label(text,
+                                       left + width / 2, top + height / 2 + .45 * min(width, height) * .35,
+                                       _LabelAnchor.MIDDLE)
+        if names:
+            stride = max(1, math.ceil(len(names) / max(1, int(width / 32))))
+            slot = width / math.ceil(len(names) / stride)
+            for slot_index, index in enumerate(range(0, len(names), stride)):
+                text = _fit_label(str(names[index]), int((slot - 18) / 7))
+                if text and self.height - 24 >= top + height + 4:
+                    yield self._position_label(text, left + slot_index * slot + 13,
+                                               self.height - 15, swatch=PALETTE[index % len(PALETTE)])
+
+    def _plot_labels(self):
+        """Shared, noninteractive text for SVG, software PNG and vector PDF.
+
+        E01 tuples are top-left text cells with an optional palette swatch.
+        Source labels remain intact in the spec/table even when fitted or sampled.
+        """
+        yield from self._wave_a_labels()
+        from .specialized import CatalogMark, LayoutVersion
+        from .specialized_c import flow_calendar_labels
+        from .wave_b import RADIAL
+        if len(self.spec.layers) != 1:
+            return
+        layer = self.spec.layers[0]
+        if layer.layout_version != LayoutVersion.SPECIALIZED:
+            return
+        left, top, width, height, *_ = self._layout()
+        candidates = []
+        if layer.mark in (CatalogMark.ARC, CatalogMark.PARALLEL, CatalogMark.BUMP):
+            for _, geometry in self._render_geometries():
+                if geometry.part == "arc-node":
+                    x, y = geometry.points[0]
+                elif geometry.part in ("dimension", "stage", "rank") and geometry.segments:
+                    x, y, *_ = geometry.segments[0]
+                    if geometry.part == "rank":
+                        x, y = x - 14, y - 12
+                else:
+                    continue
+                candidates.append(self._position_label(geometry.label, x, y + 16, _LabelAnchor.MIDDLE))
+        for text, x, y, align in flow_calendar_labels(layer, self.data, left, top, width, height):
+            candidates.append(self._position_label(text, x, y, _LabelAnchor(align)))
+        if layer.mark in RADIAL:
+            candidates.extend(self._radial_labels(layer, left, top, width, height))
+        occupied = []
+        for label in candidates:
+            if label is None:
+                continue
+            text, x, y, swatch = label
+            bounds = (x - 13 if swatch else x, y, x + len(text) * 7, y + 9)
+            a, b, c, d = bounds
+            if any(a < right + 2 and c + 2 > left and b < bottom + 2 and d + 2 > top
+                   for left, top, right, bottom in occupied):
+                continue
+            occupied.append(bounds)
+            yield label
 
     def _layout(self) -> Tuple[float, float, float, float, float, float, float, float]:
         from .specialized import LayoutVersion
@@ -1110,24 +1226,12 @@ class Figure:
                     opacity = self._geometry_opacity(geometry, layer, index)
                     for radius, fill in self._marker_discs(geometry, layer, index):
                         parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{_svg_color(fill, opacity)}" data-mark="{layer.mark}"/>')
-            if getattr(geometry, "part", "") == "arc-node":
-                x, y = points[0]
-                parts.append(f'<text x="{x:g}" y="{y+16:g}" text-anchor="middle">{escape(label)}</text>')
-            if getattr(geometry, "part", "") in ("dimension", "stage", "rank") and geometry.segments:
-                x, y, *_ = geometry.segments[0]
-                if geometry.part == "rank":
-                    x, y = x - 14, y - 12
-                parts.append(f'<text x="{x:g}" y="{y+16:g}" text-anchor="middle">{escape(label)}</text>')
             if label:
                 parts.append('</g>')
-        for text, x, y, swatch in self._wave_a_labels():
+        for text, x, y, swatch in self._plot_labels():
             if swatch:
                 parts.append(f'<rect x="{x-13}" y="{y}" width="9" height="9" fill="{_svg_color(swatch)}"/>')
             parts.append(f'<text x="{x}" y="{y+9}" font-family="monospace" font-size="11" fill="#24324a">{escape(text)}</text>')
-        if len(self.spec.layers) == 1:
-            from .specialized_c import flow_calendar_labels
-            for text, x, y, align in flow_calendar_labels(self.spec.layers[0], self.data, left, top, plot_width, plot_height):
-                parts.append(f'<text x="{x:g}" y="{y:g}" font-size="12" font-family="DejaVu Sans" text-anchor="{align}">{escape(text)}</text>')
         if self.spec.title:
             parts.append(f'<text x="{self.width/2:g}" y="18" text-anchor="middle" fill="#101828">{escape(self.spec.title)}</text>')
         parts.append("</g></svg>")
@@ -1203,7 +1307,7 @@ class Figure:
                     for radius, fill in self._marker_discs(geometry, layer, index):
                         raster.circle(x, y, radius, _rgba(fill, opacity))
         from ._label_font import ink
-        for text, x, y, swatch in self._wave_a_labels():
+        for text, x, y, swatch in self._plot_labels():
             if swatch:
                 raster.rect(x - 13, y, 9, 9, _rgba(swatch))
             for px, py in ink(text, x, y):
@@ -1290,7 +1394,7 @@ class Figure:
                                             f"1 J {2*disc_radius:g} w {x:g} {y_pdf:g} m {x:g} {y_pdf:g} l S Q")
                         continue
                     commands.append(f"{fill} {x-radius:g} {self.height-y-radius:g} {radius*2:g} {radius*2:g} re f")
-        labels = list(self._wave_a_labels())
+        labels = list(self._plot_labels())
         for text, x, y, swatch in labels:
             if swatch:
                 r, g, b, _ = swatch

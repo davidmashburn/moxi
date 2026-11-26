@@ -318,7 +318,7 @@ def layout(layer, data):
 
 
 def flow_calendar_labels(layer, data, left, top, width, height):
-    """Project calendar headers and real flow-node names into the SVG margin."""
+    """Project calendar headers and real flow-node names into the plot margin."""
     if not layer.layout_version:
         return
     if layer.mark == WaveCMark.CALENDAR:
