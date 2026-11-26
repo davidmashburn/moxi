@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "demo_id": "v15-pose-stroke",
+  "title": "Pose stroke study",
+  "scenario": "V15 synthetic replay. Released clutch and low confidence freeze both brushes.",
+  "fixture": "Eleven authored numeric samples in model.js",
+  "revision": "e60dc8818e9fc5e77a2db195940eefd0d3ef6233",
+  "host": "Darwin 27.2.0 arm64",
+  "backend": "Headless Chrome 158.0.8127.37",
+  "scale": 1,
+  "captured_at": "2026-11-26T02:31:53.797263+00:00",
+  "reproduce": "python examples/pose-stroke/gallery.py",
+  "slides": [
+    {
+      "image": "sample-01.png",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "caption": "Sample 1 \u00b7 Clutch released",
+      "dimensions": [
+        960,
+        820
+      ],
+      "action": "Open the demo.",
+      "expected": "Clutch released. Direct 12.00 px. Interpolated 12.00 px.",
+      "sha256": "6023fede07b3c03295221c1866a327e25d8178c9b3fe4053c6242c22d15d4fb7"
+    },
+    {
+      "image": "sample-04.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Sample 4 \u00b7 Engaged",
+      "dimensions": [
+        960,
+        820
+      ],
+      "action": "Advance to sample 4.",
+      "expected": "Engaged. Direct 24.00 px. Interpolated 18.25 px.",
+      "sha256": "b226993b45dd9fedd56d1a28847ad477d8ed35446534897c775627e4ffb355c4"
+    },
+    {
+      "image": "sample-05.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Sample 5 \u00b7 Confidence hold",
+      "dimensions": [
+        960,
+        820
+      ],
+      "action": "Advance to sample 5.",
+      "expected": "Confidence hold. Direct 24.00 px. Interpolated 18.25 px.",
+      "sha256": "6d77ab9c8ae15808ab5615d67ace138018e653453e78307c2fd0093763368e25"
+    },
+    {
+      "image": "sample-07.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Sample 7 \u00b7 Anchored",
+      "dimensions": [
+        960,
+        820
+      ],
+      "action": "Advance to sample 7.",
+      "expected": "Anchored. Direct 24.00 px. Interpolated 18.25 px.",
+      "sha256": "5175d65456660fdadcbaab19cc8db7da89723cfa296e9d0d4044e385a92671fd"
+    },
+    {
+      "image": "sample-08.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Sample 8 \u00b7 Engaged",
+      "dimensions": [
+        960,
+        820
+      ],
+      "action": "Advance to sample 8.",
+      "expected": "Engaged. Direct 21.60 px. Interpolated 15.09 px.",
+      "sha256": "d83c0f70daaa0c427af1ba2a5c341243db2a0a4cc8dbc51b96480afac88fa46c"
+    },
+    {
+      "image": "sample-09.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Sample 9 \u00b7 Clutch released",
+      "dimensions": [
+        960,
+        820
+      ],
+      "action": "Advance to sample 9.",
+      "expected": "Clutch released. Direct 21.60 px. Interpolated 15.09 px.",
+      "sha256": "e07819457f97ff6626c968b89aeff796a833f08be965be234573be5473c4e616"
+    },
+    {
+      "image": "sample-10.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Sample 10 \u00b7 Anchored",
+      "dimensions": [
+        960,
+        820
+      ],
+      "action": "Advance to sample 10.",
+      "expected": "Anchored. Direct 21.60 px. Interpolated 15.09 px.",
+      "sha256": "7ca6bd35e12f08ccd095c7dc19555f21f74b32e77601ab6010051039256c67d6"
+    }
+  ]
+}
