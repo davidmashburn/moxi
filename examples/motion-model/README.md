@@ -70,8 +70,8 @@ model directly.
 `reproduce.py` builds and runs both checks, validates capture dimensions, hashes
 source and PNG bytes, writes a per-scenario verification record, and renders
 only this demo's offline slideshow. It leaves the shared gallery index and
-implementation ledger alone. PNGs and generated HTML remain local ignored
-artifacts; the reproduction recipe and compact evidence records are retained.
+implementation ledger alone. The published gallery includes its 17 PNG captures and generated HTML. The
+manifest records the tested source revision and the verification record identifies each capture by its hash.
 With Python Playwright and Chrome installed, the following additionally verifies
 offline image loading, navigation, reload and a narrow viewport. This optional
 dependency is not required to run the native consumer.
