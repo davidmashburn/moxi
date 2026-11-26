@@ -31,10 +31,11 @@ From the repository root, regenerate the recorded decks and master catalog with:
 python3 scripts/demo_slideshows.py
 ```
 
-Open `artifacts/demo-slideshows/index.html`. The standard builder embeds the PNGs
-in locally generated decks; duplicate standalone base64 decks are not required
-in version control. Entries without valid complete inputs remain unavailable.
-`--index-only` uses delivered decks and does not generate missing ones.
+The [master gallery](../artifacts/demo-slideshows/index.html) opens directly in a
+clean checkout. The 56 new decks link to adjacent original PNGs and can travel
+with their gallery directories. To generate a new deck in that format, pass
+`--relative-images`. The default builder embeds the images. Use `--index-only`
+to refresh the catalog from already delivered decks.
 
 Run `python3 scripts/audit_demo_manifests.py` for capture and source status.
 The repository-wide `python3 scripts/demo_slideshows.py --check` requires valid

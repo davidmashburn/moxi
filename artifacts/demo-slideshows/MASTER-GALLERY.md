@@ -32,8 +32,9 @@ links in `index.md`. New custom producers require an explicit catalog adapter.
 Deck links require valid original PNGs, any recorded dimensions and SHA-256,
 valid local HTML resources, and association with those PNG bytes. PNG checks
 include chunk CRCs and the compressed payload. Existing delivered HTML is never
-rewritten. Generated version-1 decks retain embedded images, contact-sheet,
-button and keyboard navigation. Custom decks retain their original resource
+rewritten. New version-1 decks embed images by default. The 56 decks delivered with
+relative image links use the adjacent original PNGs and support the same
+contact-sheet, button and keyboard navigation. Custom decks retain their original resource
 layout; for example oscillator needs its adjacent PNGs, and funnel uses SVGs
 from elsewhere in the repository. Copy the repository or the documented bundle
 when moving such decks.
@@ -50,7 +51,23 @@ The [historical finding](spatial-world-panel/HISTORICAL-GALLERY-AUDIT.md) and
 the normal audit for the present inventory; these tools do not recapture demos,
 change their acceptance status, or update the ledger or planning branch.
 
-## Integrated gallery inventory
+## Inventory after capture recovery
+
+A clean checkout of `a4ce338` contains 96 playable decks across 99 catalog
+entries. Of 818 recorded frame references, 817 resolve. The category-label
+comparison and the Wave B/C review link directly to evidence. The tricontour
+gallery links to its manifest and reproduction instructions. One original
+reference image was withheld during publication review.
+
+Offline Chrome opened all 96 delivered decks at 1280 × 800 and 390 × 844.
+At each size it decoded 1,572 slide and thumbnail images. Next, arrow-key
+and thumbnail navigation passed in each of the 56 new decks.
+
+The recovery added 379 unchanged original PNGs. Of these, 320 match historical
+checksums and 59 match the bytes in retained decks. These files document the
+original runs. [Capture provenance](../../docs/demo-gallery-originals.md)
+
+## Inventory before capture recovery
 
 The clean checkout at `aedd058` with the revised catalog contained 98 galleries. The master linked 39 delivered decks. All 39 opened at 1366 × 900 and 390 × 844. Across both layouts the browser decoded 1,192 images, and all 350 local references in the master and delivered decks resolved with exact filename case.
 
