@@ -1,0 +1,98 @@
+{
+  "captured": "2026-11-26T04:24:55.225900+00:00",
+  "environment": {
+    "python": "3.11.16 (main, Sep 24 2026, 17:46:15) [Clang 22.1.3 ]",
+    "system": "macOS-27.2.1-arm64-arm-64bit",
+    "tk": "9.0.4",
+    "window_system": "aqua",
+    "capture": "AppKit cacheDisplay; Tk synthetic pane events and button press/release"
+  },
+  "source_revision": "cb17baeb645f064f84a10adac0888b8779dbf703",
+  "source_hashes": {
+    "app.py": "353af16e5819b11b6b70e11c0ac0143ffd55457bd1c0e0056d639ea7f8738513",
+    "volume.py": "a0a0693264ebe374f8c50e038d874b8b1093809b009c4fa6db2fef88d015fcb5",
+    "panes.py": "48e56dbaf370d6fea434069c307c170ccbfb853c6c0ebc51284e98ff9ad31df2",
+    "render.mojo": "ebad31204988c1eb4f44ecc0068a6806d544c932ca4a884419075dedd9002eb0",
+    "capture.m": "6ffbebca68308e51ea9ff2aead534bfbc7e6811e189f25716814f215971d83e7",
+    "replay.py": "b2bb11a85aeeee2e13a7b6d6cff0988e9e068d4e60b81566d551ac6fdc9d8dd0",
+    "native_regression.py": "65f1f9f3d84f15dc4b34bfbe9731e9440f68af1f84cb2498e8d4464b0990c75d",
+    "masked_reference.py": "ebffe7286a5a22009e3dd662723ac858e803e499d637c5ee41362eebf4ffb7d3",
+    "masked_goldens.json": "49cfff474428691cf782daacb6bdcbc1d76a638c63af94591a8e7ddfd7f3b7d3",
+    "masked_replay.py": "f7b71f8d00016d7e2ad01b7576164e466a336d1f7e1705b153c406f9dbafcfff"
+  },
+  "moxi_revision": "0da6f295b6d20cdf663aaf66a039a43e8fb66dd0",
+  "compiler": "Mojo 1.1.0 (8189361e)",
+  "scenarios": [
+    {
+      "name": "old-document-default-and-labels",
+      "result": "pass"
+    },
+    {
+      "name": "six-legacy-reference-arrays-and-both-connectivity-round-trips",
+      "result": "pass"
+    },
+    {
+      "name": "seedless-failure-and-recovery",
+      "result": "pass"
+    },
+    {
+      "name": "pending-result-invalidated-by-mask-mode",
+      "result": "pass"
+    },
+    {
+      "name": "outside-marker-mode-switch-guard-and-invalid-reopen-retention",
+      "result": "pass"
+    },
+    {
+      "name": "all-controls-visible-at-three-widths",
+      "result": "pass"
+    },
+    {
+      "name": "fresh-process-save-reopen",
+      "result": "pass"
+    }
+  ],
+  "limitations": [
+    "Synthetic arrays only",
+    "Tk events; no physical input or compositor capture",
+    "No original Mayavi application or sparse session import"
+  ],
+  "reference_revision": "aea8ee3d8c46aa7273c9522bdcbf63609431c126",
+  "masked_goldens_sha256": "49cfff474428691cf782daacb6bdcbc1d76a638c63af94591a8e7ddfd7f3b7d3",
+  "capture": {
+    "id": "legacy-xyz-t0",
+    "action": "Choose legacy outline, connectivity and frame; click Watershed after pane edits.",
+    "expected": "The entire label array equals the independent pinned masked reference.",
+    "observed": "T 0   XYZ (8, 4, 2)   µm (8, 8, 6)   intensity 77   seed 71   mask 0   label 71",
+    "status": "Watershed complete",
+    "center_rgb": {
+      "XY": [
+        189,
+        114,
+        224
+      ],
+      "XZ": [
+        189,
+        114,
+        224
+      ],
+      "YZ": [
+        189,
+        114,
+        224
+      ]
+    },
+    "file": "legacy-outline.png",
+    "pixels": [
+      2080,
+      1100
+    ],
+    "scale": 2.0,
+    "sha256": "98e4e5cb6ac185b155854f98c5bf195e65b466613d14cc7436f5cf9deddb883b",
+    "mask_mode": "Legacy outline",
+    "connectivity": "3D / 6",
+    "label_digests": {
+      "0": "2602ca08461e64a54becb12fd6ed832d99d380ced45021f827a21ba76373fd32"
+    }
+  }
+}

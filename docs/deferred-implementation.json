@@ -243,13 +243,15 @@
         "94ffff9"
       ],
       "verification": [
-        "The separate local moxi-sws4d application at c19f78f passed five tests, twelve unmasked full-volume reference digests and fourteen native scenarios. Twelve injected pointer selections verified time controls after resizing. A blocked worker no longer kept the closed process alive."
+        "The separate local moxi-sws4d application at c19f78f passed five tests, twelve unmasked full-volume reference digests and fourteen native scenarios. Twelve injected pointer selections verified time controls after resizing. A blocked worker no longer kept the closed process alive.",
+        "At separate application revision cb17bae, 24 seeded masked and 12 unmasked full-volume fixtures matched the pinned reference. Twenty-four hard-exclusion outputs matched the previous editor. Independent native replays covered save/reopen, failure/retry and stale results."
       ],
       "remaining_gates": [
-        "Masked legacy parity, real-stack import, representative volume sizes, physical input and independent scientific acceptance remain open. The application has no remote."
+        "Original sparse document import, real-stack import, representative volume sizes, physical input and independent scientific acceptance remain open. The application has no remote."
       ],
       "slideshows": [
-        "artifacts/demo-slideshows/sws4d-native/index.html"
+        "artifacts/demo-slideshows/sws4d-native/index.html",
+        "artifacts/demo-slideshows/sws4d-native/legacy-outline.json"
       ]
     },
     {
