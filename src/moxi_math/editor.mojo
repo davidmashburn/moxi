@@ -339,7 +339,7 @@ struct MathEditorState(ImplicitlyCopyable):
                 var target=self.document.find_id(target_id)
                 if target>=0:
                     var n=self.document.nodes[target]
-                    if structural:
+                    if structural or n.kind == MathKind.HOLE:
                         self.source.anchor=n.start
                         self.source.cursor=n.end
                     elif n.kind == MathKind.TOKEN:

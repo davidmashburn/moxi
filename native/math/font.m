@@ -64,6 +64,7 @@ static void input_push(int kind,int key,NSString *text,NSRange replacement) {
 @property(nonatomic, weak) NSTextView *sourceEditor;
 @property(nonatomic, copy) NSString *sourceText;
 @property(nonatomic) NSRange sourceRange;
+@property(nonatomic, strong) NSValue *pendingSourceClick;
 - (void)rememberSourceSelection:(NSNotification *)notification;
 @end
 static MoxiMathLayer *layer;
@@ -392,10 +393,25 @@ void moxi_math_clipboard(const char *text,const char *fragment) {
 
 void moxi_math_keymap_begin(void) { bound_keys=[NSMutableSet set]; }
 void moxi_math_keymap_add(int32_t key,int32_t mods) { @autoreleasepool { [bound_keys addObject:[NSString stringWithFormat:@"%d:%d",key,mods]]; } }
+// The native field editor is installed on the frame after the first click.
+void moxi_math_source_click(float x,float y) {
+    layer.pendingSourceClick=[NSValue valueWithPoint:NSMakePoint(x,y)];
+}
 // AppKit clears the shared field editor on mouse-down, before Mojo receives
 // the toolbar click. Keep the last selection made while the source had focus.
 void moxi_math_track_source_selection(int32_t active) {
     NSTextView *editor=active?(NSTextView *)[layer.window fieldEditor:NO forObject:nil]:nil;
+    NSValue *click=layer.pendingSourceClick;
+    layer.pendingSourceClick=nil;
+    if (click && editor && layer.window.firstResponder==editor) {
+        NSPoint location=[editor convertPoint:click.pointValue fromView:layer.window.contentView];
+        // Clicks in the vertical padding of this single-line control use the
+        // same insertion point as clicks directly on the text.
+        location.y=NSMidY(editor.visibleRect);
+        NSUInteger index=location.x<=editor.textContainerOrigin.x ? 0 :
+            [editor characterIndexForInsertionAtPoint:location];
+        if (index!=NSNotFound) [editor setSelectedRange:NSMakeRange(index,0)];
+    }
     if (layer.sourceEditor==editor) return;
     NSNotificationCenter *center=NSNotificationCenter.defaultCenter;
     if (layer.sourceEditor)

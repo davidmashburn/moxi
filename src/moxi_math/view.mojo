@@ -118,10 +118,8 @@ struct MathEditor(Component):
             if self.search.text=="" or names[i].find(self.search.text)>=0:
                 view.add_button_to(symbols,MATH_SYMBOL_BASE+i,symbol_for(names[i])+" "+names[i],30)
         view.add_canvas(MATH_CANVAS,"",max(Float32(100),bounds.height-507))
-        if self.state.text_mode:
-            view.add_text_input_selection(MATH_SOURCE,self.state.source.text,42,default_text_input_style(),self.state.source.cursor,self.state.source.anchor)
-        else:
-            view.add_label_styled(MATH_SOURCE,self.state.document.text(),42,small_label)
+        var source=self.state.source.text if self.state.text_mode else self.state.document.text()
+        view.add_text_input_selection(MATH_SOURCE,source,42,default_text_input_style(),self.state.source.cursor,self.state.source.anchor)
         var fourth=view.add_row(6,0,34,4,0)
         view.add_button_to(fourth,MATH_COMMAND_BASE+MathCommand.UNDO.value,"Undo "+self.keymap.hint(MathCommand.UNDO),34)
         view.add_button_to(fourth,MATH_COMMAND_BASE+MathCommand.REDO.value,"Redo "+self.keymap.hint(MathCommand.REDO),34)
@@ -163,10 +161,14 @@ struct MathEditor(Component):
                     self.state.focused=True
                     self.pending_action=event.target
                     return True
+            if event.target==MATH_SOURCE and event.kind==POINTER_DOWN_KIND:
+                if not self.state.text_mode:
+                    self.state.command(MathCommand.TEXT)
+                if self.state.document.nodes[self.state.document.root].kind!=MathKind.HOLE:
+                    external_call["moxi_math_source_click",NoneType](event.position.x,event.position.y)
+                self.state.focused=True
+                return True
             if self.state.text_mode and event.target==MATH_SOURCE:
-                if event.kind==POINTER_DOWN_KIND:
-                    self.state.focused=True
-                    return True
                 if event.kind==COMPOSITION_UPDATE_KIND:
                     self.state.source.set_composition(event.text,event.selection_start,event.selection_end)
                     return True
@@ -224,7 +226,7 @@ struct MathEditor(Component):
         if event.kind==POINTER_DOWN_KIND and self.viewport.contains(event.position):
             self.state.focused=True
             if self.state.text_mode:
-                return True
+                self.state.command(MathCommand.TEXT)
             var position=self.layout.snapshot.hit(self.local_point(event.position))
             if event.modifiers & MOD_OPTION and self.state.selected>=0:
                 self.state.begin_drag()
@@ -233,7 +235,7 @@ struct MathEditor(Component):
             self.pointer_down=True
             self.preferred_x = -1
             return True
-        if event.kind==POINTER_DOWN_KIND:
+        if event.kind==POINTER_DOWN_KIND and self.state.text_mode:
             self.state.focused=False
         if self.pointer_down:
             if event.kind==POINTER_CANCEL_KIND:

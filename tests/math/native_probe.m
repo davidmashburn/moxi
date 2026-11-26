@@ -5,8 +5,10 @@ static NSView<NSTextInputClient> *math_view(void) {
             if([view isKindOfClass:NSClassFromString(@"MoxiMathLayer")]) return (id)view;
     return nil;
 }
-int32_t moxi_math_probe_key(const char *text,int32_t modifiers) {
-    NSView *view=math_view(); if(!view || view.window.firstResponder!=view) return 0;
+int32_t moxi_math_probe_key(const char *text,int32_t modifiers,int32_t source) {
+    NSView *view=math_view();
+    NSResponder *expected=source?[view.window fieldEditor:NO forObject:nil]:view;
+    if(!expected || view.window.firstResponder!=expected) return 0;
     NSEventModifierFlags flags=((modifiers&1)?NSEventModifierFlagShift:0)|((modifiers&2)?NSEventModifierFlagCommand:0)|((modifiers&4)?NSEventModifierFlagControl:0)|((modifiers&8)?NSEventModifierFlagOption:0);
     NSString *s=[NSString stringWithUTF8String:text];
     NSEvent *event=[NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:flags timestamp:NSProcessInfo.processInfo.systemUptime windowNumber:view.window.windowNumber context:nil characters:s charactersIgnoringModifiers:s isARepeat:NO keyCode:0];

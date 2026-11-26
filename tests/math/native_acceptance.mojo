@@ -4,13 +4,14 @@ from moxi import App, Rect, WindowConfig
 from moxi.macos import MacOSWindow, MacOSRenderer
 from moxi.geometry import Point
 from moxi_math.native import present_math_frame
+from moxi_math.view import MATH_SOURCE
 from moxi.event import Event, POINTER_DOWN_KIND, POINTER_UP_KIND, NONE_KIND
 from moxi_math import MathEditor, MathEditorState, MathPosition, MathCommand, open_math_font, close_math_font, poll_math_event
 
 def native_key(mut app: App[MathEditor], text: String, modifiers: Int = 0) raises:
     var chars=text
     var ptr=chars.as_c_string_span()
-    assert_equal(external_call["moxi_math_probe_key",Int32](ptr.ptr(),Int32(modifiers)),1)
+    assert_equal(external_call["moxi_math_probe_key",Int32](ptr.ptr(),Int32(modifiers),Int32(0)),1)
     drain(app)
 
 def drain(mut app: App[MathEditor]) raises:
@@ -107,6 +108,54 @@ def source_selection_check(mut app: App[MathEditor], mut renderer: MacOSRenderer
     native_key(app,"z")
     assert_equal(app.component.state.document.text(),"abze")
 
+def click_in_editor(mut app: App[MathEditor], point: Point) raises:
+    var event=Event()
+    event.position=point
+    for kind in [POINTER_DOWN_KIND,POINTER_UP_KIND]:
+        event.kind=kind
+        if app.component.route(event):
+            app.rebuild()
+        else:
+            _ = app.dispatch(event)
+
+def typing_focus_check(mut app: App[MathEditor], mut window: MacOSWindow, mut renderer: MacOSRenderer) raises:
+    app.component.state=MathEditorState("?")
+    app.rebuild()
+    present_math_frame(app,renderer)
+    var source=app.view.bounds_for(MATH_SOURCE)
+    click_in_editor(app,Point(source.x+4,source.y+source.height/2))
+    present_math_frame(app,renderer)
+    assert_true(app.component.state.text_mode)
+    var text=String("a")
+    var ptr=text.as_c_string_span()
+    assert_equal(external_call["moxi_math_probe_key",Int32](ptr.ptr(),Int32(0),Int32(1)),1)
+    var event=window.poll_event()
+    while event.kind!=NONE_KIND:
+        if app.component.route(event):
+            app.rebuild()
+        else:
+            _ = app.dispatch(event)
+        event=window.poll_event()
+    present_math_frame(app,renderer)
+    assert_equal(app.component.state.document.text(),"a")
+    var canvas=app.component.viewport
+    click_in_editor(app,Point(canvas.x+17,canvas.y+17))
+    present_math_frame(app,renderer)
+    assert_true(not app.component.state.text_mode)
+    native_key(app,"b")
+    assert_equal(app.component.state.document.text(),"ba")
+    click_in_editor(app,Point(source.x+source.width-10,source.y+source.height/2))
+    present_math_frame(app,renderer)
+    app.component.sync_source_selection()
+    assert_equal(app.component.state.source.cursor,2)
+    assert_equal(app.component.state.source.selected_text(),"")
+    click_in_editor(app,Point(canvas.x+17,canvas.y+17))
+    present_math_frame(app,renderer)
+    click_in_editor(app,Point(source.x+2,source.y+source.height-2))
+    present_math_frame(app,renderer)
+    app.component.sync_source_selection()
+    assert_equal(app.component.state.source.cursor,0)
+
 def main() raises:
     open_math_font("assets/math/STIXTwoMath-Regular.otf")
     var app=App(MathEditor(),Rect(0,0,1100,800))
@@ -150,6 +199,7 @@ def main() raises:
     transformed_hit_check(app)
     drag_selection_check(app,window)
     source_selection_check(app,renderer)
+    typing_focus_check(app,window,renderer)
     window.close()
     close_math_font()
     print("PASS AppKit NSEvent interpretation, structural chords, native marked text commit, caret candidate rectangle, semantic bounds, structured native clipboard; synthetic events, no physical keyboard/VoiceOver assertion")
