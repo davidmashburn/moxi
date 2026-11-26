@@ -53,6 +53,7 @@ from .plot_marks import (
     PLOT_ECDF,
     PLOT_EFFECT_SCATTER,
     PLOT_ERROR_BAR,
+    PLOT_BUMP,
     PLOT_PARALLEL,
     PLOT_FUNNEL,
     PLOT_GANTT,
@@ -1418,6 +1419,7 @@ struct Plot:
         var kind = self.series[0].kind
         return not (
             kind == PLOT_PIE
+            or kind == PLOT_BUMP
             or kind == PLOT_PARALLEL
             or kind == PLOT_FUNNEL
             or kind == PLOT_DONUT
@@ -1841,8 +1843,8 @@ struct Plot:
                             path.close()
                             scene.append_typed_path(identity,path,point_color,Color(0,0,0,0),0)
                         elif source_point.glyph.value == PlotGlyphKind.SEGMENT.value:
-                            if source_point.part == "dimension":
-                                scene.append_text(identity, source_point.text, Rect(min(point.x+2,self.plot_area.x+self.plot_area.width-24),point.y-20,80,16),Color(0.85,0.87,0.9,1))
+                            if source_point.part == "dimension" or source_point.part == "stage" or source_point.part == "rank":
+                                scene.append_text(identity, source_point.text, Rect(min(point.x+2,self.plot_area.x+self.plot_area.width-24),max(self.plot_area.y,point.y-20),80,16),Color(0.85,0.87,0.9,1))
                             scene.append_line(identity, point, end, point_color, source_point.stroke_width if source_point.stroke_width>0 else self.series[series_index].line_width)
                         else:
                             scene.append_rounded_rect(identity, Rect(point.x-point_size*0.5, point.y-point_size*0.5, point_size, point_size), point_color, point_size*0.5)

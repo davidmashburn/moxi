@@ -18,6 +18,7 @@ class LayoutVersion(IntEnum):
 
 
 class CatalogMark(str, Enum):
+    BUMP = "bump"
     PARALLEL = "parallel"
     FUNNEL = "funnel"
 
@@ -91,9 +92,9 @@ def validate_layout(layer: Any) -> None:
         raise ValueError("funnel layout takes one stage and one value field")
     if not isinstance(layer.horizontal, bool) or not isinstance(layer.percent, bool):
         raise ValueError("horizontal and percent must be boolean")
-    if mark is CatalogMark.PARALLEL and (layer.y in layer.series_fields or layer.y2 or layer.stat_low_field or layer.stat_high_field):
+    if mark in (CatalogMark.PARALLEL, CatalogMark.BUMP) and (layer.y in layer.series_fields or layer.y2 or layer.stat_low_field or layer.stat_high_field):
         raise ValueError("use y for the first dimension and series_fields for the remaining dimensions")
-    if layer.series_fields and mark not in (CatalogMark.PARALLEL, WaveAMark.GROUPED, WaveAMark.STACKED):
+    if layer.series_fields and mark not in (CatalogMark.PARALLEL, CatalogMark.BUMP, WaveAMark.GROUPED, WaveAMark.STACKED):
         raise ValueError("series_fields require grouped/stacked bars")
     if layer.range_fields and mark is not WaveAMark.BULLET:
         raise ValueError("range_fields require bullet")
@@ -140,21 +141,34 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
             raise ValueError(f"{name}: expected {n} finite numeric values")
         return [float(v) for v in values]
 
-    if mark is CatalogMark.PARALLEL:
+    if mark in (CatalogMark.PARALLEL, CatalogMark.BUMP):
         fields = [layer.y, *layer.series_fields]
         rows = [dict(row_index=i, **{f: data.column(f)[i] for f in [layer.x, *fields]})
                 for i in range(n)]
         glyphs = []
         previous = []
+        bump = mark is CatalogMark.BUMP
+        if bump:
+            for rank in range(n):
+                level = 1 - rank / (n - 1) if n > 1 else .5
+                glyphs.append(Glyph(GlyphKind.SEGMENT, 0, "rank", (0, level, 1, level),
+                                    INK, False, label=str(rank + 1)))
         for index, field in enumerate(fields):
             column(field)
             values = data.column(field)
             low, high = min(values), max(values)
             x = index / (len(fields) - 1) if len(fields) > 1 else .5
-            glyphs.append(Glyph(GlyphKind.SEGMENT, 0, "dimension", (x, 0, x, 1),
+            ranks = {}
+            if bump:
+                x = (index + .5) / len(fields)
+                ranks = {row: pos for pos, row in enumerate(sorted(range(n), key=values.__getitem__, reverse=True))}
+            part = "stage" if bump else "dimension"
+            glyphs.append(Glyph(GlyphKind.SEGMENT, 0, part, (x, 0, x, 0 if bump else 1),
                                 INK, False, label=field))
             for row, value in enumerate(values):
                 y = (value - low) / (high - low) if low != high else .5
+                if bump:
+                    y = 1 - ranks[row] / (n - 1) if n > 1 else .5
                 if index or len(fields) == 1:
                     start = previous[row] if index else (x, y)
                     kind = GlyphKind.SEGMENT if index else GlyphKind.POINT

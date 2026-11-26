@@ -21,3 +21,7 @@ Each linked offline gallery includes the original PNG captures beside its index.
 ## Parallel coordinates
 
 [Open the parallel coordinates slideshow](../../artifacts/demo-slideshows/e06-parallel/index.html). One source row represents one record. Set x to its identifier, y to its first dimension and series_fields to the ordered remaining dimensions. The fixture crosses at two positions. Both exports match the normalized upstream segment endpoints, and both record identities survive pointer selection. Constant dimensions map to the vertical midpoint. Python SVG and native Scene include dimension labels. The Python software PNG and PDF render geometry without text. Moxi uses its own margins, colors and legend treatment.
+
+## Bump rankings
+
+[Open the bump slideshow](../../artifacts/demo-slideshows/e06-bump/index.html). Use the same wide series rows as parallel coordinates. Each stage sorts scores in descending order, retaining input order for ties. The fixture exchanges ranks twice. Both normalized traces match the pinned geometry. The Mojo replay picks all four segments by stable key and repeats the ranking after a tie. The Python replay selects both original table rows. The Python test also separates adjacent integers above 2⁵³. SVG and native Scene include rank and stage labels. PNG and PDF cover geometry.

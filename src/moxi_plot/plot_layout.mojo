@@ -15,7 +15,7 @@ from .plot_point import PlotPoint, PlotGlyphKind
 from .plot_series import PlotSeries
 from .plot_spec_types import PlotLayer, PlotLayoutVersion
 from .plot_spec_json import _string_array
-from .plot_marks import (PLOT_PARALLEL, PLOT_FUNNEL, PLOT_LOLLIPOP, PLOT_WATERFALL, PLOT_CANDLESTICK, PLOT_BULLET, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_GANTT, PLOT_SPAN_CHART, PLOT_POPULATION_PYRAMID)
+from .plot_marks import (PLOT_BUMP, PLOT_PARALLEL, PLOT_FUNNEL, PLOT_LOLLIPOP, PLOT_WATERFALL, PLOT_CANDLESTICK, PLOT_BULLET, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_GANTT, PLOT_SPAN_CHART, PLOT_POPULATION_PYRAMID)
 
 
 
@@ -53,19 +53,19 @@ def specialized_valid(layer: PlotLayer) -> Bool:
         return False
     if mark == PLOT_FUNNEL and (layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
         return False
-    if mark == PLOT_PARALLEL and (layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
+    if (mark == PLOT_PARALLEL or mark == PLOT_BUMP) and (layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
         return False
-    if not (mark == PLOT_PARALLEL or mark == PLOT_FUNNEL or mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
+    if not (mark == PLOT_BUMP or mark == PLOT_PARALLEL or mark == PLOT_FUNNEL or mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
         return False
     if not _fields_valid(layer.series_fields_json) or not _fields_valid(layer.range_fields_json) or not _fields_valid(layer.error_fields_json):
         return False
     var series = _string_array(layer.series_fields_json)
     var ranges = _string_array(layer.range_fields_json)
     var errors = _string_array(layer.error_fields_json)
-    if mark == PLOT_PARALLEL:
+    if mark == PLOT_PARALLEL or mark == PLOT_BUMP:
         for name in series:
             if name == layer.y_field: return False
-    if len(series) > 0 and mark != PLOT_PARALLEL and mark != PLOT_GROUPED_BAR and mark != PLOT_STACKED_BAR:
+    if len(series) > 0 and mark != PLOT_BUMP and mark != PLOT_PARALLEL and mark != PLOT_GROUPED_BAR and mark != PLOT_STACKED_BAR:
         return False
     if len(ranges) > 0 and mark != PLOT_BULLET:
         return False
@@ -148,9 +148,9 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
         for i in range(data.row_count()):
             if not data.field_is_valid(name, i):
                 return False
-            if layer.mark == PLOT_PARALLEL and not isfinite(_stage_value(data, name, i)):
+            if (layer.mark == PLOT_BUMP or layer.mark == PLOT_PARALLEL) and not isfinite(_stage_value(data, name, i)):
                 return False
-            if layer.mark != PLOT_PARALLEL and layer.mark != PLOT_FUNNEL and not isfinite(data.float_field_at(name, i)):
+            if layer.mark != PLOT_BUMP and layer.mark != PLOT_PARALLEL and layer.mark != PLOT_FUNNEL and not isfinite(data.float_field_at(name, i)):
                 return False
     var positive_stage = False
     for i in range(data.row_count()):
@@ -236,12 +236,18 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
     var errors = _string_array(layer.error_fields_json)
     var mark = layer.mark
     var n = data.row_count()
-    if mark == PLOT_PARALLEL:
+    if mark == PLOT_PARALLEL or mark == PLOT_BUMP:
         result.has_layout_domain = True
         var dimensions: List[String] = [layer.y_field]
         for name in fields: dimensions.append(name)
         var previous = List[Float32](length=n, fill=0)
         var last_x: Float32 = 0
+        var bump = mark == PLOT_BUMP
+        if bump:
+            for rank in range(n):
+                var level = 1 - Float32(rank)/Float32(n-1) if n>1 else Float32(0.5)
+                _glyph(result, layer, data, 0, PlotGlyphKind.SEGMENT, "rank", 0, level, 1, level, Color(0.3,0.35,0.4,1), False)
+                result.points[len(result.points)-1].text = String(rank+1)
         for dim in range(len(dimensions)):
             var field = dimensions[dim]
             var low = _stage_value(data, field, 0)
@@ -251,10 +257,26 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
                 low = min(low, value)
                 high = max(high, value)
             var x = Float32(dim) / Float32(len(dimensions)-1) if len(dimensions)>1 else Float32(0.5)
-            _glyph(result, layer, data, 0, PlotGlyphKind.SEGMENT, "dimension", x, 0, x, 1, Color(0.15,0.20,0.28,1), False)
+            var ranks = List[Int](length=n, fill=0)
+            if bump:
+                x = (Float32(dim)+0.5)/Float32(len(dimensions))
+                var order = List[Int]()
+                var kind = data.field_kind(field)
+                if kind == COLUMN_INT64 or kind == COLUMN_TIMESTAMP or kind == COLUMN_DURATION:
+                    var measures = List[Int64]()
+                    for row in range(n): measures.append(data.int_field_at(field,row))
+                    order = _stage_order(measures)
+                else:
+                    var measures = List[Float64]()
+                    for row in range(n): measures.append(_stage_value(data,field,row))
+                    order = _stage_order(measures)
+                for rank in range(n): ranks[order[rank]] = rank
+            _glyph(result, layer, data, 0, PlotGlyphKind.SEGMENT, "stage" if bump else "dimension", x, 0, x, Float32(0 if bump else 1), Color(0.15,0.20,0.28,1), False)
             result.points[len(result.points)-1].text = field
             for row in range(n):
                 var y = Float32((_stage_value(data, field, row)-low)/(high-low)) if high>low else Float32(0.5)
+                if bump:
+                    y = 1 - Float32(ranks[row])/Float32(n-1) if n>1 else Float32(0.5)
                 if dim > 0:
                     _glyph(result, layer, data, row, PlotGlyphKind.SEGMENT, "record", last_x, previous[row], x, y, _palette(row))
                 elif len(dimensions) == 1:
