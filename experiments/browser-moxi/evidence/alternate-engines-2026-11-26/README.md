@@ -16,8 +16,8 @@ directory remain byte-for-byte unchanged. Chrome was not rerun here.
 
 | Run | Engine / automation | Host and service | Capture interval (UTC) | Result |
 | --- | --- | --- | --- | --- |
-| [WebKit record](webkit.json) | WebKit 27.2, revision 2388; Playwright 1.65.2; Node 26.10.0 | macOS 27.2.1 arm64; shipped `serve.py`, loopback port 18765 | 2026-11-26 05:01:39–05:01:44 | 11 scenarios passed |
-| [Firefox record](firefox.json) | Firefox 159.0, revision 1572; Playwright 1.65.2; Node 22.22.2 | private Debian 12 Linux aarch64 container; shipped `serve.py`, container loopback port 18765 | 2026-11-26 05:01:38–05:01:49 | 11 scenarios passed |
+| [WebKit record](webkit.json) | WebKit 27.2, revision 2388; Node 26.10.0 | macOS 27.2.1 arm64; shipped `serve.py`, loopback port 18765 | 2026-11-26 05:01:39–05:01:44 | 11 scenarios passed |
+| [Firefox record](firefox.json) | Firefox 159.0, revision 1572; Node 22.22.2 | private Debian 12 Linux aarch64 container; shipped `serve.py`, container loopback port 18765 | 2026-11-26 05:01:38–05:01:49 | 11 scenarios passed |
 
 Both used fresh headless contexts, 1440×1100 CSS pixels, scale 1, and default
 Playwright launches with no custom browser flags or preference overrides.
@@ -84,8 +84,8 @@ captures remain private outside tracked source.
 
 Use the [build/server/engine replay recipe](../../README.md#firefox-and-webkit-replay).
 For the captured runs, the URL was
-`http://127.0.0.1:18765/experiments/browser-moxi/` and each engine used its
-matching Playwright 1.65.2 package. The Linux invocation additionally set
+`http://127.0.0.1:18765/experiments/browser-moxi/`. The original records omit the automation package version. The
+independent replay used Playwright 1.65.1 with the same browser revisions. The Linux invocation additionally set
 `MOXI_SOURCE_REVISION=d582d177011dafd4e2a30a07116b586c0ba218a9` because
 the checkout was mounted without host Git metadata. Build artifacts and native
 fixtures were generated on macOS, then read unchanged by Linux Firefox; this
@@ -96,7 +96,7 @@ The cached macOS Firefox 159.0 exited before navigation with
 Playwright revision and a private temporary profile root. No macOS Firefox
 app success/failure is claimed. Linux supplied the actual Firefox app run.
 An initial mismatched Playwright 1.56.0 / WebKit 2388 probe stalled before
-app navigation and was terminated; matching 1.65.2 resolved that harness gap.
+app navigation and was terminated; the recorded WebKit replay subsequently passed.
 Container dependency installation initially required root inside the disposable
 container; no host permission or system preference was changed.
 

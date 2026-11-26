@@ -11,7 +11,9 @@ const Outcome = Object.freeze({pass:'pass', unavailable:'unavailable', failed:'f
 const Phase = Object.freeze({launch:'launch', normal:'normal', forced:'forced-unsupported'});
 const engine = process.env.MOXI_BROWSER_ENGINE;
 assert.ok(Object.values(Engine).includes(engine), 'Set MOXI_BROWSER_ENGINE=firefox or webkit');
-const { [engine]: browserType } = await import(process.env.MOXI_PLAYWRIGHT_MODULE || 'playwright');
+const automationModule = import.meta.resolve(process.env.MOXI_PLAYWRIGHT_MODULE || 'playwright');
+const { [engine]: browserType } = await import(automationModule);
+const automation = JSON.parse(await readFile(new URL('package.json', automationModule), 'utf8'));
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(here,'../..');
 const output = path.resolve(process.env.MOXI_ENGINE_OUTPUT || path.join(here,'dist/engines',engine));
@@ -29,7 +31,7 @@ const sourceInputs = ['browser.mojo','runtime.mjs','demo.mjs','index.html','reta
 const sourceHashes = Object.fromEntries(await Promise.all(sourceInputs.map(async name =>
   [name,sha256(await readFile(path.join(here,name)))])));
 const result = {engine, capturedAt:new Date().toISOString(), origin:origin.href,
-  harness:{node:process.version,platform:process.platform,architecture:process.arch},
+  harness:{automation:automation.name,automationVersion:automation.version,node:process.version,platform:process.platform,architecture:process.arch},
   expectedComparisons:nativeCheck.comparisons,
   sourceRevision:exportedRevision || execFileSync('git',['rev-parse','HEAD'],{cwd:repo,encoding:'utf8'}).trim(),
   sourceRevisionOrigin:exportedRevision ? 'explicit exported revision; independently compare sourceHashes with the host checkout' : 'git HEAD',
@@ -50,9 +52,9 @@ async function settle() {
 async function inspect(id,index,field) {
   return page.evaluate(({id,index,field})=>window.moxiDemo.panes.get(id).owner.inspect(index,field),{id,index,field});
 }
-async function nodePoint(index) {
-  return page.evaluate(index=>{const d=window.moxiDemo,r=document.querySelector('#a').getBoundingClientRect(),p=d.panes.get('a');
-    return {x:r.x+p.owner.inspect(index,d.NodeField.screenX),y:r.y+p.owner.inspect(index,d.NodeField.screenY)};},index);
+async function nodePoint(index, id='a') {
+  return page.evaluate(({index,id})=>{const d=window.moxiDemo,r=document.getElementById(id).getBoundingClientRect(),p=d.panes.get(id);
+    return {x:r.x+p.owner.inspect(index,d.NodeField.screenX),y:r.y+p.owner.inspect(index,d.NodeField.screenY)};},{index,id});
 }
 async function control(name) {
   const p=await page.evaluate(name=>{const d=window.moxiDemo,r=document.querySelector('#a').getBoundingClientRect(),b=d.panes.get('a').lastFrame.semantics.find(n=>n.id===d.Control[name]).bounds;
@@ -129,8 +131,23 @@ async function interactive() {
   assert.equal(await page.evaluate(()=>window.moxiDemo.panes.size),1);
   assert.equal(await page.locator('#a [data-moxi-accessibility], #a svg').count(),0);
   assert.equal(await page.locator('#b svg').count(),1);
+  const liveControls = ['#find-a','#search-a','#resize-a','#dispose-a'];
+  for (const selector of liveControls) assert.ok(await page.locator(selector).isDisabled(),selector);
+  assert.ok(await page.locator('#recreate-a').isEnabled());
+  await page.locator('#find-a').evaluate(button=>button.click());
+  await page.evaluate(()=>window.moxiDemo.search('a','node-12'));
+  await page.locator('#b').scrollIntoViewIfNeeded();
+  const bPoint=await nodePoint(0,'b');
+  await page.mouse.click(bPoint.x,bPoint.y);
+  assert.equal(await inspect('b',-1,fields.app.selected),0);
+  await page.locator('#b').press('ArrowRight');
+  assert.equal(await inspect('b',-1,fields.app.selected),1);
+  assert.equal(await page.evaluate(()=>window.moxiDemo.failure),null);
+  check('disposed-pane-isolation','Dispose A, attempt Find, click and navigate B','Only Recreate A is available for A; B accepts input','B selected node-0 and then node-1');
   await capture('disposed');
   await page.locator('#recreate-a').click();await settle();
+  for (const selector of liveControls) assert.ok(await page.locator(selector).isEnabled(),selector);
+  assert.ok(await page.locator('#recreate-a').isDisabled());
   assert.notEqual(await page.evaluate(()=>String(window.moxiDemo.panes.get('a').owner.handle)),handle);
   assert.equal(await page.evaluate(h=>window.moxiDemo.runtime.invoke('moxi_destroy',BigInt(h)),handle),-1);
   assert.equal(await inspect('a',-1,fields.app.selected),-1);

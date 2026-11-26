@@ -85,7 +85,7 @@ the original Chrome gallery and does not require Chrome CDP paint tracing.
 Install Playwright outside this repository and install its matching browser:
 
 ```sh
-npm install --prefix /tmp/moxi-p01-engines playwright@1.65.2 --ignore-scripts
+npm install --prefix /tmp/moxi-p01-engines playwright@1.65.1 --ignore-scripts
 node /tmp/moxi-p01-engines/node_modules/playwright/cli.js install firefox webkit
 # Build first, then start serve.py as above. Run once for each engine:
 MOXI_PLAYWRIGHT_MODULE=/tmp/moxi-p01-engines/node_modules/playwright/index.mjs \

@@ -18,6 +18,12 @@ function draw(pane) {
   if (frames.length>240) frames.shift();
 }
 function guarded(fn) { return (...args) => { try { return fn(...args); } catch (e) { fail(e); } }; }
+function updatePaneControls() {
+  const hasA=panes.has('a');
+  for (const id of ['dispose-a','resize-a','search-a','find-a']) $(id).disabled=!hasA;
+  $('recreate-a').disabled=hasA;
+  $('status').textContent=['No live Mojo/Moxi instances','One live Mojo/Moxi instance','Two live Mojo/Moxi instances'][panes.size];
+}
 function mount(id) {
   if (panes.has(id)) return;
   const surface=$(id), rect=surface.getBoundingClientRect();
@@ -53,16 +59,19 @@ function mount(id) {
   });
   surface.addEventListener('keydown',typed);
   pane.cleanup=()=>surface.removeEventListener('keydown',typed);
-  panes.set(id,pane);pane.host.start();draw(pane);
+  panes.set(id,pane);pane.host.start();draw(pane);updatePaneControls();
 }
 function dispose(id) {
   const pane=panes.get(id);if(!pane)return;
   pane.host.stop();pane.cleanup();
   if(runtime.stats().state===RuntimeState.ready)pane.owner.dispose();
   panes.delete(id);$(id).querySelector('.svg').textContent='Disposed — recreate to start a new Moxi instance.';
+  updatePaneControls();
 }
 function search(id,text) {
-  const pane=panes.get(id), bounds=pane.lastFrame.semantics.find(n=>n.id===Control.search).bounds;
+  const pane=panes.get(id);
+  if (!pane) return;
+  const bounds=pane.lastFrame.semantics.find(n=>n.id===Control.search).bounds;
   pane.owner.event(EventKind.down,{x:bounds.x+5,y:bounds.y+5});
   pane.owner.event(EventKind.up,{x:bounds.x+5,y:bounds.y+5});
   pane.owner.event(EventKind.key,{key:97,modifiers:MOXI_MOD_COMMAND});
@@ -79,7 +88,7 @@ async function runVerification() {
 try {
   if(new URLSearchParams(location.search).has('unsupported'))throw Error('Unsupported runtime: WebAssembly memory64 is required; no JavaScript graph fallback (forced feature-gate scenario)');
   const response=await fetch('./dist/browser.wasm');if(!response.ok)throw Error('Build browser.wasm before opening this demo');bytes=new Uint8Array(await response.arrayBuffer());
-  runtime=await instantiateMoxi(bytes);mount('a');mount('b');$('status').textContent='Two live Mojo/Moxi instances';
+  runtime=await instantiateMoxi(bytes);mount('a');mount('b');
   $('dispose-a').onclick=guarded(()=>dispose('a'));
   $('recreate-a').onclick=guarded(()=>mount('a'));
   $('resize-a').onclick=guarded(()=>{ $('a').style.height=$('a').style.height==='720px'?'640px':'720px'; });
