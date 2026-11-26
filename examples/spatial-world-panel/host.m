@@ -3,6 +3,13 @@
 #include <assert.h>
 #import "../../native/spatial/api.h"
 
+// Inclusive edges keep zero-width insertion rectangles valid.
+static BOOL wp_range_is_visible(NSRect rect, NSRect visible) {
+  return NSWidth(rect) >= 0 && NSHeight(rect) > 0 &&
+      NSMinX(rect) >= NSMinX(visible) && NSMaxX(rect) <= NSMaxX(visible) &&
+      NSMinY(rect) >= NSMinY(visible) && NSMaxY(rect) <= NSMaxY(visible);
+}
+
 // Install only on the destination canvas. AppKit supplies UTF-16 range
 // geometry (including horizontal scrolling) from the source field editor.
 void wp_bind_geometry(uint64_t view, uint64_t source, int focused) {
@@ -22,12 +29,28 @@ void wp_bind_geometry(uint64_t view, uint64_t source, int focused) {
       NSRange resolved;
       NSRect screen = [editor firstRectForCharacterRange:range actualRange:&resolved];
       NSRect local = [moxi_canvas convertRect:[moxi_window convertRectFromScreen:screen] fromView:nil];
-      NSRect fieldBounds = [field convertRect:field.visibleRect toView:moxi_canvas];
-      // AppKit insertion rectangles can be zero-width; NSContainsRect
-      // treats empty rectangles as outside even when their edges are inside.
-      if (NSHeight(screen) <= 0 || NSMinX(local) < NSMinX(fieldBounds) ||
-          NSMaxX(local) > NSMaxX(fieldBounds) || NSMinY(local) < NSMinY(fieldBounds) ||
-          NSMaxY(local) > NSMaxY(fieldBounds)) return NSZeroRect;
+      NSRect visible = NSIntersectionRect(
+          [field convertRect:field.visibleRect toView:moxi_canvas],
+          [editor convertRect:editor.visibleRect toView:moxi_canvas]);
+      if (!wp_range_is_visible(local,visible) || resolved.location > editor.string.length ||
+          resolved.length > editor.string.length - resolved.location) return NSZeroRect;
+      // firstRect may already be clipped while actualRange still names the
+      // entire substring. Check the unclipped layout before projecting it.
+      NSLayoutManager *layout = editor.layoutManager;
+      NSTextContainer *container = editor.textContainer;
+      if (!layout || !container) return NSZeroRect;
+      NSRange glyphs = [layout glyphRangeForCharacterRange:resolved actualCharacterRange:NULL];
+      NSPoint origin = editor.textContainerOrigin;
+      __block BOOL measured = NO, contained = YES;
+      [layout enumerateEnclosingRectsForGlyphRange:glyphs
+          withinSelectedGlyphRange:NSMakeRange(NSNotFound,0) inTextContainer:container
+          usingBlock:^(NSRect rect, BOOL *stop) {
+            // View conversion includes the field editor's scroll offset.
+            NSRect bounds = [moxi_canvas convertRect:NSOffsetRect(rect,origin.x,origin.y) fromView:editor];
+            measured = YES;
+            if (!wp_range_is_visible(bounds,visible)) { contained = NO; *stop = YES; }
+          }];
+      if (!measured || !contained) return NSZeroRect;
       double projected[4];
       if (!ms_panel_caret_bounds(view,local.origin.x,local.origin.y,
                                  local.size.width,local.size.height,projected)) return NSZeroRect;

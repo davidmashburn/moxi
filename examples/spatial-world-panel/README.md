@@ -37,6 +37,12 @@ the field, viewport or document clip, and conservatively declines every scene
 with triangle geometry because an occluder can cover the rectangle's interior.
 Changing mode clears the override and invalidates AppKit's coordinate cache.
 
+AppKit can shorten a source rectangle at a native clip while still reporting the
+entire requested range. Before projection, the host checks the layout manager's
+unclipped enclosing rectangles against both field and editor visibility. It
+converts from text-container coordinates through the editor, including its origin
+and view scroll offset. Zero-width insertion rectangles remain valid.
+
 This measures forward range geometry only. The world canvas does not proxy
 the source text input session, selection or inverse character hit testing.
 Use F6 for editing. World accessibility children remain suppressed because
@@ -82,6 +88,17 @@ The replay verified source-editor identity, retained model state and the
 screen text/button/slider accessibility roles. Separate native checks queried
 retained, partially clipped and fully clipped ranges, an unfocused field,
 a populated scene and a retired source owner.
+
+The native panel contract also reproduces ordinary host clipping with a
+400×240-point source and 500×300-point destination. Range `3+2` measures
+`(49.28125, 56, 14.6015625, 19)` before clipping at x=`56.58203125`.
+AppKit then reports width `7.30078125` with unchanged `actualRange={3,2}`.
+The regression fails on `e28f28f`, which serves that shortened range, and passes
+with the visibility check: the destination returns `NSZeroRect` and
+`actualRange={NSNotFound,0}`. It also checks the other partial clip edges, a fully
+hidden range, retained and empty insertions, recovery, editor identity/selection/text
+and clear-override fallback. These are synthetic AppKit checks; the fixture does
+not establish actual horizontal scrolling or physical IME/AT acceptance.
 
 ### Packaged baseline, November 23, 2026
 
