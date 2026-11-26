@@ -51,12 +51,15 @@ typedef struct {
     char *text;
     unsigned int caret, start, end;
 } SemanticProxy;
+typedef enum { CUSTOM_RECT, CUSTOM_LINE = 2, CUSTOM_CIRCLE, CUSTOM_TEXT, CUSTOM_BITMAP } CustomKind;
 typedef struct {
-    int kind;
+    CustomKind kind;
     Box box;
     Color fill, stroke;
     float radius, stroke_width;
     char *text;
+    GdkTexture *texture;
+    float opacity;
 } Custom;
 
 static GtkWidget *window, *canvas, *semantic_root;
@@ -757,24 +760,25 @@ static void draw_slot(cairo_t *cr, int kind, int index) {
     }
     cairo_restore(cr);
 }
+static void draw_custom_item(cairo_t *cr, Custom *item) {
+    if (item->kind == CUSTOM_TEXT) { draw_text(cr,item->text,item->box,item->fill,item->radius,1,0); return; }
+    if (item->kind == CUSTOM_LINE) {
+        cairo_move_to(cr,item->box.x,item->box.y); cairo_line_to(cr,item->box.width,item->box.height);
+    } else if (item->kind == CUSTOM_CIRCLE) {
+        cairo_new_sub_path(cr); cairo_arc(cr,item->box.x,item->box.y,item->radius,0,2*G_PI);
+    } else box_path(cr,item->box,item->radius);
+    if (item->kind != CUSTOM_LINE) { set_color(cr,item->fill); cairo_fill_preserve(cr); }
+    if (item->stroke_width > 0) { set_color(cr,item->stroke); cairo_set_line_width(cr,item->stroke_width); cairo_stroke(cr); }
+    else cairo_new_path(cr);
+}
 static void draw_custom(cairo_t *cr) {
     if (!custom) return;
     cairo_save(cr);
     if (custom_clipped) {
         cairo_rectangle(cr,custom_clip.x,custom_clip.y,fmax(0,custom_clip.width),fmax(0,custom_clip.height)); cairo_clip(cr);
     }
-    for (guint i=0;i<custom->len;++i) {
-        Custom *item = &g_array_index(custom,Custom,i);
-        if (item->kind == 4) { draw_text(cr,item->text,item->box,item->fill,item->radius,1,0); continue; }
-        if (item->kind == 2) {
-            cairo_move_to(cr,item->box.x,item->box.y); cairo_line_to(cr,item->box.width,item->box.height);
-        } else if (item->kind == 3) {
-            cairo_new_sub_path(cr); cairo_arc(cr,item->box.x,item->box.y,item->radius,0,2*G_PI);
-        } else box_path(cr,item->box,item->radius);
-        if (item->kind != 2) { set_color(cr,item->fill); cairo_fill_preserve(cr); }
-        if (item->stroke_width > 0) { set_color(cr,item->stroke); cairo_set_line_width(cr,item->stroke_width); cairo_stroke(cr); }
-        else cairo_new_path(cr);
-    }
+    for (guint i=0;i<custom->len;++i)
+        draw_custom_item(cr,&g_array_index(custom,Custom,i));
     cairo_restore(cr);
 }
 static void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer data) {
@@ -791,6 +795,10 @@ static void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpoin
     }
     if (trace) { fprintf(trace,"{\"type\":\"draw\",\"frame\":%u}\n",frame_number); fflush(trace); }
 }
+
+/* The opt-in Scene adapter replaces only the custom canvas layer. GTK keeps
+ * its input, accessibility, Pango and native window lifetimes. */
+#include "linux_gsk_scene.inc"
 
 void moxi_window_open(const char *title, float width, float height,
                       float min_width, float min_height, float max_width,
@@ -812,7 +820,8 @@ void moxi_window_open(const char *title, float width, float height,
     gtk_window_set_title(GTK_WINDOW(window),title ? title : "Moxi");
     gtk_window_set_default_size(GTK_WINDOW(window),(int)width,(int)height);
     gtk_window_set_resizable(GTK_WINDOW(window),resizable != 0);
-    canvas = g_object_new(GTK_TYPE_DRAWING_AREA,"accessible-role",GTK_ACCESSIBLE_ROLE_PRESENTATION,NULL);
+    canvas = g_object_new(g_strcmp0(g_getenv("MOXI_LINUX_SCENE"),"gsk") == 0
+        ? moxi_scene_area_get_type() : GTK_TYPE_DRAWING_AREA,"accessible-role",GTK_ACCESSIBLE_ROLE_PRESENTATION,NULL);
     window_scale = (float)gtk_widget_get_scale_factor(canvas);
     gtk_widget_set_focusable(canvas,TRUE);
     gtk_widget_set_size_request(canvas,(int)min_width,(int)min_height);
@@ -1000,7 +1009,11 @@ void moxi_window_end_frame(void) {
 }
 static void clear_custom(void) {
     if (!custom) return;
-    for (guint i=0;i<custom->len;++i) g_free(g_array_index(custom,Custom,i).text);
+    for (guint i=0;i<custom->len;++i) {
+        Custom *item = &g_array_index(custom,Custom,i);
+        g_free(item->text);
+        g_clear_object(&item->texture);
+    }
     g_array_set_size(custom,0);
 }
 void moxi_window_begin_custom_paint(void) {
@@ -1017,17 +1030,21 @@ int moxi_window_add_custom_bitmap(
     const uint8_t *pixels, size_t byte_count, int pixel_width, int pixel_height,
     float x, float y, float width, float height, float opacity
 ) {
-    /* GTK has no retained bitmap command. Reject the submission at the host ABI. */
-    (void)pixels;
-    (void)byte_count;
-    (void)pixel_width;
-    (void)pixel_height;
-    (void)x;
-    (void)y;
-    (void)width;
-    (void)height;
-    (void)opacity;
-    return 0;
+    if (!canvas || !G_TYPE_CHECK_INSTANCE_TYPE(canvas,moxi_scene_area_get_type()) ||
+        !pixels || pixel_width <= 0 || pixel_height <= 0 ||
+        width <= 0 || height <= 0 || !isfinite(opacity) || opacity < 0 || opacity > 1)
+        return 0;
+    gsize stride, required;
+    if (!g_size_checked_mul(&stride,(gsize)pixel_width,4) ||
+        !g_size_checked_mul(&required,stride,(gsize)pixel_height) || required != byte_count)
+        return 0;
+    if (custom && custom->len >= CUSTOM_CAPACITY) { ++overflow; return 0; }
+    GBytes *owned = g_bytes_new(pixels,required);
+    GdkTexture *texture = gdk_memory_texture_new(pixel_width,pixel_height,
+        GDK_MEMORY_R8G8B8A8,owned,stride);
+    g_bytes_unref(owned);
+    add_custom((Custom){.kind=CUSTOM_BITMAP,.box=BOX,.texture=texture,.opacity=opacity});
+    return 1;
 }
 void moxi_window_add_custom_rect(BOX_ARGS, COLOR_ARGS(fill), COLOR_ARGS(stroke), float stroke_width) {
     add_custom((Custom){.box=BOX,.fill=COLOR(fill),.stroke=COLOR(stroke),.stroke_width=stroke_width});
@@ -1037,14 +1054,14 @@ void moxi_window_add_custom_rounded_rect(BOX_ARGS, COLOR_ARGS(fill), COLOR_ARGS(
     add_custom((Custom){.box=BOX,.fill=COLOR(fill),.stroke=COLOR(stroke),.stroke_width=stroke_width,.radius=radius});
 }
 void moxi_window_add_custom_line(float x, float y, float ex, float ey, COLOR_ARGS(ink), float width) {
-    add_custom((Custom){.kind=2,.box={x,y,ex,ey},.stroke=COLOR(ink),.stroke_width=width});
+    add_custom((Custom){.kind=CUSTOM_LINE,.box={x,y,ex,ey},.stroke=COLOR(ink),.stroke_width=width});
 }
 void moxi_window_add_custom_circle(float x, float y, float radius, COLOR_ARGS(fill),
                                   COLOR_ARGS(stroke), float stroke_width) {
-    add_custom((Custom){.kind=3,.box={x,y,0,0},.fill=COLOR(fill),.stroke=COLOR(stroke),.stroke_width=stroke_width,.radius=radius});
+    add_custom((Custom){.kind=CUSTOM_CIRCLE,.box={x,y,0,0},.fill=COLOR(fill),.stroke=COLOR(stroke),.stroke_width=stroke_width,.radius=radius});
 }
 void moxi_window_add_custom_text(const char *text, BOX_ARGS, COLOR_ARGS(ink), float font) {
-    add_custom((Custom){.kind=4,.box=BOX,.fill=COLOR(ink),.radius=font,.text=copy_text(text)});
+    add_custom((Custom){.kind=CUSTOM_TEXT,.box=BOX,.fill=COLOR(ink),.radius=font,.text=copy_text(text)});
 }
 void moxi_window_set_custom_paint_cache_enabled(int enabled) { (void)enabled; }
 void moxi_window_pump(void) {

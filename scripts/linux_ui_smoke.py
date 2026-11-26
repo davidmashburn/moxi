@@ -47,7 +47,8 @@ def require(condition, message):
 
 
 class Smoke:
-    def __init__(self, args, run):
+    def __init__(self, args, run, *, renderer="cairo"):
+        self.renderer = renderer
         self.args = args
         self.run = run
         self.trace_path = run / "trace.jsonl"
@@ -239,7 +240,7 @@ class Smoke:
                 "an existing workbench window or an X11 search error prevents isolated testing")
         self.summary["executable_sha256"] = hashlib.sha256(self.args.app.read_bytes()).hexdigest()
         env = os.environ.copy()
-        env.update(GTK_IM_MODULE="simple", GSK_RENDERER="cairo", GDK_BACKEND="x11",
+        env.update(GTK_IM_MODULE="simple", GSK_RENDERER=self.renderer, GDK_BACKEND="x11",
                    MOXI_LINUX_TRACE_FILE=str(self.trace_path))
         self.summary["environment"] = {key: env[key] for key in
                                        ("DISPLAY", "GTK_IM_MODULE", "GSK_RENDERER", "GDK_BACKEND")}
