@@ -649,11 +649,21 @@
     {
       "id": "V04",
       "scope": "Design across scales: planar spring linkage, force curve and two dimensions, compare sweep with hand tuning.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "73c260f",
+        "d7d93f9"
+      ],
+      "verification": [
+        "The 42-design sweep found an exact match and a selectable alternative with 0.034 N RMS error. An infeasible target preserved committed geometry. Undo restored the previous target and curve.",
+        "All 546 force samples agreed with the independent energy derivative. Desktop and narrow offline Chrome replays exercised edits, candidate selection, cancellation and undo."
+      ],
+      "remaining_gates": [
+        "Physical force measurements, independent human branch selection and broader linked editing remain open. The recorded six frames came from installed Chrome after collaborative preview capture timed out."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/v04-spring-linkage/index.html"
+      ]
     },
     {
       "id": "V05",
