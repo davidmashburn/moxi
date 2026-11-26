@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "demo_id": "v08-probability",
+  "title": "V08 · Probability instrument",
+  "scenario": "Collaborative browser preview of the local example, 2026-11-26 01:53 UTC. All four observed states matched their expected values.",
+  "revision": "6c4d1a0f6e26c1facc106b5365b7894dc7bed20c",
+  "host": "macOS 27.2.1 arm64 · T3 browser preview · 1280 × 800 CSS pixels",
+  "backend": "Moxi Python reference SVG renderer",
+  "scale": 2,
+  "fixture": "Synthetic three-outcome model (0.25, 0.5, 0.25)",
+  "reproduce": "PYTHONPATH=python python3 examples/probability-instrument/instrument.py\nOpen the printed URL at 1280 × 800 and follow the slide actions.",
+  "slides": [
+    {
+      "scenario_id": "v08-1",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "image": "01.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "caption": "Initial probability model",
+      "action": "Open the instrument.",
+      "expected": "The three committed masses are 0.25, 0.5 and 0.25. The mean is 1."
+    },
+    {
+      "scenario_id": "v08-2",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "image": "02.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "caption": "Pinned tail preview",
+      "action": "Pin the mean, then press the third bar at approximately 40.1% height.",
+      "expected": "The preview reads 0.401, 0.198 and 0.401. The committed row still shows the initial masses."
+    },
+    {
+      "scenario_id": "v08-3",
+      "phase": "result",
+      "capture_kind": "browser",
+      "image": "03.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "caption": "Constrained distribution",
+      "action": "Choose Apply preview.",
+      "expected": "Both tails now hold 0.401, the middle holds 0.198 and the mean remains 1."
+    },
+    {
+      "scenario_id": "v08-4",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "image": "04.png",
+      "dimensions": [
+        2560,
+        1600
+      ],
+      "caption": "Infeasible tail edit",
+      "action": "Type 0.8 for outcome 2.",
+      "expected": "Apply is disabled. The attainable mean interval is 1.6 to 1.8 and the committed row retains the previous edit."
+    }
+  ]
+}
