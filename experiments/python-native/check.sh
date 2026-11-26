@@ -13,7 +13,7 @@ if [ "${#native_wheels[@]}" != 1 ] || [ ! -f "${native_wheels[0]}" ]; then
   printf 'Expected exactly one native wheel for %s\n' "$tag" >&2
   exit 1
 fi
-"$consumer/venv/bin/python" -m pip install "$here"/dist/wheels/moxi-*.whl "${native_wheels[0]}" pytest pillow pypdf
+"$consumer/venv/bin/python" -m pip install "$here"/dist/wheels/moxi-*.whl "${native_wheels[0]}" pytest pillow pypdf pymupdf
 "$consumer/venv/bin/python" -m pip check
 cp "$here"/tests/*.py "$consumer/tests/"
 "$python" "$here/inspect_wheel.py" "${native_wheels[0]}" > "$artifacts/packaging.json"
@@ -37,6 +37,8 @@ cp "$root/tests/test_specialized_c.py" "$consumer/tests/"
 for wave in wave_b wave_c; do
   cp "$root/scripts/$wave/fixtures.py" "$root/scripts/$wave/boundaries.py" "$consumer/scripts/$wave/"
 done
+mkdir -p "$consumer/examples/python-annotations"
+cp "$root/examples/python-annotations/render.py" "$consumer/examples/python-annotations/"
 cp "$root/src/moxi/scenarios.mojo" "$consumer/src/moxi/"
 cp "$root/docs/dataviz-capabilities.tsv" "$consumer/docs/"
 facade_status=0

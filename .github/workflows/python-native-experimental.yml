@@ -6,6 +6,7 @@ on:
     paths:
       - .github/workflows/python-native-experimental.yml
       - experiments/python-native/**
+      - examples/python-annotations/render.py
       - python/**
       - tests/python/**
       - tests/fixtures/**
@@ -24,6 +25,7 @@ on:
     paths:
       - .github/workflows/python-native-experimental.yml
       - experiments/python-native/**
+      - examples/python-annotations/render.py
       - python/**
       - tests/python/**
       - tests/fixtures/**
