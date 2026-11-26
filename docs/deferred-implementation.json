@@ -658,11 +658,24 @@
     {
       "id": "V08",
       "scope": "Perceptual instrument: finite probability distribution with normalized redistribution and optional fixed mean.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "6081d63",
+        "6c4d1a0",
+        "351ddeb",
+        "f8026dd"
+      ],
+      "verification": [
+        "Conservation and infeasibility checks covered 4,356 grid edits. Chrome exercised pointer and numeric editing at desktop and narrow viewports and confirmed an infeasible fixed-mean edit preserved committed values.",
+        "A Chrome regression failed before the Escape repair and passed afterward at 1280\u00d7800 and 390\u00d7844. Movement and release after cancellation preserved committed mass and left Apply disabled. All three distribution tests passed on Python 3.9.6."
+      ],
+      "remaining_gates": [
+        "An independent participant trial is needed to assess whether users predict redistribution and explain rejected edits. Physical touch and assistive technology were not tested.",
+        "The mapped I05 plot-to-geometry instrument transfer remains open. Mapped I02 and I14 scenarios also need separate evidence."
+      ],
+      "slideshows": [
+        "examples/probability-instrument/evidence/v08-probability/index.html"
+      ]
     },
     {
       "id": "V09",
