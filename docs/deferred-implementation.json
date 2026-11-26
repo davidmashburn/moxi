@@ -137,17 +137,19 @@
       "commits": [
         "0cbd942",
         "f8b8cc9",
-        "08303c8"
+        "08303c8",
+        "abe04fd"
       ],
       "verification": [
         "Parent instrumented Mojo build; three Python protocol/real-fallback tests and Node bounded-channel check passed.",
         "Actual JupyterLab/Chrome gestures, two-output isolation, busy-kernel bounded queue/final release, capture loss/Escape, resize/DPR2, backend failure/recovery, rerun/clear/disposal, changed kernel PID/recovery and offline SVG passed; zero frontend errors.",
-        "13 genuine captures visually reviewed; PNG hashes/dimensions/decode and slideshow navigation passed. Clean source 08303c8; measured layout/Scene/SVG/DOM/Paint/comm/input distributions recorded."
+        "13 genuine captures visually reviewed; PNG hashes/dimensions/decode and slideshow navigation passed. Clean source 08303c8; measured layout/Scene/SVG/DOM/Paint/comm/input distributions recorded.",
+        "In isolated Lab and kernel containers on the same host, 11 Chrome scenarios passed, including Retry after removing and restoring the kernel network interface, disposal before replacement, and native horizontal keyboard scrolling at 480 px. The ordinary notebook replay passed 16 checks. See examples/fdg/notebook/network/RESULTS.md."
       ],
       "remaining_gates": [
-        "Actual remote kernel/network topology unavailable and unverified; no remote compatibility claim.",
+        "Physical remote-host/WAN operation and repeatability of kernel restart after a network interruption. Earlier post-partition restart attempts stalled.",
         "Other frontend/browser/build platforms, physical input, independent human usability and sustained performance; VoiceOver paused.",
-        "Dense labels, graph overflow after zoom and cramped/clipped narrow controls remain visual acceptance limits; screenshots do not establish usability."
+        "Dense graph labels and graph overflow after zoom remain open. Keyboard and pointer access to narrow controls passed on Chrome."
       ],
       "slideshows": [
         "artifacts/demo-slideshows/fdg-inline-notebook/index.html"
