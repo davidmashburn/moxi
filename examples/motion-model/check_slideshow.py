@@ -12,6 +12,7 @@ OUT = ROOT / "artifacts/demo-slideshows/motion-model"
 
 
 def main():
+    (OUT / "slideshow-check.json").unlink(missing_ok=True)
     manifest = json.loads((OUT / "manifest.json").read_text())
     count = len(manifest["slides"])
     errors = []
@@ -35,7 +36,9 @@ def main():
         assert page.locator("#counter").inner_text() == f"1 / {count}"
         page.locator("#prev").click()
         assert page.locator("#counter").inner_text() == f"{count} / {count}"
-        page.locator("summary").click()
+        page.get_by_text("Contact sheet", exact=True).click()
+        assert not page.locator("[data-jump='5']").is_visible()
+        page.get_by_text("Contact sheet", exact=True).click()
         page.locator("[data-jump='5']").click()
         assert page.locator("#counter").inner_text() == f"6 / {count}"
         page.reload()
