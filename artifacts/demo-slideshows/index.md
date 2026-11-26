@@ -15,7 +15,7 @@
 | I18 | Linked table, plot and spatial selection | [Slideshow](i18-coordinated-representations/index.html) · [Run instructions](../../examples/coordinated-representations/README.md) |
 | I19 | Inspectable signal cursor and command replay | [Slideshow](i19-inspectable-interactions/index.html) · [Run instructions](../../experiments/inspectable-interactions/README.md) |
 | I20 | Reusable cohort operation | [Slideshow](../../examples/application-operations/i20-application-operations/index.html) · [Run instructions](../../examples/application-operations/README.md) |
-| V02 | Two seeded populations and rule edits | [Slideshow](../../examples/compose-worlds/evidence/compose-worlds/index.html) · [Run instructions](../../examples/compose-worlds/README.md) |
+| V02 | Seeded populations, shared rules and formula navigation | [Slideshow](../../examples/compose-worlds/evidence/compose-worlds/index.html) · [Run instructions](../../examples/compose-worlds/README.md) |
 | V03 | Revise a movement notation and recover a score | [Slideshow](v03-invent-notation/index.html) · [Run instructions](../../examples/invent-notation/README.md) |
 | V04 | Tune a linkage against a force curve | [Slideshow](v04-spring-linkage/index.html) · [Run instructions](../../examples/spring-linkage/README.md) |
 | V05 | Test a transit cost argument | [Article](v05-executable-argument/argument.html) · [Slideshow](v05-executable-argument/index.html) |
@@ -27,5 +27,6 @@
 | V11 | Inspect a flat and folded accordion | [Slideshow](v11-foldable-motif/index.html) · [Run instructions](../../examples/foldable-motif/README.md) |
 | V12 | Configure a musical phrase instrument | [Slideshow](../../examples/personal-instrument/evidence/personal-instrument/index.html) · [Run instructions](../../examples/personal-instrument/README.md) |
 | V13 | Patch, inspect and record a signal | [Slideshow](../../examples/visual-instrument/evidence/v13-visual-instrument/index.html) · [Run instructions](../../examples/visual-instrument/README.md) |
+| V15 | Calibrate direct and interpolated pose controls | [Slideshow](v15-pose-stroke/index.html) · [Run instructions](../../examples/pose-stroke/README.md) |
 
-The P08, P11, E05, E06, I11, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12 and V13 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The P08, P11, E05, E06, I11, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
