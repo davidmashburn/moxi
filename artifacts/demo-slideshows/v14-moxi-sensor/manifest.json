@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "demo_id": "v14-moxi-sensor",
+  "title": "Moxi synthetic environmental replay",
+  "scenario": "Original temperature playback plus one artificial CO2 proxy; held-out ablation and shifted failure.",
+  "revision": "688bef15c09c51d205fc65068296b5f475588586",
+  "host": "Darwin 27.2.0 arm64",
+  "backend": "Chrome 158.0.8127.37",
+  "scale": 1,
+  "fixture": "Deterministic artificial sessions T1-T3, A1-A2, B-D; original temperature A/B unchanged",
+  "reproduce": "Build, run native-check.cjs, then node examples/temperature-replay/capture-moxi.cjs with Playwright and local Chrome available.",
+  "captured_at": "2026-11-26T03:33:51.533Z",
+  "slides": [
+    {
+      "phase": "initial",
+      "caption": "Original forecast through real Moxi plotting",
+      "action": "Open the offline built consumer.",
+      "expected": "Selected 10–40 s · Route 2–8 m · Origin 21.18 °C",
+      "image": "1-initial.png",
+      "dimensions": [
+        1100,
+        1551
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "interaction",
+      "caption": "Original cooling miss retained",
+      "action": "Use slider ArrowRight, then Inspect reversal.",
+      "expected": "Synthetic outcome at 150 s: 21.80 °C · Outside the band",
+      "image": "2-interaction.png",
+      "dimensions": [
+        1100,
+        1551
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "result",
+      "caption": "One candidate predictor in a paired comparison",
+      "action": "Select proxy session B, then Inspect 120 s.",
+      "expected": "Held-out B: without proxy MAE 0.047 °C · with proxy MAE 0.013 °C · Δ -0.034 °C (lower error with proxy). Persistence MAE 0.216 °C.",
+      "image": "3-result.png",
+      "dimensions": [
+        1100,
+        1824
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "result",
+      "caption": "Constructed relationship shift exposes harm",
+      "action": "Select proxy session D, then Inspect 120 s.",
+      "expected": "Held-out D: without proxy MAE 0.045 °C · with proxy MAE 0.086 °C · Δ 0.041 °C (higher error with proxy). Persistence MAE 0.202 °C.",
+      "image": "4-result.png",
+      "dimensions": [
+        1100,
+        1824
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "result",
+      "caption": "Missing export is an explicit failure",
+      "action": "Temporarily remove the selected in-memory Moxi frame and redraw.",
+      "expected": "Moxi frame unavailable. Rebuild with node examples/temperature-replay/build.cjs.",
+      "image": "5-result.png",
+      "dimensions": [
+        1100,
+        1360
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "recovery",
+      "caption": "Restore the export and restart",
+      "action": "Restore the selected export, redraw, then Restart.",
+      "expected": "Held-out proxy session D",
+      "image": "6-recovery.png",
+      "dimensions": [
+        1100,
+        1824
+      ],
+      "capture_kind": "browser"
+    },
+    {
+      "phase": "recovery",
+      "caption": "Narrow viewport after a fresh reload",
+      "action": "Resize to 390 × 844, reload, select D and Inspect 120 s.",
+      "expected": "Held-out proxy session D",
+      "image": "7-recovery.png",
+      "dimensions": [
+        390,
+        2416
+      ],
+      "capture_kind": "browser"
+    }
+  ]
+}
