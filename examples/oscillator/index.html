@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,"><title>Spring study · Oscillator lesson</title><link rel="stylesheet" href="/style.css">
+<main><header><small>Mechanics lab / Oscillation</small><h1>What sets the rhythm?</h1><p>An ideal spring starts at rest. Compare its motion over eight seconds.</p></header>
+<section aria-labelledby="playHeading"><h2 id="playHeading">A recorded explanation</h2>
+<p>Five fixed semantic steps, recording version 1, for the undamped spring model. Start replaces the current lesson; inserted reports stay intact. Pause after step three, explore a copy, restore, then continue.</p>
+<ol id="recordedSteps"></ol><button id="play" disabled>Start recorded example (resets lesson)</button><button id="step" disabled>Next recorded step</button><p id="playStatus" role="status">Ready to play five recorded steps.</p></section>
+<section><h2>Reference run</h2><p id="ref"></p></section>
+<section><h2>Predict the change</h2><label for="prediction">With mass raised to 4 kg and everything else held fixed, how will the period change? Why?</label>
+<textarea id="prediction" rows="2"></textarea><button id="lock">Record prediction</button></section>
+<section id="lab" hidden><h2>Change the spring</h2><fieldset id="parameters"><legend>Trial parameters</legend>
+<label>Mass (kg)<input id="m" type="number" step="any" value="4"></label>
+<label>Stiffness (N/m)<input id="k" type="number" step="any" value="16"></label>
+<label>Amplitude (m)<input id="a" type="number" step="any" value="0.5"></label>
+</fieldset><button id="compare">Compare runs</button>
+</section><p role="alert" id="error"></p>
+<section id="result" hidden><h2>Compare displacement</h2><p id="summary"></p><div id="chart" role="img" aria-label="Reference in ochre, trial in teal, time probe in red"></div><p>0–8 seconds · Reference in ochre / trial in teal · red cursor spans −1 to +1 m</p>
+<label>Scrub the trajectory (0–8 s)<input id="scrub" type="range" min="0" max="8" step="0.1" value="0"></label>
+<div class="rail" aria-hidden="true"><span id="bob"></span></div>
+<label>Time probe (s)<input id="t" type="number" value="0" min="0" max="8" step="0.1"></label>
+<button id="sample">Inspect sample</button><p id="point"></p>
+<p id="basis"></p>
+<svg class="vectors" viewBox="0 0 260 100" aria-label="Phase basis vectors. Right is positive displacement, down is negative velocity." role="img">
+<path d="M10 22h230 M30 5v85" stroke="#abb7b3"/>
+<line id="displacementVector" x1="30" y1="22" y2="22" stroke="#0d686e"/>
+<line id="velocityVector" x1="30" y1="22" x2="30" stroke="#986c24"/>
+<circle cx="30" cy="22" r="3" fill="#203c40"/>
+<text x="146" y="16">x (metres)</text><text x="44" y="86">−v (m/s)</text></svg><label>Inspect a basis vector<select id="column" size="2"><option value="0" selected>First column · displacement</option><option value="1">Second column · velocity</option></select></label>
+<p id="term"></p><label>Observation at this sample<input id="note" type="text"></label>
+<button id="inspect">Inspect formula</button>
+<dialog id="detail"><h2>From phase to motion</h2><p>x(t) = A cos(ωt), v(t) = −Aω sin(ωt)</p><button id="define">Define ω</button><p id="definition" hidden>Angular frequency ω = √(k/m), in radians per second. One cycle spans 2π radians, so T = 2π/ω.</p><button id="back">Return to observation</button></dialog>
+<div class="actions"><button id="branch">Explore a copy</button><button id="restore" disabled>Restore checkpoint</button><button id="insert" disabled>Insert trial in report</button></div>
+<p id="checkpoint"></p><article id="report" hidden><h3>Experiment report</h3><pre id="entry"></pre><div id="snapshot"></div><button id="download">Export report</button></article>
+<button id="next">Try an unfamiliar case</button></section>
+<section id="transfer" hidden><h2>Explain a new case</h2><p id="prompt"></p><label>Predict its period relative to the reference and explain your reasoning.<textarea id="answer" rows="2"></textarea></label><button id="reveal">Compare with the model</button><p id="answerError" role="alert"></p><p id="feedback"></p></section></main><script src="/lesson.js"></script></html>
