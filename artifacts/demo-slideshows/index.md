@@ -25,6 +25,7 @@
 | I18 | Linked table, plot and spatial selection | [Slideshow](i18-coordinated-representations/index.html) · [Run instructions](../../examples/coordinated-representations/README.md) |
 | I19 | Inspectable signal cursor and command replay | [Slideshow](i19-inspectable-interactions/index.html) · [Run instructions](../../experiments/inspectable-interactions/README.md) |
 | I20 | Reusable cohort operation | [Slideshow](../../examples/application-operations/i20-application-operations/index.html) · [Run instructions](../../examples/application-operations/README.md) |
+| V01 | Edit executable motion and a desired trajectory | [Native slideshow](motion-model/index.html) · [Run instructions](../../examples/motion-model/README.md) |
 | V02 | Seeded populations, shared rules and formula navigation | [Slideshow](../../examples/compose-worlds/evidence/compose-worlds/index.html) · [Run instructions](../../examples/compose-worlds/README.md) |
 | V03 | Revise a movement notation and recover a score | [Slideshow](v03-invent-notation/index.html) · [Run instructions](../../examples/invent-notation/README.md) |
 | V04 | Tune a linkage against a force curve | [Slideshow](v04-spring-linkage/index.html) · [Run instructions](../../examples/spring-linkage/README.md) |
@@ -40,4 +41,4 @@
 | V14 | Replay a temperature forecast and inspect a failed proxy | [Temperature](v14-room-temperature/index.html) · [Moxi sensor comparison](v14-moxi-sensor/index.html) · [Run instructions](../../examples/temperature-replay/README.md) |
 | V15 | Calibrate direct and interpolated pose controls | [Slideshow](v15-pose-stroke/index.html) · [Run instructions](../../examples/pose-stroke/README.md) |
 
-The D04, P08, P09, P11, E05, E06, I11, I13, I15, I18, I19, I20, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13, V14 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.
+The D04, P08, P09, P11, E05, E06, I11, I13, I15, I18, I19, I20, V01, V02, V03, V04, V05, V06, V07, V08, V09, V10, V11, V12, V13, V14 and V15 galleries open from a clean checkout. Earlier entries may require running their capture recipes.

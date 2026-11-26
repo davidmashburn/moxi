@@ -677,11 +677,24 @@
     {
       "id": "V01",
       "scope": "Draw executable behavior: two-state motion model, parameter versus desired-curve editing, bounded candidate proposals.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "partial",
+      "commits": [
+        "1f5157f",
+        "0b96d2c",
+        "e9539b8",
+        "2bce20d"
+      ],
+      "verification": [
+        "Native motion editor kept executable parameters separate from the editable nine-knot target. Two pinned endpoints, failed and cancelled searches, stale results, alternate candidates and undo passed in the mounted AppKit consumer.",
+        "The model check exercised 117 parameter pairs and 23,517 samples. A native event replay captured 17 window states, and offline Chrome checked gallery navigation and reload.",
+        "At both pinned endpoints, a pointer press, drag and release preserved the active keyboard draft. The mounted replay then applied, cancelled, undid and redid the interior edit."
+      ],
+      "remaining_gates": [
+        "Independent author comprehension, physical input, desktop-compositor capture, assistive technology and other hosts remain unverified."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/motion-model/index.html"
+      ]
     },
     {
       "id": "V02",

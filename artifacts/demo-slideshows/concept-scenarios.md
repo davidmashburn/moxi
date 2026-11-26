@@ -43,7 +43,7 @@ criterion would change the latter assessment.
 | --- | --- | --- |
 | I01 | Recorded sequence | Bounded note-to-arm formalization; no arbitrary sketch recognition. |
 | I02 | Partial | Matrix-entry/basis manipulation and its shared undo are missing. |
-| I03 | Partial | Force-grid inverse design exists; trajectory-target solving is missing. |
+| I03 | Partial | Force-grid inverse design at P/R. The later V01 native consumer solves an editable trajectory with pinned endpoints. |
 | I04 | Recorded sequence | Allocation at P; Compose Worlds adds rule promotion/undo at R. |
 | I05 | P partial; R recorded sequence | Same probe transfers from plot to geometry in A/R; capture provenance remains incomplete. |
 | I06 | Recorded sequence | Native formula selection/focus return; editable caret return added at R. |
@@ -128,8 +128,7 @@ Evidence: [launch/model limits](../../examples/spring-linkage/README.md),
 [manifest](v04-spring-linkage/manifest.json). Remaining: an editable trajectory
 target with a pinned geometric constraint and alternatives from that target.
 The synchronous grid has no pending solve to cancel or stale response to reject;
-preview cancellation is the behavior actually present. Route the trajectory
-hole to the existing V01 work rather than counting this force example as V01.
+preview cancellation is the behavior actually present. The subsequent V01 consumer supports trajectory editing. Drag a target knot, preview two candidate motion models, then apply or cancel. Edit the model during a solve to exercise stale-result rejection. [Native motion walkthrough](motion-model/index.html) · [Model and replay instructions](../../examples/motion-model/README.md).
 
 ## I04 — Possible worlds
 
