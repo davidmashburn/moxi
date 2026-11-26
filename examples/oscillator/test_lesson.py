@@ -42,3 +42,15 @@ class SpringTest(unittest.TestCase):
         self.assertAlmostEqual(cursor[0][0], left + (right - left) / 4, delta=.001)
         middle = (cursor[0][1] + cursor[-1][1]) / 2
         self.assertAlmostEqual(middle - trial[0][1], 2 * (middle - reference[0][1]), delta=.001)
+
+    def test_comparison_identifies_actual_reference_and_curve_legend(self):
+        result = comparison(Spring(9, 16, .5), .5)
+        self.assertEqual(result["referenceParameters"], dict(m=1, k=16, a=.5))
+        self.assertAlmostEqual(result["reference"], math.pi / 2)
+        root = ElementTree.fromstring(result["svg"])
+        legend = root.find(".//*[@data-legend]")
+        self.assertIsNotNone(legend)
+        self.assertEqual([text.text for text in legend.findall("{*}text")],
+                         ["Reference (1 kg)", "Trial (9 kg)", "Time probe"])
+        self.assertEqual([line.get("stroke") for line in legend.findall("{*}line")],
+                         [line.get("stroke") for line in root.findall(".//{*}polyline")])

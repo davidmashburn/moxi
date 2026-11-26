@@ -63,9 +63,21 @@ def comparison(run, time):
     namespace = "http://www.w3.org/2000/svg"
     ET.register_namespace("", namespace)
     root = ET.fromstring(moxi.plot(columns, spec, width=680, height=190).to_svg())
-    for line in root.findall(".//{*}polyline"):
+    curves = root.findall(".//{*}polyline")
+    for line in curves:
         points = line.get("points").split()[:-2]
         line.set("points", " ".join(points))
+    # Keep the key inside the SVG so an inserted/offline plot is self-contained.
+    root.set("height", "220")
+    root.set("viewBox", "0 0 680 220")
+    legend = ET.SubElement(root, f"{{{namespace}}}g", {"data-legend": "comparison",
+                           "font-size": "13", "font-family": "system-ui", "fill": "#183638"})
+    for x, label, curve in zip((54, 276, 476),
+                               (f"Reference ({BASE.mass:g} kg)", f"Trial ({run.mass:g} kg)", "Time probe"), curves):
+        ET.SubElement(legend, f"{{{namespace}}}line", dict(x1=str(x), x2=str(x + 24),
+                      y1="201", y2="201", stroke=curve.get("stroke"), **{"stroke-width": "3"}))
+        ET.SubElement(legend, f"{{{namespace}}}text", dict(x=str(x + 30), y="205")).text = label
     svg = ET.tostring(root, encoding="unicode")
     return dict(svg=svg, period=run.period, reference=BASE.period, position=position,
+                referenceParameters=dict(m=BASE.mass, k=BASE.stiffness, a=BASE.amplitude),
                 velocity=velocity, omega=run.omega)
