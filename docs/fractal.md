@@ -188,12 +188,53 @@ unchanged widgets reduced that to **one mutation**. Median JS time per update
 went from **0.081 ms to 0.009 ms** in headless Chrome. The focused input and
 its browser-managed selection survive updates.
 
-With the demo server running and the Playwright and Chrome environment below,
-run `node experiments/fractal-web/widget-benchmark.mjs` to reproduce the
-current path. It alternates two snapshots from the real component 200 times
-per trial, discards two warmups and reports seven trials. This isolates DOM
-reconciliation. Mojo view construction, browser layout, painting and raster
-work are outside the timed interval.
+The following rerun includes the Mojo-to-JavaScript path. Each row updates the
+same progress label in an attached DOM tree. Times are median microseconds per
+update in Chrome 158 on Apple M4.
+
+| Update path | µs |
+| --- | ---: |
+| JS assigns a precomputed string to a known label | 0.105 |
+| JS reconciles a precomputed 48-widget snapshot | 7.5 |
+| Mojo builds the view, publishes 48 widgets to JS, then JS reconciles it | 78.5 |
+
+Run `node experiments/fractal-web/widget-benchmark.mjs` with the demo server and
+Playwright environment described below. The runner rotates the order of the
+three paths, discards two warmups and reports seven trials. The timed intervals
+exclude browser layout, painting and line rendering. The direct assignment
+assumes the caller already knows the changed element and its new text. The
+difference between the last two rows includes Mojo view construction, string
+decoding and snapshot allocation as well as the Wasm boundary crossing.
+
+### Did sharing the UI change rendering speed?
+
+The million-line Peano renderer rerun took **137.2 ms** for Moxi and **993.9 ms**
+for the original JS iterator through Canvas submission. The earlier medians
+were 138.5 and 999.9 ms. Both runs put the renderer advantage at about **7.2×**.
+The DOM adapter is outside this timing path.
+
+To measure what a user waits for, we also ran the old hand-written web panel
+and the new shared Moxi panel with the same Wasm rendering algorithm, Peano
+preset, depth 6, colors and guides. Timing starts when the benchmark clicks
+Reset and ends when the page reports one million lines complete. It includes
+event handling, four-millisecond work slices, frame scheduling, canvas
+submissions and progress updates. It excludes startup and monitor presentation.
+
+| Seven-trial batch | Old HTML/JS panel | Shared Moxi panel |
+| --- | ---: | ---: |
+| 1 | 686 ms | 752 ms |
+| 2 | 751 ms | 685 ms |
+| 3 | 771 ms | 902 ms |
+| Median of all 21 trials per panel | 768 ms | 787 ms |
+
+The shared panel's pooled median was 2.5% higher. Which panel finished first
+varied by batch, so the data do not establish a repeatable whole-demo slowdown.
+Both interactive panels use Wasm for line rendering. To reproduce, build
+revision `f0e4073` in a separate checkout, start the current demo server, set
+the Chrome and Playwright environment below, and run
+`node experiments/fractal-web/reset-benchmark.mjs /path/to/built-checkout`.
+Each invocation discards two warmups, alternates which panel runs first and
+reports one batch. [Renderer, widget and interaction trials](benchmarks/fractal-shared-ui-m4.json)
 
 ### What changed during measurement
 
