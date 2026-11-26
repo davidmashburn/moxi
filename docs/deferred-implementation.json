@@ -259,14 +259,16 @@
       "commits": [
         "39d56d6",
         "cbfc3ff",
-        "7d8c2f6"
+        "7d8c2f6",
+        "8cf8877"
       ],
       "verification": [
         "GTK 4.14.5 presented the existing workbench through GSK NGL on llvmpipe. Across five interaction states 99.52% or more of window pixels matched Cairo within eight RGB levels. The chart stroke overlapped the independent software oracle with intersection over union 0.9443.",
-        "Review reproduced collection editing, Unicode text, modal focus, resize, 2\u00d7 scaling, startup fallback and gallery navigation. Parent rebuilt the integrated Linux host and resource tests and passed three lifecycle cycles on each renderer path."
+        "Review reproduced collection editing, Unicode text, modal focus, resize, 2\u00d7 scaling, startup fallback and gallery navigation. Parent rebuilt the integrated Linux host and resource tests and passed three lifecycle cycles on each renderer path.",
+        "With ordered X11 input and a visible target below the frozen header, Cairo and GSK each passed 17 checks plus 20 queued click/type trials. Immediate text reached the selected editor, focus changes cancelled preedit and the splitter received its navigation key."
       ],
       "remaining_gates": [
-        "Physical GPU and compositor presentation measurements, mid-frame device loss, fast cross-editor typing and broader Scene coverage remain open. The recorded workbench binary was hash-verified for the independent replay."
+        "Physical GPU and compositor presentation measurements, mid-frame device loss, physical input, external input methods and broader Scene coverage remain open. The recorded workbench binary was hash-verified for the independent replay."
       ],
       "slideshows": [
         "artifacts/demo-slideshows/linux-gsk/index.html"
