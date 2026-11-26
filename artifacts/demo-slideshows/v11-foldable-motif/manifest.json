@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "demo_id": "v11-foldable-motif",
+  "title": "Accordion study",
+  "scenario": "Linked crease pattern, folded preview, exact edit, rejection, undo and measurement.",
+  "revision": "d6c6dd5d0d1be575b177e2e952bda6efa0f946b9",
+  "host": "macOS 27.2.1 arm64",
+  "backend": "Offline headless Google Chrome 158.0.8127.37, Moxi orthographic projection and SVG",
+  "scale": 1,
+  "fixture": "Six synthetic rigid panels, 20 mm pitch, 40 mm depth, initial 30° tilt",
+  "captured_at": "2026-11-26T02:21:46Z",
+  "reproduce": "From repository root: examples/foldable-motif/build.sh /tmp/accordion.html\nnode examples/foldable-motif/check.cjs /tmp/accordion.html /tmp/accordion-frames\nRequires locally installed C++20, Python 3, Node, Playwright and Chrome.",
+  "slides": [
+    {
+      "image": "01-start.png",
+      "phase": "initial",
+      "capture_kind": "browser",
+      "caption": "Starting pleat",
+      "action": "Open the generated editor from disk.",
+      "expected": "Six flat panels and six folded faces share selection. The 20 mm / 30° patch spans 103.9 mm and rises 10.0 mm.",
+      "dimensions": [
+        1180,
+        790
+      ]
+    },
+    {
+      "image": "02-preview.png",
+      "phase": "interaction",
+      "capture_kind": "browser",
+      "caption": "Preview a steeper tilt",
+      "action": "Pick folded panel 4, pick flat panel 2, move to panel 3 with the keyboard, then take the slider to 75°.",
+      "expected": "Panel 3 stays highlighted across views. The preview narrows the folded patch while the flat pattern keeps the same dimensions.",
+      "dimensions": [
+        1180,
+        790
+      ]
+    },
+    {
+      "image": "03-edit.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Change pitch and tilt together",
+      "action": "Cancel the preview. Set pitch to 24.5 mm and tilt to 60°, then press Enter.",
+      "expected": "The flat sheet widens to 147 mm. The folded span is 73.5 mm and rise is 21.2 mm alongside the starting figures.",
+      "dimensions": [
+        1180,
+        790
+      ]
+    },
+    {
+      "image": "04-rejection.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Reject a closed fold",
+      "action": "Submit 90° outside the supported tilt range.",
+      "expected": "The draft shows 90° and a rejection message. The folded geometry and current comparison retain the 60° solution.",
+      "dimensions": [
+        1180,
+        790
+      ]
+    },
+    {
+      "image": "05-undo.png",
+      "phase": "recovery",
+      "capture_kind": "browser",
+      "caption": "Undo the last valid edit",
+      "action": "Click Undo after the rejected draft.",
+      "expected": "Both views and numeric controls return to the starting configuration. Selection stays on panel 3.",
+      "dimensions": [
+        1180,
+        790
+      ]
+    },
+    {
+      "image": "06-measure.png",
+      "phase": "result",
+      "capture_kind": "browser",
+      "caption": "Track one crease through the fold",
+      "action": "Measure crease 3, enter a 60° tilt and apply.",
+      "expected": "The central note reports 17.3 mm height. A dashed line on the surface traces the front endpoint over the permitted tilt range.",
+      "dimensions": [
+        1180,
+        790
+      ]
+    }
+  ]
+}
