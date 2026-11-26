@@ -1,17 +1,17 @@
 # Native I19 verification
 
-Implementation: `0eb2dbed189a357a6331efbd0aee017fb8927710`, on public
-base `033596ddb576b09b48234733b45a283b4c3fecae`. Capture began
-2026-11-26 04:07:15 UTC with the implementation committed and unchanged.
-Only the scoped evidence directory was untracked. The retained
-[provenance](provenance.json) records source/artifact hashes and the exact
-toolchain; the [manifest](manifest.json) records each action, expectation,
-observation and outcome. [Open the offline deck](index.html).
+Implementation: `da93a988f939b7fa45b9d599d958ce5793ff39ba`, directly on
+`16a97e1`, with public base `033596ddb576b09b48234733b45a283b4c3fecae`.
+Capture began 2026-11-26 04:30:17 UTC with the implementation committed and
+unchanged. The scoped status contains only derived evidence changes. The
+retained [provenance](provenance.json) records 176 source hashes, 67 artifact
+hashes and the exact toolchain; the [manifest](manifest.json) records each
+action, expectation, observation and outcome. [Open the offline deck](index.html).
 
 The environment was macOS 27.2.1 arm64, Mojo 1.1.0 (8189361e), Apple clang 21,
 and the public experimental Metal spatial renderer. Native content size was
 1200 × 760 points, then 1320 × 800 after actual window resize, at 2× display
-scale. All 16 PNG dimensions match the observed size and scale. Fixtures are
+scale. All 32 PNG dimensions match the observed size and scale. Fixtures are
 one synthetic canvas card or generated spatial surface, in independent
 source/copy documents, with no account or service connection.
 
@@ -26,7 +26,9 @@ node --test experiments/inspectable-interactions/test.mjs
 ```
 
 Build and both normal executable mode replays passed. The original public I19
-tests passed 2/2. Retained source and artifact hash verification passed.
+tests passed 2/2. Both normal native replays passed all 17 new mixed-route
+checks each (34/34), in addition to their existing assertions. Retained source
+and artifact hash verification passed with `--render-only`.
 The replay uses the ordinary dispatcher, native field-editor insertion,
 AppKit keyboard dispatch, pointer callbacks, public Moxi state and native
 history. Cancellation fault events enter the host's normal event queue;
@@ -47,6 +49,35 @@ retain the measured state, including native undo depth and fixture reservation.
 | [Changed-layout replay](canvas/07-reprojected-replay.png) / [spatial](spatial/07-reprojected-replay.png): camera/viewport changes preserve semantic baseline; resized copy accepts original record | Copy `230/230, r2, u1` | Copy `700/700, r3, u1`; perspective changed to orthographic | Pass |
 | [Stale after undo](canvas/08-stale-after-undo.png) / [spatial](spatial/08-stale-after-undo.png): repeated replay rejects; undo restores X but does not revive record | Copy `80/80, r3, u0` | Copy `0/0, r4, u0` | Pass |
 
+The mixed-route extension runs after the original scenarios, at a new
+committed baseline of 100 in each source. The new JSON captures also retain
+`dragging`, so held and released ownership can be distinguished.
+
+| Scenario and expected outcome | Canvas observed | Spatial observed | Result |
+| --- | --- | --- | --- |
+| [Grab numeric draft](canvas/09-numeric-grab.png) / [spatial](spatial/09-numeric-grab.png): miss preserves preview; visible grab starts without jumping | `100/300, r6, u1`, held | `100/700, r136, u0`, held | Pass |
+| [Move then release](canvas/10-numeric-grab-moved.png) / [spatial](spatial/10-numeric-grab-moved.png): movement refines the same pending edit | `100/320, r6, u1`, released | `100/917, r136, u0`, released | Pass |
+| [Released draft](canvas/11-before-regrab.png) / [spatial](spatial/11-before-regrab.png): first drag remains visible and pending | `100/300, r8, u1` | `100/698, r138, u0` | Pass |
+| [Re-grab and move](canvas/12-regrab-moved.png) / [spatial](spatial/12-regrab-moved.png): second grab retains displayed X and original baseline | `100/310, r8, u1` | `100/807, r138, u0` | Pass |
+| [Held Right](canvas/13-held-arrow.png) / [spatial](spatial/13-held-arrow.png): arrow adds a step while pointer ownership stays live | `100/310, r10, u1`, held | `100/748, r140, u0`, held | Pass |
+| [Move after Right](canvas/14-held-arrow-moved.png) / [spatial](spatial/14-held-arrow-moved.png): pointer keeps moving and retains arrow step | `100/330, r10, u1`, held | `100/965, r140, u0`, held | Pass |
+| [Held commit](canvas/15-held-mixed-commit.png) / [spatial](spatial/15-held-mixed-commit.png): Enter adds exactly one undo unit and ends pointer ownership; late motion/release and repeated Enter do nothing | `330/330, r11, u2`, no draft | `965/965, r141, u1`, no draft | Pass |
+| [Undo and cancellation](canvas/16-mixed-cancel.png) / [spatial](spatial/16-mixed-cancel.png): one undo returns to baseline; a fresh held mixed edit cancels and late events cannot revive it | `100/100, r12, u1`, no draft | `100/100, r142, u0`, no draft | Pass |
+
+The assertions also verify each mixed command retains the original committed
+before-value and revision. The spatial movement check compares against a
+separately sampled native pointer move plus the arrow step, avoiding a test
+that merely accepts any changed value.
+
+The regression was run before the repair: canvas failed 12 of 17 mixed checks;
+spatial failed 6 of its first 7 checks and then aborted because the original
+miss path deselected the handle. Thus spatial's fail-first run did not execute
+all 17 checks. Logs and captures remain outside tracked source in
+`/tmp/moxi-i19-repair-failfirst/`.
+The independent review probe then passed 10/10 checks for each consumer,
+including visible numeric grabs, released re-grabs, held-arrow motion and
+one-step undo. Its local logs are in `/tmp/moxi-i19-repair-independent/`.
+
 Spatial drag preview is 698 milliworld units at the sampled native handle grab;
 exact entry refines it to 700 before commit. Replay records the semantic value,
 independently of that screen-space sampling.
@@ -66,30 +97,29 @@ compatibility with 27.0 was not checked.
 
 ## Deck inspection
 
-Final-deck browser inspection ran at about 04:08 UTC in managed Chromium 158
-at a 1200 × 831 viewport, through a temporary loopback server on
-`http://127.0.0.1:8951/index.html`. The user's Chrome host was unavailable;
-the browser tool also blocks direct `file://` navigation.
+Final-deck browser inspection ran at 2026-11-26 04:36 UTC in isolated headless
+Chrome 158.0.8127.37 at a 1200 × 831 viewport and scale 1, through a temporary
+loopback server on `http://127.0.0.1:61008/index.html`. The user's Chrome access
+host was unavailable, so cached local Playwright launched installed Chrome in
+an isolated temporary profile. No installation or account connection was used.
 
-Observed: all 32 main/thumbnail images loaded from embedded PNG data; no
-external asset references; Next and left/right arrow navigation updated the
-slide counter; selecting spatial replay displayed slide 15 with its
-2640 × 1600 native image. The contact sheet and representative native frames
-were visually inspected. Navigation from slide 15 to 16 and all loaded images
-still worked after stopping the server. The only browser console error was an
-automatic loopback `favicon.ico` 404; no script exception was observed.
+Observed: all 64 main/thumbnail images loaded from embedded PNG data, with no
+external asset requests. Next and left/right arrow navigation updated the
+32-slide counter. Contact-sheet selection opened canvas slide 14 and spatial
+slide 30, showing pointer movement after a held arrow step. Both browser frames
+and the corresponding 2640 × 1600 native captures were visually inspected.
 
-Direct browser opening of the file remains unverified because of the tool's
-protocol restriction. The deck embeds its images, script and styles; its
-offline portability is supported by content inspection and the stopped-server
-check. Browser captures and console/snapshot logs remain local in
-`/tmp/moxi-i19-browser/`; no server remains running.
+Navigation to slides 31 and 32 and all loaded images still worked after
+stopping the server. Direct `file://` opening also loaded all 64 images, and
+Left wrapped from slide 1 to 32. No script exception or failed HTTP response
+was observed. Browser captures, the reproduction script and measured output
+remain local in `/tmp/moxi-i19-repair-browser/`; no server remains running.
 
 Native build/replay logs: `/tmp/moxi-i19-build.log`,
 `/tmp/moxi-i19-canvas.log`, `/tmp/moxi-i19-spatial.log`.
-Gallery/hash checks: `/tmp/moxi-i19-gallery.log`,
-`/tmp/moxi-i19-retained-evidence.log`.
-Original regression output: `/tmp/moxi-i19-original-tests.log`.
+Gallery/hash checks: `/tmp/moxi-i19-repair-gallery.log`,
+`/tmp/moxi-i19-repair-render-only.log`.
+Original regression output: `/tmp/moxi-i19-repair-node.log`.
 
 ## Limits
 
