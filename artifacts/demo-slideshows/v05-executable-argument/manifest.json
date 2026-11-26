@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "demo_id": "v05-executable-argument",
+  "title": "When does the shuttle cost less?",
+  "scenario": "V05 with I07, I08 and I16",
+  "host": "Darwin arm64",
+  "backend": "Chrome 158.0.8127.37 / Moxi Python SVG",
+  "scale": 1,
+  "fixture": "Synthetic T1 in build.py",
+  "captured_at": "2026-11-26T02:28:54.123525+00:00",
+  "revision": "ec147c516332cd6498d3ffdaf35f90f18c22b445",
+  "reproduce": "From examples/executable-argument: PYTHONPATH=../../python python capture.py OUTPUT/v05-executable-argument",
+  "slides": [
+    {
+      "phase": "initial",
+      "image": "authored-argument.png",
+      "capture_kind": "browser",
+      "caption": "Authored argument",
+      "action": "Open the generated article.",
+      "expected": "40 riders, $120 dispatch, $40 shuttle saving.",
+      "dimensions": [
+        1120,
+        1220
+      ]
+    },
+    {
+      "phase": "interaction",
+      "image": "action-three.png",
+      "capture_kind": "browser",
+      "caption": "Action three",
+      "action": "Tab to Next action and press Enter three times.",
+      "expected": "At 30 riders costs tie; the synthetic fit is expanded.",
+      "dimensions": [
+        1120,
+        1220
+      ]
+    },
+    {
+      "phase": "result",
+      "image": "saved-alternative.png",
+      "capture_kind": "browser",
+      "caption": "Saved alternative",
+      "action": "Left arrow to 29 riders, select $160 dispatch, annotate, save and insert.",
+      "expected": "The copy and inserted essay record both premises and $44 voucher saving.",
+      "dimensions": [
+        1120,
+        1220
+      ]
+    },
+    {
+      "phase": "interaction",
+      "image": "withdrawn-premise.png",
+      "capture_kind": "browser",
+      "caption": "Withdrawn premise",
+      "action": "Withdraw the demand premise.",
+      "expected": "The live result clears. The saved comparison is retained.",
+      "dimensions": [
+        1120,
+        1220
+      ]
+    },
+    {
+      "phase": "recovery",
+      "image": "restored-comparison.png",
+      "capture_kind": "browser",
+      "caption": "Restored comparison",
+      "action": "Resume actions four and five; restore original.",
+      "expected": "The restored live argument and explicitly inserted alternative coexist.",
+      "dimensions": [
+        1120,
+        1220
+      ]
+    },
+    {
+      "phase": "result",
+      "image": "static-essay.png",
+      "capture_kind": "browser",
+      "caption": "Static essay",
+      "action": "Download, reopen and reload the standalone essay.",
+      "expected": "Frozen inserted values, curve, original argument, fit, and limit survive reload.",
+      "dimensions": [
+        1120,
+        1220
+      ]
+    }
+  ]
+}
