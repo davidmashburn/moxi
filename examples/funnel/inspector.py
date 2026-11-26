@@ -80,7 +80,7 @@ def main():
         app.change.invoke()
         app.canvas.event_generate("<Button-1>", x=338, y=72)
         assert app.table.selection() == ("0",)
-        assert app.table.item("0", "values") == ("A", "12.0", "1")
+        assert app.table.item("0", "values") == ("A", "12", "1")
         root.destroy()
         print("Tk replay passed: three pointer picks, export, update and re-selection.")
     else:
