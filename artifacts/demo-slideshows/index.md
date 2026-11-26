@@ -1,5 +1,8 @@
 # Demo slideshow index
 
+[Replay the 21 interaction concepts](concept-scenarios.md) for the steps, source revisions and remaining gaps in each consumer.
+
+
 | Plan | Actual demo | Captures and reproduction |
 | --- | --- | --- |
 | F01 | Portable text laboratory | [Capture manifest](text-laboratory/manifest.json); [local self-contained slideshow](text-laboratory/index.html) |
