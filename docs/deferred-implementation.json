@@ -844,11 +844,22 @@
     {
       "id": "I19",
       "scope": "Numeric/drag preview \u2192 Escape revert \u2192 commit/one undo \u2192 changed-layout replay/stale rejection.",
-      "state": "pending",
-      "commits": [],
-      "verification": [],
-      "remaining_gates": [],
-      "slideshows": []
+      "state": "experiment_complete",
+      "commits": [
+        "f8772df",
+        "7838b55",
+        "4f27f70"
+      ],
+      "verification": [
+        "Numeric entry and dragging previewed the same sample in Chrome. Escape canceled a held drag. Commit created one undo entry. The compact copy replayed a recorded move and rejected its second application.",
+        "After a second commit, reload restored the pre-move cursor and history. Replay on the compact copy succeeded once and two undos restored the initial position. Legacy and malformed stored commands were exercised."
+      ],
+      "remaining_gates": [
+        "Native canvas integration, participant assessment, assistive technology and additional browser engines remain open."
+      ],
+      "slideshows": [
+        "artifacts/demo-slideshows/i19-inspectable-interactions/index.html"
+      ]
     },
     {
       "id": "I20",

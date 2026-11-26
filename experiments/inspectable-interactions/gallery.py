@@ -7,4 +7,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from demo_slideshows import load_manifest, render
 
 directory = ROOT / "artifacts/demo-slideshows/i19-inspectable-interactions"
-(directory / "index.html").write_text(render(load_manifest(directory / "manifest.json")))
+manifest = load_manifest(directory / "manifest.json")
+for slide in manifest["slides"]:
+    slide["data_url"] = slide["image"]
+(directory / "index.html").write_text(render(manifest))
