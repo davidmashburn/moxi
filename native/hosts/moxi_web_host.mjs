@@ -131,6 +131,27 @@ function modifierMask(event) {
   return modifiers;
 }
 
+/** Present a tightly packed RGBA raster, including a view into Wasm memory. */
+export class MoxiRasterPresenter {
+  constructor(context) {
+    this.context = context;
+    this.image = null;
+  }
+
+  present(pixels, width, height) {
+    if (!(pixels instanceof Uint8ClampedArray) || pixels.length !== width * height * 4) {
+      throw new RangeError("Expected a packed RGBA pixel view");
+    }
+    const image = this.image;
+    if (!image || image.width !== width || image.height !== height ||
+        image.data.buffer !== pixels.buffer || image.data.byteOffset !== pixels.byteOffset) {
+      // Wasm can replace its memory buffer on growth or move a raster on reset.
+      this.image = new ImageData(pixels, width, height);
+    }
+    this.context.putImageData(this.image, 0, 0);
+  }
+}
+
 export class MoxiWebHost {
   constructor(target, callbacks = {}, options = {}) {
     if (!target || typeof target.addEventListener !== "function") {
@@ -150,6 +171,7 @@ export class MoxiWebHost {
       accessibilityAction: callbacks.accessibilityAction || noop,
     };
     this.started = false;
+    this.continuousFrames = options.continuousFrames ?? true;
     this.frameHandle = null;
     this.resizeObserver = null;
     this.listeners = [];
@@ -235,24 +257,17 @@ export class MoxiWebHost {
     );
   }
 
-  _scheduleFrame() {
-    if (!this.started) return;
-    const raf = globalThis.requestAnimationFrame;
-    if (typeof raf === "function") {
-      this.frameHandle = raf(() => {
-        this.frameHandle = null;
-        if (!this.started) return;
-        this.callbacks.frame();
-        this._scheduleFrame();
-      });
-    } else {
-      this.frameHandle = globalThis.setTimeout(() => {
-        this.frameHandle = null;
-        if (!this.started) return;
-        this.callbacks.frame();
-        this._scheduleFrame();
-      }, 16);
-    }
+  requestFrame() {
+    if (!this.started || this.frameHandle !== null) return;
+    const tick = () => {
+      this.frameHandle = null;
+      if (!this.started) return;
+      this.callbacks.frame();
+      if (this.continuousFrames) this.requestFrame();
+    };
+    this.frameHandle = typeof globalThis.requestAnimationFrame === "function"
+      ? globalThis.requestAnimationFrame(tick)
+      : globalThis.setTimeout(tick, 16);
   }
 
   _accessibilityBounds(node) {
@@ -407,7 +422,7 @@ export class MoxiWebHost {
       this.resizeObserver.observe(this.target);
     }
     this.resizeFromTarget();
-    this._scheduleFrame();
+    this.requestFrame();
     return true;
   }
 

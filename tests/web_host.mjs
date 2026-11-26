@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {
   MoxiWebHost,
+  MoxiRasterPresenter,
   accessibilityAttributes,
   MOXI_AX_ROLE_MAP,
   MOXI_HOST_POINTER_DOWN,
@@ -137,4 +138,51 @@ assert.deepEqual(
 const semanticSnapshot = [{id: 10, role: 2, label: "Save", bounds: {x: 2, y: 3, width: 80, height: 24}}];
 assert.equal(host.updateAccessibility(semanticSnapshot), 1);
 assert.deepEqual(host.accessibilitySnapshot, semanticSnapshot);
+// The presenter must reuse a wrapper while its bytes are live and replace it
+// after a raster move or memory growth. The browser suite covers real Canvas.
+globalThis.ImageData = class {
+  constructor(data, width, height) { Object.assign(this, {data, width, height}); }
+};
+const images = [];
+const present = new MoxiRasterPresenter({putImageData: image => images.push(image)});
+const memory = new WebAssembly.Memory({initial: 1});
+const bytes = offset => new Uint8ClampedArray(memory.buffer, offset, 4);
+present.present(bytes(0), 1, 1);
+present.present(bytes(0), 1, 1);
+assert.equal(images[0], images[1]);
+present.present(bytes(4), 1, 1);
+assert.notEqual(images[1], images[2]);
+memory.grow(1);
+present.present(bytes(4), 1, 1);
+assert.notEqual(images[2], images[3]);
+assert.equal(images[3].data.buffer, memory.buffer);
+delete globalThis.ImageData;
+
+// An input burst needs one frame. A job can request its next slice inside
+// the callback, then leave the host completely idle after its final slice.
+const pending = new Map();
+let sequence = 0;
+globalThis.requestAnimationFrame = fn => { pending.set(++sequence, fn); return sequence; };
+globalThis.cancelAnimationFrame = id => pending.delete(id);
+let slices = 0;
+const demand = new MoxiWebHost(new FakeSurface(), {
+  frame() { if (++slices === 1) demand.requestFrame(); },
+}, {continuousFrames: false});
+function tick() {
+  const [[id, callback]] = pending;
+  pending.delete(id);
+  callback();
+}
+demand.start();
+demand.requestFrame();
+assert.equal(pending.size, 1);
+tick();
+tick();
+assert.equal(slices, 2);
+assert.equal(pending.size, 0);
+demand.requestFrame();
+demand.stop();
+assert.equal(pending.size, 0);
+delete globalThis.requestAnimationFrame;
+delete globalThis.cancelAnimationFrame;
 console.log("Moxi Web host test passed");
