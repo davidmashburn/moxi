@@ -1,0 +1,80 @@
+{
+  "contour": {
+    "reference_available": true,
+    "reference_revision": "377b519e07f017d4a120b7fc3551f972a0b3fe16",
+    "source_rows": 12,
+    "levels": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0
+    ],
+    "native_glyphs": 42,
+    "mojo_python_geometry_pass": true,
+    "mojo_python_scalar_color_and_label_pass": true,
+    "scalar_labels": [
+      "z = 1",
+      "z = 2",
+      "z = 3",
+      "z = 4",
+      "z = 5",
+      "z = 6",
+      "z = 7"
+    ],
+    "rejected_update_preserves_pixels": true,
+    "restoration_matches_original": true,
+    "full_visual_parity": false,
+    "max_segment_endpoint_error": 0.0,
+    "upstream_segments": 42,
+    "assessment": "All seven levels match the pinned nonzero segments, including endpoint pairing inside cells. Padding, palette, grid and labels differ."
+  },
+  "contourf": {
+    "reference_available": true,
+    "reference_revision": "377b519e07f017d4a120b7fc3551f972a0b3fe16",
+    "source_rows": 12,
+    "levels": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0
+    ],
+    "native_glyphs": 47,
+    "mojo_python_geometry_pass": true,
+    "mojo_python_scalar_color_and_label_pass": true,
+    "scalar_labels": [
+      "z in [0, 1)",
+      "z in [1, 2)",
+      "z in [2, 3)",
+      "z in [3, 4)",
+      "z in [4, 5)",
+      "z in [5, 6)",
+      "z in [6, 7)",
+      "z in [7, 8]"
+    ],
+    "rejected_update_preserves_pixels": true,
+    "restoration_matches_original": true,
+    "full_visual_parity": false,
+    "bands": 8,
+    "moxi_total_band_area": 5.0,
+    "source_grid_area": 5,
+    "assessment": "All eight band areas and sampled memberships match the pinned filled paths on the mirrored saddle fixture within the recorded tolerances.",
+    "max_band_area_error": 6.79462477704007e-06,
+    "matched_band_samples": 50601,
+    "samples_per_band": [
+      22886,
+      3019,
+      3325,
+      13754,
+      3335,
+      2371,
+      1430,
+      481
+    ]
+  }
+}
