@@ -249,7 +249,10 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
         result.has_layout_domain = True
         # Fit a full semicircle in both pixel dimensions. Keep the default
         # full-width layout when height permits, otherwise center a shorter span.
-        var span = min(Float32(1), 2*height/width)
+        # Collapsed viewports retain keyed edges as degenerate, finite paths.
+        # PlotView can then preserve selection and rebuild them on enlargement.
+        var drawable = width > 0 and height > 0
+        var span = min(Float32(1), 2*height/width) if drawable else Float32(0)
         var offset = (1-span)*0.5
         var nodes = List[String]()
         var indices = Dict[String,Int]()
@@ -269,6 +272,7 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
             var left = offset + span*Float32(min(src,dst))/Float32(len(nodes)-1)
             var right = offset + span*Float32(max(src,dst))/Float32(len(nodes)-1)
             var radius = (right-left)*0.5
+            var rise = radius*width/height if drawable else Float32(0)
             _glyph(result,layer,data,row,PlotGlyphKind.POLYLINE,"edge",left,0,right,0,_palette(src))
             ref edge = result.points[len(result.points)-1]
             var frac = Float32(_stage_value(data,layer.y_field,row)/largest) if largest>0 else Float32(0)
@@ -276,7 +280,7 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
             edge.text = String(nodes[src], " → ", nodes[dst])
             for i in range(49):
                 var angle = Float32(pi)*Float32(i)/48
-                edge.vertices.append(Point(left+radius*(1-cos(angle)),radius*width/height*sin(angle)))
+                edge.vertices.append(Point(left+radius*(1-cos(angle)),rise*sin(angle)))
         for i in range(len(nodes)):
             var x = offset + span*Float32(i)/Float32(len(nodes)-1) if len(nodes)>1 else Float32(0.5)
             _glyph(result,layer,data,0,PlotGlyphKind.POINT,"arc-node",x,0,x,0,_palette(i),False)

@@ -1531,7 +1531,11 @@ struct Plot:
         scene.
         """
         var scene = Scene()
-        scene.append_rounded_rect(1, self.bounds, self.background, 12.0)
+        if self.bounds.width > 0 and self.bounds.height > 0:
+            scene.append_rounded_rect(1, self.bounds, self.background, 12.0)
+        # A collapsed data area has no drawable content or valid clip bounds.
+        if self.plot_area.width <= 0 or self.plot_area.height <= 0:
+            return scene^
         scene.push_clip(2, self.plot_area)
         if self.facet_count() > 0:
             var facet_height = self.plot_area.height / Float32(self.facet_count())

@@ -190,7 +190,7 @@ def replay(family, native, output, inspect=False):
         exported_png = base64.b64encode((output / "export.png").read_bytes()).decode()
         show("Python PNG export", f'<img width="{WIDTH}" height="{HEIGHT}" src="data:image/png;base64,{exported_png}">')
         capture(page, "png-export", "Software PNG export at 640 × 420 with unlabeled geometry")
-        report = f"<style>{STYLE}#thumbs img{{width:100px}}</style><h1>{family} · E06</h1><img id=frame width=880><p id=caption></p><button id=prev>Previous</button><button id=next>Next</button><div id=thumbs></div>"
+        report = f'<meta charset="utf-8"><style>{STYLE}#thumbs img{{width:100px}}</style><h1>{family} · E06</h1><img id=frame width=880><p id=caption></p><button id=prev>Previous</button><button id=next>Next</button><div id=thumbs></div>'
         images = ["data:image/png;base64,"+base64.b64encode(p.read_bytes()).decode() for _,p in slides]
         report += "<script>const images="+json.dumps(images)+", captions="+json.dumps([s for s,_ in slides])+""";let i=0;
         function show(n){i=(n+images.length)%images.length;frame.src=images[i];caption.textContent=captions[i]}
@@ -199,7 +199,7 @@ def replay(family, native, output, inspect=False):
         prev.onclick=()=>show(i-1);next.onclick=()=>show(i+1);
         document.onkeydown=e=>{if(e.key==='ArrowRight')next.click();if(e.key==='ArrowLeft')prev.click()};show(0)</script>"""
         index = output / "index.html"
-        index.write_text(report)
+        index.write_text(report, encoding="utf-8")
         page.context.set_offline(True)
         page.goto(index.resolve().as_uri())
         for caption,_ in slides:
