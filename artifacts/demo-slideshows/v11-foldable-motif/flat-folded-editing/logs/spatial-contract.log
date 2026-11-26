@@ -1,0 +1,6 @@
+PASS projection/unprojection, Metal matrix, rays, near-parallel, stable ties, adversarial mesh
+PASS gesture previews, constraints, snap, one commit, numeric/key operations, cancel, history, routing, annotations
+PASS deterministic constraint replay, pointer rotation/scale, handle precedence, frozen frame, cancellation on viewport/geometry/disposal
+PASS far-plane projection/pick agreement and nonfinite routing
+PASS bounded work, stale generation/revision, shared parameter undo, disposal/recreation
+PASS spatial-contract + spatial-interaction: 1832 assertions
