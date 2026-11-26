@@ -225,3 +225,29 @@ bash experiments/python-native/check.sh
 The consumer checks the project MIT license against the repository's
 `LICENSE` and the dataviz MIT notice against its pinned fixture in each wheel.
 The native archive also carries the two compiler package notices.
+
+To verify the retained consumer, wheel contents, compiled inputs and eight
+export files after a run, keep the report directory set and run from the root:
+
+```sh
+(cd experiments/python-native && python3 -c 'from evidence import verify_inputs; print(verify_inputs())')
+```
+
+On November 25, 2026, a clean build of `0605f79ca6be` with Mojo
+1.1.0 (8189361e) passed on macOS 27.2.1 arm64 under CPython 3.11.16.
+The isolated installed consumer passed 48 native and 372 facade tests with
+NumPy 2.4.6, Pillow 13.0.0, pypdf 7.1.1 and pytest 9.2.0.
+Verification matched 141 native inputs, 11 facade files, four installed
+binaries and eight exports. dyld loaded all three runtimes from that consumer.
+A copy of a loaded library at a different location failed the evidence check.
+
+| Built wheel | SHA-256 |
+| --- | --- |
+| `moxi_native_experimental-0.1.0-cp311-cp311-macosx_15_0_arm64.whl` | `4041244109d7421b7404407df8cf4701eb212bb383905bad6ca766c677e1fda9` |
+| `moxi-0.6.0-py3-none-any.whl` | `4ee4983c11f9f6049975123f1919a78f28266a075751d002c058b8b08087c89f` |
+
+All four Mach-O binaries passed signature verification and recorded a minimum
+OS of 11.0. The wheel carries a macOS 15 tag. CPython 3.13 pip rejected this
+cp311 wheel on the same host. The CPython 3.11 run did not exercise macOS 15.
+The compiler license and third-party notices matched the installed compiler
+package byte for byte. Redistribution rights and sanitizer coverage remain open.

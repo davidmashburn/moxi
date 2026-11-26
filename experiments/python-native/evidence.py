@@ -76,7 +76,10 @@ def verify_inputs(out=OUT):
     assert initial['isolated'] == 1 and initial['mojo_on_path'] is False
     assert initial['process_audit'] == 'enabled'
     loaded = read_report('loaded-runtime.json')
-    assert len(loaded) == 3 and all(Path(p).parent == package / '.libs' for p in loaded)
+    # dyld can canonicalize /tmp to /private/tmp while Python retains the alias.
+    expected = {(package / '.libs' / name).resolve(strict=True) for name in build['runtimes']}
+    assert len(loaded) == len(expected) == 3
+    assert {Path(p).resolve(strict=True) for p in loaded} == expected, 'Unexpected loaded Mojo runtime'
     for name, record in packaging['binaries'].items():
         installed = package / Path(name).relative_to('moxi_native')
         assert sha(installed) == record['sha256'], 'Installed binary mismatch: ' + name
