@@ -2,7 +2,7 @@
 
 Radial, KDE, swarm and stream algorithms adapted from dataviz_mojo v0.8.0
 3fd5a7e7c622d6130c99a290b88c4fee039deab2 (MIT; wave_a/DATAVIZ-LICENSE).
-Contours are Moxi's piecewise-linear grid algorithm: that pin has no contour API.
+Regular contours use marching squares with the dataviz 0.15.0 center rule.
 """
 from enum import Enum
 from math import cos, sin, pi, sqrt, exp, isfinite, floor
@@ -77,15 +77,31 @@ def _density(values):
     return samples, [d/max(density) for d in density]
 
 
-def _clip(poly, level, above):
-    result = []
-    for a,b in zip(poly, poly[1:]+poly[:1]):
-        ai,bi = (a[2]>=level,b[2]>=level) if above else (a[2]<=level,b[2]<=level)
-        if ai: result.append(a)
-        if ai != bi:
-            t = (level-a[2])/(b[2]-a[2])
-            result.append((a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1]),level))
-    return result
+def _regions(vertices, level, above, center):
+    """Walk CCW from outside so each retained run starts/ends on a crossing."""
+    inside = [(p[2] > level) == above for p in vertices]
+    if all(inside):
+        return [vertices]
+    if not any(inside):
+        return []
+    start = inside.index(False)
+    runs = []
+    for offset in range(len(vertices)):
+        i = (start + offset) % len(vertices)
+        j = (i + 1) % len(vertices)
+        if inside[i] != inside[j]:
+            a, b = vertices[i], vertices[j]
+            t = (level-a[2]) / (b[2]-a[2])
+            crossing = (a[0]+t*(b[0]-a[0]), a[1]+t*(b[1]-a[1]), level)
+            if inside[j]:
+                runs.append([crossing])
+            else:
+                runs[-1].append(crossing)
+        if inside[j]:
+            runs[-1].append(vertices[j])
+    if len(runs) > 1 and (center > level) == above:
+        return [[point for run in runs for point in run]]
+    return runs
 
 
 def layout(layer, data, width=560., height=416.):
@@ -205,19 +221,29 @@ def layout(layer, data, width=560., height=416.):
         for gy in range(len(ys)-1):
             for gx in range(len(xs)-1):
                 corners=[lookup[(xs[gx],ys[gy])],lookup[(xs[gx+1],ys[gy])],lookup[(xs[gx+1],ys[gy+1])],lookup[(xs[gx],ys[gy+1])]]
-                for tri in ((corners[0],corners[1],corners[2]),(corners[0],corners[2],corners[3])):
-                    pts=[(x[i],y[i],z[i]) for i in tri]
-                    if mark is WaveBMark.CONTOUR:
-                        for k,level in enumerate(levels[1:-1],1):
-                            hits=[]
-                            for a,b in zip(pts,pts[1:]+pts[:1]):
-                                if (a[2]<level) != (b[2]<level):
-                                    t=(level-a[2])/(b[2]-a[2]);hits.append((a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])))
-                            if len(hits)==2 and hits[0]!=hits[1]:segment(list(tri),'level:'+str(k),*hits,scalar_color(level,lo,hi),label=scalar_level_label(layer.y2,level))
-                    else:
-                        for k in range(CONTOUR_BANDS):
-                            if k<CONTOUR_BANDS-1 and all(p[2]==levels[k+1] for p in pts):continue
-                            clipped=_clip(_clip(pts,levels[k],True),levels[k+1],False)
-                            area=sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(clipped,clipped[1:]+clipped[:1]))
-                            if len(clipped)>=3 and abs(area)>0:poly(list(tri),'band:'+str(k),[(a,b) for a,b,_ in clipped],scalar_color((levels[k]+levels[k+1])/2,lo,hi),label=scalar_band_label(layer.y2,levels[k],levels[k+1],k==CONTOUR_BANDS-1))
+                pts = [(x[i], y[i], z[i]) for i in corners]
+                cell_min, cell_max = min(z[i] for i in corners), max(z[i] for i in corners)
+                center = sum(p[2] for p in pts) / 4
+                if mark is WaveBMark.CONTOUR:
+                    for k, level in enumerate(levels[1:-1], 1):
+                        if cell_min <= level < cell_max:
+                            for run in _regions(pts, level, center <= level, center):
+                                a, b = run[0][:2], run[-1][:2]
+                                if a != b:
+                                    segment(corners, 'level:'+str(k), a, b, scalar_color(level,lo,hi),
+                                            label=scalar_level_label(layer.y2,level))
+                else:
+                    for k, (lower, upper) in enumerate(zip(levels, levels[1:])):
+                        if cell_min == cell_max:
+                            pieces = [pts] if lower <= center < upper or center == upper == hi else []
+                        else:
+                            above = [pts] if k == 0 else _regions(pts, lower, True, center)
+                            pieces = [piece for region in above for piece in _regions(region, upper, False, center)]
+                        for piece in pieces:
+                            area = sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(piece,piece[1:]+piece[:1]))
+                            if abs(area) > 0:
+                                poly(corners, 'band:'+str(k), [p[:2] for p in piece],
+                                     scalar_color((lower+upper)/2,lo,hi),
+                                     label=scalar_band_label(layer.y2,lower,upper,k==CONTOUR_BANDS-1))
+
     return Layout(glyphs,xd,yd,rows)

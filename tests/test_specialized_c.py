@@ -71,3 +71,44 @@ def test_punchcard_size_six_is_data_not_style_default():
     doc=json.loads(figure(case).spec.to_json());doc['layers'][0]['size']=12
     f=plot(cols,PlotSpec.from_json(json.dumps(doc)))
     assert next(f._render_geometries())[1].sizes==[6]
+
+
+@pytest.mark.parametrize("width,height", [(640,480), (400,700)])
+def test_chord_single_path_per_object_and_screen_selection(width, height):
+    case = next(c for c in CASES if c['id'] == 'chord')
+    f = plot(case['columns'], figure(case).spec, width=width, height=height)
+    shapes = [geometry for _, geometry in f._render_geometries()]
+    assert len(shapes) == 9
+    assert [g.source_row for g in shapes if g.interactive] == list(range(5))
+    left, top, side, height, *_ = f._layout()
+    assert side == height
+    for g in shapes:
+        assert len(g.polygons) == 1
+        points = g.polygons[0]
+        if g.interactive:
+            # Sample just inside this ribbon's source arc, away from adjoining ribbons.
+            x,y = points[16]
+            hit = f.hit_test(.99*x+.01*(left+side/2), .99*y+.01*(top+side/2), tolerance=0)
+            assert hit is not None and hit['source_rows'] == [g.source_row]
+        else:
+            for x,y in points:
+                radius = math.hypot(x-left-side/2, y-top-side/2)/side
+                assert min(abs(radius-.45), abs(radius-.414)) < 1e-6
+
+
+def test_calendar_and_flow_svg_annotations_are_outside_source_table():
+    from xml.etree import ElementTree as ET
+    calendar = next(c for c in CASES if c['id'] == 'calendar_heatmap')
+    f = figure(calendar)
+    texts = {el.text: el for el in ET.fromstring(f.to_svg()).findall('.//{*}text')}
+    assert set('Sun Mon Tue Wed Thu Fri Sat Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split()) <= texts.keys()
+    assert float(texts['Mar'].get('x')) == pytest.approx(48+560*8/53, abs=.001)
+    assert texts['Sun'].get('text-anchor') == 'end'
+    assert len(f.table()) == len(calendar['columns']['date'])
+    sankey = next(c for c in CASES if c['id'] == 'sankey')
+    columns = copy.deepcopy(sankey['columns'])
+    columns['source'] = ['<A&>' if s == 'A' else s for s in columns['source']]
+    f = figure(sankey, columns)
+    texts = [el.text for el in ET.fromstring(f.to_svg()).findall('.//{*}text')]
+    assert texts.count('<A&>') == 1
+    assert len(f.table()) == len(columns['source'])

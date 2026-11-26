@@ -116,6 +116,12 @@ def _png(width: int, height: int, pixels: bytes) -> bytes:
     return b"\x89PNG\r\n\x1a\n" + _chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0)) + _chunk(b"IDAT", zlib.compress(rows, 9)) + _chunk(b"IEND", b"")
 
 
+def _fit_label(text: str, capacity: int) -> str:
+    if capacity < 1:
+        return ""
+    return text if len(text) <= capacity else text[:capacity - 1] + "…"
+
+
 class _Raster:
     def __init__(self, width: int, height: int) -> None:
         self.width = width
@@ -309,9 +315,72 @@ class Figure:
                             for glyph in result.glyphs if glyph.label)
         return rows
 
+    def _wave_a_layer(self):
+        from .specialized import LayoutVersion, WaveAMark
+        if len(self.spec.layers) == 1:
+            layer = self.spec.layers[0]
+            if layer.layout_version == LayoutVersion.SPECIALIZED and layer.mark in WaveAMark._value2member_map_:
+                return layer
+        return None
+
+    def _wave_a_labels(self):
+        """Yield (text, x, y, optional swatch color) outside the mark area."""
+        from .specialized import PALETTE, WaveAMark
+        layer = self._wave_a_layer()
+        if layer is None:
+            return
+        left, top, width, height, *_ = self._layout()
+        values = self.data.column(layer.x)
+        reverse = layer.mark in (WaveAMark.GANTT, WaveAMark.PYRAMID)
+        on_y = layer.horizontal or reverse
+        spacing = (height if on_y else width) / len(values)
+        stride = max(1, min(len(values), math.ceil(14 / spacing)))
+        capacity = int(((left - 8) if on_y else (spacing * stride - 4)) / 7)
+        for index in range(0, len(values), stride):
+            row = len(values) - 1 - index if reverse else index
+            label = _fit_label(str(values[row]), capacity)
+            if not label:
+                continue
+            if on_y:
+                x = left - 6 - len(label) * 7
+                y = top + height - (index + 0.5) * spacing - 4
+                if y < top or y + 8 > top + height:
+                    continue
+            else:
+                x = left + (index + 0.5) * spacing - len(label) * 3.5
+                y = top + height + 9
+                if x < left or x + len(label) * 7 > left + width:
+                    continue
+            if 0 <= y <= self.height - 9 and 0 <= x <= self.width - len(label) * 7:
+                yield label, round(x), round(y), None
+        names = ("Left", "Right") if layer.mark == WaveAMark.PYRAMID else layer.series_fields
+        slot = width / max(1, len(names))
+        for i, name in enumerate(names):
+            label = _fit_label(name, int((slot - 18) / 7))
+            if label and self.height - 24 > top + height + 18:
+                yield label, round(left + i * slot + 13), self.height - 24, PALETTE[i % len(PALETTE)]
+
     def _layout(self) -> Tuple[float, float, float, float, float, float, float, float]:
         from .specialized import LayoutVersion
         from .wave_b import WaveBMark
+        layer = self._wave_a_layer()
+        if layer is not None:
+            from .specialized import WaveAMark
+            left = 54.
+            if layer.horizontal or layer.mark in (WaveAMark.GANTT, WaveAMark.PYRAMID):
+                longest = max(len(str(v)) for v in self.data.column(layer.x))
+                left = max(left, min(self.width / 3, longest * 7 + 8))
+            return left, 18., max(1., self.width - left - 18.), max(1., self.height - 70.), 0., 1., 0., 1.
+        from .specialized_c import WaveCMark
+        if len(self.spec.layers) == 1 and self.spec.layers[0].layout_version == LayoutVersion.SPECIALIZED:
+            mark = self.spec.layers[0].mark
+            width, height = max(1., self.width-80.), max(1., self.height-80.)
+            if mark == WaveCMark.CHORD:
+                side = min(width,height)
+                return 48+(width-side)/2, 28+(height-side)/2, side, side, 0., 1., 0., 1.
+            if mark in (WaveCMark.CALENDAR, WaveCMark.SANKEY):
+                reserve = min(16.,height-1) if mark == WaveCMark.CALENDAR else 0.
+                return 48., 28.+reserve, width, height-reserve, 0., 1., 0., 1.
         if any(layer.layout_version == LayoutVersion.SPECIALIZED and layer.mark in WaveBMark._value2member_map_ for layer in self.spec.layers):
             return 48., 28., max(1., self.width-80.), max(1., self.height-64.), 0., 1., 0., 1.
         return 54.0, 18.0, max(1.0, self.width - 72.0), max(1.0, self.height - 48.0), 0.0, 1.0, 0.0, 1.0
@@ -958,7 +1027,7 @@ class Figure:
             return True
         layer = self.spec.layers[0]
         return layer.layout_version != LayoutVersion.SPECIALIZED or (
-            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, CatalogMark.FUNNEL)
+            layer.mark not in RADIAL and layer.mark not in (WaveCMark.CHORD, WaveCMark.SUNBURST, WaveCMark.CALENDAR, WaveCMark.SANKEY, CatalogMark.FUNNEL)
         )
 
     def to_svg(self) -> bytes:
@@ -1032,6 +1101,14 @@ class Figure:
                         parts.append(f'<circle cx="{x:g}" cy="{y:g}" r="{radius:g}" fill="{_svg_color(fill, opacity)}" data-mark="{layer.mark}"/>')
             if label:
                 parts.append('</g>')
+        for text, x, y, swatch in self._wave_a_labels():
+            if swatch:
+                parts.append(f'<rect x="{x-13}" y="{y}" width="9" height="9" fill="{_svg_color(swatch)}"/>')
+            parts.append(f'<text x="{x}" y="{y+9}" font-family="monospace" font-size="11" fill="#24324a">{escape(text)}</text>')
+        if len(self.spec.layers) == 1:
+            from .specialized_c import flow_calendar_labels
+            for text, x, y, align in flow_calendar_labels(self.spec.layers[0], self.data, left, top, plot_width, plot_height):
+                parts.append(f'<text x="{x:g}" y="{y:g}" font-size="12" font-family="DejaVu Sans" text-anchor="{align}">{escape(text)}</text>')
         if self.spec.title:
             parts.append(f'<text x="{self.width/2:g}" y="18" text-anchor="middle" fill="#101828">{escape(self.spec.title)}</text>')
         parts.append("</g></svg>")
@@ -1106,6 +1183,12 @@ class Figure:
                     opacity = self._geometry_opacity(geometry, layer, index)
                     for radius, fill in self._marker_discs(geometry, layer, index):
                         raster.circle(x, y, radius, _rgba(fill, opacity))
+        from ._label_font import ink
+        for text, x, y, swatch in self._wave_a_labels():
+            if swatch:
+                raster.rect(x - 13, y, 9, 9, _rgba(swatch))
+            for px, py in ink(text, x, y):
+                raster.blend(px, py, (36, 50, 74, 255))
         return bytes(raster.pixels)
 
     def to_png(self) -> bytes:
@@ -1188,11 +1271,21 @@ class Figure:
                                             f"1 J {2*disc_radius:g} w {x:g} {y_pdf:g} m {x:g} {y_pdf:g} l S Q")
                         continue
                     commands.append(f"{fill} {x-radius:g} {self.height-y-radius:g} {radius*2:g} {radius*2:g} re f")
+        labels = list(self._wave_a_labels())
+        for text, x, y, swatch in labels:
+            if swatch:
+                r, g, b, _ = swatch
+                commands.append(f"{r:g} {g:g} {b:g} rg {x-13} {self.height-y-9} 9 9 re f")
+            encoded = text.encode("cp1252", errors="replace").hex()
+            commands.append(f"0.14 0.20 0.29 rg BT /F1 11 Tf {x} {self.height-y-9} Td <{encoded}> Tj ET")
         content = "\n".join(commands) + "\n"
-        resources = ""
+        entries = []
+        if labels:
+            entries.append("/Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >> >>")
         if stroke_opacities:
             states = " ".join(f"/{name} << /CA {alpha:g} >>" for alpha, name in stroke_opacities.items())
-            resources = f" /Resources << /ExtGState << {states} >> >>"
+            entries.append(f"/ExtGState << {states} >>")
+        resources = " /Resources << " + " ".join(entries) + " >>" if entries else ""
         objects = [b"<< /Type /Catalog /Pages 2 0 R >>", b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>", f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {self.width} {self.height}] /Contents 4 0 R{resources} >>".encode(), f"<< /Length {len(content.encode())} >>\nstream\n{content}endstream".encode()]
         output = bytearray(b"%PDF-1.4\n")
         offsets = [0]

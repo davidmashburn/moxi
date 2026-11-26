@@ -5,10 +5,12 @@ from std.math import abs
 
 from moxi.backend import BACKEND_MACOS_APPKIT
 from moxi.geometry import Point, Rect
+from moxi.label_font import LABEL_FONT
 from moxi.metal import MacOSMetalCanvasPainter, MacOSMetalRenderer
 from moxi.native_window import NativeCanvasPainter, NativeCanvasSceneRenderer
 from moxi.raster import RasterImage
 from moxi.scene import SCENE_BITMAP, Scene, SceneRecorder
+from moxi.scene_text import SceneTextStyle
 from moxi.style import Color
 from moxi.testing import test_check
 
@@ -81,10 +83,23 @@ def main() raises:
     # The half-opacity magenta bitmap therefore composites over the first blue one.
     expect_pixel[True](13, 13, 128, 0, 255)
 
+    var labels = Scene()
+    labels.append_rect(1, Rect(0, 0, 16, 16), Color(1, 1, 1, 1))
+    labels.append_text_styled(2, "MW", Rect(1, 2, 14, 9), Color(0, 0, 0, 1), SceneTextStyle(LABEL_FONT, 11))
+    native.render_scene(labels)
+    external_call["moxi_bitmap_probe_capture_native", NoneType]()
+    expect_pixel[True](7, 2, 255, 255, 255)
+    expect_pixel[True](12, 2, 0, 0, 0)
+
     var metal = MacOSMetalRenderer(16, 16)
     if not metal.is_ready():
         print("Moxi bitmap contract passed; Metal unavailable, GPU pixels skipped")
         return
+    metal.render_scene(labels)
+    test_check(metal.rendered_text_glyph_count() == 2)
+    external_call["moxi_bitmap_probe_capture_metal", NoneType]()
+    expect_pixel[False](7, 2, 255, 255, 255)
+    expect_pixel[False](12, 2, 0, 0, 0)
     # Exceed the three-frame ring to catch stale or prematurely overwritten uploads.
     for frame in range(8):
         for pixel in range(2):

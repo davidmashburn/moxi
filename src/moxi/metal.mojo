@@ -13,6 +13,7 @@ from std.ffi import external_call
 
 from .backend import BACKEND_GPU, BackendCapabilities, backend_capabilities
 from .fractal import FractalCanvasPainter, FractalSegment
+from .label_font import LABEL_FONT, label_glyphs
 from .raster import RasterImage
 from .scene import (
     SCENE_BITMAP,
@@ -309,6 +310,17 @@ struct MacOSMetalRenderer(SceneRenderer):
         elif command.kind == SCENE_TEXT:
             var color = _with_opacity(command.fill, self.opacity * command.opacity)
             var text = command.text
+            if command.has_text_style and command.text_style.family == LABEL_FONT:
+                var glyphs = label_glyphs(text)
+                external_call["moxi_metal_draw_label_glyphs", NoneType](
+                    glyphs.unsafe_ptr(), Int32(len(glyphs)), command.bounds.x, command.bounds.y,
+                    color.red, color.green, color.blue, color.alpha,
+                    self.transform.m11, self.transform.m12, self.transform.m21,
+                    self.transform.m22, self.transform.tx, self.transform.ty,
+                )
+                self.frame_text_count += 1
+                self.frame_text_glyph_count += len(glyphs)
+                return
             var font_size = Float32(14.0)
             if command.has_text_style and command.text_style.size > 0.0:
                 font_size = command.text_style.size

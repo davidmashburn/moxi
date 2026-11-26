@@ -116,3 +116,41 @@ def test_plateau_band_boundary_has_single_ownership():
     area=sum(abs(sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(g.vertices,g.vertices[1:]+g.vertices[:1])))/2 for g in r.glyphs)
     assert area==pytest.approx(2)
     assert all(abs(sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(g.vertices,g.vertices[1:]+g.vertices[:1])))>0 for g in r.glyphs)
+
+
+@pytest.mark.parametrize('heights', [[8,0,0,8], [0,8,8,0]])
+def test_saddle_switches_connectivity_at_center(heights):
+    columns = dict(x=[0,1,0,1], y=[0,0,1,1], z=heights)
+    line = case('contour')
+    line['columns'] = columns
+    glyphs = result(line).glyphs
+    for k in (3, 4, 5):
+        segments = [g for g in glyphs if g.part == f'level:{k}']
+        assert len(segments) == 2
+        # Both endpoints of each segment touch edges incident to an isolated corner.
+        isolated = set()
+        for g in segments:
+            x0,y0,x1,y1 = g.bounds
+            isolated.add((x0 if x0 in (0,1) else x1, y0 if y0 in (0,1) else y1))
+            assert set(g.source_rows) == set(range(4))
+        assert isolated == {(x,y) for x,y,z in zip(*columns.values()) if (z > k) == (k >= 4)}
+
+    fill = case('contourf')
+    fill['columns'] = columns
+    bands = result(fill).glyphs
+    for k, expected in [(3, 1-(3/8)**2), (4, .25), (5, (3/8)**2)]:
+        above = [g.vertices for g in bands if int(g.part.split(':')[1]) >= k]
+        area = sum(abs(sum(x*v-y*u for (x,y),(u,v) in zip(p,p[1:]+p[:1])))/2 for p in above)
+        assert area == pytest.approx(expected)
+
+
+def test_asymmetric_saddle_uses_all_four_values_for_center():
+    c = case('contour')
+    # Center is 4.5. At level 4 the two low corners are isolated even
+    # though the threshold is exactly midway between the scalar extrema.
+    c['columns'] = dict(x=[0,1,0,1], y=[0,0,1,1], z=[8,0,3,7])
+    lines = [g.bounds for g in result(c).glyphs if g.part == 'level:4']
+    assert len(lines) == 2
+    for x0,y0,x1,y1 in lines:
+        corner = (x0 if x0 in (0,1) else x1, y0 if y0 in (0,1) else y1)
+        assert corner in {(0,1), (1,0)}

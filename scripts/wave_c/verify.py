@@ -87,10 +87,10 @@ def main():
         name=case['id'];f=figure(case);g=layout(f.spec.layers[0],f.data).glyphs
         actual=glyphs[name];assert len(g)==len(actual),(name,len(g),len(actual))
         for expected,a in zip(g,actual):
-            kind={GlyphKind.RECT:1,GlyphKind.SEGMENT:2,GlyphKind.POINT:3,GlyphKind.TRIANGLE:5}[expected.kind]
+            kind={GlyphKind.RECT:1,GlyphKind.SEGMENT:2,GlyphKind.POINT:3,GlyphKind.TRIANGLE:5,GlyphKind.POLYGON:4}[expected.kind]
             assert (kind,100+expected.row*7)==(int(a[0]),int(a[1])),(name,a,expected)
             assert expected.part==a[2] or (name=='tricontour' and expected.part.split(':level:')[0]==a[2].split(':level:')[0]),(name,a,expected)
-            coords=expected.bounds+(expected.vertices[0] if expected.vertices else (0,0))
+            coords=expected.bounds+(expected.vertices[0] if expected.kind is GlyphKind.TRIANGLE else (0,0))
             assert max(abs(x-float(y)) for x,y in zip(coords,a[3:9]))<2e-5,(name,a,expected)
             assert a[9]==','.join(str(100+7*i) for i in expected.source_rows),(name,a,expected)
             assert (a[10]=='True')==expected.interactive

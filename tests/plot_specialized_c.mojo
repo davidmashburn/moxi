@@ -33,12 +33,23 @@ def check_case(name: String, document: String, data: PlotDataTable, changed: Plo
         if p.glyph.value == PlotGlyphKind.TRIANGLE.value:
             center.x=(p.x+p.x2+p.x3)/3
             center.y=(p.y+p.y2+p.y3)/3
+        if p.glyph.value == PlotGlyphKind.POLYGON.value and name == "chord":
+            # Just inside the middle of the source subarc, before ribbons overlap.
+            center.x = p.vertices[16].x*0.99+0.005
+            center.y = p.vertices[16].y*0.99+0.005
         var screen=plot.screen_point(center)
         var hit=plot.hit_test(screen,0.1)
+        if name == "chord":
+            test_check(hit.found() and hit.row_key == p.row_key)
         if hit.found() and hit.row_key==p.row_key and selected_index<0:
             selected_index=i
             selected_x=screen.x
             selected_y=screen.y
+    if name == "chord":
+        plot.set_bounds(Rect(0,0,400,700))
+        test_check(plot.plot_area.width == 320 and plot.plot_area.height == 320)
+        plot.set_bounds(Rect(0,0,640,480))
+        test_check(plot.plot_area.width == 400 and plot.plot_area.height == 400)
     test_check(selected_index>=0)
     var view=PlotView(spec,data,Rect(0,0,640,480))
     var click=Event()

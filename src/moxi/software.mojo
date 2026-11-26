@@ -3,6 +3,7 @@
 from std.collections import List
 
 from .geometry import Point, Rect, Transform
+from .label_font import LABEL_FONT, label_ink
 from .scene import (
     SCENE_CLIP,
     SCENE_IMAGE,
@@ -346,6 +347,9 @@ struct SoftwareSceneRenderer(SceneRenderer):
                 _transformed_bounds(self.transform, command.bounds),
                 _with_opacity(command.fill, self.opacity * command.opacity),
             )
+        elif command.kind == SCENE_TEXT and command.has_text_style and command.text_style.family == LABEL_FONT:
+            for pixel in label_ink(command.text, command.bounds.x, command.bounds.y):
+                self.fill_rect(_transformed_bounds(self.transform, pixel), _with_opacity(command.fill, self.opacity * command.opacity))
         elif command.kind == SCENE_TEXT or command.kind == SCENE_IMAGE:
             # Resource and glyph rasterization are deliberately not faked.
             pass

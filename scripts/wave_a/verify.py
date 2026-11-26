@@ -3,12 +3,14 @@
 import argparse
 import copy
 import csv
+import hashlib
 import json
+import xml.etree.ElementTree as ET
 import subprocess
 from PIL import Image, ImageChops
 from pathlib import Path
 from fixtures import CASES, ROOT, figure
-from moxi.specialized import GlyphKind, layout
+from moxi.specialized import GlyphKind, PALETTE, layout
 
 
 def generate(output):
@@ -37,8 +39,53 @@ def generate(output):
     return '\n'.join(lines)+'\n'
 
 
+def check_canvas_labels(case, output):
+    name = case['id']
+    root = ET.parse(output / (name + '-scene.svg'))
+    labels = root.findall('.//{*}text[@font-family="monospace"]')
+    categories = case['columns']['category']
+    if name in ('population_pyramid', 'gantt'):
+        categories = categories[::-1]
+    legend = (['Left', 'Right'] if name == 'population_pyramid'
+              else case['layout'].get('series_fields', []))
+    assert [node.text for node in labels] == categories + legend, name
+    with Image.open(output / (name + '-canvas.png')) as canvas, Image.open(output / (name + '-software.ppm')) as software:
+        boxes = []
+        for index, node in enumerate(labels):
+            x = int(float(node.get('x')))
+            y = int(float(node.get('y'))) - 9
+            box = (x, y, x + 7 * len(node.text), y + 9)
+            assert 0 <= x < box[2] <= canvas.width and 0 <= y < box[3] <= canvas.height
+            assert all(box[2] <= a or x >= c or box[3] <= b or y >= d for a,b,c,d in boxes), (name, node.text)
+            boxes.append(box)
+            for frame in (canvas, software):
+                assert len(frame.crop(box).getcolors()) > 1, (name, node.text)
+                if index >= len(categories):
+                    color = frame.getpixel((x - 9, y + 4))
+                    expected = PALETTE[(index - len(categories)) % len(PALETTE)]
+                    assert all(abs(c - 255 * v) <= 1 for c, v in zip(color[:3], expected)), (name, node.text)
+                    assert color in {c for _, c in frame.crop((48, 28, 608, 428)).getcolors(640 * 480)}, (name, node.text)
+
+
+def compare_reference(case, output, gallery, observed):
+    """Compare the pinned image, native Canvas and Python PNG at original scale."""
+    name = case['id']
+    reference = gallery / ('e01-' + name.replace('_', '-')) / '02-reference.png'
+    assert hashlib.sha256(reference.read_bytes()).hexdigest() == observed[name]['sha256']['reference_png'], name
+    paths = [reference, output / (name + '-canvas.png'), output / (name + '-python.png')]
+    comparison = Image.new('RGB', (1920, 480))
+    for column, path in enumerate(paths):
+        with Image.open(path) as frame:
+            assert frame.size == (640, 480)
+            comparison.paste(frame.convert('RGB'), (640 * column, 0))
+    comparison.save(output / (name + '-comparison.png'))
+
+
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('output', type=Path);args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('output', type=Path)
+    parser.add_argument('--gallery', type=Path, help='directory containing verified e01-*/02-reference.png captures')
+    args=parser.parse_args()
+    observed = json.loads((ROOT / 'tests/fixtures/wave_a/observed.json').read_text())['cases']
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=True)
     driver=output/'wave_a_driver.mojo';driver.write_text(generate(output))
     command=['pixi','run','mojo','run','-I','src','-I','tests',str(driver)]
@@ -69,6 +116,9 @@ def main():
             assert (kind,expected.row,expected.part)==(int(a[0]),int(a[1]),a[2]),(case['id'],a,expected)
             assert max(abs(x-float(y)) for x,y in zip(expected.bounds,a[3:]))<0.0001,(case['id'],a,expected)
         (output/(case['id']+'-python.png')).write_bytes(f.to_png())
+        check_canvas_labels(case, output)
+        if args.gallery:
+            compare_reference(case, output, args.gallery, observed)
         original=Image.open(output/(case['id']+'-canvas.png')).convert('RGB')
         restored=Image.open(output/(case['id']+'-restored.png')).convert('RGB')
         updated=Image.open(output/(case['id']+'-updated.png')).convert('RGB')

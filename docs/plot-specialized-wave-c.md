@@ -12,6 +12,13 @@ The pinned upstream has **no tricontour module or API**, despite the prior inven
 No substitute renderer is presented as upstream evidence. The other eleven
 references are produced by real unmodified upstream code.
 
+Standalone specialized chords now use a centered square plot area and one closed
+path per positive ribbon or sector. Calendar grids reserve a month header and
+label each weekday. Sankey labels follow the real nodes as values change. The
+two label sets render in Scene and Python SVG exports. The original comparison
+notes below describe the earlier renders. See the [flow and calendar replay](../artifacts/demo-slideshows/e03-flow-calendar-followup/README.md)
+for current output, source selection checks and export coverage.
+
 ## Public contract and data
 
 ```python

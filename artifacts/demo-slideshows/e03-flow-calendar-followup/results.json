@@ -1,0 +1,94 @@
+{
+  "chord": {
+    "canvas": {
+      "size": [
+        361,
+        361
+      ],
+      "coverage_iou": 0.9938337056443726
+    },
+    "python": {
+      "size": [
+        360,
+        360
+      ],
+      "coverage_iou": 0.9943358851082269
+    }
+  },
+  "selections": {
+    "sankey": {
+      "row_key": 100,
+      "row_index": 0,
+      "x": 152.53334,
+      "y": 161.33333,
+      "source_keys": "100"
+    },
+    "chord": {
+      "row_key": 100,
+      "row_index": 0,
+      "x": 397.28574,
+      "y": 79.416275,
+      "source_keys": "100"
+    },
+    "calendar_heatmap": {
+      "row_key": 100,
+      "row_index": 0,
+      "x": 53.28302,
+      "y": 126.28572,
+      "source_keys": "100"
+    }
+  },
+  "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+  "replay": {
+    "runtime_source_sha256": "6328d22cad22962d6928f8839e50505c734ed6c7c4279e401e815b8142eb036e",
+    "driver_sha256": "e45766b23f57c44d1a2331be4160092d6e5be4c36c29d365b65e2daae549aa74",
+    "case_count": 12
+  },
+  "chord_object_iou": {
+    "scene": [
+      0.9988878296790594,
+      0.9991277802006105,
+      0.9989379456835078,
+      0.9985294117647059,
+      0.9960521121200158,
+      0.9963235294117647,
+      0.9963065558633426,
+      0.9953917050691244,
+      0.998165137614679
+    ],
+    "python": [
+      0.9988878296790594,
+      0.9991277802006105,
+      0.9989379456835078,
+      0.9985294117647059,
+      0.9960521121200158,
+      0.9963235294117647,
+      0.9963065558633426,
+      0.9953917050691244,
+      0.998165137614679
+    ]
+  },
+  "calendar_heatmap": {
+    "scene": {
+      "labels": 19,
+      "maximum_anchor_error_px": 0.47169999999999845
+    },
+    "python": {
+      "labels": 19,
+      "maximum_anchor_error_px": 0.4720000000000084
+    }
+  },
+  "sankey": {
+    "scene": {
+      "labels": 4,
+      "maximum_anchor_error_px": 0.4000000000000057
+    },
+    "python": {
+      "labels": 4,
+      "maximum_anchor_error_px": 0.4000000000000057
+    }
+  },
+  "browser": "158.0.8127.37",
+  "host": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "captured": "2026-11-26T02:53:20.794862+00:00"
+}

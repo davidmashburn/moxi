@@ -1,5 +1,6 @@
 """SVG scene serializer for Web-compatible previews and visual docs."""
 
+from .label_font import LABEL_FONT
 from .scene import (
     SCENE_CLIP,
     SCENE_IMAGE,
@@ -144,7 +145,7 @@ struct SvgSceneRenderer(SceneRenderer):
             if command.has_text_style:
                 style = String(
                     " font-family=\"",
-                    _svg_escape(command.text_style.family),
+                    "monospace" if command.text_style.family == LABEL_FONT else _svg_escape(command.text_style.family),
                     "\" font-size=\"",
                     command.text_style.size,
                     "\" font-weight=\"",

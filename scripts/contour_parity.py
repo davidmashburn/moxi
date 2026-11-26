@@ -2,7 +2,7 @@
 """Supplement the historical Wave B/C review with genuine newer contour APIs.
 
 The old upstream pin has no contour APIs. This separately pinned comparison
-does not rewrite that review or equate marching squares with triangulated grids.
+keeps the historical review intact and checks regular-grid segment pairing.
 Run with PYTHONPATH=python and Pillow/numpy/matplotlib/Playwright installed.
 """
 import argparse
@@ -105,13 +105,18 @@ def source_state():
     return {str(p.relative_to(ROOT)): digest(p) for p in sorted(paths)}
 
 
-def cases():
+def cases(saddles=False):
     result = {}
-    for family in Family:
+    families = (Family.CONTOUR, Family.CONTOURF) if saddles else Family
+    for family in families:
         if family is Family.TRICONTOUR:
             payload = json.loads((ROOT/'tests/fixtures/wave_c/cases.json').read_text())[family.value]
         else:
             payload = json.loads((ROOT/f'tests/fixtures/wave_b/{family.value}.json').read_text())
+        if saddles:
+            # Mirrored saddles separated by a full cell below every interior level.
+            payload['columns'] = dict(x=list(range(6))*2, y=[0]*6+[1]*6,
+                                      z=[8,0,0,0,0,8,0,8,0,0,8,0])
         spec = PlotSpec('Contour parity: '+family.value)
         identity = spec.add_catalog_mark(family.value, family.value,
             payload['x'], payload['y'], **payload.get('channels', {}))
@@ -294,19 +299,27 @@ def compare(data, native_output, upstream_output, output):
             xs, ys = sorted(set(columns['x'])), sorted(set(columns['y']))
             errors = []
             for index, level in enumerate(case['levels'], 1):
-                own = unique([p for glyph in actual[family] if glyph['part'] == f'level:{index}'
-                    for p in (glyph['bounds'][:2], glyph['bounds'][2:])
-                    if any(abs(p[0]-x)<TOLERANCE for x in xs) or any(abs(p[1]-y)<TOLERANCE for y in ys)])
+                own = [glyph['bounds'] for glyph in actual[family] if glyph['part'] == f'level:{index}']
                 def coordinate(values, value):
                     low = min(len(values)-2, int(value))
                     return values[low]+(values[low+1]-values[low])*(value-low)
-                reference = unique([(coordinate(xs, p[0]), coordinate(ys, p[1]))
-                    for segment in upstream[family][level] for p in (segment[:2], segment[2:])])
-                errors.append(endpoint_error(own, reference))
+                reference = []
+                for segment in upstream[family][level]:
+                    a, b = [(coordinate(xs, x), coordinate(ys, y)) for x, y in (segment[:2], segment[2:])]
+                    if a != b:
+                        reference.append((a,b))
+                assert len(own) == len(reference)
+                for segment in own:
+                    a, b = segment[:2], segment[2:]
+                    def error(pair):
+                        p, q = pair
+                        return min(max(math.dist(a,p),math.dist(b,q)), max(math.dist(a,q),math.dist(b,p)))
+                    best = min(range(len(reference)), key=lambda i: error(reference[i]))
+                    errors.append(error(reference.pop(best)))
             assert max(errors) < TOLERANCE
-            record.update(max_grid_edge_crossing_error=max(errors),
+            record.update(max_segment_endpoint_error=max(errors),
                 upstream_segments=sum(map(len, upstream[family].values())),
-                assessment='Seven scalar levels and their grid-edge crossings agree. Moxi fixed-diagonal marching triangles and upstream marching squares connect crossings differently inside cells. Full isoline geometry parity remains open; padding, palette, grid and labels also differ.')
+                assessment='All seven levels match the pinned nonzero segments, including endpoint pairing inside cells. Padding, palette, grid and labels differ.')
         else:
             area = sum(abs(sum(a[0]*b[1]-b[0]*a[1] for a, b in zip(g.vertices, g.vertices[1:]+g.vertices[:1])))/2 for g in glyphs)
             expected = (max(columns['x'])-min(columns['x']))*(max(columns['y'])-min(columns['y']))
@@ -315,9 +328,71 @@ def compare(data, native_output, upstream_output, output):
             filled = [element for element in svg.iter() if element.tag.endswith('}path') and element.get('fill') not in (None, 'none')]
             assert filled, 'Reference contains no filled contour paths'
             record.update(bands=8, moxi_total_band_area=area, source_grid_area=expected,
-                assessment='The same seven thresholds produce eight bands and Moxi covers the complete source grid. Moxi clips fixed-diagonal triangles; upstream fills marching-squares above-level regions. Band topology/area equality against upstream is unverified; native seams, palette, padding and labels differ.')
+                assessment='The same seven thresholds produce eight bands and Moxi covers the complete source grid. Moxi clips marching-squares bands; upstream paints successive above-level regions. This total-area check alone does not compare individual bands; native seams, palette, padding and labels differ.')
         results[family.value] = record
     return results
+
+
+def saddle_evidence(data, output, results):
+    """Compare band ownership to the seven actual SVG above-level paths."""
+    import numpy as np
+    from matplotlib.path import Path as Polygon
+    from PIL import ImageDraw
+
+    root = ET.parse(output/'contourf-reference.svg')
+    paths = [p.get('d') for p in root.iter() if p.tag.endswith('}path')
+             and p.get('fill') not in (None, 'none')]
+    assert len(paths) == 7
+    # Non-grid-aligned samples avoid shared edges. The reference theme has
+    # 48/32/28/52 px margins and adds 5% of the data extent at each end.
+    x, y = np.meshgrid((np.arange(501)+.31)*5/501, (np.arange(101)+.73)/101)
+    samples = np.column_stack((x.ravel(), y.ravel()))
+    screen = np.column_stack((48+560*(samples[:,0]/5+.05)/1.1,
+                              428-400*(samples[:,1]+.05)/1.1))
+    expected = np.zeros(len(samples), dtype=int)
+    def area(points):
+        return abs(sum(x*v-y*u for (x,y),(u,v) in zip(points,points[1:]+points[:1]))) / 2
+
+    above_areas = [5.0]
+    pixel_area_per_data_unit = 560*400/(5*1.1**2)
+    for level, path in enumerate(paths, 1):
+        above_area = 0.0
+        for ring in re.findall(r'M([^Z]+)Z', path):
+            points = [tuple(map(float, p.split(','))) for p in ring.replace('L',' ').split()]
+            expected[Polygon(points).contains_points(screen)] = level
+            above_area += area(points) / pixel_area_per_data_unit
+        above_areas.append(above_area)
+    expected_areas = -np.diff(above_areas+[0.0])
+
+    case = data[Family.CONTOURF]['figure']
+    owned = np.zeros(len(samples), dtype=int)
+    observed = np.full(len(samples), -1)
+    actual_areas = np.zeros(8)
+    for g in layout(case.spec.layers[0], case.data).glyphs:
+        inside = Polygon(g.vertices).contains_points(samples)
+        band = int(g.part.split(':')[1])
+        observed[inside] = band
+        actual_areas[band] += area(g.vertices)
+        owned[inside] += 1
+    assert np.all(owned == 1), 'Band overlap or gap at an interior probe'
+    assert np.array_equal(observed, expected), np.count_nonzero(observed != expected)
+    max_area_error = float(max(abs(actual_areas-expected_areas)))
+    assert max_area_error < 1e-4, max_area_error  # SVG coordinates round to .001 px.
+    results['contourf']['max_band_area_error'] = max_area_error
+    results['contourf']['assessment'] = 'All eight band areas and sampled memberships match the pinned filled paths on the mirrored saddle fixture within the recorded tolerances.'
+    results['contourf']['matched_band_samples'] = len(samples)
+    results['contourf']['samples_per_band'] = np.bincount(expected).tolist()
+
+    image = Image.new('RGB', (1280, 1024), 'white')
+    draw = ImageDraw.Draw(image)
+    for row, family in enumerate(data):
+        for col, (suffix, label) in enumerate([('reference', 'dataviz 0.15.0'), ('canvas', 'Moxi Scene/Canvas')]):
+            left, top = col*640, row*512
+            draw.text((left+12, top+8), family.value+'   |   '+label, fill='black')
+            with Image.open(output/(family.value+'-'+suffix+'.png')) as chart:
+                assert chart.size == (640,480)
+                image.paste(chart, (left, top+32))
+    image.save(output/'saddle-comparison.png')
 
 
 def gallery(output, destination, results, provenance, state):
@@ -416,6 +491,7 @@ def main():
     parser.add_argument('checkout', type=Path)
     parser.add_argument('output', type=Path)
     parser.add_argument('--font-dir', type=Path, required=True)
+    parser.add_argument('--saddles', action='store_true', help='Replay the two regular-grid saddle cases in the output directory')
     parser.add_argument('--gallery', type=Path, default=ROOT/'artifacts/demo-slideshows/plot-contour-followup')
     args = parser.parse_args()
     checkout, output = args.checkout.resolve(), args.output.resolve()
@@ -427,7 +503,7 @@ def main():
     font = args.font_dir.resolve()/'DejaVuSans.ttf'
     assert font.is_file(), font
     state = source_state()
-    data = cases()
+    data = cases(args.saddles)
     native = output/'native.mojo'; native.write_text(native_driver(data, output))
     reference = output/'reference.mojo'; reference.write_text(reference_driver(data, output))
     native_command = ['pixi', 'run', 'mojo', 'run', '-I', 'src', '-I', 'tests', str(native)]
@@ -435,7 +511,7 @@ def main():
     native_output = run(native_command, output/'native.log')
     upstream_output = run(upstream_command, output/'reference.log',
         dict(os.environ, CANVAS_MOJO_FONT_PATH=str(args.font_dir.resolve())))
-    for family in Family:
+    for family in data:
         for extension in ('png', 'svg'):
             shutil.copyfile(output/(family.value+'.'+extension), output/(family.value+'-reference.'+extension))
     results = compare(data, native_output, upstream_output, output)
@@ -453,7 +529,12 @@ def main():
         native_compiler=subprocess.check_output(['pixi', 'run', 'mojo', '--version'], text=True).strip(),
         upstream_compiler=subprocess.check_output(['pixi', 'run', '--manifest-path', str(checkout/'pixi.toml'), 'mojo', '--version'], text=True).strip())
     (output/'provenance.json').write_text(json.dumps(provenance, indent=2)+'\n')
+    if args.saddles:
+        saddle_evidence(data, output, results)
     (output/'results.json').write_text(json.dumps(results, indent=2)+'\n')
+    if args.saddles:
+        print('Pinned saddle comparisons passed:', output)
+        return
     gallery(output, args.gallery.resolve(), results, provenance, state)
     print('Three genuine pinned contour references and bounded comparisons passed:', output)
 

@@ -9,11 +9,13 @@ overlays.
 
 from moxi.scene_path import ScenePath
 from .plot_point import PlotGlyphKind
+from moxi.label_font import LABEL_FONT
 from std.collections import List
-from std.math import sqrt
+from std.math import ceil, sqrt
 
 
 from moxi.geometry import Point, Rect
+from moxi.scene_text import SceneTextStyle, TEXT_ALIGN_END, TEXT_ALIGN_START
 from moxi.scene import Scene
 from moxi.scene_path import ScenePath, ScenePathStorage
 from moxi.style import Color
@@ -137,6 +139,15 @@ def _tooltip_for_row(data: PlotDataTable, fields: String, row: Int) -> String:
     return result
 
 
+def _label_text(text: String, width: Float32) -> String:
+    var capacity = max(0, Int(width / 7))
+    if capacity == 0:
+        return ""
+    if text.count_codepoints() <= capacity:
+        return text
+    return String(text[codepoint=0:capacity-1], "…")
+
+
 struct Plot:
     """Declarative plot model with deterministic scene output."""
 
@@ -215,8 +226,12 @@ struct Plot:
     def _touch(mut self):
         self.revision += 1
 
-    def update_plot_area(mut self):
-        var width = self.bounds.width - 80.0
+    def update_plot_area(mut self, initial_kind: Int = -1):
+        var left_margin: Float32 = 48.0
+        if len(self.series) == 1 and self.series[0].categories_on_y:
+            for label in self.series[0].category_labels:
+                left_margin = max(left_margin, min(self.bounds.width / 3, Float32(label.count_codepoints() * 7 + 8)))
+        var width = self.bounds.width - left_margin - 32.0
         # Below the data area, ticks and their labels take 22 points. Leave a
         # separate row for the legend, with six points between the text rows.
         var height = self.bounds.height - 28.0 - 52.0
@@ -224,9 +239,22 @@ struct Plot:
             width = 0.0
         if height < 0.0:
             height = 0.0
+        var kind = self.series[0].kind if len(self.series) == 1 and self.series[0].has_layout_domain else initial_kind
+        var left = self.bounds.x + left_margin
+        var top = self.bounds.y + 28.0
+        if kind == PLOT_CHORD:
+            var side = min(width,height)
+            left += (width-side)/2
+            top += (height-side)/2
+            width = side
+            height = side
+        elif kind == PLOT_CALENDAR_HEATMAP:
+            var reserve = min(Float32(16),height)
+            top += reserve
+            height -= reserve
         self.plot_area = Rect(
-            self.bounds.x + 48.0,
-            self.bounds.y + 28.0,
+            left,
+            top,
             width,
             height,
         )
@@ -1397,6 +1425,8 @@ struct Plot:
             or kind == PLOT_POLAR_BAR
             or kind == PLOT_RADIALBAR
             or kind == PLOT_NIGHTINGALE
+            or kind == PLOT_CALENDAR_HEATMAP
+            or kind == PLOT_SANKEY
             or kind == PLOT_CHORD
             or kind == PLOT_SUNBURST
         )
@@ -1412,49 +1442,73 @@ struct Plot:
             self.axis_color,
             1.0,
         )
+        var categorical = len(self.series) == 1 and len(self.series[0].category_labels) > 0
+        var categories_on_y = categorical and self.series[0].categories_on_y
         for index in range(0, 6):
             var fraction = Float32(index) / 5.0
             var x = self.plot_area.x + self.plot_area.width * fraction
             var y = self.plot_area.y + self.plot_area.height
-            scene.append_line(
-                160 + index,
-                Point(x, y),
-                Point(x, y + 5.0),
-                self.axis_color,
-                1.0,
-            )
-            var x_tick_label = String(self.x_scale.tick(index, 5))
-            if (self.x_scale.kind == SCALE_ORDINAL or self.x_scale.kind == SCALE_BAND) and len(self.x_labels) > 0:
-                var label_index = Int(Float32(index) / 5.0 * Float32(len(self.x_labels)))
-                if label_index >= len(self.x_labels):
-                    label_index = len(self.x_labels) - 1
-                x_tick_label = self.x_labels[label_index]
-            scene.append_text(
-                700 + index,
-                x_tick_label,
-                Rect(x - 24.0, y + 6.0, 48.0, 16.0),
-                self.axis_color,
-            )
+            if not categorical or categories_on_y:
+                scene.append_line(
+                    160 + index,
+                    Point(x, y),
+                    Point(x, y + 5.0),
+                    self.axis_color,
+                    1.0,
+                )
+                var x_tick_label = String(self.x_scale.tick(index, 5))
+                if (self.x_scale.kind == SCALE_ORDINAL or self.x_scale.kind == SCALE_BAND) and len(self.x_labels) > 0:
+                    var label_index = Int(Float32(index) / 5.0 * Float32(len(self.x_labels)))
+                    if label_index >= len(self.x_labels):
+                        label_index = len(self.x_labels) - 1
+                    x_tick_label = self.x_labels[label_index]
+                scene.append_text(
+                    700 + index,
+                    x_tick_label,
+                    Rect(x - 24.0, y + 6.0, 48.0, 16.0),
+                    self.axis_color,
+                )
             var horizontal_y = self.plot_area.y + self.plot_area.height * (1.0 - fraction)
-            scene.append_line(
-                180 + index,
-                Point(self.plot_area.x - 5.0, horizontal_y),
-                Point(self.plot_area.x, horizontal_y),
-                self.axis_color,
-                1.0,
-            )
-            var y_tick_label = String(self.y_scale.tick(index, 5))
-            if (self.y_scale.kind == SCALE_ORDINAL or self.y_scale.kind == SCALE_BAND) and len(self.y_labels) > 0:
-                var label_index = Int(Float32(index) / 5.0 * Float32(len(self.y_labels)))
-                if label_index >= len(self.y_labels):
-                    label_index = len(self.y_labels) - 1
-                y_tick_label = self.y_labels[label_index]
-            scene.append_text(
-                720 + index,
-                y_tick_label,
-                Rect(self.bounds.x + 2.0, horizontal_y - 8.0, 42.0, 16.0),
-                self.axis_color,
-            )
+            if not categories_on_y:
+                scene.append_line(
+                    180 + index,
+                    Point(self.plot_area.x - 5.0, horizontal_y),
+                    Point(self.plot_area.x, horizontal_y),
+                    self.axis_color,
+                    1.0,
+                )
+                var y_tick_label = String(self.y_scale.tick(index, 5))
+                if (self.y_scale.kind == SCALE_ORDINAL or self.y_scale.kind == SCALE_BAND) and len(self.y_labels) > 0:
+                    var label_index = Int(Float32(index) / 5.0 * Float32(len(self.y_labels)))
+                    if label_index >= len(self.y_labels):
+                        label_index = len(self.y_labels) - 1
+                    y_tick_label = self.y_labels[label_index]
+                scene.append_text(
+                    720 + index,
+                    y_tick_label,
+                    Rect(self.bounds.x + 2.0, horizontal_y - 8.0, 42.0, 16.0),
+                    self.axis_color,
+                )
+        if categorical and self.plot_area.width > 0 and self.plot_area.height > 0:
+            var count = len(self.series[0].category_labels)
+            var spacing = abs(self.y_scale.map(1) - self.y_scale.map(0)) if categories_on_y else abs(self.x_scale.map(1) - self.x_scale.map(0))
+            var stride = max(1, Int(ceil(14 / max(14 / Float32(count), spacing))))
+            for index in range(0, count, stride):
+                var available = self.plot_area.x - self.bounds.x - 8 if categories_on_y else spacing * Float32(stride) - 4
+                var label = _label_text(self.series[0].category_labels[index], available)
+                if label == "":
+                    continue
+                var width = Float32(label.count_codepoints() * 7)
+                var x = self.x_scale.map(Float32(index)) - width / 2
+                var y = self.plot_area.y + self.plot_area.height + 9
+                if categories_on_y:
+                    x = self.plot_area.x - width - 6
+                    y = self.y_scale.map(Float32(index)) - 4
+                    if y < self.plot_area.y or y + 8 > self.plot_area.y + self.plot_area.height:
+                        continue
+                elif x < self.plot_area.x or x + width > self.plot_area.x + self.plot_area.width:
+                    continue
+                scene.append_text_styled(900 + index, label, Rect(x, y, width, 9), self.axis_color, SceneTextStyle(LABEL_FONT, 11))
         scene.append_line(
             151,
             Point(self.plot_area.x, self.plot_area.y),
@@ -2131,6 +2185,15 @@ struct Plot:
                             scene.commands[len(scene.commands) - 1] = line_command
         scene.pop_clip()
 
+        if len(self.series) == 1 and self.series[0].visible:
+            for i in range(len(self.series[0].layout_labels)):
+                var label = self.series[0].layout_labels[i]
+                var anchor = self._screen_point(PlotPoint(label.x,label.y))
+                scene.append_text_styled(
+                    710000+i, label.text, Rect(anchor.x+label.dx,anchor.y+label.dy-12,0,12),
+                    self.axis_color, SceneTextStyle("DejaVu Sans",12,align=TEXT_ALIGN_END if label.align_end else TEXT_ALIGN_START),
+                )
+
         for annotation_index in range(len(self.annotation_ids)):
             var annotation_position = Point(
                 self.annotation_x[annotation_index],
@@ -2160,6 +2223,18 @@ struct Plot:
             var legend_y = self.bounds.y + self.bounds.height - 24.0
             for series_index in range(len(self.series)):
                 if not self.series[series_index].visible:
+                    continue
+                if len(self.series[series_index].category_labels) > 0:
+                    var entries = len(self.series[series_index].legend_labels)
+                    var slot = self.plot_area.width / Float32(max(1, entries))
+                    if self.plot_area.width <= 0 or legend_y < self.plot_area.y + self.plot_area.height + 18:
+                        continue
+                    for i in range(entries):
+                        var label = _label_text(self.series[series_index].legend_labels[i], slot - 18)
+                        if label != "":
+                            var x = self.plot_area.x + Float32(i) * slot
+                            scene.append_rect(500 + i, Rect(x, legend_y, 9, 9), self.series[series_index].legend_colors[i])
+                            scene.append_text_styled(600 + i, label, Rect(x + 13, legend_y, slot - 13, 9), self.axis_color, SceneTextStyle(LABEL_FONT, 11))
                     continue
                 scene.append_line(
                     500 + self.series[series_index].id,
