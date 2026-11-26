@@ -1,0 +1,119 @@
+{
+  "utc": "2026-11-26T02:43:49.890368+00:00",
+  "binary_sha256": "96169c4c61f911000ec2d821c47a69485037bc5754b583236b8c4858fd9831c0",
+  "shell": "xdg_shell",
+  "rect": {
+    "x": 0,
+    "y": 0,
+    "width": 1024,
+    "height": 768
+  },
+  "checks": [
+    {
+      "capture": "01-initial",
+      "frame": 2,
+      "canvas": [
+        1024,
+        768
+      ],
+      "png_sha256": "424b477a327d677d1c9de01a44ae0066adf221192d5dde15c4a8704dadf9205b",
+      "focus": [
+        13
+      ],
+      "summary_y": 64,
+      "dataset": "Annual observations \u65e5\u672c\u8a9e",
+      "modal": false
+    },
+    {
+      "capture": "02-focus",
+      "frame": 3,
+      "canvas": [
+        1024,
+        768
+      ],
+      "png_sha256": "a1f5682a2e9b76a81e951a2ba1e4ef03545b3a663a1270575b1e5fb59ff07a46",
+      "focus": [
+        40
+      ],
+      "summary_y": 64,
+      "dataset": "Annual observations \u65e5\u672c\u8a9e",
+      "modal": false
+    },
+    {
+      "capture": "03-summary",
+      "frame": 4,
+      "canvas": [
+        1024,
+        768
+      ],
+      "png_sha256": "ab6f2d1d9253d10bd67efbf044867594c20b11c1139ec640496df130a600b7c2",
+      "focus": [
+        40
+      ],
+      "summary_y": 118,
+      "dataset": "Annual observations \u65e5\u672c\u8a9e",
+      "modal": false
+    },
+    {
+      "capture": "04-dialog",
+      "frame": 11,
+      "canvas": [
+        1024,
+        768
+      ],
+      "png_sha256": "788b846be35b066d12d8a16db4b51ff0a1fadf0ed5e68fc293a97bf7ed091b7d",
+      "focus": [
+        92
+      ],
+      "summary_y": null,
+      "dataset": null,
+      "modal": true
+    },
+    {
+      "capture": "05-recovery",
+      "frame": 12,
+      "canvas": [
+        1024,
+        768
+      ],
+      "png_sha256": "681406534259b266591efb9eaeac13ea72df588e2910b14fa0f9fd9ed25fc6f9",
+      "focus": [
+        46
+      ],
+      "summary_y": 118,
+      "dataset": "Annual observations \u65e5\u672c\u8a9e",
+      "modal": false
+    },
+    {
+      "capture": "06-narrow",
+      "frame": 13,
+      "canvas": [
+        680,
+        768
+      ],
+      "png_sha256": "5923405ac857b827e18f5c298a9cfb420c112aaf40da1bf5bf5be8a308fdd497",
+      "focus": [
+        46
+      ],
+      "summary_y": 162,
+      "dataset": "Annual observations \u65e5\u672c\u8a9e",
+      "modal": false
+    },
+    {
+      "capture": "07-wide",
+      "frame": 14,
+      "canvas": [
+        1024,
+        768
+      ],
+      "png_sha256": "681406534259b266591efb9eaeac13ea72df588e2910b14fa0f9fd9ed25fc6f9",
+      "focus": [
+        46
+      ],
+      "summary_y": 118,
+      "dataset": "Annual observations \u65e5\u672c\u8a9e",
+      "modal": false
+    }
+  ],
+  "close_exit": 0
+}

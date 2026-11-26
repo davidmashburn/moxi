@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "demo_id": "p11-wayland",
+  "title": "Composed layout workbench on Wayland",
+  "scenario": "P11 · Keyboard focus, summary reflow, modal recovery and narrow/wide resize on a private Wayland output.",
+  "revision": "0da6f295b6d20cdf663aaf66a039a43e8fb66dd0",
+  "host": "Ubuntu 24.04.5 x86-64 container, headless Sway 1.9",
+  "backend": "GTK 4.14.5 Wayland, Cairo/Pango, wlroots pixman",
+  "fixture": "Default composed layout workbench on a private output, initially 1024 × 768 at scale 1",
+  "scale": 1,
+  "reproduce": "pixi run --locked linux-native-build && bash experiments/wayland-host/replay.sh /tmp/p11-new-run",
+  "slides": [
+    {
+      "image": "01-initial.png",
+      "phase": "initial",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "capture_kind": "native-window",
+      "caption": "Dataset has keyboard focus",
+      "action": "Launch the composed layout workbench.",
+      "expected": "The Dataset editor and results collection share the window."
+    },
+    {
+      "image": "02-focus.png",
+      "phase": "interaction",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "capture_kind": "native-window",
+      "caption": "Focus moves to Summary",
+      "action": "Press Tab in Dataset.",
+      "expected": "The Summary control gains the keyboard focus indicator."
+    },
+    {
+      "image": "03-summary.png",
+      "phase": "result",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "capture_kind": "native-window",
+      "caption": "The expanded summary moves the content down",
+      "action": "Press Space on Summary.",
+      "expected": "The summary occupies more vertical space above the work area."
+    },
+    {
+      "image": "04-dialog.png",
+      "phase": "interaction",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "capture_kind": "native-window",
+      "caption": "The dialog owns focus",
+      "action": "Tab to Dialog and press Return.",
+      "expected": "The active controls are inside the modal."
+    },
+    {
+      "image": "05-recovery.png",
+      "phase": "recovery",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "capture_kind": "native-window",
+      "caption": "Escape restores the Dialog button",
+      "action": "Press Escape.",
+      "expected": "The modal closes, focus returns to its launcher and Dataset retains its original value."
+    },
+    {
+      "image": "06-narrow.png",
+      "phase": "result",
+      "dimensions": [
+        680,
+        768
+      ],
+      "capture_kind": "native-window",
+      "caption": "Narrow layout",
+      "action": "Resize the compositor output to 680 × 768.",
+      "expected": "The single-column layout removes the vertical splitter."
+    },
+    {
+      "image": "07-wide.png",
+      "phase": "recovery",
+      "dimensions": [
+        1024,
+        768
+      ],
+      "capture_kind": "native-window",
+      "caption": "Restored wide layout",
+      "action": "Restore the output to 1024 × 768.",
+      "expected": "The form and results panes share the width again and the splitter returns."
+    }
+  ]
+}
