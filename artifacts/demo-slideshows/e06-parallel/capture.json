@@ -1,0 +1,86 @@
+{
+  "demo": "parallel",
+  "captured_utc": "2026-11-26T02:57:24.003891+00:00",
+  "host": "Darwin arm64",
+  "browser": "Chrome 158.0.8127.37",
+  "viewport": [
+    1100,
+    540
+  ],
+  "scale": 1,
+  "figure_size": [
+    640,
+    420
+  ],
+  "fixture": [
+    {
+      "team": "East",
+      "A": 3,
+      "B": 9,
+      "C": 6,
+      "row_index": 0,
+      "layer": 1
+    },
+    {
+      "team": "West",
+      "A": 8,
+      "B": 4,
+      "C": 7,
+      "row_index": 1,
+      "layer": 1
+    }
+  ],
+  "reference_revision": "3fd5a7e7c622d6130c99a290b88c4fee039deab2",
+  "checkout_base": "58d5e2dc2dad493733ddb3b5e4aa2405533a173c",
+  "source_sha256": {
+    "examples/catalog-remainder/replay.py": "9589227fcd37cd1050999819bfff6a1c553d3d49c331ed08782826de38c85c74",
+    "examples/catalog-remainder/parallel/main.mojo": "34b61a969fab8c4982a8e8c9fb937b2209f343bf76d67082cfd6bc966dacf41c",
+    "python/moxi/figure.py": "f2ee55f62861b770f2d58056e3bbd9c8b672391cd3454332d13dd0a61acffd4a",
+    "python/moxi/specialized.py": "266bc058fcb961990d27d3155d44ff749f92eb2eb2a1ef86baed613c19da15e4",
+    "src/moxi_plot/plot_layout.mojo": "2db2dd789d7404b74bdfd654fab2f903c557b48369998f12a3e475e796481f42",
+    "src/moxi_plot/plotting.mojo": "51119e72929f3249ed7d25ec876efcdceed704b084a43923c73da32a82089a7c",
+    "src/moxi_plot/plot_point.mojo": "81a6655af70fafd33ee2060c9ccdf4fea1cb38a7084084d72c30ed7579cf1195"
+  },
+  "command": "PYTHONPATH=python python examples/catalog-remainder/replay.py parallel NATIVE_SVG OUTPUT_DIR",
+  "native_backend": "offscreen Mojo PlotView / SvgSceneRenderer",
+  "screenshots": [
+    {
+      "file": "source.png",
+      "observation": "Source table in input order"
+    },
+    {
+      "file": "reference.png",
+      "observation": "dataviz_mojo v0.8.0"
+    },
+    {
+      "file": "native.png",
+      "observation": "Native Scene exported through SvgSceneRenderer (offscreen)"
+    },
+    {
+      "file": "initial.png",
+      "observation": "Python figure and source inspector"
+    },
+    {
+      "file": "selected.png",
+      "observation": "Click a line to select its original source row"
+    },
+    {
+      "file": "reset.png",
+      "observation": "Escape clears the selection"
+    },
+    {
+      "file": "comparison.png",
+      "observation": "Compare normalized geometry across different margins, palettes and legends"
+    },
+    {
+      "file": "png-export.png",
+      "observation": "Software PNG export at 640 \u00d7 420 with unlabeled geometry"
+    }
+  ],
+  "browser_checks": [
+    "source rows selected by chart clicks",
+    "Escape clears selection",
+    "offline keyboard next wraps",
+    "thumbnail and Previous navigate"
+  ]
+}
