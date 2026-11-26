@@ -8,8 +8,9 @@ matrix order. Glyphs retain source category rows, including decorative pieces.
 """
 from dataclasses import dataclass
 from enum import Enum, IntEnum
-from math import isfinite
-from typing import Any, List, Tuple
+from math import cos, isfinite, pi, sin
+from numbers import Integral
+from typing import Any, List, Tuple, Union
 
 
 class LayoutVersion(IntEnum):
@@ -18,6 +19,9 @@ class LayoutVersion(IntEnum):
 
 
 class CatalogMark(str, Enum):
+    ARC = "arc_diagram"
+    BUMP = "bump"
+    PARALLEL = "parallel"
     FUNNEL = "funnel"
 
 
@@ -37,6 +41,7 @@ class GlyphKind(str, Enum):
     RECT = "rect"
     SEGMENT = "segment"
     POINT = "point"
+    POLYLINE = "polyline"
     POLYGON = "polygon"
     TRIANGLE = "triangle"
 
@@ -85,16 +90,23 @@ def validate_layout(layer: Any) -> None:
     if layer.mark in WaveBMark._value2member_map_:
         validate_b(layer)
         return
-    mark = CatalogMark.FUNNEL if layer.mark == CatalogMark.FUNNEL else WaveAMark(layer.mark)
+    mark = CatalogMark(layer.mark) if layer.mark in CatalogMark._value2member_map_ else WaveAMark(layer.mark)
     if mark is CatalogMark.FUNNEL and (layer.y2 or layer.stat_low_field or layer.stat_high_field):
         raise ValueError("funnel layout takes one stage and one value field")
     if not isinstance(layer.horizontal, bool) or not isinstance(layer.percent, bool):
         raise ValueError("horizontal and percent must be boolean")
-    if layer.series_fields and mark not in (WaveAMark.GROUPED, WaveAMark.STACKED):
+    if mark in (CatalogMark.PARALLEL, CatalogMark.BUMP) and (layer.y in layer.series_fields or layer.y2 or layer.stat_low_field or layer.stat_high_field):
+        raise ValueError("use y for the first dimension and series_fields for the remaining dimensions")
+    if layer.series_fields and mark not in (CatalogMark.PARALLEL, CatalogMark.BUMP, WaveAMark.GROUPED, WaveAMark.STACKED):
         raise ValueError("series_fields require grouped/stacked bars")
     if layer.range_fields and mark is not WaveAMark.BULLET:
         raise ValueError("range_fields require bullet")
-    if any(getattr(layer, name) for name in ("x2", "color_field", "fill_field", "stroke_field", "size_field", "opacity_field", "text_field", "median_field")):
+    if mark is CatalogMark.ARC:
+        if not layer.x2 or layer.y2 or layer.stat_low_field or layer.stat_high_field:
+            raise ValueError("arc_diagram requires x and x2 endpoints and a y weight")
+    elif layer.x2:
+        raise ValueError("specialized v1 does not support secondary x")
+    if any(getattr(layer, name) for name in ( "color_field", "fill_field", "stroke_field", "size_field", "opacity_field", "text_field", "median_field")):
         raise ValueError("specialized v1 uses layout colors/sizes and source-row text; row visual encodings are unsupported")
     for fields in (layer.series_fields, layer.range_fields, layer.error_fields):
         if not isinstance(fields, list) or any(not isinstance(f, str) or not f for f in fields) or len(set(fields)) != len(fields):
@@ -125,18 +137,91 @@ def layout(layer: Any, data: Any, width: float = 560., height: float = 416.) -> 
     from .specialized_c import WaveCMark, layout as wave_c_layout
     if layer.mark in WaveCMark._value2member_map_:
         return wave_c_layout(layer, data)
-    mark = CatalogMark.FUNNEL if layer.mark == CatalogMark.FUNNEL else WaveAMark(layer.mark)
+    mark = CatalogMark(layer.mark) if layer.mark in CatalogMark._value2member_map_ else WaveAMark(layer.mark)
     categories = list(data.column(layer.x))
     n = len(categories)
     if not n or any(c is None for c in categories):
         raise ValueError("specialized layout requires nonempty, nonnull categories")
 
-    def column(name: str) -> List[float]:
+    def column(name: str) -> List[Union[int, float]]:
         values = list(data.column(name))
         if len(values) != n or any(isinstance(v, (str, bool)) or v is None or not isfinite(float(v)) for v in values):
             raise ValueError(f"{name}: expected {n} finite numeric values")
-        return [float(v) for v in values]
+        # Widen fixed-width integer scalars before subtraction, without rounding
+        # adjacent counts above 2**53 through a floating-point conversion.
+        return [int(v) if isinstance(v, Integral) else float(v) for v in values]
 
+    def source_rows() -> List[dict]:
+        return [{**{field: values[i] for field, values in data.columns.items()}, "row_index": i}
+                for i in range(n)]
+
+    if mark is CatalogMark.ARC:
+        targets = data.column(layer.x2)
+        weights = column(layer.y)
+        if min(weights) < 0 or any(not isinstance(v, str) for v in [*categories, *targets]):
+            raise ValueError("arc_diagram requires named endpoints and nonnegative weights")
+        nodes = dict.fromkeys([*categories, *targets])
+        # A semicircle needs half its horizontal span in vertical pixels. Fit
+        # that span in both dimensions and center it when height is limiting.
+        span = min(1., 2*height/width)
+        offset = (1-span)/2
+        positions = {name: offset + span*i / (len(nodes)-1) if len(nodes)>1 else .5
+                     for i, name in enumerate(nodes)}
+        colors = {name: PALETTE[i % len(PALETTE)] for i, name in enumerate(nodes)}
+        largest = max(weights)
+        glyphs = []
+        for row, (src, dst, weight) in enumerate(zip(categories, targets, weights)):
+            if src == dst:
+                continue
+            left, right = sorted((positions[src], positions[dst]))
+            radius = (right-left)/2
+            vertices = tuple((left + radius*(1-cos(pi*i/48)), radius*width/height*sin(pi*i/48))
+                             for i in range(49))
+            stroke = layer.line_width * (1 + 2*(weight/largest if largest else 0))
+            glyphs.append(Glyph(GlyphKind.POLYLINE, row, "edge", (left, 0, right, 0),
+                                colors[src], vertices=vertices, source_rows=(row,),
+                                stroke_width=stroke, label=f"{src} → {dst}"))
+        for name, x in positions.items():
+            glyphs.append(Glyph(GlyphKind.POINT, 0, "arc-node", (x,0,x,0), colors[name],
+                                False, label=name, size=8))
+        return Layout(glyphs, (0.,1.), (0.,1.), source_rows())
+    if mark in (CatalogMark.PARALLEL, CatalogMark.BUMP):
+        fields = [layer.y, *layer.series_fields]
+        glyphs = []
+        paths = [[] for _ in range(n)]
+        bump = mark is CatalogMark.BUMP
+        if bump:
+            for rank in range(n):
+                level = 1 - rank / (n - 1) if n > 1 else .5
+                glyphs.append(Glyph(GlyphKind.SEGMENT, 0, "rank", (0, level, 1, level),
+                                    INK, False, label=str(rank + 1)))
+        for index, field in enumerate(fields):
+            values = column(field)
+            low, high = min(values), max(values)
+            x = index / (len(fields) - 1) if len(fields) > 1 else .5
+            ranks = {}
+            if bump:
+                x = (index + .5) / len(fields)
+                ranks = {row: pos for pos, row in enumerate(sorted(range(n), key=values.__getitem__, reverse=True))}
+            part = "stage" if bump else "dimension"
+            glyphs.append(Glyph(GlyphKind.SEGMENT, 0, part, (x, 0, x, 0 if bump else 1),
+                                INK, False, label=field))
+            for row, value in enumerate(values):
+                if bump:
+                    y = 1 - ranks[row] / (n - 1) if n > 1 else .5
+                elif low == high:
+                    y = .5
+                elif isfinite(high - low):
+                    y = (value - low) / (high - low)
+                else:
+                    y = (.5*value - .5*low) / (.5*high - .5*low)
+                paths[row].append((x, y))
+        for row, path in enumerate(paths):
+            kind = GlyphKind.POLYLINE if len(path) > 1 else GlyphKind.POINT
+            glyphs.append(Glyph(kind, row, "record", (*path[0], *path[-1]),
+                                PALETTE[row % len(PALETTE)], vertices=tuple(path),
+                                source_rows=(row,), label=str(categories[row])))
+        return Layout(glyphs, (0., 1.), (0., 1.), source_rows())
     values = column(layer.y)
     if mark is CatalogMark.FUNNEL:
         largest = max(values)

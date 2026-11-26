@@ -53,6 +53,8 @@ from .plot_marks import (
     PLOT_ECDF,
     PLOT_EFFECT_SCATTER,
     PLOT_ERROR_BAR,
+    PLOT_BUMP,
+    PLOT_PARALLEL,
     PLOT_FUNNEL,
     PLOT_GANTT,
     PLOT_GRAPH,
@@ -1417,6 +1419,9 @@ struct Plot:
         var kind = self.series[0].kind
         return not (
             kind == PLOT_PIE
+            or kind == PLOT_ARC_DIAGRAM
+            or kind == PLOT_BUMP
+            or kind == PLOT_PARALLEL
             or kind == PLOT_FUNNEL
             or kind == PLOT_DONUT
             or kind == PLOT_RADAR
@@ -1526,7 +1531,11 @@ struct Plot:
         scene.
         """
         var scene = Scene()
-        scene.append_rounded_rect(1, self.bounds, self.background, 12.0)
+        if self.bounds.width > 0 and self.bounds.height > 0:
+            scene.append_rounded_rect(1, self.bounds, self.background, 12.0)
+        # A collapsed data area has no drawable content or valid clip bounds.
+        if self.plot_area.width <= 0 or self.plot_area.height <= 0:
+            return scene^
         scene.push_clip(2, self.plot_area)
         if self.facet_count() > 0:
             var facet_height = self.plot_area.height / Float32(self.facet_count())
@@ -1820,7 +1829,21 @@ struct Plot:
                         endpoint.y = source_point.y2
                         var end = self._screen_point(endpoint)
                         var identity = 500000 + series_index * 100000 + point_index
-                        if source_point.glyph.value == PlotGlyphKind.POLYGON.value:
+                        if source_point.glyph.value == PlotGlyphKind.POLYLINE.value:
+                            var path = ScenePath(ScenePathStorage.EXTENDED)
+                            for j in range(len(source_point.vertices)):
+                                var v = source_point.vertices[j]
+                                var projected = self._screen_point(PlotPoint(v.x,v.y))
+                                if path.command_count == ScenePath.MAX_EXTENDED_COMMANDS:
+                                    scene.append_typed_path(identity,path,Color(0,0,0,0),point_color,source_point.stroke_width)
+                                    scene.commands[len(scene.commands)-1].set_opacity(point_opacity)
+                                    path = ScenePath(ScenePathStorage.EXTENDED)
+                                    var previous = source_point.vertices[j-1]
+                                    path.move_to(self._screen_point(PlotPoint(previous.x,previous.y)))
+                                if j == 0: path.move_to(projected)
+                                else: path.line_to(projected)
+                            scene.append_typed_path(identity,path,Color(0,0,0,0),point_color,source_point.stroke_width)
+                        elif source_point.glyph.value == PlotGlyphKind.POLYGON.value:
                             var vertices = List[Point]()
                             for vertex in source_point.vertices:
                                 vertices.append(self._screen_point(PlotPoint(vertex.x,vertex.y)))
@@ -1839,8 +1862,12 @@ struct Plot:
                             path.close()
                             scene.append_typed_path(identity,path,point_color,Color(0,0,0,0),0)
                         elif source_point.glyph.value == PlotGlyphKind.SEGMENT.value:
+                            if source_point.part == "dimension" or source_point.part == "stage" or source_point.part == "rank":
+                                scene.append_text(identity, source_point.text, Rect(min(point.x+2,self.plot_area.x+self.plot_area.width-24),max(self.plot_area.y,point.y-20),80,16),Color(0.85,0.87,0.9,1))
                             scene.append_line(identity, point, end, point_color, source_point.stroke_width if source_point.stroke_width>0 else self.series[series_index].line_width)
                         else:
+                            if source_point.part == "arc-node":
+                                scene.append_text(identity, source_point.text, Rect(min(point.x+2,self.plot_area.x+self.plot_area.width-24),point.y-20,80,16),Color(0.85,0.87,0.9,1))
                             scene.append_rounded_rect(identity, Rect(point.x-point_size*0.5, point.y-point_size*0.5, point_size, point_size), point_color, point_size*0.5)
                         var command = scene.commands[len(scene.commands)-1]
                         command.set_opacity(point_opacity)
@@ -2284,10 +2311,11 @@ struct Plot:
                     endpoint.x = source.x2
                     endpoint.y = source.y2
                     var end = self._screen_point(endpoint)
-                    if source.glyph.value == PlotGlyphKind.POLYGON.value:
+                    if source.glyph.value == PlotGlyphKind.POLYGON.value or source.glyph.value == PlotGlyphKind.POLYLINE.value:
+                        var closed = source.glyph.value == PlotGlyphKind.POLYGON.value
                         var inside = False
                         distance = Float32(1e30)
-                        for j in range(len(source.vertices)):
+                        for j in range(len(source.vertices) if closed else len(source.vertices)-1):
                             var a = PlotPoint(source.vertices[j].x,source.vertices[j].y)
                             var b = PlotPoint(source.vertices[(j+1)%len(source.vertices)].x,source.vertices[(j+1)%len(source.vertices)].y)
                             var pa = self._screen_point(a)
@@ -2302,7 +2330,7 @@ struct Plot:
                             if denom > 0.0:
                                 t = max(Float32(0.0), min(Float32(1.0), ((point.x-pa.x)*vx+(point.y-pa.y)*vy)/denom))
                             distance = min(distance, (pa.x+t*vx-point.x)**2+(pa.y+t*vy-point.y)**2)
-                        if inside:
+                        if closed and inside:
                             distance = 0.0
                     elif source.glyph.value == PlotGlyphKind.RECT.value:
                         var near_x = max(min(screen.x, end.x), min(point.x, max(screen.x, end.x)))

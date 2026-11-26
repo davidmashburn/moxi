@@ -5,9 +5,9 @@ MIT Copyright (c) 2026 Randy Zwitch. Full notice: tests/fixtures/wave_a/DATAVIZ-
 Wide named columns correspond to upstream series/range matrices, in declared order.
 """
 from .plot_layout_c import _wave_c, _c_validate, _c_layout
-from std.collections import List
+from std.collections import Dict, List
 from .plot_wave_b import _wave_b, _b_valid, _b_series, _emit
-from std.math import isfinite
+from std.math import cos, isfinite, pi, sin
 from moxi.geometry import Point
 from moxi.style import Color
 from .plot_data import PlotDataTable, COLUMN_STRING, COLUMN_CATEGORY, COLUMN_BOOL, COLUMN_FLOAT64, COLUMN_INT64, COLUMN_TIMESTAMP, COLUMN_DURATION
@@ -15,7 +15,7 @@ from .plot_point import PlotPoint, PlotGlyphKind
 from .plot_series import PlotSeries
 from .plot_spec_types import PlotLayer, PlotLayoutVersion
 from .plot_spec_json import _string_array
-from .plot_marks import (PLOT_FUNNEL, PLOT_LOLLIPOP, PLOT_WATERFALL, PLOT_CANDLESTICK, PLOT_BULLET, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_GANTT, PLOT_SPAN_CHART, PLOT_POPULATION_PYRAMID)
+from .plot_marks import (PLOT_ARC_DIAGRAM, PLOT_BUMP, PLOT_PARALLEL, PLOT_FUNNEL, PLOT_LOLLIPOP, PLOT_WATERFALL, PLOT_CANDLESTICK, PLOT_BULLET, PLOT_GROUPED_BAR, PLOT_STACKED_BAR, PLOT_GANTT, PLOT_SPAN_CHART, PLOT_POPULATION_PYRAMID)
 
 
 
@@ -49,18 +49,25 @@ def specialized_valid(layer: PlotLayer) -> Bool:
     var mark = layer.mark
     if _wave_b(mark):
         return _fields_valid(layer.series_fields_json) and _b_valid(layer)
-    if layer.x2_field != "" or layer.color_field != "" or layer.fill_field != "" or layer.stroke_field != "" or layer.size_field != "" or layer.opacity_field != "" or layer.text_field != "" or layer.median_field != "":
+    if (mark != PLOT_ARC_DIAGRAM and layer.x2_field != "") or layer.color_field != "" or layer.fill_field != "" or layer.stroke_field != "" or layer.size_field != "" or layer.opacity_field != "" or layer.text_field != "" or layer.median_field != "":
         return False
     if mark == PLOT_FUNNEL and (layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
         return False
-    if not (mark == PLOT_FUNNEL or mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
+    if (mark == PLOT_PARALLEL or mark == PLOT_BUMP) and (layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
+        return False
+    if mark == PLOT_ARC_DIAGRAM and (layer.x2_field == "" or layer.y2_field != "" or layer.stat_low_field != "" or layer.stat_high_field != ""):
+        return False
+    if not (mark == PLOT_ARC_DIAGRAM or mark == PLOT_BUMP or mark == PLOT_PARALLEL or mark == PLOT_FUNNEL or mark == PLOT_LOLLIPOP or mark == PLOT_WATERFALL or mark == PLOT_CANDLESTICK or mark == PLOT_BULLET or mark == PLOT_GROUPED_BAR or mark == PLOT_STACKED_BAR or mark == PLOT_GANTT or mark == PLOT_SPAN_CHART or mark == PLOT_POPULATION_PYRAMID):
         return False
     if not _fields_valid(layer.series_fields_json) or not _fields_valid(layer.range_fields_json) or not _fields_valid(layer.error_fields_json):
         return False
     var series = _string_array(layer.series_fields_json)
     var ranges = _string_array(layer.range_fields_json)
     var errors = _string_array(layer.error_fields_json)
-    if len(series) > 0 and mark != PLOT_GROUPED_BAR and mark != PLOT_STACKED_BAR:
+    if mark == PLOT_PARALLEL or mark == PLOT_BUMP:
+        for name in series:
+            if name == layer.y_field: return False
+    if len(series) > 0 and mark != PLOT_BUMP and mark != PLOT_PARALLEL and mark != PLOT_GROUPED_BAR and mark != PLOT_STACKED_BAR:
         return False
     if len(ranges) > 0 and mark != PLOT_BULLET:
         return False
@@ -121,6 +128,13 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
             return False
     if data.row_count() == 0 or data.field_kind(layer.x_field) == 0:
         return False
+    if layer.mark == PLOT_ARC_DIAGRAM:
+        for field in [layer.x_field, layer.x2_field]:
+            if data.field_kind(field) != COLUMN_STRING and data.field_kind(field) != COLUMN_CATEGORY: return False
+            for row in range(data.row_count()):
+                if not data.field_is_valid(field,row): return False
+        for row in range(data.row_count()):
+            if _stage_value(data,layer.y_field,row)<0: return False
     var fields: List[String] = [layer.y_field]
     var optional_fields: List[String] = [layer.y2_field, layer.stat_low_field, layer.stat_high_field, layer.total_field]
     for name in optional_fields:
@@ -143,7 +157,9 @@ def specialized_valid(layer: PlotLayer, data: PlotDataTable) -> Bool:
         for i in range(data.row_count()):
             if not data.field_is_valid(name, i):
                 return False
-            if layer.mark != PLOT_FUNNEL and not isfinite(data.float_field_at(name, i)):
+            if (layer.mark == PLOT_ARC_DIAGRAM or layer.mark == PLOT_BUMP or layer.mark == PLOT_PARALLEL) and not isfinite(_stage_value(data, name, i)):
+                return False
+            if layer.mark != PLOT_ARC_DIAGRAM and layer.mark != PLOT_BUMP and layer.mark != PLOT_PARALLEL and layer.mark != PLOT_FUNNEL and not isfinite(data.float_field_at(name, i)):
                 return False
     var positive_stage = False
     for i in range(data.row_count()):
@@ -229,6 +245,109 @@ def specialized_series(layer: PlotLayer, data: PlotDataTable, id: Int, width: Fl
     var errors = _string_array(layer.error_fields_json)
     var mark = layer.mark
     var n = data.row_count()
+    if mark == PLOT_ARC_DIAGRAM:
+        result.has_layout_domain = True
+        # Fit a full semicircle in both pixel dimensions. Keep the default
+        # full-width layout when height permits, otherwise center a shorter span.
+        # Collapsed viewports retain keyed edges as degenerate, finite paths.
+        # PlotView can then preserve selection and rebuild them on enlargement.
+        var drawable = width > 0 and height > 0
+        var span = min(Float32(1), 2*height/width) if drawable else Float32(0)
+        var offset = (1-span)*0.5
+        var nodes = List[String]()
+        var indices = Dict[String,Int]()
+        for field in [layer.x_field, layer.x2_field]:
+            for row in range(n):
+                var name = data.string_field_at(field,row)
+                if name not in indices:
+                    indices[name] = len(nodes)
+                    nodes.append(name)
+        var largest: Float64 = 0
+        for row in range(n):
+            largest = max(largest,_stage_value(data,layer.y_field,row))
+        for row in range(n):
+            var src = indices.get(data.string_field_at(layer.x_field,row),-1)
+            var dst = indices.get(data.string_field_at(layer.x2_field,row),-1)
+            if src == dst: continue
+            var left = offset + span*Float32(min(src,dst))/Float32(len(nodes)-1)
+            var right = offset + span*Float32(max(src,dst))/Float32(len(nodes)-1)
+            var radius = (right-left)*0.5
+            var rise = radius*width/height if drawable else Float32(0)
+            _glyph(result,layer,data,row,PlotGlyphKind.POLYLINE,"edge",left,0,right,0,_palette(src))
+            ref edge = result.points[len(result.points)-1]
+            var frac = Float32(_stage_value(data,layer.y_field,row)/largest) if largest>0 else Float32(0)
+            edge.stroke_width = layer.line_width*(1+2*frac)
+            edge.text = String(nodes[src], " → ", nodes[dst])
+            for i in range(49):
+                var angle = Float32(pi)*Float32(i)/48
+                edge.vertices.append(Point(left+radius*(1-cos(angle)),rise*sin(angle)))
+        for i in range(len(nodes)):
+            var x = offset + span*Float32(i)/Float32(len(nodes)-1) if len(nodes)>1 else Float32(0.5)
+            _glyph(result,layer,data,0,PlotGlyphKind.POINT,"arc-node",x,0,x,0,_palette(i),False)
+            result.points[len(result.points)-1].text = nodes[i]
+            result.points[len(result.points)-1].size = 8
+        return result^
+    if mark == PLOT_PARALLEL or mark == PLOT_BUMP:
+        result.has_layout_domain = True
+        var dimensions: List[String] = [layer.y_field]
+        for name in fields: dimensions.append(name)
+        var paths = List[List[Point]]()
+        for _ in range(n): paths.append(List[Point]())
+        var bump = mark == PLOT_BUMP
+        if bump:
+            for rank in range(n):
+                var level = 1 - Float32(rank)/Float32(n-1) if n>1 else Float32(0.5)
+                _glyph(result, layer, data, 0, PlotGlyphKind.SEGMENT, "rank", 0, level, 1, level, Color(0.3,0.35,0.4,1), False)
+                result.points[len(result.points)-1].text = String(rank+1)
+        for dim in range(len(dimensions)):
+            var field = dimensions[dim]
+            var kind = data.field_kind(field)
+            var integral = kind == COLUMN_INT64 or kind == COLUMN_TIMESTAMP or kind == COLUMN_DURATION
+            var values = List[Float64](capacity=n)
+            for row in range(n):
+                if integral:
+                    # Center before converting to Float64 to retain adjacent large counts.
+                    var value = Int128(data.int_field_at(field,row))
+                    values.append(Float64(value - Int128(data.int_field_at(field,0))))
+                else:
+                    values.append(_stage_value(data,field,row))
+            var low = values[0]
+            var high = low
+            for value in values:
+                low = min(low,value)
+                high = max(high,value)
+            var x = Float32(dim) / Float32(len(dimensions)-1) if len(dimensions)>1 else Float32(0.5)
+            var ranks = List[Int](length=n, fill=0)
+            if bump:
+                x = (Float32(dim)+0.5)/Float32(len(dimensions))
+                var order: List[Int]
+                if integral:
+                    var measures = List[Int64]()
+                    for row in range(n): measures.append(data.int_field_at(field,row))
+                    order = _stage_order(measures)
+                else:
+                    order = _stage_order(values)
+                for rank in range(n): ranks[order[rank]] = rank
+            _glyph(result, layer, data, 0, PlotGlyphKind.SEGMENT, "stage" if bump else "dimension", x, 0, x, Float32(0 if bump else 1), Color(0.15,0.20,0.28,1), False)
+            result.points[len(result.points)-1].text = field
+            for row in range(n):
+                var y = Float32(0.5)
+                if bump:
+                    if n > 1: y = 1 - Float32(ranks[row])/Float32(n-1)
+                elif high != low:
+                    if isfinite(high-low):
+                        y = Float32((values[row]-low)/(high-low))
+                    else:
+                        y = Float32((values[row]*0.5-low*0.5)/(high*0.5-low*0.5))
+                paths[row].append(Point(x,y))
+        for row in range(n):
+            var start = paths[row][0]
+            var end = paths[row][len(dimensions)-1]
+            var kind = PlotGlyphKind.POLYLINE if len(dimensions)>1 else PlotGlyphKind.POINT
+            _glyph(result,layer,data,row,kind,"record",start.x,start.y,end.x,end.y,_palette(row))
+            result.points[len(result.points)-1].vertices = paths[row].copy()
+            result.points[len(result.points)-1].stroke_width = layer.line_width
+        return result^
     if mark == PLOT_FUNNEL:
         var values = List[Float64](capacity=n)
         for row in range(n):
