@@ -1,0 +1,81 @@
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,"><title>Pulse instrument</title>
+<style>
+*{box-sizing:border-box}body{margin:0;color:#183c42;background:#f3f4ed;font:16px system-ui,sans-serif}
+main{max-width:1100px;margin:auto;padding:24px}h1{font:44px Georgia,serif;margin:0 0 4px}h2{font:24px Georgia,serif;margin:0 0 12px}
+section{background:#fffef8;border:1px solid #c5cfc7;border-radius:8px;padding:18px;margin:12px 0}
+.controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}label{display:grid;gap:4px;font-size:14px}
+button,select,input{font:inherit}button,select,input[type=number],.download{padding:7px 10px;border:1px solid #87a09d;background:white;border-radius:5px;color:inherit}
+button,.download{cursor:pointer}button.primary{background:#1a585c;color:white}.panels{display:grid;grid-template-columns:3fr 2fr;gap:14px}
+svg{max-width:100%;height:auto;display:block}.download{display:inline-block;margin:8px 0}p{margin:8px 0}output{display:block;padding:10px;background:#e1eee5}output.error{background:#ffdfc9;color:#793917}
+#probeText{font-family:monospace;line-height:1.7}#trace{min-height:145px;display:grid;align-items:center}.muted{color:#536b70}kbd{font:12px monospace}
+@media(max-width:740px){.panels{display:block}main{padding:12px}h1{font-size:36px}}
+</style>
+<main><h1>Pulse instrument</h1><p class="muted">Signal Playground · 04-pulse.wav · 44,100 samples/s · 32 blocks × 32 samples</p>
+<section><h2>Patch</h2><svg id="graph" role="img" aria-label="Signal path" viewBox="0 0 900 86"></svg>
+<div class="controls"><label>Output<select id="src"></select></label><label>Input<select id="dst"></select></label>
+<button data-action="wire">Connect</button><button data-action="patch">Load wired example</button></div></section>
+<section><h2>Run controls</h2><div class="controls"><label>Low-pass coefficient<input id="alpha" type="number" min=".01" max="1" step=".01" value=".25"></label>
+<label>Low-pass sample rate<select id="rate"><option>44100</option><option>22050</option></select></label>
+<label><span>RMS test fault</span><span><input type="checkbox" id="fault"> Fail block 7</span></label>
+<button class="primary" data-action="preview">Preview <kbd>P</kbd></button><button data-action="record">Record</button>
+<button data-action="cancel">Cancel <kbd>Esc</kbd></button><button data-action="undo">Undo record</button></div></section>
+<output id="status" role="status">Connect ports or load the wired example.</output>
+<div class="panels"><section><h2>RMS trace</h2><div id="trace"></div><p id="legend"></p><p class="muted">Block end time (ms) · normalized RMS amplitude</p></section>
+<section><h2>Wire probe</h2><label>Probe output<select id="probe"></select></label><label>Block<input id="tick" type="range" min="0" max="31" value="0"></label>
+<p id="probeText"></p><a id="save" class="download" href="/recording.json" download="pulse-recording.json">Save recorded run</a></section></div></main>
+<script>
+const el=id=>document.getElementById(id);
+const nodes=['WAV source','Low-pass','Block RMS','Trace','Recorder'];
+function options(id,names){
+  for(const name of names){
+    const samplePort=id==='dst'?nodes.indexOf(name)<3:nodes.indexOf(name)<2;
+    el(id).add(new Option(name+' · '+(samplePort?'PCM':'RMS'),name));
+  }
+}
+options('src',nodes.slice(0,3));options('dst',nodes.slice(1));options('probe',nodes.slice(0,3));
+const positions=[[60,43],[260,43],[468,43],[720,21],[720,66]];
+let view,busy=false;
+function graph(){
+  const boxes=nodes.map((n,i)=>{const [x,y]=positions[i];return '<rect x="'+(x-56)+'" y="'+(y-16)+'" width="112" height="32" rx="6" fill="#e1eee5"/><text x="'+x+'" y="'+(y+5)+'" text-anchor="middle">'+n+'</text>'});
+  const lines=Object.entries(view.wires).map(([dst,src])=>{
+    const [x,y]=positions[nodes.indexOf(src)], [u,v]=positions[nodes.indexOf(dst)];
+    const d=src===nodes[0]&&dst===nodes[2]?'M116 40 Q260 -20 409 40':'M'+(x+56)+' '+y+' L'+(u-59)+' '+v;
+    return '<path d="'+d+'" fill="none" stroke="#28666c" stroke-width="2" marker-end="url(#tip)"/>';
+  });
+  el('graph').innerHTML='<defs><marker id="tip" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5" fill="#28666c"/></marker></defs>'+lines.join('')+boxes.join('');
+  el('graph').setAttribute('aria-label',Object.entries(view.wires).map(([d,s])=>s+' to '+d).join(', ')||'Five disconnected nodes');
+}
+function probe(){
+  const row=view.rows[Number(el('tick').value)],node=el('probe').value;
+  const field=['source_last','filter_memory','rms'][nodes.indexOf(node)];
+  const signal=node===nodes[0]?'PCM':view.displayed_wires[node];
+  el('probeText').textContent=row?(view.preview?'Preview':'Recorded')+' · block '+row.block+' · '+row.end_ms.toFixed(3)+' ms · '+signal+' → '+field+' = '+row[field].toFixed(6):'Run the patch to probe a block.';
+}
+async function refresh(){
+  view=await (await fetch('/view')).json();graph();probe();
+  el('trace').innerHTML=view.svg||'Waiting for the first run.';
+  el('legend').textContent=[view.recorded?'Teal · recorded α '+view.recorded_alpha:'',view.preview?'Orange · preview α '+view.preview_alpha:''].filter(Boolean).join('  /  ');
+  el('save').style.display=view.recorded?'inline-block':'none';
+}
+async function act(action){
+  if(busy)return;busy=true;
+  try{
+    const response=await fetch('/panel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,from:el('src').value,to:el('dst').value,alpha:el('alpha').value,rate:el('rate').value,fault:el('fault').checked})});
+    el('status').textContent=(await response.json()).message;el('status').className=response.ok?'':'error';
+    await refresh();
+    if(response.ok&&['cancel','undo'].includes(action)){
+      el('alpha').value=view.recorded_alpha;el('rate').selectedIndex=0;el('fault').checked=false;
+    }
+  }catch(error){el('status').textContent=String(error);el('status').className='error'}finally{busy=false}
+}
+document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action));
+document.addEventListener('keydown',e=>{
+  if(e.altKey||e.ctrlKey||e.metaKey||e.repeat)return;
+  if(e.key==='Escape'){e.preventDefault();act('cancel')}
+  else if(e.key.toLowerCase()==='p'&&!['INPUT','SELECT'].includes(e.target.tagName)){e.preventDefault();act('preview')}
+});
+el('probe').onchange=probe;el('tick').oninput=probe;
+refresh().then(()=>{el('alpha').value=view.preview?view.preview_alpha:view.recorded_alpha});
+</script></html>
