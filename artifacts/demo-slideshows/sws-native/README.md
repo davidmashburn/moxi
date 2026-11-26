@@ -36,3 +36,54 @@ PYTHONPATH=. .venv/bin/python scripts/evidence.py
 ```
 
 The script records [both source inventories](source-hashes.json), builds the application, compares pinned reference results, runs the replay and emits an offline slideshow at `artifacts/demo-slideshows/sws-native/index.html` in the Moxi checkout. The captured synthetic timings are described in `metrics.json`. Physical editing, assistive technology, independent scientific acceptance, real external image stacks, power-loss durability and release packaging remain open.
+
+## Interrupted saves
+
+[The consumer probe](../../../experiments/sws-recovery/probe.py) kills a writer
+with SIGKILL immediately before or after the system call that publishes a file.
+It exercises four destinations in eight independent temporary directories. The
+fixture starts with a saved seed edit and an older previous copy. A second edit
+and accepted watershed produce a distinct document, including labels and undo
+history. For the checkpoint interruption the starting checkpoint holds the
+first edit. For the other interruptions it already holds the second.
+
+The [observations](interrupted-save.json) identify the exact document at every
+published name after each kill. Each present file must match its expected bytes,
+pass the consumer's validated reader and re-encode identically. A normal
+overwrite publishes the previous copy before the primary. A recovered
+document's first save uses a hard link to a fresh destination. The after-link
+kill occurs before removal of the temporary name. Five of the eight kills left one
+temporary name each. Every published document validated, and all eight cases
+returned the expected recovery payload. The probe removes each case directory
+after inspection. The pinned snapshot also passed its 33 application tests.
+
+For the kill just before primary replacement, the native app opens the surviving
+primary. Injected AppKit pointer events activate Recover, Save and Reopen. The
+[content-view capture](interrupted-save-recovery.png) shows the recovered edit
+before Save. The probe checks the new sibling's bytes, a new session on Reopen,
+and preservation of the original three files. This is one macOS native viewport
+with synthetic input. Process death leaves the kernel and filesystem running.
+Real power loss, media failure and independent scientific acceptance remain open.
+
+### Reproduce the interruption probe
+
+On macOS with the consumer's Python 3.11 environment and Moxi's installed
+toolchain, run this from the Moxi repository root. Set `SWS_CHECKOUT` to the
+local external repository, `SWS_PYTHON` to its environment's absolute Python
+path, and `MOXI_TOOLCHAIN` to the absolute installed Pixi environment path.
+The recorded Moxi build uses `f2d648206a3071bb492a567ec4d49e7446ba81b7`.
+The commands export the pinned app sources into a disposable directory. Build
+outputs go into its dist directory.
+
+```sh
+set -e
+case_root=$(mktemp -d)
+app="$case_root/app"
+mkdir "$app"
+git -C "$SWS_CHECKOUT" archive 3ac37efd16f6a217a0f1f6d377322998c02f2d73 > "$case_root/app.tar"
+tar xf "$case_root/app.tar" -C "$app"
+export MOXI_ROOT="$PWD" MOJO="$MOXI_TOOLCHAIN/bin/mojo" MODULAR_HOME="$MOXI_TOOLCHAIN/share/max"
+bash "$app/scripts/build.sh"
+export PYTHONPATH="$app" PYTHONDONTWRITEBYTECODE=1
+"$SWS_PYTHON" experiments/sws-recovery/probe.py "$case_root/results"
+```

@@ -1,0 +1,124 @@
+{
+  "utc": "2026-11-26T02:35:08.334874+00:00",
+  "platform": "macOS-27.2.1-arm64-arm-64bit",
+  "python": "3.11.16",
+  "fixture_sha256": "c4fae75d674f87fd095eb77cfe5a3ab830618556ff7a6e4b8e171579748f0284",
+  "dylib_sha256": "8cac0c6db0c98aa80b684aeb9675c705a4b966f45278f4bf77cc4fb766f89c87",
+  "cases": [
+    {
+      "target": "cells.json",
+      "edge": "before",
+      "child_status": -9,
+      "observed": {
+        "cells.json": "saved",
+        "cells.json.previous": "saved",
+        "cells.json.recovery": "edited",
+        "recovered.json": "absent"
+      },
+      "temporary_files_left": 1,
+      "native": {
+        "controls": [
+          "Recover",
+          "Save",
+          "Reopen"
+        ],
+        "reopened_payload": "aa5defa5096152126ada3723934ea31822d56ffcc7b0bc4bc5646bfa43d1b931",
+        "sources_preserved": 3,
+        "viewport_points": [
+          1040.0,
+          760.0
+        ],
+        "capture_sha256": "3b5b8f189fea66ea11990ddf54699c6d4e202e81c4710ea1d179500018bac764"
+      },
+      "document_sha256": {
+        "initial": "8eaf54c77950a642cec73b351628e51c7f5654a54dd70d0fdaa436488714ea71",
+        "saved": "48ac13f001cf15ce0a584c7535e2ec227a294af116c14a5114372e2c7d6d8942",
+        "edited": "aa5defa5096152126ada3723934ea31822d56ffcc7b0bc4bc5646bfa43d1b931"
+      }
+    },
+    {
+      "target": "cells.json",
+      "edge": "after",
+      "child_status": -9,
+      "observed": {
+        "cells.json": "edited",
+        "cells.json.previous": "saved",
+        "cells.json.recovery": "edited",
+        "recovered.json": "absent"
+      },
+      "temporary_files_left": 0
+    },
+    {
+      "target": "cells.json.previous",
+      "edge": "before",
+      "child_status": -9,
+      "observed": {
+        "cells.json": "saved",
+        "cells.json.previous": "initial",
+        "cells.json.recovery": "edited",
+        "recovered.json": "absent"
+      },
+      "temporary_files_left": 1
+    },
+    {
+      "target": "cells.json.previous",
+      "edge": "after",
+      "child_status": -9,
+      "observed": {
+        "cells.json": "saved",
+        "cells.json.previous": "saved",
+        "cells.json.recovery": "edited",
+        "recovered.json": "absent"
+      },
+      "temporary_files_left": 0
+    },
+    {
+      "target": "cells.json.recovery",
+      "edge": "before",
+      "child_status": -9,
+      "observed": {
+        "cells.json": "saved",
+        "cells.json.previous": "initial",
+        "cells.json.recovery": "saved",
+        "recovered.json": "absent"
+      },
+      "temporary_files_left": 1
+    },
+    {
+      "target": "cells.json.recovery",
+      "edge": "after",
+      "child_status": -9,
+      "observed": {
+        "cells.json": "saved",
+        "cells.json.previous": "initial",
+        "cells.json.recovery": "edited",
+        "recovered.json": "absent"
+      },
+      "temporary_files_left": 0
+    },
+    {
+      "target": "recovered.json",
+      "edge": "before",
+      "child_status": -9,
+      "observed": {
+        "cells.json": "saved",
+        "cells.json.previous": "initial",
+        "cells.json.recovery": "edited",
+        "recovered.json": "absent"
+      },
+      "temporary_files_left": 1
+    },
+    {
+      "target": "recovered.json",
+      "edge": "after",
+      "child_status": -9,
+      "observed": {
+        "cells.json": "saved",
+        "cells.json.previous": "initial",
+        "cells.json.recovery": "edited",
+        "recovered.json": "edited"
+      },
+      "temporary_files_left": 1
+    }
+  ]
+}
