@@ -1,0 +1,91 @@
+name: Experimental Windows scalar C ABI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/windows-host-experimental.yml
+      - experiments/windows-host/**
+      - experiments/mobile-runtime/counter.mojo
+      - experiments/mobile-runtime/check.c
+      - experiments/mobile-runtime/probe.sh
+      - src/moxi/**
+      - src/moxi_demo/authoring_examples/**
+      - src/moxi_demo/__init__.mojo
+      - pixi.toml
+      - pixi.lock
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-scalar-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  crossbuild:
+    # These standard runners are for the public repository; never select a paid lane.
+    if: github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source without saved credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install Pixi without saving its environment
+        uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659 # v0.8.1
+        with:
+          pixi-version: v0.81.0
+          cache: false
+          run-install: false
+      - name: Install the locked Linux compiler
+        run: pixi install --locked
+      - name: Run the host control and crossbuild both Windows targets
+        run: pixi run --locked bash experiments/windows-host/crossbuild.sh
+      - name: Transfer only the AMD64 DLL and import library
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows-scalar-AMD64
+          path: |
+            dist/windows-host/AMD64/moxi-counter.dll
+            dist/windows-host/AMD64/moxi-counter.lib
+          if-no-files-found: error
+          retention-days: 1
+      - name: Transfer only the ARM64 DLL and import library
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows-scalar-ARM64
+          path: |
+            dist/windows-host/ARM64/moxi-counter.dll
+            dist/windows-host/ARM64/moxi-counter.lib
+          if-no-files-found: error
+          retention-days: 1
+
+  native-call:
+    needs: crossbuild
+    if: github.event.repository.private == false
+    name: Native scalar call (${{ matrix.architecture }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: AMD64
+            runner: windows-2025
+          - architecture: ARM64
+            runner: windows-11-arm
+    steps:
+      - name: Check out the same source without saved credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Download this target's DLL and import library
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: windows-scalar-${{ matrix.architecture }}
+          path: dist/windows-host/${{ matrix.architecture }}
+      - name: Compile with matching MSVC and call the DLL through its import library
+        shell: pwsh
+        run: ./experiments/windows-host/check.ps1 -Architecture '${{ matrix.architecture }}'
