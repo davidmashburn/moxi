@@ -15,6 +15,7 @@ struct _Measure(ImplicitlyCopyable):
     var rules: List[Rect]
     var positions: List[Point]
     var sizes: List[Float32]
+    var visible: List[Bool]
     var columns: List[Float32]
     var missing: Bool
     def __init__(out self):
@@ -25,6 +26,7 @@ struct _Measure(ImplicitlyCopyable):
         self.rules = List[Rect]()
         self.positions = List[Point]()
         self.sizes = List[Float32]()
+        self.visible = List[Bool]()
         self.columns = List[Float32]()
         self.missing = False
     def __init__(out self, *, copy: Self):
@@ -35,6 +37,7 @@ struct _Measure(ImplicitlyCopyable):
         self.rules = copy.rules.copy()
         self.positions = copy.positions.copy()
         self.sizes = copy.sizes.copy()
+        self.visible = copy.visible.copy()
         self.columns = copy.columns.copy()
         self.missing = copy.missing
 
@@ -135,6 +138,8 @@ struct MathLayout(ImplicitlyCopyable):
     var last_text: String
     var last_ids: String
     var last_size: Float32
+    var focused_hole: Int
+    var focused_path: Dict[Int, Bool]
     var measured: Int
     def __init__(out self):
         self.cache = Dict[String, _Measure]()
@@ -143,6 +148,8 @@ struct MathLayout(ImplicitlyCopyable):
         self.last_text = ""
         self.last_ids = ""
         self.last_size = 0
+        self.focused_hole = -1
+        self.focused_path = Dict[Int, Bool]()
         self.measured = 0
     def __init__(out self, *, copy: Self):
         self.cache = copy.cache.copy()
@@ -151,9 +158,14 @@ struct MathLayout(ImplicitlyCopyable):
         self.last_text = copy.last_text
         self.last_ids = copy.last_ids
         self.last_size = copy.last_size
+        self.focused_hole = copy.focused_hole
+        self.focused_path = copy.focused_path.copy()
         self.measured = copy.measured
     def _key(self, doc: MathDocument, i: Int, size: Float32) -> String:
-        return doc.print_node(i) + "|" + String(size)
+        var key = doc.print_node(i) + "|" + String(size)
+        if doc.nodes[i].id in self.focused_path:
+            key += "|focus:" + String(self.focused_hole)
+        return key
     def _text(self, text: String, size: Float32) -> _Measure:
         var b = _Measure()
         b.glyphs = self.font.shape(text, size)
@@ -201,13 +213,20 @@ struct MathLayout(ImplicitlyCopyable):
             for j in range(len(n.children)):
                 var child_size = size
                 if n.kind == MathKind.SCRIPTS and j > 0:
-                    child_size = Float32(9) if doc.nodes[n.children[j]].kind==MathKind.HOLE else small
+                    child_size = small
                 elif n.kind == MathKind.ROOT and j == 0:
                     child_size = small*.8
                 elif (n.kind == MathKind.SUM or n.kind == MathKind.INTEGRAL) and j < 3:
                     child_size = small
                 b.sizes.append(child_size)
-                children.append(self._measure(doc,n.children[j],child_size))
+                var optional = (n.kind == MathKind.SCRIPTS and j > 0) or (n.kind == MathKind.ROOT and j == 0)
+                var child = doc.nodes[n.children[j]]
+                var visible = not optional or child.kind != MathKind.HOLE or child.id == self.focused_hole
+                b.visible.append(visible)
+                if visible:
+                    children.append(self._measure(doc,n.children[j],child_size))
+                else:
+                    children.append(_Measure())
                 b.positions.append(Point(0,0))
             if n.kind == MathKind.ROW:
                 for c in children:
@@ -240,21 +259,35 @@ struct MathLayout(ImplicitlyCopyable):
                 var under=children[3]; var over=children[4]
                 var above=max(base.baseline-size*.3,max(sup.height*.65,self.font.constant(MathConstant.SUPER_SHIFT,size)))
                 var below=max(base.height-base.baseline-small*.2,max(sub.height*.45,self.font.constant(MathConstant.SUB_SHIFT,size)))
-                var top=over.height+gap+above
+                var top=over.height+gap if b.visible[4] else Float32(0)
+                if b.visible[2]:
+                    top+=max(Float32(0),above+sup.baseline-base.baseline)
                 var base_x=max(Float32(0),(max(over.width,under.width)-base.width)/2)
                 b.positions[0]=Point(base_x,top)
                 var italic: Float32=0
                 if len(base.glyphs)>0:
                     italic=self.font.metric(base.glyphs[len(base.glyphs)-1].id,size,5)
                 var script_x=base_x+base.width+italic+size*.06
-                b.positions[2]=Point(script_x,top+base.baseline-above-sup.baseline)
-                b.positions[1]=Point(script_x,top+base.baseline+below-sub.baseline)
-                var min_gap=self.font.constant(MathConstant.SCRIPT_GAP,size)
-                b.positions[1].y=max(b.positions[1].y,b.positions[2].y+sup.height+min_gap)
-                b.width=max(script_x+max(sub.width,sup.width),max(under.width,over.width))
-                b.positions[4]=Point((b.width-over.width)/2,0)
-                b.positions[3]=Point((b.width-under.width)/2,max(top+base.height,b.positions[1].y+sub.height)+gap)
-                b.height=b.positions[3].y+under.height
+                b.width=base_x+base.width
+                b.height=top+base.height
+                if b.visible[2]:
+                    b.positions[2]=Point(script_x,top+base.baseline-above-sup.baseline)
+                    b.width=max(b.width,script_x+sup.width)
+                    b.height=max(b.height,b.positions[2].y+sup.height)
+                if b.visible[1]:
+                    b.positions[1]=Point(script_x,top+base.baseline+below-sub.baseline)
+                    if b.visible[2]:
+                        var min_gap=self.font.constant(MathConstant.SCRIPT_GAP,size)
+                        b.positions[1].y=max(b.positions[1].y,b.positions[2].y+sup.height+min_gap)
+                    b.width=max(b.width,script_x+sub.width)
+                    b.height=max(b.height,b.positions[1].y+sub.height)
+                if b.visible[4]:
+                    b.positions[4]=Point(base_x+(base.width-over.width)/2,0)
+                    b.width=max(b.width,b.positions[4].x+over.width)
+                if b.visible[3]:
+                    b.positions[3]=Point(base_x+(base.width-under.width)/2,b.height+gap)
+                    b.width=max(b.width,b.positions[3].x+under.width)
+                    b.height=b.positions[3].y+under.height
                 b.baseline=top+base.baseline
             elif n.kind == MathKind.ROOT:
                 var index=children[0]; var body=children[1]
@@ -352,11 +385,18 @@ struct MathLayout(ImplicitlyCopyable):
                     b.positions[0]=Point(b.width+gap+differential.width+gap/2,b.baseline-variable.baseline)
                     b.width=b.positions[0].x+variable.width
                 b.height=max(bottom+max(variable.height,lower.height),b.positions[3].y+body.height)
-        # Contain real font ink, including negative bearings and MATH assemblies.
+        # Contain visible children and real font ink, including negative bearings.
         var min_x: Float32=0
         var min_y: Float32=0
         var max_x=b.width
         var max_y=b.height
+        for j in range(len(n.children)):
+            if b.visible[j]:
+                var child=self.cache[self._key(doc,n.children[j],b.sizes[j])]
+                min_x=min(min_x,b.positions[j].x)
+                min_y=min(min_y,b.positions[j].y)
+                max_x=max(max_x,b.positions[j].x+child.width)
+                max_y=max(max_y,b.positions[j].y+child.height)
         for glyph in b.glyphs:
             min_x=min(min_x,glyph.x+self.font.metric(glyph.id,glyph.size,3))
             min_y=min(min_y,glyph.y-self.font.metric(glyph.id,glyph.size,1))
@@ -412,15 +452,32 @@ struct MathLayout(ImplicitlyCopyable):
                     col_x+=b.columns[col]+size*.36
         else:
             for j in range(len(n.children)):
-                self._emit(doc,n.children[j],b.sizes[j],x+b.positions[j].x,y+b.positions[j].y)
-    def publish(mut self, doc: MathDocument, size: Float32 = 32) raises:
+                if b.visible[j]:
+                    self._emit(doc,n.children[j],b.sizes[j],x+b.positions[j].x,y+b.positions[j].y)
+    def publish(mut self, doc: MathDocument, size: Float32 = 32, focused_id: Int = -1) raises:
         var text=doc.text()
         var ids=String("")
         for node in doc.nodes:
             ids+=String(node.id)+","
-        if text==self.last_text and ids==self.last_ids and size==self.last_size:
+        var focused_hole = -1
+        var focused_index = doc.find_id(focused_id)
+        if focused_index >= 0 and doc.nodes[focused_index].kind == MathKind.HOLE:
+            var parent = doc.parent(focused_index)
+            if parent >= 0:
+                var node = doc.nodes[parent]
+                for j in range(len(node.children)):
+                    if node.children[j] == focused_index and ((node.kind == MathKind.SCRIPTS and j > 0) or (node.kind == MathKind.ROOT and j == 0)):
+                        focused_hole = focused_id
+        if text==self.last_text and ids==self.last_ids and size==self.last_size and focused_hole==self.focused_hole:
             self.snapshot.measured_nodes=0
             return
+        self.focused_hole = focused_hole
+        self.focused_path.clear()
+        if focused_hole >= 0:
+            var ancestor = focused_index
+            while ancestor >= 0:
+                self.focused_path[doc.nodes[ancestor].id] = True
+                ancestor = doc.parent(ancestor)
         if len(self.cache)>40000:
             self.cache.clear()
         self.measured=0

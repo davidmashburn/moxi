@@ -6,11 +6,44 @@ static NSView<NSTextInputClient> *math_view(void) {
     return nil;
 }
 int32_t moxi_math_probe_key(const char *text,int32_t modifiers) {
-    NSView *view=math_view(); if(!view) return 0;
+    NSView *view=math_view(); if(!view || view.window.firstResponder!=view) return 0;
     NSEventModifierFlags flags=((modifiers&1)?NSEventModifierFlagShift:0)|((modifiers&2)?NSEventModifierFlagCommand:0)|((modifiers&4)?NSEventModifierFlagControl:0)|((modifiers&8)?NSEventModifierFlagOption:0);
     NSString *s=[NSString stringWithUTF8String:text];
     NSEvent *event=[NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:flags timestamp:NSProcessInfo.processInfo.systemUptime windowNumber:view.window.windowNumber context:nil characters:s charactersIgnoringModifiers:s isARepeat:NO keyCode:0];
-    [view keyDown:event]; return 1;
+    [view.window sendEvent:event]; return 1;
+}
+// Exercise the native canvas callbacks even when the test window is in the background.
+static NSView *drag_view;
+int32_t moxi_math_probe_mouse(float x,float y,int32_t phase) {
+    NSWindow *window=math_view().window;
+    if (!window) return 0;
+    NSPoint location=[window.contentView convertPoint:NSMakePoint(x,y) toView:nil];
+    NSEventType type=phase==0?NSEventTypeLeftMouseDown:phase==1?NSEventTypeLeftMouseDragged:NSEventTypeLeftMouseUp;
+    NSEvent *event=[NSEvent mouseEventWithType:type location:location modifierFlags:0
+        timestamp:NSProcessInfo.processInfo.systemUptime windowNumber:window.windowNumber
+        context:nil eventNumber:1 clickCount:1 pressure:phase==2?0:1];
+    if (phase==0) {
+        drag_view=[window.contentView hitTest:[window.contentView convertPoint:location fromView:nil]];
+        if (!drag_view) return 0;
+        [drag_view mouseDown:event];
+    } else if (phase==1) {
+        [drag_view mouseDragged:event];
+    } else {
+        [drag_view mouseUp:event];
+        drag_view=nil;
+    }
+    return 1;
+}
+int32_t moxi_math_probe_select_source_and_blur(int32_t start,int32_t length) {
+    NSWindow *window=math_view().window;
+    NSTextView *editor=(NSTextView *)[window fieldEditor:NO forObject:nil];
+    if (!editor || window.firstResponder!=editor) return 0;
+    [editor setSelectedRange:NSMakeRange(start,length)];
+    return [window makeFirstResponder:window.contentView];
+}
+int32_t moxi_math_probe_selected_range(int32_t start,int32_t length) {
+    NSRange selected=[math_view() selectedRange];
+    return NSEqualRanges(selected,NSMakeRange(start,length));
 }
 int32_t moxi_math_probe_marked(const char *text,int32_t commit) {
     NSView<NSTextInputClient> *view=math_view(); if(!view) return 0;

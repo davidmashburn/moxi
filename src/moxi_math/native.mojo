@@ -5,7 +5,7 @@ from moxi import App, Rect, WindowConfig
 from moxi.event import NONE_KIND
 from moxi.macos import MacOSWindow, MacOSRenderer
 from .font import open_math_font, close_math_font
-from .view import MathEditor, MATH_SAVE, MATH_OPEN, MATH_ZOOM_IN, MATH_ZOOM_OUT
+from .view import MathEditor, MATH_SOURCE, MATH_SAVE, MATH_OPEN, MATH_ZOOM_IN, MATH_ZOOM_OUT
 
 def _local_action(mut editor: MathEditor) raises:
     var action=editor.pending_action
@@ -23,6 +23,14 @@ def _local_action(mut editor: MathEditor) raises:
                     editor.state.load_text(file.read())
         except e:
             editor.state.status=String(e)
+
+def present_math_frame(mut app: App[MathEditor], mut renderer: MacOSRenderer) raises:
+    if app.needs_frame():
+        if app.component.state.focused:
+            _ = app.runtime.set_focus(MATH_SOURCE if app.component.state.text_mode else -1)
+        app.component.prepare(app.view)
+        app.render(renderer)
+        app.component.present()
 
 def run_math_editor(title: String, text: String, font_path: String) raises:
     open_math_font(font_path)
@@ -50,10 +58,7 @@ def run_math_editor(title: String, text: String, font_path: String) raises:
             if app.component.pending_action>=0:
                 _local_action(app.component)
                 app.rebuild()
-            app.component.prepare(app.view)
-            if app.needs_frame():
-                app.render(renderer)
-                app.component.present()
+            present_math_frame(app,renderer)
             external_call["usleep",Int32](UInt32(16000))
     finally:
         close_math_font()

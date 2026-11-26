@@ -51,19 +51,35 @@ static int codepoints_to(NSString *s, NSUInteger end) {
     }
     return count;
 }
+// AppKit preserves case for shifted shortcuts, including Command-Shift-Z.
+static int shortcut_key(NSString *characters) {
+    int key = characters.length ? [characters characterAtIndex:0] : 0;
+    return key >= 'A' && key <= 'Z' ? key + ('a' - 'A') : key;
+}
 static void input_push(int kind,int key,NSString *text,NSRange replacement) {
     if (!input_events) input_events=[NSMutableArray array];
     [input_events addObject:@{@"kind":@(kind),@"key":@(key),@"modifiers":@(input_modifiers),@"text":text?:@"",@"start":@(replacement.location==NSNotFound?-1:codepoints_to(leaf_text,replacement.location)),@"end":@(replacement.location==NSNotFound?-1:codepoints_to(leaf_text,NSMaxRange(replacement)))}];
 }
 @interface MoxiMathLayer : NSView <NSTextInputClient>
+@property(nonatomic, weak) NSTextView *sourceEditor;
+@property(nonatomic, copy) NSString *sourceText;
+@property(nonatomic) NSRange sourceRange;
+- (void)rememberSourceSelection:(NSNotification *)notification;
 @end
 static MoxiMathLayer *layer;
 @implementation MoxiMathLayer
+- (void)rememberSourceSelection:(NSNotification *)notification {
+    NSTextView *editor=notification.object;
+    if (editor && self.window.firstResponder==editor) {
+        self.sourceText=editor.string;
+        self.sourceRange=editor.selectedRange;
+    }
+}
 - (BOOL)acceptsFirstResponder { return YES; }
 - (void)keyDown:(NSEvent *)event {
     input_modifiers=modifiers(event.modifierFlags);
     NSString *chars=event.charactersIgnoringModifiers;
-    int key=chars.length?[chars characterAtIndex:0]:0;
+    int key=shortcut_key(chars);
     NSString *chord=[NSString stringWithFormat:@"%d:%d",key,input_modifiers];
     NSString *unshifted=[NSString stringWithFormat:@"%d:%d",key,input_modifiers&~1];
     BOOL editing=(input_modifiers&2) && (key=='a'||key=='c'||key=='v'||key=='x');
@@ -78,7 +94,7 @@ static MoxiMathLayer *layer;
     if (!math_focused || self.window.firstResponder!=self) return NO;
     NSString *chars=event.charactersIgnoringModifiers;
     if (!chars.length) return NO;
-    int key=[chars characterAtIndex:0], mods=modifiers(event.modifierFlags);
+    int key=shortcut_key(chars), mods=modifiers(event.modifierFlags);
     NSString *chord=[NSString stringWithFormat:@"%d:%d",key,mods];
     NSString *alias=[NSString stringWithFormat:@"%d:%d",key,mods&~1];
     if ([bound_keys containsObject:chord] || [bound_keys containsObject:alias] || ((mods&2)&&(key=='a'||key=='c'||key=='v'||key=='x'))) {
@@ -129,8 +145,8 @@ static MoxiMathLayer *layer;
     else if(selector==@selector(moveRight:)||selector==@selector(moveRightAndModifySelection:)) key=1001;
     else if(selector==@selector(moveUp:)||selector==@selector(moveUpAndModifySelection:)) key=1002;
     else if(selector==@selector(moveDown:)||selector==@selector(moveDownAndModifySelection:)) key=1003;
-    else if(selector==@selector(moveToBeginningOfLine:)||selector==@selector(moveToBeginningOfDocument:)) key=1004;
-    else if(selector==@selector(moveToEndOfLine:)||selector==@selector(moveToEndOfDocument:)) key=1005;
+    else if(selector==@selector(moveToBeginningOfLine:)||selector==@selector(moveToBeginningOfDocument:)||selector==@selector(moveToBeginningOfLineAndModifySelection:)||selector==@selector(moveToBeginningOfDocumentAndModifySelection:)) key=1004;
+    else if(selector==@selector(moveToEndOfLine:)||selector==@selector(moveToEndOfDocument:)||selector==@selector(moveToEndOfLineAndModifySelection:)||selector==@selector(moveToEndOfDocumentAndModifySelection:)) key=1005;
     else if(selector==@selector(deleteBackward:)) key=8;
     else if(selector==@selector(deleteForward:)) key=127;
     else if(selector==@selector(insertTab:)) key=9;
@@ -366,19 +382,48 @@ int32_t moxi_math_capture(const char *path) {
     NSData *png=[bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
     return [png writeToFile:[NSString stringWithUTF8String:path] atomically:YES];
 }
-void moxi_math_clipboard(const char *text) {
+void moxi_math_clipboard(const char *text,const char *fragment) {
     NSString *s=[NSString stringWithUTF8String:text];
     NSPasteboard *p=NSPasteboard.generalPasteboard;
     [p clearContents];
     [p setString:s forType:NSPasteboardTypeString];
-    [p setString:[@"moxi-math/1\n" stringByAppendingString:s] forType:@"org.moxi.math.fragment.v1"];
+    [p setString:[@"moxi-math/1\n" stringByAppendingString:[NSString stringWithUTF8String:fragment]] forType:@"org.moxi.math.fragment.v1"];
 }
 
 void moxi_math_keymap_begin(void) { bound_keys=[NSMutableSet set]; }
 void moxi_math_keymap_add(int32_t key,int32_t mods) { @autoreleasepool { [bound_keys addObject:[NSString stringWithFormat:@"%d:%d",key,mods]]; } }
-void moxi_math_input_state(const char *text,int32_t offset,int32_t focused,float x,float y,float w,float h) {
+// AppKit clears the shared field editor on mouse-down, before Mojo receives
+// the toolbar click. Keep the last selection made while the source had focus.
+void moxi_math_track_source_selection(int32_t active) {
+    NSTextView *editor=active?(NSTextView *)[layer.window fieldEditor:NO forObject:nil]:nil;
+    if (layer.sourceEditor==editor) return;
+    NSNotificationCenter *center=NSNotificationCenter.defaultCenter;
+    if (layer.sourceEditor)
+        [center removeObserver:layer name:NSTextViewDidChangeSelectionNotification object:layer.sourceEditor];
+    layer.sourceEditor=editor;
+    layer.sourceText=nil;
+    if (editor) {
+        [center addObserver:layer selector:@selector(rememberSourceSelection:)
+                       name:NSTextViewDidChangeSelectionNotification object:editor];
+        if (layer.window.firstResponder==editor) {
+            layer.sourceText=editor.string;
+            layer.sourceRange=editor.selectedRange;
+        }
+    }
+}
+int32_t moxi_math_source_endpoint(const char *source,int32_t end) {
+    NSTextView *editor=layer.sourceEditor;
+    BOOL editing=editor && layer.window.firstResponder==editor;
+    NSString *text=editing?editor.string:layer.sourceText;
+    if (![text isEqualToString:[NSString stringWithUTF8String:source]]) return -1;
+    NSRange range=editing?editor.selectedRange:layer.sourceRange;
+    if (range.location==NSNotFound) return -1;
+    return codepoints_to(text,end?NSMaxRange(range):range.location);
+}
+void moxi_math_input_state(const char *text,int32_t start,int32_t end,int32_t focused,float x,float y,float w,float h) {
     leaf_text=[NSString stringWithUTF8String:text];
-    leaf_selection=NSMakeRange(utf16_at(leaf_text,MAX(0,offset)),0);
+    NSUInteger first=utf16_at(leaf_text,MAX(0,start));
+    leaf_selection=NSMakeRange(first,utf16_at(leaf_text,MAX(start,end))-first);
     math_focused=focused!=0;
     caret_rect=NSMakeRect(x,y,w,h);
     [layer.inputContext invalidateCharacterCoordinates];

@@ -88,10 +88,11 @@ persisted. Unknown envelope versions are rejected.
 
 Runtime IDs are not serialized. Text edits reconcile unchanged prefixes/suffixes
 and corresponding changed slots; unchanged siblings retain identity across a
-local insertion/deletion. Source spans map a selected visual node to its spelling
-and a source selection to its smallest enclosing node. Copy emits canonical text
-and `org.moxi.math.fragment.v1`; paste prefers the supported structured envelope
-and assigns fresh IDs. Every content mutation, text-view toggle, paste, move,
+local insertion/deletion. Switching between Text and 2D preserves carets and
+character ranges within a token. A source selection spanning several slots
+selects their enclosing node. Copy offers plain text and a typed math fragment.
+A copied substring pastes literally at the caret. Pasting a subtree replaces
+the target and assigns fresh IDs. Every content mutation, text-view toggle, paste, move,
 reopen and result application participates in shared undo/redo. Revision numbers
 remain monotonic across undo/reopen, preventing old worker results from matching
 restored content accidentally.
@@ -128,10 +129,12 @@ A host can bind an alternate key using
 Physical layout-specific conflict resolution remains an acceptance gate; the
 synthetic native replay does not prove OS hotkey delivery.
 
-Selection is structural: Cmd+. grows from a token to its parent; keyboard
-extension and pointer drag across leaves select enclosing subtrees. Arbitrary
-partial-token 2D ranges are not supported; Text mode provides ordinary character
-selection. Template insertion wraps the current token or selected subtree.
+Drag, Shift-click, or use Shift with the arrow keys to select text inside a token.
+Typing replaces the highlight. Extending into another slot selects the smallest
+subtree containing both endpoints. Dragging back into the original token returns
+to a character range. Cmd+. selects the current node, then its parent.
+Empty script slots and radical indices appear when focused. Tab visits them.
+Template insertion wraps the current token or selected subtree.
 Backspace/Delete remove a grapheme within a token; structural-boundary deletion
 unwraps its container, while deleting a selected node leaves a hole. Unwrap is
 also a named palette operation. All these operations are reversible.
@@ -200,8 +203,9 @@ def main() raises:
 ```
 
 For an existing Moxi host, own a `MathEditor` inside `App`; call `route(event)`
-before outer dispatch, `prepare(app.view)` after rebuild, and `present()` after
-host rendering. Drain `poll_math_event()` as well as native window events.
+before outer dispatch and call `present_math_frame(app, renderer)` from
+`moxi_math.native` to synchronize keyboard focus and publish a dirty frame.
+Drain `poll_math_event()` as well as native window events.
 Bracket the host with `open_math_font(path)` / `close_math_font()` and close
 optional `MathComputation` on exit. One UI-thread math font/view session is
 supported at a time. Do not call `present()` from two simultaneous math hosts.

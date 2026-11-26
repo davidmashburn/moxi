@@ -3,8 +3,9 @@ from std.testing import assert_equal, assert_true
 from moxi import App, Rect, WindowConfig
 from moxi.macos import MacOSWindow, MacOSRenderer
 from moxi.geometry import Point
-from moxi.event import Event, POINTER_DOWN_KIND, POINTER_UP_KIND
-from moxi_math import MathEditor, MathEditorState, MathCommand, open_math_font, close_math_font, poll_math_event
+from moxi_math.native import present_math_frame
+from moxi.event import Event, POINTER_DOWN_KIND, POINTER_UP_KIND, NONE_KIND
+from moxi_math import MathEditor, MathEditorState, MathPosition, MathCommand, open_math_font, close_math_font, poll_math_event
 
 def native_key(mut app: App[MathEditor], text: String, modifiers: Int = 0) raises:
     var chars=text
@@ -63,6 +64,49 @@ def hit_zoom(mut editor: MathEditor) raises:
         down.kind=POINTER_UP_KIND
         _ = editor.route(down)
 
+def drag_selection_check(mut app: App[MathEditor], mut window: MacOSWindow) raises:
+    app.component.state=MathEditorState("a😀bc")
+    drain(app)
+    var id=app.component.state.caret.id
+    var offsets=[1,2,4,3]
+    for i in range(len(offsets)):
+        var stop=app.component.layout.snapshot.caret(MathPosition(id,offsets[i]))
+        var x=app.component.viewport.x+16+stop.x
+        var y=app.component.viewport.y+16+stop.y+stop.height/2
+        var phase=0 if i==0 else 2 if i==len(offsets)-1 else 1
+        assert_equal(external_call["moxi_math_probe_mouse",Int32](x,y,Int32(phase)),1)
+        var event=window.poll_event()
+        while event.kind!=NONE_KIND:
+            if app.component.route(event):
+                app.rebuild()
+            else:
+                _ = app.dispatch(event)
+            event=window.poll_event()
+    app.component.present()
+    assert_equal(app.component.state.copy_text(),"😀b")
+    assert_equal(external_call["moxi_math_probe_selected_range",Int32](Int32(1),Int32(3)),1)
+    assert_true(not app.component.pointer_down)
+    native_key(app,"x")
+    assert_equal(app.component.state.document.text(),"axc")
+    native_key(app,"z",2)
+    assert_equal(app.component.state.copy_text(),"😀b")
+    native_key(app,"Z",3)
+    assert_equal(app.component.state.document.text(),"axc")
+
+def source_selection_check(mut app: App[MathEditor], mut renderer: MacOSRenderer) raises:
+    app.component.state=MathEditorState("abcde")
+    app.component.state.command(MathCommand.TEXT)
+    app.rebuild()
+    present_math_frame(app,renderer)
+    assert_equal(external_call["moxi_math_probe_select_source_and_blur",Int32](Int32(2),Int32(2)),1)
+    app.component.sync_source_selection()
+    app.component.state.command(MathCommand.TEXT)
+    app.rebuild()
+    present_math_frame(app,renderer)
+    assert_equal(app.component.state.copy_text(),"cd")
+    native_key(app,"z")
+    assert_equal(app.component.state.document.text(),"abze")
+
 def main() raises:
     open_math_font("assets/math/STIXTwoMath-Regular.otf")
     var app=App(MathEditor(),Rect(0,0,1100,800))
@@ -104,6 +148,8 @@ def main() raises:
     assert_true(external_call["moxi_math_probe_semantics",Int32]()>6)
     clipboard_check(app)
     transformed_hit_check(app)
+    drag_selection_check(app,window)
+    source_selection_check(app,renderer)
     window.close()
     close_math_font()
     print("PASS AppKit NSEvent interpretation, structural chords, native marked text commit, caret candidate rectangle, semantic bounds, structured native clipboard; synthetic events, no physical keyboard/VoiceOver assertion")

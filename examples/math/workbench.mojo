@@ -1,5 +1,6 @@
 """Real Moxi App/host, optional persistent worker, and executable capture replay."""
 from moxi_math.input import poll_math_event
+from moxi_math.native import present_math_frame
 from std.ffi import external_call
 from std.python import Python
 from moxi import App, Rect, WindowConfig
@@ -14,20 +15,24 @@ comptime SAVE_PATH = "/tmp/moxi-d02-document.moxi"
 def key(mut editor: MathEditor, code: Int, modifiers: Int = 0) raises:
     var event=Event()
     event.kind=KEY_DOWN_KIND; event.key=code; event.modifiers=modifiers
-    _ = editor.route(event)
+    if not editor.route(event):
+        raise Error("Editor did not handle replay input")
 
 def type_text(mut editor: MathEditor, text: String) raises:
     var event=Event()
     event.kind=TEXT_INPUT_KIND; event.text=text
-    _ = editor.route(event)
+    if not editor.route(event):
+        raise Error("Editor did not handle replay input")
 
-def replay_step(mut editor: MathEditor, mut engine: MathComputation, step: Int) raises -> Bool:
+def replay_step(mut editor: MathEditor, mut engine: MathComputation, step: Int, capture_path: String) raises -> Bool:
     if step==0:
         return True
     elif step==1:
         type_text(editor,"x")
         key(editor,47,MOD_COMMAND)
         type_text(editor,"y")
+        if editor.state.document.text()!="frac(x, y)":
+            raise Error("Typing a fraction failed: "+editor.state.document.text())
         return True
     elif step==2:
         key(editor,32,MOD_COMMAND)
@@ -37,6 +42,8 @@ def replay_step(mut editor: MathEditor, mut engine: MathComputation, step: Int) 
         type_text(editor,"2")
         key(editor,45,MOD_COMMAND)
         type_text(editor,"i")
+        if editor.state.document.text()!="root(?, scripts(frac(x, y), i, 2, ?, ?))":
+            raise Error("Typing nested scripts failed: "+editor.state.document.text())
         return True
     elif step==3:
         editor.state=MathEditorState("matrix(row(a, b), row(c, d))")
@@ -92,25 +99,25 @@ def replay_step(mut editor: MathEditor, mut engine: MathComputation, step: Int) 
         return True
     elif step==11:
         var saved=editor.state.save_text()
-        with open(SAVE_PATH,"w") as file:
+        with open(capture_path,"w") as file:
             file.write(saved)
         editor.state.select(editor.state.document.root)
         editor.state.insert("temporary")
-        with open(SAVE_PATH,"r") as file:
+        with open(capture_path,"r") as file:
             editor.state.load_text(file.read())
         if editor.state.save_text()!=saved:
             raise Error("Capture persistence mismatch")
         return True
     return False
 
-def replay_host(mut editor: MathEditor, mut blocks: List[MathEditorState], mut active: Int, mut target_block: Int, mut engine: MathComputation, step: Int) raises -> Bool:
+def replay_host(mut editor: MathEditor, mut blocks: List[MathEditorState], mut active: Int, mut target_block: Int, mut engine: MathComputation, step: Int, capture_path: String) raises -> Bool:
     if step==6:
         target_block=active
     if step==9 and active==2:
         blocks[2]=editor.state
         active=target_block
         editor.state=blocks[active]
-    var done=replay_step(editor,engine,step)
+    var done=replay_step(editor,engine,step,capture_path)
     if done and step==8:
         blocks[active]=editor.state
         active=2
@@ -125,6 +132,7 @@ def process_actions(mut editor: MathEditor, mut blocks: List[MathEditorState], m
         active=0 if action==MATH_MAIN else 1 if action==MATH_SCRATCH else 2
         editor.state=blocks[active]
         editor.scroll_x=0
+        editor.state.focused=True
     elif action==MATH_ZOOM_IN or action==MATH_ZOOM_OUT:
         editor.zoom=max(Float32(.5),min(Float32(2),editor.zoom+(Float32(.1) if action==MATH_ZOOM_IN else Float32(-.1))))
     elif action==MATH_SAVE:
@@ -213,13 +221,10 @@ def main() raises:
             if action>=0 or old_revision!=app.component.state.document.revision or old_status!=app.component.backend_status:
                 app.rebuild()
             if capturing and capture_frame<0 and frame%25==0:
-                if replay_host(app.component,blocks,active,target_block,engine,step):
+                if replay_host(app.component,blocks,active,target_block,engine,step,String(capture.directory)+"/document.moxi"):
                     capture_frame=frame+3
                 app.rebuild()
-            app.component.prepare(app.view)
-            if app.needs_frame():
-                app.render(renderer)
-                app.component.present()
+            present_math_frame(app,renderer)
             if capturing and frame==capture_frame:
                 var path=String(capture.path(step))
                 var ptr=path.as_c_string_span()

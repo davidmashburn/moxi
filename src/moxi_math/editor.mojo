@@ -1,9 +1,9 @@
 """Structural commands and reversible transactions, independent of any CAS/host."""
 from std.collections import List
 from moxi.controls_text import TextInputState
-from moxi.text_boundary import previous_text_boundary, next_text_boundary
+from moxi.text_boundary import previous_text_boundary, next_text_boundary, clamp_text_boundary, codepoint_at
 from moxi.event import KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END, KEY_BACKSPACE, KEY_DELETE, KEY_TAB, KEY_ESCAPE, KEY_ENTER, KEY_SPACE, MOD_SHIFT, MOD_COMMAND, MOD_CONTROL
-from .model import MAX_TEXT, MathDocument, MathKind, parse_math, MAX_NODES
+from .model import MAX_TEXT, MathDocument, MathKind, parse_math, quoted, MAX_NODES
 
 from .commands import MathCommand, math_binding
 
@@ -18,12 +18,14 @@ struct _History(ImplicitlyCopyable):
     var doc: MathDocument
     var caret: MathPosition
     var selected: Int
+    var selection_anchor: MathPosition
     var text_mode: Bool
     var source: TextInputState
-    def __init__(out self, doc: MathDocument, caret: MathPosition, selected: Int, text_mode: Bool, source: TextInputState):
+    def __init__(out self, doc: MathDocument, caret: MathPosition, selected: Int, selection_anchor: MathPosition, text_mode: Bool, source: TextInputState):
         self.doc = doc
         self.caret = caret
         self.selected = selected
+        self.selection_anchor = selection_anchor
         self.text_mode = text_mode
         self.source = source
 
@@ -31,6 +33,7 @@ struct MathEditorState(ImplicitlyCopyable):
     var document: MathDocument
     var caret: MathPosition
     var selected: Int
+    var selection_anchor: MathPosition
     var text_mode: Bool
     var source: TextInputState
     var composition: String
@@ -46,6 +49,7 @@ struct MathEditorState(ImplicitlyCopyable):
         self.document = MathDocument()
         self.caret = MathPosition()
         self.selected = -1
+        self.selection_anchor = MathPosition(-1)
         self.text_mode = False
         self.source = TextInputState("?")
         self.composition = ""
@@ -61,6 +65,7 @@ struct MathEditorState(ImplicitlyCopyable):
         self.document = copy.document
         self.caret = copy.caret
         self.selected = copy.selected
+        self.selection_anchor = copy.selection_anchor
         self.text_mode = copy.text_mode
         self.source = copy.source
         self.composition = copy.composition
@@ -80,7 +85,7 @@ struct MathEditorState(ImplicitlyCopyable):
         self.focus(self.document.root)
 
     def _snapshot(self) -> _History:
-        return _History(self.document, self.caret, self.selected, self.text_mode, self.source)
+        return _History(self.document, self.caret, self.selected, self.selection_anchor, self.text_mode, self.source)
     def _restore(mut self, state: _History):
         var revision = self.document.revision + 1
         var next_id = self.document.next_id
@@ -89,6 +94,7 @@ struct MathEditorState(ImplicitlyCopyable):
         self.document.next_id = max(next_id, self.document.next_id)
         self.caret = state.caret
         self.selected = state.selected
+        self.selection_anchor = state.selection_anchor
         self.text_mode = state.text_mode
         self.source = state.source
         self.composition = ""
@@ -123,16 +129,95 @@ struct MathEditorState(ImplicitlyCopyable):
     def target(self) -> Int:
         var i = self.document.find_id(self.selected)
         return self.index() if i < 0 else i
+    def edge_position(self, end: Bool = False) -> MathPosition:
+        var leaf = self.document.root
+        while len(self.document.nodes[leaf].children) > 0:
+            var children = self.document.nodes[leaf].children.copy()
+            leaf = children[len(children)-1] if end else children[0]
+        return MathPosition(self.document.nodes[leaf].id,self.document.nodes[leaf].text.count_codepoints() if end else 0)
     def focus(mut self, i: Int, end: Bool = False):
         var leaf = i
         while len(self.document.nodes[leaf].children) > 0:
             var children = self.document.nodes[leaf].children.copy()
             leaf = children[len(children) - 1] if end else children[0]
         self.caret = MathPosition(self.document.nodes[leaf].id, self.document.nodes[leaf].text.count_codepoints() if end else 0)
-        self.selected = -1
+        self.clear_selection()
     def select(mut self, i: Int):
         self.selected = self.document.nodes[i].id
         self.caret = MathPosition(self.selected)
+        self.selection_anchor = MathPosition(-1)
+    def clear_selection(mut self):
+        self.selected = -1
+        self.selection_anchor = MathPosition(-1)
+    def has_text_selection(self) -> Bool:
+        return self.selected < 0 and self.selection_anchor.id == self.caret.id and self.selection_anchor.offset != self.caret.offset
+    def selection_start(self) -> Int:
+        return min(self.selection_anchor.offset, self.caret.offset) if self.has_text_selection() else self.caret.offset
+    def selection_end(self) -> Int:
+        return max(self.selection_anchor.offset, self.caret.offset) if self.has_text_selection() else self.caret.offset
+    def set_caret(mut self, position: MathPosition, extend: Bool = False):
+        """Extend within a token, or select the common ancestor across slots."""
+        if not extend:
+            self.caret = position
+            self.clear_selection()
+            return
+        if self.selection_anchor.id < 0:
+            self.selection_anchor = self.caret
+        self.caret = position
+        self.selected = -1
+        if self.selection_anchor.id != position.id:
+            var node = self.document.find_id(self.selection_anchor.id)
+            var other = self.document.find_id(position.id)
+            while node >= 0:
+                var ancestor = other
+                while ancestor >= 0:
+                    if ancestor == node:
+                        self.selected = self.document.nodes[node].id
+                        return
+                    ancestor = self.document.parent(ancestor)
+                node = self.document.parent(node)
+    def _token_source_offset(self, index: Int, offset: Int) -> Int:
+        var n = self.document.nodes[index]
+        var decoded = clamp_text_boundary(n.text,offset)
+        var source = n.start
+        if codepoint_at(self.source.text,source) != ord('"'):
+            return source+decoded
+        source += 1
+        for _ in range(decoded):
+            source += 2 if codepoint_at(self.source.text,source) == ord("\\") else 1
+        return source
+    def _source_token_offset(self, index: Int, offset: Int) -> Int:
+        var n = self.document.nodes[index]
+        var source = n.start
+        if codepoint_at(self.source.text,source) != ord('"'):
+            return clamp_text_boundary(n.text,offset-source)
+        source += 1
+        var decoded = 0
+        while decoded<n.text.count_codepoints():
+            var width = 2 if codepoint_at(self.source.text,source) == ord("\\") else 1
+            if offset<source+width:
+                if offset-source>source+width-offset:
+                    decoded += 1
+                return clamp_text_boundary(n.text,decoded)
+            source += width
+            decoded += 1
+        return n.text.count_codepoints()
+    def _focus_source_caret(mut self, offset: Int):
+        var leaves = List[Int]()
+        self._leaves(self.document.root,leaves)
+        var closest = self.document.root
+        var distance = self.source.text.count_codepoints()+1
+        for leaf in leaves:
+            var n = self.document.nodes[leaf]
+            var gap = max(0,max(n.start-offset,offset-n.end))
+            if gap<distance:
+                closest = leaf
+                distance = gap
+        var n = self.document.nodes[closest]
+        if n.kind == MathKind.TOKEN:
+            self.set_caret(MathPosition(n.id,self._source_token_offset(closest,offset)))
+        else:
+            self.focus(closest,offset>n.start)
     def _leaves(self, i: Int, mut result: List[Int]):
         if len(self.document.nodes[i].children) == 0:
             result.append(i)
@@ -248,17 +333,33 @@ struct MathEditorState(ImplicitlyCopyable):
             self.text_mode = not self.text_mode
             if self.text_mode:
                 var target_id=self.document.nodes[self.target()].id
+                var structural=self.selected>=0
                 self.document.edit_text(self.document.text())
                 self.source = TextInputState(self.document.text())
                 var target=self.document.find_id(target_id)
                 if target>=0:
-                    self.source.anchor=self.document.nodes[target].start
-                    self.source.cursor=self.document.nodes[target].end
+                    var n=self.document.nodes[target]
+                    if structural:
+                        self.source.anchor=n.start
+                        self.source.cursor=n.end
+                    elif n.kind == MathKind.TOKEN:
+                        self.source.cursor=self._token_source_offset(target,self.caret.offset)
+                        self.source.anchor=self._token_source_offset(target,self.selection_anchor.offset) if self.has_text_selection() else -1
+                    else:
+                        self.source.cursor=n.end if self.caret.offset>0 else n.start
+                        self.source.anchor = -1
             else:
                 var anchor=self.source.cursor if self.source.anchor<0 else self.source.anchor
                 var target=self.document.node_at_source(min(anchor,self.source.cursor),max(anchor,self.source.cursor))
-                self.focus(target)
-                self.selected=self.document.nodes[target].id
+                var n=self.document.nodes[target]
+                if anchor == self.source.cursor:
+                    self._focus_source_caret(self.source.cursor)
+                elif n.kind == MathKind.TOKEN and (self.selected != n.id or min(anchor,self.source.cursor)>n.start or max(anchor,self.source.cursor)<n.end):
+                    var cursor=self._source_token_offset(target,self.source.cursor)
+                    self.set_caret(MathPosition(n.id,self._source_token_offset(target,anchor)))
+                    self.set_caret(MathPosition(n.id,cursor),True)
+                else:
+                    self.select(target)
             self.commit()
             return
         if command == MathCommand.NEXT_HOLE or command == MathCommand.PREVIOUS_HOLE:
@@ -276,7 +377,7 @@ struct MathEditorState(ImplicitlyCopyable):
             var parent = self.document.parent(self.target())
             if parent >= 0:
                 self.caret = MathPosition(self.document.nodes[parent].id, 1)
-                self.selected = -1
+                self.clear_selection()
             else:
                 self.focused = False
                 self.status = "Math focus released · click an expression to return"
@@ -350,6 +451,8 @@ struct MathEditorState(ImplicitlyCopyable):
     def insert(mut self, text: String) raises:
         if text.byte_length()>MAX_TEXT or "\x00" in text:
             raise Error("Math text size/NUL limit")
+        if text == "":
+            return
         if self.symbol_entry:
             self.abbreviation += text
             self.status = "Symbol: " + self.abbreviation + " · Escape commits · Backspace corrects · a alpha, b beta, pi, inf"
@@ -367,8 +470,9 @@ struct MathEditorState(ImplicitlyCopyable):
                 self.document.nodes[index].text = text
                 self.caret = MathPosition(n.id, text.count_codepoints())
             elif n.kind == MathKind.TOKEN or n.kind == MathKind.ERROR:
-                var at = min(self.caret.offset, n.text.count_codepoints())
-                if text.count_codepoints() == 1 and text in "+−-*×=<>" and at == n.text.count_codepoints() and at > 0:
+                var at = min(self.selection_start(), n.text.count_codepoints())
+                var end = min(self.selection_end(), n.text.count_codepoints())
+                if not self.has_text_selection() and text.count_codepoints() == 1 and text in "+−-*×=<>" and at == n.text.count_codepoints() and at > 0:
                     var row = self.document.add(MathKind.ROW)
                     self.document.replace(index, row)
                     var op = self.document.token(text)
@@ -378,7 +482,7 @@ struct MathEditorState(ImplicitlyCopyable):
                     self.document.nodes[row].children.append(hole)
                     self.focus(hole)
                 else:
-                    self.document.nodes[index].text = String(n.text[codepoint=0:at]) + text + String(n.text[codepoint=at:])
+                    self.document.nodes[index].text = String(n.text[codepoint=0:at]) + text + String(n.text[codepoint=end:])
                     self.caret.offset = at + text.count_codepoints()
             else:
                 var row = self.document.add(MathKind.ROW)
@@ -387,7 +491,7 @@ struct MathEditorState(ImplicitlyCopyable):
                 self.document.nodes[row].children.append(index)
                 self.document.nodes[row].children.append(token)
                 self.focus(token, True)
-            self.selected = -1
+            self.clear_selection()
         self.commit()
 
     def delete(mut self, forward: Bool = False) raises:
@@ -399,7 +503,7 @@ struct MathEditorState(ImplicitlyCopyable):
             return
         if self.composition != "":
             return
-        if not self.text_mode and self.selected < 0:
+        if not self.text_mode and self.selected < 0 and not self.has_text_selection():
             var n = self.document.nodes[self.index()]
             if n.kind == MathKind.HOLE or (self.caret.offset == 0 and not forward):
                 self.command(MathCommand.UNWRAP)
@@ -421,56 +525,79 @@ struct MathEditorState(ImplicitlyCopyable):
                 self.focus(i)
             else:
                 var at = min(self.caret.offset, n.text.count_codepoints())
-                var start = at if forward else previous_text_boundary(n.text, at)
-                var end = next_text_boundary(n.text, at) if forward else at
+                var start = at
+                var end = at
+                if self.has_text_selection():
+                    start = self.selection_start()
+                    end = self.selection_end()
+                elif forward:
+                    end = next_text_boundary(n.text, at)
+                else:
+                    start = previous_text_boundary(n.text, at)
                 self.document.nodes[i].text = String(n.text[codepoint=0:start]) + String(n.text[codepoint=end:])
                 self.caret.offset = start
                 if self.document.nodes[i].text == "":
                     self.document.nodes[i].kind = MathKind.HOLE
+                self.clear_selection()
         self.commit()
 
     def horizontal(mut self, direction: Int, extend: Bool = False):
-        if extend:
-            self.command_selection_to(direction)
-            return
-        if self.selected >= 0:
+        if not extend and self.selected >= 0:
             self.focus(self.target(),direction>0)
+            return
+        if not extend and self.has_text_selection():
+            self.set_caret(MathPosition(self.caret.id,self.selection_start() if direction<0 else self.selection_end()))
             return
         var i = self.index()
         var n = self.document.nodes[i]
-        self.selected = -1
+        var position = self.caret
         if len(n.children)>0:
-            self.focus(i,True)
-            if direction>0:
-                self.horizontal(1)
-            return
-        if n.kind == MathKind.TOKEN or n.kind == MathKind.ERROR:
-            if direction < 0 and self.caret.offset > 0:
-                self.caret.offset = previous_text_boundary(n.text, self.caret.offset)
+            while len(self.document.nodes[i].children)>0:
+                var children = self.document.nodes[i].children.copy()
+                i = children[len(children)-1]
+            n = self.document.nodes[i]
+            position = MathPosition(n.id,n.text.count_codepoints())
+            if direction<0:
+                self.set_caret(position,extend)
                 return
-            if direction > 0 and self.caret.offset < n.text.count_codepoints():
-                self.caret.offset = next_text_boundary(n.text, self.caret.offset)
+        if n.kind == MathKind.TOKEN or n.kind == MathKind.ERROR:
+            if direction < 0 and position.offset > 0:
+                self.set_caret(MathPosition(n.id,previous_text_boundary(n.text, position.offset)),extend)
+                return
+            if direction > 0 and position.offset < n.text.count_codepoints():
+                self.set_caret(MathPosition(n.id,next_text_boundary(n.text, position.offset)),extend)
                 return
         var leaves = List[Int]()
         self._leaves(self.document.root, leaves)
         for j in range(len(leaves)):
             if leaves[j] == i:
-                self.focus(leaves[max(0, min(len(leaves)-1, j+direction))], direction < 0)
+                var next = j+direction
+                if next>=0 and next<len(leaves):
+                    var leaf = self.document.nodes[leaves[next]]
+                    self.set_caret(MathPosition(leaf.id,leaf.text.count_codepoints() if direction<0 else 0),extend)
                 return
-        self.focus(i, direction < 0)
     def command_selection_to(mut self, direction: Int):
-        var current = self.target()
-        var parent = self.document.parent(current)
-        self.select(current if parent < 0 else parent)
+        self.horizontal(direction,True)
     def copy_text(self) -> String:
         if self.text_mode:
             return self.source.selected_text()
+        if self.has_text_selection():
+            return String(self.document.nodes[self.index()].text[codepoint=self.selection_start():self.selection_end()])
         return self.document.print_node(self.target())
+    def copy_fragment_text(self) -> String:
+        """Keep token substrings literal when pasted through the fragment format."""
+        return quoted(self.copy_text()) if self.has_text_selection() else self.copy_text()
     def paste(mut self, text: String) raises:
+        if text == "":
+            return
         if self.text_mode:
             self.insert(text)
             return
         var fragment = parse_math(text, self.document.next_id)
+        var kind = self.document.nodes[self.target()].kind
+        if self.selected < 0 and (kind == MathKind.TOKEN or kind == MathKind.ERROR) and fragment.nodes[fragment.root].kind == MathKind.TOKEN:
+            self.insert(fragment.nodes[fragment.root].text)
+            return
         self.begin()
         var i = self.document.clone_from(fragment, fragment.root)
         self.document.replace(self.target(), i)

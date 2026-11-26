@@ -3,7 +3,7 @@ from std.ffi import external_call
 from moxi import ColumnView, Rect
 from moxi.component import Component
 from moxi.geometry import Point
-from moxi.event import Event, CLICK_KIND, KEY_DOWN_KIND, TEXT_INPUT_KIND, POINTER_DOWN_KIND, POINTER_MOVE_KIND, POINTER_UP_KIND, SCROLL_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_HOME, KEY_END, KEY_BACKSPACE, KEY_DELETE, KEY_ESCAPE, MOD_COMMAND, MOD_SHIFT, MOD_OPTION
+from moxi.event import Event, DRAG_BEGIN_KIND, DRAG_UPDATE_KIND, DROP_KIND, POINTER_CANCEL_KIND, KEY_DOWN_KIND, TEXT_INPUT_KIND, POINTER_DOWN_KIND, POINTER_MOVE_KIND, POINTER_UP_KIND, SCROLL_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_HOME, KEY_END, KEY_BACKSPACE, KEY_DELETE, KEY_ESCAPE, MOD_COMMAND, MOD_SHIFT, MOD_OPTION
 from moxi.style import default_surface_style, default_label_style, default_text_input_style
 from .editor import MathEditorState, MathCommand, symbol_for
 from .commands import MathKeymap
@@ -41,7 +41,6 @@ struct MathEditor(Component):
     var scroll_x: Float32
     var preferred_x: Float32
     var pointer_down: Bool
-    var pointer_anchor: Int
     var backend_status: String
     var pending_action: Int
     var workbench_controls: Bool
@@ -59,7 +58,6 @@ struct MathEditor(Component):
         self.scroll_x=0
         self.preferred_x = -1
         self.pointer_down=False
-        self.pointer_anchor = -1
         self.backend_status="Computation is optional · editing remains available without it"
         self.pending_action = -1
         self.workbench_controls=False
@@ -78,7 +76,6 @@ struct MathEditor(Component):
         self.scroll_x=copy.scroll_x
         self.preferred_x=copy.preferred_x
         self.pointer_down=copy.pointer_down
-        self.pointer_anchor=copy.pointer_anchor
         self.backend_status=copy.backend_status
         self.pending_action=copy.pending_action
         self.workbench_controls=copy.workbench_controls
@@ -142,25 +139,34 @@ struct MathEditor(Component):
     def update(mut self, event: Event, view: ColumnView) -> Bool:
         try:
             if event.target==MATH_SEARCH:
-                self.state.focused=False
+                if event.kind==POINTER_DOWN_KIND:
+                    self.state.focused=False
+                    return True
                 if event.kind==TEXT_INPUT_KIND:
+                    if event.replacement_start>=0:
+                        return self.search.replace_text_range(event.text,event.replacement_start,event.replacement_end)
                     return self.search.insert_text(event.text)
                 if event.kind==KEY_DOWN_KIND:
                     return self.search.handle_key(event.key,event.modifiers)
-            if event.kind==CLICK_KIND:
+            if event.is_activation():
                 if event.target>=MATH_SYMBOL_BASE and event.target<MATH_SYMBOL_BASE+10:
                     var names: List[String]=["alpha","beta","gamma","delta","theta","pi","infinity","times","le","ge"]
                     self.state.focused=True
                     self.state.insert(symbol_for(names[event.target-MATH_SYMBOL_BASE]))
                     return True
                 if event.target>=MATH_COMMAND_BASE+1 and event.target<=MATH_COMMAND_BASE+24:
+                    self.sync_source_selection()
                     self.state.focused=True
                     self.state.command(MathCommand(event.target-MATH_COMMAND_BASE))
                     return True
                 if event.target>=MATH_SAVE and event.target<=MATH_SUBSTITUTE:
+                    self.state.focused=True
                     self.pending_action=event.target
                     return True
             if self.state.text_mode and event.target==MATH_SOURCE:
+                if event.kind==POINTER_DOWN_KIND:
+                    self.state.focused=True
+                    return True
                 if event.kind==COMPOSITION_UPDATE_KIND:
                     self.state.source.set_composition(event.text,event.selection_start,event.selection_end)
                     return True
@@ -203,50 +209,55 @@ struct MathEditor(Component):
         except e:
             self.state.status=String(e)
             return True
+    def sync_source_selection(mut self):
+        if self.state.text_mode and self.state.focused:
+            var source=self.state.source.text.as_c_string_span()
+            var start=Int(external_call["moxi_math_source_endpoint",Int32](source.ptr(),Int32(0)))
+            var end=Int(external_call["moxi_math_source_endpoint",Int32](source.ptr(),Int32(1)))
+            if start>=0 and end>=start and (start!=self.state.source.selection_start() or end!=self.state.source.selection_end()):
+                self.state.source.anchor=start if start!=end else -1
+                self.state.source.cursor=end
+
     def _route(mut self, event: Event) raises -> Bool:
+        if event.kind==POINTER_DOWN_KIND:
+            self.sync_source_selection()
         if event.kind==POINTER_DOWN_KIND and self.viewport.contains(event.position):
             self.state.focused=True
+            if self.state.text_mode:
+                return True
             var position=self.layout.snapshot.hit(self.local_point(event.position))
             if event.modifiers & MOD_OPTION and self.state.selected>=0:
                 self.state.begin_drag()
             else:
-                self.state.caret=position
-                self.state.selected = -1
+                self.state.set_caret(position,(event.modifiers & MOD_SHIFT)!=0)
             self.pointer_down=True
-            self.pointer_anchor=position.id
             self.preferred_x = -1
             return True
-        if event.kind==POINTER_DOWN_KIND and not self.viewport.contains(event.position):
-            # Keep canvas focus for palette; native text field takes its own focus.
+        if event.kind==POINTER_DOWN_KIND:
             self.state.focused=False
-        if event.kind==POINTER_MOVE_KIND and self.pointer_down:
-            var position=self.layout.snapshot.hit(self.local_point(event.position))
-            if self.state.drag_id>=0:
-                self.state.drag_target=position.id
-            elif position.id!=self.pointer_anchor:
-                var node=self.state.document.find_id(self.pointer_anchor)
-                var other=self.state.document.find_id(position.id)
-                var found=False
-                while node>=0 and not found:
-                    var p=other
-                    while p>=0:
-                        if p==node:
-                            found=True; break
-                        p=self.state.document.parent(p)
-                    if not found:
-                        node=self.state.document.parent(node)
-                if node>=0:
-                    self.state.select(node)
-            return True
-        if event.kind==POINTER_UP_KIND and self.pointer_down:
-            self.pointer_down=False
-            if self.state.drag_id>=0:
-                _ = self.state.drop()
-            return True
+        if self.pointer_down:
+            if event.kind==POINTER_CANCEL_KIND:
+                self.pointer_down=False
+                self.state.drag_id = -1
+                self.state.drag_target = -1
+                return True
+            if event.kind==DRAG_BEGIN_KIND or event.kind==DRAG_UPDATE_KIND or event.kind==DROP_KIND or event.kind==POINTER_MOVE_KIND:
+                var position=self.layout.snapshot.hit(self.local_point(event.position))
+                if self.state.drag_id>=0:
+                    self.state.drag_target=position.id if self.viewport.contains(event.position) else -1
+                else:
+                    self.state.set_caret(position,True)
+                if event.kind!=DROP_KIND:
+                    return True
+            if event.kind==POINTER_UP_KIND or event.kind==DROP_KIND:
+                self.pointer_down=False
+                if self.state.drag_id>=0:
+                    _ = self.state.drop()
+                return True
         if event.kind==SCROLL_KIND and self.viewport.contains(event.position):
             self.scroll_x=max(Float32(0),min(self.layout.snapshot.width*self.zoom-self.viewport.width+32,self.scroll_x+event.scroll_delta.x+event.scroll_delta.y))
             return True
-        if not self.state.focused:
+        if not self.state.focused or self.state.text_mode:
             return False
         if event.kind==COMPOSITION_UPDATE_KIND:
             self.state.composition=event.text
@@ -256,12 +267,13 @@ struct MathEditor(Component):
             return True
         if event.kind==TEXT_INPUT_KIND and not self.state.text_mode:
             self.state.composition=""
-            if event.replacement_start>=0 and self.state.document.nodes[self.state.index()].kind==MathKind.TOKEN:
+            if event.replacement_start>=0 and self.state.selected<0 and not self.state.symbol_entry and self.state.document.nodes[self.state.index()].kind==MathKind.TOKEN:
                 self.state.begin()
                 var i=self.state.index()
                 var text=TextInputState(self.state.document.nodes[i].text)
                 _ = text.replace_text_range(event.text,event.replacement_start,event.replacement_end)
                 self.state.document.nodes[i].text=text.text
+                self.state.clear_selection()
                 self.state.caret.offset=text.cursor
                 self.state.commit()
             else:
@@ -269,9 +281,6 @@ struct MathEditor(Component):
             self.preferred_x = -1
             return True
         if event.kind!=KEY_DOWN_KIND:
-            return False
-        if self.state.text_mode:
-            # Native text editor owns source key routing and composition.
             return False
         if event.key==KEY_ESCAPE:
             self.state.escape()
@@ -289,9 +298,12 @@ struct MathEditor(Component):
             if event.key==99 or event.key==120:
                 var text=self.state.copy_text()
                 var ptr=text.as_c_string_span()
-                external_call["moxi_math_clipboard", NoneType](ptr.ptr())
+                var fragment=self.state.copy_fragment_text()
+                var fragment_ptr=fragment.as_c_string_span()
+                external_call["moxi_math_clipboard", NoneType](ptr.ptr(),fragment_ptr.ptr())
                 if event.key==120:
-                    self.state.select(self.state.target())
+                    if not self.state.has_text_selection():
+                        self.state.select(self.state.target())
                     self.state.delete()
                 return True
             if event.key==118:
@@ -313,19 +325,17 @@ struct MathEditor(Component):
         if event.key==KEY_UP or event.key==KEY_DOWN:
             if self.preferred_x<0:
                 self.preferred_x=self.layout.snapshot.caret(self.state.caret).x
-            self.state.caret=self.layout.snapshot.vertical(self.state.caret,-1 if event.key==KEY_UP else 1,self.preferred_x)
-            if event.modifiers & MOD_SHIFT:
-                self.state.command(MathCommand.EXPAND_SELECTION)
-            else:
-                self.state.selected = -1
+            var next=self.layout.snapshot.vertical(self.state.caret,-1 if event.key==KEY_UP else 1,self.preferred_x)
+            self.state.set_caret(next,(event.modifiers & MOD_SHIFT)!=0)
             return True
         if event.key==KEY_HOME or event.key==KEY_END:
-            self.state.focus(self.state.document.root,event.key==KEY_END)
+            self.state.set_caret(self.state.edge_position(event.key==KEY_END),(event.modifiers & MOD_SHIFT)!=0)
+            self.preferred_x = -1
             return True
         return False
     def prepare(mut self, view: ColumnView) raises:
         self.viewport=view.bounds_for(MATH_CANVAS)
-        self.layout.publish(self.state.document)
+        self.layout.publish(self.state.document,32,self.state.caret.id if self.state.focused and not self.state.text_mode else -1)
         var caret=self.layout.snapshot.caret(self.state.caret)
         var x=caret.x*self.zoom-self.scroll_x
         var moved=self.state.caret.id!=self.last_caret_id or self.state.caret.offset!=self.last_caret_offset or self.state.document.revision!=self.last_revision
@@ -351,6 +361,10 @@ def draw_math(snapshot: MathSnapshot, state: MathEditorState, viewport: Rect, zo
     if state.selected>=0:
         var bounds=snapshot.bounds(state.selected)
         _item(1,0,bounds.x,bounds.y,bounds.width,bounds.height,1)
+    elif state.has_text_selection():
+        var anchor=snapshot.caret(state.selection_anchor)
+        var end=snapshot.caret(state.caret)
+        _item(1,0,min(anchor.x,end.x),end.y,abs(end.x-anchor.x),end.height,1)
     for region in snapshot.regions:
         if region.label=="empty slot" or region.diagnostic:
             _item(2,0,region.bounds.x,region.bounds.y,region.bounds.width,region.bounds.height,2 if region.diagnostic else 3)
@@ -367,7 +381,7 @@ def draw_math(snapshot: MathSnapshot, state: MathEditorState, viewport: Rect, zo
         _item(0,glyph.id,glyph.x,glyph.y,0,glyph.size,2 if glyph.id==0 else 0)
     for rule in snapshot.rules:
         _item(1,0,rule.x,rule.y,rule.width,rule.height)
-    if state.focused and not state.text_mode:
+    if state.focused and not state.text_mode and state.selected<0 and not state.has_text_selection():
         var caret=snapshot.caret(state.caret)
         _item(1,0,caret.x,caret.y,1.5,caret.height,3)
     if state.drag_target>=0:
@@ -379,5 +393,6 @@ def draw_math(snapshot: MathSnapshot, state: MathEditorState, viewport: Rect, zo
     external_call["moxi_math_composition",NoneType](ptr.ptr(),caret.x,caret.y)
     var leaf=state.document.nodes[state.index()].text
     var leaf_ptr=leaf.as_c_string_span()
-    external_call["moxi_math_input_state",NoneType](leaf_ptr.ptr(),Int32(state.caret.offset),Int32(state.focused and not state.text_mode),caret.x,caret.y,caret.width,caret.height)
+    external_call["moxi_math_input_state",NoneType](leaf_ptr.ptr(),Int32(state.selection_start()),Int32(state.selection_end()),Int32(state.focused and not state.text_mode),caret.x,caret.y,caret.width,caret.height)
     external_call["moxi_math_scene_end",NoneType]()
+    external_call["moxi_math_track_source_selection",NoneType](Int32(state.focused and state.text_mode))

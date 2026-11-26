@@ -169,8 +169,8 @@ source provenance.
   native math font/view session are not implemented or verified.
 - **Notation/input:** this is the documented explicit grammar and conservative
   projection, not TeX, implicit algebra parsing, general bidirectional math or
-  a font fallback collection. Two-dimensional selection is structural; arbitrary
-  partial-token selection is available in Text mode. Moves target empty slots;
+  a font fallback collection. In 2D, a range can select part of one token or the
+  enclosing subtree when it spans slots. Moves target empty slots;
   general cross-document drag/drop is not claimed. Exact evaluation, expansion,
   differentiation with respect to `x`, and substitution of `x` with the captured
   Scratch expression are the exposed operations.
