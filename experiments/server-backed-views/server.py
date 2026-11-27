@@ -23,7 +23,9 @@ STATIC_FILES = {
     '/experiments/server-backed-views/' + name
     for name in ('index.html', 'demo.mjs', 'adapter.mjs', 'local.mjs',
                  'local-worker.mjs', 'dist/density.wasm')
-} | {'/experiments/browser-moxi/runtime.mjs', '/native/hosts/moxi_web_host.mjs'}
+} | {'/experiments/browser-moxi/runtime.mjs', '/experiments/shared/memory64.mjs',
+     '/experiments/shared/demo.css',
+     '/native/hosts/moxi_web_host.mjs'}
 
 class Kind(str, Enum):
     GRID = 'grid'

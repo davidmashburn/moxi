@@ -16,7 +16,7 @@ const errors = [];
 page.on('pageerror', e => errors.push(String(e)));
 const revision = execFileSync('git',['rev-parse','HEAD'],{cwd:here,encoding:'utf8'}).trim();
 const sourceDigest = createHash('sha256');
-const sourceInputs=['browser.mojo','runtime.mjs','demo.mjs','index.html','retarget.py','build.sh','browser-check.mjs','native.mojo','verify.mjs','check.mjs','runtime-check.mjs','test_retarget.py','target.mojo','serve.py'];
+const sourceInputs=['browser.mojo','runtime.mjs','demo.mjs','index.html','../shared/demo.css','retarget.py','build.sh','browser-check.mjs','native.mojo','verify.mjs','check.mjs','runtime-check.mjs','test_retarget.py','target.mojo','serve.py'];
 for(const name of sourceInputs) sourceDigest.update(name).update(await readFile(path.join(here,name)));
 const metadata = {demoId:'P01-browser-fdg',sourceRevision:revision,sourceStatus:'working tree; see sourceDigest for experiment inputs',sourceDigest:sourceDigest.digest('hex'),wasmSha256:createHash('sha256').update(await readFile(path.join(here,'dist/browser.wasm'))).digest('hex'),host:await browser.version(),captureHost:'Playwright headless Chrome; collaborative preview drag failed twice (see README)',backend:'Mojo App[GraphApp] → Wasm64 → Moxi SVG + MoxiWebHost',viewport:{width:1440,height:1100,deviceScaleFactor:1},fixture:'sample_graph: 36 nodes; 100 real solver frames then Fit and Pause',command:'node experiments/browser-moxi/browser-check.mjs (see README for environment)',capturedAt:new Date().toISOString()};
 const captures=[];

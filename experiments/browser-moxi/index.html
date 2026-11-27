@@ -1,14 +1,51 @@
 <!doctype html>
-<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Moxi FDG · experimental browser runtime</title>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Force-directed graph · Moxi</title>
+<link rel="stylesheet" href="../shared/demo.css">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#eef2f5;color:#20334a;font:15px system-ui,sans-serif}main{max-width:1140px;margin:24px auto;padding:0 20px}h1{font-size:26px;margin:0 0 8px}p{line-height:1.5;margin:8px 0 16px}.notice{background:#fff7db;border:1px solid #dec36a;padding:12px;border-radius:8px}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}button,input{font:inherit;padding:7px 12px;border:1px solid #8da1b4;border-radius:5px;background:white;color:#20334a}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #348bb1}.panel{background:white;border:1px solid #c6d3df;border-radius:10px;margin:22px 0;overflow:hidden}.panel h2{font-size:16px;margin:14px 18px}.surface{position:relative;width:100%;height:640px;touch-action:none;outline:none}.svg{position:absolute;inset:0}.svg svg{display:block;width:100%;height:100%}[data-moxi-accessibility]{opacity:0}pre{white-space:pre-wrap;max-height:280px;overflow:auto;font-size:12px;background:#182c40;color:#d4e8ef;padding:14px}#failure{color:#9a2525;font-weight:600}.caption{padding:0 18px;font-size:13px;color:#4a6178}
-button:disabled,input:disabled{background:#f1f3f5;border-color:#cbd3da;color:#607080;cursor:default}
+  main { max-width: 1200px; }
+  .surface { height: 640px; }
+  .viewport { overflow-x: auto; }
+  .wide-view { display: none; }
+  @media (max-width: 840px) {
+    .wide-view { display: block; margin: 8px 14px; font-size: .9rem; }
+    .panel:has(.wide-view input:checked) .surface { min-width: 800px; }
+  }
+  button:disabled, input:disabled { background: #f1f3f5; border-color: #cbd3da; color: #607080; cursor: default; }
+  #search-a { width: 9em; }
 </style>
-<main><h1>Moxi FDG in the browser</h1><p>The existing Mojo graph application handles selection, dragging, pan, zoom, search, and controls. Moxi generates the SVG and accessibility snapshot locally.</p>
-<div class="notice">Experimental memory64 subset · unsupported compiler route · desktop pointer and basic text/keyboard input. File export, IME, and broad browser support are not claimed.</div>
-<div class="toolbar"><button id="verify">Verify native parity + lifecycle</button><button id="animate">Stop animation</button><span id="status" role="status">Loading Mojo module…</span></div><p id="failure" role="alert"></p>
-<section class="panel"><h2>Instance A</h2><div class="toolbar"><button id="dispose-a" disabled>Dispose A</button><button id="recreate-a" disabled>Recreate A</button><button id="resize-a" disabled>Resize A</button><input id="search-a" disabled aria-label="Node ID in instance A" placeholder="node-12"><button id="find-a" disabled>Find in A</button></div><div id="a" class="surface" tabindex="0" aria-label="Moxi graph A"><div class="svg" aria-hidden="true"></div></div><p class="caption">Drag a node to pin it temporarily; drag the background to pan. Wheel zooms at the pointer. The controls inside the frame come from Moxi.</p></section>
-<section class="panel"><h2>Instance B · independent state</h2><div id="b" class="surface" tabindex="0" aria-label="Moxi graph B"><div class="svg" aria-hidden="true"></div></div><p class="caption">A and B share the module, but own separate Moxi application state and handles.</p></section>
-<details><summary>Measured runtime evidence</summary><pre id="evidence">No verification run yet.</pre></details>
-</main><script type="module" src="./demo.mjs"></script></html>
+<main>
+  <header>
+    <h1>Force-directed graph</h1>
+    <p>Find a node to inspect its connections. Drag the background to pan, or scroll to zoom.</p>
+  </header>
+  <p id="failure" role="alert"></p>
+  <div class="panes">
+    <section class="panel">
+      <div class="bar">
+        <h2>Graph A</h2>
+        <form class="toolbar" id="find-node">
+          <input id="search-a" disabled aria-label="Node ID in graph A" placeholder="node-12">
+          <button id="find-a" class="primary" disabled>Find in A</button>
+        </form>
+      </div>
+      <label class="wide-view"><input type="checkbox"> Expand to scroll all graph controls</label>
+      <div class="viewport" tabindex="0" role="region" aria-label="Scrollable graph A viewport"><div id="a" class="surface" tabindex="0" aria-label="Moxi graph A"><div class="svg" aria-hidden="true"></div></div></div>
+      <div class="toolbar"><button id="resize-a" disabled>Resize A</button><button id="dispose-a" disabled>Dispose A</button><button id="recreate-a" disabled>Recreate A</button></div>
+    </section>
+    <section class="panel">
+      <div class="bar"><h2>Graph B</h2><span class="caption">Independent instance</span></div>
+      <label class="wide-view"><input type="checkbox"> Expand to scroll all graph controls</label>
+      <div class="viewport" tabindex="0" role="region" aria-label="Scrollable graph B viewport"><div id="b" class="surface" tabindex="0" aria-label="Moxi graph B"><div class="svg" aria-hidden="true"></div></div></div>
+    </section>
+  </div>
+  <div class="toolbar"><button id="animate">Stop animation</button><button id="verify">Verify native parity + lifecycle</button><span id="status" role="status">Loading Mojo module…</span></div>
+  <details><summary>Runtime support and verification</summary>
+    <p>Moxi generates both SVG views and accessibility snapshots locally. This experimental memory64 compiler route supports desktop pointer and basic keyboard input. File export, IME, and broad browser support are unverified.</p>
+    <pre id="evidence">No verification run yet.</pre>
+  </details>
+</main>
+<script type="module" src="./demo.mjs"></script>
+</html>

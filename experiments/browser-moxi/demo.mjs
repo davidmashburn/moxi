@@ -33,6 +33,8 @@ function mount(id) {
   for(let i=0;i<100;i++)owner.event(EventKind.frame);
   owner.event(EventKind.action,{key:Control.fit,value:1});
   owner.event(EventKind.action,{key:Control.pause,value:1});
+  // Keep the topology readable. Selection reveals a node label.
+  owner.event(EventKind.action,{key:Control.labels,value:1});
   const pane={owner,host:null,lastFrame:null};
   function input(fn) {
     const start=performance.now();fn();draw(pane);
@@ -92,7 +94,10 @@ try {
   $('dispose-a').onclick=guarded(()=>dispose('a'));
   $('recreate-a').onclick=guarded(()=>mount('a'));
   $('resize-a').onclick=guarded(()=>{ $('a').style.height=$('a').style.height==='720px'?'640px':'720px'; });
-  $('find-a').onclick=guarded(()=>search('a',$('search-a').value));
+  $('find-node').onsubmit=guarded(event=>{
+    event.preventDefault();
+    search('a',$('search-a').value);
+  });
   $('animate').onclick=()=>{animate=!animate;$('animate').textContent=animate?'Stop animation':'Start animation';};
   $('verify').onclick=()=>runVerification().catch(fail);
   window.moxiDemo={panes,runtime,frames,inputSamples,runVerification,search,dispose,mount,draw,EventKind,Control,AppField,NodeField,setAnimate:value=>{animate=value;},get failure(){return failure;}};
