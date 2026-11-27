@@ -285,6 +285,35 @@ and `clear_theme_for(sidebar_id)` to resume inheriting the enclosing theme.
 Ordinary buttons use a neutral surface. Use `primary_button` for the action
 that should stand out.
 
+To give an inspector its own action color while following light and dark mode,
+import `ThemeOverride` from `moxi` and set only the colors it owns.
+
+```mojo
+var inspector = ThemeOverride(
+    primary=Color(0.10, 0.28, 0.55, 1.0),
+    primary_text=Color(1.0, 1.0, 1.0, 1.0),
+)
+view.set_theme_override_for(inspector_id, inspector)
+view.set_theme(dark_theme())
+```
+
+Save keeps the inspector's blue fill and white text. Ordinary buttons, panel
+colors, and typography follow the enclosing theme. Primary buttons and accent
+badges consume `primary` and `primary_text`. Progress bars and sliders also use
+`primary` for their value ink. The `primary_hover` and `accent` tokens can be
+overridden independently for components that read them.
+
+Nested overrides apply from parent to child. A complete theme starts a new
+palette, and an override on the same node refines it. Each call to
+`set_theme_override_for` replaces that node's previous override. Use
+`clear_theme_override_for(id)` to remove just the override. A partial override
+on a layout container leaves its background transparent unless decorated.
+
+For a reusable authored component, pass `theme_override=inspector` to
+`HandlerHost`. This applies the override to its root, including when mounted in
+another view. The equivalent call on a component's `ColumnView` is
+`set_theme_override_for(-1, inspector)`.
+
 ## Attribution
 
 The capability-bus concept is credited to David Ash and was seeded from [The

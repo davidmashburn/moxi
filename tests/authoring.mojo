@@ -23,6 +23,7 @@ from moxi import (
     TASK_FAILED,
     TestRenderer,
     TestWindow,
+    ThemeOverride,
     WindowBackend,
     WindowConfig,
     dark_theme,
@@ -506,6 +507,20 @@ def persistent_host_theme_and_recipe_roles():
     parent.set_theme(dark_theme())
     check_authoring_color(parent.child(1).style.fill, dark_theme().tokens.colors.primary)
     check_authoring_color(parent.child(8).style.fill, light.tokens.colors.primary)
+
+    var blue = Color(0.1, 0.3, 0.7, 1)
+    var tinted = App(HandlerHost(ThemedRoot(), theme_override=ThemeOverride(primary=blue)), bounds)
+    var save = tinted.view.child(0).id
+    test_check(tinted.dispatch(Event(SemanticActionEvent(save, ACTION_PRESS))))
+    test_check(tinted.view.child(0).text == "Primary 1")
+    check_authoring_color(tinted.view.child(0).style.fill, blue)
+    reset_headless(tinted, ThemedRoot())
+    var mounted = ColumnView(bounds, 0, 0)
+    mounted.add_component_view_to(-1, 300, tinted.component.build(bounds), 3000)
+    mounted.set_theme(light)
+    check_authoring_color(mounted.child(1).style.fill, blue)
+    check_authoring_color(mounted.child(1).style.text, light.tokens.colors.primary_text)
+    check_authoring_color(mounted.child(2).style.fill, light.button.fill)
 
 def reset_preserves_unrelated_queue_capacity():
     var app = App(HandlerHost(Root()), Rect(0, 0, 520, 320))

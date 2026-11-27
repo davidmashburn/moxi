@@ -30,6 +30,7 @@ from .style import (
     Panel,
     Style,
     Theme,
+    ThemeOverride,
     default_panel_style,
     default_surface_style,
 )
@@ -103,6 +104,7 @@ struct ColumnView:
     var theme: Theme
     var has_explicit_theme: Bool
     var _theme_scopes: Dict[Int, Theme]
+    var _theme_overrides: Dict[Int, ThemeOverride]
     var _theme_parent_ids: Dict[Int, Int]
     var has_explicit_surface_style: Bool
     var has_explicit_panel_style: Bool
@@ -138,6 +140,7 @@ struct ColumnView:
         self.theme = Theme()
         self.has_explicit_theme = False
         self._theme_scopes = Dict[Int, Theme]()
+        self._theme_overrides = Dict[Int, ThemeOverride]()
         self._theme_parent_ids = Dict[Int, Int]()
         self.has_explicit_surface_style = False
         self.has_explicit_panel_style = False
@@ -174,6 +177,7 @@ struct ColumnView:
         result.theme = self.theme
         result.has_explicit_theme = self.has_explicit_theme
         result._theme_scopes = self._theme_scopes.copy()
+        result._theme_overrides = self._theme_overrides.copy()
         result._theme_parent_ids = self._theme_parent_ids.copy()
         result.has_explicit_surface_style = self.has_explicit_surface_style
         result.has_explicit_panel_style = self.has_explicit_panel_style
@@ -232,6 +236,9 @@ struct ColumnView:
             self._theme_scopes[scope_id + id_offset] = child._theme_scopes.get(
                 scope_id, child.theme,
             )
+        for scope_id in child._theme_overrides.keys():
+            var target = slot_id if scope_id == -1 else scope_id + id_offset
+            self._theme_overrides[target] = child._theme_overrides.get(scope_id, ThemeOverride())
         self.add(slot)
 
         for index in range(child.child_count()):
@@ -1229,29 +1236,53 @@ struct ColumnView:
         self.apply_theme()
 
     def _theme_scope_id(self, id: Int) -> Int:
-        if len(self._theme_scopes) == 0:
+        if len(self._theme_scopes) == 0 and (
+            len(self._theme_overrides) == 0
+            or (len(self._theme_overrides) == 1 and -1 in self._theme_overrides)
+        ):
             return -1
         var ancestor = id
         for _ in range(len(self.children) + 1):
             if ancestor == -1:
                 break
-            if ancestor in self._theme_scopes:
+            if ancestor in self._theme_scopes or ancestor in self._theme_overrides:
                 return ancestor
             ancestor = self._theme_parent_ids.get(ancestor, -1)
         return -1
 
+    def _theme_at_scope(self, nearest: Int) -> Theme:
+        var scope = nearest
+        if scope not in self._theme_overrides:
+            return self._theme_scopes.get(scope, self.theme)
+        if scope == -1 or scope in self._theme_scopes:
+            return self._theme_overrides.get(scope, ThemeOverride()).apply(
+                self._theme_scopes.get(scope, self.theme)
+            )
+
+        # A full theme ends inheritance. Apply partial scopes from outer to inner.
+        var overlays = List[ThemeOverride]()
+        for _ in range(len(self.children) + 2):
+            if scope in self._theme_overrides:
+                overlays.append(self._theme_overrides.get(scope, ThemeOverride()))
+            if scope == -1 or scope in self._theme_scopes:
+                break
+            scope = self._theme_scope_id(self._theme_parent_ids.get(scope, -1))
+        var resolved = self._theme_scopes.get(scope, self.theme)
+        for index in range(len(overlays) - 1, -1, -1):
+            resolved = overlays[index].apply(resolved)
+        return resolved
+
     def theme_for(self, id: Int) -> Theme:
-        """Return the closest explicit subtree theme, or the app theme."""
-        return self._theme_scopes.get(self._theme_scope_id(id), self.theme)
+        """Resolve the nearest complete theme and any partial overrides below it."""
+        return self._theme_at_scope(self._theme_scope_id(id))
 
     def _resolve_child_theme(mut self, index: Int):
         var scope = self._theme_scope_id(self.children[index].id)
-        var theme = self._theme_scopes.get(scope, self.theme)
-        var owns_surface = (scope == self.children[index].id
+        var theme = self._theme_at_scope(scope)
+        var owns_surface = (self.children[index].id in self._theme_scopes
                             and self.children[index].kind == CONTAINER_KIND)
-        self.children[index].resolve_theme(
-            theme, self.has_explicit_theme or scope != -1, owns_surface,
-        )
+        var has_provider = self.has_explicit_theme or scope != -1 or -1 in self._theme_overrides
+        self.children[index].resolve_theme(theme, has_provider, owns_surface)
 
     def set_theme_for(mut self, id: Int, theme: Theme):
         """Set a theme for a subtree, including children inserted later."""
@@ -1261,23 +1292,38 @@ struct ColumnView:
         self._theme_scopes[id] = theme
         self.apply_theme()
 
+    def set_theme_override_for(mut self, id: Int, override: ThemeOverride):
+        """Overlay selected tokens on a subtree, or the component root at -1."""
+        if override.is_empty():
+            self.clear_theme_override_for(id)
+            return
+        self._theme_overrides[id] = override
+        self.apply_theme()
+
+    def clear_theme_override_for(mut self, id: Int):
+        """Remove the local token overrides, retaining any complete theme."""
+        _ = self._theme_overrides.pop(id, ThemeOverride())
+        self.apply_theme()
+
     def clear_theme_for(mut self, id: Int):
         """Restore a subtree's inheritance from its enclosing scope."""
+        _ = self._theme_overrides.pop(id, ThemeOverride())
         _ = self._theme_scopes.pop(id, self.theme)
         self.apply_theme()
 
     def apply_theme(mut self):
         """Resolve the tree without changing identity, state, or local styles."""
+        var root = self._theme_at_scope(-1)
         if not self.has_explicit_surface_style:
-            self.surface_style = self.theme.surface
+            self.surface_style = root.surface
         if not self.has_explicit_panel_style:
-            self.panel.style = self.theme.panel
+            self.panel.style = root.panel
         for index in range(len(self.children)):
             self._resolve_child_theme(index)
 
     def set_panel(mut self, id: Int, bounds: Rect):
         """Decorate the root with a panel that follows the app theme."""
-        self.panel = Panel(id, bounds, self.theme.panel)
+        self.panel = Panel(id, bounds, self._theme_at_scope(-1).panel)
         self.has_panel = True
         self.has_explicit_panel_style = False
 

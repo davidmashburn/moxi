@@ -8,7 +8,7 @@ from ..app_runtime import App
 from ..column_view import ColumnView
 from ..component import Component
 from ..geometry import Rect
-from ..style import Theme
+from ..style import Theme, ThemeOverride
 from ..controls_text import TextInputControl, TextInputState
 from ..event import (
     Event, KeyEvent, TextInputEvent, ACTION_KIND, CLICK_KIND, KEY_DOWN_KIND,
@@ -291,10 +291,15 @@ struct RetainedUI[S: ImplicitlyCopyable](ImplicitlyCopyable):
         self.view.add(control.node())
         self.view.set_accessibility_label(self.controls[i].id, label)
 
-    def rebuild(mut self, declarations: List[Declaration[Self.S, NoneType]], theme: Optional[Theme] = None):
+    def rebuild(
+        mut self, declarations: List[Declaration[Self.S, NoneType]],
+        theme: Optional[Theme] = None, theme_override: ThemeOverride = ThemeOverride(),
+    ):
         self.begin()
         if theme:
             self.view.set_theme(theme.value())
+        if not theme_override.is_empty():
+            self.view.set_theme_override_for(-1, theme_override)
         for item in declarations:
             var i = self.claim(item.path, item.kind)
             self.controls[i].action = item.action
@@ -381,12 +386,16 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
     var root: Self.Root
     var ui: RetainedUI[Self.Root]
     var theme: Optional[Theme]
+    var theme_override: ThemeOverride
     var renders: Int
     var scope: DeliveryScope
     var _request_scopes: List[_OwnedRequestScope]
     var _pending_requests: List[ActionRequest[Self.Root]]
 
-    def __init__(out self, root: Self.Root, *, id_stride: Int = 1, theme: Optional[Theme] = None):
+    def __init__(
+        out self, root: Self.Root, *, id_stride: Int = 1,
+        theme: Optional[Theme] = None, theme_override: ThemeOverride = ThemeOverride(),
+    ):
         """Create a host with monotonic control IDs.
 
         Embedded hosts can share an ID region: use the same positive id_stride
@@ -399,6 +408,7 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
         self.ui = RetainedUI[Self.Root]()
         self.ui.id_stride = id_stride
         self.theme = theme
+        self.theme_override = theme_override
         self.renders = 0
         self.scope = DeliveryScope()
         self._request_scopes = List[_OwnedRequestScope]()
@@ -409,6 +419,7 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
         self.root = copy.root
         self.ui = copy.ui
         self.theme = copy.theme
+        self.theme_override = copy.theme_override
         self.renders = copy.renders
         # A copied runtime can allocate independently. It needs a new delivery
         # namespace even though its initial view IDs/model keys are identical.
@@ -501,7 +512,7 @@ struct HandlerHost[Root: Screen & Deinitable](Component):
         var ui = UI[Self.Root]()
         self.root.render(ui)
         _require(len(ui.frames) == 1, "unclosed scope")
-        self.ui.rebuild(ui.declarations, self.theme)
+        self.ui.rebuild(ui.declarations, self.theme, self.theme_override)
         self.renders += 1
 
     def build(self, bounds: Rect) -> ColumnView:

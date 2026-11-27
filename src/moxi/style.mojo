@@ -299,6 +299,43 @@ struct Theme(ImplicitlyCopyable):
         self.separator_style = style
 
 
+struct ThemeOverride(ImplicitlyCopyable):
+    """Optional semantic colors to apply over the current enclosing theme."""
+
+    var primary: Optional[Color]
+    var primary_text: Optional[Color]
+    var primary_hover: Optional[Color]
+    var accent: Optional[Color]
+
+    def __init__(
+        out self, *, primary: Optional[Color] = None,
+        primary_text: Optional[Color] = None, primary_hover: Optional[Color] = None,
+        accent: Optional[Color] = None,
+    ):
+        self.primary = primary
+        self.primary_text = primary_text
+        self.primary_hover = primary_hover
+        self.accent = accent
+
+    def is_empty(self) -> Bool:
+        return not (self.primary or self.primary_text or self.primary_hover or self.accent)
+
+    def apply(self, var inherited: Theme) -> Theme:
+        if self.primary:
+            var color = self.primary.value()
+            inherited.tokens.colors.primary = color
+            # These two control defaults draw their value with the primary ink.
+            inherited.progress.text = color
+            inherited.slider.text = color
+        if self.primary_text:
+            inherited.tokens.colors.primary_text = self.primary_text.value()
+        if self.primary_hover:
+            inherited.tokens.colors.primary_hover = self.primary_hover.value()
+        if self.accent:
+            inherited.tokens.colors.accent = self.accent.value()
+        return inherited
+
+
 struct Panel(ImplicitlyCopyable):
     """A backend-neutral panel background command description."""
 

@@ -3,7 +3,7 @@
 from moxi import (
     BUTTON_KIND, ButtonControl, CheckboxControl, Color, ColumnRuntime, ColumnView,
     LabelControl, MultilineTextControl, Rect, Style, SwitchControl,
-    TextInputControl, Theme, ThemeShowcaseState, ViewNode,
+    TextInputControl, Theme, ThemeOverride, ThemeShowcaseState, ViewNode,
     badge, dark_theme, default_button_style, destructive_button,
     emerald_theme, ghost_button, light_theme, outline_button,
     primary_button, secondary_button, test_check, zinc_theme, PANEL_KIND,
@@ -162,6 +162,179 @@ def check_scopes_and_components():
     check_color(node_with_id(cloned, 2005).style.fill, light.button.fill)
 
 
+def check_partial_subtree_inheritance():
+    var light = light_theme()
+    var dark = dark_theme()
+    var primary = Color(0.83, 0.12, 0.24, 1.0)
+    var primary_text = Color(0.14, 0.72, 0.31, 1.0)
+    var accent = Color(0.62, 0.18, 0.89, 1.0)
+    var view = ColumnView(Rect(0.0, 0.0, 400.0, 600.0), 0.0, 4.0)
+    view.set_theme(light)
+    view.add(primary_button(1, "Outside override"))
+    _ = view.add_column(10, 240.0, 0.0, 4.0)
+    view.add_to(10, primary_button(11, "Existing child"))
+    view.set_theme_override_for(10, ThemeOverride(primary=primary))
+    _ = view.add_column_to(10, 20, 120.0, 0.0, 4.0)
+    view.set_theme_override_for(20, ThemeOverride(primary_text=primary_text, accent=accent))
+    view.add_to(20, primary_button(21, "Late nested child"))
+    view.add_label_to(20, 22, "Unrelated defaults", 24.0)
+    check_color(node_with_id(view, 1).style.fill, light.tokens.colors.primary)
+    check_color(node_with_id(view, 11).style.fill, primary)
+    check_color(node_with_id(view, 11).style.text, light.tokens.colors.primary_text)
+    check_color(node_with_id(view, 21).style.fill, primary)
+    check_color(node_with_id(view, 21).style.text, primary_text)
+    check_color(view.theme_for(21).tokens.colors.accent, accent)
+    check_color(node_with_id(view, 22).style.text, light.label.text)
+    test_check(node_with_id(view, 10).style.fill.alpha == 0.0)
+    test_check(node_with_id(view, 20).style.fill.alpha == 0.0)
+    view.set_theme_override_for(20, ThemeOverride(primary=accent, primary_text=primary_text))
+    check_color(node_with_id(view, 21).style.fill, accent)
+    check_color(node_with_id(view, 11).style.fill, primary)
+    view.clear_theme_override_for(20)
+    check_color(node_with_id(view, 21).style.fill, primary)
+    check_color(node_with_id(view, 21).style.text, light.tokens.colors.primary_text)
+    view.set_theme_override_for(20, ThemeOverride(primary_text=primary_text, accent=accent))
+
+    # Unspecified tokens follow a later app theme through both partial scopes.
+    view.set_theme(dark)
+    view.add_to(10, primary_button(12, "Late outer child"))
+    check_color(node_with_id(view, 11).style.text, dark.tokens.colors.primary_text)
+    check_color(node_with_id(view, 12).style.fill, primary)
+    check_color(node_with_id(view, 21).style.fill, primary)
+    check_color(node_with_id(view, 21).style.text, primary_text)
+    check_color(node_with_id(view, 22).style.text, dark.label.text)
+    check_color(view.theme_for(21).tokens.colors.secondary, dark.tokens.colors.secondary)
+
+    view.layout()
+    var runtime = ColumnRuntime()
+    runtime.reconcile(view)
+    var commands = runtime.paint()
+    var outer_found = False
+    var nested_found = False
+    for index in range(commands.count()):
+        var command = commands.command(index)
+        if command.kind == BUTTON_KIND and command.id == 11:
+            outer_found = True
+            check_color(command.style.fill, primary)
+            check_color(command.style.text, dark.tokens.colors.primary_text)
+        if command.kind == BUTTON_KIND and command.id == 21:
+            nested_found = True
+            check_color(command.style.fill, primary)
+            check_color(command.style.text, primary_text)
+        test_check(not (command.kind == PANEL_KIND and (command.id == 10 or command.id == 20)))
+    test_check(outer_found and nested_found)
+
+    # Local properties and complete styles retain precedence over partial themes.
+    var local_text = Color(0.91, 0.63, 0.08, 1.0)
+    view.set_text_color(21, local_text)
+    view.set_corner_radius(21, 17.0)
+    view.set_style(11, light.button.with_opacity(0.42))
+    view.set_theme_override_for(10, ThemeOverride(primary=accent))
+    view.set_theme(light)
+    check_color(node_with_id(view, 21).style.fill, accent)
+    check_color(node_with_id(view, 21).style.text, local_text)
+    test_check(node_with_id(view, 21).style.corner_radius == 17.0)
+    check_color(node_with_id(view, 11).style.fill, light.button.fill)
+    test_check(node_with_id(view, 11).style.opacity == 0.42)
+
+
+def check_partial_and_complete_scope_clearing():
+    var light = light_theme()
+    var dark = dark_theme()
+    dark.button = dark.button.with_fill(Color(0.31, 0.24, 0.57, 1.0))
+    var emerald = emerald_theme()
+    var outer_primary = Color(0.86, 0.14, 0.23, 1.0)
+    var inner_primary = Color(0.52, 0.19, 0.84, 1.0)
+    var inner_text = Color(0.91, 0.68, 0.16, 1.0)
+    var view = ColumnView(Rect(0.0, 0.0, 400.0, 400.0), 0.0, 4.0)
+    view.set_theme(light)
+    _ = view.add_column(10, 240.0, 0.0, 4.0)
+    view.set_theme_override_for(10, ThemeOverride(primary=outer_primary))
+    _ = view.add_column_to(10, 20, 180.0, 0.0, 4.0)
+    view.set_theme_for(20, dark)
+    view.add_to(20, primary_button(21, "Complete scope child"))
+    view.add_button_to(20, 23, "Custom complete theme style", 30.0)
+    check_color(node_with_id(view, 21).style.fill, dark.tokens.colors.primary)
+    view.set_theme_override_for(20, ThemeOverride(primary=inner_primary, primary_text=inner_text))
+    check_color(node_with_id(view, 21).style.fill, inner_primary)
+    check_color(node_with_id(view, 21).style.text, inner_text)
+    check_color(node_with_id(view, 23).style.fill, dark.button.fill)
+    check_color(node_with_id(view, 20).style.fill, dark.surface.fill)
+
+    # Replacing a complete theme retains its same-node partial overlay.
+    view.set_theme_for(20, emerald)
+    check_color(node_with_id(view, 21).style.fill, inner_primary)
+    check_color(node_with_id(view, 21).style.text, inner_text)
+    check_color(view.theme_for(21).tokens.colors.secondary, emerald.tokens.colors.secondary)
+    view.clear_theme_override_for(20)
+    check_color(node_with_id(view, 21).style.fill, emerald.tokens.colors.primary)
+    check_color(node_with_id(view, 20).style.fill, emerald.surface.fill)
+    view.set_theme_override_for(20, ThemeOverride(primary=inner_primary))
+    view.set_theme_override_for(20, ThemeOverride())
+    check_color(node_with_id(view, 21).style.fill, emerald.tokens.colors.primary)
+
+    # Clearing the whole scope removes both providers, preserving the outer one.
+    view.set_theme_override_for(20, ThemeOverride(primary_text=inner_text))
+    view.clear_theme_for(20)
+    check_color(node_with_id(view, 21).style.fill, outer_primary)
+    check_color(node_with_id(view, 21).style.text, light.tokens.colors.primary_text)
+    test_check(node_with_id(view, 20).style.fill.alpha == 0.0)
+    view.add_to(20, primary_button(22, "After clearing both providers"))
+    check_color(node_with_id(view, 22).style.fill, outer_primary)
+    view.clear_theme_for(10)
+    check_color(node_with_id(view, 21).style.fill, light.tokens.colors.primary)
+    check_color(node_with_id(view, 22).style.fill, light.tokens.colors.primary)
+
+
+def check_partial_scope_clone_and_mount():
+    var primary = Color(0.82, 0.16, 0.27, 1.0)
+    var nested_text = Color(0.18, 0.74, 0.42, 1.0)
+    var light = light_theme()
+    var dark = dark_theme()
+    var emerald = emerald_theme()
+    var child = ColumnView(Rect(0.0, 0.0, 300.0, 240.0), 0.0, 4.0)
+    child.set_theme_override_for(-1, ThemeOverride(primary=primary))
+    child.add(primary_button(1, "Partial component root"))
+    _ = child.add_column(3, 80.0, 0.0, 4.0)
+    child.set_theme_override_for(3, ThemeOverride(primary_text=nested_text))
+    child.add_to(3, primary_button(4, "Nested partial component"))
+    _ = child.add_column(5, 80.0, 0.0, 4.0)
+    child.set_theme_for(5, dark)
+    child.add_to(5, primary_button(6, "Nested complete component"))
+    var cloned = child.clone()
+    child.set_theme_override_for(-1, ThemeOverride(primary=nested_text))
+    cloned.add(primary_button(7, "Late cloned child"))
+    check_color(node_with_id(cloned, 7).style.fill, primary)
+
+    var view = ColumnView(Rect(0.0, 0.0, 400.0, 600.0), 0.0, 4.0)
+    view.set_theme(emerald)
+    view.add_component_view_to(-1, 100, cloned, 1000)
+    check_color(node_with_id(view, 1001).style.fill, primary)
+    check_color(node_with_id(view, 1001).style.text, emerald.tokens.colors.primary_text)
+    check_color(node_with_id(view, 1004).style.fill, primary)
+    check_color(node_with_id(view, 1004).style.text, nested_text)
+    check_color(node_with_id(view, 1006).style.fill, dark.tokens.colors.primary)
+    check_color(node_with_id(view, 100).style.fill, emerald.surface.fill)
+
+    # A component's complete root theme and its -1 override remap to one slot.
+    cloned.set_theme(light)
+    view.add_component_view_to(-1, 200, cloned, 2000)
+    view.set_theme(dark)
+    check_color(node_with_id(view, 1001).style.fill, primary)
+    check_color(node_with_id(view, 1001).style.text, dark.tokens.colors.primary_text)
+    check_color(node_with_id(view, 2001).style.fill, primary)
+    check_color(node_with_id(view, 2001).style.text, light.tokens.colors.primary_text)
+    view.clear_theme_override_for(100)
+    check_color(node_with_id(view, 1001).style.fill, dark.tokens.colors.primary)
+    check_color(node_with_id(view, 1004).style.fill, dark.tokens.colors.primary)
+    check_color(node_with_id(view, 1004).style.text, nested_text)
+    view.clear_theme_for(200)
+    check_color(node_with_id(view, 2001).style.fill, dark.tokens.colors.primary)
+    check_color(node_with_id(view, 2001).style.text, dark.tokens.colors.primary_text)
+    view.add_to(200, primary_button(2010, "Late mounted child"))
+    check_color(node_with_id(view, 2010).style.fill, dark.tokens.colors.primary)
+
+
 def check_recipe_retention():
     var view = ColumnView(Rect(0.0, 0.0, 400.0, 400.0), 0.0, 4.0)
     var explicit_tokens = primary_button(9, "Explicit tokens", tokens=zinc_theme().tokens)
@@ -316,6 +489,9 @@ def main():
         test_check(catalog.child(index).style.opacity == 0.25)
     check_insertion_and_overrides()
     check_scopes_and_components()
+    check_partial_subtree_inheritance()
+    check_partial_and_complete_scope_clearing()
+    check_partial_scope_clone_and_mount()
     check_recipe_retention()
     check_control_inheritance()
     print("Moxi style-theme test passed")

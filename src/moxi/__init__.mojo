@@ -540,6 +540,7 @@ from .style import (
     Panel,
     Style,
     Theme,
+    ThemeOverride,
     default_button_style,
     default_checkbox_style,
     default_label_style,
