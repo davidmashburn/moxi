@@ -40,7 +40,10 @@ try {
   await page.evaluate(()=>window.moxiDemo.setAnimate(false));
   const fields=await page.evaluate(()=>({node:window.moxiDemo.NodeField,app:window.moxiDemo.AppField}));
   const bBefore=await inspect('b',0,fields.node.x);
-  await capture('initial','Load the page; both existing Moxi graph apps settle, fit and pause.','Both panes contain the 36-node Mojo graph and Moxi controls.');
+  assert.equal(await page.locator('#dispose-a').isVisible(),false);
+  assert.equal(await page.evaluate(()=>[...window.moxiDemo.panes.values()].some(p=>
+    p.lastFrame.semantics.some(n=>[window.moxiDemo.Control.pause,window.moxiDemo.Control.search].includes(n.id)))),false);
+  await capture('initial','Load the page; both existing Moxi graph apps settle, fit and pause.','Both panes contain the 36-node Mojo graph with the canvas ready for selection.');
   let point=await nodePoint('a',0);
   await page.mouse.click(point.x,point.y);
   assert.equal(await inspect('a',-1,fields.app.selected),0);
@@ -62,14 +65,18 @@ try {
   assert.notEqual(await inspect('a',-1,fields.app.panX),panBefore);
   await page.mouse.wheel(0,-160);
   await page.waitForFunction(old=>window.moxiDemo.panes.get('a').owner.inspect(-1,window.moxiDemo.AppField.zoom)!==old,zoomBefore);
+  await page.locator('#runtime-tools > summary').click();
   await page.locator('#resize-a').click();
   await page.waitForFunction(()=>document.querySelector('#a svg')?.getAttribute('height')==='720');
   await capture('pan-zoom-resize','Drag empty canvas left/up, wheel up 160 units, then click Resize A.','Moxi viewport and SVG resize to 720px; pan/zoom affect A only.');
+  await page.locator('#tools-a').selectOption({label:'Simulation'});
+  await page.locator('#a').scrollIntoViewIfNeeded();
   await control('pause');assert.equal(await inspect('a',-1,fields.app.paused),0);
   await control('pause');assert.equal(await inspect('a',-1,fields.app.paused),1);
   await control('restart');assert.equal(await inspect('a',-1,fields.app.paused),0);
   assert.ok(await inspect('a',-1,fields.app.alpha)>.9);
   await capture('restart','Use the Moxi Resume/Pause control twice, then Reheat. Animation is held for capture.','Reheat resets solver alpha and changes the Moxi control back to Pause.');
+  await page.locator('#tools-a').selectOption({label:'Find a node'});
   await control('search');
   await page.keyboard.type('node-12');await page.keyboard.press('Enter');
   assert.equal(await inspect('a',-1,fields.app.selected),12);

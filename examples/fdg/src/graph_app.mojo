@@ -10,6 +10,8 @@ from moxi.event import (
 from moxi.accessibility import ACTION_PRESS
 from moxi.controls_text import TextInputState, TextInputControl
 from layout import Layout
+from moxi.palette import light_tokens
+from moxi.style import Theme
 from moxi.scene_text import SceneTextStyle
 
 comptime CANVAS = 100
@@ -24,11 +26,21 @@ comptime FIND = 21
 comptime LESS = 22
 comptime MORE = 23
 
+@fieldwise_init
+struct GraphTools(Equatable, ImplicitlyCopyable):
+    var value: Int
+    comptime OVERVIEW = Self(0)
+    comptime SEARCH = Self(1)
+    comptime SIMULATION = Self(2)
+    comptime DISPLAY = Self(3)
+    comptime ALL = Self(4)
+
 struct GraphApp(Component):
     var graph: Layout
     var zoom: Float32
     var pan: Point
     var selected: Int
+    var tools: GraphTools
     var labels: Bool
     var neighbors_only: Bool
     var dragging: Bool
@@ -45,6 +57,7 @@ struct GraphApp(Component):
         self.zoom = 1
         self.pan = Point(0, 0)
         self.selected = -1
+        self.tools = GraphTools.ALL
         self.labels = True
         self.neighbors_only = False
         self.dragging = False
@@ -61,6 +74,7 @@ struct GraphApp(Component):
         self.zoom = copy.zoom
         self.pan = copy.pan
         self.selected = copy.selected
+        self.tools = copy.tools
         self.labels = copy.labels
         self.neighbors_only = copy.neighbors_only
         self.dragging = copy.dragging
@@ -75,32 +89,59 @@ struct GraphApp(Component):
     def build(self, bounds: Rect) -> ColumnView:
         var root = ColumnView(bounds, 16, 8)
         root.set_clip_to_bounds()
-        root.add_label(1, "FORCE / Moxi graph explorer", 30)
-        var bar = root.add_row(2, 0, 36, 0, 8)
-        root.add_button_to(bar, PAUSE, "Resume" if self.graph.paused else "Pause", 32)
-        root.add_button_to(bar, RESTART, "Reheat", 32)
-        root.add_button_to(bar, FIT, "Fit graph", 32)
-        root.add_button_to(bar, LABELS, "Hide labels" if self.labels else "Show labels", 32)
-        root.add_button_to(bar, NEIGHBORS, "All nodes" if self.neighbors_only else "Neighbors", 32)
-        root.add_button_to(bar, EXPORT, "Export…", 32)
-        for id in range(PAUSE, EXPORT + 1):
-            root.set_fixed_width(id, 118)
-        var search = root.add_row(3, 0, 36, 0, 8)
-        var input = TextInputControl(SEARCH, self.query.text, self.query.cursor, self.query.anchor, 32)
-        input.set_composition(self.query.composition, self.query.composition_selection_start, self.query.composition_selection_end)
-        root.add_to(search, input.node())
-        root.set_fixed_width(SEARCH, 240)
-        root.set_accessibility_label(SEARCH, "Find a node by ID")
-        root.add_button_to(search, FIND, "Find next", 32)
-        root.set_fixed_width(FIND, 100)
-        root.add_button_to(search, LESS, "Less repulsion", 32)
-        root.add_button_to(search, MORE, "More repulsion", 32)
-        root.set_fixed_width(LESS, 138)
-        root.set_fixed_width(MORE, 138)
-        root.add_label(4, String(len(self.graph.nodes), " nodes · ", len(self.graph.links), " links · ", self.message), 28)
-        root.add_canvas(CANVAS, "Force-directed graph", max(Float32(100), bounds.height - 240))
+        var full = self.tools == GraphTools.ALL
+        if not full:
+            root.set_theme(Theme(light_tokens()))
+        var reserved = 72
+        if full:
+            root.add_label(1, "FORCE / Moxi graph explorer", 30)
+        if full or self.tools == GraphTools.SIMULATION:
+            var bar = root.add_row(2, 0, 36, 0, 8)
+            root.add_button_to(bar, PAUSE, "Resume" if self.graph.paused else "Pause", 32)
+            root.add_button_to(bar, RESTART, "Reheat", 32)
+            reserved += 44
+        if full or self.tools == GraphTools.DISPLAY:
+            if not full:
+                _ = root.add_row(2, 0, 36, 0, 8)
+                reserved += 44
+            root.add_button_to(2, FIT, "Fit graph", 32)
+            root.add_button_to(2, LABELS, "Hide labels" if self.labels else "Show labels", 32)
+            root.add_button_to(2, NEIGHBORS, "All nodes" if self.neighbors_only else "Neighbors", 32)
+        if full:
+            root.add_button_to(2, EXPORT, "Export…", 32)
+            for id in range(PAUSE, EXPORT + 1):
+                root.set_fixed_width(id, 118)
+        if full or self.tools == GraphTools.SEARCH:
+            var search = root.add_row(3, 0, 36, 0, 8)
+            var input = TextInputControl(SEARCH, self.query.text, self.query.cursor, self.query.anchor, 32)
+            input.set_composition(self.query.composition, self.query.composition_selection_start, self.query.composition_selection_end)
+            root.add_to(search, input.node())
+            if full:
+                root.set_fixed_width(SEARCH, 240)
+            root.set_accessibility_label(SEARCH, "Find a node by ID")
+            root.add_button_to(search, FIND, "Find next", 32)
+            root.set_fixed_width(FIND, 100)
+            reserved += 44
+        if full or self.tools == GraphTools.SIMULATION:
+            if not full:
+                _ = root.add_row(3, 0, 36, 0, 8)
+                reserved += 44
+            root.add_button_to(3, LESS, "Less repulsion", 32)
+            root.add_button_to(3, MORE, "More repulsion", 32)
+            if full:
+                root.set_fixed_width(LESS, 138)
+                root.set_fixed_width(MORE, 138)
+        if full:
+            root.add_label(4, String(len(self.graph.nodes), " nodes · ", len(self.graph.links), " links · ", self.message), 28)
+            reserved = 240
+        elif self.selected < 0 and self.query.text == "":
+            root.add_label(4, String(len(self.graph.nodes), " nodes · ", len(self.graph.links), " links"), 28)
+        else:
+            root.add_label(4, self.message, 28)
+        root.add_canvas(CANVAS, "Force-directed graph" if full else "", max(Float32(100), bounds.height - Float32(reserved)))
         root.set_accessibility_label(CANVAS, "Graph: arrows select nodes, Enter toggles neighbors, Escape clears selection")
-        root.add_label(5, "Drag: move/pan · Scroll: zoom · Arrows: select · Enter: neighbors", 26)
+        if full:
+            root.add_label(5, "Drag: move/pan · Scroll: zoom · Arrows: select · Enter: neighbors", 26)
         root.layout()
         return root^
 
@@ -141,7 +182,8 @@ struct GraphApp(Component):
                 xmax = max(xmax, self.graph.nodes[i].x)
                 ymin = min(ymin, self.graph.nodes[i].y)
                 ymax = max(ymax, self.graph.nodes[i].y)
-        self.zoom = max(Float32(0.05), min(Float32(5), min(max(Float32(1), bounds.width - 160) / Float32(max(1.0, xmax - xmin)), max(Float32(1), bounds.height - 80) / Float32(max(1.0, ymax - ymin)))))
+        var gutter: Float32 = 160 if self.tools == GraphTools.ALL else 56
+        self.zoom = max(Float32(0.05), min(Float32(5), min(max(Float32(1), bounds.width - gutter) / Float32(max(1.0, xmax - xmin)), max(Float32(1), bounds.height - 80) / Float32(max(1.0, ymax - ymin)))))
         self.pan = Point(-Float32((xmin + xmax) * 0.5) * self.zoom, -Float32((ymin + ymax) * 0.5) * self.zoom)
 
     def zoom_at(mut self, position: Point, bounds: Rect, factor: Float32):

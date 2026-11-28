@@ -27,7 +27,7 @@ const exportedRevision = process.env.MOXI_SOURCE_REVISION;
 if (exportedRevision) assert.match(exportedRevision,/^[0-9a-f]{40}$/,'Exported source revision must be a full commit SHA');
 const sourceInputs = ['browser.mojo','runtime.mjs','demo.mjs','index.html','retarget.py','build.sh',
   'native.mojo','verify.mjs','check.mjs','runtime-check.mjs','test_retarget.py','target.mojo','serve.py',
-  '../shared/memory64.mjs','../../native/hosts/moxi_web_host.mjs','engine-check.mjs'];
+  '../shared/memory64.mjs','../shared/demo.css','../../native/hosts/moxi_web_host.mjs','engine-check.mjs'];
 const sourceHashes = Object.fromEntries(await Promise.all(sourceInputs.map(async name =>
   [name,sha256(await readFile(path.join(here,name)))])));
 const result = {engine, capturedAt:new Date().toISOString(), origin:origin.href,
@@ -81,6 +81,9 @@ async function interactive() {
   assert.equal(await page.locator('#a svg, #b svg').count(),2);
   const bBefore=await page.evaluate(()=>{const d=window.moxiDemo,p=d.panes.get('b');return Array.from({length:36},(_,i)=>[p.owner.inspect(i,d.NodeField.x),p.owner.inspect(i,d.NodeField.y)]);});
   check('initial','Load normal URL','Two paused 36-node Wasm FDG apps with SVG','Two apps rendered');
+  assert.equal(await page.locator('#dispose-a').isVisible(),false);
+  assert.equal(await page.evaluate(()=>[...window.moxiDemo.panes.values()].some(p=>
+    p.lastFrame.semantics.some(n=>[window.moxiDemo.Control.pause,window.moxiDemo.Control.search].includes(n.id)))),false);
   await capture('initial');
   let point=await nodePoint(0);
   await page.mouse.click(point.x,point.y);
@@ -105,10 +108,13 @@ async function interactive() {
   assert.notEqual(await inspect('a',-1,fields.app.panX),pan);
   await page.mouse.wheel(0,-160);
   await page.waitForFunction(old=>window.moxiDemo.panes.get('a').owner.inspect(-1,window.moxiDemo.AppField.zoom)!==old,zoom);
+  await page.locator('#runtime-tools > summary').click();
   await page.locator('#resize-a').click();
   await page.waitForFunction(()=>document.querySelector('#a svg')?.getAttribute('height')==='720');
   check('pan-zoom-resize','Drag empty canvas -90/-40; wheel -160; Resize A','Pan/zoom change and SVG height=720','Mojo pan/zoom changed and SVG resized');
   await capture('pan-zoom-resize');
+  await page.locator('#tools-a').selectOption({label:'Simulation'});
+  await page.locator('#a').scrollIntoViewIfNeeded();
   await control('pause');
   await page.evaluate(()=>{window.moxiDemo.frames.length=0;});
   await page.waitForFunction(()=>window.moxiDemo.frames.length>=3);
@@ -119,6 +125,7 @@ async function interactive() {
   await control('pause');assert.equal(await inspect('a',-1,fields.app.paused),1);
   check('resume-pause-reheat','Resume, wait 3 frames, Pause; Reheat, wait 3 frames, Pause',
     'Default animation loop advances app for both Resume and Reheat, then pauses','At least 3 draws for each, Mojo paused=1');
+  await page.locator('#tools-a').selectOption({label:'Find a node'});
   await control('search');await page.keyboard.type('node-12');await page.keyboard.press('Enter');
   assert.equal(await inspect('a',-1,fields.app.selected),12);
   assert.equal(await page.evaluate(()=>{const d=window.moxiDemo;return d.panes.get('a').lastFrame.semantics.find(n=>n.id===d.Control.search).value;}),'node-12');
@@ -131,10 +138,9 @@ async function interactive() {
   assert.equal(await page.evaluate(()=>window.moxiDemo.panes.size),1);
   assert.equal(await page.locator('#a [data-moxi-accessibility], #a svg').count(),0);
   assert.equal(await page.locator('#b svg').count(),1);
-  const liveControls = ['#find-a','#search-a','#resize-a','#dispose-a'];
+  const liveControls = ['#tools-a','#resize-a','#dispose-a'];
   for (const selector of liveControls) assert.ok(await page.locator(selector).isDisabled(),selector);
   assert.ok(await page.locator('#recreate-a').isEnabled());
-  await page.locator('#find-a').evaluate(button=>button.click());
   await page.evaluate(()=>window.moxiDemo.search('a','node-12'));
   await page.locator('#b').scrollIntoViewIfNeeded();
   const bPoint=await nodePoint(0,'b');

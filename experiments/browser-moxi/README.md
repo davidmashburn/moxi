@@ -44,11 +44,12 @@ python3 experiments/browser-moxi/serve.py --port 8765
 
 Open `http://127.0.0.1:8765/experiments/browser-moxi/` in a memory64-capable
 Chromium browser. Both panes start paused after 100 actual solver steps and Fit.
-Use Moxi's Resume/Reheat controls to animate. Select and drag a node, drag empty
-canvas to pan, wheel to zoom, and use arrows to change selection. Click the
-Moxi search field, type `node-12`, and press Enter. The visible HTML search
-helper also forwards text/actions into Moxi. Resize, dispose, and recreate A
-using the host buttons. Verify runs the same native parity/lifecycle fixture
+Select and drag a node, drag empty canvas to pan, wheel to zoom, and use arrows
+to change selection. Each graph has a menu. Choose **Find a node**, type
+`node-12` in the Moxi field and press Enter. **Simulation** controls playback
+and repulsion. **Display options** controls fit, labels and neighbors.
+Open **Runtime controls and verification** below the graphs to resize, dispose
+or recreate A. Verify runs the same native parity/lifecycle fixture
 inside a separate Wasm module. `?unsupported` forces a clearly labeled feature
 failure, not a successful fallback.
 

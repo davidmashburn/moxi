@@ -23,7 +23,7 @@ async function capture(phase,name,action,expected){const file=`${String(slides.l
 async function loaded(){await page.waitForFunction(()=>window.densityDemo?.failure||window.densityDemo?.panes.size===2);assert.equal(await page.evaluate(()=>window.densityDemo.failure),null);}
 async function ready(id='a'){await page.waitForFunction(id=>{const a=window.densityDemo?.panes.get(id)?.adapter;return a?.state==='ready'&&!a.active&&!a.pending;},id,{timeout:15000});}
 async function state(){return page.evaluate(()=>{const d=window.densityDemo;return [...d.panes].map(([id,p])=>({id,viewport:d.viewport(p.owner),state:p.adapter.state,generation:p.adapter.generation,active:!!p.adapter.active,pending:!!p.adapter.pending,total:p.adapter.displayed?.total,selection:p.owner.inspect(0,5),exact:p.owner.inspect(0,7),metrics:p.adapter.metrics,bytes:p.transport.bytes}));});}
-async function point(id='a',fx=.5,fy=.5){return page.evaluate(({id,fx,fy})=>{const d=window.densityDemo,p=d.panes.get(id),[x,y,w,h]=d.rect(p.owner,2),r=document.getElementById(id).getBoundingClientRect();return{x:r.x+x+w*fx,y:r.y+y+h*fy};},{id,fx,fy});}
+async function point(id='a',fx=.5,fy=.5){await page.locator('#'+id).scrollIntoViewIfNeeded();return page.evaluate(({id,fx,fy})=>{const d=window.densityDemo,p=d.panes.get(id),[x,y,w,h]=d.rect(p.owner,2),r=document.getElementById(id).getBoundingClientRect();return{x:r.x+x+w*fx,y:r.y+y+h*fy};},{id,fx,fy});}
 async function pan(dx=72,dy=30,steps=8){const p=await point();await page.mouse.move(p.x,p.y);await page.mouse.down();await page.mouse.move(p.x+dx,p.y+dy,{steps});await page.mouse.up();}
 async function memory(){const cdp=await context.newCDPSession(page);const main=await cdp.send('Runtime.getHeapUsage'),dom=await cdp.send('Memory.getDOMCounters');await cdp.detach();
  const session=await browser.newBrowserCDPSession(),workers=[];
@@ -37,7 +37,10 @@ let comparison=[];
 try{
  await page.goto(origin);await loaded();await ready();await ready('b');
  assert.equal((await state())[0].total,1000000);
+ assert.equal(await page.locator('#details-a').isVisible(),false);
+ assert.equal(await page.locator('#dispose-a').isVisible(),false);
  await capture('initial','initial-grid','Open the built P02 application; wait for both million-point reductions.','Two actual Moxi views each show a 32×32 grid totaling one million points.');
+ await page.getByText('Dataset and server delay',{exact:true}).click();
  const bBefore=(await state())[1];
  await page.locator('#delay').selectOption('3000');await pan();
  assert.equal((await state())[0].state,'pending');assert.equal((await state())[0].total,1000000);
@@ -48,7 +51,7 @@ try{
  assert.ok((await state())[0].selection>32);assert.equal((await state())[0].exact,0);
  await capture('interaction','aggregate-selection','Click a visible density cell in A.','Orange aggregate bounds are selected; aggregate counts are not record IDs; exact selection is empty.');
  await page.locator('#delay').selectOption('1800');await page.locator('#details-a').click();
- await page.mouse.click(select.x,select.y); // same cell is a new selection epoch
+ const again=await point();await page.mouse.click(again.x,again.y); // same cell is a new selection epoch
  assert.equal((await state())[0].exact,0);assert.equal(await page.evaluate(()=>window.densityDemo.panes.get('a').adapter.details),null);
  await ready();await page.locator('#delay').selectOption('150');
  await page.locator('#details-a').click();await ready();assert.equal((await state())[0].exact,32);
@@ -59,6 +62,7 @@ try{
  // Actual browser network disconnection, not just a local control flag.
  await context.setOffline(true);await pan(20,0,2);await page.waitForFunction(()=>window.densityDemo.panes.get('a').adapter.state==='error');
  await capture('recovery','network-disconnected','Use Chromium network-offline emulation and drag A.','The fetch fails visibly; the prior reduction and exact selection remain; B is isolated.');
+ await page.locator('#options-a > summary').click();
  await context.setOffline(false);await page.locator('#retry-a').click();await ready();
  await capture('recovery','retry-recovered','Restore the loopback network and click Reconnect / retry.','The current viewport receives fresh data; exact IDs for the unchanged revision remain selected.');
  // Identity forgery through real HTTP response interception must be rejected.
@@ -68,6 +72,7 @@ try{
  await page.locator('#delay').selectOption('3000');await pan(10,0,3);
  const oldHandle=await page.evaluate(()=>String(window.densityDemo.panes.get('a').owner.handle));
  await page.locator('#dispose-a').click();assert.equal(await page.evaluate(()=>window.densityDemo.panes.size),1);
+ assert.equal(await page.locator('#details-a').isVisible(),false);
  await capture('recovery','disposed-while-pending','Pan A with 3000ms delay, then Dispose before the reply.','A has no live Moxi owner; B continues displaying its independent view.');
  await page.locator('#delay').selectOption('150');await page.locator('#restart-a').click();await ready();
  assert.notEqual(await page.evaluate(()=>String(window.densityDemo.panes.get('a').owner.handle)),oldHandle);assert.equal((await state())[1].total,1000000);assert.equal((await state())[0].exact,0);
@@ -76,6 +81,8 @@ try{
  // Independent fresh pages per delay/route; identical world-space source and screen gestures.
  for(const delay of [0,150,600,1800])for(const route of ['reduced','full']){
   await page.goto(origin+(route==='full'?'?route=full':''));await loaded();await ready();await ready('b');
+  await page.getByText('Dataset and server delay',{exact:true}).click();
+  await page.locator('#options-b > summary').click();
   await page.locator('#dispose-b').click();await page.locator('#delay').selectOption(String(delay));
   const initial=await page.evaluate(()=>{const p=window.densityDemo.panes.get('a');return{sourceRevision:window.densityDemo.meta.revision,bytes:p.transport.bytes,sourceLoadMs:p.transport.sourceLoadMs??null,total:p.adapter.displayed.total};});
   const memInitial=await memory();

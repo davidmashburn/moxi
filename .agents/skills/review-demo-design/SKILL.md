@@ -18,4 +18,6 @@ Before scoring, state the visitor's task, required behaviors, and applicable row
 | Layout | Do related elements align, and can the visitor reach content and controls on both viewport sizes without unintended clipping or page overflow? |
 | Interaction | Can the visitor discover and perform the first action, see keyboard focus, recognize the result, and recover from a relevant failure? |
 
+Inspect the first screen, including controls drawn inside canvases or SVG. Count the visible actions and group them by the task they serve. Treat duplicate commands, maintenance controls that compete with exploration, and actions offered before their prerequisites as hierarchy findings. When reducing clutter, verify that a visitor can discover the secondary controls and use them when needed.
+
 Prioritize blockers and the weakest rows by their impact on the visitor's task. Keep judgments of taste explicit. For an implementation request, change the smallest layer that owns the defect and preserve the demo's real behavior. Retest with the same fixture, viewport and state, then exercise the primary action and recovery. Pair each revised rating with evidence, remaining defects and checks skipped. Never average away a blocked task.

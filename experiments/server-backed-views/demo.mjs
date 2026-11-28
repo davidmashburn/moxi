@@ -62,6 +62,8 @@ async function mount(id){
       if(selection!==owner.inspect(0,8)){
         // A new aggregate supersedes an outstanding exact request as well.
         const cell=owner.inspect(0,9),r=Math.floor(cell/GRID),c=cell%GRID,grid=p.adapter.displayed;
+        if(!grid)return;
+        $(`details-${id}`).hidden=false;
         p.selectionBounds=[grid.x_edges[c],grid.y_edges[r],grid.x_edges[c+1],grid.y_edges[r+1]];
         p.adapter.invalidateDetails();$(`records-${id}`).textContent='New aggregate; exact records not requested.';
         if(p.adapter.last?.kind===Kind.details)query();
@@ -80,7 +82,7 @@ async function mount(id){
   } catch(error) {transport?.dispose?.();if(!controller.signal.aborted)throw error;}
   finally {if(mounts.get(id)===controller)mounts.delete(id);}
 }
-function dispose(id){epochs.set(id,(epochs.get(id)??0)+1);mounts.get(id)?.abort();mounts.delete(id);const p=panes.get(id);if(!p)return;p.disposed=true;p.adapter.dispose();p.host.stop();p.owner.dispose();panes.delete(id);$(id).querySelector('.svg').textContent='Disposed — no live Moxi owner. Restart creates a new session.';$(`status-${id}`).textContent='disposed';$(`records-${id}`).textContent='Selection cleared.';}
+function dispose(id){$(`details-${id}`).hidden=true;epochs.set(id,(epochs.get(id)??0)+1);mounts.get(id)?.abort();mounts.delete(id);const p=panes.get(id);if(!p)return;p.disposed=true;p.adapter.dispose();p.host.stop();p.owner.dispose();panes.delete(id);$(id).querySelector('.svg').textContent='Disposed — no live Moxi owner. Restart creates a new session.';$(`status-${id}`).textContent='disposed';$(`records-${id}`).textContent='Selection cleared.';}
 async function restart(id){dispose(id);const epoch=epochs.get(id);const response=await fetch('/api/meta');if(!response.ok)throw new Error(`metadata HTTP ${response.status}`);const current=await response.json();if(epochs.get(id)!==epoch)return;meta=current;await mount(id);}
 function details(id){const p=panes.get(id);if(!p)return;if(p.owner.inspect(0,5)<0){$(`records-${id}`).textContent='Click an aggregate cell first.';return;}p.adapter.request(Kind.details,p.selectionBounds,p.route===Route.full?0:delay());}
 for(const id of ['a','b']){

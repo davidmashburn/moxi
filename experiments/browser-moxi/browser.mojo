@@ -7,13 +7,14 @@ from std.ffi import external_call
 from std.memory import Pointer
 from std.memory.alloc import alloc, dealloc, Allocation, Layout as MemoryLayout
 from std.math import isfinite
-from moxi import App, Rect, Point, Event, Scene, SvgSceneRenderer
+from moxi import App, Rect, Point, Event, Scene, Color, SvgSceneRenderer
 from moxi.event import (
     POINTER_DOWN_KIND, POINTER_UP_KIND, POINTER_MOVE_KIND, POINTER_CANCEL_KIND,
     SCROLL_KIND, KEY_DOWN_KIND, TEXT_INPUT_KIND, FRAME_TICK_KIND, ACTION_KIND,
 )
 from moxi.paint import scene_from_paint
-from graph_app import GraphApp, CANVAS, EXPORT, dispatch_graph_event
+from moxi.scene_text import SceneTextStyle
+from graph_app import GraphApp, GraphTools, CANVAS, SEARCH, EXPORT, dispatch_graph_event
 from layout import Layout, sample_graph, MAX_NODES, MAX_LINKS
 
 comptime OK = 0
@@ -92,6 +93,18 @@ def moxi_destroy(handle: Int64) abi("C") -> Int32:
     return OK
 
 @export
+def moxi_set_graph_tools(handle: Int64, mode: Int32) abi("C") -> Int32:
+    var address = resolve(handle)
+    if address == 0:
+        return INVALID_HANDLE
+    if Int(mode) < GraphTools.OVERVIEW.value or Int(mode) > GraphTools.DISPLAY.value:
+        return INVALID_INPUT
+    var ptr = StatePointer(unsafe_from_address=Int(address))
+    ptr[].app.component.tools = GraphTools(Int(mode))
+    ptr[].app.rebuild()
+    return OK
+
+@export
 def moxi_resize(handle: Int64, width: Float32, height: Float32) abi("C") -> Int32:
     var address = resolve(handle)
     if address == 0:
@@ -155,6 +168,13 @@ def moxi_render(handle: Int64) abi("C") -> Int32:
     var ptr = StatePointer(unsafe_from_address=Int(address))
     try:
         var controls = scene_from_paint(ptr[].app.paint())
+        if ptr[].app.component.tools == GraphTools.SEARCH:
+            var field = ptr[].app.view.bounds_for(SEARCH)
+            var ink = Color(0.08, 0.38, 0.35, 1)
+            var bottom = field.y + field.height
+            controls.append_line(SEARCH, Point(field.x, bottom), Point(field.x + field.width, bottom), ink, 1)
+            if ptr[].app.component.query.text == "" and ptr[].app.component.query.composition == "":
+                controls.append_text_styled(SEARCH, "Node ID (e.g. node-12)", field, ink, SceneTextStyle(family="system-ui", size=14))
         var graph = ptr[].app.component.scene(ptr[].app.view.bounds_for(CANVAS))
         for command in graph.commands:
             controls.append(command)

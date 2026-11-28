@@ -44,3 +44,7 @@ button:hover { background: #e5f2ed; }
 details { margin: 16px 0; border-top: 1px solid var(--line); padding-top: 10px; }
 summary, a { color: var(--accent); }
 @media (max-width: 960px) { .compare { grid-template-columns: 1fr; } }
+
+.compare .bar { min-height: 56px; }
+.view-options { margin: .5rem 14px; font-size: .9rem; }
+.view-options .toolbar { padding-inline: 0; }

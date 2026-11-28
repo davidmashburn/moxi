@@ -7,27 +7,31 @@
 <main>
   <header>
     <h1>Million-point density explorer</h1>
-    <p>Select a cell to inspect its source records. Drag to pan or scroll to zoom.</p>
-    <label>Server delay <select id="delay"><option value="0">0 ms</option><option value="150">150 ms</option><option value="600" selected>600 ms</option><option value="1800">1800 ms</option><option value="3000">3000 ms</option></select></label>
+    <p>Darker cells contain more records within each view. Select a cell to inspect it, drag to pan or scroll to zoom.</p>
   </header>
   <div id="failure" class="error" role="alert"></div>
   <div class="panes compare">
     <section class="panel">
-      <div class="bar"><h2>A · <span id="route-a">Server reduction</span></h2><button class="primary" id="details-a">Exact records (≤32)</button></div>
+      <div class="bar"><h2>A · <span id="route-a">Server reduction</span></h2><button class="primary" id="details-a" hidden>Exact records (≤32)</button></div>
       <div id="a" class="surface" tabindex="0" aria-label="Density view A"><div class="svg"></div></div>
+      <div id="records-a" class="records" aria-live="polite"></div>
+      <details class="view-options" id="options-a"><summary>Connection and lifecycle</summary>
       <div id="status-a" class="status"></div>
-      <div id="records-a" class="records">No exact source records requested.</div>
-      <div class="toolbar"><button id="disconnect-a">Disconnect</button><button id="retry-a">Reconnect / retry</button><button id="dispose-a">Dispose</button><button id="restart-a">Restart view</button></div>
+        <div class="toolbar"><button id="disconnect-a">Disconnect</button><button id="retry-a">Reconnect / retry</button><button id="dispose-a">Dispose</button><button id="restart-a">Restart view</button></div>
+      </details>
     </section>
     <section class="panel">
-      <div class="bar"><h2>B · Independent server view</h2><button class="primary" id="details-b">Exact records (≤32)</button></div>
+      <div class="bar"><h2>B · Independent server view</h2><button class="primary" id="details-b" hidden>Exact records (≤32)</button></div>
       <div id="b" class="surface" tabindex="0" aria-label="Density view B"><div class="svg"></div></div>
+      <div id="records-b" class="records" aria-live="polite"></div>
+      <details class="view-options" id="options-b"><summary>Connection and lifecycle</summary>
       <div id="status-b" class="status"></div>
-      <div id="records-b" class="records">No exact source records requested.</div>
-      <div class="toolbar"><button id="retry-b">Retry</button><button id="dispose-b">Dispose</button><button id="restart-b">Restart view</button></div>
+        <div class="toolbar"><button id="retry-b">Retry</button><button id="dispose-b">Dispose</button><button id="restart-b">Restart view</button></div>
+      </details>
     </section>
   </div>
-  <details><summary>Dataset and runtime details</summary>
+  <details><summary>Dataset and server delay</summary>
+    <label>Server delay <select id="delay"><option value="0">0 ms</option><option value="150">150 ms</option><option value="600" selected>600 ms</option><option value="1800">1800 ms</option><option value="3000">3000 ms</option></select></label>
     <p id="meta">Loading Mojo / Moxi Wasm64…</p>
     <p class="note">The grid, camera, aggregate selection and exact-selection count are rendered by <strong>Moxi App[Density] in Mojo/Wasm64</strong>. Transport controls are HTML. Pending views retain the last grid, transformed by the current camera. Exact IDs remain selected across reductions of this immutable revision; a new session or revision clears them.</p><small>The full-data comparison is available at <a href="?route=full">?route=full</a> (A only): identical binary source, local worker reduction, same Moxi view. This narrow Wasm64 build is experimental. Memory and timing measurements have separate scopes; screenshots do not establish latency.</small>
   </details>

@@ -31,13 +31,14 @@ not an official Mojo browser target or a general Moxi web backend. Missing
 Wasm, unsupported memory64, transport errors and compiler failures stay visible.
 No JavaScript rendering fallback is provided.
 
-Drag A's grid to pan and wheel to zoom. Select 3000ms delay, pan, and observe the
+Drag A's grid to pan and wheel to zoom. Each view maps its lowest and highest cell counts to light and dark teal and shows the range above the grid. Open **Dataset and server delay**, select 3000ms delay, pan, and observe the
 previous grid move immediately while Pending remains visible. Release and wait
 for Fresh reduction. Click a density cell, then Exact records to fetch up to 32
 stable IDs/coordinates. The aggregate total is distinct from those IDs. Pan again:
 exact IDs and the selected world rectangle persist for the unchanged revision.
 Clicking any aggregate again clears its previous exact selection.
 
+Open **Connection and lifecycle** below a view to access its transport controls.
 Disconnect simulates loss in A's local transport control. Reconnect / retry
 resends its last operation. The browser check additionally disables the actual
 browser network, producing a real failed fetch. Dispose tears down the Moxi

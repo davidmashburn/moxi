@@ -1,4 +1,6 @@
 """Example-local density view: Moxi owns camera, gestures, selection and scene."""
+from moxi.palette import light_tokens
+from moxi.style import Theme
 from moxi import Component, ColumnView, Event, Point, Rect, Scene, Color
 from moxi.event import POINTER_DOWN_KIND, POINTER_MOVE_KIND, POINTER_UP_KIND, POINTER_CANCEL_KIND, DRAG_UPDATE_KIND, DROP_KIND, CLICK_KIND, SCROLL_KIND
 
@@ -58,23 +60,31 @@ struct Density(Component):
         self.selected_cell = copy.selected_cell
         self.selection_generation = copy.selection_generation
 
+    def count_range(self) -> Tuple[Int, Int]:
+        if len(self.counts) == 0:
+            return (0, 0)
+        var low = self.counts[0]
+        var high = low
+        for count in self.counts:
+            low = min(low, count)
+            high = max(high, count)
+        return (low, high)
+
     def build(self, bounds: Rect) -> ColumnView:
         var root = ColumnView(bounds, 12, 6)
+        root.set_theme(Theme(light_tokens()))
         root.set_clip_to_bounds()
-        root.add_label(1, "MOXI / million-point density", 28)
-        var state = "Fresh reduction"
+        var low, high = self.count_range()
+        var state = String("Records per cell: ", low, "–", high)
         if self.status == PENDING:
-            state = "Loading initial grid" if len(self.counts) == 0 else "Pending — previous grid retained"
+            state = "Loading grid…" if len(self.counts) == 0 else "Updating · showing previous grid"
         elif self.status == FAILED:
-            state = "Disconnected / error — retained grid; retry"
-        root.add_label(2, state, 26)
-        root.add_canvas(CANVAS, "", max(Float32(100), bounds.height - 150))
+            state = "Connection error · open connection controls"
+        root.add_label(2, state, 24)
+        root.add_canvas(CANVAS, "", max(Float32(100), bounds.height - 88))
         root.set_accessibility_label(CANVAS, "Density: drag to pan, wheel to zoom, click aggregate")
-        var label = "Click a cell: aggregate selection, never a record ID"
         if self.selected_count >= 0:
-            label = String("Aggregate at selection: ", self.selected_count, " records")
-        root.add_label(3, label, 24)
-        root.add_label(4, String("Exact source IDs selected: ", len(self.exact), " / cap 32"), 24)
+            root.add_label(3, String("Cell: ", self.selected_count, " records · ", len(self.exact), " exact IDs selected"), 24)
         root.layout()
         return root^
 
@@ -128,15 +138,13 @@ struct Density(Component):
 
     def scene(self, bounds: Rect) -> Scene:
         var scene = Scene()
-        scene.append_rect(0, bounds, Color(0.04, 0.09, 0.15, 1))
+        scene.append_rect(0, bounds, Color(0.97, 0.98, 0.97, 1))
         scene.push_clip(1, bounds)
-        var peak = 1
-        for n in self.counts:
-            peak = max(peak, n)
+        var low, high = self.count_range()
         for i in range(len(self.counts)):
             var cell = Rect(self.data_bounds.x + Float32(i % GRID) / GRID * self.data_bounds.width, self.data_bounds.y + Float32(i // GRID) / GRID * self.data_bounds.height, self.data_bounds.width / GRID, self.data_bounds.height / GRID)
-            var level = Float32(self.counts[i]) / Float32(peak)
-            scene.append_rect(10 + i, self.screen(cell, bounds), Color(0.06 + level * 0.22, 0.16 + level * 0.66, 0.24 + level * 0.56, 1))
+            var level = Float32(self.counts[i] - low) / Float32(max(1, high - low))
+            scene.append_rect(10 + i, self.screen(cell, bounds), Color(0.92 - level * 0.89, 0.96 - level * 0.62, 0.91 - level * 0.57, 1))
         if self.selected_count >= 0:
             var s = self.screen(self.selection, bounds)
             var ink = Color(1, 0.56, 0.15, 1)

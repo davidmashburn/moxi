@@ -3,6 +3,8 @@ import {instantiateMoxi, EventKind, Control, AppField, NodeField, RuntimeState} 
 import {verify} from './verify.mjs';
 const $ = id => document.getElementById(id);
 const keyMap = new Map([[37,1000],[39,1001],[38,1002],[40,1003],[36,1004],[35,1005],[46,127],[65,97]]);
+// Browser choices map to the GraphTools values accepted by the Wasm ABI.
+const GraphTools = Object.freeze({overview:0, search:1, simulation:2, display:3});
 const frames = [], inputSamples = [];
 let runtime, bytes, animate = true, failure = null;
 const panes = new Map();
@@ -20,14 +22,21 @@ function draw(pane) {
 function guarded(fn) { return (...args) => { try { return fn(...args); } catch (e) { fail(e); } }; }
 function updatePaneControls() {
   const hasA=panes.has('a');
-  for (const id of ['dispose-a','resize-a','search-a','find-a']) $(id).disabled=!hasA;
+  for (const id of ['dispose-a','resize-a','tools-a']) $(id).disabled=!hasA;
   $('recreate-a').disabled=hasA;
+  $('tools-b').disabled=!panes.has('b');
   $('status').textContent=['No live Mojo/Moxi instances','One live Mojo/Moxi instance','Two live Mojo/Moxi instances'][panes.size];
 }
 function mount(id) {
   if (panes.has(id)) return;
   const surface=$(id), rect=surface.getBoundingClientRect();
   const owner=runtime.create({width:Math.max(320,rect.width),height:Math.max(320,rect.height)});
+  const toolMenu=$('tools-'+id);
+  function setTools() {
+    if(runtime.invoke('moxi_set_graph_tools',owner.handle,GraphTools[toolMenu.value])!==0)
+      throw new Error('Could not update graph tools');
+  }
+  setTools();
   // Settle the real solver and fit once for a useful initial view. Start paused
   // so the first frame remains inspectable; Resume/Reheat are Moxi actions.
   for(let i=0;i<100;i++)owner.event(EventKind.frame);
@@ -60,7 +69,13 @@ function mount(id) {
     event.preventDefault();input(()=>owner.text(event.key));
   });
   surface.addEventListener('keydown',typed);
-  pane.cleanup=()=>surface.removeEventListener('keydown',typed);
+  const changeTools=guarded(()=>{setTools();draw(pane);});
+  toolMenu.addEventListener('change',changeTools);
+  pane.cleanup=()=>{
+    surface.removeEventListener('keydown',typed);
+    toolMenu.removeEventListener('change',changeTools);
+    toolMenu.value='overview';
+  };
   panes.set(id,pane);pane.host.start();draw(pane);updatePaneControls();
 }
 function dispose(id) {
@@ -73,6 +88,8 @@ function dispose(id) {
 function search(id,text) {
   const pane=panes.get(id);
   if (!pane) return;
+  const menu=$('tools-'+id);
+  if(menu.value!=='search'){menu.value='search';menu.dispatchEvent(new Event('change'));}
   const bounds=pane.lastFrame.semantics.find(n=>n.id===Control.search).bounds;
   pane.owner.event(EventKind.down,{x:bounds.x+5,y:bounds.y+5});
   pane.owner.event(EventKind.up,{x:bounds.x+5,y:bounds.y+5});
@@ -94,10 +111,6 @@ try {
   $('dispose-a').onclick=guarded(()=>dispose('a'));
   $('recreate-a').onclick=guarded(()=>mount('a'));
   $('resize-a').onclick=guarded(()=>{ $('a').style.height=$('a').style.height==='720px'?'640px':'720px'; });
-  $('find-node').onsubmit=guarded(event=>{
-    event.preventDefault();
-    search('a',$('search-a').value);
-  });
   $('animate').onclick=()=>{animate=!animate;$('animate').textContent=animate?'Stop animation':'Start animation';};
   $('verify').onclick=()=>runVerification().catch(fail);
   window.moxiDemo={panes,runtime,frames,inputSamples,runVerification,search,dispose,mount,draw,EventKind,Control,AppField,NodeField,setAnimate:value=>{animate=value;},get failure(){return failure;}};

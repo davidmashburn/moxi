@@ -6,43 +6,35 @@
 <link rel="stylesheet" href="../shared/demo.css">
 <style>
   main { max-width: 1200px; }
-  .surface { height: 640px; }
+  .surface { height: clamp(380px, 60vh, 640px); }
   .viewport { overflow-x: auto; }
-  .wide-view { display: none; }
-  @media (max-width: 840px) {
-    .wide-view { display: block; margin: 8px 14px; font-size: .9rem; }
-    .panel:has(.wide-view input:checked) .surface { min-width: 800px; }
-  }
-  button:disabled, input:disabled { background: #f1f3f5; border-color: #cbd3da; color: #607080; cursor: default; }
-  #search-a { width: 9em; }
+  button:disabled { color: var(--muted); cursor: default; }
 </style>
 <main>
   <header>
     <h1>Force-directed graph</h1>
-    <p>Find a node to inspect its connections. Drag the background to pan, or scroll to zoom.</p>
+    <p>Select a node to see its connections. Drag to pan or scroll to zoom.</p>
   </header>
   <p id="failure" role="alert"></p>
   <div class="panes">
     <section class="panel">
-      <div class="bar">
-        <h2>Graph A</h2>
-        <form class="toolbar" id="find-node">
-          <input id="search-a" disabled aria-label="Node ID in graph A" placeholder="node-12">
-          <button id="find-a" class="primary" disabled>Find in A</button>
-        </form>
-      </div>
-      <label class="wide-view"><input type="checkbox"> Expand to scroll all graph controls</label>
-      <div class="viewport" tabindex="0" role="region" aria-label="Scrollable graph A viewport"><div id="a" class="surface" tabindex="0" aria-label="Moxi graph A"><div class="svg" aria-hidden="true"></div></div></div>
-      <div class="toolbar"><button id="resize-a" disabled>Resize A</button><button id="dispose-a" disabled>Dispose A</button><button id="recreate-a" disabled>Recreate A</button></div>
+      <div class="bar"><h2>Graph A</h2><select id="tools-a" aria-label="Graph A tools" aria-controls="a" disabled>
+        <option value="overview">Explore graph</option><option value="search">Find a node</option>
+        <option value="simulation">Simulation</option><option value="display">Display options</option>
+      </select></div>
+      <div class="viewport" role="region" aria-label="Graph A viewport"><div id="a" class="surface" tabindex="0" aria-label="Moxi graph A"><div class="svg" aria-hidden="true"></div></div></div>
     </section>
     <section class="panel">
-      <div class="bar"><h2>Graph B</h2><span class="caption">Independent instance</span></div>
-      <label class="wide-view"><input type="checkbox"> Expand to scroll all graph controls</label>
-      <div class="viewport" tabindex="0" role="region" aria-label="Scrollable graph B viewport"><div id="b" class="surface" tabindex="0" aria-label="Moxi graph B"><div class="svg" aria-hidden="true"></div></div></div>
+      <div class="bar"><h2>Graph B</h2><select id="tools-b" aria-label="Graph B tools" aria-controls="b" disabled>
+        <option value="overview">Explore graph</option><option value="search">Find a node</option>
+        <option value="simulation">Simulation</option><option value="display">Display options</option>
+      </select></div>
+      <div class="viewport" role="region" aria-label="Graph B viewport"><div id="b" class="surface" tabindex="0" aria-label="Moxi graph B"><div class="svg" aria-hidden="true"></div></div></div>
     </section>
   </div>
-  <div class="toolbar"><button id="animate">Stop animation</button><button id="verify">Verify native parity + lifecycle</button><span id="status" role="status">Loading Mojo module…</span></div>
-  <details><summary>Runtime support and verification</summary>
+  <details id="runtime-tools"><summary>Runtime controls and verification</summary>
+    <div class="toolbar"><button id="resize-a" disabled>Resize A</button><button id="dispose-a" disabled>Dispose A</button><button id="recreate-a" disabled>Recreate A</button><button id="animate">Stop animation</button><button id="verify">Verify native parity + lifecycle</button></div>
+    <p id="status" role="status">Loading Mojo module…</p>
     <p>Moxi generates both SVG views and accessibility snapshots locally. This experimental memory64 compiler route supports desktop pointer and basic keyboard input. File export, IME, and broad browser support are unverified.</p>
     <pre id="evidence">No verification run yet.</pre>
   </details>
