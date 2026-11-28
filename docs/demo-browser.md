@@ -30,9 +30,10 @@ without opening a second window. `pixi run demo` remains the manual-input
 version of that host.
 
 `pixi run demo-catalog-walkthrough` is a separate bus-driven sweep over every
-`DemoCatalog` entry. It selects each item and opens its `Demo` tab in the same
-window. It also increments Counter, toggles and streams Plot Gallery, and
-scrolls, selects, and reorders the Interaction Lab; the curated walkthrough
+`DemoCatalog` entry. It selects each item in the same window, showing the live
+preview for embedded examples and the launch instructions for standalone entries.
+It also increments Counter, toggles and streams Plot Gallery, and scrolls,
+selects, and reorders the Interaction Lab; the curated walkthrough
 remains the focused approval lesson.
 
 `pixi run demo-record` runs that same walkthrough without agent or GUI
@@ -73,17 +74,15 @@ rebuilding after a resize.
 
 The window is organized like this:
 
-- the left playground rail groups runnable examples by domain, shows a short
-  description for each entry, and filters by name, description, source path,
-  or Pixi task;
-- the right side provides `Overview`, `Source`, and `Demo` tabs;
-- `Run live page` mounts the selected `Component` page in-process, preserving
-  the same event, focus, clipboard, and component-slot contracts as its
-  standalone example;
-- ordinary live pages use a Storybook-style `Demo` surface: the mounted
-  `LIVE PREVIEW` sits beside an `EXAMPLE SOURCE` code panel showing the
-  lesson's authoring `render` or component `build` code. At narrow widths,
-  retained previews stack above their source panel;
+- the catalog groups example names by area. Search matches names, descriptions,
+  source paths, and Pixi tasks. Open the area selector to narrow the list;
+- selecting an in-process example opens its live component immediately. The
+  Playground starts on Hello Window, where resizing changes the displayed bounds.
+  Hello Component mounts two instances of the same greeting. Counter and Form
+  retain their state when you browse away and return;
+- the Overview tab gives the lesson summary, command, and source path. The
+  Source tab shows the excerpt. In ordinary live examples the preview sits
+  alongside its source at wide window sizes and above it at narrow sizes;
 - scene and plotting pages declare a real `Canvas` node in that component;
   the host renders the component's `Scene` into that node in the same window;
 - `Editable Live Component` is a development page whose scene source is
@@ -98,8 +97,8 @@ The window is organized like this:
 
 ## Interaction model & responsive layout
 
-Use `Find an example` to search the full catalog. Expand or collapse `Browse
-examples` to give the catalog more or less room while exploring. The catalog
+Use `Find an example` to search the full catalog. Expand or collapse `Examples`
+to give the catalog more or less room while exploring. The catalog
 is a clipped, wheel-scrollable portal, and the selected-example content pane
 uses the same scrolling behavior for long source and demo pages. The `Clear`
 button and the `Escape` key clear only the text query, preserving the selected
@@ -112,9 +111,9 @@ the shared event path supports wheel scrolling, track paging, and thumb
 dragging. On macOS, wheel direction follows the system Natural scrolling
 setting while the portable event model remains unchanged.
 When no entry matches, the detail pane switches to an explicit empty state so
-stale selection details are never mistaken for a result. `Reset` is enabled
-only for live in-browser components; standalone tasks remain the source of
-truth for their own state.
+stale selection details are never mistaken for a result. The Demo tab offers
+Reset on stateful in-process examples. The editable lesson has Run and Revert,
+and standalone workbenches have their own launch action.
 
 For details on how window resizing, geometry invalidation, and declarative reflow
 function under the hood, see the [Responsive layout guide](responsive-layout.md).

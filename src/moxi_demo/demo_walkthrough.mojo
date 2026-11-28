@@ -30,6 +30,7 @@ from .demo_browser import (
     DEMO_INTERACTION_ID_OFFSET,
     DEMO_RESET_BUTTON_ID,
     DEMO_SHOWCASE_ID_OFFSET,
+    DEMO_TAB_DEMO,
     DEMO_TAB_DEMO_ID,
     DemoBrowserState,
 )
@@ -462,14 +463,15 @@ struct DemoWalkthroughDriver:
                 DEMO_ENTRY_VIEW_BASE + entry.id,
                 0.25,
             )
-            self._append_action(
-                "demo.show",
-                "{\"tab\":\"demo\"}",
-                CALLER_UI,
-                DEMO_WALKTHROUGH_SHOW_HANDLER,
-                DEMO_TAB_DEMO_ID,
-                1.15,
-            )
+            if entry.in_process:
+                self._append_action(
+                    "demo.show",
+                    "{\"tab\":\"demo\"}",
+                    CALLER_UI,
+                    DEMO_WALKTHROUGH_SHOW_HANDLER,
+                    DEMO_TAB_DEMO_ID,
+                    1.15,
+                )
             if entry.id == DEMO_COUNTER_ID:
                 for step in range(1, 4):
                     self._append_action(
@@ -784,6 +786,9 @@ struct DemoWalkthroughDriver:
                 and app.component.selected_id == action.target - DEMO_ENTRY_VIEW_BASE
             ):
                 return self._publish_result(app, action, result, "selection already active")
+            if action.target == DEMO_TAB_DEMO_ID and app.component.tab == DEMO_TAB_DEMO:
+                self._record_observations(app, action)
+                return self._publish_result(app, action, result, "demo already visible")
             self.failed = True
             self.running = False
             return self._publish(

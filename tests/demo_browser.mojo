@@ -68,7 +68,7 @@ from moxi_demo import (
     DEMO_THEME_SHOWCASE_ID,
     DEMO_THEME_SHOWCASE_ID_OFFSET,
     DEMO_THEME_SHOWCASE_SLOT_ID,
-    DEMO_PAGE_QUICKSTART_ID,
+    DEMO_NAV_FILTER_LABEL_ID,
     DEMO_PLOT_ID,
     DEMO_FORMULA_EDITOR_ID,
     DEMO_PLOT_GALLERY_ID,
@@ -112,7 +112,7 @@ def main() raises:
     test_check(catalog.visible_count("plot", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("PLOT", DEMO_CATEGORY_ALL) == 4)
     test_check(catalog.visible_count("", DEMO_CATEGORY_PLOTTING) == 4)
-    test_check(catalog.entry(0).source == "examples/hello_window.mojo")
+    test_check(catalog.entry(0).source == "src/moxi_demo/hello.mojo")
     # The browser's source panels must teach Component construction directly;
     # a mode selector is not a substitute for the example's build code.
     for index in range(catalog.count()):
@@ -138,10 +138,14 @@ def main() raises:
     test_check(app.view.panel.style.corner_radius == 18.0)
     test_check(app.view.bounds_for(DEMO_SEARCH_ID).width > 0.0)
     test_check(app.view.bounds_for(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID).width > 0.0)
-    test_check(app.view.bounds_for(DEMO_CLEAR_SEARCH_ID).width > 0.0)
+    test_check(app.view.bounds_for(DEMO_CLEAR_SEARCH_ID).width == 0.0)
     test_check(app.view.bounds_for(DEMO_NAV_TREE_ID).height > 0.0)
     test_check(app.view.bounds_for(DEMO_HEADER_KICKER_ID).height > 0.0)
-    test_check(app.view.bounds_for(DEMO_PAGE_QUICKSTART_ID).height > 0.0)
+    test_check(app.view.bounds_for(DEMO_STORY_PREVIEW_ID).height > 0.0)
+    test_check(app.view.bounds_for(DEMO_CATEGORY_ROW_TWO_ID).height == 0.0)
+    test_check(app.dispatch(action(DEMO_NAV_FILTER_LABEL_ID)))
+    test_check(app.view.bounds_for(DEMO_CATEGORY_ROW_TWO_ID).height > 0.0)
+    test_check(app.dispatch(action(DEMO_NAV_FILTER_LABEL_ID)))
     test_check(app.accessibility().count() > 12)
     test_check(app.view.scroll_max_offset(DEMO_CATEGORY_ROW_TWO_ID) == 0.0)
 
@@ -290,7 +294,7 @@ def main() raises:
     )
     test_check(filter_app.view.scroll_offset_for(DEMO_NAV_PORTAL_ID) == 0.0)
 
-    test_check(app.dispatch(action(DEMO_RUN_BUTTON_ID)))
+    test_check(not app.view.is_focusable(DEMO_RUN_BUTTON_ID))
     test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(app.component.take_pending_task().count_codepoints() == 0)
 
@@ -328,7 +332,7 @@ def main() raises:
     test_check(
         app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_CAPABILITY_WALKTHROUGH_ID))
     )
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(
         app.view.bounds_for(
             DEMO_CAPABILITY_WALKTHROUGH_ID_OFFSET
@@ -347,7 +351,7 @@ def main() raises:
 
     # The editable page is a normal component shell with a live module canvas.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_LIVE_SCRIPT_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(app.component.has_live_script())
     test_check(
         app.view.bounds_for(
@@ -357,7 +361,7 @@ def main() raises:
 
     # Plot pages are real component-owned canvases, not static preview cards.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_PLOT_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(app.component.showcase.component.mode == SHOWCASE_PLOT)
     test_check(
         app.view.bounds_for(
@@ -460,7 +464,7 @@ def main() raises:
     # state/scene primitives through the same browser route as every other
     # in-process example.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_INTERACTION_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     var interaction_canvas = app.view.bounds_for(
         DEMO_INTERACTION_ID_OFFSET + INTERACTION_SHOWCASE_CANVAS_ID
     )
@@ -648,7 +652,7 @@ def main() raises:
 
     # The line-fractal page is embedded through the same Component contract.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_FRACTAL_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     var fractal_scene_before = app.component.selected_scene(app.view)
     var fractal_handle_count = 0
     for index in range(fractal_scene_before.count()):
@@ -679,13 +683,13 @@ def main() raises:
     test_check(app.dispatch(Event(PointerEvent(POINTER_UP_KIND, moved))))
 
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_WX_STYLE_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(app.view.bounds_for(DEMO_WX_STYLE_ID_OFFSET + WX_TITLE_ID).width > 0.0)
 
     # The token/recipe showcase is mounted through the same typed component
     # slot as the rest of the in-process catalog.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_THEME_SHOWCASE_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(app.view.bounds_for(DEMO_STORY_SPLIT_ID).width > 0.0)
     test_check(app.view.bounds_for(DEMO_STORY_CODE_TEXT_ID).width > 0.0)
     # Every retained preview stacks above source at narrow widths, not only
@@ -743,8 +747,6 @@ def main() raises:
     test_check(theme_surface_found)
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID)))
     test_check(app.component.selected_id == DEMO_COUNTER_ID)
-    test_check(app.component.tab == 0)
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
     test_check(app.component.tab == DEMO_TAB_DEMO)
     var increment = app.view.bounds_for(DEMO_COUNTER_ID_OFFSET + 11)
     test_check(increment.width > 0.0)
@@ -759,7 +761,7 @@ def main() raises:
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_THEME_SHOWCASE_ID)))
     test_check(not app.dispatch(action(DEMO_COUNTER_ID_OFFSET + 11)))
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     test_check(app.component.counter.component.root.count == 1)
     test_check(app.dispatch(action(DEMO_RESET_BUTTON_ID)))
     test_check(app.component.counter.component.root.count == 0)
@@ -785,7 +787,9 @@ def main() raises:
     test_check(app.view.bounds_for(DEMO_ENTRY_VIEW_BASE + DEMO_PLOT_ID).width > 0.0)
     test_check(app.view.bounds_for(DEMO_ENTRY_VIEW_BASE + DEMO_PLOT_GALLERY_ID).width > 0.0)
     test_check(app.view.bounds_for(DEMO_ENTRY_VIEW_BASE + DEMO_PLOT_SVG_ID).width > 0.0)
+    test_check(app.dispatch(action(DEMO_NAV_FILTER_LABEL_ID)))
     test_check(app.dispatch(action(DEMO_CATEGORY_BUTTON_BASE + DEMO_CATEGORY_PLOTTING)))
+    test_check(not app.component.filters_expanded)
     test_check(app.component.category == DEMO_CATEGORY_PLOTTING)
 
     # A clear action restores the catalog and the escape key provides the
@@ -809,10 +813,10 @@ def main() raises:
     test_check(app.component.task_running)
     test_check(app.component.active_task == "plot-demo")
     app.rebuild()
-    test_check(app.view.is_focusable(DEMO_RUN_BUTTON_ID))
+    test_check(app.view.is_focusable(DEMO_TAB_DEMO_ID))
     app.component.set_task_completion("plot-demo", 0)
     test_check(not app.component.task_running)
     test_check(app.component.active_task.count_codepoints() == 0)
     app.rebuild()
-    test_check(app.view.is_focusable(DEMO_RUN_BUTTON_ID))
+    test_check(app.view.is_focusable(DEMO_TAB_DEMO_ID))
     print("Moxi demo-browser test passed")

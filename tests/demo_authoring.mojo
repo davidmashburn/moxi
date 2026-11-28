@@ -81,6 +81,7 @@ def main() raises:
     require(app.focus_id() == submit, "app.focus_id() == submit")
     require(app.dispatch(Event(KeyEvent(KEY_ENTER))), "app.dispatch(Event(KeyEvent(KEY_ENTER)))")
     require(app.component.form.component.root.submissions == 1, "app.component.form.component.root.submissions == 1")
+    require(app.component.form.component.root.submitted_name == "Moxi🙂", "Submit remembers the entered name")
     var captured = app.component.form.component.capture(submit - DEMO_FORM_ID_OFFSET)
     require(app.dispatch(action(DEMO_RESET_BUTTON_ID)), "app.dispatch(action(DEMO_RESET_BUTTON_ID))")
     require(app.component.form.component.root.name == "", "app.component.form.component.root.name == \"\"")

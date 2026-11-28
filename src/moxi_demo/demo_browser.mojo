@@ -23,6 +23,7 @@ from .authoring_examples.workspace import Workspace
 from moxi.capability_walkthrough import CapabilityWalkthroughState
 from moxi.component import Component, ComponentSlot
 from moxi.composed import ComposedState
+from moxi.controls_collection import ComboBoxControl
 from moxi.controls_basic import ButtonControl, LabelControl
 from moxi.controls_text import TextInputControl, TextInputState
 from moxi.event import (
@@ -53,7 +54,7 @@ from moxi.interaction_showcase import (
     INTERACTION_SHOWCASE_CANVAS_ID,
     InteractionShowcaseState,
 )
-from moxi.layout import ALIGN_STRETCH, JUSTIFY_START, ROW_AXIS
+from moxi.layout import ALIGN_START, ALIGN_STRETCH, JUSTIFY_START, ROW_AXIS
 from moxi.live_script import LIVE_SCRIPT_CANVAS_ID, LiveScriptState
 from moxi.nested import NestedState
 from moxi.paint import CANVAS_KIND, PaintCommand
@@ -62,10 +63,12 @@ from moxi.theme_showcase import ThemeShowcaseState
 from moxi.style import (
     Color,
     Style,
+    Theme,
     default_surface_style,
     default_text_input_style,
 )
 from moxi.column_view import ColumnView
+from moxi.palette import light_tokens
 from moxi.tokens import dark_tokens
 from moxi.wrapped import WrappedTextState
 from .not_implemented_demo import NotImplementedDemo
@@ -96,6 +99,7 @@ from .catalog_types import (
     DEMO_COUNTER_ID,
     DEMO_FORM_ID,
     DEMO_FRACTAL_ID,
+    DEMO_HELLO_COMPONENT_ID,
     DEMO_HELLO_WINDOW_ID,
     DEMO_INTERACTION_ID,
     DEMO_NESTED_ID,
@@ -284,6 +288,7 @@ struct DemoBrowserState(Component):
     var category: Int
     var selected_id: Int
     var tab: Int
+    var filters_expanded: Bool
     var nav_tree_expanded: Bool
     var status: String
     var pending_task: String
@@ -317,9 +322,10 @@ struct DemoBrowserState(Component):
         self.search = TextInputState()
         self.category = DEMO_CATEGORY_ALL
         self.selected_id = DEMO_HELLO_WINDOW_ID
-        self.tab = DEMO_TAB_OVERVIEW
+        self.tab = DEMO_TAB_DEMO
+        self.filters_expanded = False
         self.nav_tree_expanded = True
-        self.status = "Ready · choose an example to explore."
+        self.status = ""
         self.pending_task = ""
         self.task_running = False
         self.active_task = ""
@@ -327,10 +333,10 @@ struct DemoBrowserState(Component):
         self.pending_resets = 0
         self.source_editor = DemoSourceEditor()
         self.counter = ComponentSlot[HandlerHost[Counter]](
-            HandlerHost(Counter(), id_stride=DEMO_AUTHORING_ID_STRIDE), DEMO_COUNTER_SLOT_ID, DEMO_COUNTER_ID_OFFSET
+            HandlerHost(Counter(), id_stride=DEMO_AUTHORING_ID_STRIDE, theme=Theme(light_tokens())), DEMO_COUNTER_SLOT_ID, DEMO_COUNTER_ID_OFFSET
         )
         self.form = ComponentSlot[HandlerHost[Form]](
-            HandlerHost(Form(), id_stride=DEMO_AUTHORING_ID_STRIDE), DEMO_FORM_SLOT_ID, DEMO_FORM_ID_OFFSET
+            HandlerHost(Form(), id_stride=DEMO_AUTHORING_ID_STRIDE, theme=Theme(light_tokens())), DEMO_FORM_SLOT_ID, DEMO_FORM_ID_OFFSET
         )
         self.editors = ComponentSlot(
             HandlerHost(EditorWorkspace(), id_stride=DEMO_AUTHORING_ID_STRIDE),
@@ -465,6 +471,7 @@ struct DemoBrowserState(Component):
         if index < 0:
             return
         var entry = self.catalog.entry(index)
+        self.tab = DEMO_TAB_DEMO if entry.in_process else DEMO_TAB_OVERVIEW
         if entry.page_kind == DEMO_PAGE_SHOWCASE:
             var showcase = self.showcase.component
             showcase.set_mode(showcase_mode_for_demo(id))
@@ -507,7 +514,6 @@ struct DemoBrowserState(Component):
             if self.catalog.matches(index, self.search.text, self.category):
                 self.selected_id = self.catalog.entry(index).id
                 self._activate_entry(self.selected_id)
-                self.tab = DEMO_TAB_OVERVIEW
                 return
         self.selected_id = -1
         self.tab = DEMO_TAB_OVERVIEW
@@ -691,26 +697,10 @@ struct DemoBrowserState(Component):
         _add_styled_label(
             root,
             nav,
-            DEMO_NAV_KICKER_ID,
-            "MOXI / PLAYGROUND",
-            18.0,
-            _kicker_style(),
-        )
-        _add_styled_label(
-            root,
-            nav,
             DEMO_TITLE_ID,
             "Moxi Playground",
             30.0,
             _label_style(26.0, _ink()),
-        )
-        _add_styled_label(
-            root,
-            nav,
-            DEMO_METADATA_ID,
-            "Explore runnable examples.",
-            22.0,
-            _body_style(),
         )
         root.add_separator_to(nav, DEMO_NAV_DIVIDER_ID, 1.0)
         var divider_style = Style(
@@ -724,7 +714,7 @@ struct DemoBrowserState(Component):
             root,
             nav,
             DEMO_NAV_SEARCH_LABEL_ID,
-            "SEARCH",
+            "Find an example",
             14.0,
             _kicker_style(),
         )
@@ -759,56 +749,45 @@ struct DemoBrowserState(Component):
             DEMO_SEARCH_ID,
             "Search names, descriptions, source paths, or tasks",
         )
-        var clear_search = ButtonControl(
-            DEMO_CLEAR_SEARCH_ID,
-            "Clear",
-            34.0,
-            _filter_button_style(False),
-            self.search.text.count_codepoints() > 0,
-        )
-        root.add_to(search_row, clear_search.node())
-        root.set_fixed_width(DEMO_CLEAR_SEARCH_ID, 58.0)
-        root.set_accessibility_label(DEMO_CLEAR_SEARCH_ID, "Clear search")
-        root.set_accessibility_hint(
-            DEMO_CLEAR_SEARCH_ID,
-            "Clear the query and show every example",
-        )
+        if self.search.text != "":
+            var clear_search = ButtonControl(
+                DEMO_CLEAR_SEARCH_ID,
+                "Clear",
+                34.0,
+                _filter_button_style(False),
+                self.search.text.count_codepoints() > 0,
+            )
+            root.add_to(search_row, clear_search.node())
+            root.set_fixed_width(DEMO_CLEAR_SEARCH_ID, 58.0)
+            root.set_accessibility_label(DEMO_CLEAR_SEARCH_ID, "Clear search")
+            root.set_accessibility_hint(
+                DEMO_CLEAR_SEARCH_ID,
+                "Clear the query and show every example",
+            )
 
-        _add_styled_label(
-            root,
-            nav,
-            DEMO_NAV_FILTER_LABEL_ID,
-            "FILTER BY AREA",
-            14.0,
-            _kicker_style(),
+        var filter = ComboBoxControl(
+            DEMO_NAV_FILTER_LABEL_ID, String("Area · ", demo_category_name(self.category)),
+            demo_category_name(self.category), 32.0, self.filters_expanded,
         )
-        var categories_one = root.add_row_to(
-            nav, DEMO_CATEGORY_ROW_ONE_ID, 0.0, 30.0, 0.0, 4.0
-        )
-        var categories_two = root.add_row_to(
-            nav, DEMO_CATEGORY_ROW_TWO_ID, 0.0, 30.0, 0.0, 4.0
-        )
-        self.add_category_button(root, categories_one, DEMO_CATEGORY_ALL)
-        self.add_category_button(root, categories_one, DEMO_CATEGORY_START)
-        self.add_category_button(root, categories_one, DEMO_CATEGORY_COMPONENTS)
-        self.add_category_button(root, categories_two, DEMO_CATEGORY_LAYOUT)
-        self.add_category_button(root, categories_two, DEMO_CATEGORY_PLOTTING)
-        self.add_category_button(root, categories_two, DEMO_CATEGORY_RENDERING)
-        self.add_category_button(root, categories_two, DEMO_CATEGORY_TEXT)
+        root.add_to(nav, filter.node())
+        root.set_accessibility_label(DEMO_NAV_FILTER_LABEL_ID, "Filter by area")
+        if self.filters_expanded:
+            var categories_one = root.add_row_to(
+                nav, DEMO_CATEGORY_ROW_ONE_ID, 0.0, 30.0, 0.0, 4.0
+            )
+            var categories_two = root.add_row_to(
+                nav, DEMO_CATEGORY_ROW_TWO_ID, 0.0, 30.0, 0.0, 4.0
+            )
+            self.add_category_button(root, categories_one, DEMO_CATEGORY_ALL)
+            self.add_category_button(root, categories_one, DEMO_CATEGORY_START)
+            self.add_category_button(root, categories_one, DEMO_CATEGORY_COMPONENTS)
+            self.add_category_button(root, categories_two, DEMO_CATEGORY_LAYOUT)
+            self.add_category_button(root, categories_two, DEMO_CATEGORY_PLOTTING)
+            self.add_category_button(root, categories_two, DEMO_CATEGORY_RENDERING)
+            self.add_category_button(root, categories_two, DEMO_CATEGORY_TEXT)
 
-        _add_styled_label(
-            root,
-            nav,
-            DEMO_NAV_COUNT_ID,
-            String(self.visible_count(), " of ", self.catalog.count(), " examples"),
-            22.0,
-            _small_style(),
-        )
-
-        var tree_text = "Browse examples"
-        if not self.nav_tree_expanded:
-            tree_text = "Examples (collapsed)"
-        root.add_tree_to(nav, DEMO_NAV_TREE_ID, tree_text, 40.0)
+        var tree_text = String("Examples (", self.visible_count(), ")")
+        root.add_tree_to(nav, DEMO_NAV_TREE_ID, tree_text, 30.0)
         root.set_expanded(DEMO_NAV_TREE_ID, self.nav_tree_expanded)
         root.set_accessibility_label(DEMO_NAV_TREE_ID, "Browse examples")
         root.set_accessibility_value(
@@ -821,7 +800,9 @@ struct DemoBrowserState(Component):
         )
 
         if self.nav_tree_expanded:
-            var nav_height = bounds.height - 390.0
+            var nav_height = bounds.height - 237.0
+            if self.filters_expanded:
+                nav_height -= 72.0
             if nav_height < 160.0:
                 nav_height = 160.0
             var nav_portal = root.add_portal_to(
@@ -837,6 +818,7 @@ struct DemoBrowserState(Component):
                 nav_portal,
                 "Use the mouse wheel to browse the catalog",
             )
+            root.set_container_alignment(nav_portal, JUSTIFY_START, ALIGN_START)
             var last_category = -1
             var added = 0
             for index in range(self.catalog.count()):
@@ -856,27 +838,14 @@ struct DemoBrowserState(Component):
                     )
                     last_category = item.category
                 var item_id = DEMO_ENTRY_VIEW_BASE + item.id
-                var item_text = String("   ", item.name)
-                if item.id == self.selected_id:
-                    item_text = String("●  ", item.name)
                 var item_button = ButtonControl(
-                    item_id,
-                    item_text,
-                    34.0,
-                    _nav_button_style(item.id == self.selected_id),
+                    item_id, item.name, 30.0, _nav_button_style(item.id == self.selected_id),
                 )
                 root.add_to(nav_portal, item_button.node())
+                root.set_intrinsic_width(item_id)
                 root.set_accessibility_label(item_id, item.name)
                 root.set_accessibility_value(item_id, item.summary)
                 root.set_selected(item_id, item.id == self.selected_id)
-                _add_wrapped_label_styled(
-                    root,
-                    nav_portal,
-                    DEMO_ENTRY_SUMMARY_BASE + item.id,
-                    item.summary,
-                    256.0,
-                    _subtle_style(),
-                )
                 added += 1
             if added == 0:
                 _add_wrapped_label(
@@ -919,106 +888,39 @@ struct DemoBrowserState(Component):
             return root^
 
         var entry = self.selected_entry()
-        var header = root.add_column_to(main, DEMO_HEADER_ID, 64.0, 0.0, 2.0)
-        _add_styled_label(
-            root,
-            header,
-            DEMO_HEADER_KICKER_ID,
-            "SELECTED EXAMPLE",
-            14.0,
-            _kicker_style(),
-        )
-        _add_styled_label(
-            root,
-            header,
-            DEMO_HEADER_TITLE_ID,
-            entry.name,
-            30.0,
-            _label_style(26.0, _ink()),
-        )
-        var metadata = String(demo_category_name(entry.category), " · ", entry.source)
-        if entry.in_process:
-            metadata += " · LIVE"
-        else:
-            metadata += " · NATIVE"
-        _add_styled_label(
-            root,
-            header,
-            DEMO_HEADER_METADATA_ID,
-            metadata,
-            16.0,
-            _small_style(),
-        )
+        var header = root.add_column_to(main, DEMO_HEADER_ID, 64.0, 0.0, 4.0)
+        _add_styled_label(root, header, DEMO_HEADER_KICKER_ID,
+            demo_category_name(entry.category), 18.0, _kicker_style())
+        _add_styled_label(root, header, DEMO_HEADER_TITLE_ID,
+            entry.name, 40.0, _label_style(32.0, _ink()))
 
         var tabs = root.add_row_to(main, DEMO_TABS_ID, 0.0, 36.0, 0.0, 6.0)
+        if entry.in_process:
+            self.add_tab_button(root, tabs, DEMO_TAB_DEMO, "Demo", DEMO_TAB_DEMO_ID)
         self.add_tab_button(root, tabs, DEMO_TAB_OVERVIEW, "Overview", DEMO_TAB_OVERVIEW_ID)
         self.add_tab_button(root, tabs, DEMO_TAB_SOURCE, "Source", DEMO_TAB_SOURCE_ID)
-        self.add_tab_button(root, tabs, DEMO_TAB_DEMO, "Demo", DEMO_TAB_DEMO_ID)
+        root.add_flexible_spacer_to(tabs, DEMO_TOOLBAR_SPACER_ID)
+        if self.has_live_script() or not entry.in_process:
+            var editing = self.has_live_script()
+            var run_text = "Open workbench"
+            if editing:
+                run_text = "Building…" if self.source_editor.building() else "Run"
+            var enabled = (self.source_editor.available and not self.source_editor.building()
+                           if editing else not self.task_running)
+            root.add_to(tabs, ButtonControl(DEMO_RUN_BUTTON_ID, run_text, 36.0,
+                _primary_button_style(), enabled).node())
+            root.set_intrinsic_width(DEMO_RUN_BUTTON_ID)
+            if editing:
+                root.add_to(tabs, ButtonControl(DEMO_RESET_BUTTON_ID, "Revert", 36.0,
+                    _filter_button_style(False), enabled).node())
+                root.set_intrinsic_width(DEMO_RESET_BUTTON_ID)
+        elif self.tab == DEMO_TAB_DEMO and entry.id != DEMO_HELLO_WINDOW_ID and entry.id != DEMO_HELLO_COMPONENT_ID:
+            root.add_to(tabs, ButtonControl(DEMO_RESET_BUTTON_ID, "Reset", 36.0,
+                _filter_button_style(False)).node())
+            root.set_intrinsic_width(DEMO_RESET_BUTTON_ID)
+            root.set_accessibility_label(DEMO_RESET_BUTTON_ID, "Reset live example")
 
-        var toolbar = root.add_row_to(main, DEMO_TOOLBAR_ID, 0.0, 40.0, 0.0, 8.0)
-        var run_text = "Open workbench"
-        if entry.in_process:
-            run_text = "Run live page"
-        var run_enabled = not self.task_running or entry.in_process
-        if self.has_live_script():
-            run_text = "Building…" if self.source_editor.building() else "Run (⌘/Ctrl+Enter)"
-            run_enabled = self.source_editor.available and not self.source_editor.building()
-        var run_button = ButtonControl(
-            DEMO_RUN_BUTTON_ID,
-            run_text,
-            36.0,
-            _primary_button_style(),
-            run_enabled,
-        )
-        root.add_to(toolbar, run_button.node())
-        root.set_intrinsic_width(DEMO_RUN_BUTTON_ID)
-        root.set_accessibility_label(DEMO_RUN_BUTTON_ID, run_text)
-        root.set_accessibility_value(
-            DEMO_RUN_BUTTON_ID,
-            "live component"
-                if entry.in_process
-                else (
-                    "standalone task ready"
-                    if run_enabled
-                    else "Disabled while the standalone task is running"
-                ),
-        )
-        var reset_button = ButtonControl(
-            DEMO_RESET_BUTTON_ID,
-            "Revert" if self.has_live_script() else "Reset",
-            36.0,
-            _filter_button_style(False),
-            (self.source_editor.available and not self.source_editor.building()) if self.has_live_script() else entry.in_process,
-        )
-        root.add_to(toolbar, reset_button.node())
-        root.set_intrinsic_width(DEMO_RESET_BUTTON_ID)
-        root.set_accessibility_label(DEMO_RESET_BUTTON_ID, "Revert to original source" if self.has_live_script() else "Reset live example")
-        root.set_accessibility_hint(
-            DEMO_RESET_BUTTON_ID,
-            "Restore and run the original source" if self.has_live_script() else "Reset the selected in-browser component",
-        )
-        root.add_flexible_spacer_to(toolbar, DEMO_TOOLBAR_SPACER_ID)
-        var run_info = "Opens in a separate window"
-        if entry.in_process:
-            run_info = "LIVE COMPONENT · stays in this window"
-        if self.has_live_script():
-            run_info = "DRAFT · session only" if self.source_editor.input.text() != self.source_editor.original else "ORIGINAL SOURCE"
-        if self.task_running:
-            run_info = String("● RUNNING · ", self.active_task)
-        _add_styled_label(
-            root,
-            toolbar,
-            DEMO_RUN_INFO_ID,
-            run_info,
-            22.0,
-            _small_style(),
-        )
-        root.set_accessibility_label(DEMO_RUN_INFO_ID, "Execution mode")
-        root.set_accessibility_value(DEMO_RUN_INFO_ID, run_info)
-
-        var content_height = bounds.height - 262.0
-        if content_height < 180.0:
-            content_height = 180.0
+        var content_height = max(bounds.height - 214.0, 180.0)
         var content = root.add_portal_to(
             main,
             DEMO_CONTENT_PORTAL_ID,
@@ -1137,7 +1039,7 @@ struct DemoBrowserState(Component):
     ):
         var button = ButtonControl(id, label, 36.0, _tab_style(self.tab == tab))
         root.add_to(parent_id, button.node())
-        root.set_fixed_width(id, 112.0)
+        root.set_intrinsic_width(id)
         root.set_selected(id, self.tab == tab)
         root.set_accessibility_label(id, String(label, " tab"))
         root.set_accessibility_value(
@@ -1152,27 +1054,6 @@ struct DemoBrowserState(Component):
         entry: DemoEntry,
         width: Float32,
     ):
-        var mode = "NATIVE WORKBENCH"
-        var usage = "Choose Open workbench to launch the editor in its own window."
-        if entry.in_process:
-            mode = "LIVE COMPONENT"
-            usage = "Run live page mounts the typed component in this browser."
-        _add_styled_label(
-            root,
-            parent_id,
-            DEMO_PAGE_KICKER_ID,
-            mode,
-            18.0,
-            _kicker_style(),
-        )
-        _add_styled_label(
-            root,
-            parent_id,
-            DEMO_PAGE_TITLE_ID,
-            "About this example",
-            30.0,
-            _heading_style(),
-        )
         _add_wrapped_label_styled(
             root,
             parent_id,
@@ -1180,14 +1061,6 @@ struct DemoBrowserState(Component):
             entry.summary,
             width,
             _body_style(),
-        )
-        _add_styled_label(
-            root,
-            parent_id,
-            DEMO_PAGE_QUICKSTART_ID,
-            "1  Read   ·   2  Run   ·   3  Inspect",
-            28.0,
-            _label_style(14.0, _accent_ink()),
         )
         _add_styled_label(
             root,
@@ -1205,30 +1078,13 @@ struct DemoBrowserState(Component):
             26.0,
             _subtle_style(),
         )
-        _add_wrapped_label_styled(
-            root,
-            parent_id,
-            DEMO_SOURCE_HINT_ID,
-            usage,
-            width,
-            _body_style(),
-        )
-        _add_styled_label(
-            root,
-            parent_id,
-            DEMO_CONTRACT_TITLE_ID,
-            "What to look for",
-            26.0,
-            _heading_style(),
-        )
-        _add_wrapped_label_styled(
-            root,
-            parent_id,
-            DEMO_CONTRACT_BODY_ID,
-            "Every item is backed by checked-in source. Pages exercise Moxi's value-based App, focus, event, component-slot, and canvas contracts in this window; the standalone task remains available when you want the exact command-line entrypoint." if entry.in_process else "Type x, press Command+/ and type y to build a fraction. Switch to Text to inspect its notation.",
-            width,
-            _body_style(),
-        )
+
+        if not entry.in_process:
+            _add_wrapped_label_styled(
+                root, parent_id, DEMO_CONTRACT_BODY_ID,
+                "Type x, press Command+/ and type y to build a fraction. Switch to Text to inspect its notation.",
+                width, _body_style(),
+            )
 
     def build_source(
         self,
@@ -1357,7 +1213,7 @@ struct DemoBrowserState(Component):
             page_height = max(page_height, 470.0)
         var storybook_layout = entry.in_process
         if (
-            entry.page_kind == DEMO_PAGE_SHOWCASE
+            (entry.page_kind == DEMO_PAGE_SHOWCASE and entry.id != DEMO_HELLO_WINDOW_ID and entry.id != DEMO_HELLO_COMPONENT_ID)
             or entry.page_kind == DEMO_PAGE_FRACTAL
             or entry.page_kind == DEMO_PAGE_INTERACTION
             or entry.page_kind == DEMO_PAGE_WX_STYLE
@@ -1365,6 +1221,11 @@ struct DemoBrowserState(Component):
         ):
             storybook_layout = False
         if storybook_layout:
+            # Short introductory lessons need only their actual preview height.
+            if entry.id == DEMO_HELLO_WINDOW_ID or entry.id == DEMO_HELLO_COMPONENT_ID:
+                page_height = 310.0
+            elif entry.id == DEMO_COUNTER_ID or entry.id == DEMO_FORM_ID:
+                page_height = max(authoring_height + 50.0, 300.0)
             var source_height: Float32 = 430.0 if editable else 300.0
             var story: Int
             if stacked:
@@ -1395,7 +1256,7 @@ struct DemoBrowserState(Component):
                 root,
                 preview,
                 DEMO_STORY_PREVIEW_KICKER_ID,
-                "LIVE PREVIEW",
+                "Live preview",
                 18.0,
                 _kicker_style(),
             )
@@ -1403,7 +1264,7 @@ struct DemoBrowserState(Component):
                 root,
                 code,
                 DEMO_STORY_CODE_KICKER_ID,
-                "EXAMPLE SOURCE",
+                "Example source",
                 18.0,
                 _kicker_style(),
             )
@@ -1424,7 +1285,7 @@ struct DemoBrowserState(Component):
                 root,
                 code,
                 DEMO_STORY_CODE_HINT_ID,
-                "Edit the scene, then Run. Revert restores and runs the original source." if editable else "The preview uses the model shown here; the source path opens the full lesson.",
+                "Edit the scene, then Run. Revert restores and runs the original source." if editable else entry.source,
                 source_width,
                 _small_style(),
             )
@@ -1719,6 +1580,17 @@ struct DemoBrowserState(Component):
                     return self.clear_search()
                 return self.search.handle_key(event.key, event.modifiers)
 
+        if event.target == DEMO_NAV_FILTER_LABEL_ID:
+            if event.kind == ACTION_KIND and event.action_id == ACTION_EXPAND:
+                self.filters_expanded = True
+            elif event.kind == ACTION_KIND and event.action_id == ACTION_COLLAPSE:
+                self.filters_expanded = False
+            elif event.is_activation():
+                self.filters_expanded = not self.filters_expanded
+            else:
+                return False
+            return True
+
         if event.target == DEMO_NAV_TREE_ID:
             var changed = False
             if event.kind == ACTION_KIND:
@@ -1756,7 +1628,6 @@ struct DemoBrowserState(Component):
                 if self.catalog.index_for_id(id) >= 0 and self.selected_id != id:
                     self.selected_id = id
                     self._activate_entry(id)
-                    self.tab = DEMO_TAB_OVERVIEW
                     self.status = String("Selected ", self.catalog.entry(self.catalog.index_for_id(id)).name, ".")
                     return True
                 return False
@@ -1764,7 +1635,8 @@ struct DemoBrowserState(Component):
             if event.target >= DEMO_CATEGORY_BUTTON_BASE and event.target < DEMO_CATEGORY_BUTTON_BASE + 100:
                 var next_category = event.target - DEMO_CATEGORY_BUTTON_BASE
                 if next_category >= DEMO_CATEGORY_ALL and next_category <= DEMO_CATEGORY_TEXT:
-                    if self.category != next_category:
+                    if self.category != next_category or self.filters_expanded:
+                        self.filters_expanded = False
                         self.category = next_category
                         self._select_first_visible()
                         self.status = String("Showing ", demo_category_name(next_category), ".")
@@ -1802,7 +1674,6 @@ struct DemoBrowserState(Component):
                     self.tab = DEMO_TAB_DEMO
                     self.status = String("Running ", entry.name, " as a typed in-process component.")
                 else:
-                    self.tab = DEMO_TAB_DEMO
                     self.pending_task = entry.task
                     self.status = String("Launching ", entry.command(), " …")
                 return True

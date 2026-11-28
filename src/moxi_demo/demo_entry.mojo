@@ -115,23 +115,23 @@ struct DemoCatalog(ImplicitlyCopyable):
             DEMO_HELLO_WINDOW_ID,
             "Hello Window",
             DEMO_CATEGORY_START,
-            "Lower-level window and renderer setup. Start with Counter for application authoring.",
-            "examples/hello_window.mojo",
+            "Resize a native window and read its live dimensions.",
+            "src/moxi_demo/hello.mojo",
             "hello-window-demo",
             DEMO_PAGE_SHOWCASE,
             True,
-            "struct HelloWindow(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 24.0, 12.0)\n        root.add_label(1, \"Hello from Moxi\", 36.0)\n        root.add_label(2, \"This view is built by a Component.\", 0.0)\n        root.layout()\n        return root^\n\nvar app = App[HelloWindow](HelloWindow(), bounds)\napp.run(window, renderer)",
+            "struct HelloWindow(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        …\n        view.add(LabelControl(2,\n            String(Int(bounds.width), \" × \",\n                   Int(bounds.height), \" pt\"),\n            24.0, theme.label).node())\n        view.layout()\n        return view^",
         ))
         self.entries.append(DemoEntry(
             DEMO_HELLO_COMPONENT_ID,
             "Hello Component",
             DEMO_CATEGORY_START,
-            "Lower-level Component and App lifecycle. Counter teaches the shorter application style.",
-            "examples/hello_component.mojo",
+            "Mount the same greeting twice with different names.",
+            "src/moxi_demo/hello.mojo",
             "component-demo",
             DEMO_PAGE_SHOWCASE,
             True,
-            "struct HelloComponent(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        var root = ColumnView(bounds, 24.0, 12.0)\n        root.add_label(1, \"A reusable Moxi component\", 34.0)\n        root.add_label(2, \"The host owns the window.\", 0.0)\n        root.layout()\n        return root^\n\nvar app = App[HelloComponent](HelloComponent(), bounds)\napp.run(window, renderer)",
+            "struct HelloComponent(Component):\n    def build(self, bounds: Rect) -> ColumnView:\n        …\n        view.add_component_view_to(\n            -1, 2, Greeting(\"Ada\").build(row), 100, row.height)\n        view.add_component_view_to(\n            -1, 3, Greeting(\"Lin\").build(row), 200, row.height)\n        view.layout()\n        return view^",
         ))
         self.entries.append(DemoEntry(
             DEMO_COUNTER_ID,
@@ -142,7 +142,7 @@ struct DemoCatalog(ImplicitlyCopyable):
             "counter-demo",
             DEMO_PAGE_COUNTER,
             True,
-            "struct Counter(Screen):\n    var count: Int\n\n    def __init__(out self):\n        self.count = 0\n\n    def increment(mut self):\n        self.count += 1\n\n    def render(self, mut ui: UI[Self]):\n        ui.label(\"Moxi Counter\")\n        ui.label(\"Count: \" + String(self.count))\n        ui.button(\"Increment\", Self.increment)",
+            "struct Counter(Screen):\n    var count: Int\n\n    def increment(mut self):\n        self.count += 1\n\n    def render(self, mut ui: UI[Self]):\n        ui.label(\"Running total\")\n        ui.label(\"Count: \" + String(self.count))\n        ui.button(\"Increment\", Self.increment,\n                  role=RecipeRole.primary())",
         ))
         self.entries.append(DemoEntry(
             DEMO_FORM_ID,
@@ -153,7 +153,7 @@ struct DemoCatalog(ImplicitlyCopyable):
             "form-demo",
             DEMO_PAGE_FORM,
             True,
-            "struct Form(Screen):\n    var name: String\n    var submissions: Int\n\n    def change_name(mut self, name: String):\n        self.name = name\n\n    def submit(mut self):\n        self.submissions += 1\n\n    def render(self, mut ui: UI[Self]):\n        ui.text_input(\"Name\", self.name, Self.change_name, show_label=False, hint=\"Enter your name\")\n        ui.label(\"Submitted: \" + String(self.submissions))\n        ui.button(\"Submit\", Self.submit)",
+            "struct Form(Screen):\n    …\n    def change_name(mut self, name: String):\n        self.name = name\n\n    def submit(mut self):\n        self.submitted_name = self.name\n        self.submissions += 1",
         ))
         self.entries.append(DemoEntry(
             DEMO_EDITORS_ID,

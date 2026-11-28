@@ -9,7 +9,7 @@ from moxi_demo.demo_browser import (
     DemoBrowserState, DEMO_ENTRY_VIEW_BASE, DEMO_RUN_BUTTON_ID, DEMO_RESET_BUTTON_ID,
     DEMO_STORY_CODE_TEXT_ID, DEMO_SOURCE_TEXT_ID, DEMO_TAB_SOURCE_ID,
     DEMO_TAB_DEMO_ID, DEMO_TAB_DEMO, DEMO_NAV_PORTAL_ID, DEMO_CONTENT_PORTAL_ID,
-    DEMO_CATEGORY_BUTTON_BASE, DEMO_SEARCH_ID,
+    DEMO_CATEGORY_BUTTON_BASE, DEMO_NAV_FILTER_LABEL_ID, DEMO_SEARCH_ID,
 )
 from moxi_demo.catalog_types import DEMO_LIVE_SCRIPT_ID, DEMO_COUNTER_ID, DEMO_CATEGORY_COMPONENTS
 from moxi_demo.source_editor import DemoBuildPhase, EDITABLE_DEMO_SOURCE
@@ -64,7 +64,7 @@ def frame_count() -> Int32:
 
 
 def main() raises:
-    var app = App[DemoBrowserState](DemoBrowserState(), Rect(0, 0, 1380, 900))
+    var app = App[DemoBrowserState](DemoBrowserState(), Rect(0, 0, 1380, 500))
     var editor = MacOSLiveEditor()
     var live = MacOSLiveScript()
     var original = app.component.source_editor.original
@@ -75,9 +75,10 @@ def main() raises:
     query.set_target(DEMO_SEARCH_ID)
     test_check(app.dispatch(query))
 
+    test_check(app.dispatch(action(DEMO_NAV_FILTER_LABEL_ID)))
     test_check(app.dispatch(action(DEMO_CATEGORY_BUTTON_BASE + DEMO_CATEGORY_COMPONENTS)))
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_LIVE_SCRIPT_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     var nav = app.view.bounds_for(DEMO_NAV_PORTAL_ID)
     var scroll = Event(ScrollEvent(Point(nav.x + 10, nav.y + 10), Point(0, 80)))
     _ = app.dispatch(scroll)
@@ -93,7 +94,7 @@ def main() raises:
     # Normal catalog/tab actions must work while the compiler is running.
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_COUNTER_ID)))
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_LIVE_SCRIPT_ID)))
-    test_check(app.dispatch(action(DEMO_TAB_DEMO_ID)))
+    test_check(app.component.tab == DEMO_TAB_DEMO)
     finish(app, editor, live)
     test_check(live.loaded)
     test_check(frame_count() == 24)

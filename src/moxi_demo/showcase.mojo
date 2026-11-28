@@ -36,6 +36,7 @@ from moxi.text_shaping import PortableTextShaper
 from moxi.column_view import ColumnView
 
 
+from .hello import HelloComponent, HelloWindow
 from .catalog_types import (
     DEMO_HELLO_COMPONENT_ID,
     DEMO_ANIMATION_ID,
@@ -87,10 +88,6 @@ def _panel_bounds(bounds: Rect) -> Rect:
 
 
 def _title_for_mode(mode: Int) -> String:
-    if mode == SHOWCASE_HELLO_WINDOW:
-        return "Hello Window"
-    if mode == SHOWCASE_HELLO_COMPONENT:
-        return "Hello Component"
     if mode == SHOWCASE_ANIMATION:
         return "Animation & Invalidation"
     if mode == SHOWCASE_PLOT:
@@ -109,10 +106,6 @@ def _title_for_mode(mode: Int) -> String:
 
 
 def _body_for_mode(mode: Int) -> String:
-    if mode == SHOWCASE_HELLO_WINDOW:
-        return "A real Moxi component mounted in a native window. Open the standalone example to see the same build pattern in editable source."
-    if mode == SHOWCASE_HELLO_COMPONENT:
-        return "The smallest reusable component: state owns a view builder and the host owns the window and renderer lifecycle."
     if mode == SHOWCASE_ANIMATION:
         return "A frame-clock-driven component. The progress control is rebuilt in place as the animation advances and invalidates its content."
     if mode == SHOWCASE_PLOT:
@@ -290,6 +283,10 @@ struct ShowcaseState(Component):
         return _is_scene_mode(self.mode)
 
     def build(self, bounds: Rect) -> ColumnView:
+        if self.mode == SHOWCASE_HELLO_WINDOW:
+            return HelloWindow().build(bounds)
+        if self.mode == SHOWCASE_HELLO_COMPONENT:
+            return HelloComponent().build(bounds)
         var padding: Float32 = 24.0
         var spacing: Float32 = 12.0
         if bounds.height < 520.0:

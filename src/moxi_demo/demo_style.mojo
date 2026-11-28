@@ -95,7 +95,9 @@ def _primary_button_style() -> Style:
 
 
 def _nav_button_style(selected: Bool) -> Style:
-    return _selection_style(selected, dark_tokens().typography.text_base)
+    var colors = dark_tokens().colors
+    return _button_style(colors.secondary if selected else Color(0, 0, 0, 0),
+                         colors.text if selected else colors.muted_text, 15.0, 6.0)
 
 
 def _filter_button_style(selected: Bool) -> Style:
@@ -103,7 +105,7 @@ def _filter_button_style(selected: Bool) -> Style:
 
 
 def _tab_style(selected: Bool) -> Style:
-    return _selection_style(selected, dark_tokens().typography.text_sm)
+    return _nav_button_style(selected)
 
 
 def _add_styled_label(

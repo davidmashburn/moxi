@@ -15,7 +15,7 @@ from moxi_demo.not_implemented_demo import (
     PATTERN_FIRST_SLOT_ID, PATTERN_FIRST_OFFSET, PATTERN_SECOND_OFFSET,
 )
 from moxi_demo.demo_browser import (
-    DemoBrowserState, DEMO_ENTRY_VIEW_BASE, DEMO_TAB_DEMO_ID, DEMO_RESET_BUTTON_ID,
+    DemoBrowserState, DEMO_ENTRY_VIEW_BASE, DEMO_TAB_DEMO, DEMO_RESET_BUTTON_ID,
     DEMO_NOT_IMPLEMENTED_ID_OFFSET, DEMO_STORY_PREVIEW_ID,
 )
 from moxi_demo.catalog_types import DEMO_NOT_IMPLEMENTED_ID
@@ -117,7 +117,7 @@ def main():
 
     var browser = App[DemoBrowserState](DemoBrowserState(), Rect(0.0, 0.0, 1100.0, 760.0))
     require(browser.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_NOT_IMPLEMENTED_ID)), "browser.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_NOT_IMPLEMENTED_ID))")
-    require(browser.dispatch(action(DEMO_TAB_DEMO_ID)), "browser.dispatch(action(DEMO_TAB_DEMO_ID))")
+    require(browser.component.tab == DEMO_TAB_DEMO, "browser.component.tab == DEMO_TAB_DEMO")
     require(browser.view_is_valid(), "browser.view_is_valid()")
     require(browser.dispatch(action(DEMO_NOT_IMPLEMENTED_ID_OFFSET + PATTERN_HOST_BUTTON_ID)), "browser.dispatch(action(DEMO_NOT_IMPLEMENTED_ID_OFFSET + PATTERN_HOST_BUTTON_ID))")
     require(browser.component.not_implemented.component.host_clicks == 1, "browser.component.not_implemented.component.host_clicks == 1")
