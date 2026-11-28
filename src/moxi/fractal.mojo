@@ -38,7 +38,7 @@ from .layout import ALIGN_CENTER, ALIGN_STRETCH, JUSTIFY_START
 from .natural import Natural
 from .raster import RasterImage
 from .scene import Scene
-from .style import Color, default_button_style, default_panel_style, default_surface_style
+from .style import Color, default_button_style, default_label_style, default_panel_style, default_surface_style
 from .column_view import ColumnView
 
 
@@ -57,13 +57,13 @@ comptime FRACTAL_RENDER_BATCH: Int = 384
 comptime _FRACTAL_ANCESTOR_CACHE_SIZE: Int = 256
 comptime FRACTAL_DOUBLE_CLICK_SECONDS: Float32 = 0.30
 comptime FRACTAL_PRESET_GRID_COLUMNS: Int = 4
-comptime FRACTAL_PRESET_GRID_HEIGHT: Float32 = 160.0
 comptime FRACTAL_PRESET_TARGET_WIDTH: Float32 = 560.0
 comptime FRACTAL_PRESET_TARGET_HEIGHT: Float32 = 250.0
 comptime FRACTAL_PRESET_TARGET_CENTER_X: Float32 = 350.0
 comptime FRACTAL_PRESET_TARGET_CENTER_Y: Float32 = 150.0
 comptime FRACTAL_PI: Float32 = 3.14159265358979323846
 
+comptime FRACTAL_CLASSIC_COUNT: Int = 13
 comptime FRACTAL_GROUP_CLASSIC: Int = 0
 comptime FRACTAL_GROUP_EXPERIMENT: Int = 1
 comptime FRACTAL_PRESET_COUNT: Int = 27
@@ -88,6 +88,11 @@ comptime FRACTAL_HELP_ID: Int = 3016
 comptime FRACTAL_STATUS_PRESET_ID: Int = 3017
 comptime FRACTAL_STATUS_DEPTH_ID: Int = 3018
 comptime FRACTAL_STATUS_SEGMENTS_ID: Int = 3019
+comptime FRACTAL_PRESETS_ID: Int = 3020
+comptime FRACTAL_OPTIONS_ID: Int = 3021
+comptime FRACTAL_GROUP_ROW_ID: Int = 3022
+comptime FRACTAL_OPTIONS_ROW_ID: Int = 3023
+comptime FRACTAL_NARROW_DEPTH_ROW_ID: Int = 3024
 comptime FRACTAL_PRESET_BUTTON_BASE: Int = 3100
 comptime FRACTAL_CANVAS_ID: Int = 3200
 
@@ -288,7 +293,7 @@ def fractal_preset_name(index: Int) -> String:
 
 def fractal_preset_group(index: Int) -> Int:
     """Return classic or experimental grouping for a preset."""
-    return FRACTAL_GROUP_CLASSIC if index < 13 else FRACTAL_GROUP_EXPERIMENT
+    return FRACTAL_GROUP_CLASSIC if index < FRACTAL_CLASSIC_COUNT else FRACTAL_GROUP_EXPERIMENT
 
 
 def _preset_commands(index: Int) -> String:
@@ -902,6 +907,9 @@ struct FractalState(Component):
     var depth_input: TextInputState
     var show_guides: Bool
     var random_colors: Bool
+    var presets_open: Bool
+    var options_open: Bool
+    var picker_group: Int
     var preset_id: Int
     var geometry: FractalGeometry
     var local_segments: List[FractalLocalSegment]
@@ -925,6 +933,9 @@ struct FractalState(Component):
         self.depth_input = TextInputState("5")
         self.show_guides = True
         self.random_colors = False
+        self.presets_open = False
+        self.options_open = False
+        self.picker_group = FRACTAL_GROUP_CLASSIC
         self.preset_id = 0
         self.geometry = fractal_preset_geometry(0)
         self.local_segments = List[FractalLocalSegment]()
@@ -949,6 +960,9 @@ struct FractalState(Component):
         self.depth_input = copy.depth_input
         self.show_guides = copy.show_guides
         self.random_colors = copy.random_colors
+        self.presets_open = copy.presets_open
+        self.options_open = copy.options_open
+        self.picker_group = copy.picker_group
         self.preset_id = copy.preset_id
         self.geometry = copy.geometry.copy()
         self.local_segments = copy.local_segments.copy()
@@ -968,68 +982,42 @@ struct FractalState(Component):
         self.last_click_age = copy.last_click_age
 
     def build(self, bounds: Rect) -> ColumnView:
-        var root = ColumnView(bounds, 20.0, 12.0)
+        var inset: Float32 = 8 if bounds.width < 850 else 16
+        var root = ColumnView(bounds, inset, 0)
         root.set_surface_style(default_surface_style())
-        var panel_width = bounds.width - 40.0
-        var panel_height = bounds.height - 40.0
-        if panel_width < 0.0:
-            panel_width = 0.0
-        if panel_height < 0.0:
-            panel_height = 0.0
-        root.set_panel(
-            0,
-            Rect(bounds.x + 20.0, bounds.y + 20.0, panel_width, panel_height),
-            default_panel_style(),
-        )
+        var panel_width = max(bounds.width - 2 * inset, 0.0)
+        var panel_height = max(bounds.height - 2 * inset, 0.0)
+        root.set_panel(0, Rect(bounds.x + inset, bounds.y + inset, panel_width, panel_height), default_panel_style())
         root.set_clip_to_bounds()
-        var panel = root.add_column(FRACTAL_PANEL_ID, panel_height, 14.0, 10.0)
+        var panel = root.add_column(FRACTAL_PANEL_ID, panel_height, 6, 0)
         root.set_clip_children(panel)
-        # The portal owns scrolling; leave room for both 14 px panel insets
-        # instead of overflowing its parent by 16 px.
-        var viewport_height = max(panel_height - 28.0, 0.0)
-        var content = root.add_portal_to(
-            panel,
-            FRACTAL_SCROLL_ID,
-            viewport_height,
-            # Keep the overlay scrollbar on the panel beside the drawing.
-            12.0,
-            10.0,
-            0.0,
-        )
+        var content = root.add_portal_to(panel, FRACTAL_SCROLL_ID, max(panel_height - 12, 0.0), 12, 8, 0)
         root.set_accessibility_label(content, "Fractal explorer content")
-        root.add_label_to(content, FRACTAL_TITLE_ID, "Line Fractal Explorer", 34.0)
+        var header = root.add_row_to(content, FRACTAL_STATUS_ID, 0, 34, 0, 8)
+        root.add_label_to(header, FRACTAL_TITLE_ID, "Line Fractal Explorer", 34)
+        var heading = default_label_style()
+        heading.font_size = 22 if bounds.width >= 540 else 17
+        root.set_style(FRACTAL_TITLE_ID, heading)
+        root.add_label_to(header, FRACTAL_STATUS_SEGMENTS_ID, self.estimated_segments_label(), 30)
+        root.set_container_alignment(header, JUSTIFY_START, ALIGN_CENTER)
 
-        var status = root.add_row_to(content, FRACTAL_STATUS_ID, 0.0, 28.0, 0.0, 18.0)
-        root.add_label_to(
-            status,
-            FRACTAL_STATUS_PRESET_ID,
-            String("Preset: ", fractal_preset_name(self.preset_id)),
-            26.0,
-        )
-        root.add_label_to(
-            status,
-            FRACTAL_STATUS_DEPTH_ID,
-            String("Depth: ", self.depth.text()),
-            26.0,
-        )
-        root.add_label_to(
-            status,
-            FRACTAL_STATUS_SEGMENTS_ID,
-            self.estimated_segments_label(),
-            26.0,
-        )
-        root.set_container_alignment(status, JUSTIFY_START, ALIGN_CENTER)
-
-        var controls = root.add_row_to(
-            content,
-            FRACTAL_CONTROL_ROW_ID,
-            0.0,
-            44.0,
-            0.0,
-            12.0,
-        )
-        root.add_label_to(controls, FRACTAL_DEPTH_LABEL_ID, "Depth", 30.0)
-        root.add_button_to(controls, FRACTAL_DEPTH_DOWN_ID, "-", 34.0)
+        var controls = root.add_row_to(content, FRACTAL_CONTROL_ROW_ID, 0, 36, 0, 6)
+        root.add_button_to(controls, FRACTAL_PRESETS_ID, String("Presets · ", fractal_preset_name(self.preset_id), " ▴" if self.presets_open else " ▾"), 34)
+        root.set_fixed_width(FRACTAL_PRESETS_ID, 228)
+        root.add_button_to(controls, FRACTAL_OPTIONS_ID, "Options", 34)
+        root.set_fixed_width(FRACTAL_OPTIONS_ID, 90)
+        root.set_expanded(FRACTAL_PRESETS_ID, self.presets_open)
+        root.set_expanded(FRACTAL_OPTIONS_ID, self.options_open)
+        root.set_selected(FRACTAL_PRESETS_ID, self.presets_open)
+        root.set_selected(FRACTAL_OPTIONS_ID, self.options_open)
+        root.set_container_alignment(controls, JUSTIFY_START, ALIGN_CENTER)
+        if bounds.width < 620:
+            controls = root.add_row_to(content, FRACTAL_NARROW_DEPTH_ROW_ID, 0, 36, 0, 6)
+            root.set_container_alignment(controls, JUSTIFY_START, ALIGN_CENTER)
+        root.add_label_to(controls, FRACTAL_DEPTH_LABEL_ID, "Depth", 30)
+        root.set_fixed_width(FRACTAL_DEPTH_LABEL_ID, 52)
+        root.add_button_to(controls, FRACTAL_DEPTH_DOWN_ID, "-", 34)
+        root.set_fixed_width(FRACTAL_DEPTH_DOWN_ID, 36)
         var input = TextInputControl(
             FRACTAL_DEPTH_INPUT_ID,
             self.depth_input.text,
@@ -1046,29 +1034,29 @@ struct FractalState(Component):
         root.set_fixed_width(FRACTAL_DEPTH_INPUT_ID, 80.0)
         root.set_accessibility_label(FRACTAL_DEPTH_INPUT_ID, "Depth")
         root.add_button_to(controls, FRACTAL_DEPTH_UP_ID, "+", 34.0)
-        root.add_checkbox_to(
-            controls,
-            FRACTAL_GUIDES_ID,
-            "Show guides",
-            self.show_guides,
-            32.0,
-        )
-        root.add_checkbox_to(
-            controls,
-            FRACTAL_RANDOM_ID,
-            "Random colors",
-            self.random_colors,
-            32.0,
-        )
-        root.add_button_to(
-            controls,
-            FRACTAL_RESET_ID,
-            "Reset current preset",
-            34.0,
-        )
-        root.set_intrinsic_width(FRACTAL_RESET_ID)
-        root.set_container_alignment(controls, JUSTIFY_START, ALIGN_CENTER)
+        root.set_fixed_width(FRACTAL_DEPTH_UP_ID, 36)
 
+        if self.presets_open:
+            var families = root.add_row_to(content, FRACTAL_GROUP_ROW_ID, 0, 32, 0, 6)
+            var classic = self.picker_group == FRACTAL_GROUP_CLASSIC
+            root.add_button_to(families, FRACTAL_CLASSIC_LABEL_ID, "✓ Classic" if classic else "Classic", 32)
+            root.add_button_to(families, FRACTAL_EXPERIMENT_LABEL_ID, "Experimental" if classic else "✓ Experimental", 32)
+            root.set_accessibility_label(FRACTAL_CLASSIC_LABEL_ID, "Classic")
+            root.set_accessibility_label(FRACTAL_EXPERIMENT_LABEL_ID, "Experimental")
+            root.set_fixed_width(FRACTAL_CLASSIC_LABEL_ID, 96)
+            root.set_fixed_width(FRACTAL_EXPERIMENT_LABEL_ID, 134)
+            root.set_container_alignment(families, JUSTIFY_START, ALIGN_CENTER)
+            root.set_selected(FRACTAL_CLASSIC_LABEL_ID, self.picker_group == FRACTAL_GROUP_CLASSIC)
+            root.set_selected(FRACTAL_EXPERIMENT_LABEL_ID, self.picker_group == FRACTAL_GROUP_EXPERIMENT)
+            var grid = FRACTAL_CLASSIC_GRID_ID if self.picker_group == FRACTAL_GROUP_CLASSIC else FRACTAL_EXPERIMENT_GRID_ID
+            self.build_preset_grid(root, content, grid, self.picker_group, 2 if bounds.width < 620 else FRACTAL_PRESET_GRID_COLUMNS)
+        if self.options_open:
+            var options = root.add_row_to(content, FRACTAL_OPTIONS_ROW_ID, 0, 36, 0, 6)
+            root.add_checkbox_to(options, FRACTAL_GUIDES_ID, "Show guides", self.show_guides, 32)
+            root.add_checkbox_to(options, FRACTAL_RANDOM_ID, "Random colors", self.random_colors, 32)
+            root.add_button_to(options, FRACTAL_RESET_ID, "Reset preset", 34)
+            root.set_accessibility_label(FRACTAL_RESET_ID, "Reset current preset")
+            root.set_container_alignment(options, JUSTIFY_START, ALIGN_CENTER)
         root.add_canvas_to(
             content,
             FRACTAL_CANVAS_ID,
@@ -1091,10 +1079,6 @@ struct FractalState(Component):
             48.0,
         )
         root.set_wrap_text(FRACTAL_HELP_ID)
-        root.add_label_to(content, FRACTAL_CLASSIC_LABEL_ID, "Classic Presets", 24.0)
-        self.build_preset_grid(root, content, FRACTAL_CLASSIC_GRID_ID, FRACTAL_GROUP_CLASSIC)
-        root.add_label_to(content, FRACTAL_EXPERIMENT_LABEL_ID, "Experimental Presets", 24.0)
-        self.build_preset_grid(root, content, FRACTAL_EXPERIMENT_GRID_ID, FRACTAL_GROUP_EXPERIMENT)
         root.layout()
         return root^
 
@@ -1104,12 +1088,15 @@ struct FractalState(Component):
         parent_id: Int,
         grid_id: Int,
         group: Int,
+        columns: Int,
     ):
+        var count = FRACTAL_CLASSIC_COUNT if group == FRACTAL_GROUP_CLASSIC else FRACTAL_PRESET_COUNT - FRACTAL_CLASSIC_COUNT
+        var rows = (count + columns - 1) // columns
         _ = root.add_grid_to(
             parent_id,
             grid_id,
-            FRACTAL_PRESET_GRID_HEIGHT,
-            FRACTAL_PRESET_GRID_COLUMNS,
+            Float32(rows * 42 - 8),
+            columns,
             0.0,
             8.0,
         )
@@ -1121,6 +1108,8 @@ struct FractalState(Component):
             if active:
                 label = String("✓ ", label)
             var style = default_button_style()
+            style.fill = default_panel_style().fill
+            style.text = Color(0.70, 0.84, 1.0, 1.0)
             if active:
                 style.fill = Color(0.10, 0.34, 0.62, 1.0)
                 style.border = Color(0.35, 0.74, 1.0, 1.0)
@@ -1187,6 +1176,18 @@ struct FractalState(Component):
                 return self.depth_input.handle_key(event.key, event.modifiers)
             return False
 
+        if event.target == FRACTAL_PRESETS_ID and _is_activation(event):
+            self.presets_open = not self.presets_open
+            self.options_open = False
+            self.picker_group = fractal_preset_group(self.preset_id)
+            return True
+        if event.target == FRACTAL_OPTIONS_ID and _is_activation(event):
+            self.options_open = not self.options_open
+            self.presets_open = False
+            return True
+        if _is_activation(event) and (event.target == FRACTAL_CLASSIC_LABEL_ID or event.target == FRACTAL_EXPERIMENT_LABEL_ID):
+            self.picker_group = FRACTAL_GROUP_CLASSIC if event.target == FRACTAL_CLASSIC_LABEL_ID else FRACTAL_GROUP_EXPERIMENT
+            return True
         if event.target == FRACTAL_DEPTH_DOWN_ID and _is_activation(event):
             var next = self.depth
             next.decrement()
@@ -1214,6 +1215,7 @@ struct FractalState(Component):
             var next_preset = event.target - FRACTAL_PRESET_BUTTON_BASE
             if next_preset == self.preset_id:
                 return False
+            self.presets_open = False
             self.preset_id = next_preset
             self.geometry = fractal_preset_geometry(next_preset)
             self.endpoint0_revealed = False
@@ -1225,9 +1227,18 @@ struct FractalState(Component):
             return self.update_canvas(event, view)
         return False
 
+    @staticmethod
+    def _drawing_origin(canvas: Rect) -> Point:
+        # A narrow native pane crops the fixed-resolution artboard. Keep the
+        # preset center in view without changing drag distances or handle sizes.
+        return Point(canvas.x + min(Float32(0), canvas.width / 2 - FRACTAL_PRESET_TARGET_CENTER_X), canvas.y)
+
     def update_canvas(mut self, event: Event, view: ColumnView) -> Bool:
-        var canvas = view.bounds_for(FRACTAL_CANVAS_ID)
-        var local = Point(event.position.x - canvas.x, event.position.y - canvas.y)
+        var origin = Self._drawing_origin(view.bounds_for(FRACTAL_CANVAS_ID))
+        return self.update_canvas_point(event, Point(event.position.x - origin.x, event.position.y - origin.y))
+
+    def update_canvas_point(mut self, event: Event, local: Point) -> Bool:
+        """Handle a pointer already mapped into fractal artboard coordinates."""
         if event.kind == POINTER_DOWN_KIND:
             var baseline_index = self.baseline_hit(local)
             if baseline_index >= 0:
@@ -1456,9 +1467,10 @@ struct FractalState(Component):
         var preview_fill = Color(1.0, 1.0, 1.0, 0.92)
         var border = Color(204.0 / 255.0, 188.0 / 255.0, 160.0 / 255.0, 1.0)
         scene.append_rect(FRACTAL_CANVAS_ID, canvas_bounds, canvas_fill)
+        var origin = Self._drawing_origin(canvas_bounds)
         var preview = Rect(
-            canvas_bounds.x + FRACTAL_PREVIEW_X,
-            canvas_bounds.y + FRACTAL_PREVIEW_Y,
+            origin.x + FRACTAL_PREVIEW_X,
+            origin.y + FRACTAL_PREVIEW_Y,
             FRACTAL_PREVIEW_WIDTH,
             FRACTAL_PREVIEW_HEIGHT,
         )
@@ -1498,21 +1510,21 @@ struct FractalState(Component):
                 color = _random_line_color(segment.start, segment.end)
             scene.append_line(
                 FRACTAL_CANVAS_ID + 100 + index,
-                Point(canvas_bounds.x + segment.start.x, canvas_bounds.y + segment.start.y),
-                Point(canvas_bounds.x + segment.end.x, canvas_bounds.y + segment.end.y),
+                Point(origin.x + segment.start.x, origin.y + segment.start.y),
+                Point(origin.x + segment.end.x, origin.y + segment.end.y),
                 color,
                 1.0,
             )
         if not self.cursor.emitted.is_zero():
             scene.append_bitmap(
                 FRACTAL_CANVAS_ID + 6,
-                Rect(canvas_bounds.x, canvas_bounds.y, FRACTAL_CANVAS_WIDTH, FRACTAL_CANVAS_HEIGHT),
+                Rect(origin.x, origin.y, FRACTAL_CANVAS_WIDTH, FRACTAL_CANVAS_HEIGHT),
                 self.raster,
             )
         scene.append_line(
             FRACTAL_CANVAS_ID + 2,
-            Point(canvas_bounds.x + self.geometry.baseline_start.x, canvas_bounds.y + self.geometry.baseline_start.y),
-            Point(canvas_bounds.x + self.geometry.baseline_end.x, canvas_bounds.y + self.geometry.baseline_end.y),
+            Point(origin.x + self.geometry.baseline_start.x, origin.y + self.geometry.baseline_start.y),
+            Point(origin.x + self.geometry.baseline_end.x, origin.y + self.geometry.baseline_end.y),
             Color(55.0 / 255.0, 108.0 / 255.0, 171.0 / 255.0, 1.0),
             3.0,
         )
@@ -1520,8 +1532,8 @@ struct FractalState(Component):
             for index in range(len(self.geometry.generator_points) - 1):
                 scene.append_line(
                     FRACTAL_CANVAS_ID + 10000 + index,
-                    Point(canvas_bounds.x + self.geometry.generator_points[index].x, canvas_bounds.y + self.geometry.generator_points[index].y),
-                    Point(canvas_bounds.x + self.geometry.generator_points[index + 1].x, canvas_bounds.y + self.geometry.generator_points[index + 1].y),
+                    Point(origin.x + self.geometry.generator_points[index].x, origin.y + self.geometry.generator_points[index].y),
+                    Point(origin.x + self.geometry.generator_points[index + 1].x, origin.y + self.geometry.generator_points[index + 1].y),
                     Color(186.0 / 255.0, 57.0 / 255.0, 39.0 / 255.0, 1.0),
                     2.0,
                 )
@@ -1536,8 +1548,8 @@ struct FractalState(Component):
                 var is_last = index == len(self.geometry.generator_points) - 1
                 var point = self.geometry.generator_points[index]
                 var center = Point(
-                    canvas_bounds.x + point.x,
-                    canvas_bounds.y + point.y,
+                    origin.x + point.x,
+                    origin.y + point.y,
                 )
                 if is_first and self.geometry.endpoint0_docked:
                     _append_scene_docked_endpoint(
@@ -1565,7 +1577,7 @@ struct FractalState(Component):
         var baseline_handle_base = FRACTAL_CANVAS_ID + 21000
         for index in range(2):
             var point = self.geometry.baseline_start if index == 0 else self.geometry.baseline_end
-            var center = Point(canvas_bounds.x + point.x, canvas_bounds.y + point.y)
+            var center = Point(origin.x + point.x, origin.y + point.y)
             var docked = self.geometry.endpoint0_docked if index == 0 else self.geometry.endpoint1_docked
             var revealed = self.endpoint0_revealed if index == 0 else self.endpoint1_revealed
             if docked:
@@ -1604,9 +1616,10 @@ struct FractalState(Component):
             Color(0.0, 0.0, 0.0, 0.0),
             0.0,
         )
+        var origin = Self._drawing_origin(canvas_bounds)
         var preview = Rect(
-            canvas_bounds.x + FRACTAL_PREVIEW_X,
-            canvas_bounds.y + FRACTAL_PREVIEW_Y,
+            origin.x + FRACTAL_PREVIEW_X,
+            origin.y + FRACTAL_PREVIEW_Y,
             FRACTAL_PREVIEW_WIDTH,
             FRACTAL_PREVIEW_HEIGHT,
         )
@@ -1621,7 +1634,7 @@ struct FractalState(Component):
         if not self.render_complete() and not self.random_colors:
             painter.line_batch(
                 self.rendered_segments,
-                Point(canvas_bounds.x, canvas_bounds.y),
+                Point(origin.x, origin.y),
                 color,
                 1.0,
             )
@@ -1629,25 +1642,25 @@ struct FractalState(Component):
             for index in range(len(self.rendered_segments)):
                 var segment = self.rendered_segments[index]
                 painter.line(
-                    Point(canvas_bounds.x + segment.start.x, canvas_bounds.y + segment.start.y),
-                    Point(canvas_bounds.x + segment.end.x, canvas_bounds.y + segment.end.y),
+                    Point(origin.x + segment.start.x, origin.y + segment.start.y),
+                    Point(origin.x + segment.end.x, origin.y + segment.end.y),
                     _random_line_color(segment.start, segment.end),
                     1.0,
                 )
         if not self.cursor.emitted.is_zero():
             painter.bitmap(
                 self.raster,
-                Rect(canvas_bounds.x, canvas_bounds.y, FRACTAL_CANVAS_WIDTH, FRACTAL_CANVAS_HEIGHT),
+                Rect(origin.x, origin.y, FRACTAL_CANVAS_WIDTH, FRACTAL_CANVAS_HEIGHT),
             )
         painter.end_line_geometry()
 
         var baseline_start = Point(
-            canvas_bounds.x + self.geometry.baseline_start.x,
-            canvas_bounds.y + self.geometry.baseline_start.y,
+            origin.x + self.geometry.baseline_start.x,
+            origin.y + self.geometry.baseline_start.y,
         )
         var baseline_end = Point(
-            canvas_bounds.x + self.geometry.baseline_end.x,
-            canvas_bounds.y + self.geometry.baseline_end.y,
+            origin.x + self.geometry.baseline_end.x,
+            origin.y + self.geometry.baseline_end.y,
         )
         painter.line(
             baseline_start,
@@ -1660,8 +1673,8 @@ struct FractalState(Component):
                 var start = self.geometry.generator_points[index]
                 var end = self.geometry.generator_points[index + 1]
                 painter.line(
-                    Point(canvas_bounds.x + start.x, canvas_bounds.y + start.y),
-                    Point(canvas_bounds.x + end.x, canvas_bounds.y + end.y),
+                    Point(origin.x + start.x, origin.y + start.y),
+                    Point(origin.x + end.x, origin.y + end.y),
                     Color(186.0 / 255.0, 57.0 / 255.0, 39.0 / 255.0, 1.0),
                     2.0,
                 )
@@ -1669,7 +1682,7 @@ struct FractalState(Component):
                 var is_first = index == 0
                 var is_last = index == len(self.geometry.generator_points) - 1
                 var point = self.geometry.generator_points[index]
-                var center = Point(canvas_bounds.x + point.x, canvas_bounds.y + point.y)
+                var center = Point(origin.x + point.x, origin.y + point.y)
                 if is_first and self.geometry.endpoint0_docked:
                     self.paint_docked_endpoint(painter, center, self.endpoint0_revealed)
                 elif is_last and self.geometry.endpoint1_docked:

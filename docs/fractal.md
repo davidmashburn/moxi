@@ -12,25 +12,25 @@ compare a shape interactively, select the same preset, depth and colors in both.
 | WebAssembly | `pixi run web-fractal-demo` | Open the [local browser demo](http://127.0.0.1:8776/experiments/fractal-web/) in a browser with memory64 support. Keep the server running while you use it. Press Ctrl-C in its terminal to stop it. |
 
 To run them side by side, use a separate terminal for each command. The native
-demo is also available under **Line fractal** in `pixi run demo`. The web build
+demo is also available under **Interactive Line Fractal** in `pixi run demo`. The web build
 currently requires the [pinned Apple Silicon toolchain](#measurement-and-reproduction).
 
 Both hosts open on Koch Curve at depth 5. To see one million colored lines,
-select **Peano Serpent**, enter **6** in the depth field and enable **Random colors**.
+open **Presets**, choose **Peano Serpent**, and enter **6** in the depth field. Open **Options** and enable **Random colors**.
 
 ### Where the UI lives
 
 Edit `FractalState.build()` to change the UI on both platforms. It declares the
 depth field, plus and minus buttons, guide and color checkboxes, status labels,
-canvas and both grids of presets. The same Mojo component handles their events
+canvas and preset chooser. The chooser shows one family at a time. The same Mojo component handles their events
 and paints the canvas. Rebuild with the command for your host and reload the
-browser page after a web build. [Shared UI source](../src/moxi/fractal.mojo#L970)
+browser page after a web build. [Shared UI source](../src/moxi/fractal.mojo#L984)
 
 | Follow an action | What Mojo owns on both platforms | What the browser host does |
 | --- | --- | --- |
-| Show the presets | The component groups and names all 27 buttons, styles the selected preset and disables its button. [Preset grid](../src/moxi/fractal.mojo#L1101) | The Wasm entry builds the component and publishes its widgets. A generic adapter creates accessible HTML controls and keeps their DOM identities across updates. [Build entry](../experiments/fractal-web/browser.mojo#L249) · [DOM adapter](../native/hosts/moxi_web_view.mjs) |
-| Increase the depth | The component handles a press on the plus button, increments its arbitrary-precision integer and restarts the render. [Control handler](../src/moxi/fractal.mojo#L1189) | The DOM supplies focus and keyboard or pointer activation. The host forwards the widget ID and action to the component. [Event entry](../experiments/fractal-web/browser.mojo#L262) |
-| Drag a handle | The component picks the handle, edits the generator and restarts rendering during the drag. Its painter orders the preview, bitmap, guides and handles. [Drag handler](../src/moxi/fractal.mojo#L1228) · [Canvas painter](../src/moxi/fractal.mojo#L1588) | JavaScript captures the pointer, converts its position to canvas coordinates and schedules frames. The Canvas 2D adapter executes the Mojo painter's primitives and uploads the bitmap. [Frame loop](../experiments/fractal-web/demo.mjs) · [Painter bridge](../experiments/fractal-web/web_painter.mojo) |
+| Show the presets | Open Presets and choose Classic or Experimental. The active preset carries a check mark. [Preset grid](../src/moxi/fractal.mojo#L1085) | The Wasm entry builds the component and publishes its widgets. A generic adapter creates accessible HTML controls and keeps their DOM identities across updates. [Build entry](../experiments/fractal-web/browser.mojo#L247) · [DOM adapter](../native/hosts/moxi_web_view.mjs) |
+| Increase the depth | The component handles a press on the plus button, increments its arbitrary-precision integer and restarts the render. [Control handler](../src/moxi/fractal.mojo#L1134) | The DOM supplies focus and keyboard or pointer activation. The host forwards the widget ID and action to the component. [Event entry](../experiments/fractal-web/browser.mojo#L260) |
+| Drag a handle | The component picks the handle, edits the generator and restarts rendering during the drag. Its painter orders the preview, bitmap, guides and handles. [Drag handler](../src/moxi/fractal.mojo#L1240) · [Canvas painter](../src/moxi/fractal.mojo#L1600) | JavaScript captures the pointer, converts its position to canvas coordinates and schedules frames. The Canvas 2D adapter executes the Mojo painter's primitives and uploads the bitmap. [Frame loop](../experiments/fractal-web/demo.mjs) · [Painter bridge](../experiments/fractal-web/web_painter.mojo) |
 
 HTML supplies a mount point and loading text. CSS and native browser controls
 provide responsive layout, keyboard focus and text editing. The DOM adapter

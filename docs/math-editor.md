@@ -1,8 +1,12 @@
 # Native math editor
 
 `moxi_math` is an optional Mojo component with a macOS native font/input adapter.
-The primary canvas edits notation directly. Its Text / 2D switch exposes a
-lossless, human-editable notation language using the same document and history.
+The canvas edits notation directly. **Insert** adds fractions, radicals and other
+forms. **Structure** changes an existing form, and **Symbols** searches by name.
+Choose **Edit as text** to edit the same document and history in source notation.
+**Document** contains save, reopen, zoom and history. In the workbench it also
+switches between Expression, Scratch and Result. **Compute** runs operations on
+the current selection.
 The standalone consumer has no Python or CAS dependency. The workbench adds an
 optional persistent SymPy process through the existing D01 boundary.
 

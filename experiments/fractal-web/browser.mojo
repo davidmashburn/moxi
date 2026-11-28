@@ -158,14 +158,12 @@ def moxi_event(handle: Int64, kind: Int32, x: Float32, y: Float32, delta: Float3
     var ptr = StatePointer(unsafe_from_address=Int(address))
     var event = Event()
     event.kind = Int(kind)
-    var canvas = ptr[].view.bounds_for(FRACTAL_CANVAS_ID)
-    event.position = Point(canvas.x + x, canvas.y + y)
     event.target = FRACTAL_CANVAS_ID
     event.delta_seconds = delta
     if kind == FRAME_TICK_KIND:
         return Int32(ptr[].fractal.update(event, ptr[].view))
     elif kind == POINTER_DOWN_KIND or kind == POINTER_UP_KIND or kind == POINTER_MOVE_KIND or kind == POINTER_CANCEL_KIND:
-        return Int32(ptr[].fractal.update_canvas(event, ptr[].view))
+        return Int32(ptr[].fractal.update_canvas_point(event, Point(x, y)))
     else:
         return INVALID_INPUT
 

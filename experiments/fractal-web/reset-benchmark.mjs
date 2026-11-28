@@ -28,8 +28,10 @@ async function openDemo(before) {
   }
   await page.goto(url);
   if (!before) {
+    await page.getByRole("button", {name: /^Presets/}).click();
     await page.getByRole("button", {name: "Peano Serpent", exact: true}).click();
     await page.getByRole("textbox", {name: "Depth"}).fill("6");
+    await page.getByRole("button", {name: "Options"}).click();
     await page.getByRole("checkbox", {name: "Random colors"}).check();
   }
   await page.waitForFunction(() => {

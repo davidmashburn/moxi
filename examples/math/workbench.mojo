@@ -117,11 +117,13 @@ def replay_host(mut editor: MathEditor, mut blocks: List[MathEditorState], mut a
         blocks[2]=editor.state
         active=target_block
         editor.state=blocks[active]
+        editor.block_label = "Expression" if active == 0 else "Scratch"
     var done=replay_step(editor,engine,step,capture_path)
     if done and step==8:
         blocks[active]=editor.state
         active=2
         editor.state=blocks[2]
+        editor.block_label = "Result"
     return done
 
 def process_actions(mut editor: MathEditor, mut blocks: List[MathEditorState], mut active: Int, mut target_block: Int, mut engine: MathComputation) raises:
@@ -131,6 +133,7 @@ def process_actions(mut editor: MathEditor, mut blocks: List[MathEditorState], m
         blocks[active]=editor.state
         active=0 if action==MATH_MAIN else 1 if action==MATH_SCRATCH else 2
         editor.state=blocks[active]
+        editor.block_label = "Expression" if action == MATH_MAIN else "Scratch" if action == MATH_SCRATCH else "Result"
         editor.scroll_x=0
         editor.state.focused=True
     elif action==MATH_ZOOM_IN or action==MATH_ZOOM_OUT:

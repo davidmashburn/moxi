@@ -30,7 +30,7 @@ from moxi import (
     fractal_preset_group,
     test_check,
 )
-from moxi.fractal import FRACTAL_PANEL_ID, FRACTAL_RENDER_BATCH, FractalCursor
+from moxi.fractal import FRACTAL_OPTIONS_ID, FRACTAL_PRESETS_ID, FRACTAL_EXPERIMENT_LABEL_ID, FRACTAL_CLASSIC_LABEL_ID, FRACTAL_PANEL_ID, FRACTAL_RENDER_BATCH, FractalCursor
 from moxi.natural import Natural
 
 
@@ -67,7 +67,7 @@ def main() raises:
 
     var app = App[FractalState](
         FractalState(),
-        Rect(0.0, 0.0, 1180.0, 900.0),
+        Rect(0.0, 0.0, 1180.0, 640.0),
     )
     test_check(app.view.is_valid())
     test_check(app.runtime.widget_count() > 0)
@@ -153,9 +153,17 @@ def main() raises:
 
     test_check(app.dispatch(action(FRACTAL_DEPTH_UP_ID)))
     test_check(app.component.depth == 6)
+    test_check(app.view.bounds_for(FRACTAL_GUIDES_ID).height == 0)
+    test_check(app.dispatch(action(FRACTAL_OPTIONS_ID)))
     test_check(app.dispatch(action(FRACTAL_GUIDES_ID)))
     test_check(not app.component.show_guides)
+    test_check(app.dispatch(action(FRACTAL_PRESETS_ID)))
+    test_check(not app.component.options_open)
+    test_check(app.dispatch(action(FRACTAL_EXPERIMENT_LABEL_ID)))
+    test_check(app.view.bounds_for(FRACTAL_PRESET_BUTTON_BASE).height == 0)
+    test_check(app.dispatch(action(FRACTAL_CLASSIC_LABEL_ID)))
     test_check(app.dispatch(action(FRACTAL_PRESET_BUTTON_BASE + 1)))
+    test_check(not app.component.presets_open)
     test_check(app.component.preset_id == 1)
 
     # Two quick clicks on a docked endpoint reveal the nested draggable point.

@@ -4,7 +4,7 @@ from moxi import ColumnView, Rect
 from moxi.component import Component
 from moxi.geometry import Point
 from moxi.event import Event, DRAG_BEGIN_KIND, DRAG_UPDATE_KIND, DROP_KIND, POINTER_CANCEL_KIND, KEY_DOWN_KIND, TEXT_INPUT_KIND, POINTER_DOWN_KIND, POINTER_MOVE_KIND, POINTER_UP_KIND, SCROLL_KIND, COMPOSITION_UPDATE_KIND, COMPOSITION_END_KIND, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_HOME, KEY_END, KEY_BACKSPACE, KEY_DELETE, KEY_ESCAPE, MOD_COMMAND, MOD_SHIFT, MOD_OPTION
-from moxi.style import default_surface_style, default_label_style, default_text_input_style
+from moxi.style import Color, default_surface_style, default_label_style, default_text_input_style
 from .editor import MathEditorState, MathPosition, MathCommand, symbol_for
 from .commands import MathKeymap
 from moxi.controls_text import TextInputState
@@ -31,6 +31,18 @@ comptime MATH_ZOOM_OUT = 2010
 comptime MATH_EVALUATE = 2011
 comptime MATH_SUBSTITUTE = 2012
 
+@fieldwise_init
+struct MathToolPanel(ImplicitlyCopyable):
+    var id: Int
+    comptime CLOSED = Self(-1)
+    comptime INSERT = Self(2100)
+    comptime STRUCTURE = Self(2101)
+    comptime SYMBOLS = Self(2102)
+    comptime DOCUMENT = Self(2103)
+    comptime COMPUTE = Self(2104)
+
+comptime MATH_IDLE_BACKEND = "Computation is optional · editing remains available without it"
+
 struct MathEditor(Component):
     var keymap: MathKeymap
     var search: TextInputState
@@ -45,6 +57,8 @@ struct MathEditor(Component):
     var delete_hold: MathDeleteHold
     var backend_status: String
     var pending_action: Int
+    var panel: MathToolPanel
+    var block_label: String
     var workbench_controls: Bool
     var last_caret_id: Int
     var last_caret_offset: Int
@@ -54,15 +68,17 @@ struct MathEditor(Component):
         self.search=TextInputState("")
         self.state=MathEditorState(text)
         self.layout=MathLayout()
-        self.title="Moxi Math · Native workbench"
+        self.title="Formula Editor"
         self.viewport=Rect(20,220,1060,310)
         self.zoom=1
         self.scroll_x=0
         self.preferred_x = -1
         self.pointer_down=False
         self.delete_hold=MathDeleteHold()
-        self.backend_status="Computation is optional · editing remains available without it"
+        self.backend_status=MATH_IDLE_BACKEND
         self.pending_action = -1
+        self.panel = MathToolPanel.CLOSED
+        self.block_label = "Expression"
         self.workbench_controls=False
         self.last_caret_id = -1
         self.last_caret_offset = -1
@@ -82,60 +98,99 @@ struct MathEditor(Component):
         self.delete_hold=copy.delete_hold
         self.backend_status=copy.backend_status
         self.pending_action=copy.pending_action
+        self.panel = copy.panel
+        self.block_label = copy.block_label
         self.workbench_controls=copy.workbench_controls
         self.last_caret_id=copy.last_caret_id
         self.last_caret_offset=copy.last_caret_offset
         self.last_revision=copy.last_revision
     def build(self, bounds: Rect) -> ColumnView:
-        var view=ColumnView(bounds,18,6)
+        var view = ColumnView(bounds, 18, 6)
         view.set_surface_style(default_surface_style())
-        var small_label=default_label_style()
-        small_label.font_size=14
-        var heading=default_label_style()
-        heading.font_size=25
-        view.add_label_styled(1,self.title,34,heading)
-        var first=view.add_row(2,0,34,4,0)
-        if self.workbench_controls:
-            view.add_button_to(first,MATH_MAIN,"Expression",34)
-            view.add_button_to(first,MATH_SCRATCH,"Scratch",34)
-            view.add_button_to(first,MATH_RESULT,"Result",34)
-        view.add_button_to(first,MATH_COMMAND_BASE+MathCommand.TEXT.value,"Text / 2D",34)
-        view.add_button_to(first,MATH_SAVE,"Save",34)
-        view.add_button_to(first,MATH_OPEN,"Reopen",34)
-        view.add_button_to(first,MATH_ZOOM_OUT,"− Zoom",34)
-        view.add_button_to(first,MATH_ZOOM_IN,"+ Zoom",34)
-        var second=view.add_row(3,0,34,4,0)
-        var commands: List[MathCommand]=[MathCommand.FRACTION,MathCommand.ROOT,MathCommand.SUPER,MathCommand.SUB,MathCommand.GROUP,MathCommand.FUNCTION,MathCommand.MATRIX,MathCommand.SUM,MathCommand.INTEGRAL]
-        var labels: List[String]=["Fraction","Root","Sup","Sub","( group )","sin( )","Matrix","Sum","Integral"]
-        for i in range(len(commands)):
-            view.add_button_to(second,MATH_COMMAND_BASE+commands[i].value,labels[i]+" "+self.keymap.hint(commands[i]),34)
-        var third=view.add_row(4,0,34,4,0)
-        var commands2: List[MathCommand]=[MathCommand.COMPLEMENT,MathCommand.ADD_COMPLEMENT,MathCommand.OVER,MathCommand.UNDER,MathCommand.ADD_ROW,MathCommand.ADD_COLUMN,MathCommand.REMOVE_ROW,MathCommand.REMOVE_COLUMN,MathCommand.UNWRAP,MathCommand.EXIT]
-        var labels2: List[String]=["Pair","+ Pair","Over","Under","+ Row","+ Col","− Row","− Col","Unwrap","Leave"]
-        for i in range(len(commands2)):
-            view.add_button_to(third,MATH_COMMAND_BASE+commands2[i].value,labels2[i]+" "+self.keymap.hint(commands2[i]),34)
-        view.add_label_styled(5,"Click a slot · Tab visits holes · ⌘. selects enclosing · Escape starts symbols · Option-drag moves to a hole · Search symbols below",26,small_label)
-        view.add_text_input_selection(MATH_SEARCH,self.search.text,30,default_text_input_style(),self.search.cursor,self.search.anchor)
-        var symbols=view.add_row(9,0,30,4,0)
-        var names: List[String]=["alpha","beta","gamma","delta","theta","pi","infinity","times","le","ge"]
-        for i in range(len(names)):
-            if self.search.text=="" or names[i].find(self.search.text)>=0:
-                view.add_button_to(symbols,MATH_SYMBOL_BASE+i,symbol_for(names[i])+" "+names[i],30)
-        view.add_canvas(MATH_CANVAS,"",max(Float32(100),bounds.height-507))
-        var source=self.state.source.text if self.state.text_mode else self.state.document.text()
-        view.add_text_input_selection(MATH_SOURCE,source,42,default_text_input_style(),self.state.source.cursor,self.state.source.anchor)
-        var fourth=view.add_row(6,0,34,4,0)
-        view.add_button_to(fourth,MATH_COMMAND_BASE+MathCommand.UNDO.value,"Undo "+self.keymap.hint(MathCommand.UNDO),34)
-        view.add_button_to(fourth,MATH_COMMAND_BASE+MathCommand.REDO.value,"Redo "+self.keymap.hint(MathCommand.REDO),34)
-        if self.workbench_controls:
-            view.add_button_to(fourth,MATH_EVALUATE,"Evaluate",34)
-            view.add_button_to(fourth,MATH_EXPAND,"Expand selection",34)
-            view.add_button_to(fourth,MATH_DIFFERENTIATE,"Differentiate / x",34)
-            view.add_button_to(fourth,MATH_SUBSTITUTE,"x → Scratch",34)
-            view.add_button_to(fourth,MATH_APPLY,"Apply result",34)
-            view.add_button_to(fourth,MATH_CANCEL,"Cancel worker",34)
-        view.add_label_styled(7,self.state.status,28,small_label)
-        view.add_label_styled(8,self.backend_status,28,small_label)
+        var heading = default_label_style()
+        heading.font_size = 26
+        var small = default_label_style()
+        small.font_size = 14
+        view.add_label_styled(1, self.title, 36, heading)
+        var compact = bounds.width < 560
+        var toolbar = view.add_grid(2, 74, 3, 0, 6) if compact else view.add_row(2, 0, 36, 0, 6)
+        var panels = [MathToolPanel.INSERT, MathToolPanel.STRUCTURE, MathToolPanel.SYMBOLS, MathToolPanel.DOCUMENT, MathToolPanel.COMPUTE]
+        var titles: List[String] = ["Insert", "Structure", "Symbols", "Document", "Compute"]
+        for i in range(len(panels)):
+            var id = panels[i].id
+            if id == MathToolPanel.COMPUTE.id and not self.workbench_controls:
+                continue
+            view.add_button_to(toolbar, id, titles[i], 34)
+            if bounds.width >= 680:
+                view.set_fixed_width(id, 98)
+            view.set_expanded(id, self.panel.id == id)
+            view.set_selected(id, self.panel.id == id)
+            view.set_accessibility_value(id, "Open" if self.panel.id == id else "Closed")
+        var mode_id = MATH_COMMAND_BASE + MathCommand.TEXT.value
+        view.add_button_to(toolbar, mode_id, "Edit in 2D" if self.state.text_mode else "Edit as text", 34)
+        if bounds.width >= 680:
+            view.set_fixed_width(mode_id, 118)
+        var panel_height: Float32 = 0
+        var cols = 2 if compact else 3 if bounds.width < 900 else 5
+        if self.panel.id == MathToolPanel.INSERT.id or self.panel.id == MathToolPanel.STRUCTURE.id:
+            var commands: List[MathCommand] = [MathCommand.FRACTION, MathCommand.ROOT, MathCommand.SUPER, MathCommand.SUB, MathCommand.GROUP, MathCommand.FUNCTION, MathCommand.MATRIX, MathCommand.SUM, MathCommand.INTEGRAL]
+            var labels: List[String] = ["Fraction", "Root", "Superscript", "Subscript", "Group ( )", "Function sin( )", "Matrix", "Sum", "Integral"]
+            if self.panel.id == MathToolPanel.STRUCTURE.id:
+                commands = [MathCommand.COMPLEMENT, MathCommand.ADD_COMPLEMENT, MathCommand.OVER, MathCommand.UNDER, MathCommand.ADD_ROW, MathCommand.ADD_COLUMN, MathCommand.REMOVE_ROW, MathCommand.REMOVE_COLUMN, MathCommand.UNWRAP, MathCommand.EXIT]
+                labels = ["Pair", "Add pair", "Over", "Under", "Add row", "Add column", "Remove row", "Remove column", "Unwrap", "Leave slot"]
+            panel_height = Float32((len(commands) + cols - 1) // cols) * 38
+            var grid = view.add_grid(3, panel_height - 6, cols, 0, 6)
+            for i in range(len(commands)):
+                view.add_button_to(grid, MATH_COMMAND_BASE + commands[i].value, labels[i] + " " + self.keymap.hint(commands[i]), 32)
+        elif self.panel.id == MathToolPanel.SYMBOLS.id:
+            view.add_label_styled(5, "Find a symbol by name", 22, small)
+            view.add_text_input_selection(MATH_SEARCH, self.search.text, 32, default_text_input_style(), self.search.cursor, self.search.anchor)
+            view.set_accessibility_label(MATH_SEARCH, "Find a symbol")
+            var names: List[String] = ["alpha", "beta", "gamma", "delta", "theta", "pi", "infinity", "times", "le", "ge"]
+            var matches = List[Int]()
+            for i in range(len(names)):
+                if self.search.text == "" or names[i].find(self.search.text) >= 0:
+                    matches.append(i)
+            panel_height = 66
+            if len(matches) > 0:
+                var rows = (len(matches) + cols - 1) // cols
+                var grid = view.add_grid(9, Float32(rows * 38 - 6), cols, 0, 6)
+                panel_height += Float32(rows * 38)
+                for i in matches:
+                    view.add_button_to(grid, MATH_SYMBOL_BASE + i, symbol_for(names[i]) + "  " + names[i], 32)
+            else:
+                view.add_label_styled(9, "No matching symbols", 26, small)
+                panel_height += 32
+        elif self.panel.id == MathToolPanel.DOCUMENT.id or self.panel.id == MathToolPanel.COMPUTE.id:
+            var ids = List[Int]()
+            var labels = List[String]()
+            if self.panel.id == MathToolPanel.COMPUTE.id:
+                ids = [MATH_EVALUATE, MATH_EXPAND, MATH_DIFFERENTIATE, MATH_SUBSTITUTE, MATH_APPLY, MATH_CANCEL]
+                labels = ["Evaluate", "Expand selection", "Differentiate / x", "x → Scratch", "Apply result", "Cancel worker"]
+            else:
+                if self.workbench_controls:
+                    ids = [MATH_MAIN, MATH_SCRATCH, MATH_RESULT]
+                    labels = ["Expression", "Scratch", "Result"]
+                ids.extend([MATH_SAVE, MATH_OPEN, MATH_ZOOM_OUT, MATH_ZOOM_IN, MATH_COMMAND_BASE + MathCommand.UNDO.value, MATH_COMMAND_BASE + MathCommand.REDO.value])
+                labels.extend(["Save", "Reopen", "Zoom out", "Zoom in", "Undo " + self.keymap.hint(MathCommand.UNDO), "Redo " + self.keymap.hint(MathCommand.REDO)])
+            panel_height = Float32((len(ids) + cols - 1) // cols) * 38
+            var grid = view.add_grid(4, panel_height - 6, cols, 0, 6)
+            for i in range(len(ids)):
+                view.add_button_to(grid, ids[i], labels[i], 32)
+
+        var caption = small
+        caption.text = Color(0.60, 0.80, 0.98, 1.0)
+        view.add_label_styled(10, self.block_label + "   ·   " + ("Text editing" if self.state.text_mode else "2D editing"), 24, caption)
+        var source = self.state.source.text if self.state.text_mode else self.state.document.text()
+        var show_backend = self.workbench_controls and (self.panel.id == MathToolPanel.COMPUTE.id or self.backend_status != MATH_IDLE_BACKEND)
+        var footer: Float32 = 28 if show_backend else 0
+        view.add_canvas(MATH_CANVAS, "", max(Float32(60), bounds.height - 272 - panel_height - footer - Float32(38 if compact else 0)))
+        view.add_label_styled(11, "Source notation", 20, caption)
+        view.add_text_input_selection(MATH_SOURCE, source, 38, default_text_input_style(), self.state.source.cursor, self.state.source.anchor)
+        view.set_accessibility_label(MATH_SOURCE, "Source notation")
+        view.add_label_styled(7, self.state.status, 24, small)
+        if show_backend:
+            view.add_label_styled(8, self.backend_status, 22, small)
         view.set_clip_to_bounds()
         return view^
     def update(mut self, event: Event, view: ColumnView) -> Bool:
@@ -151,18 +206,24 @@ struct MathEditor(Component):
                 if event.kind==KEY_DOWN_KIND:
                     return self.search.handle_key(event.key,event.modifiers)
             if event.is_activation():
+                if MathToolPanel.INSERT.id <= event.target <= MathToolPanel.COMPUTE.id:
+                    self.panel = MathToolPanel.CLOSED if self.panel.id == event.target else MathToolPanel(event.target)
+                    return True
                 if event.target>=MATH_SYMBOL_BASE and event.target<MATH_SYMBOL_BASE+10:
                     var names: List[String]=["alpha","beta","gamma","delta","theta","pi","infinity","times","le","ge"]
                     self.state.focused=True
+                    self.panel = MathToolPanel.CLOSED
                     self.state.insert(symbol_for(names[event.target-MATH_SYMBOL_BASE]))
                     return True
                 if event.target>=MATH_COMMAND_BASE+1 and event.target<=MATH_COMMAND_BASE+MathCommand.ADD_COMPLEMENT.value:
                     self.sync_source_selection()
                     self.state.focused=True
+                    self.panel = MathToolPanel.CLOSED
                     self.state.command(MathCommand(event.target-MATH_COMMAND_BASE))
                     return True
                 if event.target>=MATH_SAVE and event.target<=MATH_SUBSTITUTE:
                     self.state.focused=True
+                    self.panel = MathToolPanel.CLOSED
                     self.pending_action=event.target
                     return True
             if event.target==MATH_SOURCE and event.kind==POINTER_DOWN_KIND:

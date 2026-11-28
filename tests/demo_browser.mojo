@@ -6,6 +6,7 @@ from moxi import (
     ACTION_PRESS,
     App,
     FRACTAL_SCROLL_ID,
+    FRACTAL_CANVAS_ID,
     ClickEvent,
     CAPABILITY_WALKTHROUGH_AGENT_RESET_ID,
     CAPABILITY_WALKTHROUGH_APPROVE_ID,
@@ -191,7 +192,7 @@ def main() raises:
     test_check(surface_clip.height > 0.0 and surface_clip.height < surface.height)
     test_check(surface_clip.y >= fractal_portal.y)
     test_check(surface_clip.y + surface_clip.height <= fractal_portal.y + fractal_portal.height)
-    var canvas_scroll = surface.y - fractal_portal.y + surface.height * 0.5
+    var canvas_scroll = surface.y - fractal_portal.y + 20
     test_check(preview_app.dispatch(Event(ScrollEvent(
         Point(fractal_portal.x + 1.0, fractal_portal.y + 1.0), Point(0.0, canvas_scroll),
     ))))
@@ -206,7 +207,8 @@ def main() raises:
     ))))
     clip_commands = preview_app.paint()
     surface_clip = preview_app.component.selected_surface_clip(preview_app.view, clip_commands.commands)
-    test_check(surface_clip.height == 0.0)
+    surface = preview_app.component.selected_surface_bounds(preview_app.view)
+    test_check(surface_clip.height == surface.intersection(fractal_portal).height)
 
     # The catalog is a real collapsible tree entrypoint, and its existing
     # portal remains wheel-scrollable when expanded.
@@ -670,9 +672,18 @@ def main() raises:
     test_check(bitmap_count == 1)
     test_check(app.component.fractal.component.cursor.emitted == 1024)
 
+    _ = app.resize(Rect(0, 0, 850, 620))
     var fractal_canvas = app.component.selected_surface_bounds(app.view)
-    var handle = app.component.fractal.component.geometry.generator_points[1]
-    var held = Point(fractal_canvas.x + handle.x, fractal_canvas.y + handle.y)
+    var narrow_scene = app.component.selected_scene(app.view)
+    var held = Point(-1, -1)
+    for i in range(narrow_scene.count()):
+        var mark = narrow_scene.command(i)
+        if mark.kind == SCENE_ROUNDED_RECT and mark.id == FRACTAL_CANVAS_ID + 20000 + 4:
+            held = Point(mark.bounds.x + mark.bounds.width / 2, mark.bounds.y + mark.bounds.height / 2)
+    test_check(fractal_canvas.contains(held))
+    var endpoint = app.component.fractal.component.geometry.baseline_end
+    var generator = app.component.fractal.component.geometry.generator_points[1]
+    test_check(fractal_canvas.contains(Point(held.x + endpoint.x - generator.x, held.y + endpoint.y - generator.y)))
     var moved = Point(held.x, held.y + 8.0)
     test_check(app.dispatch(Event(PointerEvent(POINTER_DOWN_KIND, held))))
     test_check(app.dispatch(Event(PointerEvent(POINTER_MOVE_KIND, moved))))
@@ -681,6 +692,8 @@ def main() raises:
     test_check(app.component.fractal.component.dragging)
     test_check(not app.component.fractal.component.cursor.emitted.is_zero())
     test_check(app.dispatch(Event(PointerEvent(POINTER_UP_KIND, moved))))
+    test_check(app.component.fractal.component.geometry.generator_points[1].y == generator.y + 8)
+    _ = app.resize(Rect(0, 0, 1180, 760))
 
     test_check(app.dispatch(action(DEMO_ENTRY_VIEW_BASE + DEMO_WX_STYLE_ID)))
     test_check(app.component.tab == DEMO_TAB_DEMO)

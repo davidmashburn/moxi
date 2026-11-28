@@ -89,7 +89,7 @@ struct MathEditorState(ImplicitlyCopyable):
         self.composition = ""
         self.symbol_entry = False
         self.abbreviation = ""
-        self.status = "Ready · Tab visits holes · Leave button exits nesting"
+        self.status = "Click a slot to type. Tab moves to the next empty slot."
         self.undo_stack = List[_History]()
         self.redo_stack = List[_History]()
         self.drag_id = -1
